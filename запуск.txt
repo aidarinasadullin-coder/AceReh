@@ -1,0 +1,2 @@
+cd /mnt/d/IA/ACE
+opencode
