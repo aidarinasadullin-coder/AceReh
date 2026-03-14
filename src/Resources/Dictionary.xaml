@@ -1,0 +1,24 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:SnowMeltingCalculator.Converters"
+                    xmlns:models="clr-namespace:SnowMeltingCalculator.Models.Climate"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Конвертеры -->
+    <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+    <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+    <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
+    <converters:OperatingModeDescriptionConverter x:Key="OperatingModeDescriptionConverter"/>
+
+    <!-- Значения климатических зон для ComboBox -->
+    <x:Array x:Key="ClimateZoneValues" Type="{x:Type models:ClimateZone}">
+        <models:ClimateZone>Zone_M10</models:ClimateZone>
+        <models:ClimateZone>Zone_M15</models:ClimateZone>
+        <models:ClimateZone>Zone_M20</models:ClimateZone>
+        <models:ClimateZone>Zone_M20_Plus</models:ClimateZone>
+    </x:Array>
+
+</ResourceDictionary>

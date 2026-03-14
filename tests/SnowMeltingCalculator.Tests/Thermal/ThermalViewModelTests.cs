@@ -1,0 +1,606 @@
+using NUnit.Framework;
+using SnowMeltingCalculator.Models.Climate;
+using SnowMeltingCalculator.Models.Thermal;
+using SnowMeltingCalculator.Services.Thermal;
+using SnowMeltingCalculator.ViewModels.Thermal;
+using System;
+using System.Threading.Tasks;
+
+namespace SnowMeltingCalculator.Tests.Thermal
+{
+    /// <summary>
+    /// Тесты для ThermalViewModel
+    /// </summary>
+    [TestFixture]
+    public class ThermalViewModelTests
+    {
+        private ThermalViewModel _viewModel = null!;
+        private MockThermalCalculator _mockCalculator = null!;
+        private ClimateData _mockClimateData = null!;
+        private ConstructionData _mockConstructionData = null!;
+
+        [SetUp]
+        public void Setup()
+        {
+            _mockCalculator = new MockThermalCalculator();
+            _mockClimateData = new ClimateData
+            {
+                AirTemperature = -20.0,
+                WindSpeed = 5.0,
+                SnowfallIntensity = 2.0
+            };
+            _mockConstructionData = new ConstructionData
+            {
+                R1Total = 0.05,
+                R2Total = 0.10,
+                LambdaE = 1.6
+            };
+            _viewModel = new ThermalViewModel(_mockCalculator, _mockClimateData, _mockConstructionData);
+        }
+
+        #region Constructor Tests
+
+        [Test]
+        public void Constructor_InitializesDefaultValues()
+        {
+            // Assert
+            Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting));
+            Assert.That(_viewModel.SupplyTemperature, Is.EqualTo(50.0));
+            Assert.That(_viewModel.DeltaT, Is.EqualTo(15.0));
+            Assert.That(_viewModel.GroundTemperature, Is.EqualTo(10.0));
+            Assert.That(_viewModel.PipeSpacing, Is.EqualTo(200.0));
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.IsCalculating, Is.False);
+            Assert.That(_viewModel.ValidationMessage, Is.Empty);
+        }
+
+        [Test]
+        public void Constructor_InitializesCollections()
+        {
+            // Assert
+            Assert.That(_viewModel.AvailablePipes.Count, Is.EqualTo(3));
+            Assert.That(_viewModel.AvailableModes.Count, Is.EqualTo(3));
+            Assert.That(_viewModel.AvailableModes, Contains.Item(OperatingMode.AntiIcing));
+            Assert.That(_viewModel.AvailableModes, Contains.Item(OperatingMode.Melting));
+            Assert.That(_viewModel.AvailableModes, Contains.Item(OperatingMode.Intensive));
+        }
+
+        [Test]
+        public void Constructor_SetsDefaultPipe()
+        {
+            // Assert - По умолчанию RAUTHERM S 20x2,0 (индекс 1)
+            Assert.That(_viewModel.SelectedPipe.Name, Is.EqualTo("RAUTHERM S 20x2,0"));
+        }
+
+        [Test]
+        public void Constructor_NullCalculator_ThrowsException()
+        {
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() =>
+                new ThermalViewModel(null!, _mockClimateData, _mockConstructionData));
+        }
+
+        [Test]
+        public void Constructor_NullClimateData_ThrowsException()
+        {
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() =>
+                new ThermalViewModel(_mockCalculator, null!, _mockConstructionData));
+        }
+
+        [Test]
+        public void Constructor_NullConstructionData_ThrowsException()
+        {
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() =>
+                new ThermalViewModel(_mockCalculator, _mockClimateData, null!));
+        }
+
+        #endregion
+
+        #region Calculate Command Tests
+
+        [Test]
+        public async Task Calculate_ValidInput_SetsResult()
+        {
+            // Act
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Not.Null);
+            Assert.That(_viewModel.Result!.IsValid, Is.True);
+            Assert.That(_viewModel.ValidationMessage, Is.Empty);
+        }
+
+        [Test]
+        public async Task Calculate_InvalidInput_SetsValidationMessage()
+        {
+            // Arrange
+            _viewModel.SupplyTemperature = 100; // Выше допустимого
+
+            // Act
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Температура подачи"));
+        }
+
+        [Test]
+        public async Task Calculate_SetsIsCalculatingDuringExecution()
+        {
+            // Arrange
+            var wasCalculating = false;
+            _viewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(ThermalViewModel.IsCalculating) && _viewModel.IsCalculating)
+                {
+                    wasCalculating = true;
+                }
+            };
+
+            // Act
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
+
+            // Assert
+            Assert.That(wasCalculating, Is.True);
+            Assert.That(_viewModel.IsCalculating, Is.False);
+        }
+
+        [Test]
+        public async Task Calculate_UsesClimateData()
+        {
+            // Arrange
+            _mockClimateData.AirTemperature = -30.0;
+            _mockClimateData.WindSpeed = 8.0;
+            _mockClimateData.SnowfallIntensity = 3.0;
+
+            // Act
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Not.Null);
+            // Проверяем, что калькулятор получил данные из климатического модуля
+            Assert.That(_mockCalculator.LastParameters!.AirTemperature, Is.EqualTo(-30.0));
+            Assert.That(_mockCalculator.LastParameters.WindSpeed, Is.EqualTo(8.0));
+            Assert.That(_mockCalculator.LastParameters.SnowfallIntensity, Is.EqualTo(3.0));
+        }
+
+        [Test]
+        public async Task Calculate_UsesConstructionData()
+        {
+            // Arrange
+            _mockConstructionData.R1Total = 0.08;
+            _mockConstructionData.R2Total = 0.12;
+            _mockConstructionData.LambdaE = 1.8;
+
+            // Act
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Not.Null);
+            Assert.That(_mockCalculator.LastParameters!.R1Total, Is.EqualTo(0.08));
+            Assert.That(_mockCalculator.LastParameters.R2Total, Is.EqualTo(0.12));
+            Assert.That(_mockCalculator.LastParameters.LambdaE, Is.EqualTo(1.8));
+        }
+
+        [Test]
+        public async Task Calculate_InvalidClimateData_ShowsError()
+        {
+            // Arrange
+            _mockClimateData.AirTemperature = 20.0; // Недопустимо высокая
+
+            // Act
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Климатические данные"));
+        }
+
+        #endregion
+
+        #region Reset Command Tests
+
+        [Test]
+        public void Reset_ResetsAllPropertiesToDefaults()
+        {
+            // Arrange
+            _viewModel.SelectedMode = OperatingMode.Intensive;
+            _viewModel.SupplyTemperature = 70.0;
+            _viewModel.DeltaT = 20.0;
+            _viewModel.GroundTemperature = 15.0;
+            _viewModel.SelectedPipe = PipeType.StandardPipes[0];
+            _viewModel.PipeSpacing = 300.0;
+            _viewModel.Result = new ThermalCalculationResult();
+            _viewModel.ValidationMessage = "Ошибка";
+
+            // Act
+            _viewModel.ResetCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting));
+            Assert.That(_viewModel.SupplyTemperature, Is.EqualTo(50.0));
+            Assert.That(_viewModel.DeltaT, Is.EqualTo(15.0));
+            Assert.That(_viewModel.GroundTemperature, Is.EqualTo(10.0));
+            Assert.That(_viewModel.SelectedPipe.Name, Is.EqualTo("RAUTHERM S 20x2,0"));
+            Assert.That(_viewModel.PipeSpacing, Is.EqualTo(200.0));
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Is.Empty);
+        }
+
+        #endregion
+
+        #region Validation Tests
+
+        [Test]
+        public void Validate_SupplyTemperatureTooLow_ReturnsFalse()
+        {
+            // Arrange
+            _viewModel.SupplyTemperature = 10.0; // Ниже минимума
+
+            // Act
+            _viewModel.CalculateCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Температура подачи"));
+        }
+
+        [Test]
+        public void Validate_SupplyTemperatureTooHigh_ReturnsFalse()
+        {
+            // Arrange
+            _viewModel.SupplyTemperature = 100.0; // Выше максимума
+
+            // Act
+            _viewModel.CalculateCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Температура подачи"));
+        }
+
+        [Test]
+        public void Validate_DeltaTTooLow_ReturnsFalse()
+        {
+            // Arrange
+            _viewModel.DeltaT = 2.0; // Ниже минимума
+
+            // Act
+            _viewModel.CalculateCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Температурный перепад"));
+        }
+
+        [Test]
+        public void Validate_DeltaTTooHigh_ReturnsFalse()
+        {
+            // Arrange
+            _viewModel.DeltaT = 30.0; // Выше максимума
+
+            // Act
+            _viewModel.CalculateCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Температурный перепад"));
+        }
+
+        [Test]
+        public void Validate_GroundTemperatureTooLow_ReturnsFalse()
+        {
+            // Arrange
+            _viewModel.GroundTemperature = -15.0; // Ниже минимума
+
+            // Act
+            _viewModel.CalculateCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Температура грунта"));
+        }
+
+        [Test]
+        public void Validate_GroundTemperatureTooHigh_ReturnsFalse()
+        {
+            // Arrange
+            _viewModel.GroundTemperature = 40.0; // Выше максимума
+
+            // Act
+            _viewModel.CalculateCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Температура грунта"));
+        }
+
+        [Test]
+        public void Validate_PipeSpacingTooLow_ReturnsFalse()
+        {
+            // Arrange
+            _viewModel.PipeSpacing = 50.0; // Ниже минимума
+
+            // Act
+            _viewModel.CalculateCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Шаг укладки"));
+        }
+
+        [Test]
+        public void Validate_PipeSpacingTooHigh_ReturnsFalse()
+        {
+            // Arrange
+            _viewModel.PipeSpacing = 600.0; // Выше максимума
+
+            // Act
+            _viewModel.CalculateCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Шаг укладки"));
+        }
+
+        [Test]
+        public void Validate_ValidInput_ReturnsTrue()
+        {
+            // Arrange - все значения по умолчанию валидны
+
+            // Act
+            _viewModel.CalculateCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Not.Null);
+            Assert.That(_viewModel.ValidationMessage, Is.Empty);
+        }
+
+        #endregion
+
+        #region BuildThermalParameters Tests
+
+        [Test]
+        public void BuildThermalParameters_ReturnsCorrectParameters()
+        {
+            // Arrange
+            _viewModel.SelectedMode = OperatingMode.Intensive;
+            _viewModel.SupplyTemperature = 60.0;
+            _viewModel.DeltaT = 10.0;
+            _viewModel.GroundTemperature = 5.0;
+            _viewModel.SelectedPipe = PipeType.StandardPipes[2]; // 25x2.3
+            _viewModel.PipeSpacing = 150.0;
+
+            // Act
+            var parameters = _viewModel.BuildThermalParameters();
+
+            // Assert
+            Assert.That(parameters.Mode, Is.EqualTo(OperatingMode.Intensive));
+            Assert.That(parameters.SupplyTemperature, Is.EqualTo(60.0));
+            Assert.That(parameters.DeltaT, Is.EqualTo(10.0));
+            Assert.That(parameters.GroundTemperature, Is.EqualTo(5.0));
+            Assert.That(parameters.Pipe.Name, Is.EqualTo("RAUTHERM S 25x2,3"));
+            Assert.That(parameters.PipeSpacing, Is.EqualTo(150.0));
+        }
+
+        [Test]
+        public void BuildThermalParameters_IncludesClimateData()
+        {
+            // Arrange
+            _mockClimateData.AirTemperature = -25.0;
+            _mockClimateData.WindSpeed = 6.0;
+            _mockClimateData.SnowfallIntensity = 1.5;
+
+            // Act
+            var parameters = _viewModel.BuildThermalParameters();
+
+            // Assert
+            Assert.That(parameters.AirTemperature, Is.EqualTo(-25.0));
+            Assert.That(parameters.WindSpeed, Is.EqualTo(6.0));
+            Assert.That(parameters.SnowfallIntensity, Is.EqualTo(1.5));
+        }
+
+        [Test]
+        public void BuildThermalParameters_IncludesConstructionData()
+        {
+            // Arrange
+            _mockConstructionData.R1Total = 0.07;
+            _mockConstructionData.R2Total = 0.15;
+            _mockConstructionData.LambdaE = 1.9;
+
+            // Act
+            var parameters = _viewModel.BuildThermalParameters();
+
+            // Assert
+            Assert.That(parameters.R1Total, Is.EqualTo(0.07));
+            Assert.That(parameters.R2Total, Is.EqualTo(0.15));
+            Assert.That(parameters.LambdaE, Is.EqualTo(1.9));
+        }
+
+        #endregion
+
+        #region Mode Selection Tests
+
+        [Test]
+        public void SelectedMode_AntiIcing_SetsCorrectValue()
+        {
+            // Act
+            _viewModel.SelectedMode = OperatingMode.AntiIcing;
+
+            // Assert
+            Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.AntiIcing));
+        }
+
+        [Test]
+        public void SelectedMode_Melting_SetsCorrectValue()
+        {
+            // Act
+            _viewModel.SelectedMode = OperatingMode.Melting;
+
+            // Assert
+            Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting));
+        }
+
+        [Test]
+        public void SelectedMode_Intensive_SetsCorrectValue()
+        {
+            // Act
+            _viewModel.SelectedMode = OperatingMode.Intensive;
+
+            // Assert
+            Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Intensive));
+        }
+
+        #endregion
+
+        #region Pipe Selection Tests
+
+        [Test]
+        public void SelectedPipe_CanSelectDifferentPipes()
+        {
+            // Act & Assert
+            _viewModel.SelectedPipe = PipeType.StandardPipes[0];
+            Assert.That(_viewModel.SelectedPipe.Name, Is.EqualTo("RAUTHERM S 17x2,0"));
+
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
+            Assert.That(_viewModel.SelectedPipe.Name, Is.EqualTo("RAUTHERM S 20x2,0"));
+
+            _viewModel.SelectedPipe = PipeType.StandardPipes[2];
+            Assert.That(_viewModel.SelectedPipe.Name, Is.EqualTo("RAUTHERM S 25x2,3"));
+        }
+
+        #endregion
+
+        #region Climate Data Change Tests
+
+        [Test]
+        public void ClimateDataChanged_ClearsResult()
+        {
+            // Arrange
+            _viewModel.Result = new ThermalCalculationResult { PowerTotal = 100 };
+
+            // Act
+            _mockClimateData.RaiseDataChanged("AirTemperature", -20.0, -25.0, true);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Климатические данные"));
+        }
+
+        #endregion
+
+        #region Construction Data Change Tests
+
+        [Test]
+        public void ConstructionDataChanged_ClearsResult()
+        {
+            // Arrange
+            _viewModel.Result = new ThermalCalculationResult { PowerTotal = 100 };
+
+            // Act
+            _mockConstructionData.RaiseDataChanged("R1Total", 0.05, 0.06, true);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Данные конструкции"));
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// Мок-калькулятор для тестов ViewModel
+    /// </summary>
+    internal class MockThermalCalculator : IThermalCalculator
+    {
+        public ThermalParameters? LastParameters { get; private set; }
+
+        public double CalculateHeatTransferCoefficient(double surfaceTemp, double airTemp, double windSpeed)
+        {
+            // Простая формула для тестов
+            return 2.26 * Math.Pow(Math.Max(surfaceTemp - airTemp, 1), 0.33) + 2.6 * windSpeed;
+        }
+
+        public double CalculatePowerUp(double snowfallIntensity, double surfaceTemp, double airTemp, double alpha)
+        {
+            // Упрощённая формула для тестов
+            var meltingHeat = snowfallIntensity * 100; // Упрощение
+            var convection = alpha * (surfaceTemp - airTemp);
+            return meltingHeat + convection;
+        }
+
+        public (double RFb, double RD) CalculateThermalResistance(double r1Total, double r2Total, double alpha)
+        {
+            return (r1Total + 1.0 / alpha, r2Total);
+        }
+
+        public (double ParameterM, double EfficiencyEtaR) CalculateRodTheory(double rFb, double rD, double lambdaE, double dE, double spacing)
+        {
+            var m = 0.6 * Math.Sqrt((1.0 / rFb + 1.0 / rD) / (lambdaE * dE));
+            var etaR = Math.Tanh(m * spacing / 2) / (m * spacing / 2);
+            return (m, etaR);
+        }
+
+        public double CalculateExcessTemperature(ThermalParameters parameters, double powerUp, double rFb, double rD, double etaR)
+        {
+            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+            if (etaR > 1.0) throw new ArgumentOutOfRangeException(nameof(etaR));
+            return powerUp * rFb / etaR;
+        }
+
+        public ThermalCalculationResult Calculate(ThermalParameters parameters)
+        {
+            LastParameters = parameters;
+
+            var alpha = CalculateHeatTransferCoefficient((int)parameters.Mode, parameters.AirTemperature, parameters.WindSpeed);
+            var powerUp = CalculatePowerUp(parameters.SnowfallIntensity, (int)parameters.Mode, parameters.AirTemperature, alpha);
+            var (rFb, rD) = CalculateThermalResistance(parameters.R1Total, parameters.R2Total, alpha);
+            var (m, etaR) = CalculateRodTheory(rFb, rD, parameters.LambdaE, parameters.Pipe.OuterDiameter / 1000.0, parameters.PipeSpacing / 1000.0);
+            var excessTemp = CalculateExcessTemperature(parameters, powerUp, rFb, rD, etaR);
+
+            return new ThermalCalculationResult
+            {
+                Alpha = alpha,
+                PowerUp = powerUp,
+                PowerDown = powerUp * 0.1,
+                PowerTotal = powerUp * 1.1,
+                MeltingHeat = parameters.SnowfallIntensity * 100,
+                RadiationHeat = 0.3,
+                ConvectionHeat = powerUp - parameters.SnowfallIntensity * 100 - 0.3,
+                ExcessTemperature = excessTemp,
+                MeanTemperature = parameters.SupplyTemperature - parameters.DeltaT / 2,
+                SupplyTemperature = parameters.SupplyTemperature,
+                ReturnTemperature = parameters.SupplyTemperature - parameters.DeltaT,
+                DeltaT = parameters.DeltaT,
+                R1Total = parameters.R1Total,
+                R2Total = parameters.R2Total,
+                RFb = rFb,
+                RD = rD,
+                ParameterM = m,
+                EfficiencyEtaR = etaR,
+                MassFlowRate = 100,
+                VolumeFlowRate = 95,
+                IsValid = true,
+                ValidationErrors = Array.Empty<string>()
+            };
+        }
+
+        public bool Validate(ThermalParameters parameters, out string[] errors)
+        {
+            errors = Array.Empty<string>();
+            if (parameters == null)
+            {
+                errors = new[] { "Параметры не заданы" };
+                return false;
+            }
+            if (parameters.WindSpeed < 0)
+            {
+                errors = new[] { "Скорость ветра не может быть отрицательной" };
+                return false;
+            }
+            return true;
+        }
+    }
+}
