@@ -1,0 +1,35 @@
+# Temporary files
+*.tmp
+*.log
+nul
+
+# OpenCode internal
+.opencode/
+
+# IDE
+.vs/
+.vscode/
+*.suo
+*.user
+
+# Build outputs
+bin/
+obj/
+*.exe
+*.dll
+
+# Cache
+.ruff_cache/
+
+# Work files (original Excel/Word - not needed in repo)
+Work/*.xls
+Work/*.xlsx
+Work/*.docx
+Work/*.xlsm
+
+# Trash
+корзина/
+
+# Keep data files
+!data/*.json
+!data/*.yaml
