@@ -14,6 +14,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
     public partial class ClimateViewModel : ObservableObject
     {
         private readonly IClimateDataService _climateService;
+        private readonly IClimateData _climateData;
         private CityInfo? _originalCityData;
         private CancellationTokenSource? _searchCts;
 
@@ -39,7 +40,11 @@ namespace SnowMeltingCalculator.ViewModels.Climate
 
         partial void OnSearchQueryChanged(string value)
         {
-            if (value?.Length >= 2)
+            if (string.IsNullOrEmpty(value))
+            {
+                LoadAllCitiesCommand.ExecuteAsync(null);
+            }
+            else if (value.Length >= 2)
             {
                 SearchCitiesCommand.ExecuteAsync(null);
             }
@@ -68,7 +73,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
 
         /// <summary>
         /// Интенсивность снегопада, см/ч
-        /// Диапазон: 0.1 до 5 см/ч
+        /// Диапазон: 0 до 5 см/ч
         /// НЕ берётся из СП 131.13330.2025
         /// </summary>
         [ObservableProperty]
@@ -156,9 +161,10 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// <summary>
         /// Создать ViewModel
         /// </summary>
-        public ClimateViewModel(IClimateDataService climateService)
+        public ClimateViewModel(IClimateDataService climateService, IClimateData climateData)
         {
             _climateService = climateService ?? throw new ArgumentNullException(nameof(climateService));
+            _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
         }
 
         #endregion
@@ -194,6 +200,26 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         }
 
         /// <summary>
+        /// Команда загрузки всех городов (для выпадающего списка)
+        /// </summary>
+        [RelayCommand]
+        private async Task LoadAllCities()
+        {
+            if (!_climateService.IsLoaded)
+            {
+                await _climateService.LoadClimateDataAsync();
+            }
+
+            var cities = _climateService.GetAllCities().OrderBy(c => c.Name).Take(100);
+            
+            FilteredCities.Clear();
+            foreach (var city in cities)
+            {
+                FilteredCities.Add(city);
+            }
+        }
+
+        /// <summary>
         /// Команда сброса к дефолтным значениям
         /// </summary>
         [RelayCommand]
@@ -211,6 +237,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             _originalCityData = null;
 
             OnDataChanged("Reset", null, null);
+            SyncToClimateData();
         }
 
         /// <summary>
@@ -228,6 +255,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 HasUserModifications = false;
 
                 OnDataChanged("ResetToCity", null, _originalCityData);
+                SyncToClimateData();
             }
         }
 
@@ -245,6 +273,11 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 await _climateService.LoadClimateDataAsync();
                 OnPropertyChanged(nameof(IsDataLoaded));
                 OnPropertyChanged(nameof(CitiesCount));
+                
+                if (FilteredCities.Count == 0)
+                {
+                    await LoadAllCitiesCommand.ExecuteAsync(null);
+                }
             }
             finally
             {
@@ -315,6 +348,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 HasUserModifications = false;
 
                 OnDataChanged("SelectedCity", null, value);
+                SyncToClimateData();
             }
         }
 
@@ -338,6 +372,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             }
 
             OnDataChanged("IsHighRequirements", !value, value);
+            SyncToClimateData();
         }
 
         /// <summary>
@@ -348,6 +383,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             HasUserModifications = true;
             ValidateAll();
             OnDataChanged("AirTemperature", null, value);
+            SyncToClimateData();
         }
 
         /// <summary>
@@ -358,6 +394,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             HasUserModifications = true;
             ValidateAll();
             OnDataChanged("WindSpeed", null, value);
+            SyncToClimateData();
         }
 
         /// <summary>
@@ -368,6 +405,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             HasUserModifications = true;
             ValidateAll();
             OnDataChanged("Humidity", null, value);
+            SyncToClimateData();
         }
 
         /// <summary>
@@ -378,6 +416,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             HasUserModifications = true;
             ValidateAll();
             OnDataChanged("SnowfallIntensity", null, value);
+            SyncToClimateData();
         }
 
         #endregion
@@ -406,9 +445,9 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 errors.Add("Влажность от 20% до 100%");
             }
 
-            if (SnowfallIntensity < 0.1 || SnowfallIntensity > 5)
+            if (SnowfallIntensity < 0 || SnowfallIntensity > 5)
             {
-                errors.Add("Интенсивность от 0.1 до 5 см/ч");
+                errors.Add("Интенсивность от 0 до 5 см/ч");
             }
 
             ValidationMessage = string.Join("; ", errors);
@@ -435,6 +474,26 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 NewValue = newValue,
                 IsValid = IsValid
             });
+        }
+
+        /// <summary>
+        /// Синхронизировать данные с singleton IClimateData
+        /// </summary>
+        private void SyncToClimateData()
+        {
+            if (_climateData is ClimateData data)
+            {
+                data.SelectedCity = SelectedCity?.Name ?? string.Empty;
+                data.SelectedRegion = SelectedCity?.Region ?? string.Empty;
+                data.AirTemperature = AirTemperature;
+                data.WindSpeed = WindSpeed;
+                data.Humidity = Humidity;
+                data.SnowfallIntensity = SnowfallIntensity;
+                data.Zone = SelectedZone;
+                data.ColdFiveDayTemperature = SelectedCity?.T5Days092 ?? AirTemperature;
+
+                data.RaiseDataChanged("Sync", null, null, IsValid);
+            }
         }
 
         #endregion

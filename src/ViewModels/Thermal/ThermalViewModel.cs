@@ -270,9 +270,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 errors.Add("Климатические данные: скорость ветра должна быть от 0.1 до 30 м/с");
             }
 
-            if (_climateData.SnowfallIntensity < 0.1 || _climateData.SnowfallIntensity > 5)
+            if (_climateData.SnowfallIntensity < 0 || _climateData.SnowfallIntensity > 5)
             {
-                errors.Add("Климатические данные: интенсивность снегопада должна быть от 0.1 до 5 см/ч");
+                errors.Add("Климатические данные: интенсивность снегопада должна быть от 0 до 5 см/ч");
             }
 
             // Валидация данных конструкции
