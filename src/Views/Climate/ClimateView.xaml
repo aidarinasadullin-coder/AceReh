@@ -47,7 +47,7 @@
                              IsEditable="True"
                              StaysOpenOnEdit="True"
                              MinWidth="300"
-                             ToolTip="Введите минимум 2 символа для поиска">
+                             ToolTip="Выберите город из списка или начните вводить название">
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>
@@ -136,7 +136,7 @@
                             materialDesign:TextFieldAssist.PrefixText="Интенсивность снегопада:"
                             materialDesign:TextFieldAssist.SuffixText="см/ч"
                             Margin="8,0,0,8"
-                            ToolTip="Интенсивность снегопада (от 0.1 до 5 см/ч). Типичные значения: 0.2-0.5 см/ч"/>
+                            ToolTip="Интенсивность снегопада (от 0 до 5 см/ч). Типичные значения: 0.2-0.5 см/ч"/>
 
                     <!-- Зона -->
                     <ComboBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"

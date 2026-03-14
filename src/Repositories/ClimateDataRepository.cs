@@ -18,9 +18,18 @@ namespace SnowMeltingCalculator.Repositories
         /// Создать репозиторий
         /// </summary>
         /// <param name="dataPath">Путь к файлу climate_db.json</param>
-        public ClimateDataRepository(string dataPath = "data/climate_db.json")
+        public ClimateDataRepository(string? dataPath = null)
         {
-            _dataPath = dataPath;
+            if (dataPath == null)
+            {
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var projectRoot = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", ".."));
+                _dataPath = Path.Combine(projectRoot, "data", "climate_db.json");
+            }
+            else
+            {
+                _dataPath = dataPath;
+            }
         }
 
         /// <summary>

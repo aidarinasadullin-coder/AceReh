@@ -15,12 +15,14 @@ namespace SnowMeltingCalculator.Tests.Climate
     {
         private ClimateViewModel _viewModel = null!;
         private MockClimateDataService _mockService = null!;
+        private ClimateData _climateData = null!;
 
         [SetUp]
         public void Setup()
         {
             _mockService = new MockClimateDataService();
-            _viewModel = new ClimateViewModel(_mockService);
+            _climateData = new ClimateData();
+            _viewModel = new ClimateViewModel(_mockService, _climateData);
         }
 
         #region SelectCity Tests
@@ -148,6 +150,17 @@ namespace SnowMeltingCalculator.Tests.Climate
         }
 
         [Test]
+        public void Validate_ZeroSnowfallIntensity_ReturnsTrue()
+        {
+            // Arrange - граничное значение (отсутствие снегопада)
+            _viewModel.SnowfallIntensity = 0;
+
+            // Act & Assert
+            Assert.That(_viewModel.IsValid, Is.True);
+            Assert.That(_viewModel.ValidationMessage, Is.Empty);
+        }
+
+        [Test]
         public void Validate_ValidData_ReturnsTrue()
         {
             // Arrange
@@ -228,6 +241,103 @@ namespace SnowMeltingCalculator.Tests.Climate
             Assert.That(data.WindSpeed, Is.EqualTo(4.5));
             Assert.That(data.Humidity, Is.EqualTo(85));
             Assert.That(data.SnowfallIntensity, Is.EqualTo(0.5));
+        }
+
+        #endregion
+
+        #region SyncToClimateData Tests
+
+        [Test]
+        public void SelectCity_SyncsToClimateData()
+        {
+            // Arrange
+            var city = new CityInfo
+            {
+                Name = "Москва",
+                Region = "Московская область",
+                T5Days092 = -28,
+                WindMaxJan = 4.5,
+                Humidity15hCold = 85
+            };
+
+            // Act
+            _viewModel.SelectedCity = city;
+
+            // Assert - singleton IClimateData должен быть обновлён
+            Assert.That(_climateData.SelectedCity, Is.EqualTo("Москва"));
+            Assert.That(_climateData.SelectedRegion, Is.EqualTo("Московская область"));
+            Assert.That(_climateData.AirTemperature, Is.EqualTo(-28));
+            Assert.That(_climateData.WindSpeed, Is.EqualTo(4.5));
+            Assert.That(_climateData.Humidity, Is.EqualTo(85));
+        }
+
+        [Test]
+        public void ChangeAirTemperature_SyncsToClimateData()
+        {
+            // Arrange
+            _viewModel.AirTemperature = -20;
+
+            // Act
+            _viewModel.AirTemperature = -25;
+
+            // Assert
+            Assert.That(_climateData.AirTemperature, Is.EqualTo(-25));
+        }
+
+        [Test]
+        public void ChangeWindSpeed_SyncsToClimateData()
+        {
+            // Arrange
+            _viewModel.WindSpeed = 5.0;
+
+            // Act
+            _viewModel.WindSpeed = 10.0;
+
+            // Assert
+            Assert.That(_climateData.WindSpeed, Is.EqualTo(10.0));
+        }
+
+        [Test]
+        public void ChangeSnowfallIntensity_SyncsToClimateData()
+        {
+            // Arrange
+            _viewModel.SnowfallIntensity = 0.3;
+
+            // Act
+            _viewModel.SnowfallIntensity = 0.5;
+
+            // Assert
+            Assert.That(_climateData.SnowfallIntensity, Is.EqualTo(0.5));
+        }
+
+        [Test]
+        public void ResetToDefaults_SyncsToClimateData()
+        {
+            // Arrange
+            _viewModel.SelectedCity = new CityInfo { Name = "Москва", T5Days092 = -28 };
+            _viewModel.AirTemperature = -28;
+            _viewModel.WindSpeed = 4.5;
+
+            // Act
+            _viewModel.ResetToDefaultsCommand.Execute(null);
+
+            // Assert
+            Assert.That(_climateData.SelectedCity, Is.EqualTo(string.Empty));
+            Assert.That(_climateData.AirTemperature, Is.EqualTo(-15.0));
+            Assert.That(_climateData.WindSpeed, Is.EqualTo(5.0));
+        }
+
+        [Test]
+        public void SetHighRequirements_SyncsZoneToClimateData()
+        {
+            // Arrange
+            _viewModel.SelectedCity = new CityInfo { Name = "Москва", T5Days092 = -28 };
+
+            // Act
+            _viewModel.IsHighRequirements = true;
+
+            // Assert
+            Assert.That(_climateData.Zone, Is.EqualTo(ClimateZone.Zone_M20_Plus));
         }
 
         #endregion
