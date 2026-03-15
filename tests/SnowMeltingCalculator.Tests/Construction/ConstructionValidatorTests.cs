@@ -25,7 +25,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_EmptyConstruction_ReturnsInvalid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction();
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction();
 
             // Act
             var result = _validator.Validate(construction);
@@ -39,7 +39,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_ValidConstruction_ReturnsValid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 2.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 50);
 
@@ -58,7 +58,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_ThinLayerAbovePipeNoLoads_ReturnsInvalid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { HasLoads = false };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { HasLoads = false };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 30); // < 40 мм
 
@@ -74,7 +74,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_ThinLayerAbovePipeWithLoads_ReturnsInvalid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { HasLoads = true };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { HasLoads = true };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 40); // < 50 мм при нагрузках
 
@@ -90,7 +90,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_MinimumThicknessNoLoads_ReturnsValid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { HasLoads = false };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { HasLoads = false };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 40); // Минимум без нагрузок
 
@@ -105,7 +105,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_MinimumThicknessWithLoads_ReturnsValid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { HasLoads = true };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { HasLoads = true };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 50); // Минимум при нагрузках
 
@@ -120,7 +120,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_LayerTooThin_ReturnsInvalid()
         {
             // Arrange - минимальная толщина слоя 10 мм, но минимальная стяжка над трубой 40 мм
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 2.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 40); // минимальная стяжка
             
@@ -135,7 +135,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_LayerTooThick_ReturnsInvalid()
         {
             // Arrange - максимальная толщина слоя 1000 мм
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 2.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 100); // нормальная толщина
             construction.AddLayerBelowPipe(concrete, 100); // слой под трубой
@@ -155,7 +155,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_NegativeGroundwater_ReturnsInvalid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { GroundwaterLevel = -1.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = -1.0 };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 50);
 
@@ -171,7 +171,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_GroundwaterTooHigh_ReturnsInvalid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 15.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 15.0 };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 50);
 
@@ -186,7 +186,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_HighGroundwater_AddsWarning()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 0.5 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 0.5 };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             var sand = Material.GetDefaultMaterials().First(m => m.Name == "Песок");
             construction.AddLayerAbovePipe(concrete, 50);
@@ -207,7 +207,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_ConcreteMaterial_AddsMaxTempWarning()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 2.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 50);
 
@@ -222,7 +222,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_AsphaltMaterial_AddsMinTempWarning()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 2.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
             var asphalt = Material.GetDefaultMaterials().First(m => m.Name == "Асфальтобетон");
             construction.AddLayerAbovePipe(asphalt, 50);
 
@@ -241,7 +241,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void ValidateForOutdoorTemperature_AsphaltAtLowTemp_ReturnsInvalid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 2.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
             var asphalt = Material.GetDefaultMaterials().First(m => m.Name == "Асфальтобетон");
             construction.AddLayerAbovePipe(asphalt, 50);
 
@@ -257,7 +257,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void ValidateForOutdoorTemperature_AsphaltAtNormalTemp_ReturnsValid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 2.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
             var asphalt = Material.GetDefaultMaterials().First(m => m.Name == "Асфальтобетон");
             construction.AddLayerAbovePipe(asphalt, 50);
 
@@ -272,7 +272,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void ValidateForOutdoorTemperature_ConcreteAtAnyTemp_ReturnsValid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 2.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 50);
 
@@ -291,7 +291,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void ValidateForSupplyTemperature_HighTempForConcrete_ReturnsWarning()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 2.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 50);
 
@@ -306,7 +306,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void ValidateForSupplyTemperature_NormalTempForConcrete_ReturnsValid()
         {
             // Arrange
-            var construction = new Models.Construction.Construction { GroundwaterLevel = 2.0 };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 50);
 

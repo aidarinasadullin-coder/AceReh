@@ -221,9 +221,9 @@ namespace SnowMeltingCalculator.Tests.Construction
 
         #region Helper Methods
 
-        private Models.Construction.Construction CreateTestConstruction()
+        private SnowMeltingCalculator.Models.Construction.Construction CreateTestConstruction()
         {
-            var construction = new Models.Construction.Construction
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction
             {
                 GroundwaterLevel = 2.0,
                 HasLoads = true

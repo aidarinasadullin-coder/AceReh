@@ -38,12 +38,11 @@ namespace SnowMeltingCalculator.Models.Construction
                 {
                     _material = value;
                     OnPropertyChanged();
-                    // При изменении материала обновляем λ
+                    // При изменении материала устанавливаем LambdaA по умолчанию
+                    // Для слоёв под трубой UpdateLambda() вызывается отдельно с учётом УГВ
                     if (!IsLambdaOverridden && _material != null)
                     {
-                        CalculatedLambda = Position == LayerPosition.AbovePipe
-                            ? _material.LambdaA
-                            : _material.LambdaA;
+                        CalculatedLambda = _material.LambdaA;
                     }
                 }
             }

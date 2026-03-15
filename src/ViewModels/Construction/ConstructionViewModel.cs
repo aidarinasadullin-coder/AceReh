@@ -654,6 +654,11 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                     e.PropertyName == nameof(Layer.CalculatedLambda) ||
                     e.PropertyName == nameof(Layer.Material))
                 {
+                    // При изменении материала обновляем λ с учётом УГВ
+                    if (e.PropertyName == nameof(Layer.Material) && sender is Layer layer)
+                    {
+                        layer.UpdateLambda(GroundwaterLevel);
+                    }
                     UpdateCalculations();
                 }
             }
