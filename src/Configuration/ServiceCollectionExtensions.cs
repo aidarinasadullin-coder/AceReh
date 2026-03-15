@@ -4,12 +4,15 @@ using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Repositories;
 using SnowMeltingCalculator.Repositories.Construction;
+using SnowMeltingCalculator.Repositories.Hydraulics;
 using SnowMeltingCalculator.Services.Climate;
 using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Services.Construction;
+using SnowMeltingCalculator.Services.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.ViewModels.Construction;
+using SnowMeltingCalculator.ViewModels.Hydraulics;
 
 namespace SnowMeltingCalculator.Configuration
 {
@@ -77,6 +80,29 @@ namespace SnowMeltingCalculator.Configuration
         }
 
         /// <summary>
+        /// Добавить сервисы модуля гидравлики
+        /// </summary>
+        public static IServiceCollection AddHydraulicsModule(this IServiceCollection services)
+        {
+            // Repositories - Singleton для кэширования данных
+            services.AddSingleton<ICollectorRepository, CollectorRepository>();
+
+            // Services - Singleton для кэширования данных
+            services.AddSingleton<IGlycolDataService, GlycolDataService>();
+            services.AddSingleton<IHydraulicCalculator, HydraulicCalculator>();
+            services.AddSingleton<HydraulicValidator>();
+
+            // ViewModels - Singleton для основного ViewModel (подписка на события)
+            services.AddSingleton<HydraulicsViewModel>();
+
+            // ViewModels - Transient для дочерних ViewModel
+            services.AddTransient<CircuitViewModel>();
+            services.AddTransient<CollectorViewModel>();
+
+            return services;
+        }
+
+        /// <summary>
         /// Добавить все сервисы приложения
         /// </summary>
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
@@ -84,7 +110,8 @@ namespace SnowMeltingCalculator.Configuration
             return services
                 .AddClimateModule()
                 .AddThermalModule()
-                .AddConstructionModule();
+                .AddConstructionModule()
+                .AddHydraulicsModule();
         }
     }
 }
