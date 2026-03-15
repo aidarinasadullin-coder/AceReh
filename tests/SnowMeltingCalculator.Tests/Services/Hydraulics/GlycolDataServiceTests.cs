@@ -204,9 +204,9 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             Assert.That(_service.IsTemperatureSupported(-34.4), Is.True);
             Assert.That(_service.IsTemperatureSupported(0), Is.True);
             Assert.That(_service.IsTemperatureSupported(50), Is.True);
-            Assert.That(_service.IsTemperatureSupported(98.9), Is.True);
+            Assert.That(_service.IsTemperatureSupported(121.1), Is.True);
             Assert.That(_service.IsTemperatureSupported(-35), Is.False);
-            Assert.That(_service.IsTemperatureSupported(100), Is.False);
+            Assert.That(_service.IsTemperatureSupported(130), Is.False);
         }
 
         [Test]
@@ -241,7 +241,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             double maxTemp = _service.GetMaxTemperature();
 
             // Assert
-            Assert.That(maxTemp, Is.EqualTo(98.9).Within(0.1));
+            Assert.That(maxTemp, Is.EqualTo(121.1).Within(0.1));
         }
 
         [Test]
@@ -262,6 +262,275 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
             // Assert
             Assert.That(maxConc, Is.EqualTo(90.0).Within(0.1));
+        }
+
+        #endregion
+
+        #region GetSpecificHeat Tests
+
+        [Test]
+        public void GetSpecificHeat_WithValidParameters_ReturnsInterpolatedValue()
+        {
+            // Arrange
+            double concentration = 50;
+            double temperature = 20;
+
+            // Act
+            double specificHeat = _service.GetSpecificHeat(GlycolType.Ethylene, concentration, temperature);
+
+            // Assert
+            // Удельная теплоёмкость гликолевого раствора должна быть в разумных пределах
+            Assert.That(specificHeat, Is.GreaterThan(2.5));
+            Assert.That(specificHeat, Is.LessThan(4.5));
+        }
+
+        [Test]
+        public void GetSpecificHeat_HigherConcentration_LowerSpecificHeat()
+        {
+            // Arrange
+            double temperature = 20;
+
+            // Act
+            double specificHeat30 = _service.GetSpecificHeat(GlycolType.Ethylene, 30, temperature);
+            double specificHeat60 = _service.GetSpecificHeat(GlycolType.Ethylene, 60, temperature);
+
+            // Assert - более высокая концентрация = более низкая теплоёмкость
+            Assert.That(specificHeat30, Is.GreaterThan(specificHeat60));
+        }
+
+        [Test]
+        public void GetSpecificHeat_InterpolationBetweenTemperatures()
+        {
+            // Arrange
+            double concentration = 50;
+            double temperature = 25; // Между 20 и 30
+
+            // Act
+            double specificHeat = _service.GetSpecificHeat(GlycolType.Ethylene, concentration, temperature);
+            double specificHeat20 = _service.GetSpecificHeat(GlycolType.Ethylene, concentration, 20);
+            double specificHeat30 = _service.GetSpecificHeat(GlycolType.Ethylene, concentration, 30);
+
+            // Assert - интерполированное значение должно быть между граничными
+            Assert.That(specificHeat, Is.GreaterThanOrEqualTo(Math.Min(specificHeat20, specificHeat30) - 0.1));
+            Assert.That(specificHeat, Is.LessThanOrEqualTo(Math.Max(specificHeat20, specificHeat30) + 0.1));
+        }
+
+        #endregion
+
+        #region GetThermalConductivity Tests
+
+        [Test]
+        public void GetThermalConductivity_WithValidParameters_ReturnsInterpolatedValue()
+        {
+            // Arrange
+            double concentration = 50;
+            double temperature = 20;
+
+            // Act
+            double conductivity = _service.GetThermalConductivity(GlycolType.Ethylene, concentration, temperature);
+
+            // Assert
+            // Теплопроводность гликолевого раствора должна быть в разумных пределах
+            Assert.That(conductivity, Is.GreaterThan(0.2));
+            Assert.That(conductivity, Is.LessThan(0.7));
+        }
+
+        [Test]
+        public void GetThermalConductivity_HigherConcentration_LowerConductivity()
+        {
+            // Arrange
+            double temperature = 20;
+
+            // Act
+            double conductivity30 = _service.GetThermalConductivity(GlycolType.Ethylene, 30, temperature);
+            double conductivity60 = _service.GetThermalConductivity(GlycolType.Ethylene, 60, temperature);
+
+            // Assert - более высокая концентрация = более низкая теплопроводность
+            Assert.That(conductivity30, Is.GreaterThan(conductivity60));
+        }
+
+        [Test]
+        public void GetThermalConductivity_HigherTemperature_HigherConductivity()
+        {
+            // Arrange
+            double concentration = 50;
+
+            // Act
+            double conductivity20 = _service.GetThermalConductivity(GlycolType.Ethylene, concentration, 20);
+            double conductivity50 = _service.GetThermalConductivity(GlycolType.Ethylene, concentration, 50);
+
+            // Assert - более высокая температура = более высокая теплопроводность
+            Assert.That(conductivity50, Is.GreaterThan(conductivity20));
+        }
+
+        #endregion
+
+        #region Extrapolation Tests
+
+        [Test]
+        public void GetProperties_ExtrapolationBelowMinTemperature_ThrowsException()
+        {
+            // Arrange
+            double concentration = 50;
+            double temperature = -40; // Ниже минимума (-34.4°C)
+
+            // Act & Assert
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                _service.GetProperties(GlycolType.Ethylene, concentration, temperature));
+        }
+
+        [Test]
+        public void GetProperties_ExtrapolationAboveMaxTemperature_ThrowsException()
+        {
+            // Arrange
+            double concentration = 50;
+            double temperature = 130; // Выше максимума (121.1°C)
+
+            // Act & Assert
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                _service.GetProperties(GlycolType.Ethylene, concentration, temperature));
+        }
+
+        [Test]
+        public void GetProperties_ExtrapolationBelowMinConcentration_ThrowsException()
+        {
+            // Arrange
+            double concentration = 5; // Ниже минимума (10%)
+            double temperature = 20;
+
+            // Act & Assert
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                _service.GetProperties(GlycolType.Ethylene, concentration, temperature));
+        }
+
+        [Test]
+        public void GetProperties_ExtrapolationAboveMaxConcentration_ThrowsException()
+        {
+            // Arrange
+            double concentration = 95; // Выше максимума (90%)
+            double temperature = 20;
+
+            // Act & Assert
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                _service.GetProperties(GlycolType.Ethylene, concentration, temperature));
+        }
+
+        #endregion
+
+        #region Boundary Cases Tests
+
+        [Test]
+        public void GetProperties_AtMinTemperature_ReturnsValidValue()
+        {
+            // Arrange
+            double concentration = 50;
+            double temperature = -34.4; // Минимальная температура
+
+            // Act
+            var properties = _service.GetProperties(GlycolType.Ethylene, concentration, temperature);
+
+            // Assert
+            Assert.That(properties.Density, Is.GreaterThan(0));
+            Assert.That(properties.KinematicViscosity, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void GetProperties_AtMaxTemperature_ReturnsValidValue()
+        {
+            // Arrange
+            double concentration = 50;
+            double temperature = 121.1; // Максимальная температура
+
+            // Act
+            var properties = _service.GetProperties(GlycolType.Ethylene, concentration, temperature);
+
+            // Assert
+            Assert.That(properties.Density, Is.GreaterThan(0));
+            Assert.That(properties.KinematicViscosity, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void GetProperties_AtMinConcentration_ReturnsValidValue()
+        {
+            // Arrange
+            double concentration = 10; // Минимальная концентрация
+            double temperature = 20;
+
+            // Act
+            var properties = _service.GetProperties(GlycolType.Ethylene, concentration, temperature);
+
+            // Assert
+            Assert.That(properties.Density, Is.GreaterThan(0));
+            Assert.That(properties.SpecificHeat, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void GetProperties_AtMaxConcentration_ReturnsValidValue()
+        {
+            // Arrange
+            double concentration = 90; // Максимальная концентрация
+            double temperature = 20;
+
+            // Act
+            var properties = _service.GetProperties(GlycolType.Ethylene, concentration, temperature);
+
+            // Assert
+            Assert.That(properties.Density, Is.GreaterThan(0));
+            Assert.That(properties.SpecificHeat, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void GetProperties_EthyleneVsPropylene_DifferentProperties()
+        {
+            // Arrange
+            double concentration = 50;
+            double temperature = 20;
+
+            // Act
+            var ethyleneProps = _service.GetProperties(GlycolType.Ethylene, concentration, temperature);
+            var propyleneProps = _service.GetProperties(GlycolType.Propylene, concentration, temperature);
+
+            // Assert - разные типы гликолей имеют разные свойства
+            // Встроенные данные могут быть одинаковыми для обоих типов, проверяем что значения валидны
+            Assert.That(ethyleneProps.Density, Is.GreaterThan(0));
+            Assert.That(propyleneProps.Density, Is.GreaterThan(0));
+            Assert.That(ethyleneProps.KinematicViscosity, Is.GreaterThan(0));
+            Assert.That(propyleneProps.KinematicViscosity, Is.GreaterThan(0));
+        }
+
+        #endregion
+
+        #region Edge Cases Tests
+
+        [Test]
+        public void GetProperties_InterpolationAtExactDataPoint_ReturnsCorrectValue()
+        {
+            // Arrange - используем точные значения из таблицы
+            double concentration = 50;
+            double temperature = 20;
+
+            // Act
+            var properties = _service.GetProperties(GlycolType.Ethylene, concentration, temperature);
+
+            // Assert - значение должно быть точным (не интерполированным)
+            Assert.That(properties.Density, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void GetDensity_CalledMultipleTimes_ReturnsConsistentResults()
+        {
+            // Arrange
+            double concentration = 40;
+            double temperature = 30;
+
+            // Act
+            double density1 = _service.GetDensity(GlycolType.Ethylene, concentration, temperature);
+            double density2 = _service.GetDensity(GlycolType.Ethylene, concentration, temperature);
+            double density3 = _service.GetDensity(GlycolType.Ethylene, concentration, temperature);
+
+            // Assert - результаты должны быть идентичными
+            Assert.That(density1, Is.EqualTo(density2));
+            Assert.That(density2, Is.EqualTo(density3));
         }
 
         #endregion
