@@ -105,15 +105,21 @@ namespace SnowMeltingCalculator.Views.Construction
 
             // Центр Canvas
             var centerX = canvasWidth / 2;
-            var centerY = canvasHeight / 2;
+
+            // Масштабирование: если слоёв много, уменьшаем масштаб
+            var totalThickness = _viewModel.LayersAbovePipe.Sum(l => l.Thickness) + 
+                                 _viewModel.LayersBelowPipe.Sum(l => l.Thickness);
+            var scaleFactor = totalThickness > 500 ? 0.3 : 0.5;
 
             // Рисуем слои снизу вверх (от грунта к поверхности)
             double currentY = canvasHeight - 20; // Отступ снизу
 
-            // Слои под трубой (рисуем снизу вверх)
-            foreach (var layer in _viewModel.LayersBelowPipe)
+            // === Слои под трубой ===
+            // Рисуем в обратном порядке: первый в списке - ближайший к трубе
+            var layersBelowReversed = _viewModel.LayersBelowPipe.Reverse().ToList();
+            foreach (var layer in layersBelowReversed)
             {
-                var layerHeight = layer.Thickness * ScaleFactor;
+                var layerHeight = layer.Thickness * scaleFactor;
                 if (layerHeight < 5) layerHeight = 5; // Минимальная высота для видимости
 
                 var color = GetMaterialColor(layer.Material);
@@ -148,10 +154,38 @@ namespace SnowMeltingCalculator.Views.Construction
                 currentY -= layerHeight;
             }
 
-            // Труба (в центре)
+            // === Труба внутри первого слоя над трубой ===
+            // Первый слой над трубой - это стяжка, труба внутри неё
+            var layersAbove = _viewModel.LayersAbovePipe.ToList();
+            
+            // Рисуем половину первого слоя (под трубой)
+            if (layersAbove.Count > 0)
+            {
+                var firstLayer = layersAbove[0];
+                var halfThickness = firstLayer.Thickness / 2.0;
+                var layerHeight = halfThickness * scaleFactor;
+                if (layerHeight < 5) layerHeight = 5;
+
+                var color = GetMaterialColor(firstLayer.Material);
+                var rect = new Rectangle
+                {
+                    Width = canvasWidth - 40,
+                    Height = layerHeight,
+                    Fill = new SolidColorBrush(color),
+                    Stroke = Brushes.DarkGray,
+                    StrokeThickness = 1
+                };
+
+                Canvas.SetLeft(rect, 20);
+                Canvas.SetTop(rect, currentY - layerHeight);
+                ConstructionCanvas.Children.Add(rect);
+
+                currentY -= layerHeight;
+            }
+
+            // Труба
             var pipeY = currentY - PipeRadius;
             
-            // Рисуем трубу
             var pipe = new Ellipse
             {
                 Width = PipeRadius * 2,
@@ -180,10 +214,51 @@ namespace SnowMeltingCalculator.Views.Construction
 
             currentY = pipeY - PipeRadius;
 
-            // Слои над трубой (рисуем снизу вверх, т.е. от трубы к поверхности)
-            foreach (var layer in _viewModel.LayersAbovePipe)
+            // Вторая половина первого слоя (над трубой)
+            if (layersAbove.Count > 0)
             {
-                var layerHeight = layer.Thickness * ScaleFactor;
+                var firstLayer = layersAbove[0];
+                var halfThickness = firstLayer.Thickness / 2.0;
+                var layerHeight = halfThickness * scaleFactor;
+                if (layerHeight < 5) layerHeight = 5;
+
+                var color = GetMaterialColor(firstLayer.Material);
+                var rect = new Rectangle
+                {
+                    Width = canvasWidth - 40,
+                    Height = layerHeight,
+                    Fill = new SolidColorBrush(color),
+                    Stroke = Brushes.DarkGray,
+                    StrokeThickness = 1
+                };
+
+                Canvas.SetLeft(rect, 20);
+                Canvas.SetTop(rect, currentY - layerHeight);
+                ConstructionCanvas.Children.Add(rect);
+
+                // Подпись первого слоя (только один раз)
+                var label = new TextBlock
+                {
+                    Text = $"{firstLayer.Material?.Name ?? "Не указан"}\n{firstLayer.Thickness:F0} мм",
+                    FontSize = 9,
+                    Foreground = Brushes.White,
+                    TextAlignment = TextAlignment.Center,
+                    Background = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0)),
+                    Padding = new Thickness(2)
+                };
+
+                Canvas.SetLeft(label, 25);
+                Canvas.SetTop(label, currentY - layerHeight + 2);
+                ConstructionCanvas.Children.Add(label);
+
+                currentY -= layerHeight;
+            }
+
+            // Остальные слои над трубой (начиная со второго)
+            for (int i = 1; i < layersAbove.Count; i++)
+            {
+                var layer = layersAbove[i];
+                var layerHeight = layer.Thickness * scaleFactor;
                 if (layerHeight < 5) layerHeight = 5;
 
                 var color = GetMaterialColor(layer.Material);

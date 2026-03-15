@@ -83,6 +83,19 @@
                           Margin="0,0,0,16"
                           Foreground="{DynamicResource MaterialDesignBody}"/>
 
+                <!-- Информация о температуре холодной пятидневки -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12"
+                           Visibility="{Binding IsCitySelected, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <materialDesign:PackIcon Kind="Thermometer" VerticalAlignment="Center" Margin="0,0,4,0"
+                                            Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                    <TextBlock Foreground="{DynamicResource MaterialDesignBodyLight}">
+                        <Run Text="Температура холодной пятидневки: "/>
+                        <Run Text="{Binding ColdFiveDayTemperature, StringFormat={}{0:F1}, Mode=OneWay}" FontWeight="Bold"/>
+                        <Run Text="°C"/>
+                        <Run Text=" (по СП 131.13330.2025)" FontSize="11"/>
+                    </TextBlock>
+                </StackPanel>
+
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -98,10 +111,10 @@
                     <!-- Температура -->
                     <TextBox Grid.Row="0" Grid.Column="0"
                             Text="{Binding AirTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
-                            materialDesign:TextFieldAssist.PrefixText="Температура наружного воздуха:"
+                            materialDesign:TextFieldAssist.PrefixText="Расчётная температура:"
                             materialDesign:TextFieldAssist.SuffixText="°C"
                             Margin="0,0,8,8"
-                            ToolTip="Расчётная температура наружного воздуха (от -50 до +10°C)">
+                            ToolTip="Расчётная температура наружного воздуха по таблице 1.6 (от -50 до +10°C)">
                         <TextBox.Style>
                             <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
                                 <Style.Triggers>

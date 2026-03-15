@@ -1,47 +1,115 @@
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace SnowMeltingCalculator.Models.Construction
 {
     /// <summary>
     /// Слой конструкции
     /// </summary>
-    public class Layer
+    public class Layer : INotifyPropertyChanged
     {
+        private Guid _id = Guid.NewGuid();
+        private Material _material = null!;
+        private double _thickness = 50.0;
+        private double _calculatedLambda;
+        private bool _isLambdaOverridden;
+        private LayerPosition _position;
+        private int _order;
+
         /// <summary>
         /// Уникальный идентификатор слоя
         /// </summary>
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id
+        {
+            get => _id;
+            set { _id = value; OnPropertyChanged(); }
+        }
 
         /// <summary>
         /// Материал слоя
         /// </summary>
-        public Material Material { get; set; } = null!;
+        public Material Material
+        {
+            get => _material;
+            set
+            {
+                if (_material != value)
+                {
+                    _material = value;
+                    OnPropertyChanged();
+                    // При изменении материала обновляем λ
+                    if (!IsLambdaOverridden && _material != null)
+                    {
+                        CalculatedLambda = Position == LayerPosition.AbovePipe
+                            ? _material.LambdaA
+                            : _material.LambdaA;
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Толщина слоя, мм
         /// </summary>
-        public double Thickness { get; set; } = 50.0;
+        public double Thickness
+        {
+            get => _thickness;
+            set
+            {
+                if (_thickness != value)
+                {
+                    _thickness = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CalculatedR));
+                }
+            }
+        }
 
         /// <summary>
         /// Теплопроводность (λ), Вт/м·К
         /// Автоматически подставляется из Material, но может быть изменена вручную
         /// </summary>
-        public double CalculatedLambda { get; set; }
+        public double CalculatedLambda
+        {
+            get => _calculatedLambda;
+            set
+            {
+                if (_calculatedLambda != value)
+                {
+                    _calculatedLambda = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CalculatedR));
+                }
+            }
+        }
 
         /// <summary>
         /// Признак того, что λ изменена вручную
         /// </summary>
-        public bool IsLambdaOverridden { get; set; } = false;
+        public bool IsLambdaOverridden
+        {
+            get => _isLambdaOverridden;
+            set { _isLambdaOverridden = value; OnPropertyChanged(); }
+        }
 
         /// <summary>
         /// Позиция слоя относительно трубы (над/под)
         /// </summary>
-        public LayerPosition Position { get; set; }
+        public LayerPosition Position
+        {
+            get => _position;
+            set { _position = value; OnPropertyChanged(); }
+        }
 
         /// <summary>
         /// Порядковый номер слоя (от поверхности)
         /// </summary>
-        public int Order { get; set; }
+        public int Order
+        {
+            get => _order;
+            set { _order = value; OnPropertyChanged(); }
+        }
 
         /// <summary>
         /// Термическое сопротивление слоя, м²·К/Вт
@@ -99,6 +167,13 @@ namespace SnowMeltingCalculator.Models.Construction
         public override string ToString()
         {
             return $"{Material?.Name ?? "Не указан"}: {Thickness} мм (R={CalculatedR:F4} м²·К/Вт)";
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

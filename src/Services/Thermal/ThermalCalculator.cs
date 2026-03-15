@@ -418,13 +418,29 @@ namespace SnowMeltingCalculator.Services.Thermal
                 result.ExcessTemperature = excessTemp;
 
                 // 6. Расчёт температур теплоносителя
-                // Средняя температура = t_П + JHmü
-                result.MeanTemperature = surfaceTemp + excessTemp;
-                result.DeltaT = parameters.DeltaT;
-
-                // Температура подачи и обратки
-                result.SupplyTemperature = result.MeanTemperature + parameters.DeltaT / 2.0;
-                result.ReturnTemperature = result.MeanTemperature - parameters.DeltaT / 2.0;
+                // Средняя температура = избыточная + температура наружного воздуха (формула 7)
+                result.MeanTemperature = excessTemp + parameters.AirTemperature;
+                
+                // Температура подачи - входной параметр (задаётся пользователем, формула 8.1)
+                result.SupplyTemperature = parameters.SupplyTemperature;
+                
+                // Проверка: температура подачи должна быть больше средней температуры (формула 8.2)
+                if (result.SupplyTemperature <= result.MeanTemperature)
+                {
+                    result.IsValid = false;
+                    result.ValidationErrors = new[] { 
+                        $"При текущих параметрах системы не обеспечивается требуемая мощность. " +
+                        $"Температура подачи ({result.SupplyTemperature:F1}°C) должна быть не менее {result.MeanTemperature:F1}°C. " +
+                        $"Увеличьте температуру подачи, уменьшите интенсивность снегопада или измените режим работы."
+                    };
+                    return result;
+                }
+                
+                // Температура обратки (арифметическая формула 8.2)
+                result.ReturnTemperature = 2 * result.MeanTemperature - result.SupplyTemperature;
+                
+                // Температурный перепад (формула 8.3)
+                result.DeltaT = result.SupplyTemperature - result.ReturnTemperature;
 
                 // 7. Расчёт составляющих мощности (для справки)
                 var h = parameters.SnowfallIntensity / 100.0 / 3600.0;
@@ -451,7 +467,7 @@ namespace SnowMeltingCalculator.Services.Thermal
                 var rho = parameters.CoolantDensity;      // кг/м³
 
                 // Массовый расход: кг/(ч·м²)
-                result.MassFlowRate = result.PowerTotal / (cp / 3.6) / parameters.DeltaT;
+                result.MassFlowRate = result.PowerTotal / (cp / 3.6) / result.DeltaT;
 
                 // Объёмный расход: л/(ч·м²)
                 result.VolumeFlowRate = result.MassFlowRate / rho * 1000.0;
@@ -567,7 +583,18 @@ namespace SnowMeltingCalculator.Services.Thermal
                 errorList.Add("Теплопроводность стяжки должна быть положительной");
             }
 
-            // Проверка температурного перепада
+            // Проверка температуры подачи
+            // Согласно документации:
+            // - Для PE-Xa: макс. 65°C
+            // - Для бетона: макс. 50°C
+            // Общее ограничение: 20-90°C
+            if (parameters.SupplyTemperature < 20 || parameters.SupplyTemperature > 90)
+            {
+                errorList.Add("Температура подачи должна быть в диапазоне от 20°C до 90°C");
+            }
+
+            // Примечание: температурный перепад (DeltaT) теперь рассчитывается,
+            // но параметр остаётся для совместимости с гидравлическим расчётом
             if (parameters.DeltaT <= 0 || parameters.DeltaT > 30)
             {
                 errorList.Add("Температурный перепад должен быть в диапазоне от 1 до 30 К");
