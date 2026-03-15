@@ -647,7 +647,9 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         private void OnLayerPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (!_isSyncing)
+            if (_isSyncing) return;
+
+            try
             {
                 // При изменении толщины или λ пересчитываем R
                 if (e.PropertyName == nameof(Layer.Thickness) || 
@@ -661,6 +663,12 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                     }
                     UpdateCalculations();
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при обработке изменения слоя: {ex.Message}");
+                ValidationMessage = $"Ошибка: {ex.Message}";
+                IsValid = false;
             }
         }
 
