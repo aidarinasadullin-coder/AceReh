@@ -91,14 +91,32 @@ namespace SnowMeltingCalculator
         /// </summary>
         private void NavigateToView(MenuItem menuItem)
         {
-            CurrentView = menuItem.Title switch
+            try
             {
-                "Климат" => new ClimateView { DataContext = _climateViewModel },
-                "Тепловой расчёт" => new ThermalView { DataContext = _thermalViewModel },
-                "Конструкция" => new ConstructionView { DataContext = _constructionViewModel },
-                // TODO: Добавить другие представления по мере реализации
-                _ => new ClimateView { DataContext = _climateViewModel }
-            };
+                CurrentView = menuItem.Title switch
+                {
+                    "Климат" => new ClimateView { DataContext = _climateViewModel },
+                    "Тепловой расчёт" => new ThermalView { DataContext = _thermalViewModel },
+                    "Конструкция" => new ConstructionView { DataContext = _constructionViewModel },
+                    // TODO: Добавить другие представления по мере реализации
+                    _ => new ClimateView { DataContext = _climateViewModel }
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при создании представления '{menuItem.Title}': {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
+                
+                // Показываем сообщение об ошибке
+                System.Windows.MessageBox.Show(
+                    $"Ошибка при открытии вкладки '{menuItem.Title}':\n{ex.Message}\n\n{ex.StackTrace}",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                
+                // Возвращаемся к климату
+                CurrentView = new ClimateView { DataContext = _climateViewModel };
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -617,9 +618,44 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         private void OnLayersCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            // Подписываемся на изменения свойств новых слоёв
+            if (e.NewItems != null)
+            {
+                foreach (Layer layer in e.NewItems)
+                {
+                    layer.PropertyChanged += OnLayerPropertyChanged;
+                }
+            }
+
+            // Отписываемся от изменений свойств удалённых слоёв
+            if (e.OldItems != null)
+            {
+                foreach (Layer layer in e.OldItems)
+                {
+                    layer.PropertyChanged -= OnLayerPropertyChanged;
+                }
+            }
+
             if (!_isSyncing)
             {
                 UpdateCalculations();
+            }
+        }
+
+        /// <summary>
+        /// Обработчик изменения свойств слоя
+        /// </summary>
+        private void OnLayerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (!_isSyncing)
+            {
+                // При изменении толщины или λ пересчитываем R
+                if (e.PropertyName == nameof(Layer.Thickness) || 
+                    e.PropertyName == nameof(Layer.CalculatedLambda) ||
+                    e.PropertyName == nameof(Layer.Material))
+                {
+                    UpdateCalculations();
+                }
             }
         }
 

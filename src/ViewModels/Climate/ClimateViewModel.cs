@@ -58,6 +58,18 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         private double _airTemperature = -15.0;
 
         /// <summary>
+        /// Температура холодной пятидневки из СП 131.13330.2025, °C (информационно)
+        /// </summary>
+        [ObservableProperty]
+        private double _coldFiveDayTemperature;
+
+        /// <summary>
+        /// Признак того, что город выбран (для отображения информации)
+        /// </summary>
+        [ObservableProperty]
+        private bool _isCitySelected;
+
+        /// <summary>
         /// Скорость ветра, м/с
         /// Диапазон: 0.1 до 30 м/с
         /// </summary>
@@ -227,6 +239,8 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         {
             SelectedCity = null;
             AirTemperature = -15.0;
+            ColdFiveDayTemperature = 0;
+            IsCitySelected = false;
             WindSpeed = 5.0;
             Humidity = 70.0;
             SnowfallIntensity = 0.3;
@@ -248,7 +262,28 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         {
             if (_originalCityData != null)
             {
-                AirTemperature = _originalCityData.T5Days092;
+                // Сохраняем температуру холодной пятидневки (информационно)
+                ColdFiveDayTemperature = _originalCityData.T5Days092;
+                
+                // Определяем расчётную температуру по таблице 1.6
+                var coldFiveDayTemp = _originalCityData.T5Days092;
+                if (IsHighRequirements)
+                {
+                    AirTemperature = -20.0; // Повышенные требования
+                }
+                else if (coldFiveDayTemp >= -27)
+                {
+                    AirTemperature = -10.0; // -27°C и выше
+                }
+                else if (coldFiveDayTemp >= -37)
+                {
+                    AirTemperature = -15.0; // от -27°C до -37°C
+                }
+                else
+                {
+                    AirTemperature = -20.0; // -37°C и ниже
+                }
+                
                 WindSpeed = _originalCityData.WindMaxJan;
                 Humidity = _originalCityData.Humidity15hCold;
                 SelectedZone = _climateService.DetermineZone(_originalCityData.T5Days092, IsHighRequirements);
@@ -341,7 +376,30 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             if (value != null)
             {
                 _originalCityData = value;
-                AirTemperature = value.T5Days092;
+                
+                // Сохраняем температуру холодной пятидневки (информационно)
+                ColdFiveDayTemperature = value.T5Days092;
+                IsCitySelected = true;
+                
+                // Определяем расчётную температуру по таблице 1.6
+                var coldFiveDayTemp = value.T5Days092;
+                if (IsHighRequirements)
+                {
+                    AirTemperature = -20.0; // Повышенные требования
+                }
+                else if (coldFiveDayTemp >= -27)
+                {
+                    AirTemperature = -10.0; // -27°C и выше
+                }
+                else if (coldFiveDayTemp >= -37)
+                {
+                    AirTemperature = -15.0; // от -27°C до -37°C
+                }
+                else
+                {
+                    AirTemperature = -20.0; // -37°C и ниже
+                }
+                
                 WindSpeed = value.WindMaxJan;
                 Humidity = value.Humidity15hCold;
                 SelectedZone = _climateService.DetermineZone(value.T5Days092, IsHighRequirements);
@@ -349,6 +407,11 @@ namespace SnowMeltingCalculator.ViewModels.Climate
 
                 OnDataChanged("SelectedCity", null, value);
                 SyncToClimateData();
+            }
+            else
+            {
+                IsCitySelected = false;
+                ColdFiveDayTemperature = 0;
             }
         }
 
@@ -360,10 +423,29 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             if (value)
             {
                 SelectedZone = ClimateZone.Zone_M20_Plus;
+                // При повышенных требованиях всегда -20°C
+                if (SelectedCity != null)
+                {
+                    AirTemperature = -20.0;
+                }
             }
             else if (SelectedCity != null)
             {
                 SelectedZone = _climateService.DetermineZone(SelectedCity.T5Days092, false);
+                // Пересчитываем температуру по таблице 1.6
+                var coldFiveDayTemp = SelectedCity.T5Days092;
+                if (coldFiveDayTemp >= -27)
+                {
+                    AirTemperature = -10.0;
+                }
+                else if (coldFiveDayTemp >= -37)
+                {
+                    AirTemperature = -15.0;
+                }
+                else
+                {
+                    AirTemperature = -20.0;
+                }
             }
             else
             {

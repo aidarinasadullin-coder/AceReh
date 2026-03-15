@@ -75,7 +75,6 @@
                     <ComboBox Grid.Column="0"
                              ItemsSource="{Binding Templates}"
                              SelectedItem="{Binding SelectedTemplate}"
-                             DisplayMemberPath="Name"
                              MinWidth="300"
                              ToolTip="Выберите шаблон для быстрого создания типовой конструкции">
                         <ComboBox.ItemTemplate>
@@ -140,7 +139,6 @@
                                 <DataTemplate>
                                     <ComboBox ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                              SelectedItem="{Binding Material, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                             DisplayMemberPath="Name"
                                              MinWidth="150">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate>
@@ -310,15 +308,20 @@
                               Margin="0,0,0,12"
                               Foreground="{DynamicResource MaterialDesignBody}"/>
 
-                    <Border BorderBrush="{DynamicResource MaterialDesignDivider}"
-                           BorderThickness="1"
-                           CornerRadius="4"
-                           Padding="8"
-                           MinHeight="300">
-                        <Canvas x:Name="ConstructionCanvas"
-                               Background="{DynamicResource MaterialDesignCardBackground}">
-                            <!-- Визуализация будет отрисовываться в code-behind -->
-                        </Canvas>
+<Border BorderBrush="{DynamicResource MaterialDesignDivider}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="8"
+                            MinHeight="300">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      MaxHeight="400">
+                            <Canvas x:Name="ConstructionCanvas"
+                                    Background="{DynamicResource MaterialDesignCardBackground}"
+                                    Height="400">
+                                <!-- Визуализация будет отрисовываться в code-behind -->
+                            </Canvas>
+                        </ScrollViewer>
                     </Border>
 
                     <!-- Легенда -->

@@ -389,7 +389,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
             var result = _calculator.Calculate(parameters);
 
             // Assert
-            Assert.That(result.IsValid, Is.True);
+            Assert.That(result.IsValid, Is.True, $"Validation errors: {string.Join(", ", result.ValidationErrors)}");
             Assert.That(result.ValidationErrors.Length, Is.EqualTo(0));
             Assert.That(result.Alpha, Is.GreaterThan(0));
             Assert.That(result.PowerUp, Is.GreaterThan(0));
@@ -674,6 +674,8 @@ namespace SnowMeltingCalculator.Tests.Thermal
 
         /// <summary>
         /// Создать валидные параметры для тестов
+        /// Климатические данные: Сочи (Краснодарский край)
+        /// t_5days_092 = -2°C, wind_max_jan = 2.8 м/с
         /// </summary>
         private ThermalParameters CreateValidParameters()
         {
@@ -688,9 +690,9 @@ namespace SnowMeltingCalculator.Tests.Thermal
                 R1Total = 0.05,
                 R2Total = 0.10,
                 LambdaE = 1.6,
-                AirTemperature = -20.0,
-                WindSpeed = 5.0,
-                SnowfallIntensity = 2.0,
+                AirTemperature = -2.0,        // t_5days_092 для Сочи
+                WindSpeed = 2.8,               // wind_max_jan для Сочи
+                SnowfallIntensity = 0.0,       // Без снегопада (только подогрев)
                 CoolantDensity = 1053.0,
                 CoolantHeatCapacity = 3.39
             };
