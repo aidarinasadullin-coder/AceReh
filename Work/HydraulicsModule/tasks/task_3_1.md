@@ -202,8 +202,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 _ => 1.2
             };
             
-            // Δp = (v / 1000 / Kv)² × 100000 × ρ
-            double pressureLoss = Math.Pow(flowRate_L_h / 1000.0 / kv, 2) * 100000 * density_kg_m3;
+            // Δp = (v / 1000 / Kv)² × 100 × ρ  [Па]
+            double pressureLoss = Math.Pow(flowRate_L_h / 1000.0 / kv, 2) * 100.0 * density_kg_m3;
             
             return pressureLoss;
         }
@@ -471,7 +471,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             double pressureLoss = _calculator.CalculateValvePressureLoss(flowRate, density, CollectorType.HKV);
             
             // Assert
-            // Δp = (200 / 1000 / 1.2)² × 100000 × 1053 = 2925 Па
+            // Δp = (200 / 1000 / 1.2)² × 100 × 1053 = 2925 Па (коэффициент 100)
             Assert.That(pressureLoss, Is.EqualTo(2925).Within(10));
         }
         
