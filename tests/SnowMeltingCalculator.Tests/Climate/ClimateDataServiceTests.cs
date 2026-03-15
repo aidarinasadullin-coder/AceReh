@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Services.Climate;
+using SnowMeltingCalculator.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -255,7 +256,7 @@ namespace SnowMeltingCalculator.Tests.Climate
     /// <summary>
     /// Мок-репозиторий для тестов
     /// </summary>
-    internal class MockClimateDataRepository : Repositories.IClimateDataRepository
+    internal class MockClimateDataRepository : IClimateDataRepository
     {
         public Task<IEnumerable<CityInfo>> LoadCitiesAsync()
         {

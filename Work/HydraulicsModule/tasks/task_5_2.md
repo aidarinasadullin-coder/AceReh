@@ -1,0 +1,389 @@
+# Task 5.2: CircuitInputView.xaml (Ввод параметров)
+
+**Этап:** 5 - Views  
+**Приоритет:** Средний  
+**Статус:** Не начато  
+**Зависимости:** Task 4.2, Task 5.1
+
+---
+
+## 1. Цель задачи
+
+Создать представление для ввода параметров контура.
+
+---
+
+## 2. Создаваемые файлы
+
+### 5.1. CircuitInputView.xaml
+
+**Путь:** `src/Views/Hydraulics/CircuitInputView.xaml`
+
+```xml
+<UserControl x:Class="SnowMeltingCalculator.Views.Hydraulics.CircuitInputView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:SnowMeltingCalculator.ViewModels.Hydraulics"
+             mc:Ignorable="d"
+             d:DesignHeight="400" d:DesignWidth="500"
+             d:DataContext="{d:DesignInstance Type=vm:CircuitViewModel}">
+
+    <UserControl.Resources>
+        <!-- Стили -->
+        <Style x:Key="InputLabelStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Width" Value="140"/>
+        </Style>
+
+        <Style x:Key="InputTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Padding" Value="5,0"/>
+        </Style>
+
+        <Style x:Key="UnitLabelStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style x:Key="SectionBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#FAFAFA"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="CornerRadius" Value="5"/>
+        </Style>
+
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Foreground" Value="#1976D2"/>
+        </Style>
+
+        <Style x:Key="RemoveButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#F44336"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Content" Value="✕"/>
+        </Style>
+
+        <!-- Конвертеры -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок контура -->
+        <Border Grid.Row="0" 
+                Background="#E3F2FD" 
+                Padding="10,5"
+                CornerRadius="5,5,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="{Binding CircuitNumber, StringFormat='Контур {0}'}"
+                           FontWeight="Bold"
+                           FontSize="14"
+                           VerticalAlignment="Center"/>
+
+                <TextBox Grid.Column="1"
+                         Text="{Binding CircuitName, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="10,0"
+                         VerticalAlignment="Center"
+                         Width="200"
+                         Height="26"
+                         VerticalContentAlignment="Center"/>
+
+                <Button Grid.Column="2"
+                        Content="✕"
+                        Command="{Binding DataContext.RemoveCircuitCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                        CommandParameter="{Binding}"
+                        Style="{StaticResource RemoveButtonStyle}"
+                        ToolTip="Удалить контур"
+                        Visibility="{Binding IsReferenceCircuit, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
+            </Grid>
+        </Border>
+
+        <!-- Параметры контура -->
+        <Border Grid.Row="1" Style="{StaticResource SectionBorderStyle}" CornerRadius="0,0,5,5">
+            <StackPanel>
+                
+                <!-- Основные параметры -->
+                <TextBlock Text="Основные параметры" Style="{StaticResource HeaderTextStyle}"/>
+
+                <Grid Margin="0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                               Text="Длина контура (L_HK):" 
+                               Style="{StaticResource InputLabelStyle}"/>
+                    <TextBox Grid.Column="1" 
+                             Text="{Binding Length, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                             Style="{StaticResource InputTextBoxStyle}"/>
+                    <TextBlock Grid.Column="2" Text="м" Style="{StaticResource UnitLabelStyle}"/>
+                </Grid>
+
+                <Grid Margin="0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                               Text="Длина подводки (L_Zul):" 
+                               Style="{StaticResource InputLabelStyle}"/>
+                    <TextBox Grid.Column="1" 
+                             Text="{Binding SupplyLength, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                             Style="{StaticResource InputTextBoxStyle}"/>
+                    <TextBlock Grid.Column="2" Text="м" Style="{StaticResource UnitLabelStyle}"/>
+                </Grid>
+
+                <Grid Margin="0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                               Text="Площадь контура:" 
+                               Style="{StaticResource InputLabelStyle}"/>
+                    <TextBox Grid.Column="1" 
+                             Text="{Binding Area, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                             Style="{StaticResource InputTextBoxStyle}"/>
+                    <TextBlock Grid.Column="2" Text="м²" Style="{StaticResource UnitLabelStyle}"/>
+                </Grid>
+
+                <!-- Результаты расчёта -->
+                <TextBlock Text="Результаты расчёта" 
+                           Style="{StaticResource HeaderTextStyle}"
+                           Margin="0,15,0,10"/>
+
+                <Grid Margin="0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                               Text="Расход:" 
+                               Style="{StaticResource InputLabelStyle}"/>
+                    <TextBlock Grid.Column="1" 
+                               Text="{Binding FlowRate, StringFormat={}{0:F1} л/ч}"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                </Grid>
+
+                <Grid Margin="0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                               Text="Потери давления:" 
+                               Style="{StaticResource InputLabelStyle}"/>
+                    <TextBlock Grid.Column="1" 
+                               Text="{Binding PressureLossKPa, StringFormat={}{0:F2} кПа}"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                </Grid>
+
+                <Grid Margin="0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                               Text="Скорость:" 
+                               Style="{StaticResource InputLabelStyle}"/>
+                    <TextBlock Grid.Column="1" 
+                               Text="{Binding Velocity, StringFormat={}{0:F3} м/с}"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                </Grid>
+
+                <Grid Margin="0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                               Text="Режим течения:" 
+                               Style="{StaticResource InputLabelStyle}"/>
+                    <TextBlock Grid.Column="1" 
+                               Text="{Binding FlowRegime}"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Балансировка -->
+                <TextBlock Text="Балансировка" 
+                           Style="{StaticResource HeaderTextStyle}"
+                           Margin="0,15,0,10"/>
+
+                <Grid Margin="0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                               Text="Дросселирование:" 
+                               Style="{StaticResource InputLabelStyle}"/>
+                    <TextBlock Grid.Column="1" 
+                               Text="{Binding ThrottlingMbar, StringFormat={}{0:F1} мбар}"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               Foreground="#FF9800"/>
+                </Grid>
+
+                <Grid Margin="0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                               Text="Настройка вентиля:" 
+                               Style="{StaticResource InputLabelStyle}"/>
+                    <TextBlock Grid.Column="1" 
+                               Text="{Binding ValveSetting, StringFormat='Позиция {0}'}"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Статус -->
+                <Border Background="#E8F5E9" 
+                        Padding="10,5" 
+                        Margin="0,15,0,0"
+                        CornerRadius="3"
+                        Visibility="{Binding IsReferenceCircuit, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="★ Опорный контур"
+                               Foreground="#2E7D32"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                </Border>
+
+                <Border Background="#FFF3E0" 
+                        Padding="10,5" 
+                        Margin="0,10,0,0"
+                        CornerRadius="3">
+                    <TextBlock Text="{Binding Status}"
+                               Foreground="#E65100"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"/>
+                </Border>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
+```
+
+### 5.2. CircuitInputView.xaml.cs
+
+**Путь:** `src/Views/Hydraulics/CircuitInputView.xaml.cs`
+
+```csharp
+using System.Windows.Controls;
+
+namespace SnowMeltingCalculator.Views.Hydraulics
+{
+    /// <summary>
+    /// Представление для ввода параметров контура
+    /// </summary>
+    public partial class CircuitInputView : UserControl
+    {
+        public CircuitInputView()
+        {
+            InitializeComponent();
+        }
+    }
+}
+```
+
+---
+
+## 3. Интеграция в HydraulicsView
+
+### 3.1. Добавить в HydraulicsView.xaml
+
+```xml
+<!-- В раздел Resources добавить -->
+<vm:CircuitViewModel x:Key="DesignCircuit"/>
+
+<!-- Добавить раздел контуров после результатов -->
+<TextBlock Text="Контуры" Style="{StaticResource SectionHeaderStyle}"/>
+
+<ItemsControl ItemsSource="{Binding Circuits}" Margin="0,5">
+    <ItemsControl.ItemTemplate>
+        <DataTemplate>
+            <views:CircuitInputView Margin="0,0,0,10"/>
+        </DataTemplate>
+    </ItemsControl.ItemTemplate>
+</ItemsControl>
+
+<StackPanel Orientation="Horizontal" Margin="0,10">
+    <Button Content="Добавить контур"
+            Command="{Binding AddCircuitCommand}"
+            Style="{StaticResource SecondaryButtonStyle}"/>
+    
+    <Button Content="Балансировка"
+            Command="{Binding BalanceCircuitsCommand}"
+            Style="{StaticResource PrimaryButtonStyle}"
+            Margin="10,0,0,0"/>
+</StackPanel>
+```
+
+---
+
+## 4. Критерии приёмки
+
+- [ ] Файлы `CircuitInputView.xaml` и `.xaml.cs` созданы
+- [ ] DataBinding к CircuitViewModel работает
+- [ ] Ввод параметров работает
+- [ ] Отображение результатов работает
+- [ ] Статус контура отображается
+- [ ] Кнопка удаления контура работает
+- [ ] Стили применены корректно
+- [ ] Интеграция в HydraulicsView работает
+
+---
+
+## 5. Примечания
+
+- Используются стили для единообразия UI
+- Поля ввода привязаны к свойствам CircuitViewModel
+- Результаты отображаются в нижней части
+- Статус контура отображается цветом
+- Опорный контур выделяется зелёным цветом
+- Кнопка удаления скрыта для опорного контура

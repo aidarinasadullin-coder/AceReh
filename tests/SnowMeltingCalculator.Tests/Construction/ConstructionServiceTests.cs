@@ -241,7 +241,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void ValidateConstruction_ValidConstruction_ReturnsValidResult()
         {
             // Arrange
-            var construction = new Models.Construction.Construction
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction
             {
                 GroundwaterLevel = 2.0,
                 HasLoads = false
@@ -261,7 +261,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void ValidateConstruction_NoLayers_ReturnsInvalidResult()
         {
             // Arrange
-            var construction = new Models.Construction.Construction();
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction();
 
             // Act
             var result = _service.ValidateConstruction(construction);
@@ -275,7 +275,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void ValidateConstruction_ThinLayerAbovePipe_ReturnsInvalidResult()
         {
             // Arrange
-            var construction = new Models.Construction.Construction
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction
             {
                 HasLoads = false
             };
@@ -295,7 +295,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void ValidateConstruction_WithLoads_RequiresThickerLayer()
         {
             // Arrange
-            var construction = new Models.Construction.Construction
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction
             {
                 HasLoads = true
             };
@@ -357,7 +357,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void GetTotalThicknessAbovePipe_MultipleLayers_ReturnsSum()
         {
             // Arrange
-            var construction = new Models.Construction.Construction();
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction();
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 50);
             construction.AddLayerAbovePipe(concrete, 100);
@@ -373,7 +373,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void GetTotalThicknessBelowPipe_MultipleLayers_ReturnsSum()
         {
             // Arrange
-            var construction = new Models.Construction.Construction();
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction();
             var sand = Material.GetDefaultMaterials().First(m => m.Name == "Песок");
             construction.AddLayerBelowPipe(sand, 150);
             construction.AddLayerBelowPipe(sand, 200);

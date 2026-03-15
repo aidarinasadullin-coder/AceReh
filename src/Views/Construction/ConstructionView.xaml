@@ -122,16 +122,16 @@
                     </StackPanel>
                 </Grid>
 
-                <DataGrid ItemsSource="{Binding LayersAbovePipe}"
-                         SelectedItem="{Binding SelectedLayer}"
-                         AutoGenerateColumns="False"
-                         CanUserAddRows="False"
-                         CanUserDeleteRows="False"
-                         IsReadOnly="False"
-                         GridLinesVisibility="Horizontal"
-                         HeadersVisibility="Column"
-                         MinHeight="100"
-                         MaxHeight="200">
+<DataGrid ItemsSource="{Binding LayersAbovePipe}"
+                          SelectedItem="{Binding SelectedLayer}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="False"
+                          GridLinesVisibility="Horizontal"
+                          HeadersVisibility="Column"
+                          MinHeight="160"
+                          MaxHeight="300">
                     <DataGrid.Columns>
                         <!-- Материал -->
                         <DataGridTemplateColumn Header="Материал" Width="*">
@@ -231,16 +231,16 @@
                         </StackPanel>
                     </Grid>
 
-                    <DataGrid ItemsSource="{Binding LayersBelowPipe}"
-                             SelectedItem="{Binding SelectedLayer}"
-                             AutoGenerateColumns="False"
-                             CanUserAddRows="False"
-                             CanUserDeleteRows="False"
-                             IsReadOnly="False"
-                             GridLinesVisibility="Horizontal"
-                             HeadersVisibility="Column"
-                             MinHeight="100"
-                             MaxHeight="200">
+<DataGrid ItemsSource="{Binding LayersBelowPipe}"
+                              SelectedItem="{Binding SelectedLayer}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              IsReadOnly="False"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              MinHeight="160"
+                              MaxHeight="300">
                         <DataGrid.Columns>
                             <!-- Материал -->
                             <DataGridTemplateColumn Header="Материал" Width="*">
