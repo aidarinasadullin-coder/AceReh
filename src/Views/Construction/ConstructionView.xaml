@@ -6,8 +6,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:construction="clr-namespace:SnowMeltingCalculator.Models.Construction"
              mc:Ignorable="d"
-             d:DesignHeight="800" d:DesignWidth="900"
-             DataContext="{Binding ConstructionViewModel, Source={StaticResource ViewModelLocator}}">
+             d:DesignHeight="800" d:DesignWidth="900">
 
     <Grid Margin="16">
         <Grid.RowDefinitions>

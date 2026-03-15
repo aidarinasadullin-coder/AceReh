@@ -8,8 +8,7 @@
              xmlns:models="clr-namespace:SnowMeltingCalculator.Models.Thermal"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="900"
-             d:DataContext="{d:DesignInstance Type=vm:ThermalViewModel, IsDesignTimeCreatable=False}"
-             DataContext="{Binding ThermalViewModel, Source={StaticResource ViewModelLocator}}">
+             d:DataContext="{d:DesignInstance Type=vm:ThermalViewModel, IsDesignTimeCreatable=False}">
 
     <Grid Margin="16">
         <Grid.RowDefinitions>

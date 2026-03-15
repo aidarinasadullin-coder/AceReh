@@ -14,32 +14,44 @@ namespace SnowMeltingCalculator.Configuration
     /// </summary>
     public class ViewModelLocator
     {
-        private readonly IServiceProvider _serviceProvider;
+        private IServiceProvider? _serviceProvider;
 
         /// <summary>
         /// Создать локатор
         /// </summary>
         public ViewModelLocator()
         {
-            var services = new ServiceCollection();
-            services.AddApplicationServices();
-            _serviceProvider = services.BuildServiceProvider();
+            // Провайдер будет установлен позже через SetServiceProvider
+        }
+
+        /// <summary>
+        /// Установить провайдер сервисов
+        /// </summary>
+        public void SetServiceProvider(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
         }
 
         /// <summary>
         /// ViewModel климатического модуля
         /// </summary>
-        public ClimateViewModel ClimateViewModel => _serviceProvider.GetRequiredService<ClimateViewModel>();
+        public ClimateViewModel ClimateViewModel => 
+            _serviceProvider?.GetRequiredService<ClimateViewModel>() 
+            ?? throw new InvalidOperationException("ServiceProvider не инициализирован");
 
         /// <summary>
         /// ViewModel теплового расчёта
         /// </summary>
-        public ThermalViewModel ThermalViewModel => _serviceProvider.GetRequiredService<ThermalViewModel>();
+        public ThermalViewModel ThermalViewModel => 
+            _serviceProvider?.GetRequiredService<ThermalViewModel>() 
+            ?? throw new InvalidOperationException("ServiceProvider не инициализирован");
 
         /// <summary>
         /// ViewModel конструктора конструкции
         /// </summary>
-        public ConstructionViewModel ConstructionViewModel => _serviceProvider.GetRequiredService<ConstructionViewModel>();
+        public ConstructionViewModel ConstructionViewModel => 
+            _serviceProvider?.GetRequiredService<ConstructionViewModel>() 
+            ?? throw new InvalidOperationException("ServiceProvider не инициализирован");
 
         /// <summary>
         /// Инициализировать сервисы при старте приложения
