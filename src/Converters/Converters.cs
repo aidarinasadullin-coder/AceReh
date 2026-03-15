@@ -153,4 +153,78 @@ namespace SnowMeltingCalculator.Converters
             throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// Конвертер: null → false, не-null → true
+    /// </summary>
+    public class NullToBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value != null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Конвертер: bool → PackIcon Kind (true → Check, false → Alert)
+    /// </summary>
+    public class BoolToAlertIconConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is bool b && b ? "Check" : "Alert";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Конвертер: bool → Brush (true → Green, false → Red)
+    /// </summary>
+    public class BoolToValidationColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool b && b)
+            {
+                return new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(0, 128, 0)); // Зелёный
+            }
+            return new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromRgb(255, 0, 0)); // Красный
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Конвертер: Material → Color (HEX строка)
+    /// </summary>
+    public class MaterialToColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Models.Construction.Material material)
+            {
+                return material.GetColor();
+            }
+            return "#CCCCCC";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

@@ -2,8 +2,10 @@ using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using SnowMeltingCalculator.ViewModels.Climate;
+using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.Views.Climate;
+using SnowMeltingCalculator.Views.Construction;
 using SnowMeltingCalculator.Views.Thermal;
 
 namespace SnowMeltingCalculator
@@ -26,7 +28,8 @@ namespace SnowMeltingCalculator
 
             var climateViewModel = services.GetRequiredService<ClimateViewModel>();
             var thermalViewModel = services.GetRequiredService<ThermalViewModel>();
-            var mainViewModel = new MainViewModel(climateViewModel, thermalViewModel);
+            var constructionViewModel = services.GetRequiredService<ConstructionViewModel>();
+            var mainViewModel = new MainViewModel(climateViewModel, thermalViewModel, constructionViewModel);
             DataContext = mainViewModel;
         }
     }
@@ -38,11 +41,16 @@ namespace SnowMeltingCalculator
     {
         private readonly ClimateViewModel _climateViewModel;
         private readonly ThermalViewModel _thermalViewModel;
+        private readonly ConstructionViewModel _constructionViewModel;
 
-        public MainViewModel(ClimateViewModel climateViewModel, ThermalViewModel thermalViewModel)
+        public MainViewModel(
+            ClimateViewModel climateViewModel,
+            ThermalViewModel thermalViewModel,
+            ConstructionViewModel constructionViewModel)
         {
             _climateViewModel = climateViewModel;
             _thermalViewModel = thermalViewModel;
+            _constructionViewModel = constructionViewModel;
             
             // Установка начального представления
             _currentView = new ClimateView { DataContext = _climateViewModel };
@@ -87,6 +95,7 @@ namespace SnowMeltingCalculator
             {
                 "Климат" => new ClimateView { DataContext = _climateViewModel },
                 "Тепловой расчёт" => new ThermalView { DataContext = _thermalViewModel },
+                "Конструкция" => new ConstructionView { DataContext = _constructionViewModel },
                 // TODO: Добавить другие представления по мере реализации
                 _ => new ClimateView { DataContext = _climateViewModel }
             };

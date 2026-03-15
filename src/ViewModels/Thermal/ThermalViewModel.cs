@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnowMeltingCalculator.Models.Climate;
+using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Thermal;
 
@@ -119,10 +120,8 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             }
 
             // Подписка на изменения данных конструкции
-            if (_constructionData is ConstructionData constructionDataImpl)
-            {
-                constructionDataImpl.DataChanged += OnConstructionDataChanged;
-            }
+            // Construction реализует IConstructionData и вызывает DataChanged
+            _constructionData.DataChanged += OnConstructionDataChanged;
         }
 
         #endregion

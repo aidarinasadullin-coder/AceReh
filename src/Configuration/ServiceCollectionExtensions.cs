@@ -1,11 +1,15 @@
 using Microsoft.Extensions.DependencyInjection;
 using SnowMeltingCalculator.Models.Climate;
+using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Repositories;
+using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Climate;
 using SnowMeltingCalculator.Services.Thermal;
+using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Thermal;
+using SnowMeltingCalculator.ViewModels.Construction;
 
 namespace SnowMeltingCalculator.Configuration
 {
@@ -42,11 +46,32 @@ namespace SnowMeltingCalculator.Configuration
             // Services
             services.AddSingleton<IThermalCalculator, ThermalCalculator>();
 
-            // Data
-            services.AddSingleton<IConstructionData, ConstructionData>();
-
             // ViewModels
             services.AddSingleton<ThermalViewModel>();
+
+            // Примечание: IConstructionData регистрируется в AddConstructionModule
+
+            return services;
+        }
+
+        /// <summary>
+        /// Добавить сервисы модуля конструктора конструкции
+        /// </summary>
+        public static IServiceCollection AddConstructionModule(this IServiceCollection services)
+        {
+            // Repositories
+            services.AddSingleton<IMaterialRepository, MaterialRepository>();
+            services.AddSingleton<IConstructionRepository, ConstructionRepository>();
+
+            // Services
+            services.AddSingleton<IConstructionService, ConstructionService>();
+
+            // Data - Construction реализует IConstructionData
+            services.AddSingleton<Construction>();
+            services.AddSingleton<IConstructionData>(sp => sp.GetRequiredService<Construction>());
+
+            // ViewModels
+            services.AddSingleton<ConstructionViewModel>();
 
             return services;
         }
@@ -58,7 +83,8 @@ namespace SnowMeltingCalculator.Configuration
         {
             return services
                 .AddClimateModule()
-                .AddThermalModule();
+                .AddThermalModule()
+                .AddConstructionModule();
         }
     }
 }

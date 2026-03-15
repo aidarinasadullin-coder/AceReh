@@ -12,6 +12,10 @@
     <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
     <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
     <converters:OperatingModeDescriptionConverter x:Key="OperatingModeDescriptionConverter"/>
+    <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
+    <converters:BoolToAlertIconConverter x:Key="BoolToAlertIconConverter"/>
+    <converters:BoolToValidationColorConverter x:Key="BoolToValidationColorConverter"/>
+    <converters:MaterialToColorConverter x:Key="MaterialToColorConverter"/>
 
     <!-- Значения климатических зон для ComboBox -->
     <x:Array x:Key="ClimateZoneValues" Type="{x:Type models:ClimateZone}">
