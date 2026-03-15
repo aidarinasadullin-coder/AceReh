@@ -33,10 +33,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         private double _supplyTemperature = 50.0;
 
         /// <summary>
-        /// Температурный перепад, К
+        /// Температурный перепад, К (только для чтения, рассчитывается автоматически)
         /// </summary>
-        [ObservableProperty]
-        private double _deltaT = 15.0;
+        public double? DeltaT => Result?.DeltaT;
 
         /// <summary>
         /// Температура грунта, °C
@@ -61,6 +60,29 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         [ObservableProperty]
         private ThermalCalculationResult? _result;
+
+        /// <summary>
+        /// Уведомление об изменении результата для связанных свойств
+        /// </summary>
+        partial void OnResultChanged(ThermalCalculationResult? value)
+        {
+            OnPropertyChanged(nameof(DeltaT));
+            OnPropertyChanged(nameof(RecommendedSupplyTemperature));
+            OnPropertyChanged(nameof(SupplyTemperatureHint));
+        }
+
+        /// <summary>
+        /// Рекомендуемая температура подачи для ΔT ≈ 15 К
+        /// </summary>
+        public double? RecommendedSupplyTemperature => Result?.MeanTemperature + 7.5;
+
+        /// <summary>
+        /// Подсказка для температуры подачи
+        /// </summary>
+        public string SupplyTemperatureHint =>
+            RecommendedSupplyTemperature.HasValue
+                ? $"Рекомендуется: {RecommendedSupplyTemperature.Value:F0}°C (для ΔT ≈ 15 К)"
+                : string.Empty;
 
         /// <summary>
         /// Признак выполнения расчёта
@@ -188,7 +210,6 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         {
             SelectedMode = OperatingMode.Melting;
             SupplyTemperature = 50.0;
-            DeltaT = 15.0;
             GroundTemperature = 10.0;
             SelectedPipe = PipeType.StandardPipes[1]; // RAUTHERM S 20x2,0
             PipeSpacing = 200.0;
@@ -209,7 +230,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             {
                 Mode = SelectedMode,
                 SupplyTemperature = SupplyTemperature,
-                DeltaT = DeltaT,
+                DeltaT = 15.0, // Значение по умолчанию для совместимости с гидравлическим расчётом
                 GroundTemperature = GroundTemperature,
                 Pipe = SelectedPipe,
                 PipeSpacing = PipeSpacing,
@@ -237,12 +258,6 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             if (SupplyTemperature < 20 || SupplyTemperature > 90)
             {
                 errors.Add("Температура подачи должна быть от 20°C до 90°C");
-            }
-
-            // Валидация температурного перепада
-            if (DeltaT < 5 || DeltaT > 25)
-            {
-                errors.Add("Температурный перепад должен быть от 5 К до 25 К");
             }
 
             // Валидация температуры грунта

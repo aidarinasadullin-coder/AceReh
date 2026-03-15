@@ -46,7 +46,6 @@ namespace SnowMeltingCalculator.Tests.Thermal
             // Assert
             Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting));
             Assert.That(_viewModel.SupplyTemperature, Is.EqualTo(50.0));
-            Assert.That(_viewModel.DeltaT, Is.EqualTo(15.0));
             Assert.That(_viewModel.GroundTemperature, Is.EqualTo(10.0));
             Assert.That(_viewModel.PipeSpacing, Is.EqualTo(200.0));
             Assert.That(_viewModel.Result, Is.Null);
@@ -208,7 +207,6 @@ namespace SnowMeltingCalculator.Tests.Thermal
             // Arrange
             _viewModel.SelectedMode = OperatingMode.Intensive;
             _viewModel.SupplyTemperature = 70.0;
-            _viewModel.DeltaT = 20.0;
             _viewModel.GroundTemperature = 15.0;
             _viewModel.SelectedPipe = PipeType.StandardPipes[0];
             _viewModel.PipeSpacing = 300.0;
@@ -221,7 +219,6 @@ namespace SnowMeltingCalculator.Tests.Thermal
             // Assert
             Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting));
             Assert.That(_viewModel.SupplyTemperature, Is.EqualTo(50.0));
-            Assert.That(_viewModel.DeltaT, Is.EqualTo(15.0));
             Assert.That(_viewModel.GroundTemperature, Is.EqualTo(10.0));
             Assert.That(_viewModel.SelectedPipe.Name, Is.EqualTo("RAUTHERM S 20x2,0"));
             Assert.That(_viewModel.PipeSpacing, Is.EqualTo(200.0));
@@ -259,34 +256,6 @@ namespace SnowMeltingCalculator.Tests.Thermal
             // Assert
             Assert.That(_viewModel.Result, Is.Null);
             Assert.That(_viewModel.ValidationMessage, Does.Contain("Температура подачи"));
-        }
-
-        [Test]
-        public void Validate_DeltaTTooLow_ReturnsFalse()
-        {
-            // Arrange
-            _viewModel.DeltaT = 2.0; // Ниже минимума
-
-            // Act
-            _viewModel.CalculateCommand.Execute(null);
-
-            // Assert
-            Assert.That(_viewModel.Result, Is.Null);
-            Assert.That(_viewModel.ValidationMessage, Does.Contain("Температурный перепад"));
-        }
-
-        [Test]
-        public void Validate_DeltaTTooHigh_ReturnsFalse()
-        {
-            // Arrange
-            _viewModel.DeltaT = 30.0; // Выше максимума
-
-            // Act
-            _viewModel.CalculateCommand.Execute(null);
-
-            // Assert
-            Assert.That(_viewModel.Result, Is.Null);
-            Assert.That(_viewModel.ValidationMessage, Does.Contain("Температурный перепад"));
         }
 
         [Test]
@@ -368,7 +337,6 @@ namespace SnowMeltingCalculator.Tests.Thermal
             // Arrange
             _viewModel.SelectedMode = OperatingMode.Intensive;
             _viewModel.SupplyTemperature = 60.0;
-            _viewModel.DeltaT = 10.0;
             _viewModel.GroundTemperature = 5.0;
             _viewModel.SelectedPipe = PipeType.StandardPipes[2]; // 25x2.3
             _viewModel.PipeSpacing = 150.0;
@@ -379,7 +347,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
             // Assert
             Assert.That(parameters.Mode, Is.EqualTo(OperatingMode.Intensive));
             Assert.That(parameters.SupplyTemperature, Is.EqualTo(60.0));
-            Assert.That(parameters.DeltaT, Is.EqualTo(10.0));
+            Assert.That(parameters.DeltaT, Is.EqualTo(15.0)); // Значение по умолчанию
             Assert.That(parameters.GroundTemperature, Is.EqualTo(5.0));
             Assert.That(parameters.Pipe.Name, Is.EqualTo("RAUTHERM S 25x2,3"));
             Assert.That(parameters.PipeSpacing, Is.EqualTo(150.0));

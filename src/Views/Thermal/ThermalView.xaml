@@ -87,30 +87,46 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Температура подачи -->
-                    <TextBox Grid.Column="0"
-                            Text="{Binding SupplyTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
-                            materialDesign:TextFieldAssist.PrefixText="Температура подачи:"
-                            materialDesign:TextFieldAssist.SuffixText="°C"
-                            Margin="0,0,8,0"
-                            ToolTip="Температура подачи теплоносителя (от 20°C до 90°C)">
-                        <TextBox.Style>
-                            <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsValid}" Value="False">
-                                        <Setter Property="BorderBrush" Value="Red"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBox Text="{Binding SupplyTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
+                                materialDesign:TextFieldAssist.PrefixText="Температура подачи:"
+                                materialDesign:TextFieldAssist.SuffixText="°C"
+                                ToolTip="Температура подачи теплоносителя (от 20°C до 90°C)">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsValid}" Value="False">
+                                            <Setter Property="BorderBrush" Value="Red"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                        <TextBlock Text="{Binding SupplyTemperatureHint}"
+                                  FontSize="11"
+                                  Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                  Visibility="{Binding SupplyTemperatureHint, Converter={StaticResource StringToVisibilityConverter}}"
+                                  Margin="0,2,0,0"/>
+                    </StackPanel>
 
-                    <!-- Температурный перепад -->
-                    <TextBox Grid.Column="1"
-                            Text="{Binding DeltaT, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
-                            materialDesign:TextFieldAssist.PrefixText="Температурный перепад:"
-                            materialDesign:TextFieldAssist.SuffixText="К"
-                            Margin="0,0,8,0"
-                            ToolTip="Температурный перепад между подачей и обраткой (от 5 К до 25 К)"/>
+                    <!-- Температурный перепад (только чтение) -->
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <TextBlock Text="Температурный перепад:"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                   Margin="0,0,0,4"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Result.DeltaT, StringFormat={}{0:F1} К}"
+                                      FontWeight="Bold"
+                                      FontSize="14"
+                                      Foreground="{DynamicResource MaterialDesignBody}"/>
+                            <TextBlock Text=" (рассчитывается)"
+                                      FontSize="11"
+                                      Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                      VerticalAlignment="Center"
+                                      Margin="4,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
 
                     <!-- Температура грунта -->
                     <TextBox Grid.Column="2"
