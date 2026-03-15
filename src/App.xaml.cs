@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using SnowMeltingCalculator.Configuration;
 using SnowMeltingCalculator.Services.Climate;
+using SnowMeltingCalculator.Repositories.Construction;
+using SnowMeltingCalculator.ViewModels.Construction;
 using System.Windows;
 
 namespace SnowMeltingCalculator
@@ -38,6 +40,18 @@ namespace SnowMeltingCalculator
                 // Загрузка климатических данных
                 var climateService = _serviceProvider.GetRequiredService<IClimateDataService>();
                 await climateService.LoadClimateDataAsync();
+
+                // Загрузка материалов для конструктора конструкции
+                var materialRepository = _serviceProvider.GetRequiredService<IMaterialRepository>();
+                await materialRepository.LoadMaterialsAsync();
+
+                // Установка провайдера в ViewModelLocator
+                var viewModelLocator = Current.Resources["ViewModelLocator"] as ViewModelLocator;
+                viewModelLocator?.SetServiceProvider(_serviceProvider);
+
+                // Инициализация ConstructionViewModel
+                var constructionViewModel = _serviceProvider.GetRequiredService<ConstructionViewModel>();
+                await constructionViewModel.InitializeCommand.ExecuteAsync(null);
 
                 // Создание главного окна
                 var mainWindow = new MainWindow();
