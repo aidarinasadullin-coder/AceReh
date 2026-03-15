@@ -1,0 +1,26 @@
+{
+  "plan_file": "Work/ConstructionModule/plan.md",
+  "tasks_count": 18,
+  "tasks_files": [
+    "Work/ConstructionModule/tasks/task_1_1.md",
+    "Work/ConstructionModule/tasks/task_1_2.md",
+    "Work/ConstructionModule/tasks/task_1_3.md",
+    "Work/ConstructionModule/tasks/task_1_4.md",
+    "Work/ConstructionModule/tasks/task_1_5.md",
+    "Work/ConstructionModule/tasks/task_2_1.md",
+    "Work/ConstructionModule/tasks/task_2_2.md",
+    "Work/ConstructionModule/tasks/task_2_3.md",
+    "Work/ConstructionModule/tasks/task_3_1.md",
+    "Work/ConstructionModule/tasks/task_3_2.md",
+    "Work/ConstructionModule/tasks/task_3_3.md",
+    "Work/ConstructionModule/tasks/task_4_1.md",
+    "Work/ConstructionModule/tasks/task_5_1.md",
+    "Work/ConstructionModule/tasks/task_5_2.md",
+    "Work/ConstructionModule/tasks/task_6_1.md",
+    "Work/ConstructionModule/tasks/task_6_2.md",
+    "Work/ConstructionModule/tasks/task_7_1.md",
+    "Work/ConstructionModule/tasks/task_7_2.md"
+  ],
+  "questions_file": null,
+  "status": "completed"
+}

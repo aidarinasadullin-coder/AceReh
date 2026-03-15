@@ -1,0 +1,427 @@
+<UserControl x:Class="SnowMeltingCalculator.Views.Construction.ConstructionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:construction="clr-namespace:SnowMeltingCalculator.Models.Construction"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="900"
+             DataContext="{Binding ConstructionViewModel, Source={StaticResource ViewModelLocator}}">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0"
+                   Text="Конструкция"
+                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                   Margin="0,0,0,16"
+                   Foreground="{DynamicResource MaterialDesignBody}"/>
+
+        <!-- Параметры -->
+        <materialDesign:Card Grid.Row="1" Margin="0,0,0,16">
+            <StackPanel Margin="16">
+                <TextBlock Text="Параметры"
+                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                          Margin="0,0,0,12"
+                          Foreground="{DynamicResource MaterialDesignBody}"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- УГВ -->
+                    <ComboBox Grid.Column="0"
+                             ItemsSource="{Binding GroundwaterLevelOptions}"
+                             SelectedItem="{Binding SelectedGroundwaterOption}"
+                             materialDesign:TextFieldAssist.PrefixText="Уровень грунтовых вод:"
+                             MinWidth="250"
+                             ToolTip="Выбор уровня грунтовых вод влияет на теплопроводность материалов под трубой"/>
+
+                    <!-- Нагрузки -->
+                    <CheckBox Grid.Column="1"
+                             Content="Наличие нагрузок на покрытие"
+                             IsChecked="{Binding HasLoads}"
+                             Margin="24,0,0,0"
+                             VerticalAlignment="Center"
+                             ToolTip="При наличии нагрузок минимальная толщина слоёв над трубой увеличивается до 50 мм"/>
+                </Grid>
+            </StackPanel>
+        </materialDesign:Card>
+
+        <!-- Шаблоны -->
+        <materialDesign:Card Grid.Row="2" Margin="0,0,0,16">
+            <StackPanel Margin="16">
+                <TextBlock Text="Шаблоны конструкций"
+                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                          Margin="0,0,0,12"
+                          Foreground="{DynamicResource MaterialDesignBody}"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ComboBox Grid.Column="0"
+                             ItemsSource="{Binding Templates}"
+                             SelectedItem="{Binding SelectedTemplate}"
+                             DisplayMemberPath="Name"
+                             MinWidth="300"
+                             ToolTip="Выберите шаблон для быстрого создания типовой конструкции">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding Description}" FontSize="11" Foreground="Gray"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <Button Grid.Column="1"
+                           Content="Применить"
+                           Command="{Binding ApplyTemplateCommand}"
+                           Style="{StaticResource MaterialDesignRaisedButton}"
+                           Margin="16,0,0,0"
+                           IsEnabled="{Binding SelectedTemplate, Converter={StaticResource NullToBoolConverter}}"/>
+                </Grid>
+            </StackPanel>
+        </materialDesign:Card>
+
+        <!-- Слои над трубой -->
+        <materialDesign:Card Grid.Row="3" Margin="0,0,0,16">
+            <StackPanel Margin="16">
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                              Text="Слои над трубой (к поверхности)"
+                              Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                              Foreground="{DynamicResource MaterialDesignBody}"/>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBlock Text="{Binding TotalThicknessAbovePipe, StringFormat='Общая толщина: {0:F0} мм'}"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                  Margin="0,0,16,0"/>
+                        <Button Content="Добавить слой"
+                               Command="{Binding AddLayerAbovePipeCommand}"
+                               Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                    </StackPanel>
+                </Grid>
+
+                <DataGrid ItemsSource="{Binding LayersAbovePipe}"
+                         SelectedItem="{Binding SelectedLayer}"
+                         AutoGenerateColumns="False"
+                         CanUserAddRows="False"
+                         CanUserDeleteRows="False"
+                         IsReadOnly="False"
+                         GridLinesVisibility="Horizontal"
+                         HeadersVisibility="Column"
+                         MinHeight="100"
+                         MaxHeight="200">
+                    <DataGrid.Columns>
+                        <!-- Материал -->
+                        <DataGridTemplateColumn Header="Материал" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                             SelectedItem="{Binding Material, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                             DisplayMemberPath="Name"
+                                             MinWidth="150">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <Run Text="{Binding Name}"/>
+                                                    <Run Text="{Binding Category, StringFormat='({0})'}" Foreground="Gray"/>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Толщина -->
+                        <DataGridTemplateColumn Header="Толщина, мм" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Thickness, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat={}{0:F0}}"
+                                            MinWidth="60"
+                                            TextAlignment="Right"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- λ -->
+                        <DataGridTemplateColumn Header="λ, Вт/м·К" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding CalculatedLambda, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat={}{0:F3}}"
+                                            MinWidth="60"
+                                            TextAlignment="Right"
+                                            ToolTip="Теплопроводность материала. Можно редактировать вручную."/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- R -->
+                        <DataGridTextColumn Header="R, м²·К/Вт"
+                                          Binding="{Binding CalculatedR, StringFormat={}{0:F4}}"
+                                          Width="100"
+                                          IsReadOnly="True"/>
+
+                        <!-- Удалить -->
+                        <DataGridTemplateColumn Header="" Width="Auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="✕"
+                                           Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                           CommandParameter="{Binding}"
+                                           Style="{StaticResource MaterialDesignIconButton}"
+                                           ToolTip="Удалить слой"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </materialDesign:Card>
+
+        <!-- Слои под трубой и Визуализация -->
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Слои под трубой -->
+            <materialDesign:Card Grid.Column="0" Margin="0,0,8,0">
+                <StackPanel Margin="16">
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                  Text="Слои под трубой (к грунту)"
+                                  Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                  Foreground="{DynamicResource MaterialDesignBody}"/>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock Text="{Binding TotalThicknessBelowPipe, StringFormat='Общая толщина: {0:F0} мм'}"
+                                      VerticalAlignment="Center"
+                                      Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                      Margin="0,0,16,0"/>
+                            <Button Content="Добавить слой"
+                                   Command="{Binding AddLayerBelowPipeCommand}"
+                                   Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <DataGrid ItemsSource="{Binding LayersBelowPipe}"
+                             SelectedItem="{Binding SelectedLayer}"
+                             AutoGenerateColumns="False"
+                             CanUserAddRows="False"
+                             CanUserDeleteRows="False"
+                             IsReadOnly="False"
+                             GridLinesVisibility="Horizontal"
+                             HeadersVisibility="Column"
+                             MinHeight="100"
+                             MaxHeight="200">
+                        <DataGrid.Columns>
+                            <!-- Материал -->
+                            <DataGridTemplateColumn Header="Материал" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                 SelectedItem="{Binding Material, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 DisplayMemberPath="Name"
+                                                 MinWidth="150"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Толщина -->
+                            <DataGridTemplateColumn Header="Толщина, мм" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Thickness, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat={}{0:F0}}"
+                                                MinWidth="60"
+                                                TextAlignment="Right"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- λ -->
+                            <DataGridTemplateColumn Header="λ, Вт/м·К" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding CalculatedLambda, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat={}{0:F3}}"
+                                                MinWidth="60"
+                                                TextAlignment="Right"
+                                                ToolTip="Теплопроводность материала. При УГВ &lt; 1м используется λБ."/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- R -->
+                            <DataGridTextColumn Header="R, м²·К/Вт"
+                                              Binding="{Binding CalculatedR, StringFormat={}{0:F4}}"
+                                              Width="100"
+                                              IsReadOnly="True"/>
+
+                            <!-- Удалить -->
+                            <DataGridTemplateColumn Header="" Width="Auto">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="✕"
+                                               Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                               CommandParameter="{Binding}"
+                                               Style="{StaticResource MaterialDesignIconButton}"
+                                               ToolTip="Удалить слой"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <!-- Визуализация "Пирога" -->
+            <materialDesign:Card Grid.Column="1" Margin="8,0,0,0">
+                <StackPanel Margin="16">
+                    <TextBlock Text="Визуализация"
+                              Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                              Margin="0,0,0,12"
+                              Foreground="{DynamicResource MaterialDesignBody}"/>
+
+                    <Border BorderBrush="{DynamicResource MaterialDesignDivider}"
+                           BorderThickness="1"
+                           CornerRadius="4"
+                           Padding="8"
+                           MinHeight="300">
+                        <Canvas x:Name="ConstructionCanvas"
+                               Background="{DynamicResource MaterialDesignCardBackground}">
+                            <!-- Визуализация будет отрисовываться в code-behind -->
+                        </Canvas>
+                    </Border>
+
+                    <!-- Легенда -->
+                    <StackPanel Margin="0,8,0,0">
+                        <TextBlock Text="Легенда:" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                        <ItemsControl ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="4,2">
+                                        <Rectangle Width="12" Height="12" Fill="{Binding GetColor}"/>
+                                        <TextBlock Text="{Binding Name}" FontSize="10" Margin="4,0,0,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </StackPanel>
+            </materialDesign:Card>
+        </Grid>
+
+        <!-- Результаты и Валидация -->
+        <materialDesign:Card Grid.Row="5" Margin="0,16,0,0">
+            <Grid Margin="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Результаты расчёта -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Результаты расчёта"
+                              Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                              Margin="0,0,0,8"
+                              Foreground="{DynamicResource MaterialDesignBody}"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- R1 -->
+                        <StackPanel Grid.Column="0" Margin="0,0,24,0">
+                            <TextBlock Text="R₁ (над трубой):" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                            <TextBlock Text="{Binding R1Total, StringFormat='{}{0:F4} м²·К/Вт'}"
+                                      FontWeight="Bold"
+                                      FontSize="16"
+                                      Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                        </StackPanel>
+
+                        <!-- R2 -->
+                        <StackPanel Grid.Column="1" Margin="0,0,24,0">
+                            <TextBlock Text="R₂ (под трубой):" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                            <TextBlock Text="{Binding R2Total, StringFormat='{}{0:F4} м²·К/Вт'}"
+                                      FontWeight="Bold"
+                                      FontSize="16"
+                                      Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                        </StackPanel>
+
+                        <!-- LambdaE -->
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="λE (вокруг трубы):" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                            <TextBlock Text="{Binding LambdaE, StringFormat='{}{0:F3} Вт/м·К'}"
+                                      FontWeight="Bold"
+                                      FontSize="16"
+                                      Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Кнопки действий -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                    <Button Content="Сбросить"
+                           Command="{Binding ResetToDefaultCommand}"
+                           Style="{StaticResource MaterialDesignOutlinedButton}"
+                           Margin="0,0,8,0"/>
+                    <Button Content="Сохранить"
+                           Command="{Binding SaveConstructionCommand}"
+                           Style="{StaticResource MaterialDesignRaisedButton}"/>
+                </StackPanel>
+            </Grid>
+        </materialDesign:Card>
+
+        <!-- Валидация -->
+        <materialDesign:Card Grid.Row="5" Margin="0,16,0,0"
+                           Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Margin="16">
+                <materialDesign:PackIcon Kind="{Binding IsValid, Converter={StaticResource BoolToAlertIconConverter}}"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,8,0"
+                                        Foreground="{Binding IsValid, Converter={StaticResource BoolToValidationColorConverter}}"/>
+                <TextBlock Text="{Binding ValidationMessage}"
+                          VerticalAlignment="Center"
+                          TextWrapping="Wrap"
+                          Foreground="{Binding IsValid, Converter={StaticResource BoolToValidationColorConverter}}"/>
+            </StackPanel>
+        </materialDesign:Card>
+    </Grid>
+</UserControl>
