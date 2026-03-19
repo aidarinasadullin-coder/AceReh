@@ -262,16 +262,16 @@ namespace SnowMeltingCalculator.Tests.Climate
         {
             var cities = new List<CityInfo>
             {
-                new CityInfo { Name = "Москва", Region = "Московская область", T5Days092 = -28, WindMaxJan = 4.5, Humidity15hCold = 85 },
-                new CityInfo { Name = "Санкт-Петербург", Region = "Ленинградская область", T5Days092 = -26, WindMaxJan = 5.0, Humidity15hCold = 88 },
-                new CityInfo { Name = "Сочи", Region = "Краснодарский край", T5Days092 = -5, WindMaxJan = 6.0, Humidity15hCold = 70 },
-                new CityInfo { Name = "Майкоп", Region = "Республика Адыгея", T5Days092 = -15, WindMaxJan = 5.4, Humidity15hCold = 68 },
-                new CityInfo { Name = "Норильск", Region = "Красноярский край", T5Days092 = -42, WindMaxJan = 7.0, Humidity15hCold = 75 },
-                new CityInfo { Name = "Якутск", Region = "Республика Саха (Якутия)", T5Days092 = -48, WindMaxJan = 2.0, Humidity15hCold = 80 },
-                new CityInfo { Name = "Владивосток", Region = "Приморский край", T5Days092 = -24, WindMaxJan = 8.0, Humidity15hCold = 65 },
-                new CityInfo { Name = "Мурманск", Region = "Мурманская область", T5Days092 = -32, WindMaxJan = 6.5, Humidity15hCold = 82 },
-                new CityInfo { Name = "Краснодар", Region = "Краснодарский край", T5Days092 = -19, WindMaxJan = 5.0, Humidity15hCold = 72 },
-                new CityInfo { Name = "Екатеринбург", Region = "Свердловская область", T5Days092 = -32, WindMaxJan = 5.5, Humidity15hCold = 78 }
+                new CityInfo { Name = "Москва", Region = "Московская область", T5Days092 = -28, WindAvgTempLe8 = 4.5, Humidity15hCold = 85 },
+                new CityInfo { Name = "Санкт-Петербург", Region = "Ленинградская область", T5Days092 = -26, WindAvgTempLe8 = 5.0, Humidity15hCold = 88 },
+                new CityInfo { Name = "Сочи", Region = "Краснодарский край", T5Days092 = -5, WindAvgTempLe8 = 6.0, Humidity15hCold = 70 },
+                new CityInfo { Name = "Майкоп", Region = "Республика Адыгея", T5Days092 = -15, WindAvgTempLe8 = 5.4, Humidity15hCold = 68 },
+                new CityInfo { Name = "Норильск", Region = "Красноярский край", T5Days092 = -42, WindAvgTempLe8 = 7.0, Humidity15hCold = 75 },
+                new CityInfo { Name = "Якутск", Region = "Республика Саха (Якутия)", T5Days092 = -48, WindAvgTempLe8 = 2.0, Humidity15hCold = 80 },
+                new CityInfo { Name = "Владивосток", Region = "Приморский край", T5Days092 = -24, WindAvgTempLe8 = 8.0, Humidity15hCold = 65 },
+                new CityInfo { Name = "Мурманск", Region = "Мурманская область", T5Days092 = -32, WindAvgTempLe8 = 6.5, Humidity15hCold = 82 },
+                new CityInfo { Name = "Краснодар", Region = "Краснодарский край", T5Days092 = -19, WindAvgTempLe8 = 5.0, Humidity15hCold = 72 },
+                new CityInfo { Name = "Екатеринбург", Region = "Свердловская область", T5Days092 = -32, WindAvgTempLe8 = 5.5, Humidity15hCold = 78 }
             };
 
             return Task.FromResult<IEnumerable<CityInfo>>(cities);

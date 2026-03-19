@@ -167,11 +167,21 @@
                     </ComboBox>
 
                     <!-- Шаг укладки -->
-                    <TextBox Grid.Column="1"
-                            Text="{Binding PipeSpacing, StringFormat={}{0:F0}, UpdateSourceTrigger=PropertyChanged}"
-                            materialDesign:TextFieldAssist.PrefixText="Шаг укладки:"
-                            materialDesign:TextFieldAssist.SuffixText="мм"
-                            ToolTip="Шаг укладки трубы (от 100 мм до 500 мм)"/>
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding AvailablePipeSpacings}"
+                              SelectedItem="{Binding PipeSpacing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              IsEnabled="{Binding IsPipeSpacingEnabled}"
+                              materialDesign:TextFieldAssist.PrefixText="Шаг укладки:"
+                              ToolTip="Шаг укладки трубы (выберите из списка)">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <Run Text="{Binding Mode=OneWay}"/>
+                                    <Run Text=" мм"/>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </Grid>
 
                 <!-- Информация о выбранной трубе -->
@@ -454,19 +464,8 @@
                             </TextBlock>
                         </StackPanel>
 
-                        <!-- Лучистый поток -->
-                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,8,8">
-                            <TextBlock Text="Лучистый тепловой поток"
-                                      FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock FontSize="14">
-                                <Run Text="{Binding Result.RadiationHeat, Mode=OneWay, StringFormat={}{0:F1}}"/>
-                                <Run Text=" Вт/м²"/>
-                            </TextBlock>
-                        </StackPanel>
-
                         <!-- Конвективный поток -->
-                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,8">
+                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,8,8">
                             <TextBlock Text="Конвективный тепловой поток"
                                       FontSize="11"
                                       Foreground="{DynamicResource MaterialDesignBodyLight}"/>

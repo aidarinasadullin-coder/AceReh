@@ -1,15 +1,15 @@
-# Task 1.2: HydraulicParameters (Параметры расчёта)
+# Task 1.2: Создать HydraulicInputData.cs
 
-**Этап:** 1 - Models  
+**Этап:** 1 - Модели данных  
 **Приоритет:** Высокий  
-**Статус:** Completed  
-**Зависимости:** Task 1.1 (Enums)
+**Статус:** К разработке  
+**Зависимости:** Нет
 
 ---
 
 ## 1. Цель задачи
 
-Создать класс `HydraulicParameters` — модель входных параметров для гидравлического расчёта.
+Создать класс `HydraulicInputData` — модель входных данных для гидравлического расчёта контуров.
 
 ---
 
@@ -17,78 +17,108 @@
 
 | UC | Название | Покрытие |
 |----|-----------|----------|
-| UC-01 | Расчёт гидравлических параметров контура | Основной класс параметров |
-| UC-07 | Загрузка свойств теплоносителя | Поля GlycolConcentration, GlycolType |
+| UC-01 | Ввод параметров контуров | Основной класс входных данных |
+| UC-07 | Интеграция с ThermalModule и ClimateModule | Получение данных из модулей |
 
 ---
 
 ## 3. Создаваемые файлы
 
-### 3.1. HydraulicParameters.cs
+### 3.1. HydraulicInputData.cs
 
-**Путь:** `src/Models/Hydraulics/HydraulicParameters.cs`
+**Путь:** `src/Models/Hydraulics/HydraulicInputData.cs`
 
 **Содержимое:**
 ```csharp
-using SnowMeltingCalculator.Models.Thermal;
+using SnowMeltingCalculator.Models.Construction;
 
 namespace SnowMeltingCalculator.Models.Hydraulics
 {
     /// <summary>
-    /// Параметры для гидравлического расчёта контура
+    /// Входные данные для гидравлического расчёта контуров
     /// </summary>
     /// <remarks>
-    /// Содержит все входные данные для расчёта гидравлики:
-    /// - Параметры контура (длина, шаг укладки)
-    /// - Параметры теплоносителя (гликоль, температура)
-    /// - Параметры трубы (тип, шероховатость)
-    /// - Данные из теплового расчёта (расход, мощность)
+    /// Содержит данные из ThermalModule, ClimateModule и от пользователя.
+    /// Используется для расчёта таблицы контуров.
     /// </remarks>
-    public class HydraulicParameters
+    public class HydraulicInputData
     {
-        // === Параметры контура ===
+        // === Данные из ThermalModule ===
         
         /// <summary>
-        /// Длина контура (L_HK), м
+        /// Мощность вверх (q_up), Вт/м²
         /// </summary>
         /// <remarks>
-        /// Диапазон: 10-500 м
-        /// Формула: L_HK = S × 1000 / lR
-        /// Где S — площадь контура, lR — шаг укладки
+        /// Получается из ThermalCalculationResult.PowerUp
         /// </remarks>
-        public double CircuitLength { get; set; }
+        public double PowerUp { get; set; }
         
         /// <summary>
-        /// Длина подводки (L_Zul), м
+        /// Мощность вниз (q_down), Вт/м²
         /// </summary>
         /// <remarks>
-        /// Диапазон: 1-100 м
-        /// Сумма длин подающей и обратной подводок
+        /// Получается из ThermalCalculationResult.PowerDown
         /// </remarks>
-        public double SupplyLength { get; set; }
+        public double PowerDown { get; set; }
         
         /// <summary>
-        /// Шаг укладки (VAHK), см
+        /// Температура подачи (T_supply), °C
         /// </summary>
         /// <remarks>
-        /// Диапазон: 10-50 см
-        /// Рекомендуемые значения: 15, 20, 25, 30 см
+        /// Получается из ThermalCalculationResult.SupplyTemperature
         /// </remarks>
-        public double PipeSpacing { get; set; }
+        public double SupplyTemperature { get; set; }
         
         /// <summary>
-        /// Шаг подводки (VAZul), см
+        /// Температура обратки (T_return), °C
         /// </summary>
         /// <remarks>
-        /// Условный шаг для расчёта тепла от подводки
-        /// Обычно 5 см
+        /// Получается из ThermalCalculationResult.ReturnTemperature
         /// </remarks>
-        public double SupplySpacing { get; set; } = 5.0;
-        
-        // === Параметры теплоносителя ===
+        public double ReturnTemperature { get; set; }
         
         /// <summary>
-        /// Доля гликоля (Glycolanteil), % объёмные
+        /// Внутренний диаметр трубы (d_inner), мм
+        /// </summary>
+        /// <remarks>
+        /// Вычисляется: d_inner = D_ext - 2 × s
+        /// Где D_ext — наружный диаметр, s — толщина стенки
+        /// </remarks>
+        public double InnerDiameter { get; set; }
+        
+        /// <summary>
+        /// Шаг укладки (VA_hk), мм
+        /// </summary>
+        /// <remarks>
+        /// Получается из ThermalViewModel.PipeSpacing
+        /// Стандартные значения: 150, 200, 250, 300 мм
+        /// </remarks>
+        public double PipeSpacing_mm { get; set; }
+        
+        // === Данные из ClimateModule ===
+        
+        /// <summary>
+        /// Температура холодной пятидневки (t_cold), °C
+        /// </summary>
+        /// <remarks>
+        /// Получается из ClimateData.ColdFiveDayTemperature
+        /// Используется для расчёта при "холодном пуске"
+        /// </remarks>
+        public double ColdFiveDayTemperature { get; set; }
+        
+        // === Данные от пользователя ===
+        
+        /// <summary>
+        /// Тип гликоля
+        /// </summary>
+        /// <remarks>
+        /// Этиленгликоль или пропиленгликоль
+        /// По умолчанию: этиленгликоль
+        /// </remarks>
+        public GlycolType GlycolType { get; set; } = GlycolType.Ethylene;
+        
+        /// <summary>
+        /// Концентрация гликоля, %
         /// </summary>
         /// <remarks>
         /// Диапазон: 10-90%
@@ -97,165 +127,103 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         public double GlycolConcentration { get; set; } = 50.0;
         
         /// <summary>
-        /// Тип гликоля
+        /// Шаг подводки (VA_zul), см
         /// </summary>
         /// <remarks>
-        /// Этиленгликоль или пропиленгликоль
+        /// По умолчанию: 5 см
         /// </remarks>
-        public GlycolType GlycolType { get; set; } = GlycolType.Ethylene;
+        public double SupplySpacing_cm { get; set; } = 5.0;
         
         /// <summary>
-        /// Температура подачи (T_VL), °C
+        /// Доля тепла от подводок (q_zul), %
         /// </summary>
         /// <remarks>
-        /// Диапазон: 20-90°C
-        /// Получается из теплового расчёта
+        /// По умолчанию: 10%
+        /// Диапазон: 0-20%
         /// </remarks>
-        public double SupplyTemperature { get; set; }
+        public double SupplyHeatPercent { get; set; } = 10.0;
+
+        /// <summary>
+        /// Тип балансировочного клапана
+        /// </summary>
+        /// <remarks>
+        /// По умолчанию: HKV_D
+        /// Определяет kv-значение для расчёта потерь на клапане
+        /// </remarks>
+        public ValveType ValveType { get; set; } = ValveType.HKV_D;
+
+        // === Вычисляемые свойства ===
         
         /// <summary>
-        /// Температура обратки (T_RL), °C
+        /// Рабочая температура (T_operating), °C
         /// </summary>
         /// <remarks>
-        /// Диапазон: 15-80°C
-        /// Получается из теплового расчёта
+        /// Формула: T_operating = (T_supply + T_return) / 2
         /// </remarks>
-        public double ReturnTemperature { get; set; }
+        public double OperatingTemperature => (SupplyTemperature + ReturnTemperature) / 2.0;
         
         /// <summary>
-        /// Средняя температура теплоносителя, °C
+        /// Расчётная температура (T_design), °C
         /// </summary>
         /// <remarks>
-        /// Формула: T_mean = (T_VL + T_RL) / 2
-        /// Используется для определения свойств гликоля
+        /// Равна температуре холодной пятидневки
         /// </remarks>
-        public double MeanTemperature => (SupplyTemperature + ReturnTemperature) / 2.0;
+        public double DesignTemperature => ColdFiveDayTemperature;
         
         /// <summary>
-        /// Плотность теплоносителя (ρ), кг/м³
+        /// Температурный перепад (ΔT), К
         /// </summary>
         /// <remarks>
-        /// Получается из GlycolDataService по температуре и концентрации
+        /// Формула: ΔT = T_supply - T_return
         /// </remarks>
-        public double Density { get; set; }
+        public double DeltaT => SupplyTemperature - ReturnTemperature;
         
         /// <summary>
-        /// Кинематическая вязкость (ν), мм²/с
+        /// Шаг укладки (VA_hk), см
         /// </summary>
         /// <remarks>
-        /// Получается из GlycolDataService по температуре и концентрации
+        /// Формула: VA_hk_cm = VA_hk_mm / 10
         /// </remarks>
-        public double KinematicViscosity { get; set; }
-        
-        /// <summary>
-        /// Удельная теплоёмкость (c_p), кДж/(кг·К)
-        /// </summary>
-        /// <remarks>
-        /// Получается из GlycolDataService по температуре и концентрации
-        /// </remarks>
-        public double SpecificHeat { get; set; }
-        
-        // === Параметры трубы ===
-        
-        /// <summary>
-        /// Тип трубы
-        /// </summary>
-        /// <remarks>
-        /// Только RAUTHERM S (PE-Xa)
-        /// </remarks>
-        public PipeType? Pipe { get; set; }
-        
-        /// <summary>
-        /// Шероховатость трубы (ε), мм
-        /// </summary>
-        /// <remarks>
-        /// Для PE-Xa: 0.007 мм
-        /// </remarks>
-        public double Roughness { get; set; } = 0.007;
-        
-        /// <summary>
-        /// Внутренний диаметр трубы (di), мм
-        /// </summary>
-        /// <remarks>
-        /// Вычисляется: di = d - 2 × s
-        /// Где d — наружный диаметр, s — толщина стенки
-        /// </remarks>
-        public double InnerDiameter => Pipe != null 
-            ? Pipe.OuterDiameter - 2 * Pipe.WallThickness 
-            : 0;
-        
-        // === Параметры из теплового расчёта ===
-        
-        /// <summary>
-        /// Удельный расход теплоносителя (V_dot), л/(ч·м²)
-        /// </summary>
-        /// <remarks>
-        /// Получается из ThermalCalculationResult.VolumeFlowRate
-        /// </remarks>
-        public double VolumeFlowRate { get; set; }
-        
-        /// <summary>
-        /// Мощность контура (q_total), Вт/м²
-        /// </summary>
-        /// <remarks>
-        /// Получается из ThermalCalculationResult.PowerTotal
-        /// </remarks>
-        public double PowerPerArea { get; set; }
-        
-        /// <summary>
-        /// Площадь контура (S), м²
-        /// </summary>
-        /// <remarks>
-        /// Вводится пользователем
-        /// </remarks>
-        public double CircuitArea { get; set; }
-        
-        /// <summary>
-        /// Расход на контур (v), л/ч
-        /// </summary>
-        /// <remarks>
-        /// Формула: v = VolumeFlowRate × CircuitArea
-        /// </remarks>
-        public double CircuitFlowRate => VolumeFlowRate * CircuitArea;
+        public double PipeSpacing_cm => PipeSpacing_mm / 10.0;
         
         // === Валидация ===
         
         /// <summary>
-        /// Признак валидности параметров
+        /// Признак валидности данных
         /// </summary>
         public bool IsValid => Validate().IsValid;
         
         /// <summary>
-        /// Валидировать параметры
+        /// Валидировать входные данные
         /// </summary>
         /// <returns>Результат валидации</returns>
         public ValidationResult Validate()
         {
             var errors = new List<string>();
             
-            if (CircuitLength < 10 || CircuitLength > 500)
-                errors.Add($"Длина контура должна быть от 10 до 500 м (текущая: {CircuitLength:F1} м)");
+            if (PowerUp <= 0)
+                errors.Add("Мощность вверх должна быть положительной");
             
-            if (SupplyLength < 1 || SupplyLength > 100)
-                errors.Add($"Длина подводки должна быть от 1 до 100 м (текущая: {SupplyLength:F1} м)");
+            if (PowerDown < 0)
+                errors.Add("Мощность вниз не может быть отрицательной");
+            
+            if (SupplyTemperature <= ReturnTemperature)
+                errors.Add("Температура подачи должна быть больше температуры обратки");
+            
+            if (InnerDiameter <= 0)
+                errors.Add("Внутренний диаметр трубы должен быть положительным");
+            
+            if (PipeSpacing_mm <= 0)
+                errors.Add("Шаг укладки должен быть положительным");
             
             if (GlycolConcentration < 10 || GlycolConcentration > 90)
-                errors.Add($"Доля гликоля должна быть от 10 до 90% (текущая: {GlycolConcentration:F0}%)");
+                errors.Add($"Концентрация гликоля должна быть от 10 до 90% (текущая: {GlycolConcentration:F0}%)");
             
-            if (SupplyTemperature < 20 || SupplyTemperature > 90)
-                errors.Add($"Температура подачи должна быть от 20 до 90°C (текущая: {SupplyTemperature:F1}°C)");
+            if (SupplySpacing_cm <= 0)
+                errors.Add("Шаг подводки должен быть положительным");
             
-            if (ReturnTemperature < 15 || ReturnTemperature > 80)
-                errors.Add($"Температура обратки должна быть от 15 до 80°C (текущая: {ReturnTemperature:F1}°C)");
-            
-            if (Pipe == null)
-                errors.Add("Тип трубы не задан");
-            
-            if (Density <= 0)
-                errors.Add("Плотность теплоносителя должна быть положительной");
-            
-            if (KinematicViscosity <= 0)
-                errors.Add("Кинематическая вязкость должна быть положительной");
+            if (SupplyHeatPercent < 0 || SupplyHeatPercent > 20)
+                errors.Add($"Доля тепла от подводок должна быть от 0 до 20% (текущая: {SupplyHeatPercent:F0}%)");
             
             return new ValidationResult
             {
@@ -294,79 +262,90 @@ namespace SnowMeltingCalculator.Models.Hydraulics
 
 ### 4.1. Unit-тесты
 
-**Файл:** `tests/Models/Hydraulics/HydraulicParametersTests.cs`
+**Файл:** `tests/Models/Hydraulics/HydraulicInputDataTests.cs`
 
 ```csharp
 using SnowMeltingCalculator.Models.Hydraulics;
-using SnowMeltingCalculator.Models.Thermal;
 using NUnit.Framework;
 
 namespace SnowMeltingCalculator.Tests.Models.Hydraulics
 {
     [TestFixture]
-    public class HydraulicParametersTests
+    public class HydraulicInputDataTests
     {
         [Test]
-        public void MeanTemperature_CalculatesCorrectly()
+        public void OperatingTemperature_CalculatesCorrectly()
         {
             // Arrange
-            var parameters = new HydraulicParameters
+            var data = new HydraulicInputData
             {
                 SupplyTemperature = 50,
                 ReturnTemperature = 30
             };
             
             // Act & Assert
-            Assert.That(parameters.MeanTemperature, Is.EqualTo(40));
+            Assert.That(data.OperatingTemperature, Is.EqualTo(40));
         }
         
         [Test]
-        public void CircuitFlowRate_CalculatesCorrectly()
+        public void DesignTemperature_EqualsColdFiveDayTemperature()
         {
             // Arrange
-            var parameters = new HydraulicParameters
+            var data = new HydraulicInputData
             {
-                VolumeFlowRate = 10, // л/(ч·м²)
-                CircuitArea = 20     // м²
+                ColdFiveDayTemperature = -30
             };
             
             // Act & Assert
-            Assert.That(parameters.CircuitFlowRate, Is.EqualTo(200)); // 10 × 20 = 200 л/ч
+            Assert.That(data.DesignTemperature, Is.EqualTo(-30));
         }
         
         [Test]
-        public void InnerDiameter_CalculatesCorrectly()
+        public void DeltaT_CalculatesCorrectly()
         {
             // Arrange
-            var pipe = new PipeType
+            var data = new HydraulicInputData
             {
-                OuterDiameter = 20,
-                WallThickness = 2
+                SupplyTemperature = 50,
+                ReturnTemperature = 30
             };
-            var parameters = new HydraulicParameters { Pipe = pipe };
             
             // Act & Assert
-            Assert.That(parameters.InnerDiameter, Is.EqualTo(16)); // 20 - 2×2 = 16 мм
+            Assert.That(data.DeltaT, Is.EqualTo(20));
         }
         
         [Test]
-        public void Validate_ReturnsValidForCorrectParameters()
+        public void PipeSpacing_cm_ConvertsFromMm()
         {
             // Arrange
-            var parameters = new HydraulicParameters
+            var data = new HydraulicInputData
             {
-                CircuitLength = 100,
-                SupplyLength = 10,
-                GlycolConcentration = 50,
+                PipeSpacing_mm = 200
+            };
+            
+            // Act & Assert
+            Assert.That(data.PipeSpacing_cm, Is.EqualTo(20));
+        }
+        
+        [Test]
+        public void Validate_ReturnsValidForCorrectData()
+        {
+            // Arrange
+            var data = new HydraulicInputData
+            {
+                PowerUp = 256,
+                PowerDown = 5,
                 SupplyTemperature = 50,
                 ReturnTemperature = 30,
-                Pipe = new PipeType(),
-                Density = 1053,
-                KinematicViscosity = 2.16
+                InnerDiameter = 16,
+                PipeSpacing_mm = 200,
+                ColdFiveDayTemperature = -30,
+                GlycolConcentration = 50,
+                SupplyHeatPercent = 10
             };
             
             // Act
-            var result = parameters.Validate();
+            var result = data.Validate();
             
             // Assert
             Assert.That(result.IsValid, Is.True);
@@ -374,27 +353,40 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         }
         
         [Test]
-        public void Validate_ReturnsInvalidForIncorrectParameters()
+        public void Validate_ReturnsInvalidForIncorrectData()
         {
             // Arrange
-            var parameters = new HydraulicParameters
+            var data = new HydraulicInputData
             {
-                CircuitLength = 5, // < 10
-                SupplyLength = 200, // > 100
-                GlycolConcentration = 5, // < 10
-                SupplyTemperature = 100, // > 90
-                ReturnTemperature = 10, // < 15
-                Pipe = null,
-                Density = 0,
-                KinematicViscosity = 0
+                PowerUp = 0, // Невалидно
+                PowerDown = -1, // Невалидно
+                SupplyTemperature = 30,
+                ReturnTemperature = 50, // Невалидно: подача < обратки
+                InnerDiameter = 0, // Невалидно
+                PipeSpacing_mm = 0, // Невалидно
+                GlycolConcentration = 5, // Невалидно: < 10
+                SupplyHeatPercent = 25 // Невалидно: > 20
             };
             
             // Act
-            var result = parameters.Validate();
+            var result = data.Validate();
             
             // Assert
             Assert.That(result.IsValid, Is.False);
             Assert.That(result.Errors.Count, Is.GreaterThan(0));
+        }
+        
+        [Test]
+        public void DefaultValues_AreCorrect()
+        {
+            // Arrange & Act
+            var data = new HydraulicInputData();
+            
+            // Assert
+            Assert.That(data.GlycolType, Is.EqualTo(GlycolType.Ethylene));
+            Assert.That(data.GlycolConcentration, Is.EqualTo(50.0));
+            Assert.That(data.SupplySpacing_cm, Is.EqualTo(5.0));
+            Assert.That(data.SupplyHeatPercent, Is.EqualTo(10.0));
         }
     }
 }
@@ -404,18 +396,31 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
 
 ## 5. Критерии приёмки
 
-- [x] Файл `HydraulicParameters.cs` создан
-- [x] Класс содержит все свойства из ТЗ
-- [x] Вычисляемые свойства (MeanTemperature, CircuitFlowRate, InnerDiameter) работают корректно
-- [x] Метод Validate() возвращает корректный результат
-- [x] XML-документация для всех свойств и методов
-- [x] Unit-тесты проходят успешно
-- [x] Код компилируется без предупреждений
+- [ ] Файл `HydraulicInputData.cs` создан в `src/Models/Hydraulics/`
+- [ ] Класс содержит все свойства из ТЗ
+- [ ] Вычисляемые свойства (OperatingTemperature, DesignTemperature, DeltaT, PipeSpacing_cm) работают корректно
+- [ ] Метод Validate() возвращает корректный результат
+- [ ] XML-документация для всех свойств и методов
+- [ ] Unit-тесты проходят успешно
+- [ ] Код компилируется без предупреждений
 
 ---
 
 ## 6. Примечания
 
-- Класс должен ссылаться на `PipeType` из `SnowMeltingCalculator.Models.Thermal`
-- ValidationResult вынесен в отдельный класс для повторного использования
-- Все числовые значения должны иметь значения по умолчанию
+- Класс должен быть независимым от других сервисов
+- Вычисляемые свойства не должны выбрасывать исключения
+- Значения по умолчанию соответствуют ТЗ
+- Файл размещается в `src/Models/Hydraulics/`
+
+---
+
+## 7. Связанные задачи
+
+- Task 2.1: Создать ICircuitsCalculator.cs — использовать HydraulicInputData
+- Task 3.2: Создать CircuitsCalculator.cs — использовать HydraulicInputData
+- Task 4.1: Создать CircuitsViewModel.cs — использовать HydraulicInputData
+
+---
+
+*Дата создания: 2026-03-17*

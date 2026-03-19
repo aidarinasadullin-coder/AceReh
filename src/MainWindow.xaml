@@ -12,7 +12,8 @@
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource MaterialDesignPaper}"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        FontFamily="{DynamicResource MaterialDesignFont}">
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        Focusable="True">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -66,30 +67,115 @@
         <!-- Основной контент -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="Auto"/><!-- Боковое меню с автоматической шириной -->
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <!-- Боковое меню -->
-            <materialDesign:ColorZone Grid.Column="0"
-                                      Mode="PrimaryLight"
-                                      Background="{DynamicResource PrimaryHueLightBrush}">
-                <ListBox ItemsSource="{Binding MenuItems}"
-                        SelectedItem="{Binding SelectedMenuItem}"
-                        Style="{StaticResource MaterialDesignNavigationPrimaryListBox}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Margin="0,8">
-                                <materialDesign:PackIcon Kind="{Binding Icon}"
-                                                       Width="24" Height="24"
-                                                       Margin="0,0,16,0"/>
-                                <TextBlock Text="{Binding Title}"
-                                          Style="{StaticResource MaterialDesignBody2TextBlock}"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </materialDesign:ColorZone>
+            <Grid Grid.Column="0" x:Name="SidebarGrid">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Width" Value="220"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
+                                <Setter Property="Width" Value="65"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                
+                <materialDesign:ColorZone Mode="PrimaryLight"
+                                          Background="{DynamicResource PrimaryHueLightBrush}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Кнопка сворачивания -->
+                        <Button Grid.Row="0"
+                                x:Name="ToggleSidebarButton"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Margin="0,4,4,0"
+                                Width="28" Height="28"
+                                Command="{Binding ToggleSidebarCommand}"
+                                ToolTip="{Binding IsSidebarCollapsed, Converter={StaticResource SidebarTooltipConverter}}"
+                                AutomationProperties.Name="Свернуть/развернуть панель навигации"
+                                AutomationProperties.HelpText="Нажмите для переключения состояния боковой панели (Ctrl+B)"
+                                Style="{StaticResource MaterialDesignIconButton}">
+                            <materialDesign:PackIcon Width="18" Height="18">
+                                <materialDesign:PackIcon.Style>
+                                    <Style TargetType="materialDesign:PackIcon">
+                                        <Setter Property="Kind" Value="ChevronLeft"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
+                                                <Setter Property="Kind" Value="ChevronRight"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </materialDesign:PackIcon.Style>
+                            </materialDesign:PackIcon>
+                        </Button>
+
+                        <!-- Меню навигации -->
+                        <ListBox Grid.Row="1"
+                                ItemsSource="{Binding MenuItems}"
+                                SelectedItem="{Binding SelectedMenuItem}"
+                                Style="{StaticResource MaterialDesignNavigationPrimaryListBox}"
+                                Margin="0,8,0,0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Иконка -->
+                                        <materialDesign:PackIcon Grid.Column="0"
+                                                                Kind="{Binding Icon}"
+                                                                Width="24" Height="24"
+                                                                Margin="4,0,0,0"
+                                                                HorizontalAlignment="Left"
+                                                                VerticalAlignment="Center">
+                                            <materialDesign:PackIcon.Style>
+                                                <Style TargetType="materialDesign:PackIcon" BasedOn="{StaticResource {x:Type materialDesign:PackIcon}}">
+                                                    <Style.Triggers>
+                                                        <!-- Tooltip только в свёрнутом режиме -->
+                                                        <DataTrigger Binding="{Binding DataContext.IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                                            <Setter Property="ToolTip" Value="{Binding Title}"/>
+                                                            <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+                                                            <Setter Property="ToolTipService.Placement" Value="Right"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </materialDesign:PackIcon.Style>
+                                        </materialDesign:PackIcon>
+
+                                        <!-- Текст -->
+                                        <TextBlock Grid.Column="1"
+                                                  Text="{Binding Title}"
+                                                  Margin="4,0,0,0"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </materialDesign:ColorZone>
+            </Grid>
 
             <!-- Область контента -->
             <ScrollViewer Grid.Column="1"

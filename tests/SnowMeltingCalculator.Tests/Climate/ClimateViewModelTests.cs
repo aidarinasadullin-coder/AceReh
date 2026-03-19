@@ -37,7 +37,7 @@ namespace SnowMeltingCalculator.Tests.Climate
                 Name = "Москва",
                 Region = "Московская область",
                 T5Days092 = -28, // -27 < -28 < -37, поэтому расчётная температура = -15°C
-                WindMaxJan = 4.5,
+                WindAvgTempLe8 = 4.5,
                 Humidity15hCold = 85
             };
 
@@ -180,7 +180,7 @@ namespace SnowMeltingCalculator.Tests.Climate
         public void Validate_InvalidSnowfallIntensity_ReturnsFalse()
         {
             // Arrange
-            _viewModel.SnowfallIntensity = 10; // Выше максимума
+            _viewModel.SnowfallIntensity = 60; // Выше максимума (50 мм/ч)
 
             // Act & Assert
             Assert.That(_viewModel.IsValid, Is.False);
@@ -205,7 +205,7 @@ namespace SnowMeltingCalculator.Tests.Climate
             _viewModel.AirTemperature = -15;
             _viewModel.WindSpeed = 5;
             _viewModel.Humidity = 70;
-            _viewModel.SnowfallIntensity = 0.3;
+            _viewModel.SnowfallIntensity = 10;  // мм/ч
 
             // Act & Assert
             Assert.That(_viewModel.IsValid, Is.True);
@@ -233,7 +233,7 @@ namespace SnowMeltingCalculator.Tests.Climate
             Assert.That(_viewModel.AirTemperature, Is.EqualTo(-15.0));
             Assert.That(_viewModel.WindSpeed, Is.EqualTo(5.0));
             Assert.That(_viewModel.Humidity, Is.EqualTo(70.0));
-            Assert.That(_viewModel.SnowfallIntensity, Is.EqualTo(0.3));
+            Assert.That(_viewModel.SnowfallIntensity, Is.EqualTo(0));  // По умолчанию 0 мм/ч
             Assert.That(_viewModel.SelectedZone, Is.EqualTo(ClimateZone.Zone_M15));
         }
 
@@ -241,7 +241,7 @@ namespace SnowMeltingCalculator.Tests.Climate
         public void ResetToCityData_RestoresCityValues()
         {
             // Arrange
-            _viewModel.SelectedCity = new CityInfo { Name = "Москва", T5Days092 = -28, WindMaxJan = 4.5, Humidity15hCold = 85 };
+            _viewModel.SelectedCity = new CityInfo { Name = "Москва", T5Days092 = -28, WindAvgTempLe8 = 4.5, Humidity15hCold = 85 };
             // После выбора города AirTemperature = -15 (по таблице 1.6)
             _viewModel.AirTemperature = -20; // Изменено пользователем
             _viewModel.WindSpeed = 10;
@@ -298,7 +298,7 @@ namespace SnowMeltingCalculator.Tests.Climate
                 Name = "Москва",
                 Region = "Московская область",
                 T5Days092 = -28,
-                WindMaxJan = 4.5,
+                WindAvgTempLe8 = 4.5,
                 Humidity15hCold = 85
             };
 
@@ -345,13 +345,13 @@ namespace SnowMeltingCalculator.Tests.Climate
         public void ChangeSnowfallIntensity_SyncsToClimateData()
         {
             // Arrange
-            _viewModel.SnowfallIntensity = 0.3;
+            _viewModel.SnowfallIntensity = 5;  // мм/ч
 
             // Act
-            _viewModel.SnowfallIntensity = 0.5;
+            _viewModel.SnowfallIntensity = 10;  // мм/ч
 
             // Assert
-            Assert.That(_climateData.SnowfallIntensity, Is.EqualTo(0.5));
+            Assert.That(_climateData.SnowfallIntensity, Is.EqualTo(10));
         }
 
         [Test]

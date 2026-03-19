@@ -89,11 +89,12 @@ namespace SnowMeltingCalculator.Configuration
 
             // Services - Singleton для кэширования данных
             services.AddSingleton<IGlycolDataService, GlycolDataService>();
-            services.AddSingleton<IHydraulicCalculator, HydraulicCalculator>();
-            services.AddSingleton<HydraulicValidator>();
 
-            // ViewModels - Singleton для основного ViewModel (подписка на события)
-            services.AddSingleton<HydraulicsViewModel>();
+            // Services - Калькулятор контуров (без состояния)
+            services.AddSingleton<ICircuitsCalculator, CircuitsCalculator>();
+
+            // ViewModels - Singleton для модуля "Контура" (сохранение состояния между навигациями)
+            services.AddSingleton<CircuitsViewModel>();
 
             // ViewModels - Transient для дочерних ViewModel
             services.AddTransient<CircuitViewModel>();

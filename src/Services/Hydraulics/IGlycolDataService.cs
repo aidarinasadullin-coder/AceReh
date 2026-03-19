@@ -16,8 +16,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
     /// для заданного типа гликоля, концентрации и температуры.
     /// 
     /// Источник данных: ASHRAE Handbook
-    /// Диапазон температур: -34.4°C до 98.9°C
-    /// Диапазон концентраций: 10% до 90%
+    /// Диапазон температур: -34.4°C до 90°C
+    /// Диапазон концентраций: 0% (вода) до 90%
     /// </remarks>
     public interface IGlycolDataService
     {
@@ -115,8 +115,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <param name="temperature">Температура, °C</param>
         /// <returns>true, если температура в допустимом диапазоне</returns>
         /// <remarks>
-        /// Диапазон температур: -34.4°C до 98.9°C
-        /// При температуре вне диапазона используется экстраполяция.
+        /// Диапазон температур: -34.4°C до 90°C
+        /// Для воды (концентрация 0%): 0°C до 90°C
         /// </remarks>
         bool IsTemperatureSupported(double temperature);
         
@@ -126,8 +126,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <param name="concentration">Концентрация, %</param>
         /// <returns>true, если концентрация в допустимом диапазоне</returns>
         /// <remarks>
-        /// Диапазон концентраций: 10% до 90%
-        /// При концентрации вне диапазона используется экстраполяция.
+        /// Диапазон концентраций: 0% (вода) до 90%
         /// </remarks>
         bool IsConcentrationSupported(double concentration);
         
@@ -154,5 +153,21 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// </summary>
         /// <returns>Максимальная концентрация, %</returns>
         double GetMaxConcentration();
+        
+        /// <summary>
+        /// Получить свойства воды при заданной температуре
+        /// </summary>
+        /// <param name="temperature">Температура, °C</param>
+        /// <returns>Свойства воды</returns>
+        /// <remarks>
+        /// Используются приближённые формулы IAPWS-IF97 для диапазона 0-100°C:
+        /// - Плотность: ρ = 1000 - 0.0178 × (T - 4)² при T > 4°C
+        /// - Вязкость: ν = exp(-1.597 + 0.181×T - 0.003×T²) мм²/с
+        /// - Теплоёмкость: c_p ≈ 4.18 кДж/(кг·К) (слабо зависит от T)
+        /// - Теплопроводность: λ ≈ 0.6 - 0.0015×T Вт/(м·К)
+        /// 
+        /// Диапазон температур: 0°C до 90°C
+        /// </remarks>
+        GlycolProperties GetWaterProperties(double temperature);
     }
 }

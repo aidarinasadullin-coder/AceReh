@@ -47,10 +47,12 @@ namespace SnowMeltingCalculator.Tests.Thermal
             Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting));
             Assert.That(_viewModel.SupplyTemperature, Is.EqualTo(50.0));
             Assert.That(_viewModel.GroundTemperature, Is.EqualTo(10.0));
-            Assert.That(_viewModel.PipeSpacing, Is.EqualTo(200.0));
+            Assert.That(_viewModel.PipeSpacing, Is.EqualTo(200));
             Assert.That(_viewModel.Result, Is.Null);
             Assert.That(_viewModel.IsCalculating, Is.False);
             Assert.That(_viewModel.ValidationMessage, Is.Empty);
+            Assert.That(_viewModel.SelectedPipe, Is.Null);
+            Assert.That(_viewModel.IsPipeSpacingEnabled, Is.False);
         }
 
         [Test]
@@ -62,13 +64,14 @@ namespace SnowMeltingCalculator.Tests.Thermal
             Assert.That(_viewModel.AvailableModes, Contains.Item(OperatingMode.AntiIcing));
             Assert.That(_viewModel.AvailableModes, Contains.Item(OperatingMode.Melting));
             Assert.That(_viewModel.AvailableModes, Contains.Item(OperatingMode.Intensive));
+            Assert.That(_viewModel.AvailablePipeSpacings, Is.EqualTo(new[] { 150, 200, 250, 300 }));
         }
 
         [Test]
-        public void Constructor_SetsDefaultPipe()
+        public void Constructor_SelectedPipeIsNullByDefault()
         {
-            // Assert - По умолчанию RAUTHERM S 20x2,0 (индекс 1)
-            Assert.That(_viewModel.SelectedPipe.Name, Is.EqualTo("RAUTHERM S 20x2,0"));
+            // Assert - По умолчанию труба не выбрана
+            Assert.That(_viewModel.SelectedPipe, Is.Null);
         }
 
         [Test]
@@ -102,6 +105,9 @@ namespace SnowMeltingCalculator.Tests.Thermal
         [Test]
         public async Task Calculate_ValidInput_SetsResult()
         {
+            // Arrange
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
+
             // Act
             await _viewModel.CalculateCommand.ExecuteAsync(null);
 
@@ -129,6 +135,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public async Task Calculate_SetsIsCalculatingDuringExecution()
         {
             // Arrange
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
             var wasCalculating = false;
             _viewModel.PropertyChanged += (s, e) =>
             {
@@ -150,6 +157,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public async Task Calculate_UsesClimateData()
         {
             // Arrange
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
             _mockClimateData.AirTemperature = -30.0;
             _mockClimateData.WindSpeed = 8.0;
             _mockClimateData.SnowfallIntensity = 3.0;
@@ -169,6 +177,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public async Task Calculate_UsesConstructionData()
         {
             // Arrange
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
             _mockConstructionData.R1Total = 0.08;
             _mockConstructionData.R2Total = 0.12;
             _mockConstructionData.LambdaE = 1.8;
@@ -209,7 +218,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
             _viewModel.SupplyTemperature = 70.0;
             _viewModel.GroundTemperature = 15.0;
             _viewModel.SelectedPipe = PipeType.StandardPipes[0];
-            _viewModel.PipeSpacing = 300.0;
+            _viewModel.PipeSpacing = 300;
             _viewModel.Result = new ThermalCalculationResult();
             _viewModel.ValidationMessage = "Ошибка";
 
@@ -220,8 +229,8 @@ namespace SnowMeltingCalculator.Tests.Thermal
             Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting));
             Assert.That(_viewModel.SupplyTemperature, Is.EqualTo(50.0));
             Assert.That(_viewModel.GroundTemperature, Is.EqualTo(10.0));
-            Assert.That(_viewModel.SelectedPipe.Name, Is.EqualTo("RAUTHERM S 20x2,0"));
-            Assert.That(_viewModel.PipeSpacing, Is.EqualTo(200.0));
+            Assert.That(_viewModel.SelectedPipe, Is.Null);
+            Assert.That(_viewModel.PipeSpacing, Is.EqualTo(200));
             Assert.That(_viewModel.Result, Is.Null);
             Assert.That(_viewModel.ValidationMessage, Is.Empty);
         }
@@ -290,7 +299,8 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_PipeSpacingTooLow_ReturnsFalse()
         {
             // Arrange
-            _viewModel.PipeSpacing = 50.0; // Ниже минимума
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
+            _viewModel.PipeSpacing = 50; // Ниже минимума
 
             // Act
             _viewModel.CalculateCommand.Execute(null);
@@ -304,7 +314,8 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_PipeSpacingTooHigh_ReturnsFalse()
         {
             // Arrange
-            _viewModel.PipeSpacing = 600.0; // Выше максимума
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
+            _viewModel.PipeSpacing = 600; // Выше максимума
 
             // Act
             _viewModel.CalculateCommand.Execute(null);
@@ -318,6 +329,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_ValidInput_ReturnsTrue()
         {
             // Arrange - все значения по умолчанию валидны
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
 
             // Act
             _viewModel.CalculateCommand.Execute(null);
@@ -325,6 +337,20 @@ namespace SnowMeltingCalculator.Tests.Thermal
             // Assert
             Assert.That(_viewModel.Result, Is.Not.Null);
             Assert.That(_viewModel.ValidationMessage, Is.Empty);
+        }
+
+        [Test]
+        public void Validate_SelectedPipeNull_ReturnsFalse()
+        {
+            // Arrange - труба не выбрана
+            _viewModel.SelectedPipe = null;
+
+            // Act
+            _viewModel.CalculateCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.Result, Is.Null);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("тип трубы"));
         }
 
         #endregion
@@ -339,7 +365,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
             _viewModel.SupplyTemperature = 60.0;
             _viewModel.GroundTemperature = 5.0;
             _viewModel.SelectedPipe = PipeType.StandardPipes[2]; // 25x2.3
-            _viewModel.PipeSpacing = 150.0;
+            _viewModel.PipeSpacing = 150;
 
             // Act
             var parameters = _viewModel.BuildThermalParameters();
@@ -357,6 +383,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void BuildThermalParameters_IncludesClimateData()
         {
             // Arrange
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
             _mockClimateData.AirTemperature = -25.0;
             _mockClimateData.WindSpeed = 6.0;
             _mockClimateData.SnowfallIntensity = 1.5;
@@ -374,6 +401,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void BuildThermalParameters_IncludesConstructionData()
         {
             // Arrange
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
             _mockConstructionData.R1Total = 0.07;
             _mockConstructionData.R2Total = 0.15;
             _mockConstructionData.LambdaE = 1.9;
@@ -430,13 +458,51 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             _viewModel.SelectedPipe = PipeType.StandardPipes[0];
-            Assert.That(_viewModel.SelectedPipe.Name, Is.EqualTo("RAUTHERM S 17x2,0"));
+            Assert.That(_viewModel.SelectedPipe!.Name, Is.EqualTo("RAUTHERM S 17x2,0"));
 
             _viewModel.SelectedPipe = PipeType.StandardPipes[1];
-            Assert.That(_viewModel.SelectedPipe.Name, Is.EqualTo("RAUTHERM S 20x2,0"));
+            Assert.That(_viewModel.SelectedPipe!.Name, Is.EqualTo("RAUTHERM S 20x2,0"));
 
             _viewModel.SelectedPipe = PipeType.StandardPipes[2];
-            Assert.That(_viewModel.SelectedPipe.Name, Is.EqualTo("RAUTHERM S 25x2,3"));
+            Assert.That(_viewModel.SelectedPipe!.Name, Is.EqualTo("RAUTHERM S 25x2,3"));
+        }
+
+        [Test]
+        public void IsPipeSpacingEnabled_FalseWhenNoPipeSelected()
+        {
+            // Arrange
+            _viewModel.SelectedPipe = null;
+
+            // Assert
+            Assert.That(_viewModel.IsPipeSpacingEnabled, Is.False);
+        }
+
+        [Test]
+        public void IsPipeSpacingEnabled_TrueWhenPipeSelected()
+        {
+            // Arrange
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
+
+            // Assert
+            Assert.That(_viewModel.IsPipeSpacingEnabled, Is.True);
+        }
+
+        [Test]
+        public void IsPipeSpacingEnabled_RaisesPropertyChangedWhenPipeChanges()
+        {
+            // Arrange
+            var propertyChanged = false;
+            _viewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(ThermalViewModel.IsPipeSpacingEnabled))
+                    propertyChanged = true;
+            };
+
+            // Act
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
+
+            // Assert
+            Assert.That(propertyChanged, Is.True);
         }
 
         #endregion

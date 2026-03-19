@@ -71,7 +71,7 @@ namespace SnowMeltingCalculator.Models.Thermal
         public double WindSpeed { get; set; }
         
         /// <summary>
-        /// Интенсивность снегопада, см/ч
+        /// Интенсивность снегопада, мм/ч (водяной эквивалент)
         /// </summary>
         public double SnowfallIntensity { get; set; }
         

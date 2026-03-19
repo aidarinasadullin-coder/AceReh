@@ -22,9 +22,9 @@ namespace SnowMeltingCalculator.Models.Climate
         public double T5Days092 { get; set; }
 
         /// <summary>
-        /// Максимальная скорость ветра в январе, м/с
+        /// Средняя скорость ветра за период со средней суточной температурой ≤8°C (отопительный период), м/с
         /// </summary>
-        public double WindMaxJan { get; set; }
+        public double WindAvgTempLe8 { get; set; }
 
         /// <summary>
         /// Влажность в 15 часов холодного периода, %

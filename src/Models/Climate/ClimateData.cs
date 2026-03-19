@@ -36,7 +36,7 @@ namespace SnowMeltingCalculator.Models.Climate
         double Humidity { get; }
 
         /// <summary>
-        /// Интенсивность снегопада, см/ч
+        /// Интенсивность снегопада, мм/ч (водяной эквивалент)
         /// </summary>
         double SnowfallIntensity { get; }
 

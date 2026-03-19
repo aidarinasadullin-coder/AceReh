@@ -1,0 +1,327 @@
+<UserControl x:Class="SnowMeltingCalculator.Views.Hydraulics.CircuitsResultsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:SnowMeltingCalculator.ViewModels.Hydraulics"
+             xmlns:converters="clr-namespace:SnowMeltingCalculator.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="500" d:DesignWidth="400"
+             d:DataContext="{d:DesignInstance Type=vm:CircuitsViewModel}">
+
+    <UserControl.Resources>
+        <!-- Конвертеры -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+
+        <!-- Стили -->
+        <Style x:Key="ResultGroupStyle" TargetType="Border">
+            <Setter Property="Background" Value="#FAFAFA"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="CornerRadius" Value="5"/>
+        </Style>
+
+        <Style x:Key="GroupHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Foreground" Value="#1976D2"/>
+        </Style>
+
+        <Style x:Key="ResultRowStyle" TargetType="Grid">
+            <Setter Property="Margin" Value="0,3"/>
+        </Style>
+
+        <Style x:Key="ResultLabelStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#666"/>
+        </Style>
+
+        <Style x:Key="ResultValueStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <Style x:Key="ResultUnitStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#999"/>
+        </Style>
+
+        <Style x:Key="HighlightValueStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="#1976D2"/>
+        </Style>
+
+        <Style x:Key="WarningTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF9800"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style x:Key="ErrorTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#F44336"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style x:Key="SuccessTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#4CAF50"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="10">
+            
+            <!-- Заголовок -->
+            <TextBlock Text="Итоги коллектора"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Margin="0,0,0,15"
+                       Foreground="#1976D2"/>
+
+            <!-- Информация о коллекторе -->
+            <Border Style="{StaticResource ResultGroupStyle}"
+                    Visibility="{Binding SelectedCollector, Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="Параметры коллектора" Style="{StaticResource GroupHeaderStyle}"/>
+
+                    <!-- Номер коллектора -->
+                    <Grid Style="{StaticResource ResultRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Номер коллектора:" Style="{StaticResource ResultLabelStyle}"/>
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding SelectedCollector.CollectorNumber, StringFormat='№{0}'}"
+                                   Style="{StaticResource ResultValueStyle}"/>
+                    </Grid>
+
+                    <!-- Тип вентиля -->
+                    <Grid Style="{StaticResource ResultRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Тип вентиля:" Style="{StaticResource ResultLabelStyle}"/>
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding SelectedCollector.ValveType}"
+                                   Style="{StaticResource ResultValueStyle}"/>
+                    </Grid>
+
+                    <!-- Количество контуров -->
+                    <Grid Style="{StaticResource ResultRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Количество контуров:" Style="{StaticResource ResultLabelStyle}"/>
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding SelectedCollector.Summary.CircuitCount, StringFormat={}{0} шт.}"
+                                   Style="{StaticResource ResultValueStyle}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Общие параметры -->
+            <Border Style="{StaticResource ResultGroupStyle}"
+                    Visibility="{Binding SelectedCollector.Summary, Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="Общие параметры" Style="{StaticResource GroupHeaderStyle}"/>
+
+                    <!-- Общая длина труб -->
+                    <Grid Style="{StaticResource ResultRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Общая длина труб:" Style="{StaticResource ResultLabelStyle}"/>
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding SelectedCollector.Summary.TotalPipeLength, StringFormat={}{0:F1}}"
+                                   Style="{StaticResource ResultValueStyle}"/>
+                        <TextBlock Grid.Column="2" Text="м" Style="{StaticResource ResultUnitStyle}"/>
+                    </Grid>
+
+                    <!-- Общая мощность -->
+                    <Grid Style="{StaticResource ResultRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Общая мощность:" Style="{StaticResource ResultLabelStyle}"/>
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding SelectedCollector.Summary.TotalPower, StringFormat={}{0:F0}}"
+                                   Style="{StaticResource ResultValueStyle}"/>
+                        <TextBlock Grid.Column="2" Text="Вт" Style="{StaticResource ResultUnitStyle}"/>
+                    </Grid>
+
+                    <!-- Общий расход -->
+                    <Grid Style="{StaticResource ResultRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Общий расход:" Style="{StaticResource ResultLabelStyle}"/>
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding SelectedCollector.Summary.TotalFlowRate, StringFormat={}{0:F1}}"
+                                   Style="{StaticResource ResultValueStyle}"/>
+                        <TextBlock Grid.Column="2" Text="л/ч" Style="{StaticResource ResultUnitStyle}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Потери давления -->
+            <Border Style="{StaticResource ResultGroupStyle}"
+                    Visibility="{Binding SelectedCollector.Summary, Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="Потери давления" Style="{StaticResource GroupHeaderStyle}"/>
+
+                    <!-- Потери при рабочей температуре -->
+                    <Grid Style="{StaticResource ResultRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="При рабочей температуре:" Style="{StaticResource ResultLabelStyle}"/>
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding SelectedCollector.Summary.PressureLoss_Operating_mbar, StringFormat={}{0:F1}}"
+                                   Style="{StaticResource ResultValueStyle}"/>
+                        <TextBlock Grid.Column="2" Text="мбар" Style="{StaticResource ResultUnitStyle}"/>
+                    </Grid>
+
+                    <!-- Потери при расчётной температуре -->
+                    <Grid Style="{StaticResource ResultRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="При расчётной температуре:" Style="{StaticResource ResultLabelStyle}"/>
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding SelectedCollector.Summary.PressureLoss_Cold_mbar, StringFormat={}{0:F1}}"
+                                   Style="{StaticResource ResultValueStyle}"/>
+                        <TextBlock Grid.Column="2" Text="мбар" Style="{StaticResource ResultUnitStyle}"/>
+                    </Grid>
+
+                    <!-- Максимальные потери контура -->
+                    <Grid Style="{StaticResource ResultRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Макс. потери контура:" Style="{StaticResource ResultLabelStyle}"/>
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding SelectedCollector.Summary.MaxCircuitLoss, StringFormat={}{0:F0}}"
+                                   Style="{StaticResource ResultValueStyle}"/>
+                        <TextBlock Grid.Column="2" Text="Па" Style="{StaticResource ResultUnitStyle}"/>
+                    </Grid>
+
+                    <!-- Референсный контур -->
+                    <Grid Style="{StaticResource ResultRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Референсный контур:" Style="{StaticResource ResultLabelStyle}"/>
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding SelectedCollector.Summary.ReferenceCircuitNumber, StringFormat='№{0}'}"
+                                   Style="{StaticResource ResultValueStyle}"/>
+                    </Grid>
+
+                    <Separator Margin="0,10"/>
+
+                    <!-- Превышение лимита -->
+                    <Grid Style="{StaticResource ResultRowStyle}"
+                          Visibility="{Binding SelectedCollector.Summary.IsPressureExceeded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" 
+                                   Text="⚠ ПРЕВЫШЕНИЕ ЛИМИТА (320 мбар)"
+                                   Style="{StaticResource ResultLabelStyle}"
+                                   FontWeight="Bold"
+                                   Foreground="#F44336"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Предупреждения -->
+            <Border Background="#FFF3E0" 
+                    Padding="10" 
+                    Margin="0,0,0,10"
+                    CornerRadius="5">
+                <Border.Visibility>
+                    <MultiBinding Converter="{StaticResource BooleanToVisibilityConverter}">
+                        <Binding Path="SelectedCollector.Summary.Warnings" Converter="{StaticResource NullToVisibilityConverter}"/>
+                    </MultiBinding>
+                </Border.Visibility>
+                <StackPanel>
+                    <TextBlock Text="Предупреждения" 
+                               FontWeight="Bold"
+                               Foreground="#E65100"
+                               Margin="0,0,0,5"/>
+                    
+                    <ItemsControl ItemsSource="{Binding SelectedCollector.Summary.Warnings}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Style="{StaticResource WarningTextStyle}">
+                                    <TextBlock.Margin>
+                                        <Thickness Left="10" Top="2" Right="0" Bottom="2"/>
+                                    </TextBlock.Margin>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Статус расчёта -->
+            <Border Background="#E8F5E9" 
+                    Padding="10" 
+                    CornerRadius="5"
+                    Visibility="{Binding SelectedCollector.Summary.IsValid, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="✓ " 
+                               Foreground="#2E7D32"
+                               FontWeight="Bold"
+                               FontSize="14"/>
+                    <TextBlock Text="Расчёт выполнен успешно" 
+                               Style="{StaticResource SuccessTextStyle}"
+                               FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

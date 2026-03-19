@@ -227,4 +227,70 @@ namespace SnowMeltingCalculator.Converters
             throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// Конвертер: HydraulicMode → Visibility
+    /// </summary>
+    /// <remarks>
+    /// Используется для переключателя режима (Рабочая/Расчётная температура).
+    /// Параметр: "Operating" — виден, если режим OperatingTemperature
+    ///           "Design" — виден, если режим DesignTemperature
+    /// </remarks>
+    public class HydraulicModeToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Models.Hydraulics.HydraulicMode mode && parameter is string param)
+            {
+                // Если параметр "Operating", показываем кнопку "Расчётная температура"
+                // когда текущий режим OperatingTemperature (нужно переключиться на Design)
+                if (param == "Operating")
+                {
+                    return mode == Models.Hydraulics.HydraulicMode.OperatingTemperature
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                }
+                // Если параметр "Design", показываем кнопку "Рабочая температура"
+                // когда текущий режим DesignTemperature (нужно переключиться на Operating)
+                if (param == "Design")
+                {
+                    return mode == Models.Hydraulics.HydraulicMode.DesignTemperature
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                }
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Конвертер: bool → Tooltip для кнопки сворачивания боковой панели
+    /// </summary>
+    /// <remarks>
+    /// true (свёрнута) → "Развернуть панель (Ctrl+B)"
+    /// false (развёрнута) → "Свернуть панель (Ctrl+B)"
+    /// </remarks>
+    public class SidebarTooltipConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool isCollapsed)
+            {
+                return isCollapsed 
+                    ? "Развернуть панель (Ctrl+B)" 
+                    : "Свернуть панель (Ctrl+B)";
+            }
+            return "Свернуть панель (Ctrl+B)";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

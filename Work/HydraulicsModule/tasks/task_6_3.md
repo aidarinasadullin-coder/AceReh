@@ -1,54 +1,115 @@
-# Task 6.3: Загрузка данных из JSON
+# Task 6.3: Интеграция с ClimateModule
 
-**Этап:** 6 - Integration  
-**Приоритет:** Средний  
-**Статус:** Не начато  
-**Зависимости:** Task 3.3, Task 3.5
+**Этап:** 6 - Интеграция  
+**Приоритет:** Высокий  
+**Статус:** К разработке  
+**Зависимости:** Task 1.2 (HydraulicInputData), Task 4.1 (CircuitsViewModel)
 
 ---
 
 ## 1. Цель задачи
 
-Обеспечить загрузку данных о гликолях и коллекторах из JSON-файлов.
+Реализовать интеграцию с ClimateModule для получения температуры холодной пятидневки.
 
 ---
 
-## 2. Создаваемые/изменяемые файлы
+## 2. Связь с юзер-кейсами
 
-### 6.1. data/glycol_data.json
+| UC | Название | Покрытие |
+|----|-----------|----------|
+| UC-07 | Интеграция с ClimateModule | Получение t_cold |
 
-**Путь:** `data/glycol_data.json`
+---
 
-**Структура:**
-```json
+## 3. Изменяемые файлы
+
+### 3.1. CircuitsViewModel.cs
+
+**Изменения:**
+
+```csharp
+// Добавить в CircuitsViewModel.cs
+
+using SnowMeltingCalculator.ViewModels.Climate;
+
+public partial class CircuitsViewModel : ObservableObject
 {
-  "ethylene_glycol": {
-    "10": { "temperatures": [...], "density": [...], "viscosity": [...], "specific_heat": [...] },
-    "20": { ... },
-    ...
-  },
-  "propylene_glycol": { ... }
-}
-```
+    private readonly ClimateViewModel _climateViewModel;
 
-### 6.2. data/rehau_products.json
+    public CircuitsViewModel(
+        ICircuitsCalculator circuitsCalculator,
+        IGlycolDataService glycolService,
+        ThermalViewModel thermalViewModel,
+        ClimateViewModel climateViewModel)
+    {
+        _circuitsCalculator = circuitsCalculator;
+        _glycolService = glycolService;
+        _thermalViewModel = thermalViewModel;
+        _climateViewModel = climateViewModel;
 
-**Путь:** `data/rehau_products.json`
+        // Подписка на изменения климатических данных
+        _climateViewModel.PropertyChanged += OnClimatePropertyChanged;
+    }
 
-**Добавить секцию коллекторов:**
-```json
-{
-  "collectors": [
-    { "id": "HKV-D-2", "type": "HKV", "circuits": 2, "kv": 1.2, "max_flow_rate": 1.5, "max_pressure": 320 },
-    ...
-  ]
+    private void OnClimatePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ClimateViewModel.ColdFiveDayTemperature))
+        {
+            UpdateFromClimateModule();
+        }
+    }
+
+    private void UpdateFromClimateModule()
+    {
+        // Температура холодной пятидневки
+        double coldFiveDayTemperature = _climateViewModel.ColdFiveDayTemperature;
+
+        // Обновление входных данных
+        foreach (var collector in Collectors)
+        {
+            foreach (var circuit in collector.Circuits)
+            {
+                circuit.ColdFiveDayTemperature = coldFiveDayTemperature;
+            }
+        }
+    }
+
+    // Вычисляемое свойство для расчётной температуры
+    public double DesignTemperature => _climateViewModel.ColdFiveDayTemperature;
 }
 ```
 
 ---
 
-## 3. Критерии приёмки
+## 4. Получаемые данные
 
-- [ ] JSON-файлы созданы/обновлены
-- [ ] Данные загружаются корректно
-- [ ] Интерполяция работает
+| Параметр | Источник | Описание |
+|----------|----------|----------|
+| ColdFiveDayTemperature | ClimateViewModel | Температура холодной пятидневки (°C) |
+
+---
+
+## 5. Критерии приёмки
+
+- [ ] Подписка на события ClimateViewModel реализована
+- [ ] Автоматическое обновление при изменении климатических данных
+- [ ] Перерасчёт контуров работает
+- [ ] Unit-тесты проходят
+
+---
+
+## 6. Примечания
+
+- Температура холодной пятидневки используется для расчёта при "холодном пуске"
+- Расчётная температура = ColdFiveDayTemperature
+
+---
+
+## 7. Связанные задачи
+
+- Task1.2: HydraulicInputData — содержит ColdFiveDayTemperature
+- Task 4.1: CircuitsViewModel — получает данные из ClimateViewModel
+
+---
+
+*Дата создания: 2026-03-17*

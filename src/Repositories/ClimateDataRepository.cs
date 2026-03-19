@@ -104,7 +104,7 @@ namespace SnowMeltingCalculator.Repositories
                 Name = jsonModel.City ?? string.Empty,
                 Region = jsonModel.Region ?? string.Empty,
                 T5Days092 = jsonModel.T_5days_092,
-                WindMaxJan = jsonModel.Wind_Max_Jan ?? 0,
+                WindAvgTempLe8 = jsonModel.Wind_Avg_T_Le_8 ?? 0,
                 Humidity15hCold = jsonModel.Humidity_15h_Cold ?? 0,
                 TColdDays098 = jsonModel.T_Cold_Days_098 ?? 0,
                 TAbsMin = jsonModel.T_Abs_Min ?? 0

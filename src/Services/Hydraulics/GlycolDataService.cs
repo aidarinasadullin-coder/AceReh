@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnowMeltingCalculator.Models.Hydraulics;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
@@ -38,12 +39,12 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <summary>
         /// Максимальная поддерживаемая температура, °C
         /// </summary>
-        private const double MAX_TEMPERATURE = 121.1;
+        private const double MAX_TEMPERATURE = 90.0;
         
         /// <summary>
         /// Минимальная поддерживаемая концентрация, %
         /// </summary>
-        private const double MIN_CONCENTRATION = 10.0;
+        private const double MIN_CONCENTRATION = 0.0;
         
         /// <summary>
         /// Максимальная поддерживаемая концентрация, %
@@ -76,6 +77,12 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         public GlycolProperties GetProperties(GlycolType glycolType, double concentration, double temperature)
         {
             ValidateParameters(concentration, temperature);
+
+            // При концентрации 0% возвращаем свойства воды
+            if (concentration == 0)
+            {
+                return GetWaterProperties(temperature);
+            }
 
             var data = LoadData();
             var glycolData = GetGlycolData(data, glycolType);
@@ -209,6 +216,62 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <returns>Максимальная концентрация, %</returns>
         public double GetMaxConcentration() => MAX_CONCENTRATION;
 
+        /// <summary>
+        /// Получить свойства воды при заданной температуре
+        /// </summary>
+        /// <param name="temperature">Температура, °C</param>
+        /// <returns>Свойства воды</returns>
+        /// <remarks>
+        /// Используются приближённые формулы IAPWS-IF97 для диапазона 0-100°C:
+        /// - Плотность: ρ = 1000 - 0.0178 × (T - 4)² при T > 4°C
+        /// - Вязкость: ν = exp(-1.597 + 0.181×T - 0.003×T²) мм²/с
+        /// - Теплоёмкость: c_p ≈ 4.18 кДж/(кг·К) (слабо зависит от T)
+        /// - Теплопроводность: λ ≈ 0.6 - 0.0015×T Вт/(м·К)
+        /// </remarks>
+        public GlycolProperties GetWaterProperties(double temperature)
+        {
+            if (temperature < 0 || temperature > MAX_TEMPERATURE)
+            {
+                throw new ArgumentOutOfRangeException(nameof(temperature),
+                    $"Температура воды должна быть в диапазоне 0°C до {MAX_TEMPERATURE}°C, получено: {temperature}°C");
+            }
+
+            // Плотность воды: ρ = 1000 - 0.0178 × (T - 4)² при T > 4°C
+            // При T <= 4°C плотность ≈ 1000 кг/м³ (максимум при 4°C)
+            double density;
+            if (temperature > 4)
+            {
+                density = 1000 - 0.0178 * Math.Pow(temperature - 4, 2);
+            }
+            else
+            {
+                // При температуре ниже 4°C плотность немного уменьшается
+                // Используем линейную аппроксимацию
+                density = 1000 - 0.1 * (4 - temperature);
+            }
+
+            // Вязкость воды: ν = exp(-1.597 + 0.181×T - 0.003×T²) мм²/с
+            double kinematicViscosity = Math.Exp(-1.597 + 0.181 * temperature - 0.003 * Math.Pow(temperature, 2));
+
+            // Теплоёмкость воды: c_p ≈ 4.18 кДж/(кг·К) (слабо зависит от T)
+            // Для более точного расчёта можно использовать: c_p = 4.184 + 0.0001×(T - 20)
+            double specificHeat = 4.18 + 0.0001 * (temperature - 20);
+
+            // Теплопроводность воды: λ ≈ 0.6 - 0.0015×T Вт/(м·К)
+            double thermalConductivity = 0.6 - 0.0015 * temperature;
+
+            return new GlycolProperties
+            {
+                GlycolType = GlycolType.Ethylene, // Для воды тип не важен
+                Concentration = 0,
+                Temperature = temperature,
+                Density = density,
+                SpecificHeat = specificHeat,
+                KinematicViscosity = kinematicViscosity,
+                ThermalConductivity = thermalConductivity
+            };
+        }
+
         #region Private Methods
 
         /// <summary>
@@ -224,6 +287,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 if (!File.Exists(_dataFilePath))
                 {
                     // Если файл не существует, вернуть встроенные данные
+                    System.Diagnostics.Debug.WriteLine($"[GlycolDataService] Файл данных не найден: {_dataFilePath}. Используются fallback данные.");
                     _cachedJsonData = GetDefaultData();
                     return _cachedJsonData;
                 }
@@ -247,8 +311,11 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                     // Конвертация из формата JSON в формат для интерполяции
                     _cachedJsonData = ConvertToInterpolationFormat(rawContainer);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    // Логировать предупреждение
+                    System.Diagnostics.Debug.WriteLine($"[GlycolDataService] Ошибка загрузки JSON: {ex.Message}. Используются fallback данные.");
+                    
                     // При ошибке парсинга используем встроенные данные
                     _cachedJsonData = GetDefaultData();
                 }
@@ -284,7 +351,13 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// </summary>
         private GlycolTypeData ConvertGlycolTypeData(GlycolTypeRawData raw)
         {
-            var concentrations = raw.Concentrations ?? Array.Empty<double>();
+            // Получаем концентрации из первого доступного свойства
+            var concentrations = raw.Density?.Concentrations 
+                ?? raw.SpecificHeat?.Concentrations 
+                ?? raw.KinematicViscosity?.Concentrations 
+                ?? raw.ThermalConductivity?.Concentrations 
+                ?? Array.Empty<double>();
+            
             var densityData = raw.Density?.Data ?? new List<TemperatureDataRow>();
             var specificHeatData = raw.SpecificHeat?.Data ?? new List<TemperatureDataRow>();
             var viscosityData = raw.KinematicViscosity?.Data ?? new List<TemperatureDataRow>();
@@ -490,10 +563,13 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                     $"Концентрация должна быть в диапазоне {MIN_CONCENTRATION}-{MAX_CONCENTRATION}%, получено: {concentration}%");
             }
 
-            if (temperature < MIN_TEMPERATURE || temperature > MAX_TEMPERATURE)
+            // Для воды (концентрация 0%) минимальная температура 0°C
+            double minTemp = concentration == 0 ? 0.0 : MIN_TEMPERATURE;
+            
+            if (temperature < minTemp || temperature > MAX_TEMPERATURE)
             {
                 throw new ArgumentOutOfRangeException(nameof(temperature),
-                    $"Температура должна быть в диапазоне {MIN_TEMPERATURE}°C до {MAX_TEMPERATURE}°C, получено: {temperature}°C");
+                    $"Температура должна быть в диапазоне {minTemp}°C до {MAX_TEMPERATURE}°C, получено: {temperature}°C");
             }
         }
 
@@ -509,35 +585,49 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             };
         }
 
+        /// <summary>
+        /// Fallback данные для этиленгликоля
+        /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// Температуры ASHRAE: -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9 °C
+        /// Концентрации: 10, 20, 30, 40, 50, 60, 70, 80, 90 vol%
+        /// </summary>
         private static GlycolTypeData GetDefaultEthyleneData()
         {
             var concentrations = new[] { 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0 };
-            var temperatures = new[] { -20.0, -10.0, 0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0 };
+            // Температуры ASHRAE (подмножество из JSON)
+            var temperatures = new[] { -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9 };
 
             return new GlycolTypeData
             {
                 Concentrations = concentrations,
                 Temperatures = temperatures,
-                Density = CreateDefaultTable(concentrations, temperatures, DefaultDensityValues()),
-                SpecificHeat = CreateDefaultTable(concentrations, temperatures, DefaultSpecificHeatValues()),
-                KinematicViscosity = CreateDefaultTable(concentrations, temperatures, DefaultViscosityValues()),
-                ThermalConductivity = CreateDefaultTable(concentrations, temperatures, DefaultConductivityValues())
+                Density = CreateDefaultTable(concentrations, temperatures, DefaultEthyleneDensityValues()),
+                SpecificHeat = CreateDefaultTable(concentrations, temperatures, DefaultEthyleneSpecificHeatValues()),
+                KinematicViscosity = CreateDefaultTable(concentrations, temperatures, DefaultEthyleneViscosityValues()),
+                ThermalConductivity = CreateDefaultTable(concentrations, temperatures, DefaultEthyleneConductivityValues())
             };
         }
 
+        /// <summary>
+        /// Fallback данные для пропиленгликоля
+        /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// Температуры ASHRAE: -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9 °C
+        /// Концентрации: 10, 20, 30, 40, 50, 60, 70, 80, 90 vol%
+        /// </summary>
         private static GlycolTypeData GetDefaultPropyleneData()
         {
             var concentrations = new[] { 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0 };
-            var temperatures = new[] { -20.0, -10.0, 0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0 };
+            // Температуры ASHRAE (подмножество из JSON)
+            var temperatures = new[] { -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9 };
 
             return new GlycolTypeData
             {
                 Concentrations = concentrations,
                 Temperatures = temperatures,
-                Density = CreateDefaultTable(concentrations, temperatures, DefaultDensityValues()),
-                SpecificHeat = CreateDefaultTable(concentrations, temperatures, DefaultSpecificHeatValues()),
-                KinematicViscosity = CreateDefaultTable(concentrations, temperatures, DefaultViscosityValues()),
-                ThermalConductivity = CreateDefaultTable(concentrations, temperatures, DefaultConductivityValues())
+                Density = CreateDefaultTable(concentrations, temperatures, DefaultPropyleneDensityValues()),
+                SpecificHeat = CreateDefaultTable(concentrations, temperatures, DefaultPropyleneSpecificHeatValues()),
+                KinematicViscosity = CreateDefaultTable(concentrations, temperatures, DefaultPropyleneViscosityValues()),
+                ThermalConductivity = CreateDefaultTable(concentrations, temperatures, DefaultPropyleneConductivityValues())
             };
         }
 
@@ -551,69 +641,254 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             };
         }
 
-        private static double[,] DefaultDensityValues()
+        #region Ethylene Glycol Fallback Data
+
+        /// <summary>
+        /// Fallback значения плотности для этиленгликоля
+        /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// </summary>
+        private static double[,] DefaultEthyleneDensityValues()
         {
+            // Данные из JSON: density_kg_m3
+            // Строки соответствуют температурам, столбцы - концентрациям
             return new double[,]
             {
-                { 1035, 1030, 1025, 1020, 1015, 1010, 1005, 1000, 995 },
-                { 1045, 1040, 1035, 1030, 1025, 1020, 1015, 1010, 1005 },
-                { 1055, 1050, 1045, 1040, 1035, 1030, 1025, 1020, 1015 },
-                { 1065, 1060, 1055, 1050, 1045, 1040, 1035, 1030, 1025 },
-                { 1075, 1070, 1065, 1060, 1055, 1050, 1045, 1040, 1035 },
-                { 1085, 1080, 1075, 1070, 1065, 1060, 1055, 1050, 1045 },
-                { 1095, 1090, 1085, 1080, 1075, 1070, 1065, 1060, 1055 },
-                { 1105, 1100, 1095, 1090, 1085, 1080, 1075, 1070, 1065 },
-                { 1115, 1110, 1105, 1100, 1095, 1090, 1085, 1080, 1075 }
+                // temp: -34.4°C
+                {  0,     0,      0,      0,      0,      1090.7, 1105.3, 1119.1, 1132.5 },
+                // temp: -17.8°C
+                {  0,     0,      1072.2, 1087.2, 1101.5, 1115.1, 1128.4, 1141.3, 1153.8 },
+                // temp: -1.1°C
+                {  1019.2, 1053.2, 1068.6, 1083.4, 1097.3, 1110.6, 1123.5, 1136.1, 1148.1 },
+                // temp: 15.6°C
+                {  1015.7, 1049.5, 1064.8, 1079.2, 1092.8, 1105.6, 1118.2, 1130.4, 1141.8 },
+                // temp: 32.2°C
+                {  1012.1, 1045.7, 1060.9, 1074.9, 1088.2, 1100.3, 1112.6, 1124.3, 1135.0 },
+                // temp: 48.9°C
+                {  1008.3, 1041.9, 1056.9, 1070.5, 1083.4, 1094.7, 1106.7, 1117.9, 1127.7 },
+                // temp: 65.6°C
+                {  1004.5, 1038.0, 1052.9, 1066.0, 1078.5, 1088.9, 1100.6, 1111.2, 1120.1 },
+                // temp: 82.2°C
+                {  1000.6, 1034.1, 1048.9, 1061.3, 1073.4, 1082.9, 1094.3, 1104.2, 1112.2 },
+                // temp: 98.9°C
+                {   996.7, 1030.2, 1044.8, 1056.6, 1068.2, 1076.7, 1087.9, 1097.0, 1104.1 }
             };
         }
 
-        private static double[,] DefaultSpecificHeatValues()
+        /// <summary>
+        /// Fallback значения удельной теплоёмкости для этиленгликоля
+        /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// </summary>
+        private static double[,] DefaultEthyleneSpecificHeatValues()
         {
+            // Данные из JSON: specific_heat_kJ_kgK
             return new double[,]
             {
-                { 3.90, 3.92, 3.94, 3.96, 3.98, 4.00, 4.02, 4.04, 4.06 },
-                { 3.75, 3.77, 3.79, 3.81, 3.83, 3.85, 3.87, 3.89, 3.91 },
-                { 3.60, 3.62, 3.64, 3.66, 3.68, 3.70, 3.72, 3.74, 3.76 },
-                { 3.45, 3.47, 3.49, 3.51, 3.53, 3.55, 3.57, 3.59, 3.61 },
-                { 3.30, 3.32, 3.34, 3.36, 3.38, 3.40, 3.42, 3.44, 3.46 },
-                { 3.15, 3.17, 3.19, 3.21, 3.23, 3.25, 3.27, 3.29, 3.31 },
-                { 3.00, 3.02, 3.04, 3.06, 3.08, 3.10, 3.12, 3.14, 3.16 },
-                { 2.85, 2.87, 2.89, 2.91, 2.93, 2.95, 2.97, 2.99, 3.01 },
-                { 2.70, 2.72, 2.74, 2.76, 2.78, 2.80, 2.82, 2.84, 2.86 }
+                // temp: -34.4°C
+                {  0,    0,     0,     0,     0,      3.07,   2.85,   2.62,   2.37 },
+                // temp: -17.8°C
+                {  0,    0,     3.35,   3.13,   2.92,   2.70,   2.47,   2.23,   2.03 },
+                // temp: -1.1°C
+                {  3.78,  3.14,   2.92,   2.70,   2.47,   2.22,   2.01,   1.82,   1.62 },
+                // temp: 15.6°C
+                {  4.36,  3.77,   3.59,   3.40,   3.20,   3.00,   2.78,   2.54,   2.33 },
+                // temp: 32.2°C
+                {  5.00,  4.39,   4.20,   4.03,   3.84,   3.63,   3.41,   3.17,   2.94 },
+                // temp: 48.9°C
+                {  5.65,  5.01,   4.83,   4.65,   4.47,   4.26,   4.04,   3.80,   3.57 },
+                // temp: 65.6°C
+                {  6.29,  5.63,   5.46,   5.28,   5.10,   4.89,   4.67,   4.43,   4.20 },
+                // temp: 82.2°C
+                {  6.93,  6.25,   6.09,   5.91,   5.73,   5.52,   5.30,   5.06,   4.83 },
+                // temp: 98.9°C
+                {  7.58,  6.87,   6.72,   6.54,   6.36,   6.15,   5.93,   5.69,   5.46 }
             };
         }
 
-        private static double[,] DefaultViscosityValues()
+        /// <summary>
+        /// Fallback значения кинематической вязкости для этиленгликоля
+        /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// </summary>
+        private static double[,] DefaultEthyleneViscosityValues()
         {
+            // Данные из JSON: kinematic_viscosity_mm2_s
             return new double[,]
             {
-                { 5.0, 3.5, 2.5, 1.8, 1.4, 1.1, 0.9, 0.7, 0.6 },
-                { 10.0, 6.5, 4.5, 3.0, 2.2, 1.7, 1.3, 1.0, 0.8 },
-                { 20.0, 12.0, 8.0, 5.0, 3.5, 2.5, 1.9, 1.5, 1.2 },
-                { 35.0, 20.0, 13.0, 8.0, 5.5, 3.8, 2.8, 2.1, 1.6 },
-                { 55.0, 30.0, 19.0, 12.0, 8.0, 5.5, 4.0, 3.0, 2.3 },
-                { 85.0, 45.0, 28.0, 17.0, 11.0, 7.5, 5.3, 4.0, 3.0 },
-                { 130.0, 65.0, 40.0, 24.0, 15.0, 10.0, 7.0, 5.2, 4.0 },
-                { 190.0, 90.0, 55.0, 32.0, 20.0, 13.0, 9.0, 6.5, 5.0 },
-                { 270.0, 125.0, 75.0, 43.0, 26.0, 17.0, 11.5, 8.5, 6.5 }
+                // temp: -34.4°C
+                {  0,     0,      0,      0,      0,      58.4,   81.2,   115.0,  163.5 },
+                // temp: -17.8°C
+                {  0,     0,      12.9,   17.8,   27.2,   40.8,   57.5,   79.4,   93.3 },
+                // temp: -1.1°C
+                {  2.6,   3.7,    5.5,    7.9,    11.4,   17.4,   23.2,   31.6,   38.9 },
+                // temp: 15.6°C
+                {  1.0,   1.4,    2.0,    2.7,    3.8,    5.3,    7.3,    10.2,   13.7 },
+                // temp: 32.2°C
+                {  0.5,   0.7,    0.8,    1.1,    1.6,    2.1,    2.8,    3.7,    4.8 },
+                // temp: 48.9°C
+                {  0.3,   0.4,    0.5,    0.6,    0.8,    1.1,    1.4,    1.9,    2.4 },
+                // temp: 65.6°C
+                {  0.2,   0.2,    0.3,    0.4,    0.5,    0.6,    0.7,    0.9,    1.2 },
+                // temp: 82.2°C
+                {  0.1,   0.1,    0.2,    0.2,    0.3,    0.3,    0.4,    0.5,    0.5 },
+                // temp: 98.9°C
+                {  0.1,   0.1,    0.1,    0.1,    0.2,    0.2,    0.3,    0.3,    0.4 }
             };
         }
 
-        private static double[,] DefaultConductivityValues()
+        /// <summary>
+        /// Fallback значения теплопроводности для этиленгликоля
+        /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// </summary>
+        private static double[,] DefaultEthyleneConductivityValues()
         {
+            // Данные из JSON: thermal_conductivity_W_mK
             return new double[,]
             {
-                { 0.48, 0.49, 0.50, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56 },
-                { 0.45, 0.46, 0.47, 0.48, 0.49, 0.50, 0.51, 0.52, 0.53 },
-                { 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49, 0.50 },
-                { 0.39, 0.40, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47 },
-                { 0.36, 0.37, 0.38, 0.39, 0.40, 0.41, 0.42, 0.43, 0.44 },
-                { 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.40, 0.41 },
-                { 0.30, 0.31, 0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38 },
-                { 0.27, 0.28, 0.29, 0.30, 0.31, 0.32, 0.33, 0.34, 0.35 },
-                { 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.30, 0.31, 0.32 }
+                // temp: -34.4°C
+                {  0,     0,      0,      0,      0,      0.324,  0.300,  0.279,  0.261 },
+                // temp: -17.8°C
+                {  0,     0,      0.369,  0.338,  0.313,  0.291,  0.271,  0.255,  0.244 },
+                // temp: -1.1°C
+                {  0.462, 0.337,  0.311,  0.287,  0.268,  0.252,  0.239,  0.227,  0.225 },
+                // temp: 15.6°C
+                {  0.602, 0.456,  0.416,  0.382,  0.355,  0.327,  0.300,  0.275,  0.262 },
+                // temp: 32.2°C
+                {  0.744, 0.579,  0.527,  0.481,  0.445,  0.412,  0.377,  0.341,  0.313 },
+                // temp: 48.9°C
+                {  0.885, 0.702,  0.638,  0.580,  0.535,  0.493,  0.451,  0.402,  0.363 },
+                // temp: 65.6°C
+                {  1.027, 0.825,  0.749,  0.679,  0.625,  0.574,  0.523,  0.462,  0.412 },
+                // temp: 82.2°C
+                {  1.168, 0.948,  0.860,  0.778,  0.715,  0.655,  0.595,  0.522,  0.460 },
+                // temp: 98.9°C
+                {  1.310, 1.071,  0.971,  0.877,  0.805,  0.736,  0.667,  0.582,  0.508 }
             };
         }
+
+        #endregion
+
+        #region Propylene Glycol Fallback Data
+
+        /// <summary>
+        /// Fallback значения плотности для пропиленгликоля
+        /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// </summary>
+        private static double[,] DefaultPropyleneDensityValues()
+        {
+            // Данные из JSON: density_kg_m3
+            return new double[,]
+            {
+                // temp: -34.4°C
+                {  0,     0,      0,      0,      0,      1074.0, 1082.2, 1095.3, 1094.8 },
+                // temp: -17.8°C
+                {  0,     0,      0,      1073.6, 1083.2, 1081.6, 0,      0,      0 },
+                // temp: -1.1°C
+                {  0,     0,      1036.0, 1047.0, 1054.0, 1062.0, 1066.0, 1069.0, 1069.0 },
+                // temp: 15.6°C
+                {  0,     1020.0, 1031.0, 1040.0, 1048.0, 1055.0, 1058.0, 1058.0, 1055.0 },
+                // temp: 32.2°C
+                {  0,     1014.0, 1025.0, 1033.0, 1040.0, 1046.0, 1047.0, 1044.0, 1039.0 },
+                // temp: 48.9°C
+                {  0,     1007.0, 1019.0, 1026.0, 1032.0, 1037.0, 1036.0, 1031.0, 1024.0 },
+                // temp: 65.6°C
+                {  0,     999.0,  1012.0, 1019.0, 1024.0, 1028.0, 1025.0, 1018.0, 1009.0 },
+                // temp: 82.2°C
+                {  0,     990.0,  1004.0, 1010.0, 1015.0, 1018.0, 1014.0, 1005.0, 994.0 },
+                // temp: 98.9°C
+                {  0,     981.0,  995.0,  1001.0, 1006.0, 1007.0, 1002.0, 991.0,  979.0 }
+            };
+        }
+
+        /// <summary>
+        /// Fallback значения удельной теплоёмкости для пропиленгликоля
+        /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// </summary>
+        private static double[,] DefaultPropyleneSpecificHeatValues()
+        {
+            // Данные из JSON: specific_heat_kJ_kgK
+            return new double[,]
+            {
+                // temp: -34.4°C
+                {  0,     0,      0,      0,      0,      3.10,   2.85,   2.58,   2.27 },
+                // temp: -17.8°C
+                {  0,     0,      0,      3.58,   3.39,   3.17,   2.93,   2.67,   2.37 },
+                // temp: -1.1°C
+                {  0,     0,      4.05,   3.93,   3.76,   3.58,   3.38,   3.14,   2.87 },
+                // temp: 15.6°C
+                {  0,     0,      4.08,   3.97,   3.83,   3.68,   3.52,   3.33,   3.13 },
+                // temp: 32.2°C
+                {  0,     0,      4.10,   4.00,   3.89,   3.75,   3.61,   3.44,   3.28 },
+                // temp: 48.9°C
+                {  0,     0,      4.13,   4.04,   3.94,   3.82,   3.69,   3.54,   3.40 },
+                // temp: 65.6°C
+                {  0,     0,      4.15,   4.08,   3.99,   3.89,   3.78,   3.66,   3.53 },
+                // temp: 82.2°C
+                {  0,     0,      4.18,   4.12,   4.05,   3.96,   3.87,   3.77,   3.66 },
+                // temp: 98.9°C
+                {  0,     0,      4.20,   4.15,   4.09,   4.02,   3.94,   3.86,   3.77 }
+            };
+        }
+
+        /// <summary>
+        /// Fallback значения кинематической вязкости для пропиленгликоля
+        /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// </summary>
+        private static double[,] DefaultPropyleneViscosityValues()
+        {
+            // Данные из JSON: kinematic_viscosity_mm2_s
+            return new double[,]
+            {
+                // temp: -34.4°C
+                {  0,       0,        0,        0,        0,        1203.67, 2092.20, 3299.03, 8600.39 },
+                // temp: -17.8°C
+                {  0,       0,        0,        98.99,    149.55,   277.95,  429.94,  735.26,  1350.63 },
+                // temp: -1.1°C
+                {  0,       0,        6.77,     10.23,    18.05,    31.74,   47.22,   81.47,   119.31 },
+                // temp: 15.6°C
+                {  0,       0,        3.87,     5.61,     8.76,     13.45,   19.57,   30.46,   43.20 },
+                // temp: 32.2°C
+                {  0,       0,        2.54,     3.46,     4.93,     6.97,    9.82,    13.96,   19.35 },
+                // temp: 48.9°C
+                {  0,       0,        1.81,     2.35,     3.14,     4.19,    5.71,    7.52,    10.23 },
+                // temp: 65.6°C
+                {  0,       0,        1.38,     1.72,     2.20,     2.81,    3.70,    4.62,    6.14 },
+                // temp: 82.2°C
+                {  0,       0,        1.06,     1.31,     1.64,     2.06,    2.59,    3.12,    4.09 },
+                // temp: 98.9°C
+                {  0,       0,        0.87,     1.04,     1.31,     1.60,    1.96,    2.27,    2.93 }
+            };
+        }
+
+        /// <summary>
+        /// Fallback значения теплопроводности для пропиленгликоля
+        /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// </summary>
+        private static double[,] DefaultPropyleneConductivityValues()
+        {
+            // Данные из JSON: thermal_conductivity_W_mK
+            return new double[,]
+            {
+                // temp: -34.4°C
+                {  0,     0,      0,      0,      0,      0.270,  0.242,  0.220,  0.203 },
+                // temp: -17.8°C
+                {  0,     0,      0,      0.348,  0.313,  0.280,  0.251,  0.227,  0.206 },
+                // temp: -1.1°C
+                {  0,     0,      0.455,  0.408,  0.365,  0.325,  0.293,  0.261,  0.234 },
+                // temp: 15.6°C
+                {  0,     0,      0.533,  0.477,  0.427,  0.385,  0.343,  0.300,  0.265 },
+                // temp: 32.2°C
+                {  0,     0,      0.556,  0.497,  0.444,  0.395,  0.350,  0.307,  0.270 },
+                // temp: 48.9°C
+                {  0,     0,      0.574,  0.512,  0.456,  0.407,  0.361,  0.315,  0.275 },
+                // temp: 65.6°C
+                {  0,     0,      0.585,  0.522,  0.466,  0.414,  0.367,  0.320,  0.279 },
+                // temp: 82.2°C
+                {  0,     0,      0.601,  0.535,  0.474,  0.419,  0.371,  0.323,  0.280 },
+                // temp: 98.9°C
+                {  0,     0,      0.604,  0.537,  0.476,  0.420,  0.371,  0.323,  0.280 }
+            };
+        }
+
+        #endregion
 
         #endregion
 
@@ -624,7 +899,10 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// </summary>
         internal class GlycolRawContainer
         {
+            [JsonPropertyName("ethylene_glycol")]
             public GlycolTypeRawData? EthyleneGlycol { get; set; }
+            
+            [JsonPropertyName("propylene_glycol")]
             public GlycolTypeRawData? PropyleneGlycol { get; set; }
         }
 
@@ -633,18 +911,28 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// </summary>
         internal class GlycolTypeRawData
         {
-            public double[]? Concentrations { get; set; }
-            public PropertyData? Density { get; set; }
-            public PropertyData? SpecificHeat { get; set; }
-            public PropertyData? KinematicViscosity { get; set; }
-            public PropertyData? ThermalConductivity { get; set; }
+            [JsonPropertyName("density_kg_m3")]
+            public PropertyDataWithConcentrations? Density { get; set; }
+            
+            [JsonPropertyName("specific_heat_kJ_kgK")]
+            public PropertyDataWithConcentrations? SpecificHeat { get; set; }
+            
+            [JsonPropertyName("kinematic_viscosity_mm2_s")]
+            public PropertyDataWithConcentrations? KinematicViscosity { get; set; }
+            
+            [JsonPropertyName("thermal_conductivity_W_mK")]
+            public PropertyDataWithConcentrations? ThermalConductivity { get; set; }
         }
 
         /// <summary>
-        /// Данные свойства из JSON
+        /// Данные свойства с концентрациями из JSON
         /// </summary>
-        internal class PropertyData
+        internal class PropertyDataWithConcentrations
         {
+            [JsonPropertyName("concentration_vol_pct")]
+            public double[]? Concentrations { get; set; }
+            
+            [JsonPropertyName("data")]
             public List<TemperatureDataRow>? Data { get; set; }
         }
 
@@ -653,7 +941,10 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// </summary>
         internal class TemperatureDataRow
         {
+            [JsonPropertyName("temp_c")]
             public double? TempC { get; set; }
+            
+            [JsonPropertyName("values")]
             public double?[]? Values { get; set; }
         }
 

@@ -1,0 +1,473 @@
+<UserControl x:Class="SnowMeltingCalculator.Views.Hydraulics.CircuitsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:SnowMeltingCalculator.ViewModels.Hydraulics"
+             xmlns:models="clr-namespace:SnowMeltingCalculator.Models.Hydraulics"
+             xmlns:converters="clr-namespace:SnowMeltingCalculator.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="900"
+             d:DataContext="{d:DesignInstance Type=vm:CircuitsViewModel}">
+
+    <UserControl.Resources>
+        <!-- Конвертеры -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
+
+        <!-- Конвертер для HydraulicMode -->
+        <converters:HydraulicModeToVisibilityConverter x:Key="HydraulicModeToVisibilityConverter"/>
+
+        <!-- Стили -->
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+            <Setter Property="Foreground" Value="#2196F3"/>
+        </Style>
+
+        <Style x:Key="InputLabelStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+
+        <Style x:Key="InputTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Padding" Value="5,0"/>
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#757575"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style x:Key="ModeButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1976D2"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinWidth" Value="120"/>
+        </Style>
+
+        <Style x:Key="ModeButtonInactiveStyle" TargetType="Button">
+            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinWidth" Value="120"/>
+        </Style>
+
+        <!-- Стиль для ячеек DataGrid только для чтения -->
+        <Style x:Key="ReadOnlyCellStyle" TargetType="TextBlock">
+            <Setter Property="Background" Value="#F5F5F5"/>
+            <Setter Property="Foreground" Value="#666666"/>
+        </Style>
+
+        <!-- Стиль для заголовков DataGrid -->
+        <Style x:Key="DataGridHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#E3F2FD"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0"
+                   Text="Таблица контуров"
+                   FontSize="20"
+                   FontWeight="Bold"
+                   Margin="0,0,0,15"
+                   Foreground="#1976D2"/>
+
+<!-- Параметры теплоносителя -->
+        <Border Grid.Row="1"
+                 Background="#FAFAFA"
+                 BorderBrush="#E0E0E0"
+                 BorderThickness="1"
+                 Padding="15"
+                 Margin="0,0,0,10"
+                 CornerRadius="5">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <!-- Тип гликоли -->
+                    <TextBlock Text="Тип гликоли:"
+                               Style="{StaticResource InputLabelStyle}"
+                               VerticalAlignment="Center"/>
+                    <ComboBox SelectedValue="{Binding GlycolType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValuePath="Tag"
+                              Width="150"
+                              Height="26"
+                              Margin="0,0,20,0">
+                        <ComboBoxItem Content="Этиленгликоль" Tag="{x:Static models:GlycolType.Ethylene}"/>
+                        <ComboBoxItem Content="Пропиленгликоль" Tag="{x:Static models:GlycolType.Propylene}"/>
+                    </ComboBox>
+
+                    <!-- Концентрация -->
+                    <TextBlock Text="Концентрация (%):"
+                               Style="{StaticResource InputLabelStyle}"
+                               VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding GlycolConcentration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"
+                             Width="60"
+                             Height="26"
+                             VerticalContentAlignment="Center"
+                             Margin="0,0,20,0"/>
+
+                    <!-- Переключатель режима -->
+                    <TextBlock Text="Режим расчёта:"
+                               Style="{StaticResource InputLabelStyle}"
+                               VerticalAlignment="Center"/>
+                    <Button Content="Рабочая температура"
+                            Command="{Binding SwitchModeCommand}"
+                            Style="{StaticResource ModeButtonStyle}"
+                            Visibility="{Binding CurrentMode, Converter={StaticResource HydraulicModeToVisibilityConverter}, ConverterParameter=Design}"/>
+                    <Button Content="Расчётная температура"
+                            Command="{Binding SwitchModeCommand}"
+                            Style="{StaticResource ModeButtonStyle}"
+                            Visibility="{Binding CurrentMode, Converter={StaticResource HydraulicModeToVisibilityConverter}, ConverterParameter=Operating}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <!-- Шаг подводки -->
+                    <TextBlock Text="Шаг подводки (см):"
+                               Style="{StaticResource InputLabelStyle}"
+                               VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding InputData.SupplySpacing_cm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"
+                             Width="60"
+                             Height="26"
+                             VerticalContentAlignment="Center"
+                             Margin="0,0,20,0"/>
+
+                    <!-- Полезное тепло от подводок -->
+                    <TextBlock Text="Полезное тепло от подводок (%):"
+                               Style="{StaticResource InputLabelStyle}"
+                               VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding InputData.SupplyHeatPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"
+                             Width="60"
+                             Height="26"
+                             VerticalContentAlignment="Center"
+                             Margin="0,0,20,0"/>
+
+                    <!-- Тип коллектора (автоматически определяет клапан) -->
+                    <TextBlock Text="Тип коллектора:"
+                               Style="{StaticResource InputLabelStyle}"
+                               VerticalAlignment="Center"/>
+                    <ComboBox SelectedItem="{Binding SelectedCollector.CollectorType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Width="120"
+                              Height="26"
+                              Margin="0,0,20,0">
+                        <ComboBoxItem Content="HKV-D (2-12 контуров)"/>
+                        <ComboBoxItem Content="IV 1¼&quot; (2-12 контуров)"/>
+                        <ComboBoxItem Content="IV 1½&quot; (2-12 контуров)"/>
+                    </ComboBox>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Свойства теплоносителя -->
+        <Border Grid.Row="2"
+                Background="#E8F5E9"
+                BorderBrush="#4CAF50"
+                BorderThickness="1"
+                Padding="15"
+                Margin="0,0,0,10"
+                CornerRadius="5">
+            <StackPanel>
+                <TextBlock Text="Свойства теплоносителя"
+                           FontWeight="Bold"
+                           FontSize="14"
+                           Foreground="#2E7D32"
+                           Margin="0,0,0,10"/>
+                
+                <StackPanel Orientation="Horizontal">
+                    <!-- Рабочая температура -->
+                    <StackPanel Margin="0,0,30,0">
+                        <TextBlock FontWeight="Bold" Margin="0,0,0,5">
+                            <TextBlock.Text>
+                                <Binding Path="OperatingGlycolProperties.Temperature" StringFormat="Рабочая температура: {0:F1}°C"/>
+                            </TextBlock.Text>
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="Плотность:" Width="120"/>
+                            <TextBlock Text="{Binding OperatingGlycolProperties.Density, StringFormat=F1}"/>
+                            <TextBlock Text=" кг/м³" Margin="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="Теплоёмкость:" Width="120"/>
+                            <TextBlock Text="{Binding OperatingGlycolProperties.SpecificHeat, StringFormat=F2}"/>
+                            <TextBlock Text=" кДж/(кг·К)" Margin="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="Вязкость:" Width="120"/>
+                            <TextBlock Text="{Binding OperatingGlycolProperties.KinematicViscosity, StringFormat=F2}"/>
+                            <TextBlock Text=" мм²/с" Margin="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="Теплопроводность:" Width="120"/>
+                            <TextBlock Text="{Binding OperatingGlycolProperties.ThermalConductivity, StringFormat=F3}"/>
+                            <TextBlock Text=" Вт/(м·К)" Margin="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="Число Прандтля:" Width="120"/>
+                            <TextBlock Text="{Binding OperatingGlycolProperties.PrandtlNumber, StringFormat=F2}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Расчётная температура -->
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold" Margin="0,0,0,5">
+                            <TextBlock.Text>
+                                <Binding Path="DesignGlycolProperties.Temperature" StringFormat="Расчётная температура: {0:F1}°C"/>
+                            </TextBlock.Text>
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="Плотность:" Width="120"/>
+                            <TextBlock Text="{Binding DesignGlycolProperties.Density, StringFormat=F1}"/>
+                            <TextBlock Text=" кг/м³" Margin="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="Теплоёмкость:" Width="120"/>
+                            <TextBlock Text="{Binding DesignGlycolProperties.SpecificHeat, StringFormat=F2}"/>
+                            <TextBlock Text=" кДж/(кг·К)" Margin="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="Вязкость:" Width="120"/>
+                            <TextBlock Text="{Binding DesignGlycolProperties.KinematicViscosity, StringFormat=F2}"/>
+                            <TextBlock Text=" мм²/с" Margin="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="Теплопроводность:" Width="120"/>
+                            <TextBlock Text="{Binding DesignGlycolProperties.ThermalConductivity, StringFormat=F3}"/>
+                            <TextBlock Text=" Вт/(м·К)" Margin="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="Число Прандтля:" Width="120"/>
+                            <TextBlock Text="{Binding DesignGlycolProperties.PrandtlNumber, StringFormat=F2}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Информация о коллекторе -->
+        <Border Grid.Row="3"
+                Background="#E3F2FD"
+                Padding="10"
+                Margin="0,0,0,10"
+                CornerRadius="5"
+                Visibility="{Binding SelectedCollector, Converter={StaticResource NullToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Коллектор: "
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding SelectedCollector.CollectorNumber, StringFormat='№{0}'}"
+                           VerticalAlignment="Center"
+                           Margin="5,0,20,0"/>
+                <TextBlock Text="Контуров: "
+                       VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding SelectedCollector.Circuits.Count}"
+                           VerticalAlignment="Center"
+                           Margin="5,0,20,0"/>
+                <TextBlock Text="Тип вентиля: "
+                           VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding SelectedCollector.ValveType}"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- DataGrid контуров -->
+        <DataGrid Grid.Row="4"
+                  ItemsSource="{Binding SelectedCollector.Circuits}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  IsReadOnly="False"
+                  GridLinesVisibility="All"
+                  HorizontalGridLinesBrush="#E0E0E0"
+                  VerticalGridLinesBrush="#E0E0E0"
+                  AlternatingRowBackground="#FAFAFA"
+                  HeadersVisibility="Column"
+                  ColumnHeaderStyle="{StaticResource DataGridHeaderStyle}">
+            <DataGrid.Columns>
+                <!-- Номер контура (только чтение) -->
+                <DataGridTextColumn Header="№"
+                                    Binding="{Binding CircuitNumber, Mode=OneWay}"
+                                    IsReadOnly="True"
+                                    Width="40"
+                                    ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+
+                <!-- Длина контура (редактируется, может блокироваться) -->
+                <DataGridTextColumn Header="Длина (м)"
+                                    Binding="{Binding CircuitLength, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                                    Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsLengthReadOnly}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+
+                <!-- Длина подводки (редактируется) -->
+                <DataGridTextColumn Header="Подводка (м)"
+                                    Binding="{Binding SupplyLength, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                                    Width="80"/>
+
+                <!-- Площадь контура (редактируется, может блокироваться) -->
+                <DataGridTextColumn Header="Площадь (м²)"
+                                    Binding="{Binding CircuitArea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                                    Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsAreaReadOnly}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+
+                <!-- Шаг укладки (редактируется) -->
+                <DataGridTextColumn Header="Шаг (см)"
+                                    Binding="{Binding PipeSpacing_cm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"
+                                    Width="60"/>
+
+                <!-- Мощность (только чтение) -->
+                <DataGridTextColumn Header="Мощность (Вт)"
+                                    Binding="{Binding Power, Mode=OneWay, StringFormat=F0}"
+                                    IsReadOnly="True"
+                                    Width="100"
+                                    ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+
+                <!-- Расход (только чтение) -->
+                <DataGridTextColumn Header="Расход (л/ч)"
+                                    Binding="{Binding FlowRate, Mode=OneWay, StringFormat=F1}"
+                                    IsReadOnly="True"
+                                    Width="80"
+                                    ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+
+                <!-- Потери (только чтение) -->
+                <DataGridTextColumn Header="Потери (мбар)"
+                                    Binding="{Binding TotalLoss_mbar, Mode=OneWay, StringFormat=F1}"
+                                    IsReadOnly="True"
+                                    Width="100"
+                                    ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+
+                <!-- Обороты вентиля (только чтение) -->
+                <DataGridTextColumn Header="Обороты"
+                                    Binding="{Binding ValveTurns, Mode=OneWay, StringFormat=F1}"
+                                    IsReadOnly="True"
+                                    Width="80"
+                                    ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+
+                <!-- Скорость (только чтение) -->
+                <DataGridTextColumn Header="Скорость (м/с)"
+                                    Binding="{Binding Velocity, Mode=OneWay, StringFormat=F3}"
+                                    IsReadOnly="True"
+                                    Width="100"
+                                    ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+
+                <!-- Число Рейнольдса (только чтение) -->
+                <DataGridTextColumn Header="Re"
+                                    Binding="{Binding CurrentResult.ReynoldsNumber, Mode=OneWay, StringFormat=F0}"
+                                    IsReadOnly="True"
+                                    Width="80"
+                                    ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+
+                <!-- Режим течения (только чтение) -->
+                <DataGridTextColumn Header="Режим"
+                                    Binding="{Binding FlowRegimeDescription, Mode=OneWay}"
+                                    IsReadOnly="True"
+                                    Width="90"
+                                    ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+
+                <!-- Удельные потери (только чтение) -->
+                <DataGridTextColumn Header="Уд.потери (Па/м)"
+                                    Binding="{Binding CurrentResult.PressureLossPerMeter, Mode=OneWay, StringFormat=F1}"
+                                    IsReadOnly="True"
+                                    Width="110"
+                                    ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+
+                <!-- Потери в контуре (только чтение) -->
+                <DataGridTextColumn Header="Δp контур (мбар)"
+                                    Binding="{Binding CurrentResult.CircuitPipeLoss, Mode=OneWay, StringFormat={}{0:F1}}"
+                                    IsReadOnly="True"
+                                    Width="120"
+                                    ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+
+                <!-- Потери на клапане (только чтение) -->
+                <DataGridTextColumn Header="Δp клапан (мбар)"
+                                    Binding="{Binding CurrentResult.ValveLoss, Mode=OneWay, StringFormat={}{0:F1}}"
+                                    IsReadOnly="True"
+                                    Width="110"
+                                    ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Кнопки управления коллекторами -->
+        <StackPanel Grid.Row="5"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Left"
+                    Margin="0,15,0,0">
+            <Button Content="+ Добавить коллектор"
+                    Command="{Binding AddCollectorCommand}"
+                    IsEnabled="{Binding CanAddCollector}"
+                    Style="{StaticResource PrimaryButtonStyle}"/>
+            
+            <Button Content="- Удалить коллектор"
+                    Command="{Binding RemoveCollectorCommand}"
+                    CommandParameter="{Binding SelectedCollector}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Margin="10,5,0,5"/>
+            
+            <Button Content="+ Добавить контур"
+                    Command="{Binding AddCircuitCommand}"
+                    IsEnabled="{Binding CanAddCircuit}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Margin="10,5,0,5"/>
+
+            <Button Content="Рассчитать"
+                    Command="{Binding CalculateCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Margin="10,5,0,5"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

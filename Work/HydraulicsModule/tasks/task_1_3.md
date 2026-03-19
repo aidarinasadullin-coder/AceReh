@@ -1,15 +1,15 @@
-# Task 1.3: HydraulicResult (Результат расчёта)
+# Task 1.3: Обновить CollectorSummary.cs
 
-**Этап:** 1 - Models  
+**Этап:** 1 - Модели данных  
 **Приоритет:** Высокий  
-**Статус:** Завершено  
-**Зависимости:** Task 1.1 (Enums)
+**Статус:** К разработке  
+**Зависимости:** Task 1.1 (ValveType)
 
 ---
 
 ## 1. Цель задачи
 
-Создать класс `HydraulicResult` — модель результата гидравлического расчёта.
+Обновить класс `CollectorSummary` — добавить свойство `ValveType` для поддержки балансировочных клапанов.
 
 ---
 
@@ -17,252 +17,140 @@
 
 | UC | Название | Покрытие |
 |----|-----------|----------|
-| UC-01 | Расчёт гидравлических параметров контура | Основной класс результата |
-| UC-02 | Определение режима течения | Поля Velocity, ReynoldsNumber, FlowRegime |
-| UC-03 | Расчёт потерь давления в трубе | Поля PressureLossPerMeter, CircuitPressureLoss |
-| UC-04 | Расчёт потерь давления в вентилях | Поле ValvePressureLoss |
+| UC-05 | Балансировка контуров | ValveType определяет формулу расчёта оборотов |
+| UC-06 | Подбор коллектора | ValveType связан с типом коллектора |
 
 ---
 
-## 3. Создаваемые файлы
+## 3. Изменяемые файлы
 
-### 3.1. HydraulicResult.cs
+### 3.1. CollectorSummary.cs
 
-**Путь:** `src/Models/Hydraulics/HydraulicResult.cs`
+**Путь:** `src/Models/Hydraulics/CollectorSummary.cs`
 
-**Содержимое:**
+**Изменения:**
+
+Добавить свойство `ValveType`:
+
 ```csharp
 namespace SnowMeltingCalculator.Models.Hydraulics
 {
     /// <summary>
-    /// Результат гидравлического расчёта контура
+    /// Итоги расчёта коллектора
     /// </summary>
-    /// <remarks>
-    /// Содержит все рассчитанные параметры:
-    /// - Скорость потока и число Рейнольдса
-    /// - Режим течения и коэффициент трения
-    /// - Потери давления в трубе и вентиле
-    /// - Суммарные потери давления
-    /// </remarks>
-    public class HydraulicResult
+    public class CollectorSummary
     {
-        // === Скорость и режим течения ===
+        // === Существующие свойства ===
         
         /// <summary>
-        /// Скорость потока (w), м/с
+        /// Номер коллектора
         /// </summary>
-        /// <remarks>
-        /// Формула: w = v × 1000 / (3600 × π × di² / 4)
-        /// Где:
-        /// - v — расход, л/ч
-        /// - di — внутренний диаметр, мм
-        /// 
-        /// Рекомендуемый диапазон: 0.2-1.5 м/с
-        /// </remarks>
-        public double Velocity { get; set; }
+        public int CollectorNumber { get; set; }
         
         /// <summary>
-        /// Число Рейнольдса (Re), безразмерное
+        /// Тип коллектора
         /// </summary>
-        /// <remarks>
-        /// Формула: Re = 1000 × w × di / ν
-        /// Где:
-        /// - w — скорость, м/с
-        /// - di — внутренний диаметр, мм
-        /// - ν — кинематическая вязкость, мм²/с
-        /// </remarks>
-        public double ReynoldsNumber { get; set; }
+        public string CollectorType { get; set; } = "HKV-D";
         
         /// <summary>
-        /// Режим течения
+        /// Kv коллектора (коэффициент пропускной способности), м³/ч
         /// </summary>
-        /// <remarks>
-        /// Определяется по числу Рейнольдса:
-        /// - Re &lt; 2300 → Laminar
-        /// - 2300 ≤ Re ≤ 4000 → Transitional
-        /// - Re &gt; 4000 → Turbulent
-        /// </remarks>
-        public FlowRegime FlowRegime { get; set; }
+        public double Kv { get; set; } = 1.2;
         
         /// <summary>
-        /// Коэффициент гидравлического трения (λ), безразмерный
+        /// Количество контуров
         /// </summary>
-        /// <remarks>
-        /// Ламинарный режим: λ = 64 / Re (формула Пуазейля)
-        /// Переходный режим: линейная интерполяция
-        /// Турбулентный режим: формула Колбрука-Уайта
-        /// </remarks>
-        public double FrictionFactor { get; set; }
-        
-        // === Потери давления ===
+        public int CircuitCount { get; set; }
         
         /// <summary>
-        /// Удельные потери давления (R), Па/м
+        /// Общая длина труб, м
         /// </summary>
-        /// <remarks>
-        /// Формула: R = 1000 × (w² × ρ × λ) / (2 × di)
-        /// Где:
-        /// - w — скорость, м/с
-        /// - ρ — плотность, кг/м³
-        /// - λ — коэффициент трения
-        /// - di — внутренний диаметр, мм
-        /// 
-        /// Ограничение: R ≤ 300 Па/м
-        /// </remarks>
-        public double PressureLossPerMeter { get; set; }
+        public double TotalPipeLength { get; set; }
         
         /// <summary>
-        /// Потери давления в контуре (Δp_HK), Па
+        /// Общая мощность, Вт
         /// </summary>
-        /// <remarks>
-        /// Формула: Δp_HK = L_HK × R
-        /// Где L_HK — длина контура, м
-        /// </remarks>
-        public double CircuitPressureLoss { get; set; }
+        public double TotalPower { get; set; }
         
         /// <summary>
-        /// Потери давления в подводке (Δp_Zul), Па
+        /// Общий расход, л/ч
         /// </summary>
-        /// <remarks>
-        /// Формула: Δp_Zul = L_Zul × R
-        /// Где L_Zul — длина подводки, м
-        /// </remarks>
-        public double SupplyPressureLoss { get; set; }
+        public double TotalFlowRate { get; set; }
         
         /// <summary>
-        /// Общие потери давления в трубе (Δp_Rohr), Па
+        /// Общий расход, м³/ч
         /// </summary>
-        /// <remarks>
-        /// Формула: Δp_Rohr = Δp_HK + Δp_Zul
-        /// Или: Δp_Rohr = (L_HK + L_Zul) × R
-        /// </remarks>
-        public double TotalPipePressureLoss { get; set; }
+        public double TotalFlowRate_m3h => TotalFlowRate / 1000.0;
         
         /// <summary>
-        /// Потери давления в вентиле (Δp_Vent), Па
+        /// Потери при рабочей температуре, мбар
         /// </summary>
-        /// <remarks>
-        /// Формула для HKV-D: Δp = (v / 1000 / 1.2)² × 100000 × ρ
-        /// Формула для IV 1¼": Δp = (v / 1000 / 1.45)² × 100000 × ρ
-        /// Формула для IV 1½": Δp = (v / 1000 / 1.5)² × 100000 × ρ
-        /// </remarks>
-        public double ValvePressureLoss { get; set; }
+        public double PressureLoss_Operating_mbar { get; set; }
         
         /// <summary>
-        /// Суммарные потери давления (Δp_total), Па
+        /// Потери при расчётной температуре, мбар
         /// </summary>
-        /// <remarks>
-        /// Формула: Δp_total = Δp_Rohr + Δp_Vent
-        /// </remarks>
-        public double TotalPressureLoss { get; set; }
-        
-        // === Расход ===
+        public double PressureLoss_Cold_mbar { get; set; }
         
         /// <summary>
-        /// Расход на контур (v), л/ч
+        /// Максимальные потери контура, Па
         /// </summary>
-        /// <remarks>
-        /// Формула: v = VolumeFlowRate × CircuitArea
-        /// Где:
-        /// - VolumeFlowRate — удельный расход, л/(ч·м²)
-        /// - CircuitArea — площадь контура, м²
-        /// </remarks>
-        public double CircuitFlowRate { get; set; }
-        
-        // === Валидация ===
+        public double MaxCircuitLoss { get; set; }
         
         /// <summary>
-        /// Признак валидности результата
+        /// Номер референсного контура
+        /// </summary>
+        public int ReferenceCircuitNumber { get; set; }
+        
+        /// <summary>
+        /// Признак валидности
         /// </summary>
         public bool IsValid { get; set; }
         
         /// <summary>
         /// Ошибки валидации
         /// </summary>
-        public string[] ValidationErrors { get; set; } = Array.Empty<string>();
+        public string[] Errors { get; set; } = Array.Empty<string>();
         
         /// <summary>
         /// Предупреждения
         /// </summary>
-        /// <remarks>
-        /// Например: "Переходный режим течения"
-        /// </remarks>
         public string[] Warnings { get; set; } = Array.Empty<string>();
+        
+        // === Новое свойство ===
+        
+        /// <summary>
+        /// Тип балансировочного клапана
+        /// </summary>
+        /// <remarks>
+        /// Определяет формулу расчёта оборотов клапана:
+        /// - HKV-D: бытовой коллектор, Kv = 1.2 м³/ч
+        /// - IV 1¼": промышленный коллектор, Kv = 1.45 м³/ч
+        /// - IV 1½": промышленный коллектор, Kv = 1.5 м³/ч
+        /// </remarks>
+        public ValveType ValveType { get; set; } = ValveType.HKV_D;
         
         // === Вычисляемые свойства ===
         
         /// <summary>
-        /// Потери давления в кПа
+        /// Потери при рабочей температуре, Па
         /// </summary>
-        public double TotalPressureLoss_kPa => TotalPressureLoss / 1000;
+        public double PressureLoss_Operating_Pa => PressureLoss_Operating_mbar * 100;
         
         /// <summary>
-        /// Потери давления в мбар
+        /// Потери при расчётной температуре, Па
         /// </summary>
-        public double TotalPressureLoss_mbar => TotalPressureLoss / 100;
+        public double PressureLoss_Cold_Pa => PressureLoss_Cold_mbar * 100;
         
         /// <summary>
-        /// Признак переходного режима течения
+        /// Максимально допустимые потери (ограничение РЕХАУ), мбар
         /// </summary>
-        public bool IsTransitionalFlow => FlowRegime == FlowRegime.Transitional;
+        public static readonly double MaxAllowedPressure_mbar = 320;
         
         /// <summary>
-        /// Признак низкой скорости потока
+        /// Проверка превышения лимита потерь
         /// </summary>
-        public bool IsLowVelocity => Velocity < 0.2;
-        
-        /// <summary>
-        /// Признак высокой скорости потока
-        /// </summary>
-        public bool IsHighVelocity => Velocity > 1.5;
-        
-        /// <summary>
-        /// Признак превышения удельных потерь
-        /// </summary>
-        public bool IsPressureLossExceeded => PressureLossPerMeter > 300;
-        
-        // === Методы ===
-        
-        /// <summary>
-        /// Создать пустой результат
-        /// </summary>
-        public static HydraulicResult Empty => new HydraulicResult();
-        
-        /// <summary>
-        /// Получить описание режима течения
-        /// </summary>
-        public string GetFlowRegimeDescription()
-        {
-            return FlowRegime switch
-            {
-                FlowRegime.Laminar => "Ламинарный режим (Re < 2300)",
-                FlowRegime.Transitional => "Переходный режим (2300 ≤ Re ≤ 4000)",
-                FlowRegime.Turbulent => "Турбулентный режим (Re > 4000)",
-                _ => "Неизвестный режим"
-            };
-        }
-        
-        /// <summary>
-        /// Получить предупреждения о проблемах
-        /// </summary>
-        public List<string> GetWarnings()
-        {
-            var warnings = new List<string>();
-            
-            if (IsTransitionalFlow)
-                warnings.Add("Переходный режим течения (2300 ≤ Re ≤ 4000). Рекомендуется изменить параметры для обеспечения стабильного течения.");
-            
-            if (IsLowVelocity)
-                warnings.Add($"Низкая скорость потока ({Velocity:F3} м/с). Возможны проблемы с теплоотдачей.");
-            
-            if (IsHighVelocity)
-                warnings.Add($"Высокая скорость потока ({Velocity:F3} м/с). Рекомендуется увеличить диаметр трубы.");
-            
-            if (IsPressureLossExceeded)
-                warnings.Add($"Превышение удельных потерь ({PressureLossPerMeter:F1} Па/м > 300 Па/м). Рекомендуется уменьшить длину контура или увеличить диаметр трубы.");
-            
-            return warnings;
-        }
+        public bool IsPressureExceeded => PressureLoss_Cold_mbar > MaxAllowedPressure_mbar;
     }
 }
 ```
@@ -273,7 +161,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
 
 ### 4.1. Unit-тесты
 
-**Файл:** `tests/Models/Hydraulics/HydraulicResultTests.cs`
+**Файл:** `tests/Models/Hydraulics/CollectorSummaryTests.cs`
 
 ```csharp
 using SnowMeltingCalculator.Models.Hydraulics;
@@ -282,154 +170,81 @@ using NUnit.Framework;
 namespace SnowMeltingCalculator.Tests.Models.Hydraulics
 {
     [TestFixture]
-    public class HydraulicResultTests
+    public class CollectorSummaryTests
     {
         [Test]
-        public void TotalPressureLoss_kPa_CalculatesCorrectly()
+        public void ValveType_DefaultValue_IsHKV_D()
         {
-            // Arrange
-            var result = new HydraulicResult { TotalPressureLoss = 5000 };
+            // Arrange & Act
+            var summary = new CollectorSummary();
             
-            // Act & Assert
-            Assert.That(result.TotalPressureLoss_kPa, Is.EqualTo(5));
+            // Assert
+            Assert.That(summary.ValveType, Is.EqualTo(ValveType.HKV_D));
         }
         
         [Test]
-        public void TotalPressureLoss_mbar_CalculatesCorrectly()
+        public void ValveType_CanBeSet()
         {
             // Arrange
-            var result = new HydraulicResult { TotalPressureLoss = 32000 };
+            var summary = new CollectorSummary();
             
-            // Act & Assert
-            Assert.That(result.TotalPressureLoss_mbar, Is.EqualTo(320));
+            // Act
+            summary.ValveType = ValveType.IV_1_5;
+            
+            // Assert
+            Assert.That(summary.ValveType, Is.EqualTo(ValveType.IV_1_5));
         }
         
         [Test]
-        public void IsTransitionalFlow_ReturnsTrueForTransitional()
+        public void OperatingPressureLoss_mbar_ConvertsCorrectly()
         {
             // Arrange
-            var result = new HydraulicResult { FlowRegime = FlowRegime.Transitional };
-            
-            // Act & Assert
-            Assert.That(result.IsTransitionalFlow, Is.True);
-        }
-        
-        [Test]
-        public void IsTransitionalFlow_ReturnsFalseForTurbulent()
-        {
-            // Arrange
-            var result = new HydraulicResult { FlowRegime = FlowRegime.Turbulent };
-            
-            // Act & Assert
-            Assert.That(result.IsTransitionalFlow, Is.False);
-        }
-        
-        [Test]
-        public void IsLowVelocity_ReturnsTrueForLowVelocity()
-        {
-            // Arrange
-            var result = new HydraulicResult { Velocity = 0.1 };
-            
-            // Act & Assert
-            Assert.That(result.IsLowVelocity, Is.True);
-        }
-        
-        [Test]
-        public void IsHighVelocity_ReturnsTrueForHighVelocity()
-        {
-            // Arrange
-            var result = new HydraulicResult { Velocity = 2.0 };
-            
-            // Act & Assert
-            Assert.That(result.IsHighVelocity, Is.True);
-        }
-        
-        [Test]
-        public void IsPressureLossExceeded_ReturnsTrueWhenExceeded()
-        {
-            // Arrange
-            var result = new HydraulicResult { PressureLossPerMeter = 350 };
-            
-            // Act & Assert
-            Assert.That(result.IsPressureLossExceeded, Is.True);
-        }
-        
-        [Test]
-        public void GetFlowRegimeDescription_ReturnsCorrectDescription()
-        {
-            // Arrange & Act & Assert
-            var laminar = new HydraulicResult { FlowRegime = FlowRegime.Laminar };
-            Assert.That(laminar.GetFlowRegimeDescription(), Does.Contain("Ламинарный"));
-            
-            var transitional = new HydraulicResult { FlowRegime = FlowRegime.Transitional };
-            Assert.That(transitional.GetFlowRegimeDescription(), Does.Contain("Переходный"));
-            
-            var turbulent = new HydraulicResult { FlowRegime = FlowRegime.Turbulent };
-            Assert.That(turbulent.GetFlowRegimeDescription(), Does.Contain("Турбулентный"));
-        }
-        
-        [Test]
-        public void GetWarnings_ReturnsWarningsForTransitionalFlow()
-        {
-            // Arrange
-            var result = new HydraulicResult
+            var summary = new CollectorSummary
             {
-                FlowRegime = FlowRegime.Transitional,
-                ReynoldsNumber = 3000
+                PressureLoss_Operating_mbar = 320 // мбар
             };
             
-            // Act
-            var warnings = result.GetWarnings();
-            
             // Assert
-            Assert.That(warnings.Count, Is.GreaterThan(0));
-            Assert.That(warnings[0], Does.Contain("Переходный режим"));
+            Assert.That(summary.PressureLoss_Operating_Pa, Is.EqualTo(32000)); // Па
         }
         
         [Test]
-        public void GetWarnings_ReturnsWarningsForLowVelocity()
+        public void DesignPressureLoss_mbar_ConvertsCorrectly()
         {
             // Arrange
-            var result = new HydraulicResult
+            var summary = new CollectorSummary
             {
-                Velocity = 0.1,
-                FlowRegime = FlowRegime.Laminar
+                PressureLoss_Cold_mbar = 450 // мбар
             };
             
-            // Act
-            var warnings = result.GetWarnings();
-            
             // Assert
-            Assert.That(warnings.Any(w => w.Contains("Низкая скорость")), Is.True);
+            Assert.That(summary.PressureLoss_Cold_Pa, Is.EqualTo(45000)); // Па
         }
         
         [Test]
-        public void GetWarnings_ReturnsWarningsForHighVelocity()
+        public void IsPressureExceeded_ReturnsTrueWhenExceeded()
         {
             // Arrange
-            var result = new HydraulicResult
+            var summary = new CollectorSummary
             {
-                Velocity = 2.0,
-                FlowRegime = FlowRegime.Turbulent
+                PressureLoss_Cold_mbar = 350 // 350 мбар > 320 мбар
             };
             
-            // Act
-            var warnings = result.GetWarnings();
-            
             // Assert
-            Assert.That(warnings.Any(w => w.Contains("Высокая скорость")), Is.True);
+            Assert.That(summary.IsPressureExceeded, Is.True);
         }
         
         [Test]
-        public void Empty_CreatesEmptyResult()
+        public void IsPressureExceeded_ReturnsFalseWhenNotExceeded()
         {
-            // Act
-            var result = HydraulicResult.Empty;
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Cold_mbar = 300 // 300 мбар < 320 мбар
+            };
             
             // Assert
-            Assert.That(result.Velocity, Is.EqualTo(0));
-            Assert.That(result.ReynoldsNumber, Is.EqualTo(0));
-            Assert.That(result.IsValid, Is.False);
+            Assert.That(summary.IsPressureExceeded, Is.False);
         }
     }
 }
@@ -439,11 +254,10 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
 
 ## 5. Критерии приёмки
 
-- [ ] Файл `HydraulicResult.cs` создан
-- [ ] Класс содержит все свойства из ТЗ
+- [ ] Свойство `ValveType` добавлено в `CollectorSummary.cs`
+- [ ] Значение по умолчанию: `HKV_D`
+- [ ] XML-документация для свойства
 - [ ] Вычисляемые свойства работают корректно
-- [ ] Методы GetFlowRegimeDescription() и GetWarnings() работают корректно
-- [ ] XML-документация для всех свойств и методов
 - [ ] Unit-тесты проходят успешно
 - [ ] Код компилируется без предупреждений
 
@@ -451,6 +265,18 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
 
 ## 6. Примечания
 
-- Класс должен быть независимым от других сервисов
-- Вычисляемые свойства не должны выбрасывать исключения
-- Массивы ValidationErrors и Warnings инициализируются пустыми массивами
+- Свойство `ValveType` используется в `CircuitsCalculator.CalculateBalancing()`
+- Значение по умолчанию `HKV_D` соответствует бытовому коллектору
+- Вычисляемые свойства `OperatingPressureLoss_mbar` и `DesignPressureLoss_mbar` конвертируют Па в мбар
+
+---
+
+## 7. Связанные задачи
+
+- Task 1.1: ValveType — используется в этом классе
+- Task 3.2: CircuitsCalculator — использует CollectorSummary
+- Task 4.2: CollectorViewModel — использует CollectorSummary
+
+---
+
+*Дата создания: 2026-03-17*
