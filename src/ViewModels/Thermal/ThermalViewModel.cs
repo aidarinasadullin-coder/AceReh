@@ -47,13 +47,23 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// Выбранный тип трубы
         /// </summary>
         [ObservableProperty]
-        private PipeType _selectedPipe = PipeType.StandardPipes[1]; // RAUTHERM S 20x2,0
+        private PipeType? _selectedPipe;
 
         /// <summary>
         /// Шаг укладки трубы, мм
         /// </summary>
         [ObservableProperty]
-        private double _pipeSpacing = 200.0;
+        private int _pipeSpacing = 200;
+
+        /// <summary>
+        /// Доступные значения шага укладки, мм
+        /// </summary>
+        public int[] AvailablePipeSpacings { get; } = new[] { 150, 200, 250, 300 };
+
+        /// <summary>
+        /// Признак доступности поля Шаг укладки
+        /// </summary>
+        public bool IsPipeSpacingEnabled => SelectedPipe != null;
 
         /// <summary>
         /// Результат расчёта
@@ -69,6 +79,14 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             OnPropertyChanged(nameof(DeltaT));
             OnPropertyChanged(nameof(RecommendedSupplyTemperature));
             OnPropertyChanged(nameof(SupplyTemperatureHint));
+        }
+
+        /// <summary>
+        /// Уведомление об изменении выбранной трубы для обновления доступности шага укладки
+        /// </summary>
+        partial void OnSelectedPipeChanged(PipeType? value)
+        {
+            OnPropertyChanged(nameof(IsPipeSpacingEnabled));
         }
 
         /// <summary>
@@ -211,8 +229,8 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             SelectedMode = OperatingMode.Melting;
             SupplyTemperature = 50.0;
             GroundTemperature = 10.0;
-            SelectedPipe = PipeType.StandardPipes[1]; // RAUTHERM S 20x2,0
-            PipeSpacing = 200.0;
+            SelectedPipe = null;
+            PipeSpacing = 200;
             Result = null;
             ValidationMessage = string.Empty;
         }
@@ -232,7 +250,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 SupplyTemperature = SupplyTemperature,
                 DeltaT = 15.0, // Значение по умолчанию для совместимости с гидравлическим расчётом
                 GroundTemperature = GroundTemperature,
-                Pipe = SelectedPipe,
+                Pipe = SelectedPipe!, // Валидация гарантирует, что SelectedPipe не null при вызове
                 PipeSpacing = PipeSpacing,
                 AirTemperature = _climateData.AirTemperature,
                 WindSpeed = _climateData.WindSpeed,
@@ -253,6 +271,12 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         private bool ValidateInput()
         {
             var errors = new List<string>();
+
+            // Валидация выбранной трубы
+            if (SelectedPipe == null)
+            {
+                errors.Add("Необходимо выбрать тип трубы");
+            }
 
             // Валидация температуры подачи
             if (SupplyTemperature < 20 || SupplyTemperature > 90)
@@ -284,9 +308,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 errors.Add("Климатические данные: скорость ветра должна быть от 0.1 до 30 м/с");
             }
 
-            if (_climateData.SnowfallIntensity < 0 || _climateData.SnowfallIntensity > 5)
+            if (_climateData.SnowfallIntensity < 0 || _climateData.SnowfallIntensity > 20)
             {
-                errors.Add("Климатические данные: интенсивность снегопада должна быть от 0 до 5 см/ч");
+                errors.Add("Климатические данные: интенсивность снегопада должна быть от 0 до 20 мм/ч");
             }
 
             // Валидация данных конструкции

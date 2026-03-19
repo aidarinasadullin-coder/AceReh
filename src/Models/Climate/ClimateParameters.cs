@@ -37,12 +37,12 @@ namespace SnowMeltingCalculator.Models.Climate
         public double Humidity { get; set; } = 70.0;
 
         /// <summary>
-        /// Интенсивность снегопада, см/ч
+        /// Интенсивность снегопада, мм/ч (водяной эквивалент)
         /// НЕ берётся из СП 131.13330.2025, вводится вручную
-        /// По умолчанию 0.3 см/ч
-        /// Диапазон: 0.1 до 5 см/ч
+        /// По умолчанию 0 мм/ч
+        /// Диапазон: 0 до 20 мм/ч
         /// </summary>
-        public double SnowfallIntensity { get; set; } = 0.3;
+        public double SnowfallIntensity { get; set; } = 0;
 
         /// <summary>
         /// Климатическая зона

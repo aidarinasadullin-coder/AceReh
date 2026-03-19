@@ -109,7 +109,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void CalculatePowerUp_ValidInput_ReturnsPositiveValue()
         {
             // Arrange
-            var snowfallIntensity = 2.0;  // см/ч
+            var snowfallIntensity = 20.0;  // мм/ч
             var surfaceTemp = 5.0;        // °C
             var airTemp = -20.0;          // °C
             var alpha = 25.0;             // Вт/м²·К
@@ -122,7 +122,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         }
 
         [Test]
-        public void CalculatePowerUp_ZeroSnowfall_ReturnsConvectionAndRadiation()
+        public void CalculatePowerUp_ZeroSnowfall_ReturnsConvectionOnly()
         {
             // Arrange
             var snowfallIntensity = 0.0;
@@ -134,18 +134,37 @@ namespace SnowMeltingCalculator.Tests.Thermal
             var powerUp = _calculator.CalculatePowerUp(snowfallIntensity, surfaceTemp, airTemp, alpha);
 
             // Assert
-            // При нулевом снегопаде мощность = излучение + конвекция
-            // Q_изл ≈ 0.055 × 5.77e-8 × (278/100)^4 ≈ 0.3 Вт/м²
+            // При нулевом снегопаде мощность = только конвекция (без излучения)
             // Q_конв = 25 × 25 = 625 Вт/м²
-            Assert.That(powerUp, Is.GreaterThan(600));
-            Assert.That(powerUp, Is.LessThan(700));
+            // Примечание: Q_изл исключён из основного расчёта q_FB
+            Assert.That(powerUp, Is.EqualTo(625.0).Within(1.0));
+        }
+
+        [Test]
+        public void Calculate_RadiationHeat_IsCalculatedForReference()
+        {
+            // Arrange
+            var parameters = CreateValidParameters();
+            parameters.SnowfallIntensity = 2.0;
+
+            // Act
+            var result = _calculator.Calculate(parameters);
+
+            // Assert
+            // RadiationHeat должен вычисляться для справки, но НЕ входить в PowerUp
+            Assert.That(result.RadiationHeat, Is.GreaterThan(0), "RadiationHeat должен вычисляться");
+            
+            // PowerUp = MeltingHeat + ConvectionHeat (БЕЗ RadiationHeat)
+            var expectedPowerUp = result.MeltingHeat + result.ConvectionHeat;
+            Assert.That(result.PowerUp, Is.EqualTo(expectedPowerUp).Within(0.1), 
+                "PowerUp должен быть равен MeltingHeat + ConvectionHeat (без RadiationHeat)");
         }
 
         [Test]
         public void CalculatePowerUp_WithSnowfall_IncludesMeltingHeat()
         {
             // Arrange
-            var snowfallIntensity = 2.0;
+            var snowfallIntensity = 20.0;  // мм/ч
             var surfaceTemp = 5.0;
             var airTemp = -20.0;
             var alpha = 25.0;
@@ -163,7 +182,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void CalculatePowerUp_NegativeSnowfall_ThrowsException()
         {
             // Arrange
-            var snowfallIntensity = -1.0;
+            var snowfallIntensity = -1.0;  // мм/ч
             var surfaceTemp = 5.0;
             var airTemp = -20.0;
             var alpha = 25.0;
@@ -177,7 +196,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void CalculatePowerUp_ZeroAlpha_ThrowsException()
         {
             // Arrange
-            var snowfallIntensity = 2.0;
+            var snowfallIntensity = 20.0;  // мм/ч
             var surfaceTemp = 5.0;
             var airTemp = -20.0;
             var alpha = 0.0;
@@ -449,7 +468,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Arrange
             var parametersWithSnow = CreateValidParameters();
-            parametersWithSnow.SnowfallIntensity = 2.0;
+            parametersWithSnow.SnowfallIntensity = 20.0;  // мм/ч
 
             var parametersNoSnow = CreateValidParameters();
             parametersNoSnow.SnowfallIntensity = 0.0;
@@ -658,14 +677,14 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Arrange
             var parameters = CreateValidParameters();
-            parameters.SnowfallIntensity = 15.0;  // > 10 см/ч
+            parameters.SnowfallIntensity = 150.0;  // > 100 мм/ч
 
             // Act
             var isValid = _calculator.Validate(parameters, out var errors);
 
             // Assert
             Assert.That(isValid, Is.False);
-            Assert.That(errors, Has.Some.Contains("10"));
+            Assert.That(errors, Has.Some.Contains("100"));
         }
 
         #endregion

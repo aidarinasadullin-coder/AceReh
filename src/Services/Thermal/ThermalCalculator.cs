@@ -98,16 +98,18 @@ namespace SnowMeltingCalculator.Services.Thermal
         /// <summary>
         /// Рассчитать требуемую мощность вверх (на поверхность)
         /// </summary>
-        /// <param name="snowfallIntensity">Интенсивность снегопада, см/ч</param>
+        /// <param name="snowfallIntensity">Интенсивность снегопада, мм/ч (водяной эквивалент)</param>
         /// <param name="surfaceTemp">Температура поверхности, °C</param>
         /// <param name="airTemp">Температура наружного воздуха, °C</param>
         /// <param name="alpha">Коэффициент теплоотдачи, Вт/м²·К</param>
         /// <returns>Требуемая мощность q_FB, Вт/м²</returns>
         /// <remarks>
-        /// Состоит из трёх составляющих:
+        /// Состоит из двух составляющих:
         /// 1. Q_таяние = (h/3600) × ρ × [c_льда × (0 - t_H) + L_плавл + c_воды × (t_П - 0)]
-        /// 2. Q_изл = ε × σ × [(273 + t_П)/100]^4
-        /// 3. Q_конв = α × (t_П - t_H)
+        /// 2. Q_конв = α × (t_П - t_H)
+        /// 
+        /// Примечание: Q_изл (лучистый тепловой поток) исключён из основного расчёта,
+        /// но вычисляется отдельно для справки (RadiationHeat).
         /// </remarks>
         public double CalculatePowerUp(double snowfallIntensity, double surfaceTemp, double airTemp, double alpha)
         {
@@ -122,9 +124,9 @@ namespace SnowMeltingCalculator.Services.Thermal
                 throw new ArgumentOutOfRangeException(nameof(alpha), "Коэффициент теплоотдачи должен быть положительным");
             }
 
-            // Конвертация интенсивности снегопада из см/ч в м/с
-            // h [м/с] = h [см/ч] / 100 / 3600
-            var h = snowfallIntensity / 100.0 / 3600.0;
+            // Конвертация интенсивности снегопада из мм/ч в м/с
+            // h [м/с] = h [мм/ч] / 1000 / 3600
+            var h = snowfallIntensity / 1000.0 / 3600.0;
 
             // 1. Теплота плавления снега
             // Q_таяние = (h/3600) × ρ × [c_льда × (0 - t_H) + L_плавл + c_воды × (t_П - 0)]
@@ -135,17 +137,13 @@ namespace SnowMeltingCalculator.Services.Thermal
                 WaterHeatCapacity * surfaceTemp      // нагрев воды до t_П
             );
 
-            // 2. Лучистый теплообмен
-            // Q_изл = ε × σ × [(273 + t_П)/100]^4
-            var tSurfaceKelvin = 273.0 + surfaceTemp;
-            var qRadiation = EmissionCoefficient * StefanBoltzmann * Math.Pow(tSurfaceKelvin / 100.0, 4);
-
-            // 3. Конвективный теплообмен
+            // 2. Конвективный теплообмен
             // Q_конв = α × (t_П - t_H)
             var qConvection = alpha * (surfaceTemp - airTemp);
 
-            // Суммарная мощность вверх
-            var powerUp = qMelting + qRadiation + qConvection;
+            // Суммарная мощность вверх (без лучистого теплообмена)
+            // q_FB = Q_таяние + Q_конв
+            var powerUp = qMelting + qConvection;
 
             return powerUp;
         }
@@ -443,7 +441,7 @@ namespace SnowMeltingCalculator.Services.Thermal
                 result.DeltaT = result.SupplyTemperature - result.ReturnTemperature;
 
                 // 7. Расчёт составляющих мощности (для справки)
-                var h = parameters.SnowfallIntensity / 100.0 / 3600.0;
+                var h = parameters.SnowfallIntensity / 1000.0 / 3600.0;
                 result.MeltingHeat = h * SnowDensity * (
                     IceHeatCapacity * (0 - parameters.AirTemperature) +
                     IceMeltingHeat +
@@ -555,9 +553,9 @@ namespace SnowMeltingCalculator.Services.Thermal
                 errorList.Add("Интенсивность снегопада не может быть отрицательной");
             }
 
-            if (parameters.SnowfallIntensity > 10)
+            if (parameters.SnowfallIntensity > 20)
             {
-                errorList.Add("Интенсивность снегопада не должна превышать 10 см/ч");
+                errorList.Add("Интенсивность снегопада не должна превышать 20 мм/ч");
             }
 
             // Проверка шага укладки

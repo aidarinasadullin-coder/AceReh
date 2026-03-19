@@ -1,15 +1,15 @@
-# Task 3.1: HydraulicCalculator (Калькулятор гидравлики)
+# Task 3.1: Создать ValveTurnsCalculator.cs
 
-**Этап:** 3 - Services  
+**Этап:** 3 - Сервисы расчёта  
 **Приоритет:** Высокий  
-**Статус:** Не начато  
-**Зависимости:** Task 2.1 (IHydraulicCalculator), Task 2.2 (IGlycolDataService), Task 3.4 (HydraulicValidator)
+**Статус:** К разработке  
+**Зависимости:** Task 1.1 (ValveType)
 
 ---
 
 ## 1. Цель задачи
 
-Реализовать класс `HydraulicCalculator` — основной калькулятор гидравлического расчёта.
+Создать класс `ValveTurnsCalculator` для расчёта оборотов балансировочного клапана.
 
 ---
 
@@ -17,318 +17,167 @@
 
 | UC | Название | Покрытие |
 |----|-----------|----------|
-| UC-01 | Расчёт гидравлических параметров контура | Метод Calculate() |
-| UC-02 | Определение режима течения | Методы DetermineFlowRegime(), CalculateFrictionFactor() |
-| UC-03 | Расчёт потерь давления в трубе | Метод CalculatePressureLossPerMeter() |
-| UC-04 | Расчёт потерь давления в вентилях | Метод CalculateValvePressureLoss() |
-| UC-06 | Расчёт дросселирования контуров | Метод CalculateBalancing() |
+| UC-05 | Балансировка контуров | Расчёт оборотов клапана |
 
 ---
 
 ## 3. Создаваемые файлы
 
-### 3.1. HydraulicCalculator.cs
+### 3.1. ValveTurnsCalculator.cs
 
-**Путь:** `src/Services/Hydraulics/HydraulicCalculator.cs`
+**Путь:** `src/Services/Hydraulics/ValveTurnsCalculator.cs`
 
-**Ключевые методы:**
-
+**Содержимое:**
 ```csharp
+using SnowMeltingCalculator.Models.Hydraulics;
+
 namespace SnowMeltingCalculator.Services.Hydraulics
 {
     /// <summary>
-    /// Реализация калькулятора гидравлического расчёта
+    /// Калькулятор оборотов балансировочного клапана
     /// </summary>
-    public class HydraulicCalculator : IHydraulicCalculator
+    /// <remarks>
+    /// Рассчитывает количество оборотов балансировочного клапана
+    /// в зависимости от коэффициента пропускной способности (Kv).
+    /// 
+    /// Поддерживаемые типы клапанов:
+    /// - HKV-D: бытовой коллектор, Kv = 1.2 м³/ч
+    /// - IV 1¼": промышленный коллектор, Kv = 1.45 м³/ч
+    /// - IV 1½": промышленный коллектор, Kv = 1.5 м³/ч
+    /// </remarks>
+    public static class ValveTurnsCalculator
     {
-        private readonly IGlycolDataService _glycolService;
-        private readonly HydraulicValidator _validator;
-        
-        public HydraulicCalculator(IGlycolDataService glycolService)
-        {
-            _glycolService = glycolService;
-            _validator = new HydraulicValidator();
-        }
-        
+        #region Константы
+
         /// <summary>
-        /// Рассчитать скорость потока
-        /// Формула: w = v × 1000 / (3600 × π × di² / 4)
+        /// Kv для HKV-D (бытовой коллектор)
         /// </summary>
-        public double CalculateVelocity(double flowRate_L_h, double innerDiameter_mm)
-        {
-            // w = v / 3600 / (π × di² / 4 / 1000000)
-            // w = v × 1000 / (3600 × π × di² / 4)
-            
-            double area_mm2 = Math.PI * Math.Pow(innerDiameter_mm, 2) / 4;
-            double velocity = flowRate_L_h * 1000 / (3600 * area_mm2);
-            
-            return velocity;
-        }
-        
+        public const double KV_HKV_D = 1.2;
+
         /// <summary>
-        /// Рассчитать число Рейнольдса
-        /// Формула: Re = 1000 × w × di / ν
+        /// Kv для IV 1¼" (промышленный коллектор)
         /// </summary>
-        public double CalculateReynoldsNumber(
-            double velocity_m_s, 
-            double innerDiameter_mm, 
-            double kinematicViscosity_mm2_s)
-        {
-            // Re = w × di / ν
-            // При di в мм и ν в мм²/с: Re = 1000 × w × di / ν
-            
-            double re = 1000 * velocity_m_s * innerDiameter_mm / kinematicViscosity_mm2_s;
-            return re;
-        }
-        
+        public const double KV_IV_1_25 = 1.45;
+
         /// <summary>
-        /// Определить режим течения
+        /// Kv для IV 1½" (промышленный коллектор)
         /// </summary>
-        public FlowRegime DetermineFlowRegime(double reynoldsNumber)
-        {
-            if (reynoldsNumber < 2300)
-                return FlowRegime.Laminar;
-            else if (reynoldsNumber <= 4000)
-                return FlowRegime.Transitional;
-            else
-                return FlowRegime.Turbulent;
-        }
-        
+        public const double KV_IV_1_5 = 1.5;
+
+        #endregion
+
+        #region Основные методы
+
         /// <summary>
-        /// Рассчитать коэффициент трения λ
+        /// Рассчитать обороты балансировочного клапана
         /// </summary>
-        public double CalculateFrictionFactor(
-            double reynoldsNumber, 
-            double innerDiameter_mm, 
-            double roughness_mm)
+        /// <param name="kv">Коэффициент пропускной способности (м³/ч)</param>
+        /// <param name="valveType">Тип клапана</param>
+        /// <returns>Количество оборотов (округлено до 0.1)</returns>
+        /// <remarks>
+        /// Формулы расчёта:
+        /// - IV 1½": Обороты = 5.122 × Kv - 0.2106
+        /// - IV 1¼": Обороты = 5.1818 × Kv - 0.23
+        /// - HKV-D: Обороты = 4.2111×Kv³ - 6.7436×Kv² + 4.6613×Kv - 0.712
+        /// </remarks>
+        public static double CalculateTurns(double kv, ValveType valveType)
         {
-            var regime = DetermineFlowRegime(reynoldsNumber);
-            
-            return regime switch
+            double turns = valveType switch
             {
-                FlowRegime.Laminar => CalculateLaminarFrictionFactor(reynoldsNumber),
-                FlowRegime.Transitional => CalculateTransitionalFrictionFactor(
-                    reynoldsNumber, innerDiameter_mm, roughness_mm),
-                FlowRegime.Turbulent => CalculateTurbulentFrictionFactor(
-                    reynoldsNumber, innerDiameter_mm, roughness_mm),
-                _ => throw new ArgumentOutOfRangeException()
+                ValveType.IV_1_5 => CalculateTurnsIV_1_5(kv),
+                ValveType.IV_1_25 => CalculateTurnsIV_1_25(kv),
+                ValveType.HKV_D => CalculateTurnsHKV_D(kv),
+                _ => throw new ArgumentException($"Неподдерживаемый тип клапана: {valveType}")
+            };
+
+            // Округление до 0.1 оборота
+            return Math.Round(turns, 1);
+        }
+
+        /// <summary>
+        /// Получить Kv по типу клапана
+        /// </summary>
+        /// <param name="valveType">Тип клапана</param>
+        /// <returns>Kv (м³/ч)</returns>
+        public static double GetDefaultKv(ValveType valveType)
+        {
+            return valveType switch
+            {
+                ValveType.HKV_D => KV_HKV_D,
+                ValveType.IV_1_25 => KV_IV_1_25,
+                ValveType.IV_1_5 => KV_IV_1_5,
+                _ => throw new ArgumentException($"Неподдерживаемый тип клапана: {valveType}")
             };
         }
-        
+
         /// <summary>
-        /// Ламинарный режим: λ = 64 / Re (формула Пуазейля)
+        /// Получить название клапана
         /// </summary>
-        private double CalculateLaminarFrictionFactor(double reynoldsNumber)
+        /// <param name="valveType">Тип клапана</param>
+        /// <returns>Название клапана</returns>
+        public static string GetValveTypeName(ValveType valveType)
         {
-            return 64.0 / reynoldsNumber;
-        }
-        
-        /// <summary>
-        /// Переходный режим: линейная интерполяция
-        /// </summary>
-        private double CalculateTransitionalFrictionFactor(
-            double reynoldsNumber, 
-            double innerDiameter_mm, 
-            double roughness_mm)
-        {
-            double lambda_lam = 64.0 / 2300; // ≈ 0.0278
-            double lambda_turb = CalculateTurbulentFrictionFactor(4000, innerDiameter_mm, roughness_mm);
-            
-            // Линейная интерполяция
-            double ratio = (reynoldsNumber - 2300) / 1700.0;
-            return lambda_lam + ratio * (lambda_turb - lambda_lam);
-        }
-        
-        /// <summary>
-        /// Турбулентный режим: формула Колбрука-Уайта
-        /// 1 / √λ = -2 × lg(ε / (3.7 × di) + 2.51 / (Re × √λ))
-        /// </summary>
-        private double CalculateTurbulentFrictionFactor(
-            double reynoldsNumber, 
-            double innerDiameter_mm, 
-            double roughness_mm)
-        {
-            // Итерационное решение формулы Колбрука-Уайта
-            double lambda = 0.02; // Начальное приближение
-            
-            for (int i = 0; i < 20; i++)
+            return valveType switch
             {
-                double newLambda = Math.Pow(
-                    -2 * Math.Log10(roughness_mm / (3.7 * innerDiameter_mm) + 
-                    2.51 / (reynoldsNumber * Math.Sqrt(lambda))),
-                    -2);
-                
-                if (Math.Abs(newLambda - lambda) < 1e-8)
-                    break;
-                
-                lambda = newLambda;
-            }
-            
-            return lambda;
-        }
-        
-        /// <summary>
-        /// Рассчитать удельные потери давления
-        /// Формула: R = 1000 × (w² × ρ × λ) / (2 × di)
-        /// </summary>
-        public double CalculatePressureLossPerMeter(
-            double velocity_m_s, 
-            double density_kg_m3, 
-            double frictionFactor, 
-            double innerDiameter_mm)
-        {
-            // R = (w² × ρ × λ) / (2 × di) × 1000
-            // При di в мм: R = 1000 × (w² × ρ × λ) / (2 × di)
-            
-            double pressureLoss = 1000 * Math.Pow(velocity_m_s, 2) * density_kg_m3 * frictionFactor 
-                / (2 * innerDiameter_mm);
-            
-            return pressureLoss;
-        }
-        
-        /// <summary>
-        /// Рассчитать потери давления в вентиле
-        /// </summary>
-        public double CalculateValvePressureLoss(
-            double flowRate_L_h, 
-            double density_kg_m3, 
-            CollectorType collectorType)
-        {
-            // Kv для разных типов коллекторов
-            double kv = collectorType switch
-            {
-                CollectorType.HKV => 1.2,
-                CollectorType.IV => 1.45, // DN25 по умолчанию
-                _ => 1.2
-            };
-            
-            // Δp = (v / 1000 / Kv)² × 100 × ρ  [Па]
-            double pressureLoss = Math.Pow(flowRate_L_h / 1000.0 / kv, 2) * 100.0 * density_kg_m3;
-            
-            return pressureLoss;
-        }
-        
-        /// <summary>
-        /// Выполнить полный гидравлический расчёт
-        /// </summary>
-        public HydraulicResult Calculate(HydraulicParameters parameters)
-        {
-            // Валидация параметров
-            var validationResult = _validator.Validate(parameters);
-            if (!validationResult.IsValid)
-            {
-                return new HydraulicResult
-                {
-                    IsValid = false,
-                    ValidationErrors = validationResult.Errors.ToArray()
-                };
-            }
-            
-            // Получение свойств теплоносителя
-            var glycolProps = _glycolService.GetProperties(
-                parameters.GlycolType,
-                parameters.GlycolConcentration,
-                parameters.MeanTemperature);
-            
-            // Расчёт
-            double flowRate = parameters.CircuitFlowRate;
-            double di = parameters.InnerDiameter;
-            
-            double velocity = CalculateVelocity(flowRate, di);
-            double re = CalculateReynoldsNumber(velocity, di, glycolProps.KinematicViscosity);
-            var regime = DetermineFlowRegime(re);
-            double lambda = CalculateFrictionFactor(re, di, parameters.Roughness);
-            double pressureLossPerMeter = CalculatePressureLossPerMeter(
-                velocity, glycolProps.Density, lambda, di);
-            
-            double circuitPressureLoss = parameters.CircuitLength * pressureLossPerMeter;
-            double supplyPressureLoss = parameters.SupplyLength * pressureLossPerMeter;
-            double totalPipePressureLoss = circuitPressureLoss + supplyPressureLoss;
-            
-            double valvePressureLoss = CalculateValvePressureLoss(
-                flowRate, glycolProps.Density, CollectorType.HKV);
-            
-            double totalPressureLoss = totalPipePressureLoss + valvePressureLoss;
-            
-            // Валидация результата
-            var resultValidation = _validator.ValidateResult(new HydraulicResult
-            {
-                Velocity = velocity,
-                ReynoldsNumber = re,
-                FlowRegime = regime,
-                PressureLossPerMeter = pressureLossPerMeter
-            });
-            
-            return new HydraulicResult
-            {
-                Velocity = velocity,
-                ReynoldsNumber = re,
-                FlowRegime = regime,
-                FrictionFactor = lambda,
-                PressureLossPerMeter = pressureLossPerMeter,
-                CircuitPressureLoss = circuitPressureLoss,
-                SupplyPressureLoss = supplyPressureLoss,
-                TotalPipePressureLoss = totalPipePressureLoss,
-                ValvePressureLoss = valvePressureLoss,
-                TotalPressureLoss = totalPressureLoss,
-                CircuitFlowRate = flowRate,
-                IsValid = true,
-                Warnings = resultValidation.Warnings.ToArray()
+                ValveType.HKV_D => "HKV-D (бытовой коллектор)",
+                ValveType.IV_1_25 => "IV 1¼\" (промышленный коллектор)",
+                ValveType.IV_1_5 => "IV 1½\" (промышленный коллектор)",
+                _ => "Неизвестный тип"
             };
         }
-        
+
         /// <summary>
-        /// Рассчитать балансировку контуров
+        /// Проверить валидность Kv для типа клапана
         /// </summary>
-        public List<CircuitResult> CalculateBalancing(List<CircuitResult> circuits)
+        /// <param name="kv">Коэффициент пропускной способности</param>
+        /// <param name="valveType">Тип клапана</param>
+        /// <returns>True, если Kv в допустимом диапазоне</returns>
+        public static bool IsValidKv(double kv, ValveType valveType)
         {
-            if (circuits == null || circuits.Count == 0)
-                return new List<CircuitResult>();
-            
-            // Найти контур с максимальными потерями
-            double maxPressureLoss = circuits.Max(c => c.TotalPressureLoss);
-            
-            // Рассчитать дросселирование для каждого контура
-            foreach (var circuit in circuits)
+            return valveType switch
             {
-                circuit.Throttling = maxPressureLoss - circuit.TotalPressureLoss;
-                circuit.IsReferenceCircuit = (circuit.TotalPressureLoss == maxPressureLoss);
-                
-                // Определить настройку вентиля (1-8)
-                circuit.RecommendedValveSetting = CalculateValveSetting(circuit.Throttling);
-            }
-            
-            return circuits;
+                ValveType.HKV_D => kv >= 0.8 && kv <= 4.0,
+                ValveType.IV_1_25 => kv >= 0.5 && kv <= 3.0,
+                ValveType.IV_1_5 => kv >= 0.5 && kv <= 3.5,
+                _ => false
+            };
         }
-        
+
+        #endregion
+
+        #region Приватные методы
+
         /// <summary>
-        /// Определить настройку вентиля по дросселированию
+        /// Расчёт оборотов для IV 1½"
+        /// Формула: Обороты = 5.122 × Kv - 0.2106
         /// </summary>
-        private int CalculateValveSetting(double throttling_Pa)
+        private static double CalculateTurnsIV_1_5(double kv)
         {
-            // Таблица настроек вентиля (примерная)
-            // Настройка 1: минимальное сопротивление
-            // Настройка 8: максимальное сопротивление
-            
-            double throttling_mbar = throttling_Pa / 100;
-            
-            if (throttling_mbar <= 0)
-                return 1;
-            else if (throttling_mbar <= 40)
-                return 2;
-            else if (throttling_mbar <= 80)
-                return 3;
-            else if (throttling_mbar <= 120)
-                return 4;
-            else if (throttling_mbar <= 160)
-                return 5;
-            else if (throttling_mbar <= 200)
-                return 6;
-            else if (throttling_mbar <= 240)
-                return 7;
-            else
-                return 8;
+            return 5.122 * kv - 0.2106;
         }
+
+        /// <summary>
+        /// Расчёт оборотов для IV 1¼"
+        /// Формула: Обороты = 5.1818 × Kv - 0.23
+        /// </summary>
+        private static double CalculateTurnsIV_1_25(double kv)
+        {
+            return 5.1818 * kv - 0.23;
+        }
+
+        /// <summary>
+        /// Расчёт оборотов для HKV-D
+        /// Формула: Обороты = 4.2111×Kv³ - 6.7436×Kv² + 4.6613×Kv - 0.712
+        /// </summary>
+        private static double CalculateTurnsHKV_D(double kv)
+        {
+            return 4.2111 * Math.Pow(kv, 3) 
+                   - 6.7436 * Math.Pow(kv, 2) 
+                   + 4.6613 * kv 
+                   - 0.712;
+        }
+
+        #endregion
     }
 }
 ```
@@ -339,169 +188,145 @@ namespace SnowMeltingCalculator.Services.Hydraulics
 
 ### 4.1. Unit-тесты
 
-**Файл:** `tests/Services/Hydraulics/HydraulicCalculatorTests.cs`
+**Файл:** `tests/Services/Hydraulics/ValveTurnsCalculatorTests.cs`
 
 ```csharp
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Services.Hydraulics;
 using NUnit.Framework;
-using Moq;
 
 namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 {
     [TestFixture]
-    public class HydraulicCalculatorTests
+    public class ValveTurnsCalculatorTests
     {
-        private Mock<IGlycolDataService> _glycolServiceMock;
-        private HydraulicCalculator _calculator;
-        
-        [SetUp]
-        public void Setup()
-        {
-            _glycolServiceMock = new Mock<IGlycolDataService>();
-            _glycolServiceMock
-                .Setup(s => s.GetProperties(It.IsAny<GlycolType>(), It.IsAny<double>(), It.IsAny<double>()))
-                .Returns(new GlycolProperties
-                {
-                    Density = 1053,
-                    KinematicViscosity = 2.16,
-                    SpecificHeat = 3.39
-                });
-            
-            _calculator = new HydraulicCalculator(_glycolServiceMock.Object);
-        }
-        
         [Test]
-        public void CalculateVelocity_ReturnsCorrectValue()
+        public void CalculateTurns_HKV_D_ReturnsCorrectValue()
         {
             // Arrange
-            double flowRate = 100; // л/ч
-            double diameter = 16; // мм
+            double kv = 1.2; // Kv для HKV-D
             
             // Act
-            double velocity = _calculator.CalculateVelocity(flowRate, diameter);
+            double turns = ValveTurnsCalculator.CalculateTurns(kv, ValveType.HKV_D);
             
             // Assert
-            // w = 100 × 1000 / (3600 × π × 16² / 4) = 0.138 м/с
-            Assert.That(velocity, Is.EqualTo(0.138).Within(0.001));
+            // Формула: 4.2111×1.2³ - 6.7436×1.2² + 4.6613×1.2 - 0.712
+            // Ожидаемое значение: ~2.5 оборота
+            Assert.That(turns, Is.GreaterThan(2.0));
+            Assert.That(turns, Is.LessThan(3.0));
         }
         
         [Test]
-        public void CalculateReynoldsNumber_ReturnsCorrectValue()
+        public void CalculateTurns_IV_1_25_ReturnsCorrectValue()
         {
             // Arrange
-            double velocity = 0.5; // м/с
-            double diameter = 16; // мм
-            double viscosity = 2.16; // мм²/с
+            double kv = 1.45; // Kv для IV 1¼"
             
             // Act
-            double re = _calculator.CalculateReynoldsNumber(velocity, diameter, viscosity);
+            double turns = ValveTurnsCalculator.CalculateTurns(kv, ValveType.IV_1_25);
             
             // Assert
-            // Re = 1000 × 0.5 × 16 / 2.16 = 3704
-            Assert.That(re, Is.EqualTo(3704).Within(1));
+            // Формула: 5.1818 × 1.45 - 0.23
+            // Ожидаемое значение: ~7.3 оборота
+            Assert.That(turns, Is.EqualTo(7.3).Within(0.1));
         }
         
         [Test]
-        public void DetermineFlowRegime_ReturnsLaminarForLowRe()
+        public void CalculateTurns_IV_1_5_ReturnsCorrectValue()
+        {
+            // Arrange
+            double kv = 1.5; // Kv для IV 1½"
+            
+            // Act
+            double turns = ValveTurnsCalculator.CalculateTurns(kv, ValveType.IV_1_5);
+            
+            // Assert
+            // Формула: 5.122 × 1.5 - 0.2106
+            // Ожидаемое значение: ~7.5 оборота
+            Assert.That(turns, Is.EqualTo(7.5).Within(0.1));
+        }
+        
+        [Test]
+        public void GetDefaultKv_HKV_D_ReturnsCorrectValue()
+        {
+            // Act
+            double kv = ValveTurnsCalculator.GetDefaultKv(ValveType.HKV_D);
+            
+            // Assert
+            Assert.That(kv, Is.EqualTo(1.2));
+        }
+        
+        [Test]
+        public void GetDefaultKv_IV_1_25_ReturnsCorrectValue()
+        {
+            // Act
+            double kv = ValveTurnsCalculator.GetDefaultKv(ValveType.IV_1_25);
+            
+            // Assert
+            Assert.That(kv, Is.EqualTo(1.45));
+        }
+        
+        [Test]
+        public void GetDefaultKv_IV_1_5_ReturnsCorrectValue()
+        {
+            // Act
+            double kv = ValveTurnsCalculator.GetDefaultKv(ValveType.IV_1_5);
+            
+            // Assert
+            Assert.That(kv, Is.EqualTo(1.5));
+        }
+        
+        [Test]
+        public void GetValveTypeName_HKV_D_ReturnsCorrectName()
+        {
+            // Act
+            string name = ValveTurnsCalculator.GetValveTypeName(ValveType.HKV_D);
+            
+            // Assert
+            Assert.That(name, Does.Contain("HKV-D"));
+            Assert.That(name, Does.Contain("бытовой"));
+        }
+        
+        [Test]
+        public void GetValveTypeName_IV_1_25_ReturnsCorrectName()
+        {
+            // Act
+            string name = ValveTurnsCalculator.GetValveTypeName(ValveType.IV_1_25);
+            
+            // Assert
+            Assert.That(name, Does.Contain("IV 1¼"));
+            Assert.That(name, Does.Contain("промышленный"));
+        }
+        
+        [Test]
+        public void IsValidKv_HKV_D_ValidRange_ReturnsTrue()
         {
             // Act & Assert
-            Assert.That(_calculator.DetermineFlowRegime(2000), Is.EqualTo(FlowRegime.Laminar));
-            Assert.That(_calculator.DetermineFlowRegime(2299), Is.EqualTo(FlowRegime.Laminar));
+            Assert.That(ValveTurnsCalculator.IsValidKv(0.8, ValveType.HKV_D), Is.True);
+            Assert.That(ValveTurnsCalculator.IsValidKv(2.0, ValveType.HKV_D), Is.True);
+            Assert.That(ValveTurnsCalculator.IsValidKv(4.0, ValveType.HKV_D), Is.True);
         }
         
         [Test]
-        public void DetermineFlowRegime_ReturnsTransitionalForMediumRe()
+        public void IsValidKv_HKV_D_InvalidRange_ReturnsFalse()
         {
             // Act & Assert
-            Assert.That(_calculator.DetermineFlowRegime(3000), Is.EqualTo(FlowRegime.Transitional));
-            Assert.That(_calculator.DetermineFlowRegime(2300), Is.EqualTo(FlowRegime.Transitional));
-            Assert.That(_calculator.DetermineFlowRegime(4000), Is.EqualTo(FlowRegime.Transitional));
+            Assert.That(ValveTurnsCalculator.IsValidKv(0.7, ValveType.HKV_D), Is.False);
+            Assert.That(ValveTurnsCalculator.IsValidKv(4.1, ValveType.HKV_D), Is.False);
         }
         
         [Test]
-        public void DetermineFlowRegime_ReturnsTurbulentForHighRe()
-        {
-            // Act & Assert
-            Assert.That(_calculator.DetermineFlowRegime(5000), Is.EqualTo(FlowRegime.Turbulent));
-            Assert.That(_calculator.DetermineFlowRegime(4001), Is.EqualTo(FlowRegime.Turbulent));
-        }
-        
-        [Test]
-        public void CalculateFrictionFactor_ReturnsCorrectValueForLaminar()
+        public void CalculateTurns_RoundsToTenth()
         {
             // Arrange
-            double re = 2000;
-            double diameter = 16;
-            double roughness = 0.007;
+            double kv = 1.5;
             
             // Act
-            double lambda = _calculator.CalculateFrictionFactor(re, diameter, roughness);
+            double turns = ValveTurnsCalculator.CalculateTurns(kv, ValveType.IV_1_5);
             
-            // Assert
-            // Ламинарный: λ = 64 / Re = 64 / 2000 = 0.032
-            Assert.That(lambda, Is.EqualTo(0.032).Within(0.0001));
-        }
-        
-        [Test]
-        public void CalculatePressureLossPerMeter_ReturnsCorrectValue()
-        {
-            // Arrange
-            double velocity = 0.5; // м/с
-            double density = 1053; // кг/м³
-            double lambda = 0.04;
-            double diameter = 16; // мм
-            
-            // Act
-            double pressureLoss = _calculator.CalculatePressureLossPerMeter(velocity, density, lambda, diameter);
-            
-            // Assert
-            // R = 1000 × (0.5² × 1053 × 0.04) / (2 × 16) = 329 Па/м
-            Assert.That(pressureLoss, Is.EqualTo(329).Within(1));
-        }
-        
-        [Test]
-        public void CalculateValvePressureLoss_ReturnsCorrectValueForHKV()
-        {
-            // Arrange
-            double flowRate = 200; // л/ч
-            double density = 1053; // кг/м³
-            
-            // Act
-            double pressureLoss = _calculator.CalculateValvePressureLoss(flowRate, density, CollectorType.HKV);
-            
-            // Assert
-            // Δp = (200 / 1000 / 1.2)² × 100 × 1053 = 2925 Па (коэффициент 100)
-            Assert.That(pressureLoss, Is.EqualTo(2925).Within(10));
-        }
-        
-        [Test]
-        public void Calculate_ReturnsValidResult()
-        {
-            // Arrange
-            var parameters = new HydraulicParameters
-            {
-                CircuitLength = 100,
-                SupplyLength = 10,
-                GlycolConcentration = 50,
-                GlycolType = GlycolType.Ethylene,
-                SupplyTemperature = 50,
-                ReturnTemperature = 30,
-                Pipe = new PipeType { OuterDiameter = 20, WallThickness = 2 },
-                Roughness = 0.007,
-                VolumeFlowRate = 10,
-                CircuitArea = 20,
-                Density = 1053,
-                KinematicViscosity = 2.16
-            };
-            
-            // Act
-            var result = _calculator.Calculate(parameters);
-            
-            // Assert
-            Assert.That(result.IsValid, Is.True);
-            Assert.That(result.Velocity, Is.GreaterThan(0));
-            Assert.That(result.ReynoldsNumber, Is.GreaterThan(0));
+            // Assert - проверяем, что результат округлён до 0.1
+            double fractional = turns - Math.Floor(turns);
+            Assert.That(fractional, Is.LessThanOrEqualTo(0.1).Or.GreaterThanOrEqualTo(0.9 - 0.001));
         }
     }
 }
@@ -511,18 +336,30 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
 ## 5. Критерии приёмки
 
-- [ ] Файл `HydraulicCalculator.cs` создан
-- [ ] Реализованы все методы интерфейса `IHydraulicCalculator`
-- [ ] Формулы соответствуют `docs/Formulas_Snegotayanie.md`
-- [ ] Итерационное решение формулы Колбрука-Уайта сходится
-- [ ] Unit-тесты для всех методов проходят успешно
+- [ ] Файл `ValveTurnsCalculator.cs` создан в `src/Services/Hydraulics/`
+- [ ] Формулы реализованы корректно для всех типов клапанов
+- [ ] Результат округляется до 0.1 оборота
+- [ ] Методы GetDefaultKv, GetValveTypeName, IsValidKv работают
 - [ ] XML-документация для всех методов
+- [ ] Unit-тесты проходят успешно
 - [ ] Код компилируется без предупреждений
 
 ---
 
 ## 6. Примечания
 
-- Формула Колбрука-Уайта решается итерационно (обычно 5-10 итераций)
-- Переходный режим использует линейную интерполяцию
-- Валидация выполняется через `HydraulicValidator`
+- Класс статический, не требует DI
+- Формулы взяты из документации РЕХАУ
+- Kv — коэффициент пропускной способности (м³/ч)
+- Диапазоны Kv для каждого типа клапана указаны в XML-документации
+
+---
+
+## 7. Связанные задачи
+
+- Task 1.1: ValveType — используется в этом классе
+- Task 3.2: CircuitsCalculator — использует ValveTurnsCalculator
+
+---
+
+*Дата создания: 2026-03-17*

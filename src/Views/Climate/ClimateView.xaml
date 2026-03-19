@@ -142,13 +142,13 @@
                             Margin="0,0,8,8"
                             ToolTip="Относительная влажность (от 20 до 100%)"/>
 
-                    <!-- Интенсивность снегопада -->
-                    <TextBox Grid.Row="1" Grid.Column="1"
-                            Text="{Binding SnowfallIntensity, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
-                            materialDesign:TextFieldAssist.PrefixText="Интенсивность снегопада:"
-                            materialDesign:TextFieldAssist.SuffixText="см/ч"
-                            Margin="8,0,0,8"
-                            ToolTip="Интенсивность снегопада (от 0 до 5 см/ч). Типичные значения: 0.2-0.5 см/ч"/>
+<!-- Интенсивность снегопада -->
+                     <TextBox Grid.Row="1" Grid.Column="1"
+                              Text="{Binding SnowfallIntensity, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
+                              materialDesign:TextFieldAssist.PrefixText="Интенсивность снегопада (в водном эквиваленте):"
+                              materialDesign:TextFieldAssist.SuffixText="мм/ч"
+                              Margin="8,0,0,8"
+                              ToolTip="Интенсивность снегопада (от 0 до 20 мм/ч). Водяной эквивалент."/>
 
                     <!-- Зона -->
                     <ComboBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"

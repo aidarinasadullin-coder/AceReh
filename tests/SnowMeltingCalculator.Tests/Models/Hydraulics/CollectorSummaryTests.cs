@@ -1,0 +1,159 @@
+using SnowMeltingCalculator.Models.Hydraulics;
+using NUnit.Framework;
+
+namespace SnowMeltingCalculator.Tests.Models.Hydraulics
+{
+    [TestFixture]
+    public class CollectorSummaryTests
+    {
+        [Test]
+        public void ValveType_DefaultValue_IsHKV_D()
+        {
+            // Arrange & Act
+            var summary = new CollectorSummary();
+            
+            // Assert
+            Assert.That(summary.ValveType, Is.EqualTo(ValveType.HKV_D));
+        }
+        
+        [Test]
+        public void ValveType_CanBeSet()
+        {
+            // Arrange
+            var summary = new CollectorSummary();
+            
+            // Act
+            summary.ValveType = ValveType.IV_1_5;
+            
+            // Assert
+            Assert.That(summary.ValveType, Is.EqualTo(ValveType.IV_1_5));
+        }
+        
+        [Test]
+        public void OperatingPressureLoss_mbar_ConvertsCorrectly()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Operating_mbar = 320 // мбар
+            };
+            
+            // Assert
+            Assert.That(summary.PressureLoss_Operating_Pa, Is.EqualTo(32000)); // Па
+        }
+        
+        [Test]
+        public void DesignPressureLoss_mbar_ConvertsCorrectly()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Cold_mbar = 450 // мбар
+            };
+            
+            // Assert
+            Assert.That(summary.PressureLoss_Cold_Pa, Is.EqualTo(45000)); // Па
+        }
+        
+        [Test]
+        public void IsPressureExceeded_ReturnsTrueWhenExceeded()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Cold_mbar = 350 // 350 мбар > 320 мбар
+            };
+            
+            // Assert
+            Assert.That(summary.IsPressureExceeded, Is.True);
+        }
+        
+        [Test]
+        public void IsPressureExceeded_ReturnsFalseWhenNotExceeded()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Cold_mbar = 300 // 300 мбар < 320 мбар
+            };
+            
+            // Assert
+            Assert.That(summary.IsPressureExceeded, Is.False);
+        }
+        
+        [Test]
+        public void IsPressureExceeded_ReturnsFalseWhenExactlyAtLimit()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Cold_mbar = 320 // 320 мбар = 320 мбар
+            };
+            
+            // Assert
+            Assert.That(summary.IsPressureExceeded, Is.False);
+        }
+        
+        [Test]
+        public void TotalFlowRate_m3h_ConvertsCorrectly()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                TotalFlowRate = 1500 // л/ч
+            };
+            
+            // Assert
+            Assert.That(summary.TotalFlowRate_m3h, Is.EqualTo(1.5)); // м³/ч
+        }
+        
+        [Test]
+        public void MaxAllowedPressure_mbar_Is320()
+        {
+            // Assert
+            Assert.That(CollectorSummary.MaxAllowedPressure_mbar, Is.EqualTo(320));
+        }
+        
+        [Test]
+        public void DefaultValues_AreCorrect()
+        {
+            // Arrange & Act
+            var summary = new CollectorSummary();
+            
+            // Assert
+            Assert.That(summary.CollectorType, Is.EqualTo("HKV-D"));
+            Assert.That(summary.Kv, Is.EqualTo(1.2));
+            Assert.That(summary.ValveType, Is.EqualTo(ValveType.HKV_D));
+            Assert.That(summary.CircuitCount, Is.EqualTo(0));
+            Assert.That(summary.TotalPipeLength, Is.EqualTo(0));
+            Assert.That(summary.TotalPower, Is.EqualTo(0));
+            Assert.That(summary.TotalFlowRate, Is.EqualTo(0));
+        }
+        
+        [Test]
+        public void PressureLoss_Operating_Pa_CalculatesCorrectly()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Operating_mbar = 100
+            };
+            
+            // Assert
+            Assert.That(summary.PressureLoss_Operating_Pa, Is.EqualTo(10000));
+        }
+        
+        [Test]
+        public void PressureLoss_Cold_Pa_CalculatesCorrectly()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Cold_mbar = 200
+            };
+            
+            // Assert
+            Assert.That(summary.PressureLoss_Cold_Pa, Is.EqualTo(20000));
+        }
+    }
+}

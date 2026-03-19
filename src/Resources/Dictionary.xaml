@@ -16,6 +16,7 @@
     <converters:BoolToAlertIconConverter x:Key="BoolToAlertIconConverter"/>
     <converters:BoolToValidationColorConverter x:Key="BoolToValidationColorConverter"/>
     <converters:MaterialToColorConverter x:Key="MaterialToColorConverter"/>
+    <converters:SidebarTooltipConverter x:Key="SidebarTooltipConverter"/>
 
     <!-- Значения климатических зон для ComboBox -->
     <x:Array x:Key="ClimateZoneValues" Type="{x:Type models:ClimateZone}">

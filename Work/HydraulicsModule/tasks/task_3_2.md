@@ -1,15 +1,15 @@
-# Task 3.2: FlowRegimeCalculator (Расчёт режима течения)
+# Task 3.2: Создать CircuitsCalculator.cs
 
-**Этап:** 3 - Services  
-**Приоритет:** Средний  
-**Статус:** Не начато  
-**Зависимости:** Task 1.1 (Enums)
+**Этап:** 3 - Сервисы расчёта  
+**Приоритет:** Высокий  
+**Статус:** К разработке  
+**Зависимости:** Task 1.1 (ValveType), Task 1.2 (HydraulicInputData), Task 2.1 (ICircuitsCalculator), Task 3.1 (ValveTurnsCalculator)
 
 ---
 
 ## 1. Цель задачи
 
-Создать вспомогательный класс `FlowRegimeCalculator` для расчёта режима течения и коэффициента трения.
+Создать класс `CircuitsCalculator` — реализация калькулятора контуров.
 
 ---
 
@@ -17,213 +17,317 @@
 
 | UC | Название | Покрытие |
 |----|-----------|----------|
-| UC-02 | Определение режима течения | Все методы класса |
+| UC-02 | Расчёт мощности контура Q_HK | CalculateCircuitPower() |
+| UC-03 | Расчёт при двух температурах | CalculateAtTemperature() |
+| UC-04 | Расчёт потерь давления | CalculateAtTemperature() |
+| UC-05 | Балансировка контуров | CalculateBalancing() |
+| UC-06 | Подбор коллектора | CalculateCollectorSummary() |
 
 ---
 
 ## 3. Создаваемые файлы
 
-### 3.1. FlowRegimeCalculator.cs
+### 3.1. CircuitsCalculator.cs
 
-**Путь:** `src/Services/Hydraulics/FlowRegimeCalculator.cs`
+**Путь:** `src/Services/Hydraulics/CircuitsCalculator.cs`
 
-**Содержимое:**
+**Ключевые методы:**
+
 ```csharp
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using SnowMeltingCalculator.Models.Hydraulics;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
 {
     /// <summary>
-    /// Калькулятор режима течения и коэффициента трения
+    /// Реализация калькулятора контуров
     /// </summary>
-    /// <remarks>
-    /// Предоставляет методы для:
-    /// - Определения режима течения по числу Рейнольдса
-    /// - Расчёта коэффициента трения λ для разных режимов
-    /// 
-    /// Режимы течения:
-    /// - Ламинарный: Re &lt; 2300
-    /// - Переходный: 2300 ≤ Re ≤ 4000
-    /// - Турбулентный: Re &gt; 4000
-    /// </remarks>
-    public static class FlowRegimeCalculator
+    public class CircuitsCalculator : ICircuitsCalculator
     {
-        /// <summary>
-        /// Граница ламинарного режима
-        /// </summary>
-        public const double LaminarBoundary = 2300;
-        
-        /// <summary>
-        /// Граница турбулентного режима
-        /// </summary>
-        public const double TurbulentBoundary = 4000;
-        
-        /// <summary>
-        /// Шероховатость PE-Xa труб, мм
-        /// </summary>
-        public const double PEXaRoughness = 0.007;
-        
-        /// <summary>
-        /// Определить режим течения по числу Рейнольдса
-        /// </summary>
-        /// <param name="reynoldsNumber">Число Рейнольдса</param>
-        /// <returns>Режим течения</returns>
-        public static FlowRegime DetermineFlowRegime(double reynoldsNumber)
+        private readonly IGlycolDataService _glycolService;
+
+        public CircuitsCalculator(IGlycolDataService glycolService)
         {
-            if (reynoldsNumber < LaminarBoundary)
+            _glycolService = glycolService ?? throw new ArgumentNullException(nameof(glycolService));
+        }
+
+        /// <summary>
+        /// Рассчитать мощность контура Q_HK
+        /// </summary>
+        /// <remarks>
+        /// Формула: Q_HK = [(L_hk/(100/VA_hk)) + (L_zul/(100/VA_zul))×(q_zul/100)] × (q_up + q_down)
+        /// </remarks>
+        public double CalculateCircuitPower(CircuitRow circuit, double q_up, double q_down)
+        {
+            // Длина контура на единицу площади
+            double lengthPerArea = circuit.CircuitLength / (100.0 / circuit.PipeSpacing_cm);
+            
+            // Длина подводки на единицу площади
+            double supplyLengthPerArea = circuit.SupplyLength / (100.0 / circuit.SupplySpacing_cm);
+            
+            // Доля тепла от подводок
+            double supplyHeatFactor = circuit.SupplyHeatPercent / 100.0;
+            
+            // Мощность контура
+            double power = (lengthPerArea + supplyLengthPerArea * supplyHeatFactor) * (q_up + q_down);
+            
+            return power;
+        }
+
+        /// <summary>
+        /// Рассчитать расход теплоносителя V_dot
+        /// </summary>
+        /// <remarks>
+        /// Формула: V_dot = Q_HK × 3.6 / (ρ × c_p × ΔT)
+        /// </remarks>
+        public double CalculateFlowRate(double power, double deltaT, double density, double specificHeat)
+        {
+            // V_dot = Q_HK × 3.6 / (ρ × c_p × ΔT)
+            // Результат в л/ч
+            double flowRate = power * 3.6 / (density * specificHeat * deltaT);
+            
+            return flowRate;
+        }
+
+        /// <summary>
+        /// Рассчитать гидравлику контура при заданной температуре
+        /// </summary>
+        public CircuitTemperatureResult CalculateAtTemperature(
+            CircuitRow circuit,
+            double temperature,
+            GlycolProperties glycolProps,
+            double innerDiameter,
+            double kv)
+        {
+            var result = new CircuitTemperatureResult
+            {
+                Temperature = temperature,
+                Density = glycolProps.Density,
+                KinematicViscosity = glycolProps.KinematicViscosity
+            };
+
+            // Скорость потока: v = V_dot × 4 / (3600 × π × d_inner²) × 10⁶
+            // где V_dot в л/ч, d_inner в мм
+            double area = Math.PI * Math.Pow(innerDiameter, 2) / 4;
+            double velocity = circuit.FlowRate * 4 / (3600 * area) * 1e6;
+            circuit.Velocity = velocity;
+
+            // Число Рейнольдса: Re = 1000 × v × d_inner / ν
+            double reynolds = 1000 * velocity * innerDiameter / glycolProps.KinematicViscosity;
+            result.ReynoldsNumber = reynolds;
+
+            // Режим течения
+            result.FlowRegime = DetermineFlowRegime(reynolds);
+
+            // Коэффициент трения λ
+            double frictionFactor = CalculateFrictionFactor(reynolds, innerDiameter);
+            result.FrictionFactor = frictionFactor;
+
+            // Удельные потери: R = 10000 × (v² × ρ × λ) / (2 × d_inner) × 100
+            double pressureLossPerMeter = 10000 * Math.Pow(velocity, 2) * glycolProps.Density * frictionFactor 
+                / (2 * innerDiameter) * 100;
+            result.PressureLossPerMeter = pressureLossPerMeter;
+
+            // Потери в трубе контура: Δp_HK = L_hk × R
+            result.CircuitPipeLoss = circuit.CircuitLength * pressureLossPerMeter;
+
+            // Потери в трубе подводки: Δp_Zul = L_zul × R
+            result.SupplyPipeLoss = circuit.SupplyLength * pressureLossPerMeter;
+
+            // Потери в вентиле: Δp_Vent = (V_dot / 1000 / Kv)² × 100000 × ρ
+            result.ValveLoss = Math.Pow(circuit.FlowRate / 1000.0 / kv, 2) * 100000 * glycolProps.Density;
+
+            // Суммарные потери: Δp_total = Δp_HK + Δp_Zul + Δp_Vent
+            // (вычисляется автоматически в TotalLoss)
+
+            return result;
+        }
+
+        /// <summary>
+        /// Рассчитать все контура коллектора
+        /// </summary>
+        public List<CircuitRow> CalculateAllCircuits(List<CircuitRow> circuits, HydraulicInputData inputData)
+        {
+            if (circuits == null || circuits.Count == 0)
+                return new List<CircuitRow>();
+
+            // Получение свойств гликоля при рабочей температуре
+            var glycolPropsOperating = _glycolService.GetProperties(
+                inputData.GlycolType,
+                inputData.GlycolConcentration,
+                inputData.OperatingTemperature);
+
+            // Получение свойств гликоля при расчётной температуре
+            var glycolPropsDesign = _glycolService.GetProperties(
+                inputData.GlycolType,
+                inputData.GlycolConcentration,
+                inputData.DesignTemperature);
+
+            // Kv клапана
+            double kv = ValveTurnsCalculator.GetDefaultKv(inputData.ValveType);
+
+            foreach (var circuit in circuits)
+            {
+                // Расчёт мощности
+                circuit.Power = CalculateCircuitPower(circuit, inputData.PowerUp, inputData.PowerDown);
+
+                // Расчёт расхода
+                circuit.FlowRate = CalculateFlowRate(
+                    circuit.Power,
+                    inputData.DeltaT,
+                    glycolPropsOperating.Density,
+                    glycolPropsOperating.SpecificHeat);
+
+                // Расчёт при рабочей температуре
+                circuit.OperatingResult = CalculateAtTemperature(
+                    circuit,
+                    inputData.OperatingTemperature,
+                    glycolPropsOperating,
+                    inputData.InnerDiameter,
+                    kv);
+
+                // Расчёт при расчётной температуре
+                circuit.DesignResult = CalculateAtTemperature(
+                    circuit,
+                    inputData.DesignTemperature,
+                    glycolPropsDesign,
+                    inputData.InnerDiameter,
+                    kv);
+            }
+
+            return circuits;
+        }
+
+        /// <summary>
+        /// Рассчитать балансировку контуров
+        /// </summary>
+        public List<CircuitRow> CalculateBalancing(List<CircuitRow> circuits, ValveType valveType)
+        {
+            if (circuits == null || circuits.Count == 0)
+                return new List<CircuitRow>();
+
+            // Найти контур с максимальными потерями (референсный)
+            double maxPressureLoss = circuits.Max(c => c.OperatingResult.TotalLoss);
+
+            // Рассчитать дросселирование для каждого контура
+            foreach (var circuit in circuits)
+            {
+                // zu_drosseln = Δp_max - Δp_total
+                circuit.Throttling = maxPressureLoss - circuit.OperatingResult.TotalLoss;
+                
+                // Референсный контур
+                circuit.IsReferenceCircuit = Math.Abs(circuit.OperatingResult.TotalLoss - maxPressureLoss) < 0.01;
+
+                // Расчёт оборотов клапана
+                if (circuit.Throttling > 0)
+                {
+                    // Kv для дросселирования
+                    double kv = CalculateKvForThrottling(circuit.FlowRate, circuit.Throttling);
+                    circuit.ValveTurns = ValveTurnsCalculator.CalculateTurns(kv, valveType);
+                }
+                else
+                {
+                    circuit.ValveTurns = 0;
+                }
+            }
+
+            return circuits;
+        }
+
+        /// <summary>
+        /// Рассчитать итоги коллектора
+        /// </summary>
+        public CollectorSummary CalculateCollectorSummary(List<CircuitRow> circuits, int collectorNumber, ValveType valveType)
+        {
+            if (circuits == null || circuits.Count == 0)
+                return new CollectorSummary { CollectorNumber = collectorNumber };
+
+            var summary = new CollectorSummary
+            {
+                CollectorNumber = collectorNumber,
+                CircuitCount = circuits.Count,
+                ValveType = valveType,
+                TotalPipeLength = circuits.Sum(c => c.TotalLength),
+                TotalPower = circuits.Sum(c => c.Power),
+                TotalFlowRate = circuits.Sum(c => c.FlowRate),
+                PressureLoss_Operating_mbar = circuits.Max(c => c.OperatingResult.TotalLoss_mbar),
+                PressureLoss_Cold_mbar = circuits.Max(c => c.DesignResult.TotalLoss_mbar)
+            };
+
+            // Найти референсный контур
+            var referenceCircuit = circuits.FirstOrDefault(c => c.IsReferenceCircuit);
+            if (referenceCircuit != null)
+            {
+                summary.ReferenceCircuitNumber = referenceCircuit.CircuitNumber;
+            }
+
+            return summary;
+        }
+
+        #region Приватные методы
+
+        private FlowRegime DetermineFlowRegime(double reynolds)
+        {
+            if (reynolds < 2300)
                 return FlowRegime.Laminar;
-            else if (reynoldsNumber <= TurbulentBoundary)
+            else if (reynolds <= 4000)
                 return FlowRegime.Transitional;
             else
                 return FlowRegime.Turbulent;
         }
-        
-        /// <summary>
-        /// Проверить, является ли режим ламинарным
-        /// </summary>
-        public static bool IsLaminar(double reynoldsNumber)
+
+        private double CalculateFrictionFactor(double reynolds, double innerDiameter)
         {
-            return reynoldsNumber < LaminarBoundary;
+            var regime = DetermineFlowRegime(reynolds);
+
+            return regime switch
+            {
+                FlowRegime.Laminar => 64.0 / reynolds,
+                FlowRegime.Transitional => CalculateTransitionalFrictionFactor(reynolds, innerDiameter),
+                FlowRegime.Turbulent => CalculateTurbulentFrictionFactor(reynolds, innerDiameter),
+                _ => 0.02
+            };
         }
-        
-        /// <summary>
-        /// Проверить, является ли режим переходным
-        /// </summary>
-        public static bool IsTransitional(double reynoldsNumber)
+
+        private double CalculateTransitionalFrictionFactor(double reynolds, double innerDiameter)
         {
-            return reynoldsNumber >= LaminarBoundary && reynoldsNumber <= TurbulentBoundary;
+            double lambdaLam = 64.0 / 2300;
+            double lambdaTurb = CalculateTurbulentFrictionFactor(4000, innerDiameter);
+            double ratio = (reynolds - 2300) / 1700.0;
+            return lambdaLam + ratio * (lambdaTurb - lambdaLam);
         }
-        
-        /// <summary>
-        /// Проверить, является ли режим турбулентным
-        /// </summary>
-        public static bool IsTurbulent(double reynoldsNumber)
+
+        private double CalculateTurbulentFrictionFactor(double reynolds, double innerDiameter)
         {
-            return reynoldsNumber > TurbulentBoundary;
-        }
-        
-        /// <summary>
-        /// Рассчитать коэффициент трения для ламинарного режима
-        /// Формула Пуазейля: λ = 64 / Re
-        /// </summary>
-        public static double CalculateLaminarFrictionFactor(double reynoldsNumber)
-        {
-            if (reynoldsNumber <= 0)
-                throw new ArgumentException("Число Рейнольдса должно быть положительным", nameof(reynoldsNumber));
-            
-            return 64.0 / reynoldsNumber;
-        }
-        
-        /// <summary>
-        /// Рассчитать коэффициент трения для переходного режима
-        /// Линейная интерполяция между ламинарным и турбулентным
-        /// </summary>
-        public static double CalculateTransitionalFrictionFactor(
-            double reynoldsNumber, 
-            double innerDiameter_mm, 
-            double roughness_mm)
-        {
-            if (reynoldsNumber < LaminarBoundary || reynoldsNumber > TurbulentBoundary)
-                throw new ArgumentException(
-                    $"Число Рейнольдса должно быть в диапазоне [{LaminarBoundary}, {TurbulentBoundary}]",
-                    nameof(reynoldsNumber));
-            
-            // Коэффициент трения на границе ламинарного режима
-            double lambda_lam = CalculateLaminarFrictionFactor(LaminarBoundary);
-            
-            // Коэффициент трения на границе турбулентного режима
-            double lambda_turb = CalculateTurbulentFrictionFactor(TurbulentBoundary, innerDiameter_mm, roughness_mm);
-            
-            // Линейная интерполяция
-            double ratio = (reynoldsNumber - LaminarBoundary) / (TurbulentBoundary - LaminarBoundary);
-            return lambda_lam + ratio * (lambda_turb - lambda_lam);
-        }
-        
-        /// <summary>
-        /// Рассчитать коэффициент трения для турбулентного режима
-        /// Формула Колбрука-Уайта (итерационное решение)
-        /// </summary>
-        public static double CalculateTurbulentFrictionFactor(
-            double reynoldsNumber, 
-            double innerDiameter_mm, 
-            double roughness_mm)
-        {
-            if (reynoldsNumber <= TurbulentBoundary)
-                throw new ArgumentException(
-                    $"Число Рейнольдса должно быть больше {TurbulentBoundary}",
-                    nameof(reynoldsNumber));
-            
-            // Начальное приближение (формула Блазиуса)
-            double lambda = 0.316 / Math.Pow(reynoldsNumber, 0.25);
-            
-            // Итерационное решение формулы Колбрука-Уайта
-            // 1 / √λ = -2 × lg(ε / (3.7 × di) + 2.51 / (Re × √λ))
-            
+            double roughness = 0.007; // мм, для PE-Xa
+            double lambda = 0.02;
+
             for (int i = 0; i < 20; i++)
             {
-                double sqrtLambda = Math.Sqrt(lambda);
-                double term1 = roughness_mm / (3.7 * innerDiameter_mm);
-                double term2 = 2.51 / (reynoldsNumber * sqrtLambda);
-                
-                double newLambda = Math.Pow(-2 * Math.Log10(term1 + term2), -2);
-                
+                double newLambda = Math.Pow(
+                    -2 * Math.Log10(roughness / (3.7 * innerDiameter) + 2.51 / (reynolds * Math.Sqrt(lambda))),
+                    -2);
+
                 if (Math.Abs(newLambda - lambda) < 1e-10)
                     break;
-                
+
                 lambda = newLambda;
             }
-            
+
             return lambda;
         }
-        
-        /// <summary>
-        /// Рассчитать коэффициент трения для любого режима
-        /// </summary>
-        public static double CalculateFrictionFactor(
-            double reynoldsNumber, 
-            double innerDiameter_mm, 
-            double roughness_mm = PEXaRoughness)
+
+        private double CalculateKvForThrottling(double flowRate, double throttling)
         {
-            var regime = DetermineFlowRegime(reynoldsNumber);
-            
-            return regime switch
-            {
-                FlowRegime.Laminar => CalculateLaminarFrictionFactor(reynoldsNumber),
-                FlowRegime.Transitional => CalculateTransitionalFrictionFactor(
-                    reynoldsNumber, innerDiameter_mm, roughness_mm),
-                FlowRegime.Turbulent => CalculateTurbulentFrictionFactor(
-                    reynoldsNumber, innerDiameter_mm, roughness_mm),
-                _ => throw new ArgumentOutOfRangeException()
-            };
+            // Δp = (V_dot / 1000 / Kv)² × 100000 × ρ
+            // Kv = V_dot / 1000 / √(Δp / 100000 / ρ)
+            // Упрощённо: Kv ≈ V_dot / √(Δp)
+            return flowRate / Math.Sqrt(throttling / 100);
         }
-        
-        /// <summary>
-        /// Получить описание режима течения
-        /// </summary>
-        public static string GetFlowRegimeDescription(FlowRegime regime)
-        {
-            return regime switch
-            {
-                FlowRegime.Laminar => "Ламинарный режим (Re < 2300). Плавное, упорядоченное движение жидкости слоями.",
-                FlowRegime.Transitional => "Переходный режим (2300 ≤ Re ≤ 4000). Неустойчивый режим между ламинарным и турбулентным.",
-                FlowRegime.Turbulent => "Турбулентный режим (Re > 4000). Хаотичное движение жидкости с вихрями.",
-                _ => "Неизвестный режим"
-            };
-        }
-        
-        /// <summary>
-        /// Получить рекомендации по режиму течения
-        /// </summary>
-        public static string GetFlowRegimeRecommendation(FlowRegime regime)
-        {
-            return regime switch
-            {
-                FlowRegime.Laminar => "Рекомендуется увеличить расход или уменьшить диаметр трубы для перехода в турбулентный режим.",
-                FlowRegime.Transitional => "ВНИМАНИЕ: Переходный режим нестабилен. Рекомендуется изменить параметры для обеспечения стабильного течения.",
-                FlowRegime.Turbulent => "Оптимальный режим для теплообмена. Рекомендуется поддерживать Re > 4000.",
-                _ => ""
-            };
-        }
+
+        #endregion
     }
 }
 ```
@@ -234,166 +338,176 @@ namespace SnowMeltingCalculator.Services.Hydraulics
 
 ### 4.1. Unit-тесты
 
-**Файл:** `tests/Services/Hydraulics/FlowRegimeCalculatorTests.cs`
+**Файл:** `tests/Services/Hydraulics/CircuitsCalculatorTests.cs`
 
 ```csharp
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Services.Hydraulics;
 using NUnit.Framework;
+using Moq;
+using System.Collections.Generic;
 
 namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 {
     [TestFixture]
-    public class FlowRegimeCalculatorTests
+    public class CircuitsCalculatorTests
     {
-        [Test]
-        public void DetermineFlowRegime_ReturnsLaminarForLowRe()
+        private Mock<IGlycolDataService> _glycolServiceMock;
+        private CircuitsCalculator _calculator;
+
+        [SetUp]
+        public void Setup()
         {
-            // Act & Assert
-            Assert.That(FlowRegimeCalculator.DetermineFlowRegime(1000), Is.EqualTo(FlowRegime.Laminar));
-            Assert.That(FlowRegimeCalculator.DetermineFlowRegime(2000), Is.EqualTo(FlowRegime.Laminar));
-            Assert.That(FlowRegimeCalculator.DetermineFlowRegime(2299), Is.EqualTo(FlowRegime.Laminar));
+            _glycolServiceMock = new Mock<IGlycolDataService>();
+            _glycolServiceMock
+                .Setup(s => s.GetProperties(It.IsAny<GlycolType>(), It.IsAny<double>(), It.IsAny<double>()))
+                .Returns(new GlycolProperties
+                {
+                    Density = 1053,
+                    KinematicViscosity = 2.16,
+                    SpecificHeat = 3.39
+                });
+
+            _calculator = new CircuitsCalculator(_glycolServiceMock.Object);
         }
-        
+
         [Test]
-        public void DetermineFlowRegime_ReturnsTransitionalForMediumRe()
-        {
-            // Act & Assert
-            Assert.That(FlowRegimeCalculator.DetermineFlowRegime(2300), Is.EqualTo(FlowRegime.Transitional));
-            Assert.That(FlowRegimeCalculator.DetermineFlowRegime(3000), Is.EqualTo(FlowRegime.Transitional));
-            Assert.That(FlowRegimeCalculator.DetermineFlowRegime(4000), Is.EqualTo(FlowRegime.Transitional));
-        }
-        
-        [Test]
-        public void DetermineFlowRegime_ReturnsTurbulentForHighRe()
-        {
-            // Act & Assert
-            Assert.That(FlowRegimeCalculator.DetermineFlowRegime(4001), Is.EqualTo(FlowRegime.Turbulent));
-            Assert.That(FlowRegimeCalculator.DetermineFlowRegime(5000), Is.EqualTo(FlowRegime.Turbulent));
-            Assert.That(FlowRegimeCalculator.DetermineFlowRegime(10000), Is.EqualTo(FlowRegime.Turbulent));
-        }
-        
-        [Test]
-        public void IsLaminar_ReturnsCorrectValue()
-        {
-            // Act & Assert
-            Assert.That(FlowRegimeCalculator.IsLaminar(1000), Is.True);
-            Assert.That(FlowRegimeCalculator.IsLaminar(3000), Is.False);
-        }
-        
-        [Test]
-        public void IsTransitional_ReturnsCorrectValue()
-        {
-            // Act & Assert
-            Assert.That(FlowRegimeCalculator.IsTransitional(1000), Is.False);
-            Assert.That(FlowRegimeCalculator.IsTransitional(3000), Is.True);
-            Assert.That(FlowRegimeCalculator.IsTransitional(5000), Is.False);
-        }
-        
-        [Test]
-        public void IsTurbulent_ReturnsCorrectValue()
-        {
-            // Act & Assert
-            Assert.That(FlowRegimeCalculator.IsTurbulent(1000), Is.False);
-            Assert.That(FlowRegimeCalculator.IsTurbulent(5000), Is.True);
-        }
-        
-        [Test]
-        public void CalculateLaminarFrictionFactor_ReturnsCorrectValue()
+        public void CalculateCircuitPower_ReturnsCorrectValue()
         {
             // Arrange
-            double re = 2000;
-            
+            var circuit = new CircuitRow
+            {
+                CircuitLength = 100,
+                SupplyLength = 10,
+                PipeSpacing_cm = 20,
+                SupplySpacing_cm = 5,
+                SupplyHeatPercent = 10
+            };
+            double q_up = 256;
+            double q_down = 5;
+
             // Act
-            double lambda = FlowRegimeCalculator.CalculateLaminarFrictionFactor(re);
-            
+            double power = _calculator.CalculateCircuitPower(circuit, q_up, q_down);
+
             // Assert
-            // λ = 64 / Re = 64 / 2000 = 0.032
-            Assert.That(lambda, Is.EqualTo(0.032).Within(0.0001));
+            Assert.That(power, Is.GreaterThan(0));
         }
-        
+
         [Test]
-        public void CalculateLaminarFrictionFactor_ThrowsForInvalidRe()
-        {
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() => 
-                FlowRegimeCalculator.CalculateLaminarFrictionFactor(0));
-            Assert.Throws<ArgumentException>(() => 
-                FlowRegimeCalculator.CalculateLaminarFrictionFactor(-100));
-        }
-        
-        [Test]
-        public void CalculateTransitionalFrictionFactor_ReturnsInterpolatedValue()
+        public void CalculateFlowRate_ReturnsCorrectValue()
         {
             // Arrange
-            double re = 3000; // Середина переходного диапазона
-            double diameter = 16;
-            double roughness = 0.007;
-            
+            double power = 5000; // Вт
+            double deltaT = 20; // К
+            double density = 1053; // кг/м³
+            double specificHeat = 3.39; // кДж/(кг·К)
+
             // Act
-            double lambda = FlowRegimeCalculator.CalculateTransitionalFrictionFactor(re, diameter, roughness);
-            
+            double flowRate = _calculator.CalculateFlowRate(power, deltaT, density, specificHeat);
+
             // Assert
-            // Должно быть между λ_lam ≈ 0.0278 и λ_turb ≈ 0.04
-            Assert.That(lambda, Is.GreaterThan(0.0278));
-            Assert.That(lambda, Is.LessThan(0.04));
+            // V_dot = 5000 × 3.6 / (1053 × 3.39 × 20) ≈ 0.25 л/ч
+            Assert.That(flowRate, Is.GreaterThan(0));
         }
-        
+
         [Test]
-        public void CalculateTurbulentFrictionFactor_ReturnsCorrectValue()
+        public void CalculateAtTemperature_ReturnsValidResult()
         {
             // Arrange
-            double re = 10000;
-            double diameter = 16;
-            double roughness = 0.007;
-            
+            var circuit = new CircuitRow
+            {
+                CircuitLength = 100,
+                SupplyLength = 10,
+                FlowRate = 200
+            };
+            double temperature = 40;
+            var glycolProps = new GlycolProperties
+            {
+                Density = 1053,
+                KinematicViscosity = 2.16
+            };
+            double innerDiameter = 16;
+            double kv = 1.2;
+
             // Act
-            double lambda = FlowRegimeCalculator.CalculateTurbulentFrictionFactor(re, diameter, roughness);
-            
+            var result = _calculator.CalculateAtTemperature(circuit, temperature, glycolProps, innerDiameter, kv);
+
             // Assert
-            // Для Re=10000, di=16mm, ε=0.007mm: λ ≈ 0.03-0.04
-            Assert.That(lambda, Is.GreaterThan(0.02));
-            Assert.That(lambda, Is.LessThan(0.05));
+            Assert.That(result.Temperature, Is.EqualTo(temperature));
+            Assert.That(result.ReynoldsNumber, Is.GreaterThan(0));
+            Assert.That(result.TotalLoss, Is.GreaterThan(0));
         }
-        
+
         [Test]
-        public void CalculateFrictionFactor_WorksForAllRegimes()
+        public void CalculateAllCircuits_CalculatesBothTemperatures()
         {
             // Arrange
-            double diameter = 16;
-            double roughness = 0.007;
-            
-            // Act & Assert
-            double lambdaLam = FlowRegimeCalculator.CalculateFrictionFactor(2000, diameter, roughness);
-            Assert.That(lambdaLam, Is.EqualTo(0.032).Within(0.001));
-            
-            double lambdaTrans = FlowRegimeCalculator.CalculateFrictionFactor(3000, diameter, roughness);
-            Assert.That(lambdaTrans, Is.GreaterThan(0.027));
-            Assert.That(lambdaTrans, Is.LessThan(0.04));
-            
-            double lambdaTurb = FlowRegimeCalculator.CalculateFrictionFactor(10000, diameter, roughness);
-            Assert.That(lambdaTurb, Is.GreaterThan(0.02));
-            Assert.That(lambdaTurb, Is.LessThan(0.05));
-        }
-        
-        [Test]
-        public void GetFlowRegimeDescription_ReturnsCorrectDescription()
-        {
-            // Act & Assert
-            Assert.That(FlowRegimeCalculator.GetFlowRegimeDescription(FlowRegime.Laminar), Does.Contain("Ламинарный"));
-            Assert.That(FlowRegimeCalculator.GetFlowRegimeDescription(FlowRegime.Transitional), Does.Contain("Переходный"));
-            Assert.That(FlowRegimeCalculator.GetFlowRegimeDescription(FlowRegime.Turbulent), Does.Contain("Турбулентный"));
-        }
-        
-        [Test]
-        public void GetFlowRegimeRecommendation_ReturnsWarningForTransitional()
-        {
+            var circuits = new List<CircuitRow>
+            {
+                new CircuitRow { CircuitLength = 100, SupplyLength = 10, PipeSpacing_cm = 20 }
+            };
+            var inputData = new HydraulicInputData
+            {
+                PowerUp = 256,
+                PowerDown = 5,
+                SupplyTemperature = 50,
+                ReturnTemperature = 30,
+                ColdFiveDayTemperature = -30,
+                InnerDiameter = 16,
+                PipeSpacing_mm = 200,
+                GlycolType = GlycolType.Ethylene,
+                GlycolConcentration = 50,
+                ValveType = ValveType.HKV_D
+            };
+
             // Act
-            string recommendation = FlowRegimeCalculator.GetFlowRegimeRecommendation(FlowRegime.Transitional);
-            
+            var result = _calculator.CalculateAllCircuits(circuits, inputData);
+
             // Assert
-            Assert.That(recommendation, Does.Contain("ВНИМАНИЕ"));
-            Assert.That(recommendation, Does.Contain("нестабилен"));
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].OperatingResult, Is.Not.Null);
+            Assert.That(result[0].DesignResult, Is.Not.Null);
+        }
+
+        [Test]
+        public void CalculateBalancing_SetsReferenceCircuit()
+        {
+            // Arrange
+            var circuits = new List<CircuitRow>
+            {
+                new CircuitRow { CircuitNumber = 1, OperatingResult = new CircuitTemperatureResult { CircuitPipeLoss = 8000, SupplyPipeLoss = 1000, ValveLoss = 1000 } },
+                new CircuitRow { CircuitNumber = 2, OperatingResult = new CircuitTemperatureResult { CircuitPipeLoss = 12000, SupplyPipeLoss = 2000, ValveLoss = 1000 } },
+                new CircuitRow { CircuitNumber = 3, OperatingResult = new CircuitTemperatureResult { CircuitPipeLoss = 10000, SupplyPipeLoss = 1500, ValveLoss = 500 } }
+            };
+
+            // Act
+            var result = _calculator.CalculateBalancing(circuits, ValveType.HKV_D);
+
+            // Assert
+            Assert.That(result[1].IsReferenceCircuit, Is.True); // Контур 2 с макс. потерями
+            Assert.That(result[0].Throttling, Is.EqualTo(5000)); // 15000 - 10000
+            Assert.That(result[2].Throttling, Is.EqualTo(3000)); // 15000 - 12000
+        }
+
+        [Test]
+        public void CalculateCollectorSummary_ReturnsCorrectSummary()
+        {
+            // Arrange
+            var circuits = new List<CircuitRow>
+            {
+                new CircuitRow { CircuitLength = 100, SupplyLength = 10, Power = 5000, FlowRate = 200, OperatingResult = new CircuitTemperatureResult { CircuitPipeLoss = 8000, SupplyPipeLoss = 1000, ValveLoss = 1000 } },
+                new CircuitRow { CircuitLength = 80, SupplyLength = 8, Power = 4000, FlowRate = 160, OperatingResult = new CircuitTemperatureResult { CircuitPipeLoss = 6000, SupplyPipeLoss = 1000, ValveLoss = 1000 } }
+            };
+
+            // Act
+            var summary = _calculator.CalculateCollectorSummary(circuits, 1, ValveType.HKV_D);
+
+            // Assert
+            Assert.That(summary.CircuitCount, Is.EqualTo(2));
+            Assert.That(summary.TotalPipeLength, Is.EqualTo(198)); // 100+10 + 80+8
+            Assert.That(summary.TotalPower, Is.EqualTo(9000));
+            Assert.That(summary.TotalFlowRate, Is.EqualTo(360));
+            Assert.That(summary.PressureLoss_Operating_mbar, Is.EqualTo(100)); // 10000 Па / 100 = 100 мбар
         }
     }
 }
@@ -403,11 +517,12 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
 ## 5. Критерии приёмки
 
-- [ ] Файл `FlowRegimeCalculator.cs` создан
-- [ ] Реализованы все методы для определения режима течения
-- [ ] Формула Колбрука-Уайта сходится за 20 итераций
-- [ ] Граничные значения Re = 2300 и Re = 4000 корректны
-- [ ] Unit-тесты для всех методов проходят успешно
+- [ ] Файл `CircuitsCalculator.cs` создан в `src/Services/Hydraulics/`
+- [ ] Реализованы все методы интерфейса `ICircuitsCalculator`
+- [ ] Формулы соответствуют `docs/Formulas_Snegotayanie.md`
+- [ ] Расчёт для двух температур работает
+- [ ] Балансировка контуров работает
+- [ ] Unit-тесты проходят успешно
 - [ ] XML-документация для всех методов
 - [ ] Код компилируется без предупреждений
 
@@ -415,6 +530,20 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
 ## 6. Примечания
 
-- Класс статический, не требует DI
-- Константы `LaminarBoundary` и `TurbulentBoundary` могут использоваться в других классах
-- Формула Колбрука-Уайта решается итерационно с точностью 1e-10
+- Использует `IGlycolDataService` для получения свойств гликоля
+- Использует `ValveTurnsCalculator` для расчёта оборотов клапана
+- Формула Колбрука-Уайта решается итерационно
+- Референсный контур — контур с максимальными потерями
+
+---
+
+## 7. Связанные задачи
+
+- Task 1.1: ValveType — используется в CalculateBalancing()
+- Task 1.2: HydraulicInputData — используется в CalculateAllCircuits()
+- Task 2.1: ICircuitsCalculator — реализация интерфейса
+- Task 3.1: ValveTurnsCalculator — используется для расчёта оборотов
+
+---
+
+*Дата создания: 2026-03-17*

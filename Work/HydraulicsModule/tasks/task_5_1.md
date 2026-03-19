@@ -1,15 +1,15 @@
-# Task 5.1: HydraulicsView.xaml (Основное представление)
+# Task 5.1: Создать CircuitsView.xaml
 
 **Этап:** 5 - Views  
 **Приоритет:** Высокий  
-**Статус:** Не начато  
-**Зависимости:** Task 4.1
+**Статус:** К разработке  
+**Зависимости:** Task 4.1 (CircuitsViewModel)
 
 ---
 
 ## 1. Цель задачи
 
-Создать основное представление (View) для модуля гидравлики.
+Создать представление для таблицы контуров с DataGrid.
 
 ---
 
@@ -17,560 +17,120 @@
 
 | UC | Название | Покрытие |
 |----|-----------|----------|
-| UC-01 | Расчёт гидравлических параметров контура | Основной UI |
+| UC-01 | Ввод параметров контуров | DataGrid для редактирования |
+| UC-08 | Управление контурами | Кнопки управления |
 
 ---
 
 ## 3. Создаваемые файлы
 
-### 3.1. HydraulicsView.xaml
+### 3.1. CircuitsView.xaml
 
-**Путь:** `src/Views/Hydraulics/HydraulicsView.xaml`
+**Путь:** `src/Views/Hydraulics/CircuitsView.xaml`
+
+**Структура:**
 
 ```xml
-<UserControl x:Class="SnowMeltingCalculator.Views.Hydraulics.HydraulicsView"
+<UserControl x:Class="SnowMeltingCalculator.Views.Hydraulics.CircuitsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:SnowMeltingCalculator.ViewModels.Hydraulics"
              xmlns:models="clr-namespace:SnowMeltingCalculator.Models.Hydraulics"
-             mc:Ignorable="d"
-             d:DesignHeight="800" d:DesignWidth="1000"
-             d:DataContext="{d:DesignInstance Type=vm:HydraulicsViewModel}">
-
-    <UserControl.Resources>
-        <!-- Стили -->
-        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="0,10,0,5"/>
-            <Setter Property="Foreground" Value="#2196F3"/>
-        </Style>
-
-        <Style x:Key="InputLabelStyle" TargetType="TextBlock">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
-            <Setter Property="Width" Value="150"/>
-        </Style>
-
-        <Style x:Key="InputTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Width" Value="120"/>
-            <Setter Property="Height" Value="26"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,2"/>
-        </Style>
-
-        <Style x:Key="ResultLabelStyle" TargetType="TextBlock">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
-            <Setter Property="Width" Value="180"/>
-            <Setter Property="FontWeight" Value="Normal"/>
-        </Style>
-
-        <Style x:Key="ResultValueStyle" TargetType="TextBlock">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="13"/>
-        </Style>
-
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#2196F3"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="20,8"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-
-        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#757575"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="20,8"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-
-        <Style x:Key="WarningStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FF9800"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,2"/>
-        </Style>
-
-        <Style x:Key="ErrorStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#F44336"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,2"/>
-        </Style>
-
-        <!-- Конвертеры -->
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-    </UserControl.Resources>
+             d:DataContext="{d:DesignInstance Type=vm:CircuitsViewModel}">
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Заголовок -->
-        <TextBlock Grid.Row="0"
-                   Text="Гидравлический расчёт"
+        <TextBlock Grid.Row="0" 
+                   Text="Таблица контуров"
                    FontSize="20"
                    FontWeight="Bold"
-                   Margin="0,0,0,15"
-                   Foreground="#1976D2"/>
+                   Margin="0,0,0,15"/>
 
-        <!-- Основной контент -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+        <!-- Параметры теплоносителя -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Гликоль:" Margin="0,0,5,0" VerticalAlignment="Center"/>
+            <ComboBox SelectedItem="{Binding GlycolType}" Width="150" Margin="0,0,15,0">
+                <ComboBoxItem Content="Этиленгликоль" Tag="{x:Static models:GlycolType.Ethylene}"/>
+                <ComboBoxItem Content="Пропиленгликоль" Tag="{x:Static models:GlycolType.Propylene}"/>
+            </ComboBox>
 
-                <!-- Левая колонка: Ввод параметров -->
-                <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                    
-                    <!-- Параметры контура -->
-                    <TextBlock Text="Параметры контура" Style="{StaticResource SectionHeaderStyle}"/>
-                    
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Длина контура (м):" Style="{StaticResource InputLabelStyle}"/>
-                        <TextBox Grid.Column="1" 
-                                 Text="{Binding CircuitLength, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                                 Style="{StaticResource InputTextBoxStyle}"/>
-                        <TextBlock Grid.Column="2" Text="м" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                    </Grid>
+            <TextBlock Text="Концентрация (%):" Margin="0,0,5,0" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding GlycolConcentration, StringFormat=F0}" Width="50" Margin="0,0,15,0"/>
 
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Длина подводки (м):" Style="{StaticResource InputLabelStyle}"/>
-                        <TextBox Grid.Column="1" 
-                                 Text="{Binding SupplyLength, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                                 Style="{StaticResource InputTextBoxStyle}"/>
-                        <TextBlock Grid.Column="2" Text="м" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                    </Grid>
+            <TextBlock Text="Режим:" Margin="0,0,5,0" VerticalAlignment="Center"/>
+            <Button Content="Рабочая" 
+                    Command="{Binding SwitchModeCommand}"
+                    Visibility="{Binding CurrentMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Design}"/>
+            <Button Content="Расчётная" 
+                    Command="{Binding SwitchModeCommand}"
+                    Visibility="{Binding CurrentMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Operating}"/>
+        </StackPanel>
 
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Площадь контура (м²):" Style="{StaticResource InputLabelStyle}"/>
-                        <TextBox Grid.Column="1" 
-                                 Text="{Binding CircuitArea, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                                 Style="{StaticResource InputTextBoxStyle}"/>
-                        <TextBlock Grid.Column="2" Text="м²" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                    </Grid>
+        <!-- DataGrid контуров -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding SelectedCollector.Circuits}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="True"
+                  CanUserDeleteRows="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="№" Binding="{Binding CircuitNumber}" IsReadOnly="True" Width="40"/>
+                <DataGridTextColumn Header="Длина (м)" Binding="{Binding CircuitLength, StringFormat=F1}" Width="80"/>
+                <DataGridTextColumn Header="Подводка (м)" Binding="{Binding SupplyLength, StringFormat=F1}" Width="80"/>
+                <DataGridTextColumn Header="Площадь (м²)" Binding="{Binding CircuitArea, StringFormat=F1}" Width="80"/>
+                <DataGridTextColumn Header="Мощность (Вт)" Binding="{Binding Power, StringFormat=F0}" IsReadOnly="True" Width="100"/>
+                <DataGridTextColumn Header="Расход (л/ч)" Binding="{Binding FlowRate, StringFormat=F1}" IsReadOnly="True" Width="80"/>
+                <DataGridTextColumn Header="Потери (мбар)" Binding="{Binding OperatingResult.TotalLoss, Converter={StaticResource PaToMbarConverter}, StringFormat=F1}" IsReadOnly="True" Width="100"/>
+                <DataGridTextColumn Header="Обороты" Binding="{Binding ValveTurns, StringFormat=F1}" IsReadOnly="True" Width="80"/>
+            </DataGrid.Columns>
+        </DataGrid>
 
-                    <!-- Параметры теплоносителя -->
-                    <TextBlock Text="Параметры теплоносителя" Style="{StaticResource SectionHeaderStyle}"/>
-                    
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Тип гликоли:" Style="{StaticResource InputLabelStyle}"/>
-                        <ComboBox Grid.Column="1"
-                                  SelectedItem="{Binding GlycolType}"
-                                  Width="150"
-                                  Height="26">
-                            <ComboBoxItem Content="Этиленгликоль" Tag="{x:Static models:GlycolType.Ethylene}"/>
-                            <ComboBoxItem Content="Пропиленгликоль" Tag="{x:Static models:GlycolType.Propylene}"/>
-                        </ComboBox>
-                    </Grid>
-
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Доля гликоля (%):" Style="{StaticResource InputLabelStyle}"/>
-                        <TextBox Grid.Column="1" 
-                                 Text="{Binding GlycolConcentration, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"
-                                 Style="{StaticResource InputTextBoxStyle}"/>
-                        <TextBlock Grid.Column="2" Text="%" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                    </Grid>
-
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Температура подачи (°C):" Style="{StaticResource InputLabelStyle}"/>
-                        <TextBox Grid.Column="1" 
-                                 Text="{Binding SupplyTemperature, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                                 Style="{StaticResource InputTextBoxStyle}"
-                                 IsReadOnly="True"
-                                 Background="#F5F5F5"/>
-                        <TextBlock Grid.Column="2" Text="°C" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                    </Grid>
-
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Температура обратки (°C):" Style="{StaticResource InputLabelStyle}"/>
-                        <TextBox Grid.Column="1" 
-                                 Text="{Binding ReturnTemperature, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                                 Style="{StaticResource InputTextBoxStyle}"
-                                 IsReadOnly="True"
-                                 Background="#F5F5F5"/>
-                        <TextBlock Grid.Column="2" Text="°C" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                    </Grid>
-
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Расход (л/ч):" Style="{StaticResource InputLabelStyle}"/>
-                        <TextBox Grid.Column="1" 
-                                 Text="{Binding VolumeFlowRate, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                                 Style="{StaticResource InputTextBoxStyle}"
-                                 IsReadOnly="True"
-                                 Background="#F5F5F5"/>
-                        <TextBlock Grid.Column="2" Text="л/ч" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                    </Grid>
-
-                    <!-- Параметры трубы -->
-                    <TextBlock Text="Параметры трубы" Style="{StaticResource SectionHeaderStyle}"/>
-                    
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Тип трубы:" Style="{StaticResource InputLabelStyle}"/>
-                        <ComboBox Grid.Column="1"
-                                  SelectedItem="{Binding SelectedPipe}"
-                                  DisplayMemberPath="Name"
-                                  Width="200"
-                                  Height="26"/>
-                    </Grid>
-
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Шероховатость (мм):" Style="{StaticResource InputLabelStyle}"/>
-                        <TextBox Grid.Column="1" 
-                                 Text="{Binding Roughness, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}"
-                                 Style="{StaticResource InputTextBoxStyle}"/>
-                        <TextBlock Grid.Column="2" Text="мм" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                    </Grid>
-
-                    <!-- Вычисляемые параметры -->
-                    <TextBlock Text="Вычисляемые параметры" Style="{StaticResource SectionHeaderStyle}"/>
-                    
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Средняя температура:" Style="{StaticResource InputLabelStyle}"/>
-                        <TextBlock Grid.Column="1" 
-                                   Text="{Binding MeanTemperature, StringFormat={}{0:F1} °C}"
-                                   Style="{StaticResource ResultValueStyle}"/>
-                    </Grid>
-
-                    <Grid Margin="0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" Text="Перепад температур:" Style="{StaticResource InputLabelStyle}"/>
-                        <TextBlock Grid.Column="1" 
-                                   Text="{Binding TemperatureDelta, StringFormat={}{0:F1} °C}"
-                                   Style="{StaticResource ResultValueStyle}"/>
-                    </Grid>
-                </StackPanel>
-
-                <!-- Правая колонка: Результаты -->
-                <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                    
-                    <!-- Результаты расчёта -->
-                    <TextBlock Text="Результаты расчёта" Style="{StaticResource SectionHeaderStyle}"/>
-                    
-                    <Border Background="#F5F5F5" Padding="10" Margin="0,5" CornerRadius="5">
-                        <StackPanel>
-                            <Grid Margin="0,3">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="Скорость потока:" Style="{StaticResource ResultLabelStyle}"/>
-                                <TextBlock Grid.Column="1" 
-                                           Text="{Binding Result.Velocity, StringFormat={}{0:F3} м/с}"
-                                           Style="{StaticResource ResultValueStyle}"/>
-                            </Grid>
-
-                            <Grid Margin="0,3">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="Число Рейнольдса:" Style="{StaticResource ResultLabelStyle}"/>
-                                <TextBlock Grid.Column="1" 
-                                           Text="{Binding Result.ReynoldsNumber, StringFormat={}{0:F0}}"
-                                           Style="{StaticResource ResultValueStyle}"/>
-                            </Grid>
-
-                            <Grid Margin="0,3">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="Режим течения:" Style="{StaticResource ResultLabelStyle}"/>
-                                <TextBlock Grid.Column="1" 
-                                           Text="{Binding Result.FlowRegime}"
-                                           Style="{StaticResource ResultValueStyle}"/>
-                            </Grid>
-
-                            <Grid Margin="0,3">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="Коэффициент трения λ:" Style="{StaticResource ResultLabelStyle}"/>
-                                <TextBlock Grid.Column="1" 
-                                           Text="{Binding Result.FrictionFactor, StringFormat={}{0:F5}}"
-                                           Style="{StaticResource ResultValueStyle}"/>
-                            </Grid>
-
-                            <Separator Margin="0,10"/>
-
-                            <Grid Margin="0,3">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="Удельные потери:" Style="{StaticResource ResultLabelStyle}"/>
-                                <TextBlock Grid.Column="1" 
-                                           Text="{Binding Result.PressureLossPerMeter, StringFormat={}{0:F1} Па/м}"
-                                           Style="{StaticResource ResultValueStyle}"/>
-                            </Grid>
-
-                            <Grid Margin="0,3">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="Потери в контуре:" Style="{StaticResource ResultLabelStyle}"/>
-                                <TextBlock Grid.Column="1" 
-                                           Text="{Binding Result.CircuitPressureLoss, StringFormat={}{0:F0} Па}"
-                                           Style="{StaticResource ResultValueStyle}"/>
-                            </Grid>
-
-                            <Grid Margin="0,3">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="Потери в подводке:" Style="{StaticResource ResultLabelStyle}"/>
-                                <TextBlock Grid.Column="1" 
-                                           Text="{Binding Result.SupplyPressureLoss, StringFormat={}{0:F0} Па}"
-                                           Style="{StaticResource ResultValueStyle}"/>
-                            </Grid>
-
-                            <Grid Margin="0,3">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="Потери в вентиле:" Style="{StaticResource ResultLabelStyle}"/>
-                                <TextBlock Grid.Column="1" 
-                                           Text="{Binding Result.ValvePressureLoss, StringFormat={}{0:F0} Па}"
-                                           Style="{StaticResource ResultValueStyle}"/>
-                            </Grid>
-
-                            <Separator Margin="0,10"/>
-
-                            <Grid Margin="0,3">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="ОБЩИЕ ПОТЕРИ:" Style="{StaticResource ResultLabelStyle}" FontWeight="Bold"/>
-                                <TextBlock Grid.Column="1" 
-                                           Text="{Binding TotalPressureLossKPa, StringFormat={}{0:F2} кПа}"
-                                           Style="{StaticResource ResultValueStyle}"
-                                           FontSize="15"
-                                           Foreground="#1976D2"/>
-                            </Grid>
-
-                            <Grid Margin="0,3">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="" Width="180"/>
-                                <TextBlock Grid.Column="1" 
-                                           Text="{Binding TotalPressureLossMbar, StringFormat={}({0:F1} мбар)}"
-                                           Style="{StaticResource ResultValueStyle}"
-                                           Foreground="#666"/>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Предупреждения -->
-                    <TextBlock Text="Предупреждения" Style="{StaticResource SectionHeaderStyle}"
-                               Visibility="{Binding HasErrors, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    
-                    <ItemsControl ItemsSource="{Binding Warnings}"
-                                  Visibility="{Binding HasErrors, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" Style="{StaticResource WarningStyle}"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <!-- Ошибки -->
-                    <TextBlock Text="Ошибки" Style="{StaticResource SectionHeaderStyle}"
-                               Visibility="{Binding HasErrors, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    
-                    <TextBlock Text="{Binding ErrorMessage}"
-                               Style="{StaticResource ErrorStyle}"
-                               Visibility="{Binding HasErrors, Converter={StaticResource BooleanToVisibilityConverter}}"
-                               TextWrapping="Wrap"/>
-
-                    <!-- Выбранный коллектор -->
-                    <TextBlock Text="Коллектор" Style="{StaticResource SectionHeaderStyle}"/>
-                    
-                    <Border Background="#E3F2FD" Padding="10" Margin="0,5" CornerRadius="5">
-                        <StackPanel>
-                            <TextBlock Text="{Binding SelectedCollector.Name, TargetNullValue='Не выбран'}"
-                                       FontWeight="Bold"
-                                       FontSize="14"/>
-                            <TextBlock Text="{Binding SelectedCollector.Description, TargetNullValue=''}"
-                                       Margin="0,5,0,0"
-                                       TextWrapping="Wrap"/>
-                            <Grid Margin="0,10,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Контур:" Foreground="#666"/>
-                                    <TextBlock Text="{Binding SelectedCollector.CircuitCount, StringFormat={}{0} шт.}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Макс. расход:" Foreground="#666"/>
-                                    <TextBlock Text="{Binding SelectedCollector.MaxFlowRate, StringFormat={}{0} л/ч}"/>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Grid>
-        </ScrollViewer>
-
-        <!-- Кнопки действий -->
-        <StackPanel Grid.Row="2" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Center"
-                    Margin="0,15,0,0">
-            
+        <!-- Кнопки управления -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,15,0,0">
+            <Button Content="+ Добавить контур"
+                    Command="{Binding AddCircuitCommand}"
+                    IsEnabled="{Binding CanAddCircuit}"/>
             <Button Content="Рассчитать"
                     Command="{Binding CalculateCommand}"
-                    Style="{StaticResource PrimaryButtonStyle}"
-                    IsEnabled="{Binding CanCalculate}"/>
-            
-            <Button Content="Сбросить"
-                    Command="{Binding ResetCommand}"
-                    Style="{StaticResource SecondaryButtonStyle}"/>
+                    Margin="10,0,0,0"/>
         </StackPanel>
     </Grid>
 </UserControl>
-```
-
-### 3.2. HydraulicsView.xaml.cs
-
-**Путь:** `src/Views/Hydraulics/HydraulicsView.xaml.cs`
-
-```csharp
-using System.Windows.Controls;
-
-namespace SnowMeltingCalculator.Views.Hydraulics
-{
-    /// <summary>
-    /// Представление для модуля гидравлики
-    /// </summary>
-    public partial class HydraulicsView : UserControl
-    {
-        public HydraulicsView()
-        {
-            InitializeComponent();
-        }
-    }
-}
 ```
 
 ---
 
 ## 4. Критерии приёмки
 
-- [ ] Файлы `HydraulicsView.xaml` и `.xaml.cs` созданы
-- [ ] DataBinding к HydraulicsViewModel работает
-- [ ] Команды привязаны к кнопкам
-- [ ] Результаты отображаются корректно
-- [ ] Предупреждения и ошибки отображаются
-- [ ] UI соответствует ТЗ
-- [ ] Стили применены корректно
-- [ ] ScrollViewer работает
+- [ ] Файл `CircuitsView.xaml` создан
+- [ ] DataGrid для таблицы контуров
+- [ ] Карточки коллекторов
+- [ ] Переключатель режима (Рабочая/Расчётная)
+- [ ] Кнопки управления
+- [ ] Валидация ввода
+- [ ] DataContext привязан к CircuitsViewModel
 
 ---
 
 ## 5. Примечания
 
-- Используются стили для единообразия UI
-- Результаты отображаются в правой колонке
-- Поля только для чтения имеют серый фон
-- Предупреждения отображаются жёлтым цветом
-- Ошибки отображаются красным цветом
-- Кнопки имеют первичный и вторичный стили
+- DataGrid позволяет редактировать параметры контуров
+- Переключатель режима меняет отображаемые потери давления
+- Кнопки управления привязаны к командам
+
+---
+
+## 6. Связанные задачи
+
+- Task 4.1: CircuitsViewModel — привязка к View
+- Task 5.2: CircuitsView.xaml.cs — code-behind
+
+---
+
+*Дата создания: 2026-03-17*

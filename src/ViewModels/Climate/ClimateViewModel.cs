@@ -70,7 +70,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         private bool _isCitySelected;
 
         /// <summary>
-        /// Скорость ветра, м/с
+        /// Скорость ветра, м/с (за отопительный период)
         /// Диапазон: 0.1 до 30 м/с
         /// </summary>
         [ObservableProperty]
@@ -84,12 +84,12 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         private double _humidity = 70.0;
 
         /// <summary>
-        /// Интенсивность снегопада, см/ч
-        /// Диапазон: 0 до 5 см/ч
+        /// Интенсивность снегопада, мм/ч (водяной эквивалент)
+        /// Диапазон: 0 до 20 мм/ч
         /// НЕ берётся из СП 131.13330.2025
         /// </summary>
         [ObservableProperty]
-        private double _snowfallIntensity = 0.3;
+        private double _snowfallIntensity = 0;
 
         /// <summary>
         /// Выбранная климатическая зона
@@ -243,7 +243,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             IsCitySelected = false;
             WindSpeed = 5.0;
             Humidity = 70.0;
-            SnowfallIntensity = 0.3;
+            SnowfallIntensity = 0;
             SelectedZone = ClimateZone.Zone_M15;
             IsHighRequirements = false;
             HasUserModifications = false;
@@ -284,7 +284,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                     AirTemperature = -20.0; // -37°C и ниже
                 }
                 
-                WindSpeed = _originalCityData.WindMaxJan;
+                WindSpeed = _originalCityData.WindAvgTempLe8;
                 Humidity = _originalCityData.Humidity15hCold;
                 SelectedZone = _climateService.DetermineZone(_originalCityData.T5Days092, IsHighRequirements);
                 HasUserModifications = false;
@@ -400,7 +400,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                     AirTemperature = -20.0; // -37°C и ниже
                 }
                 
-                WindSpeed = value.WindMaxJan;
+                WindSpeed = value.WindAvgTempLe8;
                 Humidity = value.Humidity15hCold;
                 SelectedZone = _climateService.DetermineZone(value.T5Days092, IsHighRequirements);
                 HasUserModifications = false;
@@ -527,9 +527,9 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 errors.Add("Влажность от 20% до 100%");
             }
 
-            if (SnowfallIntensity < 0 || SnowfallIntensity > 5)
+            if (SnowfallIntensity < 0 || SnowfallIntensity > 20)
             {
-                errors.Add("Интенсивность от 0 до 5 см/ч");
+                errors.Add("Интенсивность от 0 до 20 мм/ч");
             }
 
             ValidationMessage = string.Join("; ", errors);
