@@ -39,9 +39,9 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             double turns = ValveTurnsCalculator.CalculateTurns(kv, ValveType.IV_1_25);
 
             // Assert
-            // Формула: 5.1818 × 1.45 - 0.23
-            // Ожидаемое значение: ~7.3 оборота
-            Assert.That(turns, Is.EqualTo(7.3).Within(0.1));
+            // Формула: 5.1818 × 1.45 - 0.23 = 7.29361
+            // Округление до 0.25: Math.Round(7.29361 * 4) / 4 = 7.25
+            Assert.That(turns, Is.EqualTo(7.25).Within(0.01));
         }
 
         [Test]
@@ -54,12 +54,12 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             double turns = ValveTurnsCalculator.CalculateTurns(kv, ValveType.IV_1_5);
 
             // Assert
-            // Формула: 5.122 × 1.5 - 0.2106
-            // Ожидаемое значение: ~7.5 оборота
-            Assert.That(turns, Is.EqualTo(7.5).Within(0.1));
+            // Формула: 5.122 × 1.5 - 0.2106 = 7.4724
+            // Округление до 0.25: Math.Round(7.4724 * 4) / 4 = 7.5
+            Assert.That(turns, Is.EqualTo(7.5).Within(0.01));
         }
 
-        [Test]
+[Test]
         public void CalculateTurns_HKV_D_FormulaCalculation()
         {
             // Arrange
@@ -70,10 +70,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
             // Assert
             // Формула: 4.2111×2³ - 6.7436×2² + 4.6613×2 - 0.712
-            // = 4.2111×8 - 6.7436×4 + 9.3226 - 0.712
-            // = 33.6888 - 26.9744 + 9.3226 - 0.712 = 15.325
-            double expected = Math.Round(4.2111 * Math.Pow(kv, 3) - 6.7436 * Math.Pow(kv, 2) + 4.6613 * kv - 0.712, 1);
-            Assert.That(turns, Is.EqualTo(expected));
+            // = 4.2111×8 - 6.7436×4 + 9.3226 - 0.712 = 15.325
+            // Но ограничение: максимум 8 оборотов
+            // Округление до 0.25: Math.Round(8 * 4) / 4 = 8
+            Assert.That(turns, Is.EqualTo(8.0).Within(0.01));
         }
 
         [Test]
@@ -87,8 +87,9 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
             // Assert
             // Формула: 5.1818 × 2 - 0.23 = 10.1336
-            double expected = Math.Round(5.1818 * kv - 0.23, 1);
-            Assert.That(turns, Is.EqualTo(expected));
+            // Но ограничение: максимум 8 оборотов
+            // Округление до 0.25: Math.Round(8 * 4) / 4 = 8
+            Assert.That(turns, Is.EqualTo(8.0).Within(0.01));
         }
 
         [Test]
@@ -102,12 +103,13 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
             // Assert
             // Формула: 5.122 × 2 - 0.2106 = 10.0334
-            double expected = Math.Round(5.122 * kv - 0.2106, 1);
-            Assert.That(turns, Is.EqualTo(expected));
+            // Но ограничение: максимум 8 оборотов
+            // Округление до 0.25: Math.Round(8 * 4) / 4 = 8
+            Assert.That(turns, Is.EqualTo(8.0).Within(0.01));
         }
 
         [Test]
-        public void CalculateTurns_RoundsToTenth()
+        public void CalculateTurns_RoundsToQuarter()
         {
             // Arrange
             double kv = 1.5;
@@ -115,10 +117,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // Act
             double turns = ValveTurnsCalculator.CalculateTurns(kv, ValveType.IV_1_5);
 
-            // Assert - проверяем, что результат округлён до 0.1
-            // Результат должен иметь не более одного знака после запятой
-            double roundedToTenth = Math.Round(turns, 1);
-            Assert.That(turns, Is.EqualTo(roundedToTenth), "Результат должен быть округлён до 0.1");
+            // Assert - проверяем, что результат округлён до 0.25
+            // Результат должен быть кратен 0.25
+            double remainder = turns * 4 % 1;
+            Assert.That(remainder, Is.EqualTo(0).Within(0.001), "Результат должен быть округлён до 0.25");
         }
 
         [Test]
@@ -331,6 +333,87 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             Assert.That(ValveTurnsCalculator.KV_HKV_D, Is.EqualTo(1.2));
             Assert.That(ValveTurnsCalculator.KV_IV_1_25, Is.EqualTo(1.45));
             Assert.That(ValveTurnsCalculator.KV_IV_1_5, Is.EqualTo(1.5));
+        }
+
+        [Test]
+        public void MaxTurns_IsEight()
+        {
+            // Assert
+            Assert.That(ValveTurnsCalculator.MaxTurns, Is.EqualTo(8.0));
+        }
+
+        #endregion
+
+        #region CalculateTurnsWithWarning Tests
+
+        [Test]
+        public void CalculateTurnsWithWarning_NormalValue_ReturnsNoWarning()
+        {
+            // Arrange
+            double kv = 1.5;
+
+            // Act
+            var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, ValveType.IV_1_5);
+
+            // Assert
+            Assert.That(turns, Is.EqualTo(7.5).Within(0.01));
+            Assert.That(warning, Is.Null);
+        }
+
+        [Test]
+        public void CalculateTurnsWithWarning_ExceedsMaxTurns_ReturnsWarning()
+        {
+            // Arrange
+            double kv = 2.0; // Даст ~10 оборотов, что превышает максимум
+
+            // Act
+            var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, ValveType.IV_1_5);
+
+            // Assert
+            Assert.That(turns, Is.EqualTo(8.0));
+            Assert.That(warning, Is.Not.Null);
+            Assert.That(warning, Does.Contain("превышают"));
+            Assert.That(warning, Does.Contain("8"));
+        }
+
+        [Test]
+        public void CalculateTurnsWithWarning_HKV_D_ExceedsMaxTurns_ReturnsWarning()
+        {
+            // Arrange
+            double kv = 2.0; // Даст ~15 оборотов, что превышает максимум
+
+            // Act
+            var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, ValveType.HKV_D);
+
+            // Assert
+            Assert.That(turns, Is.EqualTo(8.0));
+            Assert.That(warning, Is.Not.Null);
+        }
+
+        [Test]
+        public void CalculateTurnsWithWarning_InvalidValveType_ThrowsException()
+        {
+            // Arrange
+            double kv = 1.0;
+            var invalidType = (ValveType)999;
+
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() =>
+                ValveTurnsCalculator.CalculateTurnsWithWarning(kv, invalidType));
+        }
+
+        [Test]
+        public void CalculateTurnsWithWarning_RoundsToQuarter()
+        {
+            // Arrange
+            double kv = 1.45;
+
+            // Act
+            var (turns, _) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, ValveType.IV_1_25);
+
+            // Assert - проверяем, что результат округлён до 0.25
+            double remainder = turns * 4 % 1;
+            Assert.That(remainder, Is.EqualTo(0).Within(0.001), "Результат должен быть округлён до 0.25");
         }
 
         #endregion

@@ -368,11 +368,14 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                     // Плотность берём из результата расчёта при рабочей температуре (уже в г/см³)
                     double density_g_cm3 = circuit.OperatingResult.Density;
                     double kv = CalculateKvForThrottling(circuit.FlowRate, circuit.Throttling, density_g_cm3);
-                    circuit.ValveTurns = ValveTurnsCalculator.CalculateTurns(kv, valveType);
+                    var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, valveType);
+                    circuit.ValveTurns = turns;
+                    circuit.ValveTurnsWarning = warning;
                 }
                 else
                 {
                     circuit.ValveTurns = 0;
+                    circuit.ValveTurnsWarning = null;
                 }
             }
 

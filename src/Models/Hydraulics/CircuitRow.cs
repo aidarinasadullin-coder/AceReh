@@ -353,7 +353,13 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// </summary>
         [ObservableProperty]
         private double _valveTurns;
-        
+
+        /// <summary>
+        /// Предупреждение об оборотах клапана (если превышен максимум)
+        /// </summary>
+        [ObservableProperty]
+        private string? _valveTurnsWarning;
+
         /// <summary>
         /// Признак референсного контура (с максимальными потерями)
         /// </summary>

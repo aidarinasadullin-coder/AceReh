@@ -33,6 +33,11 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// </summary>
         public const double KV_IV_1_5 = 1.5;
 
+        /// <summary>
+        /// Максимальное количество оборотов клапана
+        /// </summary>
+        public const double MaxTurns = 8.0;
+
         #endregion
 
         #region Основные методы
@@ -42,15 +47,44 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// </summary>
         /// <param name="kv">Коэффициент пропускной способности (м³/ч)</param>
         /// <param name="valveType">Тип клапана</param>
-        /// <returns>Количество оборотов (округлено до 0.1)</returns>
+        /// <returns>Количество оборотов (округлено до 0.25, максимум 8)</returns>
         /// <remarks>
         /// Формулы расчёта:
         /// - IV 1½": Обороты = 5.122 × Kv - 0.2106
         /// - IV 1¼": Обороты = 5.1818 × Kv - 0.23
         /// - HKV-D: Обороты = 4.2111×Kv³ - 6.7436×Kv² + 4.6613×Kv - 0.712
+        /// 
+        /// Ограничения:
+        /// - Максимальное количество оборотов: 8
+        /// - Округление: до 0.25 оборота
         /// </remarks>
         /// <exception cref="ArgumentException">Неподдерживаемый тип клапана</exception>
         public static double CalculateTurns(double kv, ValveType valveType)
+        {
+            var (turns, _) = CalculateTurnsWithWarning(kv, valveType);
+            return turns;
+        }
+
+        /// <summary>
+        /// Рассчитать обороты балансировочного клапана с предупреждением
+        /// </summary>
+        /// <param name="kv">Коэффициент пропускной способности (м³/ч)</param>
+        /// <param name="valveType">Тип клапана</param>
+        /// <returns>Кортеж: (обороты, предупреждение или null)</returns>
+        /// <remarks>
+        /// Формулы расчёта:
+        /// - IV 1½": Обороты = 5.122 × Kv - 0.2106
+        /// - IV 1¼": Обороты = 5.1818 × Kv - 0.23
+        /// - HKV-D: Обороты = 4.2111×Kv³ - 6.7436×Kv² + 4.6613×Kv - 0.712
+        /// 
+        /// Ограничения:
+        /// - Максимальное количество оборотов: 8
+        /// - Округление: до 0.25 оборота
+        /// 
+        /// Если расчётные обороты превышают 8, возвращается 8 и предупреждение.
+        /// </remarks>
+        /// <exception cref="ArgumentException">Неподдерживаемый тип клапана</exception>
+        public static (double Turns, string? Warning) CalculateTurnsWithWarning(double kv, ValveType valveType)
         {
             double turns = valveType switch
             {
@@ -60,8 +94,19 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 _ => throw new ArgumentException($"Неподдерживаемый тип клапана: {valveType}", nameof(valveType))
             };
 
-            // Округление до 0.1 оборота
-            return Math.Round(turns, 1);
+            string? warning = null;
+
+            // Проверка ограничения оборотов
+            if (turns > MaxTurns)
+            {
+                warning = $"Расчётные обороты ({turns:F2}) превышают максимум ({MaxTurns}). Установлено {MaxTurns} оборотов.";
+                turns = MaxTurns;
+            }
+
+            // Округление до 0.25 оборота
+            turns = Math.Round(turns * 4) / 4;
+
+            return (turns, warning);
         }
 
         /// <summary>
