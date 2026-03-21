@@ -93,6 +93,34 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         // === Флаг для предотвращения рекурсии при пересчёте ===
         private bool _isUpdating;
         
+        // === Флаги режима ввода ===
+        
+        /// <summary>
+        /// Признак того, что пользователь ввёл длину (а не площадь)
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsLengthReadOnly))]
+        [NotifyPropertyChangedFor(nameof(IsAreaReadOnly))]
+        private bool _isLengthUserInput;
+        
+        /// <summary>
+        /// Признак того, что пользователь ввёл площадь (а не длину)
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsLengthReadOnly))]
+        [NotifyPropertyChangedFor(nameof(IsAreaReadOnly))]
+        private bool _isAreaUserInput;
+        
+        /// <summary>
+        /// Поле длины заблокировано для ввода (когда пользователь ввёл площадь)
+        /// </summary>
+        public bool IsLengthReadOnly => IsAreaUserInput && CircuitArea > 0;
+        
+        /// <summary>
+        /// Поле площади заблокировано для ввода (когда пользователь ввёл длину)
+        /// </summary>
+        public bool IsAreaReadOnly => IsLengthUserInput && CircuitLength > 0;
+        
         // === Входные данные (общие) ===
         
         /// <summary>
@@ -152,6 +180,19 @@ namespace SnowMeltingCalculator.Models.Hydraulics
             
             try
             {
+                // Установить флаги режима ввода
+                if (value > 0)
+                {
+                    IsLengthUserInput = true;
+                    IsAreaUserInput = false;
+                }
+                else
+                {
+                    // При очистке поля сбросить оба флага
+                    IsLengthUserInput = false;
+                    IsAreaUserInput = false;
+                }
+                
                 // Вычислить площадь: Площадь = Длина * Шаг_укладки / 100
                 // Шаг_укладки в см, поэтому делим на 100 для получения площади в м²
                 if (PipeSpacing_cm > 0 && value > 0)
@@ -178,6 +219,19 @@ namespace SnowMeltingCalculator.Models.Hydraulics
             
             try
             {
+                // Установить флаги режима ввода
+                if (value > 0)
+                {
+                    IsAreaUserInput = true;
+                    IsLengthUserInput = false;
+                }
+                else
+                {
+                    // При очистке поля сбросить оба флага
+                    IsAreaUserInput = false;
+                    IsLengthUserInput = false;
+                }
+                
                 // Вычислить длину: Длина = Площадь * 100 / Шаг_укладки
                 // Шаг_укладки в см, поэтому умножаем на 100 для получения длины в м
                 if (PipeSpacing_cm > 0 && value > 0)
@@ -204,11 +258,22 @@ namespace SnowMeltingCalculator.Models.Hydraulics
             
             try
             {
-                // При изменении шага укладки пересчитать площадь, если есть длина
-                if (value > 0 && CircuitLength > 0)
+                // При изменении шага укладки пересчитать связанное значение
+                // только если был пользовательский ввод
+                if (value > 0)
                 {
-                    _circuitArea = CircuitLength * value / 100.0;
-                    OnPropertyChanged(nameof(CircuitArea));
+                    if (IsLengthUserInput && CircuitLength > 0)
+                    {
+                        // Пользователь ввёл длину - пересчитать площадь
+                        _circuitArea = CircuitLength * value / 100.0;
+                        OnPropertyChanged(nameof(CircuitArea));
+                    }
+                    else if (IsAreaUserInput && CircuitArea > 0)
+                    {
+                        // Пользователь ввёл площадь - пересчитать длину
+                        _circuitLength = CircuitArea * 100.0 / value;
+                        OnPropertyChanged(nameof(CircuitLength));
+                    }
                 }
             }
             finally

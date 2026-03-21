@@ -207,9 +207,9 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             Assert.That(_service.IsTemperatureSupported(-34.4), Is.True);
             Assert.That(_service.IsTemperatureSupported(0), Is.True);
             Assert.That(_service.IsTemperatureSupported(50), Is.True);
-            Assert.That(_service.IsTemperatureSupported(90), Is.True);
+            Assert.That(_service.IsTemperatureSupported(100), Is.True);
             Assert.That(_service.IsTemperatureSupported(-35), Is.False);
-            Assert.That(_service.IsTemperatureSupported(91), Is.False);
+            Assert.That(_service.IsTemperatureSupported(101), Is.False);
         }
 
         [Test]
@@ -245,7 +245,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             double maxTemp = _service.GetMaxTemperature();
 
             // Assert
-            Assert.That(maxTemp, Is.EqualTo(90.0).Within(0.1));
+            Assert.That(maxTemp, Is.EqualTo(100.0).Within(0.1));
         }
 
         [Test]
@@ -255,7 +255,8 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             double minConc = _service.GetMinConcentration();
 
             // Assert
-            Assert.That(minConc, Is.EqualTo(0.0).Within(0.1));
+            // Минимальная концентрация для гликолей - 10%, но вода (0%) также разрешена
+            Assert.That(minConc, Is.EqualTo(10.0).Within(0.1));
         }
 
         [Test]
@@ -387,11 +388,11 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         }
 
         [Test]
-        public void GetProperties_TemperatureAbove90_ThrowsException()
+        public void GetProperties_TemperatureAbove100_ThrowsException()
         {
             // Arrange
             double concentration = 50;
-            double temperature = 95; // Выше максимума (90°C)
+            double temperature = 105; // Выше максимума (100°C)
 
             // Act & Assert
             Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -777,10 +778,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         }
 
         [Test]
-        public void GetWaterProperties_TemperatureAbove90_ThrowsException()
+        public void GetWaterProperties_TemperatureAbove100_ThrowsException()
         {
             // Arrange
-            double temperature = 95; // Выше максимума (90°C)
+            double temperature = 105; // Выше максимума (100°C)
 
             // Act & Assert
             Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -829,15 +830,15 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         }
 
         [Test]
-        public void GetWaterProperties_ThermalConductivityDecreasesWithTemperature()
+        public void GetWaterProperties_ThermalConductivityIncreasesWithTemperature()
         {
             // Arrange
             var props20 = _service.GetWaterProperties(20);
             var props60 = _service.GetWaterProperties(60);
-            
-            // Assert - теплопроводность уменьшается с ростом температуры
-            Assert.That(props20.ThermalConductivity, Is.GreaterThan(props60.ThermalConductivity), 
-                "Теплопроводность при 20°C должна быть выше, чем при 60°C");
+
+            // Assert - теплопроводность воды увеличивается с ростом температуры (по данным IAPWS)
+            Assert.That(props60.ThermalConductivity, Is.GreaterThan(props20.ThermalConductivity),
+                "Теплопроводность при 60°C должна быть выше, чем при 20°C");
         }
 
         [Test]

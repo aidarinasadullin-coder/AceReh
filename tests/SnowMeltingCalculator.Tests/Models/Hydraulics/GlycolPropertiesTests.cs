@@ -230,8 +230,8 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             
             // Assert
             Assert.That(str, Does.Contain("1053"));
-            Assert.That(str, Does.Contain("2.16"));
-            Assert.That(str, Does.Contain("3.39"));
+            Assert.That(str, Does.Contain("2.16").Or.Contain("2,16")); // Поддержка разных культур
+            Assert.That(str, Does.Contain("3.39").Or.Contain("3,39")); // Поддержка разных культур
         }
         
         [Test]
@@ -279,7 +279,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             // Assert
             Assert.That(desc, Does.Contain("Этиленгликоль"));
             Assert.That(desc, Does.Contain("50%"));
-            Assert.That(desc, Does.Contain("40°C"));
+            Assert.That(desc, Does.Contain("40").And.Contains("°C")); // Поддержка разных форматов (40°C или 40,0°C)
             Assert.That(desc, Does.Contain("Плотность"));
             Assert.That(desc, Does.Contain("Вязкость"));
             Assert.That(desc, Does.Contain("Теплоёмкость"));
