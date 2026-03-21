@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:models="clr-namespace:SnowMeltingCalculator.Models.Climate"
+             xmlns:behaviors="clr-namespace:SnowMeltingCalculator.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="800">
 
@@ -17,13 +18,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <!-- Заголовок -->
-        <TextBlock Grid.Row="0"
-                   Text="Климатические данные"
-                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                   Margin="0,0,0,16"
-                   Foreground="{DynamicResource MaterialDesignBody}"/>
 
         <!-- Выбор города -->
         <materialDesign:Card Grid.Row="1" Margin="0,0,0,16">
@@ -99,7 +93,7 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -113,8 +107,12 @@
                             Text="{Binding AirTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                             materialDesign:TextFieldAssist.PrefixText="Расчётная температура:"
                             materialDesign:TextFieldAssist.SuffixText="°C"
+                            HorizontalContentAlignment="Right"
                             Margin="0,0,8,8"
-                            ToolTip="Расчётная температура наружного воздуха по таблице 1.6 (от -50 до +10°C)">
+                            ToolTip="Расчётная температура наружного воздуха по таблице 1.6 (от -50 до +10°C)"
+                            behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                            behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                            behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True">
                         <TextBox.Style>
                             <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
                                 <Style.Triggers>
@@ -131,24 +129,36 @@
                             Text="{Binding WindSpeed, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                             materialDesign:TextFieldAssist.PrefixText="Скорость ветра:"
                             materialDesign:TextFieldAssist.SuffixText="м/с"
+                            HorizontalContentAlignment="Right"
                             Margin="8,0,0,8"
-                            ToolTip="Скорость ветра в январе (от 0.1 до 30 м/с)"/>
+                            ToolTip="Скорость ветра в январе (от 0.1 до 30 м/с)"
+                            behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                            behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                            behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
 
                     <!-- Влажность -->
                     <TextBox Grid.Row="1" Grid.Column="0"
                             Text="{Binding Humidity, StringFormat={}{0:F0}, UpdateSourceTrigger=PropertyChanged}"
                             materialDesign:TextFieldAssist.PrefixText="Влажность воздуха:"
                             materialDesign:TextFieldAssist.SuffixText="%"
+                            HorizontalContentAlignment="Right"
                             Margin="0,0,8,8"
-                            ToolTip="Относительная влажность (от 20 до 100%)"/>
+                            ToolTip="Относительная влажность (от 20 до 100%)"
+                            behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                            behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                            behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
 
 <!-- Интенсивность снегопада -->
                      <TextBox Grid.Row="1" Grid.Column="1"
                               Text="{Binding SnowfallIntensity, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                               materialDesign:TextFieldAssist.PrefixText="Интенсивность снегопада (в водном эквиваленте):"
                               materialDesign:TextFieldAssist.SuffixText="мм/ч"
+                              HorizontalContentAlignment="Right"
                               Margin="8,0,0,8"
-                              ToolTip="Интенсивность снегопада (от 0 до 20 мм/ч). Водяной эквивалент."/>
+                              ToolTip="Интенсивность снегопада (от 0 до 20 мм/ч). Водяной эквивалент."
+                              behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                              behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                              behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
 
                     <!-- Зона -->
                     <ComboBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"

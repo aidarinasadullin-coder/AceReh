@@ -293,4 +293,120 @@ namespace SnowMeltingCalculator.Converters
             throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// Конвертер: давление (мбар) → цвет текста
+    /// </summary>
+    /// <remarks>
+    /// Давление ≤ 320 мбар → зелёный (#2E7D32)
+    /// Давление > 320 мбар → красный (#D32F2F)
+    /// </remarks>
+    public class PressureColorConverter : IValueConverter
+    {
+        private const double PressureLimit = 320.0; // мбар
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is double pressure)
+            {
+                return pressure > PressureLimit
+                    ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(211, 47, 47))  // Красный
+                    : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(46, 125, 50)); // Зелёный
+            }
+            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Black);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Конвертер: пустые значения → тире
+    /// </summary>
+    /// <remarks>
+    /// null или 0 → "—"
+    /// Иначе — исходное значение
+    /// Используется для отображения пустых контуров в таблице
+    /// </remarks>
+    public class EmptyValueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+                return "—";
+            
+            if (value is double d && d == 0)
+                return "—";
+            
+            if (value is int i && i == 0)
+                return "—";
+            
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Конвертер: HydraulicMode → Background Brush для табло режима
+    /// </summary>
+    /// <remarks>
+    /// Параметр: "Operating" или "Design"
+    /// Возвращает синий фон (#2196F3), если режим совпадает с параметром
+    /// Возвращает прозрачный фон, если режим не совпадает
+    /// </remarks>
+    public class ModeToBackgroundConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Models.Hydraulics.HydraulicMode mode && parameter is string param)
+            {
+                bool isSelected = (param == "Operating" && mode == Models.Hydraulics.HydraulicMode.OperatingTemperature) ||
+                                  (param == "Design" && mode == Models.Hydraulics.HydraulicMode.DesignTemperature);
+                return isSelected
+                    ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x21, 0x96, 0xF3)) // Синий
+                    : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Transparent);
+            }
+            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Transparent);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Конвертер: HydraulicMode → Border Brush для табло режима
+    /// </summary>
+    /// <remarks>
+    /// Параметр: "Operating" или "Design"
+    /// Возвращает тёмно-синий (#1976D2), если режим совпадает с параметром
+    /// Возвращает серый, если режим не совпадает
+    /// </remarks>
+    public class ModeToBorderConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Models.Hydraulics.HydraulicMode mode && parameter is string param)
+            {
+                bool isSelected = (param == "Operating" && mode == Models.Hydraulics.HydraulicMode.OperatingTemperature) ||
+                                  (param == "Design" && mode == Models.Hydraulics.HydraulicMode.DesignTemperature);
+                return isSelected
+                    ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x19, 0x76, 0xD2)) // Тёмно-синий
+                    : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Gray);
+            }
+            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Gray);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

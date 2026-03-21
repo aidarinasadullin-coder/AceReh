@@ -16,6 +16,12 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <summary>
         /// Плотность теплоносителя, г/см³
         /// </summary>
+        /// <remarks>
+        /// Внимание: GlycolProperties.Density хранит плотность в кг/м³.
+        /// При присвоении требуется конвертация: Density = glycolProps.Density / 1000.0
+        ///
+        /// Пример: 1053 кг/м³ = 1.053 г/см³
+        /// </remarks>
         public double Density { get; set; }
         
         /// <summary>
@@ -47,22 +53,32 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Потери в трубе контура, Па
         /// </summary>
         public double CircuitPipeLoss { get; set; }
-        
+
+        /// <summary>
+        /// Потери в трубе контура, мбар
+        /// </summary>
+        public double CircuitPipeLoss_mbar => CircuitPipeLoss / 100.0;
+
         /// <summary>
         /// Потери в трубе подводки, Па
         /// </summary>
         public double SupplyPipeLoss { get; set; }
-        
+
         /// <summary>
         /// Потери в вентиле, Па
         /// </summary>
         public double ValveLoss { get; set; }
-        
+
+        /// <summary>
+        /// Потери в вентиле, мбар
+        /// </summary>
+        public double ValveLoss_mbar => ValveLoss / 100.0;
+
         /// <summary>
         /// Суммарные потери, Па
         /// </summary>
         public double TotalLoss => CircuitPipeLoss + SupplyPipeLoss + ValveLoss;
-        
+
         /// <summary>
         /// Суммарные потери, мбар
         /// </summary>
@@ -74,12 +90,16 @@ namespace SnowMeltingCalculator.Models.Hydraulics
     /// </summary>
     public partial class CircuitRow : ObservableObject
     {
+        // === Флаг для предотвращения рекурсии при пересчёте ===
+        private bool _isUpdating;
+        
         // === Входные данные (общие) ===
         
         /// <summary>
         /// Номер контура
         /// </summary>
-        public int CircuitNumber { get; set; }
+        [ObservableProperty]
+        private int _circuitNumber;
         
         /// <summary>
         /// Длина греющего контура (L_hk), м
@@ -121,55 +141,29 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         public double SupplySpacing_cm { get; set; } = 5.0;
         
         /// <summary>
-        /// Признак того, что длина введена пользователем (площадь вычислена)
-        /// </summary>
-        [ObservableProperty]
-        private bool _isLengthUserInput;
-        
-        /// <summary>
-        /// Признак того, что площадь введена пользователем (длина вычислена)
-        /// </summary>
-        [ObservableProperty]
-        private bool _isAreaUserInput;
-        
-        /// <summary>
-        /// Признак того, что поле длины заблокировано
-        /// </summary>
-        public bool IsLengthReadOnly => IsAreaUserInput && CircuitArea > 0;
-        
-        /// <summary>
-        /// Признак того, что поле площади заблокировано
-        /// </summary>
-        public bool IsAreaReadOnly => IsLengthUserInput && CircuitLength > 0;
-        
-        /// <summary>
         /// Обработчик изменения длины контура
         /// </summary>
         partial void OnCircuitLengthChanged(double value)
         {
-            // Если длина введена пользователем
-            if (value > 0)
+            // Предотвращение рекурсии
+            if (_isUpdating) return;
+            
+            _isUpdating = true;
+            
+            try
             {
-                IsLengthUserInput = true;
-                IsAreaUserInput = false;
-                // Вычислить площадь: S = L / (100 / VA_hk)
-                if (PipeSpacing_cm > 0)
+                // Вычислить площадь: Площадь = Длина * Шаг_укладки / 100
+                // Шаг_укладки в см, поэтому делим на 100 для получения площади в м²
+                if (PipeSpacing_cm > 0 && value > 0)
                 {
-                    // Устанавливаем поле напрямую, чтобы избежать рекурсии
-                    _circuitArea = value / (100.0 / PipeSpacing_cm);
+                    _circuitArea = value * PipeSpacing_cm / 100.0;
                     OnPropertyChanged(nameof(CircuitArea));
                 }
             }
-            else
+            finally
             {
-                // Длина очищена — разблокировать оба поля
-                IsLengthUserInput = false;
-                IsAreaUserInput = false;
+                _isUpdating = false;
             }
-            
-            // Уведомить об изменении свойств только для чтения
-            OnPropertyChanged(nameof(IsLengthReadOnly));
-            OnPropertyChanged(nameof(IsAreaReadOnly));
         }
         
         /// <summary>
@@ -177,29 +171,25 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// </summary>
         partial void OnCircuitAreaChanged(double value)
         {
-            // Если площадь введена пользователем
-            if (value > 0)
+            // Предотвращение рекурсии
+            if (_isUpdating) return;
+            
+            _isUpdating = true;
+            
+            try
             {
-                IsAreaUserInput = true;
-                IsLengthUserInput = false;
-                // Вычислить длину: L = S × (100 / VA_hk)
-                if (PipeSpacing_cm > 0)
+                // Вычислить длину: Длина = Площадь * 100 / Шаг_укладки
+                // Шаг_укладки в см, поэтому умножаем на 100 для получения длины в м
+                if (PipeSpacing_cm > 0 && value > 0)
                 {
-                    // Устанавливаем поле напрямую, чтобы избежать рекурсии
-                    _circuitLength = value * (100.0 / PipeSpacing_cm);
+                    _circuitLength = value * 100.0 / PipeSpacing_cm;
                     OnPropertyChanged(nameof(CircuitLength));
                 }
             }
-            else
+            finally
             {
-                // Площадь очищена — разблокировать оба поля
-                IsLengthUserInput = false;
-                IsAreaUserInput = false;
+                _isUpdating = false;
             }
-            
-            // Уведомить об изменении свойств только для чтения
-            OnPropertyChanged(nameof(IsLengthReadOnly));
-            OnPropertyChanged(nameof(IsAreaReadOnly));
         }
         
         /// <summary>
@@ -207,21 +197,23 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// </summary>
         partial void OnPipeSpacing_cmChanged(double value)
         {
-            // При изменении шага укладки пересчитать связанное поле
-            if (value > 0)
+            // Предотвращение рекурсии
+            if (_isUpdating) return;
+            
+            _isUpdating = true;
+            
+            try
             {
-                if (IsLengthUserInput && CircuitLength > 0)
+                // При изменении шага укладки пересчитать площадь, если есть длина
+                if (value > 0 && CircuitLength > 0)
                 {
-                    // Если была введена длина → пересчитать площадь
-                    _circuitArea = CircuitLength / (100.0 / value);
+                    _circuitArea = CircuitLength * value / 100.0;
                     OnPropertyChanged(nameof(CircuitArea));
                 }
-                else if (IsAreaUserInput && CircuitArea > 0)
-                {
-                    // Если была введена площадь → пересчитать длину
-                    _circuitLength = CircuitArea * (100.0 / value);
-                    OnPropertyChanged(nameof(CircuitLength));
-                }
+            }
+            finally
+            {
+                _isUpdating = false;
             }
         }
         
@@ -313,7 +305,11 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <summary>
         /// Текущий режим отображения
         /// </summary>
-        public HydraulicMode DisplayMode { get; set; } = HydraulicMode.OperatingTemperature;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CurrentResult))]
+        [NotifyPropertyChangedFor(nameof(FlowRegimeDescription))]
+        [NotifyPropertyChangedFor(nameof(TotalLoss_mbar))]
+        private HydraulicMode _displayMode = HydraulicMode.OperatingTemperature;
         
         /// <summary>
         /// Получить результат для текущего режима отображения

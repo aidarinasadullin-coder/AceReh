@@ -374,5 +374,384 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         }
 
         #endregion
+
+        #region Тесты CircuitNumber (ObservableProperty)
+
+        [Test]
+        public void CircuitNumber_DefaultValue_IsZero()
+        {
+            // Arrange & Act
+            var circuit = new CircuitRow();
+
+            // Assert
+            Assert.That(circuit.CircuitNumber, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void CircuitNumber_CanBeSetAndRetrieved()
+        {
+            // Arrange
+            var circuit = new CircuitRow();
+
+            // Act
+            circuit.CircuitNumber = 5;
+
+            // Assert
+            Assert.That(circuit.CircuitNumber, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void CircuitNumber_RaisesPropertyChangedEvent()
+        {
+            // Arrange
+            var circuit = new CircuitRow();
+            var eventRaised = false;
+            string? changedPropertyName = null;
+
+            circuit.PropertyChanged += (sender, e) =>
+            {
+                eventRaised = true;
+                changedPropertyName = e.PropertyName;
+            };
+
+            // Act
+            circuit.CircuitNumber = 10;
+
+            // Assert
+            Assert.That(eventRaised, Is.True, "Событие PropertyChanged должно быть вызвано");
+            Assert.That(changedPropertyName, Is.EqualTo(nameof(CircuitRow.CircuitNumber)));
+        }
+
+        [Test]
+        public void CircuitNumber_DoesNotRaiseEvent_WhenValueUnchanged()
+        {
+            // Arrange
+            var circuit = new CircuitRow { CircuitNumber = 5 };
+            var eventRaised = false;
+
+            circuit.PropertyChanged += (sender, e) =>
+            {
+                eventRaised = true;
+            };
+
+            // Act - устанавливаем то же значение
+            circuit.CircuitNumber = 5;
+
+            // Assert
+            Assert.That(eventRaised, Is.False, "Событие PropertyChanged не должно вызываться при установке того же значения");
+        }
+
+        [Test]
+        public void CircuitNumber_CanBeSetToLargeValue()
+        {
+            // Arrange
+            var circuit = new CircuitRow();
+
+            // Act
+            circuit.CircuitNumber = 12;
+
+            // Assert
+            Assert.That(circuit.CircuitNumber, Is.EqualTo(12));
+        }
+
+        [Test]
+        public void CircuitNumber_CanBeSetToNegativeValue()
+        {
+            // Arrange
+            var circuit = new CircuitRow();
+
+            // Act
+            circuit.CircuitNumber = -1;
+
+            // Assert
+            Assert.That(circuit.CircuitNumber, Is.EqualTo(-1));
+        }
+
+        [Test]
+        public void CircuitNumber_MultipleChanges_RaisesMultipleEvents()
+        {
+            // Arrange
+            var circuit = new CircuitRow();
+            var eventCount = 0;
+
+            circuit.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(CircuitRow.CircuitNumber))
+                {
+                    eventCount++;
+                }
+            };
+
+            // Act
+            circuit.CircuitNumber = 1;
+            circuit.CircuitNumber = 2;
+            circuit.CircuitNumber = 3;
+
+            // Assert
+            Assert.That(eventCount, Is.EqualTo(3), "Событие должно вызываться при каждом изменении значения");
+        }
+
+        #endregion
+
+        #region Тесты CircuitTemperatureResult
+
+        [Test]
+        public void CircuitTemperatureResult_CircuitPipeLoss_mbar_ConvertsCorrectly()
+        {
+            // Arrange
+            var result = new CircuitTemperatureResult
+            {
+                CircuitPipeLoss = 23360.0 // 233.6 мбар в Па
+            };
+
+            // Act & Assert
+            Assert.That(result.CircuitPipeLoss_mbar, Is.EqualTo(233.6).Within(0.01), 
+                "CircuitPipeLoss_mbar должен быть CircuitPipeLoss / 100");
+        }
+
+        [Test]
+        public void CircuitTemperatureResult_ValveLoss_mbar_ConvertsCorrectly()
+        {
+            // Arrange
+            var result = new CircuitTemperatureResult
+            {
+                ValveLoss = 5730.0 // 57.3 мбар в Па
+            };
+
+            // Act & Assert
+            Assert.That(result.ValveLoss_mbar, Is.EqualTo(57.3).Within(0.01), 
+                "ValveLoss_mbar должен быть ValveLoss / 100");
+        }
+
+        [Test]
+        public void CircuitTemperatureResult_TotalLoss_CalculatesCorrectly()
+        {
+            // Arrange
+            var result = new CircuitTemperatureResult
+            {
+                CircuitPipeLoss = 23360.0, // 233.6 мбар
+                SupplyPipeLoss = 1000.0,    // 10 мбар
+                ValveLoss = 5730.0          // 57.3 мбар
+            };
+
+            // Act & Assert
+            var expectedTotal = 23360.0 + 1000.0 + 5730.0;
+            Assert.That(result.TotalLoss, Is.EqualTo(expectedTotal).Within(0.01), 
+                "TotalLoss должен быть суммой CircuitPipeLoss + SupplyPipeLoss + ValveLoss");
+        }
+
+        [Test]
+        public void CircuitTemperatureResult_TotalLoss_mbar_ConvertsCorrectly()
+        {
+            // Arrange
+            var result = new CircuitTemperatureResult
+            {
+                CircuitPipeLoss = 23360.0,
+                SupplyPipeLoss = 1000.0,
+                ValveLoss = 5730.0
+            };
+
+            // Act & Assert
+            var expectedTotal_mbar = (23360.0 + 1000.0 + 5730.0) / 100.0;
+            Assert.That(result.TotalLoss_mbar, Is.EqualTo(expectedTotal_mbar).Within(0.01), 
+                "TotalLoss_mbar должен быть TotalLoss / 100");
+        }
+
+        [Test]
+        public void CircuitTemperatureResult_ZeroLosses_ReturnsZero_mbar()
+        {
+            // Arrange
+            var result = new CircuitTemperatureResult();
+
+            // Act & Assert
+            Assert.That(result.CircuitPipeLoss_mbar, Is.EqualTo(0.0).Within(0.01));
+            Assert.That(result.ValveLoss_mbar, Is.EqualTo(0.0).Within(0.01));
+            Assert.That(result.TotalLoss, Is.EqualTo(0.0).Within(0.01));
+            Assert.That(result.TotalLoss_mbar, Is.EqualTo(0.0).Within(0.01));
+        }
+
+        [Test]
+        public void CircuitTemperatureResult_FrictionFactor_CanBeSet()
+        {
+            // Arrange
+            var result = new CircuitTemperatureResult();
+
+            // Act
+            result.FrictionFactor = 0.0423;
+
+            // Assert
+            Assert.That(result.FrictionFactor, Is.EqualTo(0.0423).Within(0.0001));
+        }
+
+        [Test]
+        public void CircuitTemperatureResult_ReynoldsNumber_CanBeSet()
+        {
+            // Arrange
+            var result = new CircuitTemperatureResult();
+
+            // Act
+            result.ReynoldsNumber = 3551;
+
+            // Assert
+            Assert.That(result.ReynoldsNumber, Is.EqualTo(3551));
+        }
+
+        [Test]
+        public void CircuitTemperatureResult_PressureLossPerMeter_CanBeSet()
+        {
+            // Arrange
+            var result = new CircuitTemperatureResult();
+
+            // Act
+            result.PressureLossPerMeter = 592.0;
+
+            // Assert
+            Assert.That(result.PressureLossPerMeter, Is.EqualTo(592.0).Within(0.01));
+        }
+
+        #endregion
+
+        #region Тесты DisplayMode и CurrentResult
+
+        [Test]
+        public void DisplayMode_DefaultValue_IsOperatingTemperature()
+        {
+            // Arrange & Act
+            var circuit = new CircuitRow();
+
+            // Assert
+            Assert.That(circuit.DisplayMode, Is.EqualTo(HydraulicMode.OperatingTemperature));
+        }
+
+        [Test]
+        public void DisplayMode_CanBeChanged()
+        {
+            // Arrange
+            var circuit = new CircuitRow();
+
+            // Act
+            circuit.DisplayMode = HydraulicMode.DesignTemperature;
+
+            // Assert
+            Assert.That(circuit.DisplayMode, Is.EqualTo(HydraulicMode.DesignTemperature));
+        }
+
+        [Test]
+        public void CurrentResult_WhenOperatingMode_ReturnsOperatingResult()
+        {
+            // Arrange
+            var circuit = new CircuitRow();
+            circuit.OperatingResult = new CircuitTemperatureResult
+            {
+                Temperature = 32.5,
+                ReynoldsNumber = 10000,
+                FrictionFactor = 0.03
+            };
+            circuit.DesignResult = new CircuitTemperatureResult
+            {
+                Temperature = -28.0,
+                ReynoldsNumber = 5000,
+                FrictionFactor = 0.04
+            };
+
+            // Act
+            circuit.DisplayMode = HydraulicMode.OperatingTemperature;
+
+            // Assert
+            Assert.That(circuit.CurrentResult.Temperature, Is.EqualTo(32.5));
+            Assert.That(circuit.CurrentResult.ReynoldsNumber, Is.EqualTo(10000));
+            Assert.That(circuit.CurrentResult.FrictionFactor, Is.EqualTo(0.03));
+        }
+
+        [Test]
+        public void CurrentResult_WhenDesignMode_ReturnsDesignResult()
+        {
+            // Arrange
+            var circuit = new CircuitRow();
+            circuit.OperatingResult = new CircuitTemperatureResult
+            {
+                Temperature = 32.5,
+                ReynoldsNumber = 10000,
+                FrictionFactor = 0.03
+            };
+            circuit.DesignResult = new CircuitTemperatureResult
+            {
+                Temperature = -28.0,
+                ReynoldsNumber = 5000,
+                FrictionFactor = 0.04
+            };
+
+            // Act
+            circuit.DisplayMode = HydraulicMode.DesignTemperature;
+
+            // Assert
+            Assert.That(circuit.CurrentResult.Temperature, Is.EqualTo(-28.0));
+            Assert.That(circuit.CurrentResult.ReynoldsNumber, Is.EqualTo(5000));
+            Assert.That(circuit.CurrentResult.FrictionFactor, Is.EqualTo(0.04));
+        }
+
+        [Test]
+        public void CurrentResult_RaisesPropertyChanged_WhenDisplayModeChanges()
+        {
+            // Arrange
+            var circuit = new CircuitRow();
+            circuit.OperatingResult = new CircuitTemperatureResult { Temperature = 32.5 };
+            circuit.DesignResult = new CircuitTemperatureResult { Temperature = -28.0 };
+
+            var propertyChanged = false;
+            string? changedPropertyName = null;
+            circuit.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(CircuitRow.CurrentResult))
+                {
+                    propertyChanged = true;
+                    changedPropertyName = e.PropertyName;
+                }
+            };
+
+            // Act
+            circuit.DisplayMode = HydraulicMode.DesignTemperature;
+
+            // Assert
+            Assert.That(propertyChanged, Is.True, "PropertyChanged для CurrentResult должен быть вызван");
+            Assert.That(changedPropertyName, Is.EqualTo(nameof(CircuitRow.CurrentResult)));
+        }
+
+        [Test]
+        public void FlowRegimeDescription_ReturnsCorrectDescription()
+        {
+            // Arrange
+            var circuit = new CircuitRow();
+            circuit.OperatingResult = new CircuitTemperatureResult
+            {
+                FlowRegime = FlowRegime.Turbulent
+            };
+
+            // Act & Assert
+            Assert.That(circuit.FlowRegimeDescription, Is.EqualTo("Турбулентный"));
+        }
+
+        [Test]
+        public void FlowRegimeDescription_WhenDesignMode_ReturnsDesignFlowRegime()
+        {
+            // Arrange
+            var circuit = new CircuitRow();
+            circuit.OperatingResult = new CircuitTemperatureResult
+            {
+                FlowRegime = FlowRegime.Turbulent
+            };
+            circuit.DesignResult = new CircuitTemperatureResult
+            {
+                FlowRegime = FlowRegime.Laminar
+            };
+
+            // Act
+            circuit.DisplayMode = HydraulicMode.DesignTemperature;
+
+            // Assert
+            Assert.That(circuit.FlowRegimeDescription, Is.EqualTo("Ламинарный"));
+        }
+
+        #endregion
     }
 }

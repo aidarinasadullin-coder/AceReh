@@ -93,16 +93,21 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <param name="specificHeat">Удельная теплоёмкость, кДж/(кг·К)</param>
         /// <returns>Расход, л/ч</returns>
         /// <remarks>
-        /// Формула: V_dot = Q_HK × 3.6 / (ρ × c_p × ΔT)
+        /// Формула: V_dot = Q_HK × 3.6 / (ρ × c_p × ΔT) × 1000
         /// 
         /// Где:
         /// - Q_HK — мощность контура, Вт
         /// - ρ — плотность теплоносителя, кг/м³
         /// - c_p — удельная теплоёмкость, кДж/(кг·К)
         /// - ΔT — температурный перепад, К
+        /// - 3.6 — коэффициент перевода Вт в кДж/ч
+        /// - 1000 — коэффициент перевода м³/ч в л/ч
         /// 
-        /// Примечание: коэффициент 3.6 используется для перевода Вт в кДж/ч
-        /// и получения результата в л/ч.
+        /// Примечание: Формула даёт результат в м³/ч, умножение на 1000 переводит в л/ч.
+        /// 
+        /// Пример:
+        /// Q_HK = 5246 Вт, ρ = 1053 кг/м³, c_p = 3.21 кДж/(кг·К), ΔT = 10 К
+        /// V_dot = 5246 × 3.6 / (1053 × 3.21 × 10) × 1000 = 560 л/ч
         /// </remarks>
         public double CalculateFlowRate(double power, double deltaT, double density, double specificHeat)
         {
@@ -119,10 +124,11 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 throw new ArgumentException("Удельная теплоёмкость должна быть положительной", nameof(specificHeat));
 
             // V_dot = Q_HK × 3.6 / (ρ × c_p × ΔT)
-            // Результат в л/ч
-            double flowRate = power * 3.6 / (density * specificHeat * deltaT);
+            // Результат в м³/ч, переводим в л/ч
+            double flowRate_m3h = power * 3.6 / (density * specificHeat * deltaT);
+            double flowRate_lh = flowRate_m3h * 1000;
 
-            return flowRate;
+            return flowRate_lh;
         }
 
         /// <summary>
@@ -147,12 +153,15 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// - Суммарные потери Δp_total (Па)
         /// 
         /// Формулы:
-        /// - Скорость: v = V_dot × 4 / (3600 × π × d_inner²) × 1000
+        /// - Скорость: v = V_dot × 4000 / (3600 × π × d_inner²)
         /// - Число Рейнольдса: Re = 1000 × v × d_inner / ν
         /// - Коэффициент трения: зависит от режима (Пуазейль или Колбрук-Уайт)
-        /// - Удельные потери: R = 10000 × (v² × ρ × λ) / (2 × d_inner) × 100
+        /// - Удельные потери: R = 10000 × (v² × ρ[г/см³] × λ) / (2 × d_inner) × 100
         /// - Потери в трубе: Δp = R × L
-        /// - Потери в вентиле: Δp_Vent = (V_dot / 1000 / Kv)² × 100000 × ρ
+        /// - Потери в вентиле: Δp_Vent = (V_dot / 1000 / Kv)² × 100000 × ρ[г/см³]
+        /// 
+        /// Важно: Плотность ρ в формулах R и Δp_Vent должна быть в г/см³!
+        /// GlycolProperties.Density хранит плотность в кг/м³, требуется конвертация.
         /// </remarks>
         public CircuitTemperatureResult CalculateAtTemperature(
             CircuitRow circuit,
@@ -176,7 +185,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             var result = new CircuitTemperatureResult
             {
                 Temperature = temperature,
-                Density = glycolProps.Density,
+                Density = glycolProps.Density / 1000.0,  // Конвертация: кг/м³ → г/см³
                 KinematicViscosity = glycolProps.KinematicViscosity
             };
 
@@ -197,8 +206,10 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             double frictionFactor = FlowRegimeCalculator.CalculateFrictionFactor(reynolds, innerDiameter);
             result.FrictionFactor = frictionFactor;
 
-            // Удельные потери: R = 10000 × (v² × ρ × λ) / (2 × d_inner) × 100
-            double pressureLossPerMeter = 10000 * Math.Pow(velocity, 2) * glycolProps.Density * frictionFactor
+            // Удельные потери: R = 10000 × (v² × ρ[г/см³] × λ) / (2 × d_inner) × 100
+            // Важно: ρ должно быть в г/см³, glycolProps.Density в кг/м³
+            double density_g_cm3 = glycolProps.Density / 1000.0;
+            double pressureLossPerMeter = 10000 * Math.Pow(velocity, 2) * density_g_cm3 * frictionFactor
                 / (2 * innerDiameter) * 100;
             result.PressureLossPerMeter = pressureLossPerMeter;
 
@@ -208,8 +219,9 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             // Потери в трубе подводки: Δp_Zul = L_zul × R
             result.SupplyPipeLoss = circuit.SupplyLength * pressureLossPerMeter;
 
-            // Потери в вентиле: Δp_Vent = (V_dot / 1000 / Kv)² × 100000 × ρ
-            result.ValveLoss = Math.Pow(circuit.FlowRate / 1000.0 / kv, 2) * 100000 * glycolProps.Density;
+            // Потери в вентиле: Δp_Vent = (V_dot / 1000 / Kv)² × 100000 × ρ[г/см³]
+            // Важно: ρ должно быть в г/см³, glycolProps.Density в кг/м³
+            result.ValveLoss = Math.Pow(circuit.FlowRate / 1000.0 / kv, 2) * 100000 * density_g_cm3;
 
             // Суммарные потери: Δp_total = Δp_HK + Δp_Zul + Δp_Vent
             // (вычисляется автоматически в свойстве TotalLoss)
@@ -353,7 +365,9 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 if (circuit.Throttling > 0)
                 {
                     // Kv для дросселирования
-                    double kv = CalculateKvForThrottling(circuit.FlowRate, circuit.Throttling);
+                    // Плотность берём из результата расчёта при рабочей температуре (уже в г/см³)
+                    double density_g_cm3 = circuit.OperatingResult.Density;
+                    double kv = CalculateKvForThrottling(circuit.FlowRate, circuit.Throttling, density_g_cm3);
                     circuit.ValveTurns = ValveTurnsCalculator.CalculateTurns(kv, valveType);
                 }
                 else
@@ -439,24 +453,40 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// </summary>
         /// <param name="flowRate">Расход, л/ч</param>
         /// <param name="throttling">Дросселирование, Па</param>
+        /// <param name="density_g_cm3">Плотность теплоносителя, г/см³</param>
         /// <returns>Kv (м³/ч)</returns>
         /// <remarks>
-        /// Формула: Kv = V_dot / √(Δp / 100)
+        /// Формула выводится из уравнения потерь в вентиле:
+        /// Δp = (V_dot / 1000 / Kv)² × 100000 × ρ[г/см³]
         /// 
-        /// Вывод из формулы потерь в вентиле:
-        /// Δp = (V_dot / 1000 / Kv)² × 100000 × ρ
+        /// Обратная формула для Kv:
+        /// Kv = V_dot / 1000 / √(Δp / 100000 / ρ[г/см³])
         /// 
-        /// Упрощённо (при ρ ≈ 1000 кг/м³):
-        /// Kv ≈ V_dot / √(Δp / 100)
+        /// Единицы измерения:
+        /// - V_dot: л/ч → переводим в м³/ч (делим на 1000)
+        /// - Δp: Па → переводим в бар (делим на 100000)
+        /// - ρ: г/см³ (уже в нужных единицах)
+        /// - Kv: м³/ч
+        /// 
+        /// Пример:
+        /// V_dot = 280 л/ч, Δp = 5000 Па, ρ = 1.053 г/см³
+        /// Kv = 280 / 1000 / √(5000 / 100000 / 1.053) = 0.28 / √(0.0475) ≈ 1.28 м³/ч
         /// </remarks>
-        private double CalculateKvForThrottling(double flowRate, double throttling)
+        private double CalculateKvForThrottling(double flowRate, double throttling, double density_g_cm3)
         {
             if (throttling <= 0)
                 return 0;
 
-            // Kv = V_dot / √(Δp / 100)
-            // где V_dot в л/ч, Δp в Па
-            return flowRate / Math.Sqrt(throttling / 100);
+            if (density_g_cm3 <= 0)
+                throw new ArgumentException("Плотность должна быть положительной", nameof(density_g_cm3));
+
+            // Kv = V_dot / 1000 / √(Δp / 100000 / ρ[г/см³])
+            // где V_dot в л/ч, Δp в Па, ρ в г/см³
+            // Результат в м³/ч
+            double flowRate_m3h = flowRate / 1000.0;  // л/ч → м³/ч
+            double throttling_bar = throttling / 100000.0;  // Па → бар
+
+            return flowRate_m3h / Math.Sqrt(throttling_bar / density_g_cm3);
         }
 
         #endregion

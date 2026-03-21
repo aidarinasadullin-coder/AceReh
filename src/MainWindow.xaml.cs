@@ -197,6 +197,29 @@ namespace SnowMeltingCalculator
             IsSidebarCollapsed = !IsSidebarCollapsed;
         }
 
+        private string _currentTitle = "Климатические данные";
+        /// <summary>
+        /// Заголовок текущей вкладки
+        /// </summary>
+        public string CurrentTitle
+        {
+            get => _currentTitle;
+            private set => SetProperty(ref _currentTitle, value);
+        }
+
+        private void UpdateCurrentTitle()
+        {
+            CurrentTitle = SelectedMenuItem?.Title switch
+            {
+                "Климат" => "Климатические данные",
+                "Конструкция" => "Конструкция системы",
+                "Тепловой расчёт" => "Тепловой расчёт",
+                "Контура" => "Гидравлический расчёт",
+                "Результаты" => "Результаты расчёта",
+                _ => "Калькулятор снеготаяния РЕХАУ"
+            };
+        }
+
         /// <summary>
         /// Переключение между представлениями
         /// </summary>
@@ -213,6 +236,8 @@ namespace SnowMeltingCalculator
                     "Результаты" => new CircuitsResultsView { DataContext = _circuitsViewModel },
                     _ => new ClimateView { DataContext = _climateViewModel }
                 };
+                
+                UpdateCurrentTitle();
             }
             catch (Exception ex)
             {

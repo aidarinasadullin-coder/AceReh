@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace SnowMeltingCalculator.Models.Hydraulics
 {
     /// <summary>
@@ -7,7 +9,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
     /// Содержит данные из ThermalModule, ClimateModule и от пользователя.
     /// Используется для расчёта таблицы контуров.
     /// </remarks>
-    public class HydraulicInputData
+    public partial class HydraulicInputData : ObservableObject
     {
         // === Данные из ThermalModule ===
         
@@ -17,7 +19,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <remarks>
         /// Получается из ThermalCalculationResult.PowerUp
         /// </remarks>
-        public double PowerUp { get; set; }
+        [ObservableProperty]
+        private double _powerUp;
         
         /// <summary>
         /// Мощность вниз (q_down), Вт/м²
@@ -25,7 +28,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <remarks>
         /// Получается из ThermalCalculationResult.PowerDown
         /// </remarks>
-        public double PowerDown { get; set; }
+        [ObservableProperty]
+        private double _powerDown;
         
         /// <summary>
         /// Температура подачи (T_supply), °C
@@ -33,7 +37,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <remarks>
         /// Получается из ThermalCalculationResult.SupplyTemperature
         /// </remarks>
-        public double SupplyTemperature { get; set; }
+        [ObservableProperty]
+        private double _supplyTemperature;
         
         /// <summary>
         /// Температура обратки (T_return), °C
@@ -41,7 +46,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <remarks>
         /// Получается из ThermalCalculationResult.ReturnTemperature
         /// </remarks>
-        public double ReturnTemperature { get; set; }
+        [ObservableProperty]
+        private double _returnTemperature;
         
         /// <summary>
         /// Внутренний диаметр трубы (d_inner), мм
@@ -50,7 +56,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Вычисляется: d_inner = D_ext - 2 × s
         /// Где D_ext — наружный диаметр, s — толщина стенки
         /// </remarks>
-        public double InnerDiameter { get; set; }
+        [ObservableProperty]
+        private double _innerDiameter;
         
         // === Данные из ClimateModule ===
         
@@ -61,7 +68,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Получается из ClimateData.ColdFiveDayTemperature
         /// Используется для расчёта при "холодном пуске"
         /// </remarks>
-        public double ColdFiveDayTemperature { get; set; }
+        [ObservableProperty]
+        private double _coldFiveDayTemperature;
         
         // === Данные от пользователя ===
         
@@ -72,7 +80,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Этиленгликоль или пропиленгликоль
         /// По умолчанию: этиленгликоль
         /// </remarks>
-        public GlycolType GlycolType { get; set; } = GlycolType.Ethylene;
+        [ObservableProperty]
+        private GlycolType _glycolType = GlycolType.Ethylene;
         
         /// <summary>
         /// Концентрация гликоля, %
@@ -81,7 +90,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Диапазон: 10-90%
         /// По умолчанию: 50%
         /// </remarks>
-        public double GlycolConcentration { get; set; } = 50.0;
+        [ObservableProperty]
+        private double _glycolConcentration = 50.0;
         
         /// <summary>
         /// Шаг подводки (VA_zul), см
@@ -89,7 +99,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <remarks>
         /// По умолчанию: 5 см
         /// </remarks>
-        public double SupplySpacing_cm { get; set; } = 5.0;
+        [ObservableProperty]
+        private double _supplySpacing_cm = 5.0;
         
         /// <summary>
         /// Доля тепла от подводок (q_zul), %
@@ -98,7 +109,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// По умолчанию: 10%
         /// Диапазон: 0-100%
         /// </remarks>
-        public double SupplyHeatPercent { get; set; } = 10.0;
+        [ObservableProperty]
+        private double _supplyHeatPercent = 10.0;
 
         /// <summary>
         /// Тип балансировочного клапана
@@ -107,7 +119,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// По умолчанию: HKV_D
         /// Определяет kv-значение для расчёта потерь на клапане
         /// </remarks>
-        public ValveType ValveType { get; set; } = ValveType.HKV_D;
+        [ObservableProperty]
+        private ValveType _valveType = ValveType.HKV_D;
 
         // === Вычисляемые свойства ===
         

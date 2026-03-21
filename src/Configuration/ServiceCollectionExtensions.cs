@@ -97,7 +97,6 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<CircuitsViewModel>();
 
             // ViewModels - Transient для дочерних ViewModel
-            services.AddTransient<CircuitViewModel>();
             services.AddTransient<CollectorViewModel>();
 
             return services;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnowMeltingCalculator.Models.Hydraulics;
@@ -73,6 +74,10 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         private ObservableCollection<CollectorData> _collectors = new();
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SelectedCollector))]
+        [NotifyPropertyChangedFor(nameof(Summary))]
+        [NotifyPropertyChangedFor(nameof(CollectorTypeDisplay))]
+        [NotifyPropertyChangedFor(nameof(KvValue))]
         private int _selectedCollectorIndex = 0;
 
         private HydraulicMode _currentMode = HydraulicMode.OperatingTemperature;
@@ -105,6 +110,16 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         public bool CanAddCircuit => SelectedCollector != null && SelectedCollector.Circuits.Count < 12;
 
         /// <summary>
+        /// Выбранный контур в DataGrid
+        /// </summary>
+        /// <remarks>
+        /// Используется для команды удаления контура.
+        /// Привязан к SelectedItem DataGrid.
+        /// </remarks>
+        [ObservableProperty]
+        private CircuitRow? _selectedCircuit;
+
+        /// <summary>
         /// Входные данные для гидравлического расчёта
         /// </summary>
         /// <remarks>
@@ -122,14 +137,152 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 ? Collectors[SelectedCollectorIndex]
                 : null;
 
+        // === Свойства для блока "Входные данные" ===
+
         /// <summary>
-        /// Расчётная температура (температура холодной пятидневки)
+        /// Температура подачи, °C
+        /// </summary>
+        /// <remarks>
+        /// Берётся из InputData.SupplyTemperature (из ThermalViewModel.Result)
+        /// </remarks>
+        public double SupplyTemperature => InputData.SupplyTemperature;
+
+        /// <summary>
+        /// Температура обратки, °C
+        /// </summary>
+        /// <remarks>
+        /// Берётся из InputData.ReturnTemperature (из ThermalViewModel.Result)
+        /// </remarks>
+        public double ReturnTemperature => InputData.ReturnTemperature;
+
+        /// <summary>
+        /// Тип трубы (наименование)
+        /// </summary>
+        /// <remarks>
+        /// Берётся из ThermalViewModel.SelectedPipe.Name
+        /// </remarks>
+        public string PipeType => _thermalViewModel.SelectedPipe?.Name ?? "Труба не выбрана";
+
+        /// <summary>
+        /// Наружный диаметр трубы, мм
+        /// </summary>
+        /// <remarks>
+        /// Берётся из ThermalViewModel.SelectedPipe.OuterDiameter
+        /// </remarks>
+        public double OuterDiameter => _thermalViewModel.SelectedPipe?.OuterDiameter ?? 0;
+
+        /// <summary>
+        /// Толщина стенки трубы, мм
+        /// </summary>
+        /// <remarks>
+        /// Берётся из ThermalViewModel.SelectedPipe.WallThickness
+        /// </remarks>
+        public double WallThickness => _thermalViewModel.SelectedPipe?.WallThickness ?? 0;
+
+        /// <summary>
+        /// Внутренний диаметр трубы, мм
+        /// </summary>
+        /// <remarks>
+        /// Берётся из InputData.InnerDiameter
+        /// </remarks>
+        public double InnerDiameter => InputData.InnerDiameter;
+
+        /// <summary>
+        /// Шероховатость трубы, мм (константа для PE-Xa)
+        /// </summary>
+        public double PipeRoughness => 0.007;
+
+        /// <summary>
+        /// Тип гликоля (на русском)
+        /// </summary>
+        public string GlycolTypeName => GlycolType switch
+        {
+            GlycolType.Ethylene => "Этиленгликоль",
+            GlycolType.Propylene => "Пропиленгликоль",
+            _ => "Не указан"
+        };
+
+        /// <summary>
+        /// Расчётная температура (М10/М15/М20)
         /// </summary>
         /// <remarks>
         /// Используется для расчёта при "холодном пуске".
-        /// Берётся из ClimateViewModel.ColdFiveDayTemperature.
+        /// Берётся из ClimateViewModel.AirTemperature.
         /// </remarks>
-        public double DesignTemperature => _climateViewModel.ColdFiveDayTemperature;
+        public double DesignTemperature => _climateViewModel.AirTemperature;
+
+        /// <summary>
+        /// Рабочая температура теплоносителя, °C
+        /// </summary>
+        public double OperatingTemperatureValue => InputData.OperatingTemperature;
+
+        /// <summary>
+        /// Расчётная температура наружного воздуха, °C (М10/М15/М20)
+        /// </summary>
+        public double DesignTemperatureValue => DesignTemperature;
+
+        /// <summary>
+        /// Текст кнопки для режима рабочей температуры
+        /// </summary>
+        public string OperatingModeButtonText => $"Рабочая температура: {OperatingTemperatureValue:F1}°C";
+
+        /// <summary>
+        /// Текст кнопки для режима расчётной температуры
+        /// </summary>
+        public string DesignModeButtonText => $"Расчётная температура: {DesignTemperatureValue:F1}°C";
+
+        // === Свойства для блока "Данные укладки и мощности" ===
+
+        /// <summary>
+        /// Удельная мощность вверх, Вт/м²
+        /// </summary>
+        /// <remarks>
+        /// Берётся из InputData.PowerUp (из ThermalViewModel.Result.PowerUp)
+        /// </remarks>
+        public double PowerUp => InputData.PowerUp;
+
+        /// <summary>
+        /// Удельная мощность вниз, Вт/м²
+        /// </summary>
+        /// <remarks>
+        /// Берётся из InputData.PowerDown (из ThermalViewModel.Result.PowerDown)
+        /// </remarks>
+        public double PowerDown => InputData.PowerDown;
+
+        /// <summary>
+        /// Шаг укладки, см
+        /// </summary>
+        /// <remarks>
+        /// Берётся из ThermalViewModel.PipeSpacing (мм) / 10
+        /// </remarks>
+        public double PipeSpacing_cm => _thermalViewModel.PipeSpacing / 10.0;
+
+        /// <summary>
+        /// Шаг подводки, см
+        /// </summary>
+        public double SupplySpacing_cm => InputData.SupplySpacing_cm;
+
+        /// <summary>
+        /// Доля потерь в подводке, %
+        /// </summary>
+        public double SupplyHeatPercent => InputData.SupplyHeatPercent;
+
+        // === Свойства для блока "Результаты коллектора" ===
+
+        /// <summary>
+        /// Итоги коллектора для отображения
+        /// </summary>
+        public CollectorSummary? Summary => SelectedCollector?.Summary;
+
+        /// <summary>
+        /// Тип коллектора для отображения
+        /// </summary>
+        public string CollectorTypeDisplay => SelectedCollector?.CollectorType ?? "—";
+
+        /// <summary>
+        /// Kv клапана для отображения
+        /// </summary>
+        public double KvValue => SelectedCollector?.Summary?.Kv ?? 0;
 
         #endregion
 
@@ -162,18 +315,26 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             AddCircuitCommand.NotifyCanExecuteChanged();
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanRemoveCollector))]
         private void RemoveCollector(CollectorData collector)
         {
-            if (collector != null && Collectors.Contains(collector))
+            if (collector == null)
+                return;
+
+            if (!ConfirmDeleteCollector(collector.CollectorNumber))
+                return;
+
+            if (Collectors.Contains(collector))
             {
                 Collectors.Remove(collector);
+                RenumberCollectors();
                 if (SelectedCollectorIndex >= Collectors.Count)
                 {
                     SelectedCollectorIndex = Math.Max(0, Collectors.Count - 1);
                 }
                 AddCollectorCommand.NotifyCanExecuteChanged();
                 AddCircuitCommand.NotifyCanExecuteChanged();
+                RemoveCollectorCommand.NotifyCanExecuteChanged();
             }
         }
 
@@ -196,17 +357,24 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             AddCircuitCommand.NotifyCanExecuteChanged();
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanRemoveCircuit))]
         private void RemoveCircuit(CircuitRow circuit)
         {
+            if (circuit == null)
+                return;
+
+            if (!ConfirmDeleteCircuit(circuit.CircuitNumber))
+                return;
+
             var collector = SelectedCollector;
             if (collector == null) return;
 
-            if (circuit != null && collector.Circuits.Contains(circuit))
+            if (collector.Circuits.Contains(circuit))
             {
                 collector.Circuits.Remove(circuit);
                 RenumberCircuits(collector);
                 AddCircuitCommand.NotifyCanExecuteChanged();
+                RemoveCircuitCommand.NotifyCanExecuteChanged();
             }
         }
 
@@ -239,7 +407,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             };
 
             var operatingTemp = input.OperatingTemperature;
-            var designTemp = input.DesignTemperature;
+            var designTemp = _climateViewModel.AirTemperature;
 
             var glycolOperating = _glycolService.GetProperties(GlycolType, GlycolConcentration, operatingTemp);
             var glycolDesign = _glycolService.GetProperties(GlycolType, GlycolConcentration, designTemp);
@@ -288,6 +456,9 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             );
             collector.Summary = summary;
 
+            // Автоматический выбор типа коллектора по расходу
+            AutoSelectCollectorType();
+
             _circuitsCalculator.CalculateBalancing(
                 new System.Collections.Generic.List<CircuitRow>(collector.Circuits),
                 collector.ValveType
@@ -328,6 +499,15 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             // Подписка на изменения климатических данных
             _climateViewModel.PropertyChanged += OnClimatePropertyChanged;
 
+            // Подписка на изменения InputData для обновления свойств укладки
+            InputData.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(HydraulicInputData.SupplySpacing_cm))
+                    OnPropertyChanged(nameof(SupplySpacing_cm));
+                if (e.PropertyName == nameof(HydraulicInputData.SupplyHeatPercent))
+                    OnPropertyChanged(nameof(SupplyHeatPercent));
+            };
+
             AddCollector();
         }
 
@@ -343,6 +523,82 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             }
         }
 
+        private void RenumberCollectors()
+        {
+            for (int i = 0; i < Collectors.Count; i++)
+            {
+                Collectors[i].CollectorNumber = i + 1;
+            }
+        }
+
+        /// <summary>
+        /// Диалоговое окно подтверждения удаления контура
+        /// </summary>
+        /// <param name="circuitNumber">Номер контура</param>
+        /// <returns>true — удалить, false — отменить</returns>
+        private bool ConfirmDeleteCircuit(int circuitNumber)
+        {
+            var result = MessageBox.Show(
+                $"Вы уверены, что хотите удалить контур №{circuitNumber}?",
+                "Удаление контура",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning
+            );
+            return result == MessageBoxResult.Yes;
+        }
+
+        /// <summary>
+        /// Диалоговое окно подтверждения удаления коллектора
+        /// </summary>
+        /// <param name="collectorNumber">Номер коллектора</param>
+        /// <returns>true — удалить, false — отменить</returns>
+        private bool ConfirmDeleteCollector(int collectorNumber)
+        {
+            var result = MessageBox.Show(
+                $"Вы уверены, что хотите удалить коллектор №{collectorNumber}?\nВсе контуры этого коллектора будут удалены.",
+                "Удаление коллектора",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning
+            );
+            return result == MessageBoxResult.Yes;
+        }
+
+        /// <summary>
+        /// Проверка возможности удаления контура
+        /// </summary>
+        /// <param name="circuit">Контур для удаления</param>
+        /// <returns>true — можно удалить, false — нельзя</returns>
+        private bool CanRemoveCircuit(CircuitRow circuit)
+        {
+            // Нельзя удалить, если:
+            // 1. Контур не выбран (circuit == null)
+            // 2. В коллекторе только 1 контур (минимум 1 контур должен остаться)
+            if (circuit == null)
+                return false;
+
+            var collector = SelectedCollector;
+            if (collector == null)
+                return false;
+
+            return collector.Circuits.Count > 1;
+        }
+
+        /// <summary>
+        /// Проверка возможности удаления коллектора
+        /// </summary>
+        /// <param name="collector">Коллектор для удаления</param>
+        /// <returns>true — можно удалить, false — нельзя</returns>
+        private bool CanRemoveCollector(CollectorData collector)
+        {
+            // Нельзя удалить, если:
+            // 1. Коллектор не выбран (collector == null)
+            // 2. В системе только 1 коллектор (минимум 1 коллектор должен остаться)
+            if (collector == null)
+                return false;
+
+            return Collectors.Count > 1;
+        }
+
         private void UpdateCircuitDisplayMode()
         {
             foreach (var collector in Collectors)
@@ -352,6 +608,12 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     circuit.DisplayMode = CurrentMode;
                 }
             }
+
+            // Уведомить об изменении свойств для отображения в блоках
+            OnPropertyChanged(nameof(OperatingTemperatureValue));
+            OnPropertyChanged(nameof(DesignTemperatureValue));
+            OnPropertyChanged(nameof(OperatingModeButtonText));
+            OnPropertyChanged(nameof(DesignModeButtonText));
         }
 
         /// <summary>
@@ -362,10 +624,45 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             if (e.PropertyName == nameof(ThermalViewModel.Result))
             {
                 UpdateFromThermalModule();
+
+                // Уведомить об изменении свойств для отображения в блоках
+                OnPropertyChanged(nameof(SupplyTemperature));
+                OnPropertyChanged(nameof(ReturnTemperature));
+                OnPropertyChanged(nameof(PowerUp));
+                OnPropertyChanged(nameof(PowerDown));
+                OnPropertyChanged(nameof(InnerDiameter));
+                OnPropertyChanged(nameof(OperatingTemperatureValue));
+                OnPropertyChanged(nameof(DesignTemperatureValue));
+                OnPropertyChanged(nameof(OperatingModeButtonText));
+                OnPropertyChanged(nameof(DesignModeButtonText));
             }
             else if (e.PropertyName == nameof(ThermalViewModel.PipeSpacing))
             {
                 UpdatePipeSpacingInCircuits();
+                OnPropertyChanged(nameof(PipeSpacing_cm));
+            }
+            else if (e.PropertyName == nameof(ThermalViewModel.SelectedPipe))
+            {
+                // Обновить внутренний диаметр при смене трубы
+                UpdateInnerDiameterFromSelectedPipe();
+
+                // Уведомить об изменении свойств трубы
+                OnPropertyChanged(nameof(PipeType));
+                OnPropertyChanged(nameof(OuterDiameter));
+                OnPropertyChanged(nameof(WallThickness));
+                OnPropertyChanged(nameof(InnerDiameter));
+            }
+        }
+
+        /// <summary>
+        /// Обновить внутренний диаметр из выбранной трубы
+        /// </summary>
+        private void UpdateInnerDiameterFromSelectedPipe()
+        {
+            var selectedPipe = _thermalViewModel.SelectedPipe;
+            if (selectedPipe != null)
+            {
+                InputData.InnerDiameter = selectedPipe.InnerDiameter;
             }
         }
         
@@ -419,8 +716,73 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             InputData.GlycolType = GlycolType;
             InputData.GlycolConcentration = GlycolConcentration;
 
+            // Уведомить об изменении свойств для отображения в блоках
+            OnPropertyChanged(nameof(OperatingTemperatureValue));
+            OnPropertyChanged(nameof(DesignTemperatureValue));
+            OnPropertyChanged(nameof(OperatingModeButtonText));
+            OnPropertyChanged(nameof(DesignModeButtonText));
+            OnPropertyChanged(nameof(InnerDiameter));
+            OnPropertyChanged(nameof(SupplyTemperature));
+            OnPropertyChanged(nameof(ReturnTemperature));
+            OnPropertyChanged(nameof(PowerUp));
+            OnPropertyChanged(nameof(PowerDown));
+            OnPropertyChanged(nameof(SupplySpacing_cm));
+            OnPropertyChanged(nameof(SupplyHeatPercent));
+
             // Выполнить расчёт после обновления данных
             Calculate();
+        }
+
+        /// <summary>
+        /// Автоматический выбор типа коллектора по расходу
+        /// </summary>
+        /// <remarks>
+        /// Правила выбора:
+        /// - ≤ 1.5 м³/ч → HKV-D (2-12 контуров)
+        /// - 1.5 < G < 2.5 м³/ч → IV 1¼" (2-12 контуров)
+        /// - 2.5 ≤ G < 7 м³/ч → IV 1½" (2-12 контуров)
+        /// - ≥ 7 м³/ч → предупреждение о превышении расхода
+        /// </remarks>
+        private void AutoSelectCollectorType()
+        {
+            var collector = SelectedCollector;
+            if (collector == null) return;
+
+            var summary = collector.Summary;
+            if (summary == null) return;
+
+            // Суммарный расход в м³/ч
+            var totalFlowRate_m3h = summary.TotalFlowRate / 1000.0;
+            var circuitsCount = collector.Circuits.Count;
+
+            // Автоматический выбор по расходу
+            if (totalFlowRate_m3h >= 7.0)
+            {
+                // Предупреждение о превышении расхода
+                summary.Warning = $"Превышение расхода: {totalFlowRate_m3h:F2} м³/ч ≥ 7.0 м³/ч. Рекомендуется разделить на несколько коллекторов.";
+            }
+            else if (totalFlowRate_m3h >= 2.5)
+            {
+                collector.CollectorType = "IV 1½\" (2-12 контуров)";
+                collector.ValveType = ValveType.IV_1_5;
+                summary.Warning = null;
+            }
+            else if (totalFlowRate_m3h > 1.5)
+            {
+                collector.CollectorType = "IV 1¼\" (2-12 контуров)";
+                collector.ValveType = ValveType.IV_1_25;
+                summary.Warning = null;
+            }
+            else
+            {
+                collector.CollectorType = "HKV-D (2-12 контуров)";
+                collector.ValveType = ValveType.HKV_D;
+                summary.Warning = null;
+            }
+
+            // Обновить отображение типа коллектора
+            OnPropertyChanged(nameof(CollectorTypeDisplay));
+            OnPropertyChanged(nameof(KvValue));
         }
 
         /// <summary>
@@ -428,9 +790,13 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// </summary>
         private void OnClimatePropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ClimateViewModel.ColdFiveDayTemperature))
+            if (e.PropertyName == nameof(ClimateViewModel.AirTemperature))
             {
                 UpdateFromClimateModule();
+
+                // Уведомить об изменении расчётной температуры
+                OnPropertyChanged(nameof(DesignTemperatureValue));
+                OnPropertyChanged(nameof(DesignModeButtonText));
             }
         }
 
@@ -438,13 +804,17 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// Обновить данные из ClimateModule
         /// </summary>
         /// <remarks>
-        /// Вызывается при изменении ClimateViewModel.ColdFiveDayTemperature.
-        /// Обновляет InputData.ColdFiveDayTemperature.
+        /// Вызывается при изменении ClimateViewModel.AirTemperature.
+        /// Обновляет InputData.ColdFiveDayTemperature и выполняет пересчёт.
         /// </remarks>
         public void UpdateFromClimateModule()
         {
-            // Температура холодной пятидневки
-            InputData.ColdFiveDayTemperature = _climateViewModel.ColdFiveDayTemperature;
+            // Расчётная температура (М10/М15/М20)
+            InputData.ColdFiveDayTemperature = _climateViewModel.AirTemperature;
+
+            // Уведомить об изменении расчётной температуры
+            OnPropertyChanged(nameof(DesignTemperatureValue));
+            OnPropertyChanged(nameof(DesignModeButtonText));
 
             // Выполнить расчёт после обновления данных
             Calculate();
@@ -460,6 +830,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         partial void OnGlycolTypeChanged(GlycolType value)
         {
             InputData.GlycolType = value;
+            OnPropertyChanged(nameof(GlycolTypeName));
             // Автоматически пересчитываем при изменении типа гликоля
             Calculate();
         }
@@ -472,6 +843,21 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             InputData.GlycolConcentration = value;
             // Автоматически пересчитываем при изменении концентрации
             Calculate();
+        }
+
+        /// <summary>
+        /// Обработчик изменения выбранного коллектора
+        /// </summary>
+        partial void OnSelectedCollectorIndexChanged(int value)
+        {
+            // Сбросить выбранный контур при переключении коллектора
+            SelectedCircuit = null;
+            OnPropertyChanged(nameof(SelectedCollector));
+            OnPropertyChanged(nameof(Summary));
+            OnPropertyChanged(nameof(CollectorTypeDisplay));
+            OnPropertyChanged(nameof(KvValue));
+            AddCircuitCommand.NotifyCanExecuteChanged();
+            RemoveCircuitCommand.NotifyCanExecuteChanged();
         }
 
         #endregion

@@ -87,13 +87,6 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="10">
             
-            <!-- Заголовок -->
-            <TextBlock Text="Итоги коллектора"
-                       FontSize="18"
-                       FontWeight="Bold"
-                       Margin="0,0,0,15"
-                       Foreground="#1976D2"/>
-
             <!-- Информация о коллекторе -->
             <Border Style="{StaticResource ResultGroupStyle}"
                     Visibility="{Binding SelectedCollector, Converter={StaticResource NullToVisibilityConverter}}">
