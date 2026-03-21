@@ -425,7 +425,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 var power = _circuitsCalculator.CalculateCircuitPower(circuit, input.PowerUp, input.PowerDown, pipeSpacing_cm);
                 circuit.Power = power;
 
-                var flowRate = _circuitsCalculator.CalculateFlowRate(power, 10.0, glycolOperating.Density, glycolOperating.SpecificHeat);
+                var flowRate = _circuitsCalculator.CalculateFlowRate(power, input.DeltaT, glycolOperating.Density, glycolOperating.SpecificHeat);
                 circuit.FlowRate = flowRate;
 
                 var operatingResult = _circuitsCalculator.CalculateAtTemperature(
