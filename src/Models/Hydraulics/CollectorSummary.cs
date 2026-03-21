@@ -81,6 +81,14 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Предупреждения
         /// </summary>
         public string[] Warnings { get; set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// Предупреждение о превышении расхода
+        /// </summary>
+        /// <remarks>
+        /// Устанавливается при автоматическом выборе коллектора, если расход > 4.0 м³/ч
+        /// </remarks>
+        public string? Warning { get; set; }
         
         // === Новое свойство ===
         

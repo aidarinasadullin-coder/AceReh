@@ -6,6 +6,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:vm="clr-namespace:SnowMeltingCalculator.ViewModels.Thermal"
              xmlns:models="clr-namespace:SnowMeltingCalculator.Models.Thermal"
+             xmlns:behaviors="clr-namespace:SnowMeltingCalculator.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="900"
              d:DataContext="{d:DesignInstance Type=vm:ThermalViewModel, IsDesignTimeCreatable=False}">
@@ -20,13 +21,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <!-- Заголовок -->
-        <TextBlock Grid.Row="0"
-                   Text="Тепловой расчёт"
-                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                   Margin="0,0,0,16"
-                   Foreground="{DynamicResource MaterialDesignBody}"/>
 
         <!-- Группа "Режим работы" -->
         <materialDesign:Card Grid.Row="1" Margin="0,0,0,16">
@@ -91,7 +85,10 @@
                         <TextBox Text="{Binding SupplyTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                                 materialDesign:TextFieldAssist.PrefixText="Температура подачи:"
                                 materialDesign:TextFieldAssist.SuffixText="°C"
-                                ToolTip="Температура подачи теплоносителя (от 20°C до 90°C)">
+                                ToolTip="Температура подачи теплоносителя (от 20°C до 90°C)"
+                                behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                                behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                                behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True">
                             <TextBox.Style>
                                 <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
                                     <Style.Triggers>
@@ -133,7 +130,10 @@
                             Text="{Binding GroundTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                             materialDesign:TextFieldAssist.PrefixText="Температура грунта:"
                             materialDesign:TextFieldAssist.SuffixText="°C"
-                            ToolTip="Температура грунта под системой (от -10°C до +30°C)"/>
+                            ToolTip="Температура грунта под системой (от -10°C до +30°C)"
+                            behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                            behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                            behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
                 </Grid>
             </StackPanel>
         </materialDesign:Card>

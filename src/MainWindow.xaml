@@ -49,7 +49,7 @@
 
                 <!-- Название текущего модуля -->
                 <TextBlock Grid.Column="1"
-                          Text="Климатические данные"
+                          Text="{Binding CurrentTitle}"
                           Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"
@@ -121,7 +121,7 @@
                         <!-- Меню навигации -->
                         <ListBox Grid.Row="1"
                                 ItemsSource="{Binding MenuItems}"
-                                SelectedItem="{Binding SelectedMenuItem}"
+                                SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
                                 Style="{StaticResource MaterialDesignNavigationPrimaryListBox}"
                                 Margin="0,8,0,0">
                             <ListBox.ItemTemplate>

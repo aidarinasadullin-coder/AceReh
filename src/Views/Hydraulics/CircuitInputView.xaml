@@ -4,10 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:SnowMeltingCalculator.ViewModels.Hydraulics"
+             xmlns:models="clr-namespace:SnowMeltingCalculator.Models.Hydraulics"
              xmlns:converters="clr-namespace:SnowMeltingCalculator.Converters"
+             xmlns:behaviors="clr-namespace:SnowMeltingCalculator.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="500"
-             d:DataContext="{d:DesignInstance Type=vm:CircuitViewModel}">
+             d:DataContext="{d:DesignInstance Type=models:CircuitRow}">
 
     <UserControl.Resources>
         <!-- Конвертеры -->
@@ -125,7 +127,10 @@
                                Style="{StaticResource InputLabelStyle}"/>
                     <TextBox Grid.Column="1" 
                              Text="{Binding Length, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                             Style="{StaticResource InputTextBoxStyle}"/>
+                             Style="{StaticResource InputTextBoxStyle}"
+                             behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                             behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                             behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
                     <TextBlock Grid.Column="2" Text="м" Style="{StaticResource UnitLabelStyle}"/>
                 </Grid>
 
@@ -141,7 +146,10 @@
                                Style="{StaticResource InputLabelStyle}"/>
                     <TextBox Grid.Column="1" 
                              Text="{Binding SupplyLength, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                             Style="{StaticResource InputTextBoxStyle}"/>
+                             Style="{StaticResource InputTextBoxStyle}"
+                             behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                             behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                             behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
                     <TextBlock Grid.Column="2" Text="м" Style="{StaticResource UnitLabelStyle}"/>
                 </Grid>
 
@@ -157,7 +165,10 @@
                                Style="{StaticResource InputLabelStyle}"/>
                     <TextBox Grid.Column="1" 
                              Text="{Binding Area, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                             Style="{StaticResource InputTextBoxStyle}"/>
+                             Style="{StaticResource InputTextBoxStyle}"
+                             behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                             behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                             behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
                     <TextBlock Grid.Column="2" Text="м²" Style="{StaticResource UnitLabelStyle}"/>
                 </Grid>
 
