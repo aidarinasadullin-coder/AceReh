@@ -175,12 +175,13 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService();
-            
+
             // Act
             var maxTemp = service.GetMaxTemperature();
-            
+
             // Assert
-            Assert.That(maxTemp, Is.GreaterThan(100));
+            // Максимальная температура - 100°C (округление от 98.9°C в данных JSON)
+            Assert.That(maxTemp, Is.EqualTo(100.0).Within(0.1));
         }
 
         [Test]

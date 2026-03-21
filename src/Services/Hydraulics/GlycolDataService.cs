@@ -39,12 +39,12 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <summary>
         /// Максимальная поддерживаемая температура, °C
         /// </summary>
-        private const double MAX_TEMPERATURE = 90.0;
-        
+        private const double MAX_TEMPERATURE = 100.0;
+
         /// <summary>
         /// Минимальная поддерживаемая концентрация, %
         /// </summary>
-        private const double MIN_CONCENTRATION = 0.0;
+        private const double MIN_CONCENTRATION = 10.0;
         
         /// <summary>
         /// Максимальная поддерживаемая концентрация, %
@@ -186,9 +186,12 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// Проверить, поддерживается ли концентрация
         /// </summary>
         /// <param name="concentration">Концентрация, %</param>
-        /// <returns>true, если концентрация в допустимом диапазоне</returns>
+        /// <returns>true, если концентрация в допустимом диапазоне (0% для воды или 10-90% для гликолей)</returns>
         public bool IsConcentrationSupported(double concentration)
         {
+            // Концентрация 0% разрешена для воды
+            if (concentration == 0)
+                return true;
             return concentration >= MIN_CONCENTRATION && concentration <= MAX_CONCENTRATION;
         }
 
@@ -222,11 +225,11 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <param name="temperature">Температура, °C</param>
         /// <returns>Свойства воды</returns>
         /// <remarks>
-        /// Используются приближённые формулы IAPWS-IF97 для диапазона 0-100°C:
-        /// - Плотность: ρ = 1000 - 0.0178 × (T - 4)² при T > 4°C
-        /// - Вязкость: ν = exp(-1.597 + 0.181×T - 0.003×T²) мм²/с
+        /// Используются табличные значения IAPWS с линейной интерполяцией для диапазона 0-100°C:
+        /// - Плотность: интерполяция по таблице IAPWS
+        /// - Вязкость: интерполяция по таблице IAPWS
         /// - Теплоёмкость: c_p ≈ 4.18 кДж/(кг·К) (слабо зависит от T)
-        /// - Теплопроводность: λ ≈ 0.6 - 0.0015×T Вт/(м·К)
+        /// - Теплопроводность: интерполяция по таблице IAPWS
         /// </remarks>
         public GlycolProperties GetWaterProperties(double temperature)
         {
@@ -236,29 +239,11 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                     $"Температура воды должна быть в диапазоне 0°C до {MAX_TEMPERATURE}°C, получено: {temperature}°C");
             }
 
-            // Плотность воды: ρ = 1000 - 0.0178 × (T - 4)² при T > 4°C
-            // При T <= 4°C плотность ≈ 1000 кг/м³ (максимум при 4°C)
-            double density;
-            if (temperature > 4)
-            {
-                density = 1000 - 0.0178 * Math.Pow(temperature - 4, 2);
-            }
-            else
-            {
-                // При температуре ниже 4°C плотность немного уменьшается
-                // Используем линейную аппроксимацию
-                density = 1000 - 0.1 * (4 - temperature);
-            }
-
-            // Вязкость воды: ν = exp(-1.597 + 0.181×T - 0.003×T²) мм²/с
-            double kinematicViscosity = Math.Exp(-1.597 + 0.181 * temperature - 0.003 * Math.Pow(temperature, 2));
-
-            // Теплоёмкость воды: c_p ≈ 4.18 кДж/(кг·К) (слабо зависит от T)
-            // Для более точного расчёта можно использовать: c_p = 4.184 + 0.0001×(T - 20)
-            double specificHeat = 4.18 + 0.0001 * (temperature - 20);
-
-            // Теплопроводность воды: λ ≈ 0.6 - 0.0015×T Вт/(м·К)
-            double thermalConductivity = 0.6 - 0.0015 * temperature;
+            // Получаем свойства воды по табличным значениям IAPWS
+            double density = GetWaterDensity(temperature);
+            double kinematicViscosity = GetWaterKinematicViscosity(temperature);
+            double specificHeat = GetWaterSpecificHeat(temperature);
+            double thermalConductivity = GetWaterThermalConductivity(temperature);
 
             return new GlycolProperties
             {
@@ -270,6 +255,92 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 KinematicViscosity = kinematicViscosity,
                 ThermalConductivity = thermalConductivity
             };
+        }
+
+        /// <summary>
+        /// Плотность воды (кг/м³) - интерполяция по таблице IAPWS
+        /// </summary>
+        private static double GetWaterDensity(double temperature)
+        {
+            // Табличные значения плотности воды (кг/м³) по IAPWS
+            // T(°C):  0,    10,   20,   30,   40,   50,   60,   70,   80,   90,   100
+            // ρ:      999.8, 999.7, 998.2, 995.7, 992.2, 988.0, 983.2, 977.8, 971.8, 965.3, 958.4
+            double[] temps = { 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+            double[] dens = { 999.8, 999.7, 998.2, 995.7, 992.2, 988.0, 983.2, 977.8, 971.8, 965.3, 958.4 };
+
+            return LinearInterpolateTable(temps, dens, temperature);
+        }
+
+        /// <summary>
+        /// Кинематическая вязкость воды (мм²/с) - интерполяция по таблице IAPWS
+        /// </summary>
+        private static double GetWaterKinematicViscosity(double temperature)
+        {
+            // Табличные значения кинематической вязкости воды (мм²/с) по IAPWS
+            // T(°C):  0,    10,   20,   30,   40,   50,   60,   70,   80,   90,   100
+            // ν:      1.79, 1.31, 1.00, 0.80, 0.66, 0.55, 0.47, 0.41, 0.36, 0.33, 0.30
+            double[] temps = { 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+            double[] visc = { 1.79, 1.31, 1.00, 0.80, 0.66, 0.55, 0.47, 0.41, 0.36, 0.33, 0.30 };
+
+            return LinearInterpolateTable(temps, visc, temperature);
+        }
+
+        /// <summary>
+        /// Удельная теплоёмкость воды (кДж/(кг·К))
+        /// </summary>
+        private static double GetWaterSpecificHeat(double temperature)
+        {
+            // Теплоёмкость воды слабо зависит от температуры
+            // При 20°C: c_p ≈ 4.182 кДж/(кг·К)
+            // При 50°C: c_p ≈ 4.181 кДж/(кг·К)
+            // При 90°C: c_p ≈ 4.205 кДж/(кг·К)
+            // Используем линейную аппроксимацию
+            return 4.182 + 0.0003 * (temperature - 20);
+        }
+
+        /// <summary>
+        /// Теплопроводность воды (Вт/(м·К)) - интерполяция по таблице IAPWS
+        /// </summary>
+        private static double GetWaterThermalConductivity(double temperature)
+        {
+            // Табличные значения теплопроводности воды (Вт/(м·К)) по IAPWS
+            // T(°C):  0,     10,    20,    30,    40,    50,    60,    70,    80,    90,    100
+            // λ:      0.569, 0.580, 0.598, 0.618, 0.635, 0.648, 0.659, 0.668, 0.674, 0.678, 0.680
+            double[] temps = { 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+            double[] cond = { 0.569, 0.580, 0.598, 0.618, 0.635, 0.648, 0.659, 0.668, 0.674, 0.678, 0.680 };
+
+            return LinearInterpolateTable(temps, cond, temperature);
+        }
+
+        /// <summary>
+        /// Линейная интерполяция по табличным значениям
+        /// </summary>
+        private static double LinearInterpolateTable(double[] temps, double[] values, double temperature)
+        {
+            if (temps.Length == 0 || values.Length == 0)
+                return 0;
+
+            // Граничные случаи
+            if (temperature <= temps[0])
+                return values[0];
+            if (temperature >= temps[temps.Length - 1])
+                return values[values.Length - 1];
+
+            // Найти интервал для интерполяции
+            int i = 0;
+            while (i < temps.Length - 1 && temps[i + 1] < temperature)
+                i++;
+
+            if (i >= temps.Length - 1)
+                return values[values.Length - 1];
+
+            // Линейная интерполяция
+            double t1 = temps[i];
+            double t2 = temps[i + 1];
+            double v1 = values[i];
+            double v2 = values[i + 1];
+
+            return v1 + (v2 - v1) * (temperature - t1) / (t2 - t1);
         }
 
         #region Private Methods
@@ -433,9 +504,9 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         private static double GetArrayValue(double?[]? array, int index)
         {
             if (array == null || index >= array.Length)
-                return 0;
-            
-            return array[index] ?? 0;
+                return double.NaN;
+
+            return array[index] ?? double.NaN;
         }
 
         /// <summary>
@@ -461,7 +532,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             double[,] values = table.Values;
 
             if (concentrations.Length == 0 || temperatures.Length == 0)
-                return 0;
+                return double.NaN;
 
             // Найти индексы для интерполяции
             int cLow = FindLowerIndex(concentrations, concentration);
@@ -484,7 +555,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 double val1 = values[cLow, tLow];
                 double val2 = values[cLow, tHigh];
 
-                return LinearInterpolate(temp1, temp2, val1, val2, temperature);
+                return LinearInterpolateWithNaN(temp1, temp2, val1, val2, temperature);
             }
 
             if (tLow == tHigh)
@@ -495,7 +566,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 double val1 = values[cLow, tLow];
                 double val2 = values[cHigh, tLow];
 
-                return LinearInterpolate(conc1, conc2, val1, val2, concentration);
+                return LinearInterpolateWithNaN(conc1, conc2, val1, val2, concentration);
             }
 
             // Билинейная интерполяция
@@ -510,11 +581,30 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             double v22 = values[cHigh, tHigh];
 
             // Интерполяция по температуре для каждой концентрации
-            double v1_interp = LinearInterpolate(t1, t2, v11, v12, temperature);
-            double v2_interp = LinearInterpolate(t1, t2, v21, v22, temperature);
+            double v1_interp = LinearInterpolateWithNaN(t1, t2, v11, v12, temperature);
+            double v2_interp = LinearInterpolateWithNaN(t1, t2, v21, v22, temperature);
 
             // Интерполяция по концентрации
-            return LinearInterpolate(c1, c2, v1_interp, v2_interp, concentration);
+            return LinearInterpolateWithNaN(c1, c2, v1_interp, v2_interp, concentration);
+        }
+
+        /// <summary>
+        /// Линейная интерполяция с обработкой NaN значений
+        /// </summary>
+        private static double LinearInterpolateWithNaN(double x1, double x2, double y1, double y2, double x)
+        {
+            // Если оба значения NaN, возвращаем NaN
+            if (double.IsNaN(y1) && double.IsNaN(y2))
+                return double.NaN;
+
+            // Если одно значение NaN, используем другое
+            if (double.IsNaN(y1))
+                return y2;
+            if (double.IsNaN(y2))
+                return y1;
+
+            // Обычная линейная интерполяция
+            return LinearInterpolate(x1, x2, y1, y2, x);
         }
 
         /// <summary>
@@ -557,19 +647,28 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// </summary>
         private void ValidateParameters(double concentration, double temperature)
         {
+            // Концентрация 0% разрешена для воды
+            if (concentration == 0)
+            {
+                // Для воды минимальная температура 0°C
+                if (temperature < 0 || temperature > MAX_TEMPERATURE)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(temperature),
+                        $"Температура воды должна быть в диапазоне 0°C до {MAX_TEMPERATURE}°C, получено: {temperature}°C");
+                }
+                return;
+            }
+
             if (concentration < MIN_CONCENTRATION || concentration > MAX_CONCENTRATION)
             {
                 throw new ArgumentOutOfRangeException(nameof(concentration),
-                    $"Концентрация должна быть в диапазоне {MIN_CONCENTRATION}-{MAX_CONCENTRATION}%, получено: {concentration}%");
+                    $"Концентрация должна быть 0% (вода) или в диапазоне {MIN_CONCENTRATION}-{MAX_CONCENTRATION}%, получено: {concentration}%");
             }
 
-            // Для воды (концентрация 0%) минимальная температура 0°C
-            double minTemp = concentration == 0 ? 0.0 : MIN_TEMPERATURE;
-            
-            if (temperature < minTemp || temperature > MAX_TEMPERATURE)
+            if (temperature < MIN_TEMPERATURE || temperature > MAX_TEMPERATURE)
             {
                 throw new ArgumentOutOfRangeException(nameof(temperature),
-                    $"Температура должна быть в диапазоне {minTemp}°C до {MAX_TEMPERATURE}°C, получено: {temperature}°C");
+                    $"Температура должна быть в диапазоне {MIN_TEMPERATURE}°C до {MAX_TEMPERATURE}°C, получено: {temperature}°C");
             }
         }
 
@@ -646,121 +745,136 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <summary>
         /// Fallback значения плотности для этиленгликоля
         /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// NaN означает отсутствие данных для данной температуры/концентрации
         /// </summary>
         private static double[,] DefaultEthyleneDensityValues()
         {
             // Данные из JSON: density_kg_m3
-            // Строки соответствуют температурам, столбцы - концентрациям
+            // Строки соответствуют концентрациям, столбцы - температурам
+            // Формат: values[c, t] - концентрация c, температура t
+            // NaN означает отсутствие данных (точка замерзания выше температуры)
             return new double[,]
             {
-                // temp: -34.4°C
-                {  0,     0,      0,      0,      0,      1090.7, 1105.3, 1119.1, 1132.5 },
-                // temp: -17.8°C
-                {  0,     0,      1072.2, 1087.2, 1101.5, 1115.1, 1128.4, 1141.3, 1153.8 },
-                // temp: -1.1°C
-                {  1019.2, 1053.2, 1068.6, 1083.4, 1097.3, 1110.6, 1123.5, 1136.1, 1148.1 },
-                // temp: 15.6°C
-                {  1015.7, 1049.5, 1064.8, 1079.2, 1092.8, 1105.6, 1118.2, 1130.4, 1141.8 },
-                // temp: 32.2°C
-                {  1012.1, 1045.7, 1060.9, 1074.9, 1088.2, 1100.3, 1112.6, 1124.3, 1135.0 },
-                // temp: 48.9°C
-                {  1008.3, 1041.9, 1056.9, 1070.5, 1083.4, 1094.7, 1106.7, 1117.9, 1127.7 },
-                // temp: 65.6°C
-                {  1004.5, 1038.0, 1052.9, 1066.0, 1078.5, 1088.9, 1100.6, 1111.2, 1120.1 },
-                // temp: 82.2°C
-                {  1000.6, 1034.1, 1048.9, 1061.3, 1073.4, 1082.9, 1094.3, 1104.2, 1112.2 },
-                // temp: 98.9°C
-                {   996.7, 1030.2, 1044.8, 1056.6, 1068.2, 1076.7, 1087.9, 1097.0, 1104.1 }
+                // conc: 10% - значения для температур -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9
+                {  double.NaN, double.NaN, 1019.2, 1015.7, 1012.1, 1008.3, 1004.5, 1000.6,  996.7 },
+                // conc: 20%
+                {  double.NaN, double.NaN, 1053.2, 1049.5, 1045.7, 1041.9, 1038.0, 1034.1, 1030.2 },
+                // conc: 30%
+                {  double.NaN, 1072.2, 1068.6, 1064.8, 1060.9, 1056.9, 1052.9, 1048.9, 1044.8 },
+                // conc: 40%
+                {  double.NaN, 1087.2, 1083.4, 1079.2, 1074.9, 1070.5, 1066.0, 1061.3, 1056.6 },
+                // conc: 50%
+                {  double.NaN, 1101.5, 1097.3, 1092.8, 1088.2, 1083.4, 1078.5, 1073.4, 1068.2 },
+                // conc: 60%
+                {  1090.7, 1115.1, 1110.6, 1105.6, 1100.3, 1094.7, 1088.9, 1082.9, 1076.7 },
+                // conc: 70%
+                {  1105.3, 1128.4, 1123.5, 1118.2, 1112.6, 1106.7, 1100.6, 1094.3, 1087.9 },
+                // conc: 80%
+                {  1119.1, 1141.3, 1136.1, 1130.4, 1124.3, 1117.9, 1111.2, 1104.2, 1097.0 },
+                // conc: 90%
+                {  1132.5, 1153.8, 1148.1, 1141.8, 1135.0, 1127.7, 1120.1, 1112.2, 1104.1 }
             };
         }
 
         /// <summary>
         /// Fallback значения удельной теплоёмкости для этиленгликоля
         /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// NaN означает отсутствие данных для данной температуры/концентрации
         /// </summary>
         private static double[,] DefaultEthyleneSpecificHeatValues()
         {
             // Данные из JSON: specific_heat_kJ_kgK
+            // Строки соответствуют концентрациям, столбцы - температурам
+            // Формат: values[c, t] - концентрация c, температура t
+            // NaN означает отсутствие данных (точка замерзания выше температуры)
             return new double[,]
             {
-                // temp: -34.4°C
-                {  0,    0,     0,     0,     0,      3.07,   2.85,   2.62,   2.37 },
-                // temp: -17.8°C
-                {  0,    0,     3.35,   3.13,   2.92,   2.70,   2.47,   2.23,   2.03 },
-                // temp: -1.1°C
-                {  3.78,  3.14,   2.92,   2.70,   2.47,   2.22,   2.01,   1.82,   1.62 },
-                // temp: 15.6°C
-                {  4.36,  3.77,   3.59,   3.40,   3.20,   3.00,   2.78,   2.54,   2.33 },
-                // temp: 32.2°C
-                {  5.00,  4.39,   4.20,   4.03,   3.84,   3.63,   3.41,   3.17,   2.94 },
-                // temp: 48.9°C
-                {  5.65,  5.01,   4.83,   4.65,   4.47,   4.26,   4.04,   3.80,   3.57 },
-                // temp: 65.6°C
-                {  6.29,  5.63,   5.46,   5.28,   5.10,   4.89,   4.67,   4.43,   4.20 },
-                // temp: 82.2°C
-                {  6.93,  6.25,   6.09,   5.91,   5.73,   5.52,   5.30,   5.06,   4.83 },
-                // temp: 98.9°C
-                {  7.58,  6.87,   6.72,   6.54,   6.36,   6.15,   5.93,   5.69,   5.46 }
+                // conc: 10% - значения для температур -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9
+                {  double.NaN, double.NaN, 3.78,   4.36,   5.00,   5.65,   6.29,   6.93,   7.58 },
+                // conc: 20%
+                {  double.NaN, double.NaN, 3.14,   3.77,   4.39,   5.01,   5.63,   6.25,   6.87 },
+                // conc: 30%
+                {  double.NaN, 3.35,   2.92,   3.59,   4.20,   4.83,   5.46,   6.09,   6.72 },
+                // conc: 40%
+                {  double.NaN, 3.13,   2.70,   3.40,   4.03,   4.65,   5.28,   5.91,   6.54 },
+                // conc: 50%
+                {  double.NaN, 2.92,   2.47,   3.20,   3.84,   4.47,   5.10,   5.73,   6.36 },
+                // conc: 60%
+                {  3.07,  2.70,   2.22,   3.00,   3.63,   4.26,   4.89,   5.52,   6.15 },
+                // conc: 70%
+                {  2.85,  2.47,   2.01,   2.78,   3.41,   4.04,   4.67,   5.30,   5.93 },
+                // conc: 80%
+                {  2.62,  2.23,   1.82,   2.54,   3.17,   3.80,   4.43,   5.06,   5.69 },
+                // conc: 90%
+                {  2.37,  2.03,   1.62,   2.33,   2.94,   3.57,   4.20,   4.83,   5.46 }
             };
         }
 
         /// <summary>
         /// Fallback значения кинематической вязкости для этиленгликоля
         /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// NaN означает отсутствие данных для данной температуры/концентрации
         /// </summary>
         private static double[,] DefaultEthyleneViscosityValues()
         {
             // Данные из JSON: kinematic_viscosity_mm2_s
+            // Строки соответствуют концентрациям, столбцы - температурам
+            // Формат: values[c, t] - концентрация c, температура t
+            // NaN означает отсутствие данных (точка замерзания выше температуры)
             return new double[,]
             {
-                // temp: -34.4°C
-                {  0,     0,      0,      0,      0,      58.4,   81.2,   115.0,  163.5 },
-                // temp: -17.8°C
-                {  0,     0,      12.9,   17.8,   27.2,   40.8,   57.5,   79.4,   93.3 },
-                // temp: -1.1°C
-                {  2.6,   3.7,    5.5,    7.9,    11.4,   17.4,   23.2,   31.6,   38.9 },
-                // temp: 15.6°C
-                {  1.0,   1.4,    2.0,    2.7,    3.8,    5.3,    7.3,    10.2,   13.7 },
-                // temp: 32.2°C
-                {  0.5,   0.7,    0.8,    1.1,    1.6,    2.1,    2.8,    3.7,    4.8 },
-                // temp: 48.9°C
-                {  0.3,   0.4,    0.5,    0.6,    0.8,    1.1,    1.4,    1.9,    2.4 },
-                // temp: 65.6°C
-                {  0.2,   0.2,    0.3,    0.4,    0.5,    0.6,    0.7,    0.9,    1.2 },
-                // temp: 82.2°C
-                {  0.1,   0.1,    0.2,    0.2,    0.3,    0.3,    0.4,    0.5,    0.5 },
-                // temp: 98.9°C
-                {  0.1,   0.1,    0.1,    0.1,    0.2,    0.2,    0.3,    0.3,    0.4 }
+                // conc: 10% - значения для температур -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9
+                {  double.NaN, double.NaN, 2.6,    1.0,    0.5,    0.3,    0.2,    0.1,    0.1 },
+                // conc: 20%
+                {  double.NaN, double.NaN, 3.7,    1.4,    0.7,    0.4,    0.2,    0.1,    0.1 },
+                // conc: 30%
+                {  double.NaN, 12.9,   5.5,    2.0,    0.8,    0.5,    0.3,    0.2,    0.1 },
+                // conc: 40%
+                {  double.NaN, 17.8,   7.9,    2.7,    1.1,    0.6,    0.4,    0.2,    0.1 },
+                // conc: 50%
+                {  double.NaN, 27.2,   11.4,   3.8,    1.6,    0.8,    0.5,    0.3,    0.2 },
+                // conc: 60%
+                {  58.4,  40.8,   17.4,   5.3,    2.1,    1.1,    0.6,    0.3,    0.2 },
+                // conc: 70%
+                {  81.2,  57.5,   23.2,   7.3,    2.8,    1.4,    0.7,    0.4,    0.3 },
+                // conc: 80%
+                {  115.0, 79.4,   31.6,   10.2,   3.7,    1.9,    0.9,    0.5,    0.3 },
+                // conc: 90%
+                {  163.5, 93.3,   38.9,   13.7,   4.8,    2.4,    1.2,    0.5,    0.4 }
             };
         }
 
         /// <summary>
         /// Fallback значения теплопроводности для этиленгликоля
         /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// NaN означает отсутствие данных для данной температуры/концентрации
         /// </summary>
         private static double[,] DefaultEthyleneConductivityValues()
         {
             // Данные из JSON: thermal_conductivity_W_mK
+            // Строки соответствуют концентрациям, столбцы - температурам
+            // Формат: values[c, t] - концентрация c, температура t
+            // NaN означает отсутствие данных (точка замерзания выше температуры)
             return new double[,]
             {
-                // temp: -34.4°C
-                {  0,     0,      0,      0,      0,      0.324,  0.300,  0.279,  0.261 },
-                // temp: -17.8°C
-                {  0,     0,      0.369,  0.338,  0.313,  0.291,  0.271,  0.255,  0.244 },
-                // temp: -1.1°C
-                {  0.462, 0.337,  0.311,  0.287,  0.268,  0.252,  0.239,  0.227,  0.225 },
-                // temp: 15.6°C
-                {  0.602, 0.456,  0.416,  0.382,  0.355,  0.327,  0.300,  0.275,  0.262 },
-                // temp: 32.2°C
-                {  0.744, 0.579,  0.527,  0.481,  0.445,  0.412,  0.377,  0.341,  0.313 },
-                // temp: 48.9°C
-                {  0.885, 0.702,  0.638,  0.580,  0.535,  0.493,  0.451,  0.402,  0.363 },
-                // temp: 65.6°C
-                {  1.027, 0.825,  0.749,  0.679,  0.625,  0.574,  0.523,  0.462,  0.412 },
-                // temp: 82.2°C
-                {  1.168, 0.948,  0.860,  0.778,  0.715,  0.655,  0.595,  0.522,  0.460 },
-                // temp: 98.9°C
-                {  1.310, 1.071,  0.971,  0.877,  0.805,  0.736,  0.667,  0.582,  0.508 }
+                // conc: 10% - значения для температур -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9
+                {  double.NaN, double.NaN, 0.462,  0.602,  0.744,  0.885,  1.027,  1.168,  1.310 },
+                // conc: 20%
+                {  double.NaN, double.NaN, 0.337,  0.456,  0.579,  0.702,  0.825,  0.948,  1.071 },
+                // conc: 30%
+                {  double.NaN, 0.369,  0.311,  0.416,  0.527,  0.638,  0.749,  0.860,  0.971 },
+                // conc: 40%
+                {  double.NaN, 0.338,  0.287,  0.382,  0.481,  0.580,  0.679,  0.778,  0.877 },
+                // conc: 50%
+                {  double.NaN, 0.313,  0.268,  0.355,  0.445,  0.535,  0.625,  0.715,  0.805 },
+                // conc: 60%
+                {  0.324,  0.291,  0.252,  0.327,  0.412,  0.493,  0.574,  0.655,  0.736 },
+                // conc: 70%
+                {  0.300,  0.271,  0.239,  0.300,  0.377,  0.451,  0.523,  0.595,  0.667 },
+                // conc: 80%
+                {  0.279,  0.255,  0.227,  0.275,  0.341,  0.402,  0.462,  0.522,  0.582 },
+                // conc: 90%
+                {  0.261,  0.244,  0.225,  0.262,  0.313,  0.363,  0.412,  0.460,  0.508 }
             };
         }
 
@@ -771,120 +885,136 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <summary>
         /// Fallback значения плотности для пропиленгликоля
         /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// NaN означает отсутствие данных для данной температуры/концентрации
         /// </summary>
         private static double[,] DefaultPropyleneDensityValues()
         {
             // Данные из JSON: density_kg_m3
+            // Строки соответствуют концентрациям, столбцы - температурам
+            // Формат: values[c, t] - концентрация c, температура t
+            // NaN означает отсутствие данных (точка замерзания выше температуры)
             return new double[,]
             {
-                // temp: -34.4°C
-                {  0,     0,      0,      0,      0,      1074.0, 1082.2, 1095.3, 1094.8 },
-                // temp: -17.8°C
-                {  0,     0,      0,      1073.6, 1083.2, 1081.6, 0,      0,      0 },
-                // temp: -1.1°C
-                {  0,     0,      1036.0, 1047.0, 1054.0, 1062.0, 1066.0, 1069.0, 1069.0 },
-                // temp: 15.6°C
-                {  0,     1020.0, 1031.0, 1040.0, 1048.0, 1055.0, 1058.0, 1058.0, 1055.0 },
-                // temp: 32.2°C
-                {  0,     1014.0, 1025.0, 1033.0, 1040.0, 1046.0, 1047.0, 1044.0, 1039.0 },
-                // temp: 48.9°C
-                {  0,     1007.0, 1019.0, 1026.0, 1032.0, 1037.0, 1036.0, 1031.0, 1024.0 },
-                // temp: 65.6°C
-                {  0,     999.0,  1012.0, 1019.0, 1024.0, 1028.0, 1025.0, 1018.0, 1009.0 },
-                // temp: 82.2°C
-                {  0,     990.0,  1004.0, 1010.0, 1015.0, 1018.0, 1014.0, 1005.0, 994.0 },
-                // temp: 98.9°C
-                {  0,     981.0,  995.0,  1001.0, 1006.0, 1007.0, 1002.0, 991.0,  979.0 }
+                // conc: 10% - значения для температур -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9
+                {  double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN },
+                // conc: 20%
+                {  double.NaN, double.NaN, double.NaN, 1020.0, 1014.0, 1007.0, 999.0,  990.0,  981.0 },
+                // conc: 30%
+                {  double.NaN, double.NaN, 1036.0, 1031.0, 1025.0, 1019.0, 1012.0, 1004.0, 995.0 },
+                // conc: 40%
+                {  double.NaN, double.NaN, 1047.0, 1040.0, 1033.0, 1026.0, 1019.0, 1010.0, 1001.0 },
+                // conc: 50%
+                {  double.NaN, 1073.6, 1054.0, 1048.0, 1040.0, 1032.0, 1024.0, 1015.0, 1006.0 },
+                // conc: 60%
+                {  1074.0, 1083.2, 1062.0, 1055.0, 1046.0, 1037.0, 1028.0, 1018.0, 1007.0 },
+                // conc: 70%
+                {  1082.2, 1081.6, 1066.0, 1058.0, 1047.0, 1036.0, 1025.0, 1014.0, 1002.0 },
+                // conc: 80%
+                {  1095.3, double.NaN, 1069.0, 1058.0, 1044.0, 1031.0, 1018.0, 1005.0, 991.0 },
+                // conc: 90%
+                {  1094.8, double.NaN, 1069.0, 1055.0, 1039.0, 1024.0, 1009.0, 994.0,  979.0 }
             };
         }
 
         /// <summary>
         /// Fallback значения удельной теплоёмкости для пропиленгликоля
         /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// NaN означает отсутствие данных для данной температуры/концентрации
         /// </summary>
         private static double[,] DefaultPropyleneSpecificHeatValues()
         {
             // Данные из JSON: specific_heat_kJ_kgK
+            // Строки соответствуют концентрациям, столбцы - температурам
+            // Формат: values[c, t] - концентрация c, температура t
+            // NaN означает отсутствие данных (точка замерзания выше температуры)
             return new double[,]
             {
-                // temp: -34.4°C
-                {  0,     0,      0,      0,      0,      3.10,   2.85,   2.58,   2.27 },
-                // temp: -17.8°C
-                {  0,     0,      0,      3.58,   3.39,   3.17,   2.93,   2.67,   2.37 },
-                // temp: -1.1°C
-                {  0,     0,      4.05,   3.93,   3.76,   3.58,   3.38,   3.14,   2.87 },
-                // temp: 15.6°C
-                {  0,     0,      4.08,   3.97,   3.83,   3.68,   3.52,   3.33,   3.13 },
-                // temp: 32.2°C
-                {  0,     0,      4.10,   4.00,   3.89,   3.75,   3.61,   3.44,   3.28 },
-                // temp: 48.9°C
-                {  0,     0,      4.13,   4.04,   3.94,   3.82,   3.69,   3.54,   3.40 },
-                // temp: 65.6°C
-                {  0,     0,      4.15,   4.08,   3.99,   3.89,   3.78,   3.66,   3.53 },
-                // temp: 82.2°C
-                {  0,     0,      4.18,   4.12,   4.05,   3.96,   3.87,   3.77,   3.66 },
-                // temp: 98.9°C
-                {  0,     0,      4.20,   4.15,   4.09,   4.02,   3.94,   3.86,   3.77 }
+                // conc: 10% - значения для температур -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9
+                {  double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN },
+                // conc: 20%
+                {  double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN },
+                // conc: 30%
+                {  double.NaN, double.NaN, 4.05,   4.08,   4.10,   4.13,   4.15,   4.18,   4.20 },
+                // conc: 40%
+                {  double.NaN, double.NaN, 3.93,   3.97,   4.00,   4.04,   4.08,   4.12,   4.15 },
+                // conc: 50%
+                {  double.NaN, 3.58,   3.76,   3.83,   3.89,   3.94,   3.99,   4.05,   4.09 },
+                // conc: 60%
+                {  3.10,  3.17,   3.58,   3.68,   3.75,   3.82,   3.89,   3.96,   4.02 },
+                // conc: 70%
+                {  2.85,  2.93,   3.38,   3.52,   3.61,   3.69,   3.78,   3.87,   3.94 },
+                // conc: 80%
+                {  2.58,  2.67,   3.14,   3.33,   3.44,   3.54,   3.66,   3.77,   3.86 },
+                // conc: 90%
+                {  2.27,  2.37,   2.87,   3.13,   3.28,   3.40,   3.53,   3.66,   3.77 }
             };
         }
 
         /// <summary>
         /// Fallback значения кинематической вязкости для пропиленгликоля
         /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// NaN означает отсутствие данных для данной температуры/концентрации
         /// </summary>
         private static double[,] DefaultPropyleneViscosityValues()
         {
             // Данные из JSON: kinematic_viscosity_mm2_s
+            // Строки соответствуют концентрациям, столбцы - температурам
+            // Формат: values[c, t] - концентрация c, температура t
+            // NaN означает отсутствие данных (точка замерзания выше температуры)
             return new double[,]
             {
-                // temp: -34.4°C
-                {  0,       0,        0,        0,        0,        1203.67, 2092.20, 3299.03, 8600.39 },
-                // temp: -17.8°C
-                {  0,       0,        0,        98.99,    149.55,   277.95,  429.94,  735.26,  1350.63 },
-                // temp: -1.1°C
-                {  0,       0,        6.77,     10.23,    18.05,    31.74,   47.22,   81.47,   119.31 },
-                // temp: 15.6°C
-                {  0,       0,        3.87,     5.61,     8.76,     13.45,   19.57,   30.46,   43.20 },
-                // temp: 32.2°C
-                {  0,       0,        2.54,     3.46,     4.93,     6.97,    9.82,    13.96,   19.35 },
-                // temp: 48.9°C
-                {  0,       0,        1.81,     2.35,     3.14,     4.19,    5.71,    7.52,    10.23 },
-                // temp: 65.6°C
-                {  0,       0,        1.38,     1.72,     2.20,     2.81,    3.70,    4.62,    6.14 },
-                // temp: 82.2°C
-                {  0,       0,        1.06,     1.31,     1.64,     2.06,    2.59,    3.12,    4.09 },
-                // temp: 98.9°C
-                {  0,       0,        0.87,     1.04,     1.31,     1.60,    1.96,    2.27,    2.93 }
+                // conc: 10% - значения для температур -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9
+                {  double.NaN, double.NaN,    double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN },
+                // conc: 20%
+                {  double.NaN, double.NaN,    double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN },
+                // conc: 30%
+                {  double.NaN, double.NaN,    6.77,   3.87,   2.54,   1.81,   1.38,   1.06,   0.87 },
+                // conc: 40%
+                {  double.NaN, 98.99,    10.23,  5.61,   3.46,   2.35,   1.72,   1.31,   1.04 },
+                // conc: 50%
+                {  double.NaN, 149.55,   18.05,  8.76,   4.93,   3.14,   2.20,   1.64,   1.31 },
+                // conc: 60%
+                {  1203.67, 277.95,   31.74,  13.45,  6.97,   4.19,   2.81,   2.06,   1.60 },
+                // conc: 70%
+                {  2092.20, 429.94,   47.22,  19.57,  9.82,   5.71,   3.70,   2.59,   1.96 },
+                // conc: 80%
+                {  3299.03, 735.26,   81.47,  30.46,  13.96,  7.52,   4.62,   3.12,   2.27 },
+                // conc: 90%
+                {  8600.39, 1350.63,  119.31, 43.20,  19.35,  10.23,  6.14,   4.09,   2.93 }
             };
         }
 
         /// <summary>
         /// Fallback значения теплопроводности для пропиленгликоля
         /// Источник: ASHRAE Handbook - Fundamentals (2009), Dow Chemical Tables
+        /// NaN означает отсутствие данных для данной температуры/концентрации
         /// </summary>
         private static double[,] DefaultPropyleneConductivityValues()
         {
             // Данные из JSON: thermal_conductivity_W_mK
+            // Строки соответствуют концентрациям, столбцы - температурам
+            // Формат: values[c, t] - концентрация c, температура t
+            // NaN означает отсутствие данных (точка замерзания выше температуры)
             return new double[,]
             {
-                // temp: -34.4°C
-                {  0,     0,      0,      0,      0,      0.270,  0.242,  0.220,  0.203 },
-                // temp: -17.8°C
-                {  0,     0,      0,      0.348,  0.313,  0.280,  0.251,  0.227,  0.206 },
-                // temp: -1.1°C
-                {  0,     0,      0.455,  0.408,  0.365,  0.325,  0.293,  0.261,  0.234 },
-                // temp: 15.6°C
-                {  0,     0,      0.533,  0.477,  0.427,  0.385,  0.343,  0.300,  0.265 },
-                // temp: 32.2°C
-                {  0,     0,      0.556,  0.497,  0.444,  0.395,  0.350,  0.307,  0.270 },
-                // temp: 48.9°C
-                {  0,     0,      0.574,  0.512,  0.456,  0.407,  0.361,  0.315,  0.275 },
-                // temp: 65.6°C
-                {  0,     0,      0.585,  0.522,  0.466,  0.414,  0.367,  0.320,  0.279 },
-                // temp: 82.2°C
-                {  0,     0,      0.601,  0.535,  0.474,  0.419,  0.371,  0.323,  0.280 },
-                // temp: 98.9°C
-                {  0,     0,      0.604,  0.537,  0.476,  0.420,  0.371,  0.323,  0.280 }
+                // conc: 10% - значения для температур -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9
+                {  double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN },
+                // conc: 20%
+                {  double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN },
+                // conc: 30%
+                {  double.NaN, double.NaN, 0.455,  0.533,  0.556,  0.574,  0.585,  0.601,  0.604 },
+                // conc: 40%
+                {  double.NaN, 0.348,  0.408,  0.477,  0.497,  0.512,  0.522,  0.535,  0.537 },
+                // conc: 50%
+                {  double.NaN, 0.313,  0.365,  0.427,  0.444,  0.456,  0.466,  0.474,  0.476 },
+                // conc: 60%
+                {  0.270, 0.280,  0.325,  0.385,  0.395,  0.407,  0.414,  0.419,  0.420 },
+                // conc: 70%
+                {  0.242, 0.251,  0.293,  0.343,  0.350,  0.361,  0.367,  0.371,  0.371 },
+                // conc: 80%
+                {  0.220, 0.227,  0.261,  0.300,  0.307,  0.315,  0.320,  0.323,  0.323 },
+                // conc: 90%
+                {  0.203, 0.206,  0.234,  0.265,  0.270,  0.275,  0.279,  0.280,  0.280 }
             };
         }
 
