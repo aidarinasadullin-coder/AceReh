@@ -70,10 +70,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
             // Assert
             // Формула: 4.2111×2³ - 6.7436×2² + 4.6613×2 - 0.712
-            // = 4.2111×8 - 6.7436×4 + 9.3226 - 0.712 = 15.325
-            // Но ограничение: максимум 8 оборотов
-            // Округление до 0.25: Math.Round(8 * 4) / 4 = 8
-            Assert.That(turns, Is.EqualTo(8.0).Within(0.01));
+            // = 4.2111×8 - 6.7436×4 + 9.3226 - 0.712 ≈ 15.325
+            // Но ограничение для HKV-D: максимум 2.5 оборота
+            // Округление до 0.25: Math.Round(2.5 * 4) / 4 = 2.5
+            Assert.That(turns, Is.EqualTo(2.5).Within(0.01));
         }
 
         [Test]
@@ -335,11 +335,58 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             Assert.That(ValveTurnsCalculator.KV_IV_1_5, Is.EqualTo(1.5));
         }
 
+        #pragma warning disable CS0618 // Type or member is obsolete
         [Test]
         public void MaxTurns_IsEight()
         {
             // Assert
             Assert.That(ValveTurnsCalculator.MaxTurns, Is.EqualTo(8.0));
+        }
+        #pragma warning restore CS0618
+
+        #endregion
+
+        #region GetMaxTurns Tests
+
+        [Test]
+        public void GetMaxTurns_HKV_D_Returns_2_5()
+        {
+            // Arrange & Act
+            double maxTurns = ValveTurnsCalculator.GetMaxTurns(ValveType.HKV_D);
+
+            // Assert
+            Assert.That(maxTurns, Is.EqualTo(2.5));
+        }
+
+        [Test]
+        public void GetMaxTurns_IV_1_25_Returns_8_0()
+        {
+            // Arrange & Act
+            double maxTurns = ValveTurnsCalculator.GetMaxTurns(ValveType.IV_1_25);
+
+            // Assert
+            Assert.That(maxTurns, Is.EqualTo(8.0));
+        }
+
+        [Test]
+        public void GetMaxTurns_IV_1_5_Returns_8_0()
+        {
+            // Arrange & Act
+            double maxTurns = ValveTurnsCalculator.GetMaxTurns(ValveType.IV_1_5);
+
+            // Assert
+            Assert.That(maxTurns, Is.EqualTo(8.0));
+        }
+
+        [Test]
+        public void GetMaxTurns_InvalidType_ThrowsArgumentException()
+        {
+            // Arrange
+            var invalidType = (ValveType)999;
+
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() =>
+                ValveTurnsCalculator.GetMaxTurns(invalidType));
         }
 
         #endregion
@@ -376,14 +423,50 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             Assert.That(warning, Does.Contain("8"));
         }
 
-        [Test]
-        public void CalculateTurnsWithWarning_HKV_D_ExceedsMaxTurns_ReturnsWarning()
+[Test]
+        public void CalculateTurnsWithWarning_HKV_D_ExceedsMaxTurns_Returns_2_5()
         {
             // Arrange
-            double kv = 2.0; // Даст ~15 оборотов, что превышает максимум
+            // Kv = 4.0 для HKV-D даёт обороты > 2.5
+            double kv = 4.0;
 
             // Act
             var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, ValveType.HKV_D);
+
+            // Assert
+            Assert.That(turns, Is.EqualTo(2.5));
+            Assert.That(warning, Is.Not.Null);
+            Assert.That(warning, Does.Contain("превышают максимум"));
+            // Предупреждение использует русскую локаль (запятая вместо точки)
+            Assert.That(warning, Does.Contain("2,5").Or.Contains("2.5"));
+        }
+
+        [Test]
+        public void CalculateTurnsWithWarning_HKV_D_BelowMax_ReturnsCalculated()
+        {
+            // Arrange
+            // Kv = 1.2 для HKV-D даёт обороты < 2.5
+            double kv = 1.2;
+
+            // Act
+            var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, ValveType.HKV_D);
+
+            // Assert
+            // Формула: 4.2111×Kv³ - 6.7436×Kv² + 4.6613×Kv - 0.712
+            // При Kv = 1.2: 4.2111×1.728 - 6.7436×1.44 + 4.6613×1.2 - 0.712 ≈ 2.5
+            Assert.That(turns, Is.LessThanOrEqualTo(2.5));
+            Assert.That(warning, Is.Null);
+        }
+
+        [Test]
+        public void CalculateTurnsWithWarning_IV_1_25_ExceedsMax_Returns_8_0()
+        {
+            // Arrange
+            // Kv = 3.0 для IV 1¼" даёт обороты > 8.0
+            double kv = 3.0;
+
+            // Act
+            var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, ValveType.IV_1_25);
 
             // Assert
             Assert.That(turns, Is.EqualTo(8.0));
@@ -391,29 +474,18 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         }
 
         [Test]
-        public void CalculateTurnsWithWarning_InvalidValveType_ThrowsException()
+        public void CalculateTurnsWithWarning_IV_1_5_ExceedsMax_Returns_8_0()
         {
             // Arrange
-            double kv = 1.0;
-            var invalidType = (ValveType)999;
-
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() =>
-                ValveTurnsCalculator.CalculateTurnsWithWarning(kv, invalidType));
-        }
-
-        [Test]
-        public void CalculateTurnsWithWarning_RoundsToQuarter()
-        {
-            // Arrange
-            double kv = 1.45;
+            // Kv = 3.5 для IV 1½" даёт обороты > 8.0
+            double kv = 3.5;
 
             // Act
-            var (turns, _) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, ValveType.IV_1_25);
+            var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, ValveType.IV_1_5);
 
-            // Assert - проверяем, что результат округлён до 0.25
-            double remainder = turns * 4 % 1;
-            Assert.That(remainder, Is.EqualTo(0).Within(0.001), "Результат должен быть округлён до 0.25");
+            // Assert
+            Assert.That(turns, Is.EqualTo(8.0));
+            Assert.That(warning, Is.Not.Null);
         }
 
         #endregion

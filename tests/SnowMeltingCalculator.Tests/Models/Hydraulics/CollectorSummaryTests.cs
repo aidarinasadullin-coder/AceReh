@@ -30,29 +30,55 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         }
         
         [Test]
-        public void OperatingPressureLoss_mbar_ConvertsCorrectly()
+        public void PressureLoss_Operating_Pa_CanBeSet()
         {
             // Arrange
-            var summary = new CollectorSummary
-            {
-                PressureLoss_Operating_mbar = 320 // мбар
-            };
+            var summary = new CollectorSummary();
+            
+            // Act
+            summary.PressureLoss_Operating_Pa = 32000; // Па
             
             // Assert
-            Assert.That(summary.PressureLoss_Operating_Pa, Is.EqualTo(32000)); // Па
+            Assert.That(summary.PressureLoss_Operating_Pa, Is.EqualTo(32000));
         }
         
         [Test]
-        public void DesignPressureLoss_mbar_ConvertsCorrectly()
+        public void PressureLoss_Cold_Pa_CanBeSet()
+        {
+            // Arrange
+            var summary = new CollectorSummary();
+            
+            // Act
+            summary.PressureLoss_Cold_Pa = 45000; // Па
+            
+            // Assert
+            Assert.That(summary.PressureLoss_Cold_Pa, Is.EqualTo(45000));
+        }
+        
+        [Test]
+        public void PressureLoss_Operating_mbar_ConvertsCorrectly()
         {
             // Arrange
             var summary = new CollectorSummary
             {
-                PressureLoss_Cold_mbar = 450 // мбар
+                PressureLoss_Operating_Pa = 32000 // Па
             };
             
             // Assert
-            Assert.That(summary.PressureLoss_Cold_Pa, Is.EqualTo(45000)); // Па
+            Assert.That(summary.PressureLoss_Operating_mbar, Is.EqualTo(320)); // мбар
+        }
+        
+        [Test]
+        public void PressureLoss_Cold_mbar_ConvertsCorrectly()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Cold_Pa = 45000 // Па
+            };
+            
+            // Assert
+            Assert.That(summary.PressureLoss_Cold_mbar, Is.EqualTo(450)); // мбар
         }
         
         [Test]
@@ -61,7 +87,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             // Arrange
             var summary = new CollectorSummary
             {
-                PressureLoss_Cold_mbar = 350 // 350 мбар > 320 мбар
+                PressureLoss_Cold_Pa = 35000 // 35000 Па > 32000 Па
             };
             
             // Assert
@@ -74,7 +100,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             // Arrange
             var summary = new CollectorSummary
             {
-                PressureLoss_Cold_mbar = 300 // 300 мбар < 320 мбар
+                PressureLoss_Cold_Pa = 30000 // 30000 Па < 32000 Па
             };
             
             // Assert
@@ -87,7 +113,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             // Arrange
             var summary = new CollectorSummary
             {
-                PressureLoss_Cold_mbar = 320 // 320 мбар = 320 мбар
+                PressureLoss_Cold_Pa = 32000 // 32000 Па = 32000 Па
             };
             
             // Assert
@@ -115,6 +141,13 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         }
         
         [Test]
+        public void MaxAllowedPressure_Pa_Is32000()
+        {
+            // Assert
+            Assert.That(CollectorSummary.MaxAllowedPressure_Pa, Is.EqualTo(32000));
+        }
+        
+        [Test]
         public void DefaultValues_AreCorrect()
         {
             // Arrange & Act
@@ -128,32 +161,6 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             Assert.That(summary.TotalPipeLength, Is.EqualTo(0));
             Assert.That(summary.TotalPower, Is.EqualTo(0));
             Assert.That(summary.TotalFlowRate, Is.EqualTo(0));
-        }
-        
-        [Test]
-        public void PressureLoss_Operating_Pa_CalculatesCorrectly()
-        {
-            // Arrange
-            var summary = new CollectorSummary
-            {
-                PressureLoss_Operating_mbar = 100
-            };
-            
-            // Assert
-            Assert.That(summary.PressureLoss_Operating_Pa, Is.EqualTo(10000));
-        }
-        
-        [Test]
-        public void PressureLoss_Cold_Pa_CalculatesCorrectly()
-        {
-            // Arrange
-            var summary = new CollectorSummary
-            {
-                PressureLoss_Cold_mbar = 200
-            };
-            
-            // Assert
-            Assert.That(summary.PressureLoss_Cold_Pa, Is.EqualTo(20000));
         }
     }
 }

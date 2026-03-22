@@ -71,6 +71,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <param name="glycolProps">Свойства гликоля при температуре</param>
         /// <param name="innerDiameter">Внутренний диаметр трубы, мм</param>
         /// <param name="kv">Коэффициент пропускной способности вентиля, м³/ч</param>
+        /// <param name="valveType">Тип клапана (для выбора формул DpVerteiler/DpVent)</param>
         /// <returns>Результат расчёта при температуре</returns>
         /// <remarks>
         /// Рассчитывает:
@@ -91,13 +92,24 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// - Удельные потери: R = λ × (ρ × v²) / (2 × d)
         /// - Потери в трубе: Δp = R × L
         /// - Потери в вентиле: Δp_Vent = (V_dot / Kv)² × 100
+        /// 
+        /// Новые формулы для DpVerteiler и DpVent (зависят от типа клапана):
+        /// 
+        /// Для IV 1¼" и IV 1½":
+        /// - DpVerteiler = 15000 × (ρ/2000) × v²
+        /// - DpVent = (V_dot/1000/Kv)² × 100000 × ρ/1000
+        /// 
+        /// Для HKV-D:
+        /// - DpVerteiler = (V_dot/1000/1.2)² × 100000 × ρ/1000
+        /// - DpVent = 15000 × (ρ/2000) × v²
         /// </remarks>
         CircuitTemperatureResult CalculateAtTemperature(
             CircuitRow circuit,
             double temperature,
             GlycolProperties glycolProps,
             double innerDiameter,
-            double kv);
+            double kv,
+            ValveType valveType);
         
         /// <summary>
         /// Рассчитать все контура коллектора

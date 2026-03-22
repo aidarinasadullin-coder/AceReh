@@ -433,7 +433,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     operatingTemp,
                     glycolOperating,
                     input.InnerDiameter,
-                    kv
+                    kv,
+                    collector.ValveType
                 );
                 circuit.OperatingResult = operatingResult;
 
@@ -442,7 +443,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     designTemp,
                     glycolDesign,
                     input.InnerDiameter,
-                    kv
+                    kv,
+                    collector.ValveType
                 );
                 circuit.DesignResult = designResult;
 

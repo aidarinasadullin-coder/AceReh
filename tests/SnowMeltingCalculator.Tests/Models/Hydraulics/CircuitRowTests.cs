@@ -529,15 +529,15 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             // Arrange
             var result = new CircuitTemperatureResult
             {
-                CircuitPipeLoss = 23360.0, // 233.6 мбар
-                SupplyPipeLoss = 1000.0,    // 10 мбар
-                ValveLoss = 5730.0          // 57.3 мбар
+                DpRohr = 23360.0,      // 233.6 мбар
+                DpVerteiler = 1000.0,  // 10 мбар
+                DpVent = 5730.0        // 57.3 мбар
             };
 
             // Act & Assert
             var expectedTotal = 23360.0 + 1000.0 + 5730.0;
             Assert.That(result.TotalLoss, Is.EqualTo(expectedTotal).Within(0.01), 
-                "TotalLoss должен быть суммой CircuitPipeLoss + SupplyPipeLoss + ValveLoss");
+                "TotalLoss должен быть суммой DpRohr + DpVerteiler + DpVent");
         }
 
         [Test]
@@ -546,9 +546,9 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             // Arrange
             var result = new CircuitTemperatureResult
             {
-                CircuitPipeLoss = 23360.0,
-                SupplyPipeLoss = 1000.0,
-                ValveLoss = 5730.0
+                DpRohr = 23360.0,
+                DpVerteiler = 1000.0,
+                DpVent = 5730.0
             };
 
             // Act & Assert
@@ -564,8 +564,10 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             var result = new CircuitTemperatureResult();
 
             // Act & Assert
-            Assert.That(result.CircuitPipeLoss_mbar, Is.EqualTo(0.0).Within(0.01));
-            Assert.That(result.ValveLoss_mbar, Is.EqualTo(0.0).Within(0.01));
+            Assert.That(result.DpRohr, Is.EqualTo(0.0).Within(0.01));
+            Assert.That(result.DpVerteiler, Is.EqualTo(0.0).Within(0.01));
+            Assert.That(result.DpVent, Is.EqualTo(0.0).Within(0.01));
+            Assert.That(result.DpGesamt, Is.EqualTo(0.0).Within(0.01));
             Assert.That(result.TotalLoss, Is.EqualTo(0.0).Within(0.01));
             Assert.That(result.TotalLoss_mbar, Is.EqualTo(0.0).Within(0.01));
         }
