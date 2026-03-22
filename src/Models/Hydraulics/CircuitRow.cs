@@ -49,40 +49,138 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// </summary>
         public double PressureLossPerMeter { get; set; }
         
+        #region Новые свойства для гидравлики (DpRohr, DpVerteiler, DpVent, DpGesamt)
+        
+        /// <summary>
+        /// Потери в трубе контура, Па (DpRohr)
+        /// </summary>
+        /// <remarks>
+        /// Формула: DpRohr = (L_hk + L_zul) × R
+        /// Где:
+        /// - L_hk — длина контура, м
+        /// - L_zul — длина подводки, м
+        /// - R — удельные потери, Па/м
+        /// 
+        /// Соответствует столбцу K в Excel (gidravlica.xls)
+        /// </remarks>
+        public double DpRohr { get; set; }
+
+        /// <summary>
+        /// Потери в распределителе, Па (DpVerteiler)
+        /// </summary>
+        /// <remarks>
+        /// Формулы зависят от типа коллектора:
+        /// 
+        /// Для IV 1¼" и IV 1½":
+        /// DpVerteiler = 15000 × (ρ/2000) × v²
+        /// 
+        /// Для HKV-D:
+        /// DpVerteiler = (V_dot/1000/1.2)² × 100000 × ρ/1000
+        /// 
+        /// Где:
+        /// - ρ — плотность в кг/м³ (делить на 1000 для г/см³)
+        /// - v — скорость в м/с
+        /// - V_dot — расход в л/ч
+        /// 
+        /// Соответствует столбцу L в Excel (gidravlica.xls)
+        /// </remarks>
+        public double DpVerteiler { get; set; }
+
+        /// <summary>
+        /// Потери в вентиле, Па (DpVent)
+        /// </summary>
+        /// <remarks>
+        /// Формулы зависят от типа коллектора:
+        /// 
+        /// Для IV 1¼" и IV 1½":
+        /// DpVent = (V_dot/1000/Kv)² × 100000 × ρ/1000
+        /// 
+        /// Для HKV-D:
+        /// DpVent = 15000 × (ρ/2000) × v²
+        /// 
+        /// Где:
+        /// - V_dot — расход в л/ч
+        /// - Kv — коэффициент пропускной способности, м³/ч
+        /// - ρ — плотность в кг/м³ (делить на 1000 для г/см³)
+        /// - v — скорость в м/с
+        /// 
+        /// Соответствует столбцу M в Excel (gidravlica.xls)
+        /// </remarks>
+        public double DpVent { get; set; }
+
+        /// <summary>
+        /// Суммарные потери, Па (DpGesamt)
+        /// </summary>
+        /// <remarks>
+        /// Формула: DpGesamt = DpRohr + DpVerteiler + DpVent
+        /// 
+        /// Соответствует столбцу N в Excel (gidravlica.xls)
+        /// </remarks>
+        public double DpGesamt => DpRohr + DpVerteiler + DpVent;
+
+        /// <summary>
+        /// Дросселирование для балансировки, Па (zu_drosseln)
+        /// </summary>
+        /// <remarks>
+        /// Формула: zu_drosseln = DpGesamt_max - DpGesamt_контур
+        /// 
+        /// Где:
+        /// - DpGesamt_max — максимальные суммарные потери в коллекторе
+        /// - DpGesamt_контур — суммарные потери контура
+        /// 
+        /// Соответствует столбцу O в Excel (gidravlica.xls)
+        /// 
+        /// Примечание: Это свойство вычисляется в CircuitRow, а не в CircuitTemperatureResult.
+        /// </remarks>
+        public double ZuDrosseln { get; set; }
+        
+        #endregion
+        
+        #region Устаревшие свойства (для обратной совместимости)
+        
         /// <summary>
         /// Потери в трубе контура, Па
         /// </summary>
+        [Obsolete("Использовать DpRohr вместо CircuitPipeLoss. DpRohr включает потери в контуре и подводке.")]
         public double CircuitPipeLoss { get; set; }
 
         /// <summary>
         /// Потери в трубе контура, мбар
         /// </summary>
+        [Obsolete("Использовать DpRohr / 100.0 вместо CircuitPipeLoss_mbar")]
         public double CircuitPipeLoss_mbar => CircuitPipeLoss / 100.0;
 
         /// <summary>
         /// Потери в трубе подводки, Па
         /// </summary>
+        [Obsolete("Использовать DpRohr вместо SupplyPipeLoss. DpRohr включает потери в контуре и подводке.")]
         public double SupplyPipeLoss { get; set; }
 
         /// <summary>
         /// Потери в вентиле, Па
         /// </summary>
+        [Obsolete("Использовать DpVent вместо ValveLoss для IV. Для HKV-D использовать DpVerteiler.")]
         public double ValveLoss { get; set; }
 
         /// <summary>
         /// Потери в вентиле, мбар
         /// </summary>
+        [Obsolete("Использовать DpVent / 100.0 вместо ValveLoss_mbar")]
         public double ValveLoss_mbar => ValveLoss / 100.0;
 
         /// <summary>
         /// Суммарные потери, Па
         /// </summary>
-        public double TotalLoss => CircuitPipeLoss + SupplyPipeLoss + ValveLoss;
+        [Obsolete("Использовать DpGesamt вместо TotalLoss")]
+        public double TotalLoss => DpRohr + DpVerteiler + DpVent;
 
         /// <summary>
         /// Суммарные потери, мбар
         /// </summary>
-        public double TotalLoss_mbar => TotalLoss / 100.0;
+        [Obsolete("Использовать DpGesamt / 100.0 вместо TotalLoss_mbar")]
+        public double TotalLoss_mbar => DpGesamt / 100.0;
+        
+        #endregion
     }
 
     /// <summary>

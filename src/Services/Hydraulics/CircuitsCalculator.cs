@@ -139,6 +139,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <param name="glycolProps">Свойства гликоля при температуре</param>
         /// <param name="innerDiameter">Внутренний диаметр трубы, мм</param>
         /// <param name="kv">Коэффициент пропускной способности вентиля, м³/ч</param>
+        /// <param name="valveType">Тип клапана (для выбора формул DpVerteiler/DpVent)</param>
         /// <returns>Результат расчёта при температуре</returns>
         /// <remarks>
         /// Рассчитывает:
@@ -147,20 +148,29 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// - Режим течения (ламинарный/переходный/турбулентный)
         /// - Коэффициент трения λ
         /// - Удельные потери R (Па/м)
-        /// - Потери в трубе контура Δp_HK (Па)
-        /// - Потери в трубе подводки Δp_Zul (Па)
-        /// - Потери в вентиле Δp_Vent (Па)
-        /// - Суммарные потери Δp_total (Па)
+        /// - DpRohr — потери в трубе контура + подводки, Па
+        /// - DpVerteiler — потери в распределителе, Па
+        /// - DpVent — потери в вентиле, Па
+        /// - DpGesamt — суммарные потери, Па
         /// 
         /// Формулы:
         /// - Скорость: v = V_dot × 4000 / (3600 × π × d_inner²)
         /// - Число Рейнольдса: Re = 1000 × v × d_inner / ν
         /// - Коэффициент трения: зависит от режима (Пуазейль или Колбрук-Уайт)
         /// - Удельные потери: R = 10000 × (v² × ρ[г/см³] × λ) / (2 × d_inner) × 100
-        /// - Потери в трубе: Δp = R × L
-        /// - Потери в вентиле: Δp_Vent = (V_dot / 1000 / Kv)² × 100000 × ρ[г/см³]
+        /// - DpRohr = (L_hk + L_zul) × R
         /// 
-        /// Важно: Плотность ρ в формулах R и Δp_Vent должна быть в г/см³!
+        /// Формулы DpVerteiler и DpVent зависят от типа клапана:
+        /// 
+        /// Для IV 1¼" и IV 1½":
+        /// - DpVerteiler = 15000 × (ρ/2000) × v²
+        /// - DpVent = (V_dot/1000/Kv)² × 100000 × ρ/1000
+        /// 
+        /// Для HKV-D:
+        /// - DpVerteiler = (V_dot/1000/1.2)² × 100000 × ρ/1000
+        /// - DpVent = 15000 × (ρ/2000) × v²
+        /// 
+        /// Важно: Плотность ρ в формулах R и DpVent должна быть в г/см³!
         /// GlycolProperties.Density хранит плотность в кг/м³, требуется конвертация.
         /// </remarks>
         public CircuitTemperatureResult CalculateAtTemperature(
@@ -168,7 +178,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             double temperature,
             GlycolProperties glycolProps,
             double innerDiameter,
-            double kv)
+            double kv,
+            ValveType valveType)
         {
             if (circuit == null)
                 throw new ArgumentNullException(nameof(circuit));
@@ -213,18 +224,42 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 / (2 * innerDiameter) * 100;
             result.PressureLossPerMeter = pressureLossPerMeter;
 
-            // Потери в трубе контура: Δp_HK = L_hk × R
+            // === НОВЫЙ РАСЧЁТ ===
+
+            // DpRohr = потери в трубе контура + подводки
+            // Формула: DpRohr = (L_hk + L_zul) × R
+            double dpRohr = (circuit.CircuitLength + circuit.SupplyLength) * pressureLossPerMeter;
+            result.DpRohr = dpRohr;
+
+            // DpVerteiler и DpVent — формулы меняются местами для HKV-D и IV
+            if (valveType == ValveType.HKV_D)
+            {
+                // HKV-D: формулы меняются местами
+                // DpVerteiler = (V_dot/1000/1.2)² × 100000 × ρ/1000
+                // Kv для HKV-D = 1.2
+                result.DpVerteiler = Math.Pow(circuit.FlowRate / 1000.0 / 1.2, 2) * 100000 * density_g_cm3;
+
+                // DpVent = 15000 × (ρ/2000) × v²
+                result.DpVent = 15000 * (density_g_cm3 / 2) * Math.Pow(velocity, 2);
+            }
+            else
+            {
+                // IV 1¼" и IV 1½": стандартные формулы
+                // DpVerteiler = 15000 × (ρ/2000) × v²
+                result.DpVerteiler = 15000 * (density_g_cm3 / 2) * Math.Pow(velocity, 2);
+
+                // DpVent = (V_dot/1000/Kv)² × 100000 × ρ/1000
+                result.DpVent = Math.Pow(circuit.FlowRate / 1000.0 / kv, 2) * 100000 * density_g_cm3;
+            }
+
+            // DpGesamt = DpRohr + DpVerteiler + DpVent (вычисляется автоматически)
+
+            // === УСТАРЕВШИЕ СВОЙСТВА (для обратной совместимости) ===
+#pragma warning disable CS0618 // Type or member is obsolete
             result.CircuitPipeLoss = circuit.CircuitLength * pressureLossPerMeter;
-
-            // Потери в трубе подводки: Δp_Zul = L_zul × R
             result.SupplyPipeLoss = circuit.SupplyLength * pressureLossPerMeter;
-
-            // Потери в вентиле: Δp_Vent = (V_dot / 1000 / Kv)² × 100000 × ρ[г/см³]
-            // Важно: ρ должно быть в г/см³, glycolProps.Density в кг/м³
-            result.ValveLoss = Math.Pow(circuit.FlowRate / 1000.0 / kv, 2) * 100000 * density_g_cm3;
-
-            // Суммарные потери: Δp_total = Δp_HK + Δp_Zul + Δp_Vent
-            // (вычисляется автоматически в свойстве TotalLoss)
+            result.ValveLoss = result.DpVent;  // Для IV это корректно, для HKV-D — нет
+#pragma warning restore CS0618
 
             return result;
         }
@@ -304,7 +339,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                     inputData.OperatingTemperature,
                     glycolPropsOperating,
                     inputData.InnerDiameter,
-                    kv);
+                    kv,
+                    inputData.ValveType);  // Передаём тип клапана
 
                 // Расчёт при расчётной температуре
                 circuit.DesignResult = CalculateAtTemperature(
@@ -312,13 +348,14 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                     inputData.DesignTemperature,
                     glycolPropsDesign,
                     inputData.InnerDiameter,
-                    kv);
+                    kv,
+                    inputData.ValveType);  // Передаём тип клапана
             }
 
             return circuits;
         }
 
-        /// <summary>
+/// <summary>
         /// Рассчитать балансировку контуров
         /// </summary>
         /// <param name="circuits">Список контуров</param>
@@ -326,17 +363,20 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <returns>Список контуров с рассчитанной балансировкой</returns>
         /// <remarks>
         /// Алгоритм балансировки:
-        /// 1. Определить контур с максимальными потерями (референсный)
-        /// 2. Рассчитать дросселирование для каждого контура:
-        ///    zu_drosseln = Δp_max - Δp_total
-        /// 3. Рассчитать обороты балансировочного клапана
+        /// 1. Определить контур с максимальным DpGesamt (референсный)
+        /// 2. Референсный контур получает максимальные обороты:
+        ///    - HKV-D: 2.5 оборота
+        ///    - IV: 8.0 оборотов
+        /// 3. Рассчитать дросселирование для каждого контура:
+        ///    zu_drosseln = DpGesamt_max - DpGesamt_контур
+        /// 4. Для нереференсных контуров рассчитать Kv для дросселирования
+        /// 5. Рассчитать обороты по формуле umdreh1(Kv, type)
         /// 
-        /// Балансировка выполняется только для рабочей температуры.
+        /// Балансировка выполняется только для рабочей температуре.
         /// 
-        /// Формулы оборотов клапана:
-        /// - IV 1½": Обороты = 5.122 × Kv - 0.2106
-        /// - IV 1¼": Обороты = 5.1818 × Kv - 0.23
-        /// - HKV-D: Обороты = 4.2111×Kv³ - 6.7436×Kv² + 4.6613×Kv - 0.712
+        /// Важно: Референсный контур — это контур с максимальным DpGesamt,
+        /// а не с максимальными потерями в трубе. Это необходимо для корректной
+        /// балансировки, так как DpGesamt включает все потери.
         /// </remarks>
         public List<CircuitRow> CalculateBalancing(List<CircuitRow> circuits, ValveType valveType)
         {
@@ -349,34 +389,70 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             if (activeCircuits.Count == 0)
                 return circuits;
 
-            // Найти контур с максимальными потерями (референсный)
-            double maxPressureLoss = activeCircuits.Max(c => c.OperatingResult.TotalLoss);
+            // === ИЗМЕНЕНИЕ: Найти контур с МАКСИМАЛЬНЫМ DpGesamt (референсный) ===
+            double maxDpGesamt = activeCircuits.Max(c => c.OperatingResult.DpGesamt);
+
+            // === ИЗМЕНЕНИЕ: Максимальные обороты для типа клапана ===
+            double maxTurns = ValveTurnsCalculator.GetMaxTurns(valveType);
 
             // Рассчитать дросселирование для каждого контура
             foreach (var circuit in activeCircuits)
             {
-                // zu_drosseln = Δp_max - Δp_total
-                circuit.Throttling = maxPressureLoss - circuit.OperatingResult.TotalLoss;
+                double dpGesamt = circuit.OperatingResult.DpGesamt;
 
-                // Референсный контур
-                circuit.IsReferenceCircuit = Math.Abs(circuit.OperatingResult.TotalLoss - maxPressureLoss) < 0.01;
-
-                // Расчёт оборотов клапана
-                if (circuit.Throttling > 0)
+                // === ИЗМЕНЕНИЕ: zu_drosseln зависит от типа клапана ===
+                if (valveType == ValveType.HKV_D)
                 {
-                    // Kv для дросселирования
-                    // Плотность берём из результата расчёта при рабочей температуре (уже в г/см³)
+                    // HKV-D: zu_drosseln = DpGesamt_max - DpRohr - DpVent
+                    circuit.Throttling = maxDpGesamt - (circuit.OperatingResult.DpRohr + circuit.OperatingResult.DpVent);
+                }
+                else
+                {
+                    // IV: zu_drosseln = DpGesamt_max - DpRohr - DpVerteiler
+                    circuit.Throttling = maxDpGesamt - (circuit.OperatingResult.DpRohr + circuit.OperatingResult.DpVerteiler);
+                }
+
+                // === ИЗМЕНЕНИЕ: Референсный контур — контур с максимальным DpGesamt ===
+                circuit.IsReferenceCircuit = Math.Abs(dpGesamt - maxDpGesamt) < 0.01;
+
+                if (circuit.IsReferenceCircuit)
+                {
+                    // === ИЗМЕНЕНИЕ: Референсный контур получает МАКСИМАЛЬНЫЕ обороты ===
+                    circuit.ValveTurns = maxTurns;
+                    circuit.ValveTurnsWarning = null;
+                }
+                else
+                {
+                    // Расчёт Kv для дросселирования
                     double density_g_cm3 = circuit.OperatingResult.Density;
                     double kv = CalculateKvForThrottling(circuit.FlowRate, circuit.Throttling, density_g_cm3);
                     var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, valveType);
                     circuit.ValveTurns = turns;
                     circuit.ValveTurnsWarning = warning;
                 }
-                else
-                {
-                    circuit.ValveTurns = 0;
-                    circuit.ValveTurnsWarning = null;
-                }
+            }
+
+            // Пересчитать потери на клапане при текущих оборотах
+            foreach (var circuit in activeCircuits)
+            {
+                // Рассчитать Kv для текущих оборотов
+                double kv = ValveTurnsCalculator.CalculateKvFromTurns(circuit.ValveTurns, valveType);
+
+                // Пересчитать потери на клапане
+                double density_g_cm3 = circuit.OperatingResult.Density;
+
+                // === ИЗМЕНЕНИЕ: Использовать DpVent вместо ValveLoss ===
+                // Примечание: DpVent уже рассчитан в CalculateAtTemperature
+                // Здесь мы пересчитываем DpVent для текущих оборотов
+                circuit.OperatingResult.DpVent = Math.Pow(circuit.FlowRate / 1000.0 / kv, 2) * 100000 * density_g_cm3;
+
+                // Обновить DpGesamt (вычисляется автоматически)
+                // DpGesamt = DpRohr + DpVerteiler + DpVent
+
+                // === УСТАРЕВШЕЕ: Обновить ValveLoss для обратной совместимости ===
+#pragma warning disable CS0618 // Type or member is obsolete
+                circuit.OperatingResult.ValveLoss = circuit.OperatingResult.DpVent;
+#pragma warning restore CS0618
             }
 
             return circuits;
@@ -425,8 +501,9 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 TotalPipeLength = activeCircuits.Sum(c => c.TotalLength),
                 TotalPower = activeCircuits.Sum(c => c.Power),
                 TotalFlowRate = activeCircuits.Sum(c => c.FlowRate),
-                PressureLoss_Operating_mbar = activeCircuits.Max(c => c.OperatingResult?.TotalLoss_mbar ?? 0),
-                PressureLoss_Cold_mbar = activeCircuits.Max(c => c.DesignResult?.TotalLoss_mbar ?? 0)
+                // === ИЗМЕНЕНИЕ: Использовать DpGesamt вместо TotalLoss_mbar ===
+                PressureLoss_Operating_Pa = activeCircuits.Max(c => c.OperatingResult?.DpGesamt ?? 0),
+                PressureLoss_Cold_Pa = activeCircuits.Max(c => c.DesignResult?.DpGesamt ?? 0)
             };
 
             // Найти референсный контур
@@ -438,9 +515,9 @@ namespace SnowMeltingCalculator.Services.Hydraulics
 
             // Проверка превышения давления
             var warnings = new List<string>();
-            if (summary.PressureLoss_Cold_mbar > CollectorSummary.MaxAllowedPressure_mbar)
+            if (summary.PressureLoss_Cold_Pa > CollectorSummary.MaxAllowedPressure_Pa)
             {
-                warnings.Add($"Превышение давления: {summary.PressureLoss_Cold_mbar:F1} мбар > {CollectorSummary.MaxAllowedPressure_mbar} мбар");
+                warnings.Add($"Превышение давления: {summary.PressureLoss_Cold_Pa / 100.0:F1} мбар > {CollectorSummary.MaxAllowedPressure_Pa / 100.0:F0} мбар");
             }
 
             summary.Warnings = warnings.ToArray();

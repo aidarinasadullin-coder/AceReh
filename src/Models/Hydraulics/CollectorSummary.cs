@@ -51,16 +51,34 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Общий расход, м³/ч
         /// </summary>
         public double TotalFlowRate_m3h => TotalFlowRate / 1000.0;
-        
+
+        /// <summary>
+        /// Потери давления при рабочей температуре, Па
+        /// </summary>
+        public double PressureLoss_Operating_Pa { get; set; }
+
+        /// <summary>
+        /// Потери давления при расчётной (холодной) температуре, Па
+        /// </summary>
+        public double PressureLoss_Cold_Pa { get; set; }
+
         /// <summary>
         /// Потери давления при рабочей температуре, мбар
         /// </summary>
-        public double PressureLoss_Operating_mbar { get; set; }
-        
+        /// <remarks>
+        /// Устарело. Использовать PressureLoss_Operating_Pa / 100.0
+        /// </remarks>
+        [Obsolete("Использовать PressureLoss_Operating_Pa / 100.0")]
+        public double PressureLoss_Operating_mbar => PressureLoss_Operating_Pa / 100.0;
+
         /// <summary>
-        /// Потери давления при расчётной (холодной) температуре, мбар
+        /// Потери давления при расчётной температуре, мбар
         /// </summary>
-        public double PressureLoss_Cold_mbar { get; set; }
+        /// <remarks>
+        /// Устарело. Использовать PressureLoss_Cold_Pa / 100.0
+        /// </remarks>
+        [Obsolete("Использовать PressureLoss_Cold_Pa / 100.0")]
+        public double PressureLoss_Cold_mbar => PressureLoss_Cold_Pa / 100.0;
         
         /// <summary>
         /// Максимальные потери давления контура (референсный контур), Па
@@ -103,26 +121,19 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// </remarks>
         public ValveType ValveType { get; set; } = ValveType.HKV_D;
         
-        // === Вычисляемые свойства ===
-        
-        /// <summary>
-        /// Потери давления при рабочей температуре, Па
-        /// </summary>
-        public double PressureLoss_Operating_Pa => PressureLoss_Operating_mbar * 100;
-        
-        /// <summary>
-        /// Потери давления при расчётной температуре, Па
-        /// </summary>
-        public double PressureLoss_Cold_Pa => PressureLoss_Cold_mbar * 100;
-        
         /// <summary>
         /// Максимально допустимые потери (ограничение РЕХАУ), мбар
         /// </summary>
         public static readonly double MaxAllowedPressure_mbar = 320;
         
         /// <summary>
+        /// Максимально допустимые потери, Па
+        /// </summary>
+        public static readonly double MaxAllowedPressure_Pa = 32000;
+        
+        /// <summary>
         /// Проверка превышения лимита потерь
         /// </summary>
-        public bool IsPressureExceeded => PressureLoss_Cold_mbar > MaxAllowedPressure_mbar;
+        public bool IsPressureExceeded => PressureLoss_Cold_Pa > MaxAllowedPressure_Pa;
     }
 }

@@ -864,33 +864,76 @@
 
                                         <!-- Удельные потери (только чтение) -->
                                         <DataGridTextColumn Header="Уд.потери (Па/м)"
-                                                            Binding="{Binding CurrentResult.PressureLossPerMeter, Mode=OneWay, StringFormat=F1}"
+                                                            Binding="{Binding CurrentResult.PressureLossPerMeter, Mode=OneWay, StringFormat=F2}"
                                                             IsReadOnly="True"
                                                             Width="110"
                                                             ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
 
-                                        <!-- Потери в контуре (только чтение) -->
-                                        <DataGridTextColumn Header="Δp контур (мбар)"
-                                                            Binding="{Binding CurrentResult.CircuitPipeLoss_mbar, Mode=OneWay, StringFormat=F1}"
+                                        <!-- DpRohr - потери в трубе (Па) -->
+                                        <DataGridTextColumn Header="DpRohr (Па)"
+                                                            Binding="{Binding CurrentResult.DpRohr, Mode=OneWay, StringFormat=F0}"
                                                             IsReadOnly="True"
-                                                            Width="120"
-                                                            CellStyle="{StaticResource CircuitPressureCellStyle}"
-                                                            ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+                                                            Width="90">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                    <Setter Property="Padding" Value="4,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
 
-                                        <!-- Потери на клапане (только чтение) -->
-                                        <DataGridTextColumn Header="Δp клапан (мбар)"
-                                                            Binding="{Binding CurrentResult.ValveLoss_mbar, Mode=OneWay, StringFormat=F1}"
+                                        <!-- DpVerteiler - потери в распределителе (Па) -->
+                                        <DataGridTextColumn Header="DpVerteiler (Па)"
+                                                            Binding="{Binding CurrentResult.DpVerteiler, Mode=OneWay, StringFormat=F0}"
                                                             IsReadOnly="True"
-                                                            Width="110"
-                                                            CellStyle="{StaticResource ValvePressureCellStyle}"
-                                                            ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+                                                            Width="100">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                    <Setter Property="Padding" Value="4,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
 
-                                        <!-- Суммарные потери (только чтение) -->
-                                        <DataGridTextColumn Header="Δp сумма (мбар)"
-                                                            Binding="{Binding CurrentResult.TotalLoss_mbar, Mode=OneWay, StringFormat=F1}"
+                                        <!-- DpVent - потери в вентиле (Па) -->
+                                        <DataGridTextColumn Header="DpVent (Па)"
+                                                            Binding="{Binding CurrentResult.DpVent, Mode=OneWay, StringFormat=F0}"
                                                             IsReadOnly="True"
-                                                            Width="110"
-                                                            ElementStyle="{StaticResource ReadOnlyCellStyle}"/>
+                                                            Width="90">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                    <Setter Property="Padding" Value="4,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <!-- DpGesamt - суммарные потери (Па) -->
+                                        <DataGridTextColumn Header="DpGesamt (Па)"
+                                                            Binding="{Binding CurrentResult.DpGesamt, Mode=OneWay, StringFormat=F0}"
+                                                            IsReadOnly="True"
+                                                            Width="100">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                    <Setter Property="Padding" Value="4,0"/>
+                                                    <Setter Property="Foreground" Value="{Binding CurrentResult.DpGesamt, Converter={StaticResource PressureColorConverter}}"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <!-- zu_drosseln - дросселирование (Па) -->
+                                        <DataGridTextColumn Header="zu_drosseln (Па)"
+                                                            Binding="{Binding Throttling, Mode=OneWay, StringFormat=F0}"
+                                                            IsReadOnly="True"
+                                                            Width="100">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                    <Setter Property="Padding" Value="4,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
 
                                         <!-- Обороты вентиля (только чтение) -->
                                         <DataGridTextColumn Header="Обороты"

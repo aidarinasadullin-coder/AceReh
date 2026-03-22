@@ -34,9 +34,43 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         public const double KV_IV_1_5 = 1.5;
 
         /// <summary>
-        /// Максимальное количество оборотов клапана
+        /// Максимальное количество оборотов клапана (для IV)
         /// </summary>
+        /// <remarks>
+        /// Устарело. Использовать GetMaxTurns(ValveType) для получения максимальных оборотов по типу клапана.
+        /// HKV-D имеет максимальные обороты 2.5, а не 8.0.
+        /// </remarks>
+        [Obsolete("Использовать GetMaxTurns(ValveType) для получения максимальных оборотов по типу клапана")]
         public const double MaxTurns = 8.0;
+
+        #endregion
+
+        #region GetMaxTurns
+
+        /// <summary>
+        /// Получить максимальные обороты для типа клапана
+        /// </summary>
+        /// <param name="valveType">Тип клапана</param>
+        /// <returns>Максимальные обороты</returns>
+        /// <remarks>
+        /// HKV-D: 2.5 оборота (максимум для бытового коллектора)
+        /// IV 1¼": 8.0 оборотов
+        /// IV 1½": 8.0 оборотов
+        /// 
+        /// Важно: HKV-D имеет ограничение в 2.5 оборота из-за конструкции клапана.
+        /// Промышленные коллекторы IV имеют больший ход клапана (8 оборотов).
+        /// </remarks>
+        /// <exception cref="ArgumentException">Неподдерживаемый тип клапана</exception>
+        public static double GetMaxTurns(ValveType valveType)
+        {
+            return valveType switch
+            {
+                ValveType.HKV_D => 2.5,
+                ValveType.IV_1_25 => 8.0,
+                ValveType.IV_1_5 => 8.0,
+                _ => throw new ArgumentException($"Неподдерживаемый тип клапана: {valveType}", nameof(valveType))
+            };
+        }
 
         #endregion
 
@@ -96,11 +130,14 @@ namespace SnowMeltingCalculator.Services.Hydraulics
 
             string? warning = null;
 
+            // ИЗМЕНЕНИЕ: Использовать GetMaxTurns вместо константы MaxTurns
+            double maxTurns = GetMaxTurns(valveType);
+
             // Проверка ограничения оборотов
-            if (turns > MaxTurns)
+            if (turns > maxTurns)
             {
-                warning = $"Расчётные обороты ({turns:F2}) превышают максимум ({MaxTurns}). Установлено {MaxTurns} оборотов.";
-                turns = MaxTurns;
+                warning = $"Расчётные обороты ({turns:F2}) превышают максимум ({maxTurns}). Установлено {maxTurns} оборотов.";
+                turns = maxTurns;
             }
 
             // Округление до 0.25 оборота
@@ -159,6 +196,38 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             };
         }
 
+        /// <summary>
+        /// Рассчитать Kv по оборотам балансировочного клапана (обратная функция)
+        /// </summary>
+        /// <param name="turns">Количество оборотов</param>
+        /// <param name="valveType">Тип клапана</param>
+        /// <returns>Kv (м³/ч)</returns>
+        /// <remarks>
+        /// Обратная функция для расчёта Kv по оборотам.
+        /// 
+        /// Для IV 1½" и IV 1¼" — линейная формула, Kv рассчитывается напрямую.
+        /// Для HKV-D — кубическое уравнение, решается численным методом (Ньютона).
+        /// 
+        /// Формулы:
+        /// - IV 1½": Kv = (Обороты + 0.2106) / 5.122
+        /// - IV 1¼": Kv = (Обороты + 0.23) / 5.1818
+        /// - HKV-D: Решение кубического уравнения 4.2111×Kv³ - 6.7436×Kv² + 4.6613×Kv - 0.712 - Обороты = 0
+        /// </remarks>
+        /// <exception cref="ArgumentException">Неподдерживаемый тип клапана</exception>
+        public static double CalculateKvFromTurns(double turns, ValveType valveType)
+        {
+            if (turns < 0)
+                throw new ArgumentException("Количество оборотов не может быть отрицательным", nameof(turns));
+
+            return valveType switch
+            {
+                ValveType.IV_1_5 => CalculateKvFromTurnsIV_1_5(turns),
+                ValveType.IV_1_25 => CalculateKvFromTurnsIV_1_25(turns),
+                ValveType.HKV_D => CalculateKvFromTurnsHKV_D(turns),
+                _ => throw new ArgumentException($"Неподдерживаемый тип клапана: {valveType}", nameof(valveType))
+            };
+        }
+
         #endregion
 
         #region Приватные методы
@@ -191,6 +260,67 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                    - 6.7436 * Math.Pow(kv, 2)
                    + 4.6613 * kv
                    - 0.712;
+        }
+
+        /// <summary>
+        /// Расчёт Kv по оборотам для IV 1½" (обратная функция)
+        /// Формула: Kv = (Обороты + 0.2106) / 5.122
+        /// </summary>
+        private static double CalculateKvFromTurnsIV_1_5(double turns)
+        {
+            return (turns + 0.2106) / 5.122;
+        }
+
+        /// <summary>
+        /// Расчёт Kv по оборотам для IV 1¼" (обратная функция)
+        /// Формула: Kv = (Обороты + 0.23) / 5.1818
+        /// </summary>
+        private static double CalculateKvFromTurnsIV_1_25(double turns)
+        {
+            return (turns + 0.23) / 5.1818;
+        }
+
+        /// <summary>
+        /// Расчёт Kv по оборотам для HKV-D (обратная функция)
+        /// Решение кубического уравнения: 4.2111×Kv³ - 6.7436×Kv² + 4.6613×Kv - 0.712 - Обороты = 0
+        /// Используется метод Ньютона для численного решения.
+        /// </summary>
+        private static double CalculateKvFromTurnsHKV_D(double turns)
+        {
+            // Целевое значение: f(Kv) = 4.2111×Kv³ - 6.7436×Kv² + 4.6613×Kv - 0.712 - turns = 0
+            double target = turns + 0.712; // Переносим константу
+
+            // Начальное приближение (Kv ≈ 1.0 для оборотов ≈ 0.5)
+            double kv = 1.0;
+
+            // Метод Ньютона (до 20 итераций)
+            for (int i = 0; i < 20; i++)
+            {
+                // f(Kv) = 4.2111×Kv³ - 6.7436×Kv² + 4.6613×Kv - target
+                double f = 4.2111 * Math.Pow(kv, 3) - 6.7436 * Math.Pow(kv, 2) + 4.6613 * kv - target;
+
+                // f'(Kv) = 12.6333×Kv² - 13.4872×Kv + 4.6613
+                double fPrime = 12.6333 * Math.Pow(kv, 2) - 13.4872 * kv + 4.6613;
+
+                if (Math.Abs(fPrime) < 1e-10)
+                    break;
+
+                double newKv = kv - f / fPrime;
+
+                if (Math.Abs(newKv - kv) < 1e-6)
+                {
+                    kv = newKv;
+                    break;
+                }
+
+                kv = newKv;
+            }
+
+            // Ограничение Kv в допустимом диапазоне для HKV-D
+            if (kv < 0.8) kv = 0.8;
+            if (kv > 4.0) kv = 4.0;
+
+            return kv;
         }
 
         #endregion
