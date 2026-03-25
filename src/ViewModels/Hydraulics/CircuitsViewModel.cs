@@ -507,12 +507,19 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     var flowRate = _circuitsCalculator.CalculateFlowRate(power, input.DeltaT, glycolOperating.Density, glycolOperating.SpecificHeat);
                     circuit.FlowRate = flowRate;
 
+                    // Использовать kv из ValveTurns (если уже вычислен) или kv по умолчанию
+                    double kvForCalculation = kv;
+                    if (circuit.KvFromValveTurns > 0)
+                    {
+                        kvForCalculation = circuit.KvFromValveTurns;
+                    }
+
                     var operatingResult = _circuitsCalculator.CalculateAtTemperature(
                         circuit,
                         operatingTemp,
                         glycolOperating,
                         input.InnerDiameter,
-                        kv,
+                        kvForCalculation,
                         collector.ValveType
                     );
                     circuit.OperatingResult = operatingResult;
@@ -522,7 +529,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                         designTemp,
                         glycolDesign,
                         input.InnerDiameter,
-                        kv,
+                        kvForCalculation,
                         collector.ValveType
                     );
                     circuit.DesignResult = designResult;
