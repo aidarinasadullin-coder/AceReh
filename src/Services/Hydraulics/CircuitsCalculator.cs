@@ -413,6 +413,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                     circuit.Throttling = 0;
                     circuit.ValveTurns = maxTurns;
                     circuit.ValveTurnsWarning = null;
+                    // Сохранить kv для последующих расчётов (вычислить из максимальных оборотов)
+                    circuit.KvFromValveTurns = ValveTurnsCalculator.CalculateKvFromTurns(maxTurns, valveType);
                 }
                 else
                 {
@@ -435,6 +437,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                     var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, valveType);
                     circuit.ValveTurns = turns;
                     circuit.ValveTurnsWarning = warning;
+                    // Сохранить kv для последующих расчётов
+                    circuit.KvFromValveTurns = kv;
                 }
             }
 
@@ -448,6 +452,9 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 {
                     // Рассчитать Kv для текущих оборотов
                     double kv = ValveTurnsCalculator.CalculateKvFromTurns(circuit.ValveTurns, valveType);
+                    
+                    // Сохранить kv для последующих расчётов
+                    circuit.KvFromValveTurns = kv;
 
                     // === Рабочая температура ===
                     double densityOperating = circuit.OperatingResult.Density;
