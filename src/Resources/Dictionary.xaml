@@ -17,6 +17,7 @@
     <converters:BoolToValidationColorConverter x:Key="BoolToValidationColorConverter"/>
     <converters:MaterialToColorConverter x:Key="MaterialToColorConverter"/>
     <converters:SidebarTooltipConverter x:Key="SidebarTooltipConverter"/>
+    <converters:CityMatchToHighlightConverter x:Key="CityMatchToHighlightConverter"/>
 
     <!-- Значения климатических зон для ComboBox -->
     <x:Array x:Key="ClimateZoneValues" Type="{x:Type models:ClimateZone}">
@@ -25,5 +26,788 @@
         <models:ClimateZone>Zone_M20</models:ClimateZone>
         <models:ClimateZone>Zone_M20_Plus</models:ClimateZone>
     </x:Array>
+
+    <!-- ============================================ -->
+    <!-- ШРИФТЫ REHAU -->
+    <!-- ============================================ -->
+
+    <!-- Основной шрифт приложения -->
+    <FontFamily x:Key="FontFamily.Main">Inter</FontFamily>
+
+    <!-- ============================================ -->
+    <!-- ТИПОГРАФИКА REHAU -->
+    <!-- ============================================ -->
+
+    <!-- Заголовки -->
+    <Style x:Key="Text.H1" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="32"/>
+        <Setter Property="FontWeight" Value="ExtraBold"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="Text.H2" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="Text.H3" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="Text.H4" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- Основной текст -->
+    <Style x:Key="Text.Body" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Light"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="Text.BodyBold" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- Подписи -->
+    <Style x:Key="Text.Caption" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="Light"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="Text.CaptionBold" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- Ссылки -->
+    <Style x:Key="Text.Link" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Light"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauRedBrush}"/>
+        <Setter Property="TextDecorations" Value="Underline"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- Текст на брендовом фоне -->
+    <Style x:Key="Text.OnBrand" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Light"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- КОМПОНЕНТЫ UI REHAU (БАЗОВЫЕ СТИЛИ) -->
+    <!-- Без зависимости от MaterialDesign -->
+    <!-- Важно: эти стили должны быть определены до их использования в Rehau-стилях -->
+    <!-- ============================================ -->
+
+    <!-- ============================================ -->
+    <!-- BUTTON СТИЛИ -->
+    <!-- ============================================ -->
+
+    <!-- Базовый стиль кнопки -->
+    <Style x:Key="Button.Base" TargetType="Button">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource Radius.Button}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Primary кнопка - основное действие -->
+    <!-- Состояния: Default (#E50040), Hover (#C70036), Pressed (#A3002D), Disabled (#E0E0E0/#9E9E9E) -->
+    <Style x:Key="Button.Primary" TargetType="Button" BasedOn="{StaticResource Button.Base}">
+        <Setter Property="Background" Value="{DynamicResource RehauRedBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Style.Triggers>
+            <!-- Hover: темнее на 10% -->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#C70036"/>
+            </Trigger>
+            <!-- Pressed: темнее на 20% -->
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#A3002D"/>
+            </Trigger>
+            <!-- Disabled -->
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#E0E0E0"/>
+                <Setter Property="Foreground" Value="#9E9E9E"/>
+                <Setter Property="Cursor" Value="Arrow"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Secondary кнопка - вторичное действие -->
+    <!-- Состояния: Default (White/Teal border), Hover (#F5F5F5), Pressed (#E0E0E0), Disabled (#F5F5F5/#9E9E9E) -->
+    <Style x:Key="Button.Secondary" TargetType="Button" BasedOn="{StaticResource Button.Base}">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauTealBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Style.Triggers>
+            <!-- Hover: светло-серый фон -->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#F5F5F5"/>
+            </Trigger>
+            <!-- Pressed: серый фон -->
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#E0E0E0"/>
+            </Trigger>
+            <!-- Disabled -->
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#F5F5F5"/>
+                <Setter Property="Foreground" Value="#9E9E9E"/>
+                <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                <Setter Property="Cursor" Value="Arrow"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Success кнопка - позитивное действие -->
+    <!-- Состояния: Default (#4FC7B5), Hover (#3BA394), Pressed (#2D8A7D), Disabled (#E0E0E0/#9E9E9E) -->
+    <Style x:Key="Button.Success" TargetType="Button" BasedOn="{StaticResource Button.Base}">
+        <Setter Property="Background" Value="{DynamicResource RehauTealBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauTealBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Style.Triggers>
+            <!-- Hover: темнее на ~15% -->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#3BA394"/>
+            </Trigger>
+            <!-- Pressed: темнее на ~25% -->
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#2D8A7D"/>
+            </Trigger>
+            <!-- Disabled -->
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#E0E0E0"/>
+                <Setter Property="Foreground" Value="#9E9E9E"/>
+                <Setter Property="Cursor" Value="Arrow"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- TEXTBOX СТИЛИ -->
+    <!-- ============================================ -->
+
+    <!-- Базовый стиль TextBox -->
+    <Style x:Key="TextBox.Base" TargetType="TextBox">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource Radius.SM}"
+                            Padding="{TemplateBinding Padding}">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
+                            <Setter TargetName="border" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RehauGrayBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Default TextBox -->
+    <Style x:Key="TextBox.Default" TargetType="TextBox" BasedOn="{StaticResource TextBox.Base}">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauGrayBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+    </Style>
+
+    <!-- Focus TextBox - с акцентом при фокусе -->
+    <Style x:Key="TextBox.Focus" TargetType="TextBox" BasedOn="{StaticResource TextBox.Default}">
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
+    </Style>
+
+    <!-- Error TextBox - состояние ошибки -->
+    <Style x:Key="TextBox.Error" TargetType="TextBox" BasedOn="{StaticResource TextBox.Base}">
+        <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+    </Style>
+
+    <!-- Disabled TextBox - отключённое состояние -->
+    <Style x:Key="TextBox.Disabled" TargetType="TextBox" BasedOn="{StaticResource TextBox.Base}">
+        <Setter Property="Background" Value="#F5F5F5"/>
+        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+        <Setter Property="Foreground" Value="#9E9E9E"/>
+        <Setter Property="IsEnabled" Value="False"/>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- COMBOBOX СТИЛИ -->
+    <!-- ============================================ -->
+
+    <!-- Default ComboBox -->
+    <Style x:Key="ComboBox.Default" TargetType="ComboBox">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Height" Value="Auto"/>
+        <Setter Property="MaxHeight" Value="60"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauGrayBrush}"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{StaticResource Radius.SM}"
+                                Padding="{TemplateBinding Padding}">
+                            <Grid>
+                                <ContentPresenter Content="{TemplateBinding SelectionBoxItem}"
+                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Left"/>
+                                <Path x:Name="arrow"
+                                      Data="M0,0 L6,6 L12,0"
+                                      Stroke="{DynamicResource RehauGrayBrush}"
+                                      StrokeThickness="1.5"
+                                      Width="12"
+                                      Height="6"
+                                      Stretch="Uniform"
+                                      HorizontalAlignment="Right"
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,8,0"/>
+                            </Grid>
+                        </Border>
+                        <!-- ToggleButton для управления раскрытием списка -->
+                        <ToggleButton x:Name="PART_ToggleButton"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Cursor="Hand"
+                                      Focusable="False"
+                                      ClickMode="Press">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border Background="Transparent"/>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <Popup x:Name="PART_Popup"
+                               AllowsTransparency="True"
+                               Placement="Bottom"
+                               IsOpen="{TemplateBinding IsDropDownOpen}">
+                            <Border Background="White"
+                                    BorderBrush="{DynamicResource RehauGrayBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="{StaticResource Radius.SM}"
+                                    Margin="0,4,0,0"
+                                    MaxHeight="300">
+                                <ScrollViewer>
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <!-- Hover: бирюзовая рамка -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RehauTealBrush}"/>
+                        </Trigger>
+                        <!-- Focus: красная рамка (акцент) -->
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
+                            <Setter TargetName="border" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                        <!-- Dropdown open: стрелка вверх -->
+                        <Trigger Property="IsDropDownOpen" Value="True">
+                            <Setter TargetName="arrow" Property="RenderTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="180"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <!-- Disabled: серый фон и текст -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Background" Value="#F5F5F5"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="#E0E0E0"/>
+                            <Setter TargetName="arrow" Property="Stroke" Value="#9E9E9E"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="#9E9E9E"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Стиль для элементов ComboBox -->
+    <Style x:Key="ComboBoxItem.Default" TargetType="ComboBoxItem">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="MinHeight" Value="50"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="border"
+                            Background="Transparent"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#F5F5F5"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- УЛУЧШЕННЫЕ СТИЛИ REHAU -->
+    <!-- ============================================ -->
+
+    <!-- Стиль для карточек с тенью и скруглёнными углами -->
+    <Style x:Key="RehauCardStyle" TargetType="Border">
+        <Setter Property="Margin" Value="0,0,0,16"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Background" Value="{DynamicResource RehauCardBrush}"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <!-- Стиль для заголовков секций (устаревший, используйте Text.H4) -->
+    <Style x:Key="RehauSectionTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+        <Setter Property="Margin" Value="0,0,0,12"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+    </Style>
+
+    <!-- Стиль для подзаголовков -->
+    <Style x:Key="RehauSubtitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
+        <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+
+    <!-- Стиль для карточек результатов (плоский цвет) -->
+    <Style x:Key="RehauResultCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource RehauResultCardBrush}"/>
+        <Setter Property="Padding" Value="{StaticResource Spacing.MD.Thickness}"/>
+        <Setter Property="Margin" Value="0,0,8,8"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <!-- Стиль для акцентных карточек результатов (основной результат) -->
+    <Style x:Key="RehauAccentResultCardStyle" TargetType="Border" BasedOn="{StaticResource RehauResultCardStyle}">
+        <Setter Property="Background" Value="#F5F5F5"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+
+    <!-- Стиль для основной кнопки действия -->
+    <Style x:Key="RehauPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
+    </Style>
+
+    <!-- Стиль для вторичной кнопки -->
+    <Style x:Key="RehauSecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}">
+    </Style>
+
+    <!-- Стиль для полей ввода -->
+    <Style x:Key="RehauTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource TextBox.Default}">
+    </Style>
+
+    <!-- Стиль для ComboBox -->
+    <Style x:Key="RehauComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource ComboBox.Default}">
+        <Setter Property="ItemContainerStyle" Value="{StaticResource ComboBoxItem.Default}"/>
+    </Style>
+
+    <!-- Стиль для информационных карточек (плоский цвет) -->
+    <Style x:Key="RehauInfoCardStyle" TargetType="Border">
+        <Setter Property="Margin" Value="0,0,0,16"/>
+        <Setter Property="Background" Value="#F0F8F8"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauTealBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="16"/>
+    </Style>
+
+    <!-- Стиль для предупреждающих карточек -->
+    <Style x:Key="RehauWarningCardStyle" TargetType="Border">
+        <Setter Property="Margin" Value="0,0,0,16"/>
+        <Setter Property="Background" Value="#FFF8E8"/>
+        <Setter Property="BorderBrush" Value="#FFB300"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="16"/>
+    </Style>
+
+    <!-- Стиль для иконок информационных сообщений (Path) -->
+    <Style x:Key="RehauInfoIconStyle" TargetType="Path">
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Fill" Value="{DynamicResource RehauTealBrush}"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Stretch" Value="Uniform"/>
+    </Style>
+
+    <!-- Стиль для иконок предупреждений (Path) -->
+    <Style x:Key="RehauWarningIconStyle" TargetType="Path">
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Fill" Value="#FF9800"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Stretch" Value="Uniform"/>
+    </Style>
+
+    <!-- Стиль для больших значений результатов -->
+    <Style x:Key="RehauResultValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauRedBrush}"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+    </Style>
+
+    <!-- Стиль для единиц измерения -->
+    <Style x:Key="RehauUnitStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
+        <Setter Property="Margin" Value="0,2,0,0"/>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- СТИЛИ ДЛЯ HYDRAULICS VIEWS -->
+    <!-- ============================================ -->
+
+    <!-- Стиль для заголовка секции (синий → красный REHAU) -->
+    <Style x:Key="RehauSectionHeaderStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Margin" Value="0,10,0,5"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauRedBrush}"/>
+    </Style>
+
+    <!-- Стиль для информационного блока (бирюзовый) -->
+    <Style x:Key="RehauInfoBlockStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource RehauTealLightOpacityBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauTealBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="{StaticResource Spacing.MD.Thickness}"/>
+        <Setter Property="CornerRadius" Value="5"/>
+    </Style>
+
+    <!-- Стиль для блока результатов (красный) -->
+    <Style x:Key="RehauResultBlockStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="{StaticResource Spacing.SM.Thickness}"/>
+        <Setter Property="CornerRadius" Value="5"/>
+    </Style>
+
+    <!-- Стиль для блока предупреждений (оранжевый → красный) -->
+    <Style x:Key="RehauWarningBlockStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauRedLightBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="{StaticResource Spacing.SM.Thickness}"/>
+        <Setter Property="CornerRadius" Value="5"/>
+    </Style>
+
+    <!-- Стиль для блока успеха (бирюзовый) -->
+    <Style x:Key="RehauSuccessBlockStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource RehauTealLightOpacityBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource RehauTealBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="{StaticResource Spacing.SM.Thickness}"/>
+        <Setter Property="CornerRadius" Value="5"/>
+    </Style>
+
+    <!-- Стиль для кнопки удаления -->
+    <Style x:Key="RehauDeleteButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Width" Value="22"/>
+        <Setter Property="Height" Value="22"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Content" Value="✕"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource RehauRedBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Стиль для заголовка TabItem -->
+    <Style x:Key="RehauTabItemHeaderStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
+    </Style>
+
+    <!-- Стиль для DataGrid заголовка -->
+    <Style x:Key="RehauDataGridHeaderStyle" TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Padding" Value="8,5"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Стиль для строки DataGrid -->
+    <Style x:Key="RehauDataGridRowStyle" TargetType="DataGridRow">
+        <Setter Property="Background" Value="White"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#F5F5F5"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Стили текста по состояниям -->
+    <Style x:Key="RehauWarningTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource RehauRedLightBrush}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Margin" Value="0,2"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="RehauErrorTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource RehauRedBrush}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Margin" Value="0,2"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="RehauSuccessTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource RehauTealBrush}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Margin" Value="0,2"/>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- CARD СТИЛИ -->
+    <!-- ============================================ -->
+
+    <!-- Default Card - стандартная карточка -->
+    <Style x:Key="Card.Default" TargetType="Border">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource Radius.MD}"/>
+        <Setter Property="Padding" Value="{StaticResource Spacing.MD.Thickness}"/>
+    </Style>
+
+    <!-- Interactive Card - карточка с hover эффектом -->
+    <Style x:Key="Card.Interactive" TargetType="Border">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource Radius.MD}"/>
+        <Setter Property="Padding" Value="{StaticResource Spacing.MD.Thickness}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#F5F5F5"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource RehauTealBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Card с тенью -->
+    <Style x:Key="Card.Elevated" TargetType="Border">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="CornerRadius" Value="{StaticResource Radius.MD}"/>
+        <Setter Property="Padding" Value="{StaticResource Spacing.MD.Thickness}"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.15" Direction="270"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- DATAGRID СТИЛИ -->
+    <!-- ============================================ -->
+
+    <!-- Default DataGrid -->
+    <Style x:Key="DataGrid.Default" TargetType="DataGrid">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="#F0F0F0"/>
+        <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+        <Setter Property="RowBackground" Value="White"/>
+        <Setter Property="AlternatingRowBackground" Value="#FAFAFA"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="CanUserDeleteRows" Value="False"/>
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="SelectionUnit" Value="FullRow"/>
+    </Style>
+
+    <!-- DataGridColumnHeader -->
+    <Style x:Key="DataGridColumnHeader.Default" TargetType="DataGridColumnHeader">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+        <Setter Property="Padding" Value="8,5"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridColumnHeader">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- DataGridRow -->
+    <Style x:Key="DataGridRow.Default" TargetType="DataGridRow">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+        <Setter Property="Height" Value="36"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#F5F5F5"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
+            </Trigger>
+            <Trigger Property="AlternationIndex" Value="1">
+                <Setter Property="Background" Value="#FAFAFA"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- DataGridCell -->
+    <Style x:Key="DataGridCell.Default" TargetType="DataGridCell">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="8,5"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridCell">
+                    <Border Background="Transparent"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 </ResourceDictionary>

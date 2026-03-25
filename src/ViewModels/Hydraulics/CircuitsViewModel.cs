@@ -6,8 +6,10 @@ using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnowMeltingCalculator.Models.Hydraulics;
+using SnowMeltingCalculator.Models.Navigation;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Hydraulics;
+using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Thermal;
 
@@ -44,6 +46,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                         "IV 1½\" (2-12 контуров)" => ValveType.IV_1_5,
                         _ => ValveType.HKV_D
                     };
+                    // Уведомить об изменении отображаемого типа с количеством контуров
+                    OnPropertyChanged(nameof(CollectorTypeDisplayWithCount));
                 }
             }
         }
@@ -51,9 +55,49 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         [ObservableProperty]
         private ValveType _valveType = ValveType.HKV_D;
 
+        /// <summary>
+        /// Отображаемое название типа коллектора с фактическим количеством контуров
+        /// </summary>
+        /// <remarks>
+        /// Формат: "HKV-D (3 контура)", "IV 1¼\" (5 контуров)", "IV 1½\" (8 контуров)"
+        /// </remarks>
+        public string CollectorTypeDisplayWithCount
+        {
+            get
+            {
+                string typeName = ValveType switch
+                {
+                    ValveType.HKV_D => "HKV-D",
+                    ValveType.IV_1_25 => "IV 1¼\"",
+                    ValveType.IV_1_5 => "IV 1½\"",
+                    _ => "Unknown"
+                };
+
+                int count = Circuits.Count;
+                string countText = count switch
+                {
+                    1 => "1 контур",
+                    2 or 3 or 4 => $"{count} контура",
+                    _ => $"{count} контуров"
+                };
+
+                return $"{typeName} ({countText})";
+            }
+        }
+
         public CollectorData(int collectorNumber)
         {
             CollectorNumber = collectorNumber;
+            // Подписка на изменение коллекции контуров для обновления отображаемого типа
+            Circuits.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CollectorTypeDisplayWithCount));
+        }
+
+        /// <summary>
+        /// Обработчик изменения типа клапана
+        /// </summary>
+        partial void OnValveTypeChanged(ValveType value)
+        {
+            OnPropertyChanged(nameof(CollectorTypeDisplayWithCount));
         }
     }
 
@@ -65,6 +109,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         private readonly IGlycolDataService _glycolService;
         private readonly ThermalViewModel _thermalViewModel;
         private readonly ClimateViewModel _climateViewModel;
+        private readonly ICalculationStateService _calculationStateService;
 
         #endregion
 
@@ -127,6 +172,15 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// </remarks>
         [ObservableProperty]
         private HydraulicInputData _inputData = new();
+
+        #endregion
+
+        #region Calculation State
+
+        /// <summary>
+        /// Признак того, что гидравлический расчёт выполняется
+        /// </summary>
+        public bool IsCalculating => _calculationStateService.HydraulicsIsCalculating;
 
         #endregion
 
@@ -275,9 +329,9 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         public CollectorSummary? Summary => SelectedCollector?.Summary;
 
         /// <summary>
-        /// Тип коллектора для отображения
+        /// Тип коллектора для отображения (с фактическим количеством контуров)
         /// </summary>
-        public string CollectorTypeDisplay => SelectedCollector?.CollectorType ?? "—";
+        public string CollectorTypeDisplay => SelectedCollector?.CollectorTypeDisplayWithCount ?? "—";
 
         /// <summary>
         /// Kv клапана для отображения
@@ -291,18 +345,24 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         [RelayCommand(CanExecute = nameof(CanAddCollector))]
         private void AddCollector()
         {
+            // Проверка лимита коллекторов (максимум 4)
+            if (Collectors.Count >= 4)
+            {
+                return;
+            }
+
             var collectorNumber = Collectors.Count + 1;
             var collector = new CollectorData(collectorNumber)
             {
                 ValveType = ValveType.HKV_D
             };
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 2; i++)
             {
                 collector.Circuits.Add(new CircuitRow
                 {
                     CircuitNumber = i + 1,
-                    CircuitLength = 100,
+                    CircuitLength = 0,
                     SupplyLength = 10,
                     SupplySpacing_cm = 5,
                     SupplyHeatPercent = 10
@@ -344,17 +404,27 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             var collector = SelectedCollector;
             if (collector == null) return;
 
+            // Проверка лимита контуров (максимум 12)
+            if (collector.Circuits.Count >= 12)
+            {
+                return;
+            }
+
             var circuitNumber = collector.Circuits.Count + 1;
             collector.Circuits.Add(new CircuitRow
             {
                 CircuitNumber = circuitNumber,
-                CircuitLength = 100,
+                CircuitLength = 0,
                 SupplyLength = 10,
                 SupplySpacing_cm = 5,
                 SupplyHeatPercent = 10
             });
 
             AddCircuitCommand.NotifyCanExecuteChanged();
+            
+            // === Пересчитать гидравлику после добавления контура ===
+            // Это необходимо для обновления референсного контура и балансировки
+            Calculate();
         }
 
         [RelayCommand(CanExecute = nameof(CanRemoveCircuit))]
@@ -375,100 +445,115 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 RenumberCircuits(collector);
                 AddCircuitCommand.NotifyCanExecuteChanged();
                 RemoveCircuitCommand.NotifyCanExecuteChanged();
+                
+                // === Пересчитать гидравлику после удаления контура ===
+                // Это необходимо для обновления референсного контура и балансировки
+                Calculate();
             }
         }
 
         [RelayCommand]
         private void Calculate()
         {
-            var collector = SelectedCollector;
-            if (collector == null) return;
-
-            var input = InputData;
-            if (input == null || input.InnerDiameter <= 0)
+            // Установить флаг выполнения расчёта
+            _calculationStateService.SetHydraulicsCalculating();
+            
+            try
             {
-                input = new HydraulicInputData
+                var collector = SelectedCollector;
+                if (collector == null) return;
+
+                var input = InputData;
+                if (input == null || input.InnerDiameter <= 0)
                 {
-                    InnerDiameter = 14.2,
-                    SupplyTemperature = 35,
-                    ReturnTemperature = 30,
-                    PowerUp = 180,
-                    PowerDown = 80,
-                    ColdFiveDayTemperature = -28
+                    input = new HydraulicInputData
+                    {
+                        InnerDiameter = 14.2,
+                        SupplyTemperature = 35,
+                        ReturnTemperature = 30,
+                        PowerUp = 180,
+                        PowerDown = 80,
+                        ColdFiveDayTemperature = -28
+                    };
+                }
+
+                var kv = collector.ValveType switch
+                {
+                    ValveType.HKV_D => 1.2,
+                    ValveType.IV_1_25 => 1.45,
+                    ValveType.IV_1_5 => 1.5,
+                    _ => 1.2
                 };
-            }
 
-            var kv = collector.ValveType switch
-            {
-                ValveType.HKV_D => 1.2,
-                ValveType.IV_1_25 => 1.45,
-                ValveType.IV_1_5 => 1.5,
-                _ => 1.2
-            };
+                var operatingTemp = input.OperatingTemperature;
+                var designTemp = _climateViewModel.AirTemperature;
 
-            var operatingTemp = input.OperatingTemperature;
-            var designTemp = _climateViewModel.AirTemperature;
+                var glycolOperating = _glycolService.GetProperties(GlycolType, GlycolConcentration, operatingTemp);
+                var glycolDesign = _glycolService.GetProperties(GlycolType, GlycolConcentration, designTemp);
 
-            var glycolOperating = _glycolService.GetProperties(GlycolType, GlycolConcentration, operatingTemp);
-            var glycolDesign = _glycolService.GetProperties(GlycolType, GlycolConcentration, designTemp);
+                OperatingGlycolProperties = glycolOperating;
+                DesignGlycolProperties = glycolDesign;
 
-            OperatingGlycolProperties = glycolOperating;
-            DesignGlycolProperties = glycolDesign;
+                // Получить шаг укладки из ThermalViewModel (мм → см)
+                double pipeSpacing_cm = _thermalViewModel.PipeSpacing / 10.0;
 
-            // Получить шаг укладки из ThermalViewModel (мм → см)
-            double pipeSpacing_cm = _thermalViewModel.PipeSpacing / 10.0;
+                foreach (var circuit in collector.Circuits)
+                {
+                    if (circuit.CircuitLength <= 0) continue;
 
-            foreach (var circuit in collector.Circuits)
-            {
-                if (circuit.CircuitLength <= 0) continue;
+                    var power = _circuitsCalculator.CalculateCircuitPower(circuit, input.PowerUp, input.PowerDown, pipeSpacing_cm);
+                    circuit.Power = power;
 
-                var power = _circuitsCalculator.CalculateCircuitPower(circuit, input.PowerUp, input.PowerDown, pipeSpacing_cm);
-                circuit.Power = power;
+                    var flowRate = _circuitsCalculator.CalculateFlowRate(power, input.DeltaT, glycolOperating.Density, glycolOperating.SpecificHeat);
+                    circuit.FlowRate = flowRate;
 
-                var flowRate = _circuitsCalculator.CalculateFlowRate(power, input.DeltaT, glycolOperating.Density, glycolOperating.SpecificHeat);
-                circuit.FlowRate = flowRate;
+                    var operatingResult = _circuitsCalculator.CalculateAtTemperature(
+                        circuit,
+                        operatingTemp,
+                        glycolOperating,
+                        input.InnerDiameter,
+                        kv,
+                        collector.ValveType
+                    );
+                    circuit.OperatingResult = operatingResult;
 
-                var operatingResult = _circuitsCalculator.CalculateAtTemperature(
-                    circuit,
-                    operatingTemp,
-                    glycolOperating,
-                    input.InnerDiameter,
-                    kv,
+                    var designResult = _circuitsCalculator.CalculateAtTemperature(
+                        circuit,
+                        designTemp,
+                        glycolDesign,
+                        input.InnerDiameter,
+                        kv,
+                        collector.ValveType
+                    );
+                    circuit.DesignResult = designResult;
+
+                    circuit.DisplayMode = CurrentMode;
+                }
+
+                var summary = _circuitsCalculator.CalculateCollectorSummary(
+                    new System.Collections.Generic.List<CircuitRow>(collector.Circuits),
+                    collector.CollectorNumber,
                     collector.ValveType
                 );
-                circuit.OperatingResult = operatingResult;
+                collector.Summary = summary;
 
-                var designResult = _circuitsCalculator.CalculateAtTemperature(
-                    circuit,
-                    designTemp,
-                    glycolDesign,
-                    input.InnerDiameter,
-                    kv,
+                // Автоматический выбор типа коллектора по расходу
+                AutoSelectCollectorType();
+
+                _circuitsCalculator.CalculateBalancing(
+                    new System.Collections.Generic.List<CircuitRow>(collector.Circuits),
                     collector.ValveType
                 );
-                circuit.DesignResult = designResult;
 
-                circuit.DisplayMode = CurrentMode;
+                foreach (var circuit in collector.Circuits)
+                {
+                    circuit.DisplayMode = CurrentMode;
+                }
             }
-
-            var summary = _circuitsCalculator.CalculateCollectorSummary(
-                new System.Collections.Generic.List<CircuitRow>(collector.Circuits),
-                collector.CollectorNumber,
-                collector.ValveType
-            );
-            collector.Summary = summary;
-
-            // Автоматический выбор типа коллектора по расходу
-            AutoSelectCollectorType();
-
-            _circuitsCalculator.CalculateBalancing(
-                new System.Collections.Generic.List<CircuitRow>(collector.Circuits),
-                collector.ValveType
-            );
-
-            foreach (var circuit in collector.Circuits)
+            finally
             {
-                circuit.DisplayMode = CurrentMode;
+                // Сбросить состояние после расчёта
+                _calculationStateService.ResetHydraulicsState();
             }
         }
 
@@ -488,12 +573,17 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             ICircuitsCalculator circuitsCalculator,
             IGlycolDataService glycolService,
             ThermalViewModel thermalViewModel,
-            ClimateViewModel climateViewModel)
+            ClimateViewModel climateViewModel,
+            ICalculationStateService calculationStateService)
         {
             _circuitsCalculator = circuitsCalculator ?? throw new ArgumentNullException(nameof(circuitsCalculator));
             _glycolService = glycolService ?? throw new ArgumentNullException(nameof(glycolService));
             _thermalViewModel = thermalViewModel ?? throw new ArgumentNullException(nameof(thermalViewModel));
             _climateViewModel = climateViewModel ?? throw new ArgumentNullException(nameof(climateViewModel));
+            _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
+
+            // Подписка на изменения состояния расчёта
+            _calculationStateService.StateChanged += OnCalculationStateChanged;
 
             // Подписка на изменения результата теплового расчёта
             _thermalViewModel.PropertyChanged += OnThermalViewModelPropertyChanged;
@@ -744,6 +834,10 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// - 1.5 < G < 2.5 м³/ч → IV 1¼" (2-12 контуров)
         /// - 2.5 ≤ G < 7 м³/ч → IV 1½" (2-12 контуров)
         /// - ≥ 7 м³/ч → предупреждение о превышении расхода
+        /// 
+        /// Дополнительно проверяется:
+        /// - Δp ≤ 320 мбар (32000 Па) — ограничение РЕХАУ
+        ///   Проверка выполняется для ОБОИХ режимов: рабочего и холодного пуска
         /// </remarks>
         private void AutoSelectCollectorType()
         {
@@ -757,29 +851,60 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             var totalFlowRate_m3h = summary.TotalFlowRate / 1000.0;
             var circuitsCount = collector.Circuits.Count;
 
-            // Автоматический выбор по расходу
-            if (totalFlowRate_m3h >= 7.0)
+            // Проверка превышения давления (320 мбар = 32000 Па = 32 кПа)
+            // Проверка выполняется для ОБОИХ режимов: рабочего и холодного пуска
+            var warnings = new System.Collections.Generic.List<string>();
+            
+            // Рабочий режим
+            if (summary.PressureLoss_Operating_Pa > CollectorSummary.MaxAllowedPressure_Pa)
+            {
+                double pressureKPa = summary.PressureLoss_Operating_Pa / 1000.0;
+                warnings.Add($"Превышение давления (рабочий режим): {pressureKPa:F1} кПа > 32 кПа");
+            }
+            
+            // Холодный пуск
+            if (summary.PressureLoss_Cold_Pa > CollectorSummary.MaxAllowedPressure_Pa)
+            {
+                double pressureKPa = summary.PressureLoss_Cold_Pa / 1000.0;
+                warnings.Add($"Превышение давления (холодный пуск): {pressureKPa:F1} кПа > 32 кПа");
+            }
+            
+            bool flowRateExceeded = totalFlowRate_m3h >= 7.0;
+
+            // Установка предупреждений
+            if (warnings.Count > 0)
+            {
+                // Объединяем предупреждения о давлении
+                summary.Warning = string.Join("\n", warnings);
+            }
+            // Предупреждение о расходе (только если давление в норме)
+            else if (flowRateExceeded)
             {
                 // Предупреждение о превышении расхода
-                summary.Warning = $"Превышение расхода: {totalFlowRate_m3h:F2} м³/ч ≥ 7.0 м³/ч. Рекомендуется разделить на несколько коллекторов.";
+                // Используем инвариантную культуру для форматирования (точка как разделитель)
+                summary.Warning = $"Превышение расхода: {totalFlowRate_m3h.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)} м³/ч ≥ 7.0 м³/ч. Рекомендуется разделить на несколько коллекторов.";
             }
-            else if (totalFlowRate_m3h >= 2.5)
+            else
+            {
+                summary.Warning = null;
+            }
+
+            // Автоматический выбор типа коллектора по расходу
+            // (не зависит от предупреждений о давлении)
+            if (totalFlowRate_m3h >= 2.5)
             {
                 collector.CollectorType = "IV 1½\" (2-12 контуров)";
                 collector.ValveType = ValveType.IV_1_5;
-                summary.Warning = null;
             }
             else if (totalFlowRate_m3h > 1.5)
             {
                 collector.CollectorType = "IV 1¼\" (2-12 контуров)";
                 collector.ValveType = ValveType.IV_1_25;
-                summary.Warning = null;
             }
             else
             {
                 collector.CollectorType = "HKV-D (2-12 контуров)";
                 collector.ValveType = ValveType.HKV_D;
-                summary.Warning = null;
             }
 
             // Обновить отображение типа коллектора
@@ -820,6 +945,15 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
             // Выполнить расчёт после обновления данных
             Calculate();
+        }
+
+        /// <summary>
+        /// Обработчик изменения состояния расчёта
+        /// </summary>
+        private void OnCalculationStateChanged(object? sender, ModuleStateChangedEventArgs e)
+        {
+            // Уведомить UI об изменении свойства IsCalculating
+            OnPropertyChanged(nameof(IsCalculating));
         }
 
         #endregion

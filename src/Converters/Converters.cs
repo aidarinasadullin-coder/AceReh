@@ -409,4 +409,38 @@ namespace SnowMeltingCalculator.Converters
             throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// Конвертер: давление (Па) → форматированная строка
+    /// </summary>
+    /// <remarks>
+    /// Если давление < 1000 Па — выводит в Па: "XXX Па (X.XX мбар)"
+    /// Если давление ≥ 1000 Па — выводит в кПа: "XX.X кПа (XXX мбар)"
+    /// </remarks>
+    public class PressureToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is double pressurePa)
+            {
+                double pressureMbar = pressurePa / 100.0;
+
+                if (pressurePa >= 1000)
+                {
+                    double pressureKPa = pressurePa / 1000.0;
+                    return $"{pressureKPa:F1} кПа ({pressureMbar:F0} мбар)";
+                }
+                else
+                {
+                    return $"{pressurePa:F0} Па ({pressureMbar:F2} мбар)";
+                }
+            }
+            return "—";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

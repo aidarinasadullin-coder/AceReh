@@ -1,3 +1,4 @@
+using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Construction;
@@ -9,6 +10,7 @@ using SnowMeltingCalculator.Services.Climate;
 using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Hydraulics;
+using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.ViewModels.Construction;
@@ -29,8 +31,22 @@ namespace SnowMeltingCalculator.Configuration
             // Repositories
             services.AddSingleton<IClimateDataRepository, ClimateDataRepository>();
 
+            // Репозиторий истории поиска
+            services.AddSingleton<ISearchHistoryRepository>(sp =>
+            {
+                var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "search_history.db");
+                // Убеждаемся, что директория существует
+                var dbDirectory = Path.GetDirectoryName(dbPath);
+                if (!string.IsNullOrEmpty(dbDirectory) && !Directory.Exists(dbDirectory))
+                {
+                    Directory.CreateDirectory(dbDirectory);
+                }
+                return SearchHistoryRepository.Create(dbPath);
+            });
+
             // Services
             services.AddSingleton<IClimateDataService, ClimateDataService>();
+            services.AddSingleton<ISearchHistoryService, SearchHistoryService>();
 
             // ViewModels
             services.AddSingleton<ClimateViewModel>();
@@ -103,11 +119,23 @@ namespace SnowMeltingCalculator.Configuration
         }
 
         /// <summary>
+        /// Добавить сервисы навигации и состояния
+        /// </summary>
+        public static IServiceCollection AddNavigationServices(this IServiceCollection services)
+        {
+            // Services - Singleton для глобального состояния расчёта
+            services.AddSingleton<ICalculationStateService, CalculationStateService>();
+
+            return services;
+        }
+
+        /// <summary>
         /// Добавить все сервисы приложения
         /// </summary>
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             return services
+                .AddNavigationServices()
                 .AddClimateModule()
                 .AddThermalModule()
                 .AddConstructionModule()

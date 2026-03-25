@@ -3,13 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:models="clr-namespace:SnowMeltingCalculator.Models.Climate"
              xmlns:behaviors="clr-namespace:SnowMeltingCalculator.Behaviors"
+             xmlns:controls="clr-namespace:SnowMeltingCalculator.Controls.Climate"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="{DynamicResource RehauBackgroundBrush}">
 
-    <Grid Margin="16">
+    <Grid Margin="{StaticResource Spacing.LG.Thickness}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -19,13 +20,19 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+<!-- Заголовок страницы -->
+        <TextBlock Grid.Row="0"
+                   Text="Климатические параметры"
+                   Style="{StaticResource Text.H2}"
+                   Foreground="{DynamicResource RehauBlackBrush}"
+                   Margin="0,0,0,20"/>
+
         <!-- Выбор города -->
-        <materialDesign:Card Grid.Row="1" Margin="0,0,0,16">
-            <StackPanel Margin="16">
+        <Border Grid.Row="1" Style="{StaticResource Card.Default}">
+            <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
                 <TextBlock Text="Выбор города"
-                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                          Margin="0,0,0,8"
-                          Foreground="{DynamicResource MaterialDesignBody}"/>
+                          Style="{StaticResource Text.H4}"
+                          Foreground="{DynamicResource RehauBlackBrush}"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -33,62 +40,66 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <ComboBox Grid.Column="0"
-                             ItemsSource="{Binding FilteredCities}"
-                             SelectedItem="{Binding SelectedCity}"
-                             Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                             IsEditable="True"
-                             StaysOpenOnEdit="True"
-                             MinWidth="300"
-                             ToolTip="Выберите город из списка или начните вводить название">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding Region}" FontSize="11" Foreground="Gray"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <!-- Новый контрол автозаполнения -->
+                    <controls:CityAutoCompleteBox Grid.Column="0"
+                                                  MinWidth="300"
+                                                  SearchQuery="{Binding SearchQuery, Mode=TwoWay}"
+                                                  SelectedCity="{Binding SelectedCity, Mode=TwoWay}"
+                                                  FilteredCities="{Binding FilteredCitiesWithHighlight, Mode=OneWay}"
+                                                  PlaceholderText="Введите город..."
+                                                  ToolTip="Введите название города для поиска"/>
 
                     <Button Grid.Column="1"
                            Content="Сбросить"
                            Command="{Binding ResetToDefaultsCommand}"
-                           Margin="8,0,0,0"
-                           Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                           Margin="12,0,0,0"
+                           Style="{StaticResource RehauSecondaryButtonStyle}"/>
                 </Grid>
 
                 <!-- Информация о выбранном городе -->
-                <StackPanel Orientation="Horizontal" Margin="0,8,0,0"
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
                            Visibility="{Binding SelectedCity, Converter={StaticResource NullToVisibilityConverter}}">
-                    <materialDesign:PackIcon Kind="MapMarker" VerticalAlignment="Center" Margin="0,0,4,0"
-                                           Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                    <Path Data="M12,2C8.13,2 5,5.13 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9C19,5.13 15.87,2 12,2M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5Z"
+                          Width="20" Height="20"
+                          Fill="{DynamicResource RehauTealBrush}"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          Stretch="Uniform"/>
                     <TextBlock Text="{Binding SelectedCity.DisplayName}"
-                              Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                              Foreground="{DynamicResource RehauGrayBrush}"
+                              VerticalAlignment="Center"/>
                 </StackPanel>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
 
         <!-- Параметры -->
-        <materialDesign:Card Grid.Row="2" Margin="0,0,0,16">
-            <StackPanel Margin="16">
+        <Border Grid.Row="2" Style="{StaticResource Card.Default}">
+            <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
                 <TextBlock Text="Климатические параметры"
-                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                          Margin="0,0,0,16"
-                          Foreground="{DynamicResource MaterialDesignBody}"/>
+                          Style="{StaticResource Text.H4}"
+                          Foreground="{DynamicResource RehauBlackBrush}"/>
 
-                <!-- Информация о температуре холодной пятидневки -->
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,12"
-                           Visibility="{Binding IsCitySelected, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <materialDesign:PackIcon Kind="Thermometer" VerticalAlignment="Center" Margin="0,0,4,0"
-                                            Foreground="{DynamicResource PrimaryHueMidBrush}"/>
-                    <TextBlock Foreground="{DynamicResource MaterialDesignBodyLight}">
-                        <Run Text="Температура холодной пятидневки: "/>
-                        <Run Text="{Binding ColdFiveDayTemperature, StringFormat={}{0:F1}, Mode=OneWay}" FontWeight="Bold"/>
-                        <Run Text="°C"/>
-                        <Run Text=" (по СП 131.13330.2025)" FontSize="11"/>
-                    </TextBlock>
-                </StackPanel>
+<!-- Информация о температуре холодной пятидневки -->
+                <Border Background="{DynamicResource RehauResultCardBrush}"
+                        Padding="12,8"
+                        CornerRadius="4"
+                        Margin="0,0,0,16"
+                        Visibility="{Binding IsCitySelected, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="M15,13V5A3,3 0 0,0 9,5V13A5,5 0 1,0 15,13M12,4A1,1 0 0,1 13,5V12H11V5A1,1 0 0,1 12,4Z"
+                              Width="20" Height="20"
+                              Fill="{DynamicResource RehauTealBrush}"
+                              Margin="0,0,8,0"
+                              VerticalAlignment="Center"
+                              Stretch="Uniform"/>
+                        <TextBlock Foreground="{DynamicResource RehauBlackBrush}">
+                            <Run Text="Температура холодной пятидневки: "/>
+                            <Run Text="{Binding ColdFiveDayTemperature, StringFormat={}{0:F1}, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource RehauRedBrush}"/>
+                            <Run Text="°C"/>
+                            <Run Text=" (по СП 131.13330.2025)" FontSize="11" Foreground="{DynamicResource RehauGrayBrush}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -103,115 +114,191 @@
                     </Grid.RowDefinitions>
 
                     <!-- Температура -->
-                    <TextBox Grid.Row="0" Grid.Column="0"
-                            Text="{Binding AirTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
-                            materialDesign:TextFieldAssist.PrefixText="Расчётная температура:"
-                            materialDesign:TextFieldAssist.SuffixText="°C"
-                            HorizontalContentAlignment="Right"
-                            Margin="0,0,8,8"
-                            ToolTip="Расчётная температура наружного воздуха по таблице 1.6 (от -50 до +10°C)"
-                            behaviors:TextBoxBehavior.SelectAllOnFocus="True"
-                            behaviors:TextBoxBehavior.RestoreOnEscape="True"
-                            behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True">
-                        <TextBox.Style>
-                            <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsValid}" Value="False">
-                                        <Setter Property="BorderBrush" Value="Red"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,12">
+                        <TextBlock Text="Расчётная температура:"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                    Text="{Binding AirTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
+                                    HorizontalContentAlignment="Right"
+                                    ToolTip="Расчётная температура наружного воздуха по таблице 1.6 (от -50 до +10°C)"
+                                    behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                                    behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                                    behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox" BasedOn="{StaticResource RehauTextBoxStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsValid}" Value="False">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                            <TextBlock Grid.Column="1" Text="°C"
+                                      Margin="8,0,0,0"
+                                      VerticalAlignment="Center"
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                        </Grid>
+                    </StackPanel>
 
                     <!-- Ветер -->
-                    <TextBox Grid.Row="0" Grid.Column="1"
-                            Text="{Binding WindSpeed, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
-                            materialDesign:TextFieldAssist.PrefixText="Скорость ветра:"
-                            materialDesign:TextFieldAssist.SuffixText="м/с"
-                            HorizontalContentAlignment="Right"
-                            Margin="8,0,0,8"
-                            ToolTip="Скорость ветра в январе (от 0.1 до 30 м/с)"
-                            behaviors:TextBoxBehavior.SelectAllOnFocus="True"
-                            behaviors:TextBoxBehavior.RestoreOnEscape="True"
-                            behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="12,0,0,12">
+                        <TextBlock Text="Скорость ветра:"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                    Text="{Binding WindSpeed, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
+                                    HorizontalContentAlignment="Right"
+                                    ToolTip="Скорость ветра в январе (от 0.1 до 30 м/с)"
+                                    behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                                    behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                                    behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"
+                                    Style="{StaticResource RehauTextBoxStyle}"/>
+                            <TextBlock Grid.Column="1" Text="м/с"
+                                      Margin="8,0,0,0"
+                                      VerticalAlignment="Center"
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                        </Grid>
+                    </StackPanel>
 
                     <!-- Влажность -->
-                    <TextBox Grid.Row="1" Grid.Column="0"
-                            Text="{Binding Humidity, StringFormat={}{0:F0}, UpdateSourceTrigger=PropertyChanged}"
-                            materialDesign:TextFieldAssist.PrefixText="Влажность воздуха:"
-                            materialDesign:TextFieldAssist.SuffixText="%"
-                            HorizontalContentAlignment="Right"
-                            Margin="0,0,8,8"
-                            ToolTip="Относительная влажность (от 20 до 100%)"
-                            behaviors:TextBoxBehavior.SelectAllOnFocus="True"
-                            behaviors:TextBoxBehavior.RestoreOnEscape="True"
-                            behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,12">
+                        <TextBlock Text="Влажность воздуха:"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                    Text="{Binding Humidity, StringFormat={}{0:F0}, UpdateSourceTrigger=PropertyChanged}"
+                                    HorizontalContentAlignment="Right"
+                                    ToolTip="Относительная влажность (от 20 до 100%)"
+                                    behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                                    behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                                    behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"
+                                    Style="{StaticResource RehauTextBoxStyle}"/>
+                            <TextBlock Grid.Column="1" Text="%"
+                                      Margin="8,0,0,0"
+                                      VerticalAlignment="Center"
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                        </Grid>
+                    </StackPanel>
 
-<!-- Интенсивность снегопада -->
-                     <TextBox Grid.Row="1" Grid.Column="1"
-                              Text="{Binding SnowfallIntensity, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
-                              materialDesign:TextFieldAssist.PrefixText="Интенсивность снегопада (в водном эквиваленте):"
-                              materialDesign:TextFieldAssist.SuffixText="мм/ч"
-                              HorizontalContentAlignment="Right"
-                              Margin="8,0,0,8"
-                              ToolTip="Интенсивность снегопада (от 0 до 20 мм/ч). Водяной эквивалент."
-                              behaviors:TextBoxBehavior.SelectAllOnFocus="True"
-                              behaviors:TextBoxBehavior.RestoreOnEscape="True"
-                              behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
+                    <!-- Интенсивность снегопада -->
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="12,0,0,12">
+                        <TextBlock Text="Интенсивность снегопада (в водном эквиваленте):"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                    Text="{Binding SnowfallIntensity, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
+                                    HorizontalContentAlignment="Right"
+                                    ToolTip="Интенсивность снегопада (от 0 до 20 мм/ч). Водяной эквивалент."
+                                    behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                                    behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                                    behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"
+                                    Style="{StaticResource RehauTextBoxStyle}"/>
+                            <TextBlock Grid.Column="1" Text="мм/ч"
+                                      Margin="8,0,0,0"
+                                      VerticalAlignment="Center"
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                        </Grid>
+                        <TextBlock Text="ℹ️ 1 мм/ч воды ≈ 1 см/ч снега (для свежего снега)"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   FontStyle="Italic"
+                                   Margin="0,4,0,0"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
 
                     <!-- Зона -->
-                    <ComboBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-                             ItemsSource="{Binding Source={StaticResource ClimateZoneValues}}"
-                             SelectedItem="{Binding SelectedZone}"
-                             materialDesign:TextFieldAssist.PrefixText="Климатическая зона:"
-                             Margin="0,0,0,8"
-                             ToolTip="Климатическая зона для выбора мощности системы"/>
+                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,12">
+                        <TextBlock Text="Климатическая зона:"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
+                        <ComboBox ItemsSource="{Binding Source={StaticResource ClimateZoneValues}}"
+                                 SelectedItem="{Binding SelectedZone}"
+                                 ToolTip="Климатическая зона для выбора мощности системы"
+                                 Style="{StaticResource RehauComboBoxStyle}"/>
+                    </StackPanel>
 
                     <!-- Повышенные требования -->
                     <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
                              Content="Повышенные требования (колонка -20°C)"
                              IsChecked="{Binding IsHighRequirements}"
-                             Margin="0,8,0,0"
-                             ToolTip="Принудительно использовать колонку -20°C для расчёта мощности"/>
+                             Margin="0,12,0,0"
+                             ToolTip="Принудительно использовать колонку -20°C для расчёта мощности"
+                             Foreground="{DynamicResource RehauBlackBrush}"/>
                 </Grid>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
 
         <!-- Информация о зоне -->
-        <materialDesign:Card Grid.Row="3" Margin="0,0,0,16"
-                            Visibility="{Binding SelectedCity, Converter={StaticResource NullToVisibilityConverter}}">
+        <Border Grid.Row="3" Style="{StaticResource Card.Default}"
+                Background="#F0F8F8"
+                BorderBrush="{DynamicResource RehauTealBrush}"
+                BorderThickness="1"
+                Visibility="{Binding SelectedCity, Converter={StaticResource NullToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal" Margin="16">
-                <materialDesign:PackIcon Kind="Information"
-                                        VerticalAlignment="Center"
-                                        Margin="0,0,8,0"
-                                        Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                <Path Data="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
+                      Width="20" Height="20"
+                      Fill="{DynamicResource RehauTealBrush}"
+                      Margin="0,0,8,0"
+                      VerticalAlignment="Center"
+                      Stretch="Uniform"/>
                 <TextBlock Text="{Binding ZoneDescription}"
                           VerticalAlignment="Center"
-                          Foreground="{DynamicResource MaterialDesignBody}"/>
+                          Foreground="{DynamicResource RehauBlackBrush}"/>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
 
         <!-- Предупреждения -->
-        <materialDesign:Card Grid.Row="4" Margin="0,0,0,16"
-                            Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
+        <Border Grid.Row="4" Style="{StaticResource Card.Default}"
+                Background="#FFF8E8"
+                BorderBrush="#FFB300"
+                BorderThickness="1"
+                Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal" Margin="16">
-                <materialDesign:PackIcon Kind="Alert"
-                                        VerticalAlignment="Center"
-                                        Margin="0,0,8,0"
-                                        Foreground="Orange"/>
+                <Path Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"
+                      Width="20" Height="20"
+                      Fill="#FF9800"
+                      Margin="0,0,8,0"
+                      VerticalAlignment="Center"
+                      Stretch="Uniform"/>
                 <TextBlock Text="{Binding ValidationMessage}"
                           VerticalAlignment="Center"
-                          Foreground="Orange"/>
+                          Foreground="#E65100"/>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
 
         <!-- Кнопки действий -->
-        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
             <Button Content="Сбросить к данным города"
                    Command="{Binding ResetToCityDataCommand}"
-                   Style="{StaticResource MaterialDesignOutlinedButton}"
-                   Margin="0,0,8,0"
+                   Style="{StaticResource RehauSecondaryButtonStyle}"
+                   Margin="0,0,0,0"
                    Visibility="{Binding SelectedCity, Converter={StaticResource NullToVisibilityConverter}}"/>
         </StackPanel>
     </Grid>

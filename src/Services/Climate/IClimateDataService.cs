@@ -21,6 +21,37 @@ namespace SnowMeltingCalculator.Services.Climate
         Task<IEnumerable<CityInfo>> SearchCitiesAsync(string query, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Поиск городов с приоритетом совпадений
+        /// </summary>
+        /// <param name="query">Поисковый запрос (минимум 1 символ)</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Список до 15 городов, отсортированных по релевантности</returns>
+        Task<IEnumerable<CityInfo>> SearchCitiesWithPriorityAsync(string query, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Подсветка совпадений в названии и регионе
+        /// </summary>
+        /// <param name="city">Город</param>
+        /// <param name="query">Поисковый запрос</param>
+        /// <returns>Кортеж (highlightedName, highlightedRegion, matchType)</returns>
+        (string highlightedName, string highlightedRegion, MatchType matchType) HighlightMatch(CityInfo city, string query);
+
+        /// <summary>
+        /// Получить последние использованные города
+        /// </summary>
+        /// <param name="limit">Максимальное количество (по умолчанию 10)</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Список последних городов</returns>
+        Task<IEnumerable<CityInfo>> GetRecentCitiesAsync(int limit = 10, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Сохранить город в историю поиска
+        /// </summary>
+        /// <param name="city">Город для сохранения</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        Task SaveToHistoryAsync(CityInfo city, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Получить город по названию
         /// </summary>
         CityInfo? GetCityByName(string name);

@@ -16,53 +16,17 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
 
-        <!-- Стили -->
-        <Style x:Key="InputLabelStyle" TargetType="TextBlock">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
-            <Setter Property="Width" Value="140"/>
-        </Style>
+        <!-- ============================================ -->
+        <!-- REHAU СТИЛИ (используем стили из Dictionary.xaml) -->
+        <!-- ============================================ -->
 
-        <Style x:Key="InputTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Height" Value="26"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,2"/>
-            <Setter Property="Padding" Value="5,0"/>
-        </Style>
-
+        <!-- Стиль для единиц измерения -->
         <Style x:Key="UnitLabelStyle" TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="5,0,0,0"/>
-            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
             <Setter Property="FontSize" Value="12"/>
-        </Style>
-
-        <Style x:Key="SectionBorderStyle" TargetType="Border">
-            <Setter Property="Background" Value="#FAFAFA"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="15"/>
-            <Setter Property="Margin" Value="0,5"/>
-            <Setter Property="CornerRadius" Value="5"/>
-        </Style>
-
-        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-            <Setter Property="Foreground" Value="#1976D2"/>
-        </Style>
-
-        <Style x:Key="RemoveButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#F44336"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Width" Value="24"/>
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="Margin" Value="5,0,0,0"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Content" Value="✕"/>
+            <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         </Style>
     </UserControl.Resources>
 
@@ -72,11 +36,11 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Заголовок контура -->
-        <Border Grid.Row="0" 
-                Background="#E3F2FD" 
+<!-- Заголовок контура -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource RehauRedLightOpacityBrush}"
                 Padding="10,5"
-                CornerRadius="5,5,0,0">
+                CornerRadius="{StaticResource Radius.SM}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -86,51 +50,63 @@
 
                 <TextBlock Grid.Column="0"
                            Text="{Binding CircuitNumber, StringFormat='Контур {0}'}"
-                           FontWeight="Bold"
-                           FontSize="14"
+                           Style="{StaticResource Text.H4}"
                            VerticalAlignment="Center"/>
 
                 <TextBox Grid.Column="1"
-                         Text="{Binding CircuitName, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="10,0"
-                         VerticalAlignment="Center"
-                         Width="200"
-                         Height="26"
-                         VerticalContentAlignment="Center"/>
+                          Text="{Binding CircuitName, UpdateSourceTrigger=PropertyChanged}"
+                          Margin="10,0"
+                          VerticalAlignment="Center"
+                          Width="200"
+                          Height="26"
+                          VerticalContentAlignment="Center"
+                          Style="{StaticResource TextBox.Default}"/>
 
                 <Button Grid.Column="2"
                         Content="✕"
                         Command="{Binding DataContext.RemoveCircuitCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                         CommandParameter="{Binding}"
-                        Style="{StaticResource RemoveButtonStyle}"
+                        Style="{StaticResource RehauDeleteButtonStyle}"
                         ToolTip="Удалить контур"
                         Visibility="{Binding IsReferenceCircuit, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
             </Grid>
         </Border>
 
         <!-- Параметры контура -->
-        <Border Grid.Row="1" Style="{StaticResource SectionBorderStyle}" CornerRadius="0,0,5,5">
+        <Border Grid.Row="1"
+                Style="{StaticResource Card.Default}"
+                CornerRadius="0,0,{StaticResource Radius.SM},{StaticResource Radius.SM}">
             <StackPanel>
-                
+
                 <!-- Основные параметры -->
-                <TextBlock Text="Основные параметры" Style="{StaticResource HeaderTextStyle}"/>
+                <TextBlock Text="Основные параметры" Style="{StaticResource Text.H4}"
+                           Foreground="{DynamicResource RehauRedDarkBrush}"
+                           Margin="0,0,0,10"/>
 
-                <Grid Margin="0,5">
+<Grid Margin="0,5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
-                               Text="Длина контура (L_HK):" 
-                               Style="{StaticResource InputLabelStyle}"/>
-                    <TextBox Grid.Column="1" 
-                             Text="{Binding Length, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                             Style="{StaticResource InputTextBoxStyle}"
-                             behaviors:TextBoxBehavior.SelectAllOnFocus="True"
-                             behaviors:TextBoxBehavior.RestoreOnEscape="True"
-                             behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
+                    <TextBlock Grid.Column="0"
+                               Text="Длина контура (L_HK):"
+                               Style="{StaticResource Text.Body}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"
+                               Width="140"/>
+                    <TextBox Grid.Column="1"
+                              Text="{Binding Length, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                              Width="100"
+                              Height="26"
+                              VerticalContentAlignment="Center"
+                              Margin="0,2"
+                              Padding="5,0"
+                              behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                              behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                              behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"
+                              Style="{StaticResource TextBox.Default}"/>
                     <TextBlock Grid.Column="2" Text="м" Style="{StaticResource UnitLabelStyle}"/>
                 </Grid>
 
@@ -141,15 +117,23 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
-                               Text="Длина подводки (L_Zul):" 
-                               Style="{StaticResource InputLabelStyle}"/>
-                    <TextBox Grid.Column="1" 
-                             Text="{Binding SupplyLength, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                             Style="{StaticResource InputTextBoxStyle}"
-                             behaviors:TextBoxBehavior.SelectAllOnFocus="True"
-                             behaviors:TextBoxBehavior.RestoreOnEscape="True"
-                             behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
+                    <TextBlock Grid.Column="0"
+                               Text="Длина подводки (L_Zul):"
+                               Style="{StaticResource Text.Body}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"
+                               Width="140"/>
+                    <TextBox Grid.Column="1"
+                              Text="{Binding SupplyLength, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                              Width="100"
+                              Height="26"
+                              VerticalContentAlignment="Center"
+                              Margin="0,2"
+                              Padding="5,0"
+                              behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                              behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                              behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"
+                              Style="{StaticResource TextBox.Default}"/>
                     <TextBlock Grid.Column="2" Text="м" Style="{StaticResource UnitLabelStyle}"/>
                 </Grid>
 
@@ -160,21 +144,30 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
-                               Text="Площадь контура:" 
-                               Style="{StaticResource InputLabelStyle}"/>
-                    <TextBox Grid.Column="1" 
-                             Text="{Binding Area, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
-                             Style="{StaticResource InputTextBoxStyle}"
-                             behaviors:TextBoxBehavior.SelectAllOnFocus="True"
-                             behaviors:TextBoxBehavior.RestoreOnEscape="True"
-                             behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
+                    <TextBlock Grid.Column="0"
+                               Text="Площадь контура:"
+                               Style="{StaticResource Text.Body}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"
+                               Width="140"/>
+                    <TextBox Grid.Column="1"
+                              Text="{Binding Area, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                              Width="100"
+                              Height="26"
+                              VerticalContentAlignment="Center"
+                              Margin="0,2"
+                              Padding="5,0"
+                              behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                              behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                              behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"
+                              Style="{StaticResource TextBox.Default}"/>
                     <TextBlock Grid.Column="2" Text="м²" Style="{StaticResource UnitLabelStyle}"/>
                 </Grid>
 
                 <!-- Результаты расчёта -->
-                <TextBlock Text="Результаты расчёта" 
-                           Style="{StaticResource HeaderTextStyle}"
+                <TextBlock Text="Результаты расчёта"
+                           Style="{StaticResource Text.H4}"
+                           Foreground="{DynamicResource RehauRedDarkBrush}"
                            Margin="0,15,0,10"/>
 
                 <Grid Margin="0,5">
@@ -183,12 +176,15 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
-                               Text="Расход:" 
-                               Style="{StaticResource InputLabelStyle}"/>
-                    <TextBlock Grid.Column="1" 
+                    <TextBlock Grid.Column="0"
+                               Text="Расход:"
+                               Style="{StaticResource Text.Body}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"
+                               Width="140"/>
+                    <TextBlock Grid.Column="1"
                                Text="{Binding FlowRate, StringFormat={}{0:F1} л/ч}"
-                               FontWeight="Bold"
+                               Style="{StaticResource Text.BodyBold}"
                                VerticalAlignment="Center"/>
                 </Grid>
 
@@ -198,12 +194,15 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
-                               Text="Потери давления:" 
-                               Style="{StaticResource InputLabelStyle}"/>
-                    <TextBlock Grid.Column="1" 
+                    <TextBlock Grid.Column="0"
+                               Text="Потери давления:"
+                               Style="{StaticResource Text.Body}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"
+                               Width="140"/>
+                    <TextBlock Grid.Column="1"
                                Text="{Binding PressureLossKPa, StringFormat={}{0:F2} кПа}"
-                               FontWeight="Bold"
+                               Style="{StaticResource Text.BodyBold}"
                                VerticalAlignment="Center"/>
                 </Grid>
 
@@ -213,12 +212,15 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
-                               Text="Скорость:" 
-                               Style="{StaticResource InputLabelStyle}"/>
-                    <TextBlock Grid.Column="1" 
+                    <TextBlock Grid.Column="0"
+                               Text="Скорость:"
+                               Style="{StaticResource Text.Body}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"
+                               Width="140"/>
+                    <TextBlock Grid.Column="1"
                                Text="{Binding Velocity, StringFormat={}{0:F3} м/с}"
-                               FontWeight="Bold"
+                               Style="{StaticResource Text.BodyBold}"
                                VerticalAlignment="Center"/>
                 </Grid>
 
@@ -228,18 +230,22 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
-                               Text="Режим течения:" 
-                               Style="{StaticResource InputLabelStyle}"/>
-                    <TextBlock Grid.Column="1" 
+                    <TextBlock Grid.Column="0"
+                               Text="Режим течения:"
+                               Style="{StaticResource Text.Body}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"
+                               Width="140"/>
+                    <TextBlock Grid.Column="1"
                                Text="{Binding FlowRegime}"
-                               FontWeight="Bold"
+                               Style="{StaticResource Text.BodyBold}"
                                VerticalAlignment="Center"/>
                 </Grid>
 
                 <!-- Балансировка -->
-                <TextBlock Text="Балансировка" 
-                           Style="{StaticResource HeaderTextStyle}"
+                <TextBlock Text="Балансировка"
+                           Style="{StaticResource Text.H4}"
+                           Foreground="{DynamicResource RehauRedDarkBrush}"
                            Margin="0,15,0,10"/>
 
                 <Grid Margin="0,5">
@@ -248,14 +254,17 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
-                               Text="Дросселирование:" 
-                               Style="{StaticResource InputLabelStyle}"/>
-                    <TextBlock Grid.Column="1" 
-                               Text="{Binding ThrottlingMbar, StringFormat={}{0:F1} мбар}"
-                               FontWeight="Bold"
+                    <TextBlock Grid.Column="0"
+                               Text="Дросселирование:"
+                               Style="{StaticResource Text.Body}"
                                VerticalAlignment="Center"
-                               Foreground="#FF9800"/>
+                               Margin="0,0,10,0"
+                               Width="140"/>
+<TextBlock Grid.Column="1"
+                                Text="{Binding ThrottlingMbar, StringFormat={}{0:F1} мбар}"
+                                Style="{StaticResource Text.BodyBold}"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource RehauRedLightBrush}"/>
                 </Grid>
 
                 <Grid Margin="0,5">
@@ -264,33 +273,34 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
-                               Text="Настройка вентиля:" 
-                               Style="{StaticResource InputLabelStyle}"/>
-                    <TextBlock Grid.Column="1" 
+                    <TextBlock Grid.Column="0"
+                               Text="Настройка вентиля:"
+                               Style="{StaticResource Text.Body}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"
+                               Width="140"/>
+                    <TextBlock Grid.Column="1"
                                Text="{Binding ValveSetting, StringFormat='Позиция {0}'}"
-                               FontWeight="Bold"
+                               Style="{StaticResource Text.BodyBold}"
                                VerticalAlignment="Center"/>
                 </Grid>
 
                 <!-- Статус -->
-                <Border Background="#E8F5E9" 
-                        Padding="10,5" 
+                <Border Style="{StaticResource RehauSuccessBlockStyle}"
+                        Padding="10,5"
                         Margin="0,15,0,0"
-                        CornerRadius="3"
                         Visibility="{Binding IsReferenceCircuit, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock Text="★ Опорный контур"
-                               Foreground="#2E7D32"
+                               Foreground="{DynamicResource RehauTealDarkBrush}"
                                FontWeight="Bold"
                                HorizontalAlignment="Center"/>
                 </Border>
 
-                <Border Background="#FFF3E0" 
-                        Padding="10,5" 
-                        Margin="0,10,0,0"
-                        CornerRadius="3">
+                <Border Style="{StaticResource RehauWarningBlockStyle}"
+                        Padding="10,5"
+                        Margin="0,10,0,0">
                     <TextBlock Text="{Binding Status}"
-                               Foreground="#E65100"
+                               Foreground="{DynamicResource RehauRedDarkBrush}"
                                TextWrapping="Wrap"
                                HorizontalAlignment="Center"/>
                 </Border>

@@ -8,6 +8,7 @@ using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Services.Hydraulics;
 using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Services.Climate;
+using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.ViewModels.Climate;
@@ -24,6 +25,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
         private Mock<IGlycolDataService> _glycolServiceMock = null!;
         private Mock<IThermalCalculator> _thermalCalculatorMock = null!;
         private Mock<IClimateDataService> _climateDataServiceMock = null!;
+        private Mock<ICalculationStateService> _calculationStateServiceMock = null!;
         private ClimateData _climateData = null!;
         private ConstructionData _constructionData = null!;
         private ThermalViewModel _thermalViewModel = null!;
@@ -37,6 +39,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             _glycolServiceMock = new Mock<IGlycolDataService>();
             _thermalCalculatorMock = new Mock<IThermalCalculator>();
             _climateDataServiceMock = new Mock<IClimateDataService>();
+            _calculationStateServiceMock = new Mock<ICalculationStateService>();
             
             // Создаём реальные объекты для ClimateData и ConstructionData
             _climateData = new ClimateData();
@@ -46,7 +49,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             _thermalViewModel = new ThermalViewModel(
                 _thermalCalculatorMock.Object,
                 _climateData,
-                _constructionData
+                _constructionData,
+                _calculationStateServiceMock.Object
             );
             
             _climateViewModel = new ClimateViewModel(
@@ -69,7 +73,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                 _circuitsCalculatorMock.Object,
                 _glycolServiceMock.Object,
                 _thermalViewModel,
-                _climateViewModel
+                _climateViewModel,
+                _calculationStateServiceMock.Object
             );
         }
 
@@ -347,7 +352,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
         }
 
         [Test]
-        public void AddCollector_CreatesFourDefaultCircuits()
+        public void AddCollector_CreatesTwoDefaultCircuits()
         {
             // Arrange
             _viewModel.Collectors.Clear();
@@ -355,8 +360,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             // Act
             _viewModel.AddCollectorCommand.Execute(null);
 
-            // Assert
-            Assert.That(_viewModel.Collectors[0].Circuits.Count, Is.EqualTo(4));
+            // Assert - по умолчанию создаётся 2 контура
+            Assert.That(_viewModel.Collectors[0].Circuits.Count, Is.EqualTo(2));
         }
 
         #endregion
@@ -780,6 +785,362 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
 
             // Assert - предупреждение должно быть очищено
             Assert.That(collector.Summary.Warning, Is.Null);
+        }
+
+        [Test]
+        public void AutoSelectCollectorType_OperatingPressureExceeded_SetsWarning()
+        {
+            // Arrange
+            var collector = _viewModel.Collectors[0];
+            collector.CollectorType = "HKV-D (2-12 контуров)";
+            collector.ValveType = ValveType.HKV_D;
+            
+            // Устанавливаем давление в рабочем режиме выше лимита (43.7 кПа > 32 кПа)
+            // и нормальное давление в холодном режиме
+            collector.Summary = new CollectorSummary
+            {
+                TotalFlowRate = 1000, // л/ч (1.0 м³/ч) - нормальный расход
+                PressureLoss_Operating_Pa = 43700, // 43.7 кПа > 32 кПа (превышение)
+                PressureLoss_Cold_Pa = 25000 // 25 кПа < 32 кПа (норма)
+            };
+
+            // Act
+            InvokePrivateMethod(_viewModel, "AutoSelectCollectorType");
+
+            // Assert
+            Assert.That(collector.Summary.Warning, Is.Not.Null);
+            Assert.That(collector.Summary.Warning, Does.Contain("Превышение давления"));
+            Assert.That(collector.Summary.Warning, Does.Contain("рабочий режим"));
+            Assert.That(collector.Summary.Warning, Does.Contain("32 кПа"));
+            // Проверяем, что значение давления присутствует (формат зависит от локали)
+            Assert.That(collector.Summary.Warning, Does.Contain("43")); // 43.7 или 43,7
+        }
+
+        [Test]
+        public void AutoSelectCollectorType_ColdPressureExceeded_SetsWarning()
+        {
+            // Arrange
+            var collector = _viewModel.Collectors[0];
+            collector.CollectorType = "HKV-D (2-12 контуров)";
+            collector.ValveType = ValveType.HKV_D;
+            
+            // Устанавливаем нормальное давление в рабочем режиме
+            // и давление в холодном режиме выше лимита
+            collector.Summary = new CollectorSummary
+            {
+                TotalFlowRate = 1000, // л/ч (1.0 м³/ч) - нормальный расход
+                PressureLoss_Operating_Pa = 25000, // 25 кПа < 32 кПа (норма)
+                PressureLoss_Cold_Pa = 45000 // 45 кПа > 32 кПа (превышение)
+            };
+
+            // Act
+            InvokePrivateMethod(_viewModel, "AutoSelectCollectorType");
+
+            // Assert
+            Assert.That(collector.Summary.Warning, Is.Not.Null);
+            Assert.That(collector.Summary.Warning, Does.Contain("Превышение давления"));
+            Assert.That(collector.Summary.Warning, Does.Contain("холодный пуск"));
+            Assert.That(collector.Summary.Warning, Does.Contain("32 кПа"));
+            // Проверяем, что значение давления присутствует (формат зависит от локали)
+            Assert.That(collector.Summary.Warning, Does.Contain("45")); // 45.0 или 45,0
+        }
+
+        [Test]
+        public void AutoSelectCollectorType_BothPressuresExceeded_SetsBothWarnings()
+        {
+            // Arrange
+            var collector = _viewModel.Collectors[0];
+            collector.CollectorType = "HKV-D (2-12 контуров)";
+            collector.ValveType = ValveType.HKV_D;
+            
+            // Устанавливаем превышение давления в обоих режимах
+            collector.Summary = new CollectorSummary
+            {
+                TotalFlowRate = 1000, // л/ч (1.0 м³/ч) - нормальный расход
+                PressureLoss_Operating_Pa = 43700, // 43.7 кПа > 32 кПа (превышение)
+                PressureLoss_Cold_Pa = 52000 // 52 кПа > 32 кПа (превышение)
+            };
+
+            // Act
+            InvokePrivateMethod(_viewModel, "AutoSelectCollectorType");
+
+            // Assert
+            Assert.That(collector.Summary.Warning, Is.Not.Null);
+            // Должны быть оба предупреждения
+            Assert.That(collector.Summary.Warning, Does.Contain("рабочий режим"));
+            Assert.That(collector.Summary.Warning, Does.Contain("холодный пуск"));
+            // Проверяем, что значения давления присутствуют (формат зависит от локали)
+            Assert.That(collector.Summary.Warning, Does.Contain("43")); // 43.7 или 43,7
+            Assert.That(collector.Summary.Warning, Does.Contain("52")); // 52.0 или 52,0
+        }
+
+        [Test]
+        public void AutoSelectCollectorType_NormalPressures_NoWarning()
+        {
+            // Arrange
+            var collector = _viewModel.Collectors[0];
+            collector.CollectorType = "HKV-D (2-12 контуров)";
+            collector.ValveType = ValveType.HKV_D;
+            
+            // Устанавливаем нормальное давление в обоих режимах
+            collector.Summary = new CollectorSummary
+            {
+                TotalFlowRate = 1000, // л/ч (1.0 м³/ч) - нормальный расход
+                PressureLoss_Operating_Pa = 20000, // 20 кПа < 32 кПа (норма)
+                PressureLoss_Cold_Pa = 25000 // 25 кПа < 32 кПа (норма)
+            };
+
+            // Act
+            InvokePrivateMethod(_viewModel, "AutoSelectCollectorType");
+
+            // Assert
+            Assert.That(collector.Summary.Warning, Is.Null);
+        }
+
+        [Test]
+        public void AutoSelectCollectorType_PressureExceededTakesPriorityOverFlowRate()
+        {
+            // Arrange
+            var collector = _viewModel.Collectors[0];
+            collector.CollectorType = "HKV-D (2-12 контуров)";
+            collector.ValveType = ValveType.HKV_D;
+            
+            // Устанавливаем превышение давления И расхода
+            // Предупреждение о давлении должно иметь приоритет
+            collector.Summary = new CollectorSummary
+            {
+                TotalFlowRate = 8000, // л/ч (8.0 м³/ч) - превышение расхода
+                PressureLoss_Operating_Pa = 45000, // 45 кПа > 32 кПа (превышение)
+                PressureLoss_Cold_Pa = 50000 // 50 кПа > 32 кПа (превышение)
+            };
+
+            // Act
+            InvokePrivateMethod(_viewModel, "AutoSelectCollectorType");
+
+            // Assert
+            Assert.That(collector.Summary.Warning, Is.Not.Null);
+            // Должно быть предупреждение о давлении, а не о расходе
+            Assert.That(collector.Summary.Warning, Does.Contain("Превышение давления"));
+            Assert.That(collector.Summary.Warning, Does.Not.Contain("Превышение расхода"));
+        }
+
+        [Test]
+        public void AutoSelectCollectorType_PressureExactlyAtLimit_NoWarning()
+        {
+            // Arrange
+            var collector = _viewModel.Collectors[0];
+            collector.CollectorType = "HKV-D (2-12 контуров)";
+            collector.ValveType = ValveType.HKV_D;
+            
+            // Устанавливаем давление ровно на лимите (32 кПа = 32000 Па)
+            collector.Summary = new CollectorSummary
+            {
+                TotalFlowRate = 1000, // л/ч (1.0 м³/ч) - нормальный расход
+                PressureLoss_Operating_Pa = 32000, // ровно 32 кПа (на лимите)
+                PressureLoss_Cold_Pa = 32000 // ровно 32 кПа (на лимите)
+            };
+
+            // Act
+            InvokePrivateMethod(_viewModel, "AutoSelectCollectorType");
+
+            // Assert - на лимите предупреждения быть не должно (только при >)
+            Assert.That(collector.Summary.Warning, Is.Null);
+        }
+
+        #endregion
+
+        #region CollectorTypeDisplayWithCount Tests
+
+        [Test]
+        public void CollectorTypeDisplayWithCount_HKV_D_WithOneCircuit_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var collector = new CollectorData(1);
+            collector.ValveType = ValveType.HKV_D;
+            collector.Circuits.Clear();
+            collector.Circuits.Add(new CircuitRow { CircuitNumber = 1 });
+
+            // Act
+            var result = collector.CollectorTypeDisplayWithCount;
+
+            // Assert
+            Assert.That(result, Is.EqualTo("HKV-D (1 контур)"));
+        }
+
+        [Test]
+        public void CollectorTypeDisplayWithCount_HKV_D_WithTwoCircuits_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var collector = new CollectorData(1);
+            collector.ValveType = ValveType.HKV_D;
+            collector.Circuits.Clear();
+            collector.Circuits.Add(new CircuitRow { CircuitNumber = 1 });
+            collector.Circuits.Add(new CircuitRow { CircuitNumber = 2 });
+
+            // Act
+            var result = collector.CollectorTypeDisplayWithCount;
+
+            // Assert
+            Assert.That(result, Is.EqualTo("HKV-D (2 контура)"));
+        }
+
+        [Test]
+        public void CollectorTypeDisplayWithCount_HKV_D_WithThreeCircuits_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var collector = new CollectorData(1);
+            collector.ValveType = ValveType.HKV_D;
+            collector.Circuits.Clear();
+            for (int i = 0; i < 3; i++)
+            {
+                collector.Circuits.Add(new CircuitRow { CircuitNumber = i + 1 });
+            }
+
+            // Act
+            var result = collector.CollectorTypeDisplayWithCount;
+
+            // Assert
+            Assert.That(result, Is.EqualTo("HKV-D (3 контура)"));
+        }
+
+        [Test]
+        public void CollectorTypeDisplayWithCount_HKV_D_WithFiveCircuits_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var collector = new CollectorData(1);
+            collector.ValveType = ValveType.HKV_D;
+            collector.Circuits.Clear();
+            for (int i = 0; i < 5; i++)
+            {
+                collector.Circuits.Add(new CircuitRow { CircuitNumber = i + 1 });
+            }
+
+            // Act
+            var result = collector.CollectorTypeDisplayWithCount;
+
+            // Assert
+            Assert.That(result, Is.EqualTo("HKV-D (5 контуров)"));
+        }
+
+        [Test]
+        public void CollectorTypeDisplayWithCount_HKV_D_WithTwelveCircuits_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var collector = new CollectorData(1);
+            collector.ValveType = ValveType.HKV_D;
+            collector.Circuits.Clear();
+            for (int i = 0; i < 12; i++)
+            {
+                collector.Circuits.Add(new CircuitRow { CircuitNumber = i + 1 });
+            }
+
+            // Act
+            var result = collector.CollectorTypeDisplayWithCount;
+
+            // Assert
+            Assert.That(result, Is.EqualTo("HKV-D (12 контуров)"));
+        }
+
+        [Test]
+        public void CollectorTypeDisplayWithCount_IV_1_25_WithFiveCircuits_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var collector = new CollectorData(1);
+            collector.ValveType = ValveType.IV_1_25;
+            collector.Circuits.Clear();
+            for (int i = 0; i < 5; i++)
+            {
+                collector.Circuits.Add(new CircuitRow { CircuitNumber = i + 1 });
+            }
+
+            // Act
+            var result = collector.CollectorTypeDisplayWithCount;
+
+            // Assert
+            Assert.That(result, Is.EqualTo("IV 1¼\" (5 контуров)"));
+        }
+
+        [Test]
+        public void CollectorTypeDisplayWithCount_IV_1_5_WithEightCircuits_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var collector = new CollectorData(1);
+            collector.ValveType = ValveType.IV_1_5;
+            collector.Circuits.Clear();
+            for (int i = 0; i < 8; i++)
+            {
+                collector.Circuits.Add(new CircuitRow { CircuitNumber = i + 1 });
+            }
+
+            // Act
+            var result = collector.CollectorTypeDisplayWithCount;
+
+            // Assert
+            Assert.That(result, Is.EqualTo("IV 1½\" (8 контуров)"));
+        }
+
+        [Test]
+        public void CollectorTypeDisplayWithCount_FourCircuits_ReturnsCorrectPlural()
+        {
+            // Arrange
+            var collector = new CollectorData(1);
+            collector.ValveType = ValveType.HKV_D;
+            collector.Circuits.Clear();
+            for (int i = 0; i < 4; i++)
+            {
+                collector.Circuits.Add(new CircuitRow { CircuitNumber = i + 1 });
+            }
+
+            // Act
+            var result = collector.CollectorTypeDisplayWithCount;
+
+            // Assert - "4 контура" (2, 3, 4)
+            Assert.That(result, Is.EqualTo("HKV-D (4 контура)"));
+        }
+
+        [Test]
+        public void CollectorTypeDisplayWithCount_UpdatesWhenCircuitsChange()
+        {
+            // Arrange
+            var collector = new CollectorData(1);
+            collector.ValveType = ValveType.HKV_D;
+            collector.Circuits.Clear();
+            collector.Circuits.Add(new CircuitRow { CircuitNumber = 1 });
+
+            // Act - начальное значение
+            var result1 = collector.CollectorTypeDisplayWithCount;
+            
+            // Добавляем контур
+            collector.Circuits.Add(new CircuitRow { CircuitNumber = 2 });
+            var result2 = collector.CollectorTypeDisplayWithCount;
+
+            // Assert
+            Assert.That(result1, Is.EqualTo("HKV-D (1 контур)"));
+            Assert.That(result2, Is.EqualTo("HKV-D (2 контура)"));
+        }
+
+        [Test]
+        public void CollectorTypeDisplayWithCount_UpdatesWhenValveTypeChanges()
+        {
+            // Arrange
+            var collector = new CollectorData(1);
+            collector.ValveType = ValveType.HKV_D;
+            collector.Circuits.Clear();
+            for (int i = 0; i < 3; i++)
+            {
+                collector.Circuits.Add(new CircuitRow { CircuitNumber = i + 1 });
+            }
+
+            // Act - начальное значение
+            var result1 = collector.CollectorTypeDisplayWithCount;
+            
+            // Меняем тип клапана
+            collector.ValveType = ValveType.IV_1_5;
+            var result2 = collector.CollectorTypeDisplayWithCount;
+
+            // Assert
+            Assert.That(result1, Is.EqualTo("HKV-D (3 контура)"));
+            Assert.That(result2, Is.EqualTo("IV 1½\" (3 контура)"));
         }
 
         #endregion

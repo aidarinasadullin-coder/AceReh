@@ -1,7 +1,9 @@
 using NUnit.Framework;
+using Moq;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Thermal;
+using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using System;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         private MockThermalCalculator _mockCalculator = null!;
         private ClimateData _mockClimateData = null!;
         private ConstructionData _mockConstructionData = null!;
+        private Mock<ICalculationStateService> _mockCalculationStateService = null!;
 
         [SetUp]
         public void Setup()
@@ -35,7 +38,8 @@ namespace SnowMeltingCalculator.Tests.Thermal
                 R2Total = 0.10,
                 LambdaE = 1.6
             };
-            _viewModel = new ThermalViewModel(_mockCalculator, _mockClimateData, _mockConstructionData);
+            _mockCalculationStateService = new Mock<ICalculationStateService>();
+            _viewModel = new ThermalViewModel(_mockCalculator, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object);
         }
 
         #region Constructor Tests
@@ -79,7 +83,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                new ThermalViewModel(null!, _mockClimateData, _mockConstructionData));
+                new ThermalViewModel(null!, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object));
         }
 
         [Test]
@@ -87,7 +91,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                new ThermalViewModel(_mockCalculator, null!, _mockConstructionData));
+                new ThermalViewModel(_mockCalculator, null!, _mockConstructionData, _mockCalculationStateService.Object));
         }
 
         [Test]
@@ -95,7 +99,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                new ThermalViewModel(_mockCalculator, _mockClimateData, null!));
+                new ThermalViewModel(_mockCalculator, _mockClimateData, null!, _mockCalculationStateService.Object));
         }
 
         #endregion
@@ -514,13 +518,17 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Arrange
             _viewModel.Result = new ThermalCalculationResult { PowerTotal = 100 };
+            string? capturedMessage = null;
+            _mockCalculationStateService
+                .Setup(s => s.SetThermalNeedsRecalculation(It.IsAny<string>()))
+                .Callback<string>(msg => capturedMessage = msg);
 
             // Act
             _mockClimateData.RaiseDataChanged("AirTemperature", -20.0, -25.0, true);
 
             // Assert
             Assert.That(_viewModel.Result, Is.Null);
-            Assert.That(_viewModel.ValidationMessage, Does.Contain("Климатические данные"));
+            Assert.That(capturedMessage, Does.Contain("Климатические данные"));
         }
 
         #endregion
@@ -532,13 +540,17 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Arrange
             _viewModel.Result = new ThermalCalculationResult { PowerTotal = 100 };
+            string? capturedMessage = null;
+            _mockCalculationStateService
+                .Setup(s => s.SetThermalNeedsRecalculation(It.IsAny<string>()))
+                .Callback<string>(msg => capturedMessage = msg);
 
             // Act
             _mockConstructionData.RaiseDataChanged("R1Total", 0.05, 0.06, true);
 
             // Assert
             Assert.That(_viewModel.Result, Is.Null);
-            Assert.That(_viewModel.ValidationMessage, Does.Contain("Данные конструкции"));
+            Assert.That(capturedMessage, Does.Contain("Данные конструкции"));
         }
 
         #endregion

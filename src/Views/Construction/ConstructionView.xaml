@@ -3,13 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:construction="clr-namespace:SnowMeltingCalculator.Models.Construction"
              xmlns:behaviors="clr-namespace:SnowMeltingCalculator.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="800" d:DesignWidth="900">
+             d:DesignHeight="800" d:DesignWidth="900"
+             Background="{DynamicResource RehauBackgroundBrush}">
 
-    <Grid Margin="16">
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -19,13 +19,19 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+<!-- Заголовок страницы -->
+        <TextBlock Grid.Row="0"
+                   Text="Конструкция покрытия"
+                   Style="{StaticResource Text.H2}"
+                   Foreground="{DynamicResource RehauBlackBrush}"
+                   Margin="0,0,0,20"/>
+
         <!-- Параметры -->
-        <materialDesign:Card Grid.Row="1" Margin="0,0,0,16">
-            <StackPanel Margin="16">
+        <Border Grid.Row="1" Style="{StaticResource Card.Default}">
+            <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
                 <TextBlock Text="Параметры"
-                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                          Margin="0,0,0,12"
-                          Foreground="{DynamicResource MaterialDesignBody}"/>
+                          Style="{StaticResource Text.H4}"
+                          Foreground="{DynamicResource RehauBlackBrush}"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -34,12 +40,17 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- УГВ -->
-                    <ComboBox Grid.Column="0"
-                             ItemsSource="{Binding GroundwaterLevelOptions}"
-                             SelectedItem="{Binding SelectedGroundwaterOption}"
-                             materialDesign:TextFieldAssist.PrefixText="Уровень грунтовых вод:"
-                             MinWidth="250"
-                             ToolTip="Выбор уровня грунтовых вод влияет на теплопроводность материалов под трубой"/>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Уровень грунтовых вод:"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
+                        <ComboBox ItemsSource="{Binding GroundwaterLevelOptions}"
+                                 SelectedItem="{Binding SelectedGroundwaterOption}"
+                                 MinWidth="250"
+                                 ToolTip="Выбор уровня грунтовых вод влияет на теплопроводность материалов под трубой"
+                                 Style="{StaticResource RehauComboBoxStyle}"/>
+                    </StackPanel>
 
                     <!-- Нагрузки -->
                     <CheckBox Grid.Column="1"
@@ -47,18 +58,18 @@
                              IsChecked="{Binding HasLoads}"
                              Margin="24,0,0,0"
                              VerticalAlignment="Center"
-                             ToolTip="При наличии нагрузок минимальная толщина слоёв над трубой увеличивается до 50 мм"/>
+                             ToolTip="При наличии нагрузок минимальная толщина слоёв над трубой увеличивается до 50 мм"
+                             Foreground="{DynamicResource RehauBlackBrush}"/>
                 </Grid>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
 
         <!-- Шаблоны -->
-        <materialDesign:Card Grid.Row="2" Margin="0,0,0,16">
-            <StackPanel Margin="16">
+        <Border Grid.Row="2" Style="{StaticResource Card.Default}">
+            <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
                 <TextBlock Text="Шаблоны конструкций"
-                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                          Margin="0,0,0,12"
-                          Foreground="{DynamicResource MaterialDesignBody}"/>
+                          Style="{StaticResource Text.H4}"
+                          Foreground="{DynamicResource RehauBlackBrush}"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -70,12 +81,17 @@
                              ItemsSource="{Binding Templates}"
                              SelectedItem="{Binding SelectedTemplate}"
                              MinWidth="300"
-                             ToolTip="Выберите шаблон для быстрого создания типовой конструкции">
+                             ToolTip="Выберите шаблон для быстрого создания типовой конструкции"
+                             Style="{StaticResource RehauComboBoxStyle}">
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>
-                                    <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding Description}" FontSize="11" Foreground="Gray"/>
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="{DynamicResource RehauBlackBrush}"/>
+                                    <TextBlock Text="{Binding Description}" 
+                                               FontSize="11" 
+                                               Foreground="{DynamicResource RehauGrayBrush}"
+                                               TextWrapping="Wrap"
+                                               MaxWidth="280"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
@@ -84,17 +100,17 @@
                     <Button Grid.Column="1"
                            Content="Применить"
                            Command="{Binding ApplyTemplateCommand}"
-                           Style="{StaticResource MaterialDesignRaisedButton}"
+                           Style="{StaticResource RehauPrimaryButtonStyle}"
                            Margin="16,0,0,0"
                            IsEnabled="{Binding SelectedTemplate, Converter={StaticResource NullToBoolConverter}}"/>
                 </Grid>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
 
         <!-- Слои над трубой -->
-        <materialDesign:Card Grid.Row="3" Margin="0,0,0,16">
-            <StackPanel Margin="16">
-                <Grid Margin="0,0,0,8">
+        <Border Grid.Row="3" Style="{StaticResource Card.Default}">
+            <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
+                <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -102,21 +118,22 @@
 
                     <TextBlock Grid.Column="0"
                               Text="Слои над трубой (к поверхности)"
-                              Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                              Foreground="{DynamicResource MaterialDesignBody}"/>
+                              Style="{StaticResource Text.H4}"
+                              Foreground="{DynamicResource RehauBlackBrush}"/>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <TextBlock Text="{Binding TotalThicknessAbovePipe, StringFormat='Общая толщина: {0:F0} мм'}"
                                   VerticalAlignment="Center"
-                                  Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                  Foreground="{DynamicResource RehauTealBrush}"
+                                  FontWeight="SemiBold"
                                   Margin="0,0,16,0"/>
                         <Button Content="Добавить слой"
                                Command="{Binding AddLayerAbovePipeCommand}"
-                               Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                               Style="{StaticResource RehauSecondaryButtonStyle}"/>
                     </StackPanel>
                 </Grid>
 
-<DataGrid ItemsSource="{Binding LayersAbovePipe}"
+                <DataGrid ItemsSource="{Binding LayersAbovePipe}"
                           SelectedItem="{Binding SelectedLayer}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
@@ -125,7 +142,11 @@
                           GridLinesVisibility="Horizontal"
                           HeadersVisibility="Column"
                           MinHeight="160"
-                          MaxHeight="300">
+                          MaxHeight="300"
+                          BorderThickness="1"
+                          BorderBrush="{DynamicResource RehauGrayBrush}"
+                          RowBackground="{DynamicResource RehauCardBrush}"
+                          AlternatingRowBackground="{DynamicResource RehauBackgroundGrayBrush}">
                     <DataGrid.Columns>
                         <!-- Материал -->
                         <DataGridTemplateColumn Header="Материал" Width="*">
@@ -133,12 +154,13 @@
                                 <DataTemplate>
                                     <ComboBox ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                              SelectedItem="{Binding Material, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                             MinWidth="150">
+                                             MinWidth="150"
+                                             BorderThickness="0">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate>
-                                                <TextBlock>
+                                                <TextBlock Foreground="{DynamicResource RehauBlackBrush}">
                                                     <Run Text="{Binding Name}"/>
-                                                    <Run Text="{Binding Category, StringFormat='({0})'}" Foreground="Gray"/>
+                                                    <Run Text="{Binding Category, StringFormat='({0})'}" Foreground="{DynamicResource RehauGrayBrush}"/>
                                                 </TextBlock>
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
@@ -154,6 +176,7 @@
                                     <TextBox Text="{Binding Thickness, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat={}{0:F0}}"
                                             MinWidth="60"
                                             TextAlignment="Right"
+                                            BorderThickness="0"
                                             behaviors:TextBoxBehavior.SelectAllOnFocus="True"
                                             behaviors:TextBoxBehavior.RestoreOnEscape="True"
                                             behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
@@ -169,6 +192,7 @@
                                             MinWidth="60"
                                             TextAlignment="Right"
                                             ToolTip="Теплопроводность материала. Можно редактировать вручную."
+                                            BorderThickness="0"
                                             behaviors:TextBoxBehavior.SelectAllOnFocus="True"
                                             behaviors:TextBoxBehavior.RestoreOnEscape="True"
                                             behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
@@ -180,7 +204,8 @@
                         <DataGridTextColumn Header="R, м²·К/Вт"
                                           Binding="{Binding CalculatedR, StringFormat={}{0:F4}}"
                                           Width="100"
-                                          IsReadOnly="True"/>
+                                          IsReadOnly="True"
+                                          Foreground="{DynamicResource RehauRedBrush}"/>
 
                         <!-- Удалить -->
                         <DataGridTemplateColumn Header="" Width="Auto">
@@ -189,7 +214,7 @@
                                     <Button Content="✕"
                                            Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                            CommandParameter="{Binding}"
-                                           Style="{StaticResource MaterialDesignIconButton}"
+                                           Style="{StaticResource RehauDeleteButtonStyle}"
                                            ToolTip="Удалить слой"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -197,9 +222,9 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
 
-        <!-- Слои под трубой и Визуализация -->
+<!-- Слои под трубой и Визуализация -->
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
@@ -207,9 +232,9 @@
             </Grid.ColumnDefinitions>
 
             <!-- Слои под трубой -->
-            <materialDesign:Card Grid.Column="0" Margin="0,0,8,0">
-                <StackPanel Margin="16">
-                    <Grid Margin="0,0,0,8">
+            <Border Grid.Column="0" Margin="0,0,12,0" Style="{StaticResource Card.Default}">
+                <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
+                    <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -217,21 +242,22 @@
 
                         <TextBlock Grid.Column="0"
                                   Text="Слои под трубой (к грунту)"
-                                  Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                                  Foreground="{DynamicResource MaterialDesignBody}"/>
+                                  Style="{StaticResource Text.H4}"
+                                  Foreground="{DynamicResource RehauBlackBrush}"/>
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <TextBlock Text="{Binding TotalThicknessBelowPipe, StringFormat='Общая толщина: {0:F0} мм'}"
                                       VerticalAlignment="Center"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                      Foreground="{DynamicResource RehauTealBrush}"
+                                      FontWeight="SemiBold"
                                       Margin="0,0,16,0"/>
                             <Button Content="Добавить слой"
                                    Command="{Binding AddLayerBelowPipeCommand}"
-                                   Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                                   Style="{StaticResource RehauSecondaryButtonStyle}"/>
                         </StackPanel>
                     </Grid>
 
-<DataGrid ItemsSource="{Binding LayersBelowPipe}"
+                    <DataGrid ItemsSource="{Binding LayersBelowPipe}"
                               SelectedItem="{Binding SelectedLayer}"
                               AutoGenerateColumns="False"
                               CanUserAddRows="False"
@@ -240,16 +266,21 @@
                               GridLinesVisibility="Horizontal"
                               HeadersVisibility="Column"
                               MinHeight="160"
-                              MaxHeight="300">
+                              MaxHeight="300"
+                              BorderThickness="1"
+                              BorderBrush="{DynamicResource RehauGrayBrush}"
+                              RowBackground="{DynamicResource RehauCardBrush}"
+                              AlternatingRowBackground="{DynamicResource RehauBackgroundGrayBrush}">
                         <DataGrid.Columns>
                             <!-- Материал -->
                             <DataGridTemplateColumn Header="Материал" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <ComboBox ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                 SelectedItem="{Binding Material, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                 DisplayMemberPath="Name"
-                                                 MinWidth="150"/>
+                                                  SelectedItem="{Binding Material, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                  DisplayMemberPath="Name"
+                                                  MinWidth="150"
+                                                  BorderThickness="0"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -261,6 +292,7 @@
                                         <TextBox Text="{Binding Thickness, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat={}{0:F0}}"
                                                 MinWidth="60"
                                                 TextAlignment="Right"
+                                                BorderThickness="0"
                                                 behaviors:TextBoxBehavior.SelectAllOnFocus="True"
                                                 behaviors:TextBoxBehavior.RestoreOnEscape="True"
                                                 behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
@@ -276,6 +308,7 @@
                                                 MinWidth="60"
                                                 TextAlignment="Right"
                                                 ToolTip="Теплопроводность материала. При УГВ &lt; 1м используется λБ."
+                                                BorderThickness="0"
                                                 behaviors:TextBoxBehavior.SelectAllOnFocus="True"
                                                 behaviors:TextBoxBehavior.RestoreOnEscape="True"
                                                 behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
@@ -287,43 +320,44 @@
                             <DataGridTextColumn Header="R, м²·К/Вт"
                                               Binding="{Binding CalculatedR, StringFormat={}{0:F4}}"
                                               Width="100"
-                                              IsReadOnly="True"/>
+                                              IsReadOnly="True"
+                                              Foreground="{DynamicResource RehauRedBrush}"/>
 
                             <!-- Удалить -->
                             <DataGridTemplateColumn Header="" Width="Auto">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button Content="✕"
-                                               Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                               CommandParameter="{Binding}"
-                                               Style="{StaticResource MaterialDesignIconButton}"
-                                               ToolTip="Удалить слой"/>
+                                                Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource RehauDeleteButtonStyle}"
+                                                ToolTip="Удалить слой"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </StackPanel>
-            </materialDesign:Card>
+            </Border>
 
             <!-- Визуализация "Пирога" -->
-            <materialDesign:Card Grid.Column="1" Margin="8,0,0,0">
-                <StackPanel Margin="16">
+            <Border Grid.Column="1" Margin="12,0,0,0" Style="{StaticResource Card.Default}">
+                <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
                     <TextBlock Text="Визуализация"
-                              Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                              Margin="0,0,0,12"
-                              Foreground="{DynamicResource MaterialDesignBody}"/>
+                              Style="{StaticResource Text.H4}"
+                              Foreground="{DynamicResource RehauBlackBrush}"/>
 
-<Border BorderBrush="{DynamicResource MaterialDesignDivider}"
-                            BorderThickness="1"
-                            CornerRadius="4"
+                    <Border BorderBrush="{DynamicResource RehauTealBrush}"
+                            BorderThickness="2"
+                            CornerRadius="8"
                             Padding="8"
-                            MinHeight="300">
+                            MinHeight="300"
+                            Background="{DynamicResource RehauCardBrush}">
                         <ScrollViewer VerticalScrollBarVisibility="Auto" 
                                       HorizontalScrollBarVisibility="Disabled"
                                       MaxHeight="400">
                             <Canvas x:Name="ConstructionCanvas"
-                                    Background="{DynamicResource MaterialDesignCardBackground}"
+                                    Background="Transparent"
                                     Height="400">
                                 <!-- Визуализация будет отрисовываться в code-behind -->
                             </Canvas>
@@ -331,9 +365,10 @@
                     </Border>
 
                     <!-- Легенда -->
-                    <StackPanel Margin="0,8,0,0">
-                        <TextBlock Text="Легенда:" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                        <ItemsControl ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                    <StackPanel Margin="0,12,0,0">
+                        <TextBlock Text="Легенда:" FontSize="11" Foreground="{DynamicResource RehauGrayBrush}" FontWeight="SemiBold"/>
+                        <ItemsControl ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                     Margin="0,4,0,0">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel/>
@@ -342,20 +377,20 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Margin="4,2">
-                                        <Rectangle Width="12" Height="12" Fill="{Binding GetColor}"/>
-                                        <TextBlock Text="{Binding Name}" FontSize="10" Margin="4,0,0,0"/>
+                                        <Rectangle Width="12" Height="12" Fill="{Binding GetColor}" RadiusX="2" RadiusY="2"/>
+                                        <TextBlock Text="{Binding Name}" FontSize="10" Margin="4,0,0,0" Foreground="{DynamicResource RehauBlackBrush}"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
                 </StackPanel>
-            </materialDesign:Card>
+            </Border>
         </Grid>
 
         <!-- Результаты и Валидация -->
-        <materialDesign:Card Grid.Row="5" Margin="0,16,0,0">
-            <Grid Margin="16">
+        <Border Grid.Row="5" Margin="0,16,0,0" Style="{StaticResource Card.Default}">
+<Grid Margin="{StaticResource Spacing.LG.Thickness}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -364,9 +399,8 @@
                 <!-- Результаты расчёта -->
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Результаты расчёта"
-                              Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                              Margin="0,0,0,8"
-                              Foreground="{DynamicResource MaterialDesignBody}"/>
+                              Style="{StaticResource Text.H4}"
+                              Foreground="{DynamicResource RehauBlackBrush}"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -376,31 +410,49 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- R1 -->
-                        <StackPanel Grid.Column="0" Margin="0,0,24,0">
-                            <TextBlock Text="R₁ (над трубой):" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock Text="{Binding R1Total, StringFormat='{}{0:F4} м²·К/Вт'}"
-                                      FontWeight="Bold"
-                                      FontSize="16"
-                                      Foreground="{DynamicResource PrimaryHueMidBrush}"/>
-                        </StackPanel>
+                        <Border Grid.Column="0" Margin="0,0,24,0"
+                               Background="{DynamicResource RehauResultCardBrush}"
+                               Padding="16,12"
+                               CornerRadius="6">
+                            <StackPanel>
+                                <TextBlock Text="R₁ (над трубой):" Foreground="{DynamicResource RehauGrayBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding R1Total, StringFormat='{}{0:F4} м²·К/Вт'}"
+                                          FontWeight="Bold"
+                                          FontSize="18"
+                                          Foreground="{DynamicResource RehauRedBrush}"
+                                          FontFamily="{StaticResource FontFamily.Main}"/>
+                            </StackPanel>
+                        </Border>
 
                         <!-- R2 -->
-                        <StackPanel Grid.Column="1" Margin="0,0,24,0">
-                            <TextBlock Text="R₂ (под трубой):" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock Text="{Binding R2Total, StringFormat='{}{0:F4} м²·К/Вт'}"
-                                      FontWeight="Bold"
-                                      FontSize="16"
-                                      Foreground="{DynamicResource PrimaryHueMidBrush}"/>
-                        </StackPanel>
+                        <Border Grid.Column="1" Margin="0,0,24,0"
+                               Background="{DynamicResource RehauResultCardBrush}"
+                               Padding="16,12"
+                               CornerRadius="6">
+                            <StackPanel>
+                                <TextBlock Text="R₂ (под трубой):" Foreground="{DynamicResource RehauGrayBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding R2Total, StringFormat='{}{0:F4} м²·К/Вт'}"
+                                          FontWeight="Bold"
+                                          FontSize="18"
+                                          Foreground="{DynamicResource RehauRedBrush}"
+                                          FontFamily="{StaticResource FontFamily.Main}"/>
+                            </StackPanel>
+                        </Border>
 
                         <!-- LambdaE -->
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="λE (вокруг трубы):" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock Text="{Binding LambdaE, StringFormat='{}{0:F3} Вт/м·К'}"
-                                      FontWeight="Bold"
-                                      FontSize="16"
-                                      Foreground="{DynamicResource PrimaryHueMidBrush}"/>
-                        </StackPanel>
+                        <Border Grid.Column="2"
+                               Background="{DynamicResource RehauResultCardBrush}"
+                               Padding="16,12"
+                               CornerRadius="6">
+                            <StackPanel>
+                                <TextBlock Text="λE (вокруг трубы):" Foreground="{DynamicResource RehauGrayBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding LambdaE, StringFormat='{}{0:F3} Вт/м·К'}"
+                                          FontWeight="Bold"
+                                          FontSize="18"
+                                          Foreground="{DynamicResource RehauTealBrush}"
+                                          FontFamily="{StaticResource FontFamily.Main}"/>
+                            </StackPanel>
+                        </Border>
                     </Grid>
                 </StackPanel>
 
@@ -408,28 +460,34 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
                     <Button Content="Сбросить"
                            Command="{Binding ResetToDefaultCommand}"
-                           Style="{StaticResource MaterialDesignOutlinedButton}"
-                           Margin="0,0,8,0"/>
+                           Style="{StaticResource RehauSecondaryButtonStyle}"
+                           Margin="0,0,12,0"/>
                     <Button Content="Сохранить"
                            Command="{Binding SaveConstructionCommand}"
-                           Style="{StaticResource MaterialDesignRaisedButton}"/>
+                           Style="{StaticResource RehauPrimaryButtonStyle}"/>
                 </StackPanel>
             </Grid>
-        </materialDesign:Card>
+        </Border>
 
         <!-- Валидация -->
-        <materialDesign:Card Grid.Row="5" Margin="0,16,0,0"
-                           Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
+        <Border Grid.Row="5" Margin="0,16,0,0"
+                Style="{StaticResource Card.Default}"
+                Background="#FFF8E8"
+                BorderBrush="#FFB300"
+                BorderThickness="1"
+                Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal" Margin="16">
-                <materialDesign:PackIcon Kind="{Binding IsValid, Converter={StaticResource BoolToAlertIconConverter}}"
-                                        VerticalAlignment="Center"
-                                        Margin="0,0,8,0"
-                                        Foreground="{Binding IsValid, Converter={StaticResource BoolToValidationColorConverter}}"/>
+                <Path Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"
+                      Width="20" Height="20"
+                      Fill="#FF9800"
+                      Margin="0,0,8,0"
+                      VerticalAlignment="Center"
+                      Stretch="Uniform"/>
                 <TextBlock Text="{Binding ValidationMessage}"
                           VerticalAlignment="Center"
                           TextWrapping="Wrap"
                           Foreground="{Binding IsValid, Converter={StaticResource BoolToValidationColorConverter}}"/>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
     </Grid>
 </UserControl>

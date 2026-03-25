@@ -82,7 +82,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         }
         
         [Test]
-        public void IsPressureExceeded_ReturnsTrueWhenExceeded()
+        public void IsColdPressureExceeded_ReturnsTrueWhenExceeded()
         {
             // Arrange
             var summary = new CollectorSummary
@@ -91,11 +91,11 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             };
             
             // Assert
-            Assert.That(summary.IsPressureExceeded, Is.True);
+            Assert.That(summary.IsColdPressureExceeded, Is.True);
         }
         
         [Test]
-        public void IsPressureExceeded_ReturnsFalseWhenNotExceeded()
+        public void IsColdPressureExceeded_ReturnsFalseWhenNotExceeded()
         {
             // Arrange
             var summary = new CollectorSummary
@@ -104,11 +104,11 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             };
             
             // Assert
-            Assert.That(summary.IsPressureExceeded, Is.False);
+            Assert.That(summary.IsColdPressureExceeded, Is.False);
         }
         
         [Test]
-        public void IsPressureExceeded_ReturnsFalseWhenExactlyAtLimit()
+        public void IsColdPressureExceeded_ReturnsFalseWhenExactlyAtLimit()
         {
             // Arrange
             var summary = new CollectorSummary
@@ -117,7 +117,91 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             };
             
             // Assert
-            Assert.That(summary.IsPressureExceeded, Is.False);
+            Assert.That(summary.IsColdPressureExceeded, Is.False);
+        }
+        
+        [Test]
+        public void IsOperatingPressureExceeded_ReturnsTrueWhenExceeded()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Operating_Pa = 43700 // 43700 Па > 32000 Па
+            };
+            
+            // Assert
+            Assert.That(summary.IsOperatingPressureExceeded, Is.True);
+        }
+        
+        [Test]
+        public void IsOperatingPressureExceeded_ReturnsFalseWhenNotExceeded()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Operating_Pa = 25000 // 25000 Па < 32000 Па
+            };
+            
+            // Assert
+            Assert.That(summary.IsOperatingPressureExceeded, Is.False);
+        }
+        
+        [Test]
+        public void IsOperatingPressureExceeded_ReturnsFalseWhenExactlyAtLimit()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Operating_Pa = 32000 // 32000 Па = 32000 Па
+            };
+            
+            // Assert
+            Assert.That(summary.IsOperatingPressureExceeded, Is.False);
+        }
+        
+        [Test]
+        public void BothPressuresExceeded_BothFlagsTrue()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Operating_Pa = 45000, // 45000 Па > 32000 Па
+                PressureLoss_Cold_Pa = 50000 // 50000 Па > 32000 Па
+            };
+            
+            // Assert
+            Assert.That(summary.IsOperatingPressureExceeded, Is.True);
+            Assert.That(summary.IsColdPressureExceeded, Is.True);
+        }
+        
+        [Test]
+        public void OnlyOperatingPressureExceeded_OnlyOperatingFlagTrue()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Operating_Pa = 43700, // 43700 Па > 32000 Па
+                PressureLoss_Cold_Pa = 25000 // 25000 Па < 32000 Па
+            };
+            
+            // Assert
+            Assert.That(summary.IsOperatingPressureExceeded, Is.True);
+            Assert.That(summary.IsColdPressureExceeded, Is.False);
+        }
+        
+        [Test]
+        public void OnlyColdPressureExceeded_OnlyColdFlagTrue()
+        {
+            // Arrange
+            var summary = new CollectorSummary
+            {
+                PressureLoss_Operating_Pa = 25000, // 25000 Па < 32000 Па
+                PressureLoss_Cold_Pa = 45000 // 45000 Па > 32000 Па
+            };
+            
+            // Assert
+            Assert.That(summary.IsOperatingPressureExceeded, Is.False);
+            Assert.That(summary.IsColdPressureExceeded, Is.True);
         }
         
         [Test]

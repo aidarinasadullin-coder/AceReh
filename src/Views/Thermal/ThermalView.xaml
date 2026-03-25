@@ -3,15 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:vm="clr-namespace:SnowMeltingCalculator.ViewModels.Thermal"
              xmlns:models="clr-namespace:SnowMeltingCalculator.Models.Thermal"
              xmlns:behaviors="clr-namespace:SnowMeltingCalculator.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="900"
-             d:DataContext="{d:DesignInstance Type=vm:ThermalViewModel, IsDesignTimeCreatable=False}">
+             d:DataContext="{d:DesignInstance Type=vm:ThermalViewModel, IsDesignTimeCreatable=False}"
+             Background="{DynamicResource RehauBackgroundBrush}">
 
-    <Grid Margin="16">
+    <Grid Margin="{StaticResource Spacing.LG.Thickness}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -22,56 +22,77 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Группа "Режим работы" -->
-        <materialDesign:Card Grid.Row="1" Margin="0,0,0,16">
-            <StackPanel Margin="16">
-                <TextBlock Text="Режим работы"
-                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                          Margin="0,0,0,12"
-                          Foreground="{DynamicResource MaterialDesignBody}"/>
+<!-- Заголовок страницы -->
+        <TextBlock Grid.Row="0"
+                   Text="Теплотехнический расчёт"
+                   Style="{StaticResource Text.H2}"
+                   Foreground="{DynamicResource RehauBlackBrush}"
+                   Margin="0,0,0,20"/>
 
-                <ComboBox ItemsSource="{Binding AvailableModes}"
-                         SelectedItem="{Binding SelectedMode}"
-                         materialDesign:TextFieldAssist.PrefixText="Режим:"
-                         MinWidth="300"
-                         ToolTip="Выберите режим работы системы снеготаяния">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel>
-                                <TextBlock Text="{Binding}" FontWeight="Bold"/>
-                                <TextBlock FontSize="11" Foreground="Gray">
-                                    <TextBlock.Text>
-                                        <MultiBinding StringFormat="{}{0}">
-                                            <Binding Path="." Converter="{StaticResource EnumDescriptionConverter}"/>
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
+        <!-- Группа "Режим работы" -->
+        <Border Grid.Row="1" Style="{StaticResource Card.Default}">
+            <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
+                <TextBlock Text="Режим работы"
+                          Style="{StaticResource Text.H4}"
+                          Foreground="{DynamicResource RehauBlackBrush}"/>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Режим:"
+                              FontSize="12"
+                              Foreground="{DynamicResource RehauGrayBrush}"
+                              Margin="0,0,0,6"/>
+<ComboBox ItemsSource="{Binding AvailableModes}"
+                              SelectedItem="{Binding SelectedMode}"
+                              MinWidth="500"
+                              ToolTip="Выберите режим работы системы снеготаяния"
+                              Style="{StaticResource RehauComboBoxStyle}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding}" FontWeight="Bold" Foreground="{DynamicResource RehauBlackBrush}"/>
+                                    <TextBlock FontSize="11" 
+                                               Foreground="{DynamicResource RehauGrayBrush}"
+                                               TextWrapping="Wrap"
+                                               MaxWidth="450">
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0}">
+                                                <Binding Path="." Converter="{StaticResource EnumDescriptionConverter}"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
 
                 <!-- Описание режима -->
-                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                    <materialDesign:PackIcon Kind="Information"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,4,0"
-                                           Foreground="{DynamicResource PrimaryHueMidBrush}"/>
-                    <TextBlock Text="{Binding SelectedMode, Converter={StaticResource OperatingModeDescriptionConverter}}"
+                <Border Background="{DynamicResource RehauResultCardBrush}"
+                       Padding="12,8"
+                       CornerRadius="4"
+                       Margin="0,12,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
+                              Width="20" Height="20"
+                              Fill="{DynamicResource RehauTealBrush}"
+                              Margin="0,0,8,0"
                               VerticalAlignment="Center"
-                              Foreground="{DynamicResource MaterialDesignBodyLight}"
-                              FontSize="12"/>
-                </StackPanel>
+                              Stretch="Uniform"/>
+                        <TextBlock Text="{Binding SelectedMode, Converter={StaticResource OperatingModeDescriptionConverter}}"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource RehauBlackBrush}"
+                                  FontSize="12"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
 
         <!-- Группа "Температуры" -->
-        <materialDesign:Card Grid.Row="2" Margin="0,0,0,16">
-            <StackPanel Margin="16">
+        <Border Grid.Row="2" Style="{StaticResource Card.Default}">
+            <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
                 <TextBlock Text="Температуры"
-                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                          Margin="0,0,0,12"
-                          Foreground="{DynamicResource MaterialDesignBody}"/>
+                          Style="{StaticResource Text.H4}"
+                          Foreground="{DynamicResource RehauBlackBrush}"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -81,70 +102,97 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Температура подачи -->
-                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                        <TextBox Text="{Binding SupplyTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
-                                materialDesign:TextFieldAssist.PrefixText="Температура подачи:"
-                                materialDesign:TextFieldAssist.SuffixText="°C"
-                                ToolTip="Температура подачи теплоносителя (от 20°C до 90°C)"
-                                behaviors:TextBoxBehavior.SelectAllOnFocus="True"
-                                behaviors:TextBoxBehavior.RestoreOnEscape="True"
-                                behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsValid}" Value="False">
-                                            <Setter Property="BorderBrush" Value="Red"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
+                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                        <TextBlock Text="Температура подачи:"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                    Text="{Binding SupplyTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
+                                    ToolTip="Температура подачи теплоносителя (от 20°C до 90°C)"
+                                    behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                                    behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                                    behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox" BasedOn="{StaticResource RehauTextBoxStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsValid}" Value="False">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                            <TextBlock Grid.Column="1" Text="°C"
+                                      Margin="8,0,0,0"
+                                      VerticalAlignment="Center"
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                        </Grid>
                         <TextBlock Text="{Binding SupplyTemperatureHint}"
                                   FontSize="11"
-                                  Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                  Foreground="{DynamicResource RehauTealBrush}"
                                   Visibility="{Binding SupplyTemperatureHint, Converter={StaticResource StringToVisibilityConverter}}"
-                                  Margin="0,2,0,0"/>
+                                  Margin="0,4,0,0"/>
                     </StackPanel>
 
                     <!-- Температурный перепад (только чтение) -->
-                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                    <StackPanel Grid.Column="1" Margin="0,0,12,0">
                         <TextBlock Text="Температурный перепад:"
                                    FontSize="12"
-                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                   Margin="0,0,0,4"/>
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Result.DeltaT, StringFormat={}{0:F1} К}"
                                       FontWeight="Bold"
-                                      FontSize="14"
-                                      Foreground="{DynamicResource MaterialDesignBody}"/>
+                                      FontSize="18"
+                                      Foreground="{DynamicResource RehauBlackBrush}"/>
                             <TextBlock Text=" (рассчитывается)"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                      Foreground="{DynamicResource RehauGrayBrush}"
                                       VerticalAlignment="Center"
-                                      Margin="4,0,0,0"/>
+                                      Margin="6,0,0,0"/>
                         </StackPanel>
                     </StackPanel>
 
                     <!-- Температура грунта -->
-                    <TextBox Grid.Column="2"
-                            Text="{Binding GroundTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
-                            materialDesign:TextFieldAssist.PrefixText="Температура грунта:"
-                            materialDesign:TextFieldAssist.SuffixText="°C"
-                            ToolTip="Температура грунта под системой (от -10°C до +30°C)"
-                            behaviors:TextBoxBehavior.SelectAllOnFocus="True"
-                            behaviors:TextBoxBehavior.RestoreOnEscape="True"
-                            behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Температура грунта:"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                    Text="{Binding GroundTemperature, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
+                                    ToolTip="Температура грунта под системой (от -10°C до +30°C)"
+                                    behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                                    behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                                    behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"
+                                    Style="{StaticResource RehauTextBoxStyle}"/>
+                            <TextBlock Grid.Column="1" Text="°C"
+                                      Margin="8,0,0,0"
+                                      VerticalAlignment="Center"
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                        </Grid>
+                    </StackPanel>
                 </Grid>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
 
         <!-- Группа "Труба" -->
-        <materialDesign:Card Grid.Row="3" Margin="0,0,0,16">
-            <StackPanel Margin="16">
+        <Border Grid.Row="3" Style="{StaticResource Card.Default}">
+            <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
                 <TextBlock Text="Труба"
-                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                          Margin="0,0,0,12"
-                          Foreground="{DynamicResource MaterialDesignBody}"/>
+                          Style="{StaticResource Text.H4}"
+                          Foreground="{DynamicResource RehauBlackBrush}"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -153,114 +201,152 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Выбор трубы -->
-                    <ComboBox Grid.Column="0"
-                              ItemsSource="{Binding AvailablePipes}"
-                              SelectedItem="{Binding SelectedPipe}"
-                              materialDesign:TextFieldAssist.PrefixText="Тип трубы:"
-                              Margin="0,0,8,0"
-                              ToolTip="Выберите тип трубы RAUTHERM S">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding DisplayName}"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                        <TextBlock Text="Тип трубы:"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
+                        <ComboBox ItemsSource="{Binding AvailablePipes}"
+                                  SelectedItem="{Binding SelectedPipe}"
+                                  ToolTip="Выберите тип трубы RAUTHERM S"
+                                  Style="{StaticResource RehauComboBoxStyle}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource RehauBlackBrush}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
 
                     <!-- Шаг укладки -->
-                    <ComboBox Grid.Column="1"
-                              ItemsSource="{Binding AvailablePipeSpacings}"
-                              SelectedItem="{Binding PipeSpacing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              IsEnabled="{Binding IsPipeSpacingEnabled}"
-                              materialDesign:TextFieldAssist.PrefixText="Шаг укладки:"
-                              ToolTip="Шаг укладки трубы (выберите из списка)">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock>
-                                    <Run Text="{Binding Mode=OneWay}"/>
-                                    <Run Text=" мм"/>
-                                </TextBlock>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Шаг укладки:"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
+                        <ComboBox ItemsSource="{Binding AvailablePipeSpacings}"
+                                  SelectedItem="{Binding PipeSpacing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  IsEnabled="{Binding IsPipeSpacingEnabled}"
+                                  ToolTip="Шаг укладки трубы (выберите из списка)"
+                                  Style="{StaticResource RehauComboBoxStyle}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Foreground="{DynamicResource RehauBlackBrush}">
+                                        <Run Text="{Binding Mode=OneWay}"/>
+                                        <Run Text=" мм"/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
                 </Grid>
 
                 <!-- Информация о выбранной трубе -->
-                <StackPanel Orientation="Horizontal" Margin="0,8,0,0"
-                           Visibility="{Binding SelectedPipe, Converter={StaticResource NullToVisibilityConverter}}">
-                    <materialDesign:PackIcon Kind="Pipe"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,4,0"
-                                           Foreground="{DynamicResource PrimaryHueMidBrush}"/>
-                    <TextBlock Foreground="{DynamicResource MaterialDesignBodyLight}"
-                              FontSize="12">
-                        <Run Text="Наружный диаметр: "/>
-                        <Run Text="{Binding SelectedPipe.OuterDiameter, Mode=OneWay}"/>
-                        <Run Text=" мм, Внутренний: "/>
-                        <Run Text="{Binding SelectedPipe.InnerDiameter, Mode=OneWay}"/>
-                        <Run Text=" мм"/>
-                    </TextBlock>
-                </StackPanel>
+                <Border Background="{DynamicResource RehauResultCardBrush}"
+                       Padding="12,8"
+                       CornerRadius="4"
+                       Margin="0,12,0,0"
+                       Visibility="{Binding SelectedPipe, Converter={StaticResource NullToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="M12,2C8.13,2 5,5.13 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9C19,5.13 15.87,2 12,2M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5Z"
+                              Width="20" Height="20"
+                              Fill="{DynamicResource RehauTealBrush}"
+                              Margin="0,0,8,0"
+                              VerticalAlignment="Center"
+                              Stretch="Uniform"/>
+                        <TextBlock Foreground="{DynamicResource RehauBlackBrush}"
+                                  FontSize="12">
+                            <Run Text="Наружный диаметр: "/>
+                            <Run Text="{Binding SelectedPipe.OuterDiameter, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource RehauRedBrush}"/>
+                            <Run Text=" мм, Внутренний: "/>
+                            <Run Text="{Binding SelectedPipe.InnerDiameter, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource RehauRedBrush}"/>
+                            <Run Text=" мм"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
 
         <!-- Кнопки действий -->
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,16">
-            <Button Content="Рассчитать"
-                   Command="{Binding CalculateCommand}"
-                   Style="{StaticResource MaterialDesignRaisedButton}"
-                   Margin="0,0,8,0"
-                   IsEnabled="{Binding IsCalculating, Converter={StaticResource InverseBooleanConverter}}">
-                <Button.ContentTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Calculator"
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,4,0"/>
-                            <TextBlock Text="Рассчитать" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </Button.ContentTemplate>
+            <Button Command="{Binding CalculateCommand}"
+                    Style="{StaticResource RehauPrimaryButtonStyle}"
+                    Margin="0,0,12,0"
+                    IsEnabled="{Binding IsCalculating, Converter={StaticResource InverseBooleanConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <Path Data="M7,2H17A2,2 0 0,1 19,4V20A2,2 0 0,1 17,22H7A2,2 0 0,1 5,20V4A2,2 0 0,1 7,2M7,4V8H17V4H7M7,10V12H9V10H7M11,10V12H13V10H11M15,10V12H17V10H15M7,14V16H9V14H7M11,14V16H13V14H11M15,14V16H17V14H15M7,18V20H9V18H7M11,18V20H13V18H11M15,18V20H17V18H15Z"
+                          Width="16" Height="16"
+                          Fill="White"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          Stretch="Uniform"/>
+                    <TextBlock Text="Рассчитать" VerticalAlignment="Center"/>
+                </StackPanel>
             </Button>
 
-            <Button Content="Сбросить"
-                   Command="{Binding ResetCommand}"
-                   Style="{StaticResource MaterialDesignOutlinedButton}"
-                   IsEnabled="{Binding IsCalculating, Converter={StaticResource InverseBooleanConverter}}">
-                <Button.ContentTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Refresh"
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,4,0"/>
-                            <TextBlock Text="Сбросить" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </Button.ContentTemplate>
+            <Button Command="{Binding ResetCommand}"
+                    Style="{StaticResource RehauSecondaryButtonStyle}"
+                    IsEnabled="{Binding IsCalculating, Converter={StaticResource InverseBooleanConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <Path Data="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"
+                          Width="16" Height="16"
+                          Fill="{DynamicResource RehauTealDarkBrush}"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          Stretch="Uniform"/>
+                    <TextBlock Text="Сбросить" VerticalAlignment="Center"/>
+                </StackPanel>
             </Button>
         </StackPanel>
 
-        <!-- Валидация -->
-        <materialDesign:Card Grid.Row="5" Margin="0,0,0,16"
-                            Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
+<!-- Валидация -->
+        <Border Grid.Row="5" Style="{StaticResource Card.Default}"
+                Background="#FFF8E8"
+                BorderBrush="#FFB300"
+                BorderThickness="1"
+                Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal" Margin="16">
-                <materialDesign:PackIcon Kind="Alert"
-                                        VerticalAlignment="Center"
-                                        Margin="0,0,8,0"
-                                        Foreground="Orange"/>
+                <Path Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"
+                      Width="20" Height="20"
+                      Fill="#FF9800"
+                      Margin="0,0,8,0"
+                      VerticalAlignment="Center"
+                      Stretch="Uniform"/>
                 <TextBlock Text="{Binding ValidationMessage}"
-                          VerticalAlignment="Center"
-                          Foreground="Orange"/>
+                           VerticalAlignment="Center"
+                           Foreground="#E65100"/>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
+
+        <!-- Сообщение о пересчёте -->
+        <Border Grid.Row="5" Style="{StaticResource Card.Default}"
+                Background="#E3F2FD"
+                BorderBrush="#1976D2"
+                BorderThickness="1"
+                Visibility="{Binding NeedsRecalculation, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Margin="16">
+                <Path Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"
+                      Width="20" Height="20"
+                      Fill="#1976D2"
+                      Margin="0,0,8,0"
+                      VerticalAlignment="Center"
+                      Stretch="Uniform"/>
+                <TextBlock Text="{Binding RecalcMessage}"
+                           VerticalAlignment="Center"
+                           Foreground="#E65100"
+                           FontSize="13"
+                           FontWeight="Medium"/>
+            </StackPanel>
+        </Border>
 
         <!-- Группа "Результаты" -->
-        <materialDesign:Card Grid.Row="6"
-                            Visibility="{Binding Result, Converter={StaticResource NullToVisibilityConverter}}">
-            <StackPanel Margin="16">
+        <Border Grid.Row="6"
+                Style="{StaticResource Card.Default}"
+                Visibility="{Binding Result, Converter={StaticResource NullToVisibilityConverter}}">
+            <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
                 <TextBlock Text="Результаты расчёта"
-                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                          Margin="0,0,0,16"
-                          Foreground="{DynamicResource MaterialDesignBody}"/>
+                          Style="{StaticResource Text.H4}"
+                          Foreground="{DynamicResource RehauBlackBrush}"/>
 
                 <!-- Основные результаты -->
                 <Grid Margin="0,0,0,16">
@@ -278,161 +364,128 @@
 
                     <!-- Коэффициент теплоотдачи α -->
                     <Border Grid.Row="0" Grid.Column="0"
-                           Background="{DynamicResource MaterialDesignCardBody}"
-                           Padding="12"
-                           Margin="0,0,8,8"
-                           CornerRadius="4">
+                           Style="{StaticResource RehauResultCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Коэффициент теплоотдачи α"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
                             <TextBlock Text="{Binding Result.Alpha, StringFormat={}{0:F2}}"
-                                      FontSize="20"
-                                      FontWeight="Bold"
-                                      Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                                      Style="{StaticResource RehauResultValueStyle}"/>
                             <TextBlock Text="Вт/м²·К"
-                                      FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Style="{StaticResource RehauUnitStyle}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Мощность вверх q_FB -->
                     <Border Grid.Row="0" Grid.Column="1"
-                           Background="{DynamicResource MaterialDesignCardBody}"
-                           Padding="12"
-                           Margin="0,0,8,8"
-                           CornerRadius="4">
+                           Style="{StaticResource RehauAccentResultCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Мощность вверх q_FB"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
                             <TextBlock Text="{Binding Result.PowerUp, StringFormat={}{0:F1}}"
-                                      FontSize="20"
-                                      FontWeight="Bold"
-                                      Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                                      Style="{StaticResource RehauResultValueStyle}"/>
                             <TextBlock Text="Вт/м²"
-                                      FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Style="{StaticResource RehauUnitStyle}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Мощность вниз q_D -->
                     <Border Grid.Row="0" Grid.Column="2"
-                           Background="{DynamicResource MaterialDesignCardBody}"
-                           Padding="12"
-                           Margin="0,0,8,8"
-                           CornerRadius="4">
+                           Style="{StaticResource RehauResultCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Мощность вниз q_D"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
                             <TextBlock Text="{Binding Result.PowerDown, StringFormat={}{0:F1}}"
-                                      FontSize="20"
+                                      FontSize="24"
                                       FontWeight="Bold"
-                                      Foreground="{DynamicResource SecondaryHueMidBrush}"/>
+                                      Foreground="{DynamicResource RehauTealBrush}"
+                                      FontFamily="{StaticResource FontFamily.Main}"/>
                             <TextBlock Text="Вт/м²"
-                                      FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Style="{StaticResource RehauUnitStyle}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Суммарная мощность -->
                     <Border Grid.Row="0" Grid.Column="3"
-                           Background="{DynamicResource MaterialDesignCardBody}"
-                           Padding="12"
-                           Margin="0,0,0,8"
-                           CornerRadius="4">
+                           Style="{StaticResource RehauAccentResultCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Суммарная мощность"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
                             <TextBlock Text="{Binding Result.PowerTotal, StringFormat={}{0:F1}}"
-                                      FontSize="20"
-                                      FontWeight="Bold"
-                                      Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                                      Style="{StaticResource RehauResultValueStyle}"/>
                             <TextBlock Text="Вт/м²"
-                                      FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Style="{StaticResource RehauUnitStyle}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Средняя температура -->
                     <Border Grid.Row="1" Grid.Column="0"
-                           Background="{DynamicResource MaterialDesignCardBody}"
-                           Padding="12"
-                           Margin="0,0,8,8"
-                           CornerRadius="4">
+                           Style="{StaticResource RehauResultCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Средняя температура"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
                             <TextBlock Text="{Binding Result.MeanTemperature, StringFormat={}{0:F1}}"
-                                      FontSize="20"
+                                      FontSize="24"
                                       FontWeight="Bold"
-                                      Foreground="{DynamicResource MaterialDesignBody}"/>
+                                      Foreground="{DynamicResource RehauBlackBrush}"
+                                      FontFamily="{StaticResource FontFamily.Main}"/>
                             <TextBlock Text="°C"
-                                      FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Style="{StaticResource RehauUnitStyle}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Температура обратки -->
                     <Border Grid.Row="1" Grid.Column="1"
-                           Background="{DynamicResource MaterialDesignCardBody}"
-                           Padding="12"
-                           Margin="0,0,8,8"
-                           CornerRadius="4">
+                           Style="{StaticResource RehauResultCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Температура обратки"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
                             <TextBlock Text="{Binding Result.ReturnTemperature, StringFormat={}{0:F1}}"
-                                      FontSize="20"
+                                      FontSize="24"
                                       FontWeight="Bold"
-                                      Foreground="{DynamicResource MaterialDesignBody}"/>
+                                      Foreground="{DynamicResource RehauBlackBrush}"
+                                      FontFamily="{StaticResource FontFamily.Main}"/>
                             <TextBlock Text="°C"
-                                      FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Style="{StaticResource RehauUnitStyle}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Расход -->
                     <Border Grid.Row="1" Grid.Column="2"
-                           Background="{DynamicResource MaterialDesignCardBody}"
-                           Padding="12"
-                           Margin="0,0,8,8"
-                           CornerRadius="4">
+                           Style="{StaticResource RehauResultCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Расход"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
                             <TextBlock Text="{Binding Result.VolumeFlowRate, StringFormat={}{0:F2}}"
-                                      FontSize="20"
+                                      FontSize="24"
                                       FontWeight="Bold"
-                                      Foreground="{DynamicResource MaterialDesignBody}"/>
+                                      Foreground="{DynamicResource RehauBlackBrush}"
+                                      FontFamily="{StaticResource FontFamily.Main}"/>
                             <TextBlock Text="л/(ч·м²)"
-                                      FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Style="{StaticResource RehauUnitStyle}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- КПД ребра -->
                     <Border Grid.Row="1" Grid.Column="3"
-                           Background="{DynamicResource MaterialDesignCardBody}"
-                           Padding="12"
-                           Margin="0,0,0,8"
-                           CornerRadius="4">
+                           Style="{StaticResource RehauResultCardStyle}">
                         <StackPanel>
                             <TextBlock Text="КПД ребра η_R"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
                             <TextBlock Text="{Binding Result.EfficiencyEtaR, StringFormat={}{0:F3}}"
-                                      FontSize="20"
+                                      FontSize="24"
                                       FontWeight="Bold"
-                                      Foreground="{DynamicResource MaterialDesignBody}"/>
+                                      Foreground="{DynamicResource RehauBlackBrush}"
+                                      FontFamily="{StaticResource FontFamily.Main}"/>
                             <TextBlock Text="—"
-                                      FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                      Style="{StaticResource RehauUnitStyle}"/>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -440,8 +493,8 @@
                 <!-- Дополнительные параметры -->
                 <Expander Header="Дополнительные параметры"
                          IsExpanded="False"
-                         Background="{DynamicResource MaterialDesignCardBackground}">
-                    <Grid Margin="8">
+                         Background="{DynamicResource RehauCardBrush}">
+                    <Grid Margin="16,8,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
@@ -454,77 +507,77 @@
                         </Grid.RowDefinitions>
 
                         <!-- Теплота плавления -->
-                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,8">
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,12">
                             <TextBlock Text="Теплота плавления снега"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock FontSize="14">
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                            <TextBlock FontSize="14" Foreground="{DynamicResource RehauBlackBrush}">
                                 <Run Text="{Binding Result.MeltingHeat, Mode=OneWay, StringFormat={}{0:F1}}"/>
                                 <Run Text=" Вт/м²"/>
                             </TextBlock>
                         </StackPanel>
 
                         <!-- Конвективный поток -->
-                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,8,8">
+                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,12,12">
                             <TextBlock Text="Конвективный тепловой поток"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock FontSize="14">
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                            <TextBlock FontSize="14" Foreground="{DynamicResource RehauBlackBrush}">
                                 <Run Text="{Binding Result.ConvectionHeat, Mode=OneWay, StringFormat={}{0:F1}}"/>
                                 <Run Text=" Вт/м²"/>
                             </TextBlock>
                         </StackPanel>
 
                         <!-- Параметр m -->
-                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,8,8">
+                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,12">
                             <TextBlock Text="Параметр m"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock FontSize="14">
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                            <TextBlock FontSize="14" Foreground="{DynamicResource RehauBlackBrush}">
                                 <Run Text="{Binding Result.ParameterM, Mode=OneWay, StringFormat={}{0:F4}}"/>
                                 <Run Text=" 1/м"/>
                             </TextBlock>
                         </StackPanel>
 
                         <!-- Сопротивление R1 -->
-                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,8,8">
+                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,12,12">
                             <TextBlock Text="Сопротивление R₁ (над трубой)"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock FontSize="14">
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                            <TextBlock FontSize="14" Foreground="{DynamicResource RehauBlackBrush}">
                                 <Run Text="{Binding Result.R1Total, Mode=OneWay, StringFormat={}{0:F4}}"/>
                                 <Run Text=" м²·К/Вт"/>
                             </TextBlock>
                         </StackPanel>
 
                         <!-- Сопротивление R2 -->
-                        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,8">
+                        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,12">
                             <TextBlock Text="Сопротивление R₂ (под трубой)"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock FontSize="14">
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                            <TextBlock FontSize="14" Foreground="{DynamicResource RehauBlackBrush}">
                                 <Run Text="{Binding Result.R2Total, Mode=OneWay, StringFormat={}{0:F4}}"/>
                                 <Run Text=" м²·К/Вт"/>
                             </TextBlock>
                         </StackPanel>
 
                         <!-- Полное сопротивление вверх -->
-                        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,8,0">
+                        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,12,0">
                             <TextBlock Text="Полное сопротивление R_FB"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock FontSize="14">
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                            <TextBlock FontSize="14" Foreground="{DynamicResource RehauBlackBrush}">
                                 <Run Text="{Binding Result.RFb, Mode=OneWay, StringFormat={}{0:F4}}"/>
                                 <Run Text=" м²·К/Вт"/>
                             </TextBlock>
                         </StackPanel>
 
                         <!-- Полное сопротивление вниз -->
-                        <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,8,0">
+                        <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,12,0">
                             <TextBlock Text="Полное сопротивление R_D"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock FontSize="14">
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                            <TextBlock FontSize="14" Foreground="{DynamicResource RehauBlackBrush}">
                                 <Run Text="{Binding Result.RD, Mode=OneWay, StringFormat={}{0:F4}}"/>
                                 <Run Text=" м²·К/Вт"/>
                             </TextBlock>
@@ -534,8 +587,8 @@
                         <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,0">
                             <TextBlock Text="Массовый расход"
                                       FontSize="11"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"/>
-                            <TextBlock FontSize="14">
+                                      Foreground="{DynamicResource RehauGrayBrush}"/>
+                            <TextBlock FontSize="14" Foreground="{DynamicResource RehauBlackBrush}">
                                 <Run Text="{Binding Result.MassFlowRate, Mode=OneWay, StringFormat={}{0:F2}}"/>
                                 <Run Text=" кг/(ч·м²)"/>
                             </TextBlock>
@@ -543,6 +596,6 @@
                     </Grid>
                 </Expander>
             </StackPanel>
-        </materialDesign:Card>
+        </Border>
     </Grid>
 </UserControl>
