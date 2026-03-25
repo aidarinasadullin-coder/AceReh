@@ -4,7 +4,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Construction;
+using SnowMeltingCalculator.Models.Navigation;
 using SnowMeltingCalculator.Models.Thermal;
+using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Thermal;
 
 namespace SnowMeltingCalculator.ViewModels.Thermal
@@ -17,6 +19,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         private readonly IThermalCalculator _calculator;
         private readonly IClimateData _climateData;
         private readonly IConstructionData _constructionData;
+        private readonly ICalculationStateService _calculationStateService;
 
         #region Observable Properties
 
@@ -87,6 +90,55 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         partial void OnSelectedPipeChanged(PipeType? value)
         {
             OnPropertyChanged(nameof(IsPipeSpacingEnabled));
+            
+            if (Result != null)
+            {
+                _calculationStateService.SetThermalNeedsRecalculation("Тип трубы изменён. Требуется пересчёт.");
+            }
+        }
+
+        /// <summary>
+        /// Уведомление об изменении шага укладки трубы
+        /// </summary>
+        partial void OnPipeSpacingChanged(int value)
+        {
+            if (Result != null)
+            {
+                _calculationStateService.SetThermalNeedsRecalculation("Шаг укладки изменён. Требуется пересчёт.");
+            }
+        }
+
+        /// <summary>
+        /// Уведомление об изменении температуры подачи
+        /// </summary>
+        partial void OnSupplyTemperatureChanged(double value)
+        {
+            if (Result != null)
+            {
+                _calculationStateService.SetThermalNeedsRecalculation("Температура подачи изменена. Требуется пересчёт.");
+            }
+        }
+
+        /// <summary>
+        /// Уведомление об изменении температуры грунта
+        /// </summary>
+        partial void OnGroundTemperatureChanged(double value)
+        {
+            if (Result != null)
+            {
+                _calculationStateService.SetThermalNeedsRecalculation("Температура грунта изменена. Требуется пересчёт.");
+            }
+        }
+
+        /// <summary>
+        /// Уведомление об изменении режима работы
+        /// </summary>
+        partial void OnSelectedModeChanged(OperatingMode value)
+        {
+            if (Result != null)
+            {
+                _calculationStateService.SetThermalNeedsRecalculation("Режим работы изменён. Требуется пересчёт.");
+            }
         }
 
         /// <summary>
@@ -114,6 +166,17 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         [ObservableProperty]
         private string _validationMessage = string.Empty;
 
+        /// <summary>
+        /// Сообщение о необходимости пересчёта
+        /// Делегирует сервису ICalculationStateService
+        /// </summary>
+        public string RecalcMessage => _calculationStateService.ThermalValidationMessage;
+
+        /// <summary>
+        /// Признак того, что тепловой расчёт требует пересчёта
+        /// </summary>
+        public bool NeedsRecalculation => _calculationStateService.ThermalNeedsRecalculation;
+
         #endregion
 
         #region Collections
@@ -138,11 +201,13 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         public ThermalViewModel(
             IThermalCalculator calculator,
             IClimateData climateData,
-            IConstructionData constructionData)
+            IConstructionData constructionData,
+            ICalculationStateService calculationStateService)
         {
             _calculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
             _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
             _constructionData = constructionData ?? throw new ArgumentNullException(nameof(constructionData));
+            _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
 
             // Инициализация коллекций
             AvailablePipes = new ObservableCollection<PipeType>(PipeType.StandardPipes);
@@ -162,6 +227,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             // Подписка на изменения данных конструкции
             // Construction реализует IConstructionData и вызывает DataChanged
             _constructionData.DataChanged += OnConstructionDataChanged;
+
+            // Подписка на изменения состояния расчёта
+            _calculationStateService.StateChanged += OnCalculationStateChanged;
         }
 
         #endregion
@@ -182,6 +250,8 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 return;
             }
 
+            // Установить флаг выполнения расчёта
+            _calculationStateService.SetThermalCalculating();
             IsCalculating = true;
             ValidationMessage = string.Empty;
 
@@ -208,11 +278,16 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 {
                     ValidationMessage = string.Join("; ", Result.ValidationErrors);
                 }
+
+                // Сбросить состояние после успешного расчёта
+                _calculationStateService.ResetThermalState();
             }
             catch (Exception ex)
             {
                 ValidationMessage = $"Ошибка расчёта: {ex.Message}";
                 Result = null;
+                // При ошибке также сбросить состояние
+                _calculationStateService.ResetThermalState();
             }
             finally
             {
@@ -328,12 +403,10 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         private void OnClimateDataChanged(object? sender, ClimateDataChangedEventArgs e)
         {
-            // При изменении климатических данных можно автоматически пересчитать
-            // или просто сбросить результат
             if (Result != null)
             {
                 Result = null;
-                ValidationMessage = "Климатические данные изменены. Требуется пересчёт.";
+                _calculationStateService.SetThermalNeedsRecalculation("Климатические данные изменены. Требуется пересчёт.");
             }
         }
 
@@ -342,13 +415,21 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         private void OnConstructionDataChanged(object? sender, ConstructionDataChangedEventArgs e)
         {
-            // При изменении данных конструкции можно автоматически пересчитать
-            // или просто сбросить результат
             if (Result != null)
             {
                 Result = null;
-                ValidationMessage = "Данные конструкции изменены. Требуется пересчёт.";
+                _calculationStateService.SetThermalNeedsRecalculation("Данные конструкции изменены. Требуется пересчёт.");
             }
+        }
+
+        /// <summary>
+        /// Обработчик изменения состояния расчёта
+        /// </summary>
+        private void OnCalculationStateChanged(object? sender, ModuleStateChangedEventArgs e)
+        {
+            // Уведомить UI об изменении свойств RecalcMessage и NeedsRecalculation
+            OnPropertyChanged(nameof(RecalcMessage));
+            OnPropertyChanged(nameof(NeedsRecalculation));
         }
 
         #endregion

@@ -1,50 +1,152 @@
 <Application x:Class="SnowMeltingCalculator.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:configuration="clr-namespace:SnowMeltingCalculator.Configuration"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+             xmlns:configuration="clr-namespace:SnowMeltingCalculator.Configuration">
     
     <Application.Resources>
         <ResourceDictionary>
-            <!-- MaterialDesign темы с цветами РЕХАУ: Красный (#E50040) и Зелёный (#44C7B5) -->
             <ResourceDictionary.MergedDictionaries>
-                <!-- MaterialDesign базовые темы -->
-                <materialDesign:BundledTheme BaseTheme="Light" 
-                                              PrimaryColor="Red" 
-                                              SecondaryColor="Teal"/>
                 
-                <!-- MaterialDesign стандартные стили -->
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml"/>
+                <!-- Примитивные токены дизайн-системы -->
+                <ResourceDictionary Source="Themes/PrimitiveSpacing.xaml"/>
+                <ResourceDictionary Source="Themes/PrimitiveRadius.xaml"/>
+                
+                <!-- Ресурсы индикаторов пересчёта -->
+                <ResourceDictionary Source="Themes/RecalcIndicators.xaml"/>
                 
                 <!-- Ресурсы приложения -->
                 <ResourceDictionary Source="Resources/Dictionary.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Кастомные цвета РЕХАУ -->
+            <!-- ============================================ -->
+            <!-- КОРПОРАТИВНЫЕ ЦВЕТА REHAU (из официального логотипа) -->
+            <!-- ============================================ -->
+            
+            <!-- Основные брендовые цвета -->
             <Color x:Key="RehauRed">#E50040</Color>
-            <Color x:Key="RehauGreen">#44C7B5</Color>
-            <Color x:Key="RehauBlack">#000000</Color>
+            <Color x:Key="RehauTeal">#4FC7B5</Color>
+            <Color x:Key="RehauGray">#575756</Color>
+            <Color x:Key="RehauBlack">#1D1D1B</Color>
             <Color x:Key="RehauWhite">#FFFFFF</Color>
+            
+            <!-- Производные цвета для градиентов и акцентов -->
+            <Color x:Key="RehauRedLight">#FF6B6B</Color>
+            <Color x:Key="RehauRedDark">#B3002E</Color>
+            <Color x:Key="RehauTealLight">#6BD3C8</Color>
+            <Color x:Key="RehauTealDark">#2E9B8E</Color>
+            
+            <!-- Фоновые цвета -->
+            <Color x:Key="RehauBackgroundLight">#FAFAFA</Color>
+            <Color x:Key="RehauBackgroundGray">#F5F5F5</Color>
+            <Color x:Key="RehauCardBackground">#FFFFFF</Color>
+            
+            <!-- Прозрачные фоновые цвета для карточек -->
+            <Color x:Key="RehauRedLightOpacity">#FFE5EC</Color>
+            <Color x:Key="RehauTealLightOpacity">#E8F6F4</Color>
 
-            <!-- SolidColorBrush для использования в XAML -->
+            <!-- ============================================ -->
+            <!-- СЕРАЯ ПАЛИТРА (для индикаторов и UI)          -->
+            <!-- ============================================ -->
+            <Color x:Key="Gray50">#FAFAFA</Color>
+            <Color x:Key="Gray100">#F5F5F5</Color>
+            <Color x:Key="Gray200">#EEEEEE</Color>
+            <Color x:Key="Gray300">#E0E0E0</Color>
+            <Color x:Key="Gray400">#BDBDBD</Color>
+            <Color x:Key="Gray500">#9E9E9E</Color>
+            <Color x:Key="Gray600">#757575</Color>
+            <Color x:Key="Gray700">#616161</Color>
+            <Color x:Key="Gray800">#424242</Color>
+            <Color x:Key="Gray900">#212121</Color>
+            
+            <!-- Семантические цвета -->
+            <Color x:Key="ErrorRed">#D32F2F</Color>
+            <Color x:Key="WarningOrange">#FF9800</Color>
+            <Color x:Key="SuccessGreen">#4FC7B5</Color>
+            <Color x:Key="InfoBlue">#1976D2</Color>
+
+            <!-- ============================================ -->
+            <!-- SOLID COLOR BRUSHES -->
+            <!-- ============================================ -->
+            
+            <!-- Брендовые кисти -->
             <SolidColorBrush x:Key="RehauRedBrush" Color="{StaticResource RehauRed}"/>
-            <SolidColorBrush x:Key="RehauGreenBrush" Color="{StaticResource RehauGreen}"/>
+            <SolidColorBrush x:Key="RehauTealBrush" Color="{StaticResource RehauTeal}"/>
+            <SolidColorBrush x:Key="RehauGrayBrush" Color="{StaticResource RehauGray}"/>
             <SolidColorBrush x:Key="RehauBlackBrush" Color="{StaticResource RehauBlack}"/>
             <SolidColorBrush x:Key="RehauWhiteBrush" Color="{StaticResource RehauWhite}"/>
+            
+            <!-- Производные кисти -->
+            <SolidColorBrush x:Key="RehauRedLightBrush" Color="{StaticResource RehauRedLight}"/>
+            <SolidColorBrush x:Key="RehauRedDarkBrush" Color="{StaticResource RehauRedDark}"/>
+            <SolidColorBrush x:Key="RehauTealLightBrush" Color="{StaticResource RehauTealLight}"/>
+            <SolidColorBrush x:Key="RehauTealDarkBrush" Color="{StaticResource RehauTealDark}"/>
+            
+            <!-- Фоновые кисти -->
+            <SolidColorBrush x:Key="RehauBackgroundBrush" Color="{StaticResource RehauBackgroundLight}"/>
+            <SolidColorBrush x:Key="RehauBackgroundGrayBrush" Color="{StaticResource RehauBackgroundGray}"/>
+            <SolidColorBrush x:Key="RehauCardBrush" Color="{StaticResource RehauCardBackground}"/>
+            
+            <!-- Прозрачные фоновые кисти -->
+            <SolidColorBrush x:Key="RehauRedLightOpacityBrush" Color="{StaticResource RehauRedLightOpacity}"/>
+            <SolidColorBrush x:Key="RehauTealLightOpacityBrush" Color="{StaticResource RehauTealLightOpacity}"/>
 
-            <!-- Переопределение Primary и Secondary цветов MaterialDesign -->
-            <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#FF6B6B"/>
+            <!-- ============================================ -->
+            <!-- SEMANTIC BRUSHES (Border, Text, Icon)         -->
+            <!-- ============================================ -->
+            
+            <!-- Границы -->
+            <SolidColorBrush x:Key="Color.Border.Default" Color="{StaticResource Gray300}"/>
+            <SolidColorBrush x:Key="Color.Border.Error" Color="{StaticResource ErrorRed}"/>
+            <SolidColorBrush x:Key="Color.Border.Success" Color="{StaticResource SuccessGreen}"/>
+            <SolidColorBrush x:Key="Color.Border.Warning" Color="#FFB300"/>
+            <SolidColorBrush x:Key="Color.Border.Processing" Color="#2196F3"/>
+            
+            <!-- Текст -->
+            <SolidColorBrush x:Key="Color.Text.Primary" Color="{StaticResource Gray900}"/>
+            <SolidColorBrush x:Key="Color.Text.Secondary" Color="{StaticResource Gray600}"/>
+            <SolidColorBrush x:Key="Color.Text.Disabled" Color="{StaticResource Gray400}"/>
+            <SolidColorBrush x:Key="Color.Text.Brand" Color="{StaticResource RehauRed}"/>
+            <SolidColorBrush x:Key="Color.Text.OnBrand" Color="{StaticResource RehauWhite}"/>
+
+            <!-- ============================================ -->
+            <!-- BACKGROUND COLORS (без градиентов) -->
+            <!-- ============================================ -->
+            
+            <!-- Цвет для карточек результатов (плоский) -->
+            <SolidColorBrush x:Key="RehauResultCardBrush" Color="#F8F8F8"/>
+
+            <!-- ============================================ -->
+            <!-- TYPOGRAPHY -->
+            <!-- ============================================ -->
+            
+            <!-- Основной шрифт приложения Inter -->
+            <FontFamily x:Key="FontFamily.Main">pack://application:,,,/Assets/Fonts/#Inter</FontFamily>
+            
+            <!-- Варианты шрифтов Inter -->
+            <FontFamily x:Key="FontFamily.Inter.Light">pack://application:,,,/Assets/Fonts/#Inter Light</FontFamily>
+            <FontFamily x:Key="FontFamily.Inter.Medium">pack://application:,,,/Assets/Fonts/#Inter Medium</FontFamily>
+            <FontFamily x:Key="FontFamily.Inter.Bold">pack://application:,,,/Assets/Fonts/#Inter Bold</FontFamily>
+            <FontFamily x:Key="FontFamily.Inter.ExtraBold">pack://application:,,,/Assets/Fonts/#Inter ExtraBold</FontFamily>
+            <FontFamily x:Key="FontFamily.Inter.Black">pack://application:,,,/Assets/Fonts/#Inter Black</FontFamily>
+
+            <!-- ============================================ -->
+            <!-- MATERIALDESIGN COLOR OVERRIDES -->
+            <!-- ============================================ -->
+            
+            <!-- Primary (красный REHAU) -->
+            <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="{StaticResource RehauRedLight}"/>
             <SolidColorBrush x:Key="PrimaryHueLightForegroundBrush" Color="White"/>
             <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="{StaticResource RehauRed}"/>
             <SolidColorBrush x:Key="PrimaryHueMidForegroundBrush" Color="White"/>
-            <SolidColorBrush x:Key="PrimaryHueDarkBrush" Color="#B3002E"/>
+            <SolidColorBrush x:Key="PrimaryHueDarkBrush" Color="{StaticResource RehauRedDark}"/>
             <SolidColorBrush x:Key="PrimaryHueDarkForegroundBrush" Color="White"/>
 
-            <SolidColorBrush x:Key="SecondaryHueLightBrush" Color="#6BD3C8"/>
+            <!-- Secondary (бирюзовый REHAU) -->
+            <SolidColorBrush x:Key="SecondaryHueLightBrush" Color="{StaticResource RehauTealLight}"/>
             <SolidColorBrush x:Key="SecondaryHueLightForegroundBrush" Color="Black"/>
-            <SolidColorBrush x:Key="SecondaryHueMidBrush" Color="{StaticResource RehauGreen}"/>
+            <SolidColorBrush x:Key="SecondaryHueMidBrush" Color="{StaticResource RehauTeal}"/>
             <SolidColorBrush x:Key="SecondaryHueMidForegroundBrush" Color="White"/>
-            <SolidColorBrush x:Key="SecondaryHueDarkBrush" Color="#2E9B8E"/>
+            <SolidColorBrush x:Key="SecondaryHueDarkBrush" Color="{StaticResource RehauTealDark}"/>
             <SolidColorBrush x:Key="SecondaryHueDarkForegroundBrush" Color="White"/>
 
             <!-- Локатор ViewModels -->

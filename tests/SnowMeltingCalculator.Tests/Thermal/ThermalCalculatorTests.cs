@@ -146,11 +146,15 @@ namespace SnowMeltingCalculator.Tests.Thermal
             // Arrange
             var parameters = CreateValidParameters();
             parameters.SnowfallIntensity = 2.0;
+            parameters.SupplyTemperature = 70.0;  // Увеличиваем температуру подачи для валидности расчёта
 
             // Act
             var result = _calculator.Calculate(parameters);
 
-            // Assert
+            // Assert - сначала проверяем, что расчёт валиден
+            Assert.That(result.IsValid, Is.True, 
+                $"Расчёт должен быть валидным. Ошибки: {string.Join(", ", result.ValidationErrors ?? new string[0])}");
+
             // RadiationHeat должен вычисляться для справки, но НЕ входить в PowerUp
             Assert.That(result.RadiationHeat, Is.GreaterThan(0), "RadiationHeat должен вычисляться");
             
@@ -677,14 +681,14 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Arrange
             var parameters = CreateValidParameters();
-            parameters.SnowfallIntensity = 150.0;  // > 100 мм/ч
+            parameters.SnowfallIntensity = 150.0;  // > 20 мм/ч
 
             // Act
             var isValid = _calculator.Validate(parameters, out var errors);
 
             // Assert
             Assert.That(isValid, Is.False);
-            Assert.That(errors, Has.Some.Contains("100"));
+            Assert.That(errors, Has.Some.Contains("20"));
         }
 
         #endregion

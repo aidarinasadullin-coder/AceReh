@@ -45,12 +45,14 @@ namespace SnowMeltingCalculator.Behaviors
                 if ((bool)e.NewValue)
                 {
                     textBox.GotFocus += OnGotFocus;
-                    textBox.PreviewMouseDown += OnPreviewMouseDown;
+                    textBox.GotKeyboardFocus += OnGotKeyboardFocus;
+                    textBox.Loaded += OnLoaded;
                 }
                 else
                 {
                     textBox.GotFocus -= OnGotFocus;
-                    textBox.PreviewMouseDown -= OnPreviewMouseDown;
+                    textBox.GotKeyboardFocus -= OnGotKeyboardFocus;
+                    textBox.Loaded -= OnLoaded;
                 }
             }
         }
@@ -59,23 +61,42 @@ namespace SnowMeltingCalculator.Behaviors
         {
             if (sender is TextBox textBox)
             {
-                // Используем Dispatcher для отложенного вызова SelectAll
-                // Это необходимо для DataGrid, где TextBox создаётся динамически
-                textBox.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    textBox.SelectAll();
-                }), System.Windows.Threading.DispatcherPriority.Background);
+                SelectAllText(textBox);
             }
         }
 
-        private static void OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private static void OnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            if (sender is TextBox textBox && !textBox.IsFocused)
+            if (sender is TextBox textBox)
             {
-                textBox.Focus();
-                textBox.SelectAll();
-                e.Handled = true;
+                SelectAllText(textBox);
             }
+        }
+
+        private static void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                // При загрузке TextBox в DataGrid, если он уже в фокусе, выделяем текст
+                if (textBox.IsFocused || textBox.IsKeyboardFocused)
+                {
+                    SelectAllText(textBox);
+                }
+            }
+        }
+
+        private static void SelectAllText(TextBox textBox)
+        {
+            // Используем Dispatcher для отложенного вызова SelectAll
+            // Это необходимо для DataGrid, где TextBox создаётся динамически
+            textBox.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                // Проверяем, что TextBox всё ещё в фокусе
+                if (textBox.IsKeyboardFocused && textBox.Text.Length > 0)
+                {
+                    textBox.SelectAll();
+                }
+            }), System.Windows.Threading.DispatcherPriority.ContextIdle);
         }
 
         #endregion
@@ -242,6 +263,159 @@ namespace SnowMeltingCalculator.Behaviors
                     var dataObject = new DataObject();
                     dataObject.SetData(DataFormats.Text, normalizedText);
                     e.DataObject = dataObject;
+                }
+            }
+        }
+
+        #endregion
+
+        #region CaretOnFocus Property
+
+        /// <summary>
+        /// При значении true позиционирует курсор в конец текста при получении фокуса.
+        /// В отличие от SelectAllOnFocus, не выделяет текст.
+        /// </summary>
+        public static readonly DependencyProperty CaretOnFocusProperty =
+            DependencyProperty.RegisterAttached(
+                "CaretOnFocus",
+                typeof(bool),
+                typeof(TextBoxBehavior),
+                new PropertyMetadata(false, OnCaretOnFocusChanged));
+
+        public static bool GetCaretOnFocus(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(CaretOnFocusProperty);
+        }
+
+        public static void SetCaretOnFocus(DependencyObject obj, bool value)
+        {
+            obj.SetValue(CaretOnFocusProperty, value);
+        }
+
+        private static void OnCaretOnFocusChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is TextBox textBox)
+            {
+                if ((bool)e.NewValue)
+                {
+                    textBox.GotFocus += OnGotFocusForCaret;
+                    textBox.GotKeyboardFocus += OnGotKeyboardFocusForCaret;
+                }
+                else
+                {
+                    textBox.GotFocus -= OnGotFocusForCaret;
+                    textBox.GotKeyboardFocus -= OnGotKeyboardFocusForCaret;
+                }
+            }
+        }
+
+        private static void OnGotFocusForCaret(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                // Позиционируем курсор в конец текста
+                textBox.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    textBox.CaretIndex = textBox.Text.Length;
+                }), System.Windows.Threading.DispatcherPriority.Background);
+            }
+        }
+
+        private static void OnGotKeyboardFocusForCaret(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                // Позиционируем курсор в конец текста
+                textBox.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    textBox.CaretIndex = textBox.Text.Length;
+                }), System.Windows.Threading.DispatcherPriority.Background);
+            }
+        }
+
+        #endregion
+
+        #region ClearSelectionOnFirstInput Property
+
+        /// <summary>
+        /// При значении true снимает выделение текста после первого ввода символа.
+        /// Используется для DataGrid, где при входе в редактирование текст выделяется автоматически.
+        /// </summary>
+        public static readonly DependencyProperty ClearSelectionOnFirstInputProperty =
+            DependencyProperty.RegisterAttached(
+                "ClearSelectionOnFirstInput",
+                typeof(bool),
+                typeof(TextBoxBehavior),
+                new PropertyMetadata(false, OnClearSelectionOnFirstInputChanged));
+
+        public static bool GetClearSelectionOnFirstInput(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(ClearSelectionOnFirstInputProperty);
+        }
+
+        public static void SetClearSelectionOnFirstInput(DependencyObject obj, bool value)
+        {
+            obj.SetValue(ClearSelectionOnFirstInputProperty, value);
+        }
+
+        // Флаг для отслеживания первого ввода
+        private static readonly System.Collections.Generic.Dictionary<TextBox, bool> _isFirstInput = new();
+
+        private static void OnClearSelectionOnFirstInputChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is TextBox textBox)
+            {
+                if ((bool)e.NewValue)
+                {
+                    textBox.GotFocus += OnGotFocusForFirstInput;
+                    textBox.LostFocus += OnLostFocusForFirstInput;
+                    textBox.TextChanged += OnTextChangedForFirstInput;
+                }
+                else
+                {
+                    textBox.GotFocus -= OnGotFocusForFirstInput;
+                    textBox.LostFocus -= OnLostFocusForFirstInput;
+                    textBox.TextChanged -= OnTextChangedForFirstInput;
+                }
+            }
+        }
+
+        private static void OnGotFocusForFirstInput(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                // Сбрасываем флаг при получении фокуса
+                _isFirstInput[textBox] = true;
+            }
+        }
+
+        private static void OnLostFocusForFirstInput(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                // Удаляем флаг при потере фокуса
+                _isFirstInput.Remove(textBox);
+            }
+        }
+
+        private static void OnTextChangedForFirstInput(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                // Проверяем, это первый ввод после получения фокуса?
+                if (_isFirstInput.TryGetValue(textBox, out var isFirst) && isFirst)
+                {
+                    // После первого ввода символа при выделенном тексте WPF автоматически заменяет текст.
+                    // Нам нужно снять выделение (если оно осталось) и поставить курсор в конец.
+                    textBox.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        // Снимаем выделение и ставим курсор в конец текста
+                        textBox.CaretIndex = textBox.Text.Length;
+                        textBox.SelectionLength = 0;
+                    }), System.Windows.Threading.DispatcherPriority.Background);
+                    
+                    // Сбрасываем флаг - последующие изменения не будут обрабатываться
+                    _isFirstInput[textBox] = false;
                 }
             }
         }

@@ -254,6 +254,299 @@ namespace SnowMeltingCalculator.Tests.Climate
     }
 
     /// <summary>
+    /// Тесты для новых методов SearchCitiesWithPriorityAsync и HighlightMatch
+    /// </summary>
+    [TestFixture]
+    public class ClimateDataServiceExtendedTests
+    {
+        private ClimateDataService _service = null!;
+
+        [SetUp]
+        public void Setup()
+        {
+            var mockRepository = new MockClimateDataRepository();
+            _service = new ClimateDataService(mockRepository);
+        }
+
+        #region SearchCitiesWithPriorityAsync Tests
+
+        [Test]
+        public async Task SearchCitiesWithPriorityAsync_SingleCharacter_ReturnsResults()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act
+            var results = await _service.SearchCitiesWithPriorityAsync("М");
+
+            // Assert
+            Assert.That(results.Count(), Is.GreaterThan(0));
+            Assert.That(results.All(c => c.Name.StartsWith("М", StringComparison.OrdinalIgnoreCase) ||
+                                        c.Name.Contains("М", StringComparison.OrdinalIgnoreCase) ||
+                                        c.Region.Contains("М", StringComparison.OrdinalIgnoreCase)), Is.True);
+        }
+
+        [Test]
+        public async Task SearchCitiesWithPriorityAsync_EmptyQuery_ReturnsEmpty()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act
+            var results = await _service.SearchCitiesWithPriorityAsync("");
+
+            // Assert
+            Assert.That(results.Count(), Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task SearchCitiesWithPriorityAsync_NullQuery_ReturnsEmpty()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act
+            var results = await _service.SearchCitiesWithPriorityAsync(null!);
+
+            // Assert
+            Assert.That(results.Count(), Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task SearchCitiesWithPriorityAsync_WhitespaceQuery_ReturnsEmpty()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act
+            var results = await _service.SearchCitiesWithPriorityAsync("   ");
+
+            // Assert
+            Assert.That(results.Count(), Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task SearchCitiesWithPriorityAsync_StartsWith_HasHigherPriority()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act
+            var results = await _service.SearchCitiesWithPriorityAsync("Мос");
+            var resultsList = results.ToList();
+
+            // Assert
+            Assert.That(resultsList.Count, Is.GreaterThan(0));
+            // Москва должна быть раньше других городов с "Мос" в названии
+            var moscowIndex = resultsList.FindIndex(c => c.Name == "Москва");
+            if (moscowIndex >= 0)
+            {
+                Assert.That(moscowIndex, Is.EqualTo(0), "Москва должна быть первым результатом");
+            }
+        }
+
+        [Test]
+        public async Task SearchCitiesWithPriorityAsync_RegionMatch_ReturnsResults()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act
+            var results = await _service.SearchCitiesWithPriorityAsync("Московская");
+
+            // Assert
+            Assert.That(results.Count(), Is.GreaterThan(0));
+            Assert.That(results.All(c => c.Region.Contains("Московская", StringComparison.OrdinalIgnoreCase)), Is.True);
+        }
+
+        [Test]
+        public async Task SearchCitiesWithPriorityAsync_CaseInsensitive_ReturnsResults()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act
+            var resultsLower = await _service.SearchCitiesWithPriorityAsync("моС");
+            var resultsUpper = await _service.SearchCitiesWithPriorityAsync("МОС");
+
+            // Assert
+            Assert.That(resultsLower.Count(), Is.GreaterThan(0));
+            Assert.That(resultsUpper.Count(), Is.GreaterThan(0));
+            Assert.That(resultsLower.Count(), Is.EqualTo(resultsUpper.Count()));
+        }
+
+        [Test]
+        public async Task SearchCitiesWithPriorityAsync_ReturnsMax15Results()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act
+            var results = await _service.SearchCitiesWithPriorityAsync("а");
+
+            // Assert
+            Assert.That(results.Count(), Is.LessThanOrEqualTo(15));
+        }
+
+        [Test]
+        public async Task SearchCitiesWithPriorityAsync_NonExistingQuery_ReturnsEmpty()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act
+            var results = await _service.SearchCitiesWithPriorityAsync("XYZ123");
+
+            // Assert
+            Assert.That(results.Count(), Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task SearchCitiesWithPriorityAsync_CachesResults()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act
+            var results1 = await _service.SearchCitiesWithPriorityAsync("Моск");
+            var results2 = await _service.SearchCitiesWithPriorityAsync("Моск");
+
+            // Assert
+            Assert.That(results1.Count(), Is.EqualTo(results2.Count()));
+        }
+
+        #endregion
+
+        #region HighlightMatch Tests
+
+        [Test]
+        public void HighlightMatch_StartsWith_ReturnsCorrectHighlight()
+        {
+            // Arrange
+            var city = new CityInfo { Name = "Москва", Region = "Московская область" };
+
+            // Act
+            var (highlightedName, highlightedRegion, matchType) = _service.HighlightMatch(city, "Мос");
+
+            // Assert
+            Assert.That(highlightedName, Is.EqualTo("**Мос**ква"));
+            Assert.That(matchType, Is.EqualTo(MatchType.StartsWith));
+        }
+
+        [Test]
+        public void HighlightMatch_Contains_ReturnsCorrectHighlight()
+        {
+            // Arrange
+            var city = new CityInfo { Name = "Московский", Region = "Московская область" };
+
+            // Act
+            var (highlightedName, highlightedRegion, matchType) = _service.HighlightMatch(city, "ков");
+
+            // Assert
+            Assert.That(highlightedName, Is.EqualTo("Мос**ков**ский"));
+            Assert.That(matchType, Is.EqualTo(MatchType.Contains));
+        }
+
+        [Test]
+        public void HighlightMatch_RegionMatch_ReturnsCorrectHighlight()
+        {
+            // Arrange
+            var city = new CityInfo { Name = "Москва", Region = "Московская область" };
+
+            // Act
+            var (highlightedName, highlightedRegion, matchType) = _service.HighlightMatch(city, "область");
+
+            // Assert
+            Assert.That(highlightedName, Is.EqualTo("Москва"));
+            Assert.That(highlightedRegion.Contains("**область**"), Is.True);
+            Assert.That(matchType, Is.EqualTo(MatchType.Region));
+        }
+
+        [Test]
+        public void HighlightMatch_CaseInsensitive_ReturnsCorrectHighlight()
+        {
+            // Arrange
+            var city = new CityInfo { Name = "Москва", Region = "Московская область" };
+
+            // Act
+            var (highlightedName, _, _) = _service.HighlightMatch(city, "моС");
+
+            // Assert
+            Assert.That(highlightedName, Is.EqualTo("**Мос**ква"));
+        }
+
+        [Test]
+        public void HighlightMatch_EmptyQuery_ReturnsOriginalText()
+        {
+            // Arrange
+            var city = new CityInfo { Name = "Москва", Region = "Московская область" };
+
+            // Act
+            var (highlightedName, highlightedRegion, matchType) = _service.HighlightMatch(city, "");
+
+            // Assert
+            Assert.That(highlightedName, Is.EqualTo("Москва"));
+            Assert.That(highlightedRegion, Is.EqualTo("Московская область"));
+            Assert.That(matchType, Is.EqualTo(MatchType.Contains));
+        }
+
+        [Test]
+        public void HighlightMatch_NullCity_ReturnsEmpty()
+        {
+            // Act
+            var (highlightedName, highlightedRegion, matchType) = _service.HighlightMatch(null!, "Мос");
+
+            // Assert
+            Assert.That(highlightedName, Is.EqualTo(string.Empty));
+            Assert.That(highlightedRegion, Is.EqualTo(string.Empty));
+        }
+
+        #endregion
+
+        #region GetRecentCitiesAsync Tests
+
+        [Test]
+        public async Task GetRecentCitiesAsync_WithoutHistoryRepository_ReturnsEmpty()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act
+            var results = await _service.GetRecentCitiesAsync();
+
+            // Assert
+            Assert.That(results.Count(), Is.EqualTo(0));
+        }
+
+        #endregion
+
+        #region SaveToHistoryAsync Tests
+
+        [Test]
+        public async Task SaveToHistoryAsync_WithoutHistoryRepository_DoesNotThrow()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+            var city = new CityInfo { Name = "Москва", Region = "Московская область" };
+
+            // Act & Assert - не должно выбросить исключение
+            Assert.DoesNotThrowAsync(async () => await _service.SaveToHistoryAsync(city));
+        }
+
+        [Test]
+        public async Task SaveToHistoryAsync_NullCity_DoesNotThrow()
+        {
+            // Arrange
+            await _service.LoadClimateDataAsync();
+
+            // Act & Assert - не должно выбросить исключение
+            Assert.DoesNotThrowAsync(async () => await _service.SaveToHistoryAsync(null!));
+        }
+
+        #endregion
+    }
+
+    /// <summary>
     /// Мок-репозиторий для тестов
     /// </summary>
     internal class MockClimateDataRepository : IClimateDataRepository

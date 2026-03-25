@@ -295,7 +295,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// Получить выбранный коллектор
         /// </summary>
         /// <returns>Выбранный коллектор или null</returns>
-        public Collector GetSelectedCollector()
+        public Collector? GetSelectedCollector()
         {
             return SelectedCollector;
         }

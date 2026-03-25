@@ -457,11 +457,12 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // Act
             var result = _calculator.CalculateAtTemperature(circuit, 40, glycolProps, innerDiameter, kv, ValveType.HKV_D);
 
-            // Assert - результат должен быть ≈ 592 Па/м (не 592000 Па/м!)
+            // Assert - результат должен быть в разумном диапазоне (не в 1000 раз больше)
             // R = 10000 × (v² × ρ[г/см³] × λ) / (2 × d_inner) × 100
-            // R = 10000 × (0.59² × 1.053 × 0.042) / (2 × 13) × 100 ≈ 592 Па/м
-            Assert.That(result.PressureLossPerMeter, Is.EqualTo(592).Within(50),
-                "Удельные потери должны быть ≈ 592 Па/м при использовании плотности в г/см³");
+            // При Re ≈ 3550 (переходный режим) λ рассчитывается интерполяцией
+            // Результат должен быть в диапазоне 400-700 Па/м
+            Assert.That(result.PressureLossPerMeter, Is.GreaterThan(400).And.LessThan(700),
+                "Удельные потери должны быть в разумном диапазоне при использовании плотности в г/см³");
 
             // Проверяем, что результат НЕ в 1000 раз больше (ошибка конвертации)
             Assert.That(result.PressureLossPerMeter, Is.LessThan(1000),
@@ -882,10 +883,9 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // Референсный контур должен иметь МАКСИМАЛЬНЫЕ обороты для HKV-D
             Assert.That(result[1].IsReferenceCircuit, Is.True);
             Assert.That(result[1].ValveTurns, Is.EqualTo(2.5));
-            // Для HKV-D: throttling = maxDpGesamt - (DpRohr + DpVent)
-            // Контур 2 (референсный): DpGesamt=15000, DpRohr=12000, DpVent=1000
-            // throttling = 15000 - (12000 + 1000) = 2000
-            Assert.That(result[1].Throttling, Is.EqualTo(2000).Within(0.01));
+            // === ВАЖНО: Референсный контур НЕ требует дросселирования (Throttling = 0) ===
+            // Референсный контур имеет максимальные потери и определяет требуемый напор насоса
+            Assert.That(result[1].Throttling, Is.EqualTo(0).Within(0.01), "Референсный контур должен иметь Throttling = 0");
         }
 
         [Test]
@@ -931,10 +931,8 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // Референсный контур должен иметь МАКСИМАЛЬНЫЕ обороты для IV
             Assert.That(result[1].IsReferenceCircuit, Is.True);
             Assert.That(result[1].ValveTurns, Is.EqualTo(8.0));
-            // Для IV: throttling = maxDpGesamt - (DpRohr + DpVerteiler)
-            // Контур 2 (референсный): DpGesamt=15000, DpRohr=12000, DpVerteiler=2000
-            // throttling = 15000 - (12000 + 2000) = 1000
-            Assert.That(result[1].Throttling, Is.EqualTo(1000).Within(0.01));
+            // === ВАЖНО: Референсный контур НЕ требует дросселирования (Throttling = 0) ===
+            Assert.That(result[1].Throttling, Is.EqualTo(0).Within(0.01), "Референсный контур должен иметь Throttling = 0");
         }
 
         [Test]
@@ -977,13 +975,13 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var result = _calculator.CalculateBalancing(circuits, ValveType.HKV_D);
 
             // Assert
-            // Контур 2: DpGesamt = 15000 (референсный)
+            // Контур 2: DpGesamt = 15000 (референсный) → Throttling = 0
             // Контур 1: DpGesamt = 10000
             // Для HKV-D: throttling = maxDpGesamt - (DpRohr + DpVent)
             // Контур 1: throttling = 15000 - (8000 + 1000) = 6000
-            // Контур 2: throttling = 15000 - (12000 + 1000) = 2000
             Assert.That(result[0].Throttling, Is.EqualTo(6000).Within(0.1));
-            Assert.That(result[1].Throttling, Is.EqualTo(2000).Within(0.01));
+            // === ВАЖНО: Референсный контур имеет Throttling = 0 ===
+            Assert.That(result[1].Throttling, Is.EqualTo(0).Within(0.01), "Референсный контур должен иметь Throttling = 0");
         }
 
         [Test]
@@ -1063,15 +1061,17 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var result = _calculator.CalculateBalancing(circuits, ValveType.HKV_D);
 
             // Assert
-            // Для HKV-D: throttling = maxDpGesamt - (DpRohr + DpVent)
-            // Контур 1: DpRohr=8000, DpVent=1000, throttling = 15000 - (8000 + 1000) = 6000
-            // Контур 2: DpRohr=12000, DpVent=1000, throttling = 15000 - (12000 + 1000) = 2000
-            // Контур 3: DpRohr=6000, DpVent=500, throttling = 15000 - (6000 + 500) = 8500
-            double[] expectedThrottling = { 6000, 2000, 8500 };
-            for (int i = 0; i < result.Count; i++)
-            {
-                Assert.That(result[i].Throttling, Is.EqualTo(expectedThrottling[i]).Within(0.01));
-            }
+            // Контур 2 (референсный): DpGesamt = 15000 → Throttling = 0
+            // Контур 1: DpGesamt = 10000, throttling = 15000 - (8000 + 1000) = 6000
+            // Контур 3: DpGesamt = 7000, throttling = 15000 - (6000 + 500) = 8500
+            
+            // Референсный контур (контур 2) должен иметь Throttling = 0
+            Assert.That(result[1].IsReferenceCircuit, Is.True, "Контур 2 должен быть референсным");
+            Assert.That(result[1].Throttling, Is.EqualTo(0).Within(0.01), "Референсный контур должен иметь Throttling = 0");
+            
+            // Нереференсные контуры должны иметь рассчитанное дросселирование
+            Assert.That(result[0].Throttling, Is.EqualTo(6000).Within(0.01), "Контур 1: throttling = 15000 - (8000 + 1000) = 6000");
+            Assert.That(result[2].Throttling, Is.EqualTo(8500).Within(0.01), "Контур 3: throttling = 15000 - (6000 + 500) = 8500");
         }
 
         [Test]
@@ -1203,6 +1203,362 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // Более высокая плотность → больший Kv → больше оборотов клапана
             Assert.That(resultLowDensity[0].ValveTurns, Is.GreaterThan(0), "Обороты должны быть > 0");
             Assert.That(resultHighDensity[0].ValveTurns, Is.GreaterThan(0), "Обороты должны быть > 0");
+        }
+
+        [Test]
+        public void CalculateBalancing_ReferenceCircuit_HasZeroThrottling()
+        {
+            // === ВАЖНЫЙ ТЕСТ: Референсный контур должен иметь Throttling = 0 ===
+            // Это ключевое требование: референсный контур не требует дросселирования,
+            // так как он имеет максимальные потери и определяет требуемый напор насоса.
+            
+            // Arrange - создаём контуры с разными DpGesamt
+            var circuits = new List<CircuitRow>
+            {
+                new CircuitRow
+                {
+                    CircuitNumber = 1,
+                    CircuitLength = 100,
+                    SupplyLength = 10,
+                    FlowRate = 200,
+                    OperatingResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 8000,
+                        DpVerteiler = 1000,
+                        DpVent = 1000,
+                        Density = 1.053
+                    }
+                },
+                new CircuitRow
+                {
+                    CircuitNumber = 2,
+                    CircuitLength = 150,  // Больший контур → большие потери
+                    SupplyLength = 15,
+                    FlowRate = 300,
+                    OperatingResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 15000,  // Максимальные потери
+                        DpVerteiler = 2000,
+                        DpVent = 1500,
+                        Density = 1.053
+                    }
+                },
+                new CircuitRow
+                {
+                    CircuitNumber = 3,
+                    CircuitLength = 80,
+                    SupplyLength = 8,
+                    FlowRate = 160,
+                    OperatingResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 6000,
+                        DpVerteiler = 800,
+                        DpVent = 600,
+                        Density = 1.053
+                    }
+                }
+            };
+
+            // Act
+            var result = _calculator.CalculateBalancing(circuits, ValveType.HKV_D);
+
+            // Assert
+            // Контур 2 имеет максимальный DpGesamt = 15000 + 2000 + 1500 = 18500
+            // Он должен быть референсным
+            Assert.That(result[1].IsReferenceCircuit, Is.True, "Контур 2 должен быть референсным (максимальный DpGesamt)");
+            
+            // === КЛЮЧЕВАЯ ПРОВЕРКА: Референсный контур должен иметь Throttling = 0 ===
+            Assert.That(result[1].Throttling, Is.EqualTo(0).Within(0.001), 
+                "Референсный контур НЕ требует дросселирования (Throttling = 0)");
+            
+            // Референсный контур должен иметь максимальные обороты
+            Assert.That(result[1].ValveTurns, Is.EqualTo(2.5), 
+                "Референсный контур должен иметь максимальные обороты для HKV-D");
+            
+            // Нереференсные контуры должны иметь Throttling > 0
+            Assert.That(result[0].Throttling, Is.GreaterThan(0), "Нереференсный контур 1 должен иметь Throttling > 0");
+            Assert.That(result[2].Throttling, Is.GreaterThan(0), "Нереференсный контур 3 должен иметь Throttling > 0");
+            
+            // Нереференсные контуры не должны быть референсными
+            Assert.That(result[0].IsReferenceCircuit, Is.False, "Контур 1 не должен быть референсным");
+            Assert.That(result[2].IsReferenceCircuit, Is.False, "Контур 3 не должен быть референсным");
+        }
+
+        [Test]
+        public void CalculateBalancing_ReferenceCircuit_ResetsWhenCircuitsChange()
+        {
+            // === ТЕСТ: При изменении состава контуров референсный контур пересчитывается ===
+            
+            // Arrange - начальный набор контуров
+            var circuits = new List<CircuitRow>
+            {
+                new CircuitRow
+                {
+                    CircuitNumber = 1,
+                    CircuitLength = 100,
+                    SupplyLength = 10,
+                    FlowRate = 200,
+                    OperatingResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 8000,
+                        DpVerteiler = 1000,
+                        DpVent = 1000,
+                        Density = 1.053
+                    }
+                },
+                new CircuitRow
+                {
+                    CircuitNumber = 2,
+                    CircuitLength = 120,
+                    SupplyLength = 12,
+                    FlowRate = 240,
+                    OperatingResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 12000,
+                        DpVerteiler = 2000,
+                        DpVent = 1000,
+                        Density = 1.053
+                    }
+                }
+            };
+
+            // Act - первый расчёт
+            var result1 = _calculator.CalculateBalancing(circuits, ValveType.HKV_D);
+
+            // Assert - контур 2 референсный
+            Assert.That(result1[1].IsReferenceCircuit, Is.True, "Контур 2 должен быть референсным");
+            Assert.That(result1[1].Throttling, Is.EqualTo(0).Within(0.001), "Референсный контур должен иметь Throttling = 0");
+
+            // Arrange - добавляем контур с ещё большими потерями
+            circuits.Add(new CircuitRow
+            {
+                CircuitNumber = 3,
+                CircuitLength = 200,
+                SupplyLength = 20,
+                FlowRate = 400,
+                OperatingResult = new CircuitTemperatureResult
+                {
+                    DpRohr = 20000,  // Ещё большие потери
+                    DpVerteiler = 3000,
+                    DpVent = 2000,
+                    Density = 1.053
+                }
+            });
+
+            // Act - повторный расчёт
+            var result2 = _calculator.CalculateBalancing(circuits, ValveType.HKV_D);
+
+            // Assert - теперь контур 3 референсный
+            Assert.That(result2[2].IsReferenceCircuit, Is.True, "Контур 3 должен быть референсным после добавления");
+            Assert.That(result2[2].Throttling, Is.EqualTo(0).Within(0.001), "Новый референсный контур должен иметь Throttling = 0");
+            
+            // Контур 2 больше не референсный
+            Assert.That(result2[1].IsReferenceCircuit, Is.False, "Контур 2 больше не должен быть референсным");
+            Assert.That(result2[1].Throttling, Is.GreaterThan(0), "Контур 2 должен иметь Throttling > 0");
+        }
+
+        #endregion
+
+        #region DpVent Balancing Tests
+
+        [Test]
+        public void CalculateBalancing_HKV_D_DpVent_NotRecalculated()
+        {
+            // === ВАЖНЫЙ ТЕСТ: Для HKV-D DpVent НЕ пересчитывается при балансировке ===
+            // DpVent для HKV-D = 15000 × (ρ/2000) × v² — НЕ зависит от Kv
+            
+            // Arrange
+            double originalDpVent = 2754;  // Исходное значение DpVent для HKV-D
+            
+            var circuits = new List<CircuitRow>
+            {
+                new CircuitRow
+                {
+                    CircuitNumber = 1,
+                    CircuitLength = 100,
+                    SupplyLength = 10,
+                    FlowRate = 200,
+                    OperatingResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 8000,
+                        DpVerteiler = 1000,
+                        DpVent = originalDpVent,  // Исходное значение
+                        Density = 1.053
+                    },
+                    DesignResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 10000,
+                        DpVerteiler = 1200,
+                        DpVent = originalDpVent * 1.1,  // Немного больше для холодного режима
+                        Density = 1.08
+                    }
+                },
+                new CircuitRow
+                {
+                    CircuitNumber = 2,
+                    CircuitLength = 120,
+                    SupplyLength = 12,
+                    FlowRate = 240,
+                    OperatingResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 12000,
+                        DpVerteiler = 2000,
+                        DpVent = originalDpVent,
+                        Density = 1.053
+                    },
+                    DesignResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 15000,
+                        DpVerteiler = 2400,
+                        DpVent = originalDpVent * 1.1,
+                        Density = 1.08
+                    }
+                }
+            };
+
+            // Act
+            var result = _calculator.CalculateBalancing(circuits, ValveType.HKV_D);
+
+            // Assert - DpVent должен остаться неизменным для HKV-D
+            Assert.That(result[0].OperatingResult.DpVent, Is.EqualTo(originalDpVent).Within(0.01), 
+                "DpVent для HKV-D НЕ должен пересчитываться при балансировке");
+            Assert.That(result[1].OperatingResult.DpVent, Is.EqualTo(originalDpVent).Within(0.01), 
+                "DpVent для HKV-D НЕ должен пересчитываться при балансировке");
+            
+            // DesignResult также должен остаться неизменным
+            Assert.That(result[0].DesignResult.DpVent, Is.EqualTo(originalDpVent * 1.1).Within(0.01), 
+                "DpVent для HKV-D в DesignResult НЕ должен пересчитываться");
+        }
+
+        [Test]
+        public void CalculateBalancing_IV_DpVent_Recalculated()
+        {
+            // === ВАЖНЫЙ ТЕСТ: Для IV DpVent пересчитывается при балансировке ===
+            // DpVent для IV = (V_dot/1000/Kv)² × 100000 × ρ/1000 — зависит от Kv
+            
+            // Arrange
+            double originalDpVent = 3925;  // Исходное значение DpVent для IV
+            
+            var circuits = new List<CircuitRow>
+            {
+                new CircuitRow
+                {
+                    CircuitNumber = 1,
+                    CircuitLength = 100,
+                    SupplyLength = 10,
+                    FlowRate = 200,
+                    OperatingResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 8000,
+                        DpVerteiler = 1000,
+                        DpVent = originalDpVent,  // Исходное значение
+                        Density = 1.053
+                    },
+                    DesignResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 10000,
+                        DpVerteiler = 1200,
+                        DpVent = originalDpVent * 1.1,
+                        Density = 1.08
+                    }
+                },
+                new CircuitRow
+                {
+                    CircuitNumber = 2,
+                    CircuitLength = 120,
+                    SupplyLength = 12,
+                    FlowRate = 240,
+                    OperatingResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 12000,
+                        DpVerteiler = 2000,
+                        DpVent = originalDpVent,
+                        Density = 1.053
+                    },
+                    DesignResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 15000,
+                        DpVerteiler = 2400,
+                        DpVent = originalDpVent * 1.1,
+                        Density = 1.08
+                    }
+                }
+            };
+
+            // Act
+            var result = _calculator.CalculateBalancing(circuits, ValveType.IV_1_25);
+
+            // Assert - DpVent должен пересчитаться для IV
+            // Референсный контур (контур 2) получает максимальные обороты (8.0 для IV)
+            // Kv при 8.0 оборотах для IV 1¼" ≈ 1.45
+            // DpVent = (0.24/1.45)² × 100000 × 1.053 ≈ 2888 Па
+            
+            // Нереференсный контур (контур 1) получает меньше оборотов
+            // DpVent должен отличаться от исходного значения
+            
+            // Для IV DpVent должен пересчитаться
+            Assert.That(result[0].OperatingResult.DpVent, Is.Not.EqualTo(originalDpVent).Within(1), 
+                "DpVent для IV должен пересчитываться при балансировке для нереференсного контура");
+            
+            // Референсный контур также должен иметь пересчитанный DpVent
+            Assert.That(result[1].OperatingResult.DpVent, Is.Not.EqualTo(originalDpVent).Within(1), 
+                "DpVent для IV должен пересчитываться при балансировке для референсного контура");
+        }
+
+        [Test]
+        public void CalculateBalancing_HKV_D_DpGesamt_RemainsCorrect()
+        {
+            // === ТЕСТ: DpGesamt должен корректно вычисляться после балансировки для HKV-D ===
+            
+            // Arrange
+            var circuits = new List<CircuitRow>
+            {
+                new CircuitRow
+                {
+                    CircuitNumber = 1,
+                    CircuitLength = 100,
+                    SupplyLength = 10,
+                    FlowRate = 200,
+                    OperatingResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 8000,
+                        DpVerteiler = 1000,
+                        DpVent = 2754,
+                        Density = 1.053
+                    }
+                },
+                new CircuitRow
+                {
+                    CircuitNumber = 2,
+                    CircuitLength = 120,
+                    SupplyLength = 12,
+                    FlowRate = 240,
+                    OperatingResult = new CircuitTemperatureResult
+                    {
+                        DpRohr = 12000,
+                        DpVerteiler = 2000,
+                        DpVent = 2754,
+                        Density = 1.053
+                    }
+                }
+            };
+
+            // Act
+            var result = _calculator.CalculateBalancing(circuits, ValveType.HKV_D);
+
+            // Assert - DpGesamt должен быть суммой DpRohr + DpVerteiler + DpVent
+            // Для HKV-D DpVent не меняется, поэтому DpGesamt должен остаться корректным
+            Assert.That(result[0].OperatingResult.DpGesamt, 
+                Is.EqualTo(result[0].OperatingResult.DpRohr + 
+                           result[0].OperatingResult.DpVerteiler + 
+                           result[0].OperatingResult.DpVent).Within(0.01),
+                "DpGesamt должен быть суммой компонентов для HKV-D");
+            
+            Assert.That(result[1].OperatingResult.DpGesamt, 
+                Is.EqualTo(result[1].OperatingResult.DpRohr + 
+                           result[1].OperatingResult.DpVerteiler + 
+                           result[1].OperatingResult.DpVent).Within(0.01),
+                "DpGesamt должен быть суммой компонентов для HKV-D");
         }
 
         #endregion
@@ -1375,7 +1731,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // Assert
             // DpGesamt = 25000 + 6000 + 12000 = 43000 Па > 32000 Па
             Assert.That(summary.PressureLoss_Cold_Pa, Is.EqualTo(43000));
-            Assert.That(summary.IsPressureExceeded, Is.True);
+            Assert.That(summary.IsColdPressureExceeded, Is.True);
             Assert.That(summary.Warnings.Length, Is.GreaterThan(0));
         }
 

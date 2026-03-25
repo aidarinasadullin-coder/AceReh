@@ -344,6 +344,72 @@ namespace SnowMeltingCalculator.Services.Thermal
         }
 
         /// <summary>
+        /// Рассчитать мощность вниз (потери) по сложной формуле
+        /// </summary>
+        /// <param name="meanTemperature">Средняя температура теплоносителя, °C</param>
+        /// <param name="groundTemperature">Температура грунта, °C</param>
+        /// <param name="airTemperature">Температура наружного воздуха, °C</param>
+        /// <param name="rFb">Сопротивление вверх, м²·К/Вт</param>
+        /// <param name="rD">Сопротивление вниз, м²·К/Вт</param>
+        /// <param name="etaR">КПД ребра</param>
+        /// <param name="pipeSpacing">Шаг укладки трубы, мм</param>
+        /// <param name="pipeOuterDiameter">Наружный диаметр трубы, мм</param>
+        /// <param name="pipeWallThickness">Толщина стенки трубы, мм</param>
+        /// <param name="pipeThermalConductivity">Теплопроводность трубы, Вт/(м·К)</param>
+        /// <returns>Мощность вниз (потери), Вт/м²</returns>
+        /// <remarks>
+        /// Формула:
+        /// q_D = (JHmü_low × RFb + C × D × E) / (RFb × RD × (A + B × D × E))
+        /// 
+        /// Где:
+        /// - JHmü_low = T_mean - t_G (избыточная температура вниз)
+        /// - A = 1/ηR
+        /// - B = 1/RFb + 1/RD
+        /// - C = |t_H - t_G|
+        /// - D = lR / (π × λR)
+        /// - E = s / (d - s)
+        /// </remarks>
+        private double CalculatePowerDown(
+            double meanTemperature,
+            double groundTemperature,
+            double airTemperature,
+            double rFb,
+            double rD,
+            double etaR,
+            double pipeSpacing,
+            double pipeOuterDiameter,
+            double pipeWallThickness,
+            double pipeThermalConductivity)
+        {
+            // JHmü_low = T_mean - t_G (избыточная температура вниз)
+            var jhmuLow = meanTemperature - groundTemperature;
+            
+            // A = 1/ηR
+            var a = 1.0 / etaR;
+            
+            // B = 1/RFb + 1/RD
+            var b = 1.0 / rFb + 1.0 / rD;
+            
+            // C = |t_H - t_G|
+            var c = Math.Abs(airTemperature - groundTemperature);
+            
+            // D = lR / (π × λR)
+            var spacingM = pipeSpacing / 1000.0;  // мм → м
+            var dCoefficient = spacingM / (Math.PI * pipeThermalConductivity);
+            
+            // E = s / (d - s)
+            var wallThicknessM = pipeWallThickness / 1000.0;  // мм → м
+            var outerDiameterM = pipeOuterDiameter / 1000.0;    // мм → м
+            var eCoefficient = wallThicknessM / (outerDiameterM - wallThicknessM);
+            
+            // q_D = (JHmü_low × RFb + C × D × E) / (RFb × RD × (A + B × D × E))
+            var numerator = jhmuLow * rFb + c * dCoefficient * eCoefficient;
+            var denominator = rFb * rD * (a + b * dCoefficient * eCoefficient);
+            
+            return numerator / denominator;
+        }
+
+        /// <summary>
         /// Выполнить полный тепловой расчёт
         /// </summary>
         /// <param name="parameters">Входные параметры</param>
@@ -423,12 +489,14 @@ namespace SnowMeltingCalculator.Services.Thermal
                 result.SupplyTemperature = parameters.SupplyTemperature;
                 
                 // Проверка: температура подачи должна быть больше средней температуры (формула 8.2)
+                // Округляем минимальную температуру вверх до десятых для корректного отображения в сообщении
+                var minSupplyTemp = Math.Ceiling(result.MeanTemperature * 10) / 10;
                 if (result.SupplyTemperature <= result.MeanTemperature)
                 {
                     result.IsValid = false;
                     result.ValidationErrors = new[] { 
                         $"При текущих параметрах системы не обеспечивается требуемая мощность. " +
-                        $"Температура подачи ({result.SupplyTemperature:F1}°C) должна быть не менее {result.MeanTemperature:F1}°C. " +
+                        $"Температура подачи ({result.SupplyTemperature:F1}°C) должна быть не менее {minSupplyTemp:F1}°C. " +
                         $"Увеличьте температуру подачи, уменьшите интенсивность снегопада или измените режим работы."
                     };
                     return result;
@@ -446,13 +514,28 @@ namespace SnowMeltingCalculator.Services.Thermal
                     IceHeatCapacity * (0 - parameters.AirTemperature) +
                     IceMeltingHeat +
                     WaterHeatCapacity * surfaceTemp);
+                // Лучистый теплообмен: Q = ε × σ × T⁴
+                // где T - абсолютная температура поверхности в Кельвинах
                 result.RadiationHeat = EmissionCoefficient * StefanBoltzmann *
-                    Math.Pow((273.0 + surfaceTemp) / 100.0, 4);
+                    Math.Pow(273.0 + surfaceTemp, 4);
                 result.ConvectionHeat = alpha * (surfaceTemp - parameters.AirTemperature);
+                
+                // Убеждаемся, что PowerUp точно равен сумме составляющих (для корректного отображения)
+                result.PowerUp = result.MeltingHeat + result.ConvectionHeat;
 
                 // 8. Расчёт мощности вниз (потери)
-                // q_D = (t_ср - t_G) / RD
-                var powerDown = (result.MeanTemperature - parameters.GroundTemperature) / rD;
+                // q_D = (JHmü_low × RFb + C × D × E) / (RFb × RD × (A + B × D × E))
+                var powerDown = CalculatePowerDown(
+                    result.MeanTemperature,
+                    parameters.GroundTemperature,
+                    parameters.AirTemperature,
+                    rFb,
+                    rD,
+                    etaR,
+                    parameters.PipeSpacing,
+                    parameters.Pipe.OuterDiameter,
+                    parameters.Pipe.WallThickness,
+                    parameters.Pipe.ThermalConductivity);
                 result.PowerDown = powerDown;
 
                 // 9. Суммарная мощность

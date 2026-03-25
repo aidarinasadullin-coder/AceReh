@@ -166,7 +166,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// </summary>
         public string GetDescription()
         {
-            return $"{FullName}, {Circuits} конт., Kv={Kv} м³/ч, макс. расход {MaxFlowRate} м³/ч, макс. давление {MaxPressure} мбар";
+            // Используем инвариантную культуру для форматирования чисел (точка как разделитель)
+            return $"{FullName}, {Circuits} конт., Kv={Kv.ToString(System.Globalization.CultureInfo.InvariantCulture)} м³/ч, макс. расход {MaxFlowRate.ToString(System.Globalization.CultureInfo.InvariantCulture)} м³/ч, макс. давление {MaxPressure} мбар";
         }
     }
 }

@@ -15,16 +15,23 @@ namespace SnowMeltingCalculator.ViewModels.Climate
     {
         private readonly IClimateDataService _climateService;
         private readonly IClimateData _climateData;
+        private readonly ISearchHistoryService? _historyService;
         private CityInfo? _originalCityData;
         private CancellationTokenSource? _searchCts;
 
         #region Observable Properties
 
         /// <summary>
-        /// Отфильтрованный список городов для отображения
+        /// Отфильтрованный список городов для отображения (старый ComboBox)
         /// </summary>
         [ObservableProperty]
         private ObservableCollection<CityInfo> _filteredCities = new();
+
+        /// <summary>
+        /// Отфильтрованный список городов с подсветкой (для CityAutoCompleteBox)
+        /// </summary>
+        [ObservableProperty]
+        private ObservableCollection<CityMatchResult> _filteredCitiesWithHighlight = new();
 
         /// <summary>
         /// Выбранный город
@@ -38,15 +45,40 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         [ObservableProperty]
         private string _searchQuery = string.Empty;
 
+        /// <summary>
+        /// Признак открытого popup
+        /// </summary>
+        [ObservableProperty]
+        private bool _isPopupOpen;
+
+        /// <summary>
+        /// Индекс выбранного предложения
+        /// </summary>
+        [ObservableProperty]
+        private int _selectedSuggestionIndex = -1;
+
+        /// <summary>
+        /// Последние использованные города
+        /// </summary>
+        [ObservableProperty]
+        private ObservableCollection<CityInfo> _recentCities = new();
+
         partial void OnSearchQueryChanged(string value)
         {
+            // Debounce обрабатывается в CityAutoCompleteBox.xaml.cs
+            // Здесь только логика очистки и запуска поиска
+
             if (string.IsNullOrEmpty(value))
             {
-                LoadAllCitiesCommand.ExecuteAsync(null);
+                FilteredCitiesWithHighlight.Clear();
+                IsPopupOpen = false;
+                return;
             }
-            else if (value.Length >= 2)
+
+            // Минимум 1 символ для поиска
+            if (value.Length >= 1)
             {
-                SearchCitiesCommand.ExecuteAsync(null);
+                SearchCitiesWithHighlightCommand.ExecuteAsync(null);
             }
         }
 
@@ -173,10 +205,14 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// <summary>
         /// Создать ViewModel
         /// </summary>
-        public ClimateViewModel(IClimateDataService climateService, IClimateData climateData)
+        public ClimateViewModel(
+            IClimateDataService climateService, 
+            IClimateData climateData,
+            ISearchHistoryService? historyService = null)
         {
             _climateService = climateService ?? throw new ArgumentNullException(nameof(climateService));
             _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
+            _historyService = historyService;
         }
 
         #endregion
@@ -208,6 +244,107 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             catch (OperationCanceledException)
             {
                 // Поиск отменён - это нормально
+            }
+        }
+
+        /// <summary>
+        /// Команда поиска городов с подсветкой
+        /// </summary>
+        [RelayCommand]
+        private async Task SearchCitiesWithHighlight()
+        {
+            // Отмена предыдущего поиска
+            _searchCts?.Cancel();
+            _searchCts = new CancellationTokenSource();
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(SearchQuery) || SearchQuery.Length < 1)
+                {
+                    FilteredCitiesWithHighlight.Clear();
+                    IsPopupOpen = false;
+                    return;
+                }
+
+                var cities = await _climateService.SearchCitiesWithPriorityAsync(
+                    SearchQuery, 
+                    _searchCts.Token);
+
+                FilteredCitiesWithHighlight.Clear();
+                foreach (var city in cities)
+                {
+                    var (highlightedName, highlightedRegion, matchType) = 
+                        _climateService.HighlightMatch(city, SearchQuery);
+                    var zone = _climateService.DetermineZone(city.T5Days092, false);
+
+                    FilteredCitiesWithHighlight.Add(new CityMatchResult
+                    {
+                        City = city,
+                        HighlightedName = highlightedName,
+                        HighlightedRegion = highlightedRegion,
+                        MatchType = matchType,
+                        ZoneDisplay = $"Зона {zone}"
+                    });
+                }
+
+                IsPopupOpen = FilteredCitiesWithHighlight.Count > 0;
+                SelectedSuggestionIndex = -1;
+            }
+            catch (OperationCanceledException)
+            {
+                // Поиск отменён - это нормально
+            }
+        }
+
+        /// <summary>
+        /// Команда выбора города
+        /// </summary>
+        [RelayCommand]
+        private async Task SelectCity(CityMatchResult? result)
+        {
+            if (result != null)
+            {
+                SelectedCity = result.City;
+                SearchQuery = result.City.Name;
+                IsPopupOpen = false;
+
+                // Сохранить в историю
+                if (_historyService != null)
+                {
+                    await _historyService.AddAsync(result.City.Name);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Команда очистки поиска
+        /// </summary>
+        [RelayCommand]
+        private void ClearSearch()
+        {
+            SearchQuery = string.Empty;
+            SelectedCity = null;
+            FilteredCitiesWithHighlight.Clear();
+            IsPopupOpen = false;
+        }
+
+        /// <summary>
+        /// Команда загрузки последних городов
+        /// </summary>
+        [RelayCommand]
+        private async Task LoadRecentCities()
+        {
+            if (_historyService == null) return;
+
+            var cities = await _historyService.GetRecentAsync(10);
+            
+            RecentCities.Clear();
+            foreach (var entry in cities)
+            {
+                if (entry.City != null)
+                {
+                    RecentCities.Add(entry.City);
+                }
             }
         }
 
@@ -404,6 +541,12 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 Humidity = value.Humidity15hCold;
                 SelectedZone = _climateService.DetermineZone(value.T5Days092, IsHighRequirements);
                 HasUserModifications = false;
+
+                // Сохранить в историю (асинхронно)
+                if (_historyService != null)
+                {
+                    _ = _historyService.AddAsync(value.Name);
+                }
 
                 OnDataChanged("SelectedCity", null, value);
                 SyncToClimateData();

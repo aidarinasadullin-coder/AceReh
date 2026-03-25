@@ -1,21 +1,24 @@
 using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SnowMeltingCalculator.Models.Hydraulics
 {
     /// <summary>
     /// Итоги расчёта коллектора
     /// </summary>
-    public class CollectorSummary
+    public partial class CollectorSummary : ObservableObject
     {
         /// <summary>
         /// Номер коллектора
         /// </summary>
-        public int CollectorNumber { get; set; }
+        [ObservableProperty]
+        private int _collectorNumber;
         
         /// <summary>
         /// Тип коллектора
         /// </summary>
-        public string CollectorType { get; set; } = "HKV-D";
+        [ObservableProperty]
+        private string _collectorType = "HKV-D";
         
         /// <summary>
         /// Kv коллектора (коэффициент пропускной способности), м³/ч
@@ -25,27 +28,32 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// IV 1¼": 1.45
         /// IV 1½": 1.5
         /// </remarks>
-        public double Kv { get; set; } = 1.2;
+        [ObservableProperty]
+        private double _kv = 1.2;
         
         /// <summary>
         /// Количество контуров
         /// </summary>
-        public int CircuitCount { get; set; }
+        [ObservableProperty]
+        private int _circuitCount;
         
         /// <summary>
         /// Общая длина труб, м
         /// </summary>
-        public double TotalPipeLength { get; set; }
+        [ObservableProperty]
+        private double _totalPipeLength;
         
         /// <summary>
         /// Общая мощность, Вт
         /// </summary>
-        public double TotalPower { get; set; }
+        [ObservableProperty]
+        private double _totalPower;
         
         /// <summary>
         /// Общий расход, л/ч
         /// </summary>
-        public double TotalFlowRate { get; set; }
+        [ObservableProperty]
+        private double _totalFlowRate;
         
         /// <summary>
         /// Общий расход, м³/ч
@@ -55,60 +63,59 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <summary>
         /// Потери давления при рабочей температуре, Па
         /// </summary>
-        public double PressureLoss_Operating_Pa { get; set; }
-
-        /// <summary>
-        /// Потери давления при расчётной (холодной) температуре, Па
-        /// </summary>
-        public double PressureLoss_Cold_Pa { get; set; }
+        [ObservableProperty]
+        private double _pressureLoss_Operating_Pa;
 
         /// <summary>
         /// Потери давления при рабочей температуре, мбар
         /// </summary>
-        /// <remarks>
-        /// Устарело. Использовать PressureLoss_Operating_Pa / 100.0
-        /// </remarks>
-        [Obsolete("Использовать PressureLoss_Operating_Pa / 100.0")]
         public double PressureLoss_Operating_mbar => PressureLoss_Operating_Pa / 100.0;
+
+        /// <summary>
+        /// Потери давления при расчётной (холодной) температуре, Па
+        /// </summary>
+        [ObservableProperty]
+        private double _pressureLoss_Cold_Pa;
 
         /// <summary>
         /// Потери давления при расчётной температуре, мбар
         /// </summary>
-        /// <remarks>
-        /// Устарело. Использовать PressureLoss_Cold_Pa / 100.0
-        /// </remarks>
-        [Obsolete("Использовать PressureLoss_Cold_Pa / 100.0")]
         public double PressureLoss_Cold_mbar => PressureLoss_Cold_Pa / 100.0;
         
         /// <summary>
         /// Максимальные потери давления контура (референсный контур), Па
         /// </summary>
-        public double MaxCircuitLoss { get; set; }
+        [ObservableProperty]
+        private double _maxCircuitLoss;
         
         /// <summary>
         /// Референсный контур (с максимальными потерями)
         /// </summary>
-        public int ReferenceCircuitNumber { get; set; }
+        [ObservableProperty]
+        private int _referenceCircuitNumber;
         
         /// <summary>
         /// Признак валидности
         /// </summary>
-        public bool IsValid { get; set; }
+        [ObservableProperty]
+        private bool _isValid;
         
         /// <summary>
         /// Предупреждения
         /// </summary>
-        public string[] Warnings { get; set; } = Array.Empty<string>();
+        [ObservableProperty]
+        private string[] _warnings = Array.Empty<string>();
 
         /// <summary>
-        /// Предупреждение о превышении расхода
+        /// Предупреждение о превышении давления или расхода
         /// </summary>
         /// <remarks>
-        /// Устанавливается при автоматическом выборе коллектора, если расход > 4.0 м³/ч
+        /// Устанавливается при автоматическом выборе коллектора, если:
+        /// - Давление > 320 мбар
+        /// - Расход ≥ 7.0 м³/ч
         /// </remarks>
-        public string? Warning { get; set; }
-        
-        // === Новое свойство ===
+        [ObservableProperty]
+        private string? _warning;
         
         /// <summary>
         /// Тип балансировочного клапана
@@ -119,7 +126,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// - IV 1¼": промышленный коллектор, Kv = 1.45 м³/ч
         /// - IV 1½": промышленный коллектор, Kv = 1.5 м³/ч
         /// </remarks>
-        public ValveType ValveType { get; set; } = ValveType.HKV_D;
+        [ObservableProperty]
+        private ValveType _valveType = ValveType.HKV_D;
         
         /// <summary>
         /// Максимально допустимые потери (ограничение РЕХАУ), мбар
@@ -132,8 +140,19 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         public static readonly double MaxAllowedPressure_Pa = 32000;
         
         /// <summary>
-        /// Проверка превышения лимита потерь
+        /// Проверка превышения лимита потерь (холодный пуск)
         /// </summary>
-        public bool IsPressureExceeded => PressureLoss_Cold_Pa > MaxAllowedPressure_Pa;
+        public bool IsColdPressureExceeded => PressureLoss_Cold_Pa > MaxAllowedPressure_Pa;
+        
+        /// <summary>
+        /// Проверка превышения лимита потерь (рабочий режим)
+        /// </summary>
+        public bool IsOperatingPressureExceeded => PressureLoss_Operating_Pa > MaxAllowedPressure_Pa;
+        
+        /// <summary>
+        /// Проверка превышения лимита потерь (устаревшее свойство для обратной совместимости)
+        /// </summary>
+        [Obsolete("Используйте IsColdPressureExceeded или IsOperatingPressureExceeded")]
+        public bool IsPressureExceeded => IsColdPressureExceeded;
     }
 }

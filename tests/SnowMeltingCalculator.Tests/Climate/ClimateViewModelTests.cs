@@ -485,5 +485,72 @@ namespace SnowMeltingCalculator.Tests.Climate
 
             return ClimateZone.Zone_M20;
         }
+
+        public Task<IEnumerable<CityInfo>> SearchCitiesWithPriorityAsync(string query, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(query) || query.Length < 1)
+                return Task.FromResult(Enumerable.Empty<CityInfo>());
+
+            var cities = new List<CityInfo>
+            {
+                new CityInfo { Name = "Москва", Region = "Московская область", T5Days092 = -28 },
+                new CityInfo { Name = "Санкт-Петербург", Region = "Ленинградская область", T5Days092 = -26 },
+                new CityInfo { Name = "Сочи", Region = "Краснодарский край", T5Days092 = -5 }
+            };
+
+            return Task.FromResult(cities
+                .Where(c => c.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase) ||
+                           c.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                           c.Region.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .Take(15)
+                .AsEnumerable());
+        }
+
+        public (string highlightedName, string highlightedRegion, MatchType matchType) HighlightMatch(CityInfo city, string query)
+        {
+            if (city == null)
+                return (string.Empty, string.Empty, MatchType.Contains);
+
+            if (string.IsNullOrWhiteSpace(query))
+                return (city.Name, city.Region, MatchType.Contains);
+
+            var index = city.Name.IndexOf(query, StringComparison.OrdinalIgnoreCase);
+            if (index >= 0)
+            {
+                var before = city.Name.Substring(0, index);
+                var match = city.Name.Substring(index, query.Length);
+                var after = city.Name.Substring(index + query.Length);
+                var highlightedName = $"{before}**{match}**{after}";
+
+                var matchType = city.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase) 
+                    ? MatchType.StartsWith 
+                    : MatchType.Contains;
+
+                return (highlightedName, city.Region, matchType);
+            }
+
+            var regionIndex = city.Region.IndexOf(query, StringComparison.OrdinalIgnoreCase);
+            if (regionIndex >= 0)
+            {
+                var before = city.Region.Substring(0, regionIndex);
+                var match = city.Region.Substring(regionIndex, query.Length);
+                var after = city.Region.Substring(regionIndex + query.Length);
+                var highlightedRegion = $"{before}**{match}**{after}";
+
+                return (city.Name, highlightedRegion, MatchType.Region);
+            }
+
+            return (city.Name, city.Region, MatchType.Contains);
+        }
+
+        public Task<IEnumerable<CityInfo>> GetRecentCitiesAsync(int limit = 10, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Enumerable.Empty<CityInfo>());
+        }
+
+        public Task SaveToHistoryAsync(CityInfo city, CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

@@ -3,17 +3,87 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:views="clr-namespace:SnowMeltingCalculator.Views.Climate"
         xmlns:viewsThermal="clr-namespace:SnowMeltingCalculator.Views.Thermal"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Калькулятор снеготаяния РЕХАУ"
+        Title="Калькулятор снеготаяния REHAU"
         Height="700" Width="900"
+        MinHeight="600" MinWidth="800"
         WindowStartupLocation="CenterScreen"
-        Background="{DynamicResource MaterialDesignPaper}"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        FontFamily="{DynamicResource MaterialDesignFont}"
-        Focusable="True">
+        Background="{DynamicResource RehauBackgroundBrush}"
+        TextElement.Foreground="{DynamicResource RehauBlackBrush}"
+        FontFamily="{StaticResource FontFamily.Main}"
+        Focusable="True"
+        shell:WindowChrome.WindowChrome="{DynamicResource WindowChrome}">
+
+    <Window.Resources>
+        <!-- Стиль для WindowChrome (современный вид окна) -->
+        <WindowChrome x:Key="WindowChrome"
+                      CaptionHeight="0"
+                      GlassFrameThickness="1"
+                      ResizeBorderThickness="4"
+                      UseAeroCaptionButtons="False"/>
+        
+        <!-- Стиль для бейджа навигации -->
+        <Style x:Key="NavigationBadgeStyle" TargetType="Border">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+        </Style>
+        
+        <!-- Логотип REHAU в виде DrawingImage -->
+        <DrawingImage x:Key="RehauLogoDrawing">
+            <DrawingImage.Drawing>
+                <DrawingGroup>
+                    <!-- Графический символ REHAU (абстрактные квадраты) -->
+                    <GeometryDrawing Brush="#E50040">
+                        <GeometryDrawing.Geometry>
+                            <PathGeometry Figures="M286.55 344.1h-42.16v-42.15h42.16zm-57.97 0h-42.15v-42.16h42.15zm115.94-57.97h-42.16v-42.16h42.16z"/>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#E50040">
+                        <GeometryDrawing.Geometry>
+                            <PathGeometry Figures="M286.55 243.98h-42.16v42.16h42.16zm-57.97 0h-42.15v42.16h42.15zm-57.97 0h-42.15v42.15h42.15z"/>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#575756">
+                        <GeometryDrawing.Geometry>
+                            <PathGeometry Figures="M344.52 186.01h-42.16v42.16h42.16zm-57.97 0h-42.16v42.16h42.16z"/>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#4FC7B5">
+                        <GeometryDrawing.Geometry>
+                            <PathGeometry Figures="M228.58 228.17h-42.15v-42.16h42.15zm-57.97 0h-42.15v-42.16h42.15zm-57.96 0h-42.16v-42.15h42.16z"/>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#575756">
+                        <GeometryDrawing.Geometry>
+                            <PathGeometry Figures="M344.52 170.2h-42.16v-42.16h42.16zm-57.97 0h-42.16v-42.15h42.16z"/>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#4FC7B5">
+                        <GeometryDrawing.Geometry>
+                            <PathGeometry Figures="M228.58 170.2h-42.15v-42.16h42.15zm-57.97 0h-42.15v-42.15h42.15zm-57.96 0h-42.16v-42.16h42.16z"/>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#575756">
+                        <GeometryDrawing.Geometry>
+                            <PathGeometry Figures="M286.55 112.23h-42.16v-42.15h42.16z"/>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#4FC7B5">
+                        <GeometryDrawing.Geometry>
+                            <PathGeometry Figures="M228.58 70.08h-42.15v42.15h42.15zm-57.97 0h-42.15v42.16h42.15z"/>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -21,48 +91,183 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header с логотипом РЕХАУ -->
-        <materialDesign:ColorZone Grid.Row="0"
-                                  Mode="PrimaryMid"
-                                  Padding="16,8"
-                                  Background="{DynamicResource PrimaryHueMidBrush}">
-            <Grid>
+        <!-- Header с логотипом REHAU -->
+        <Border Grid.Row="0" Background="{DynamicResource RehauRedBrush}"
+                BorderBrush="{DynamicResource RehauRedDarkBrush}" BorderThickness="0,0,0,2"
+                MouseLeftButtonDown="HeaderBorder_MouseLeftButtonDown">
+            <Grid Margin="{StaticResource Spacing.MD.Horizontal}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Логотип / Название -->
+                <!-- Логотип и название -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="РЕХАУ"
-                              Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                              FontWeight="Bold"
-                              VerticalAlignment="Center"
-                              Foreground="White"/>
-                    <TextBlock Text="Калькулятор снеготаяния"
-                              Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                              Margin="16,0,0,0"
-                              VerticalAlignment="Center"
-                              Foreground="White"/>
+                    <!-- Логотип РЕХАУ -->
+                    <Border Width="52" Height="52" Margin="0,0,12,0"
+                           Background="White" CornerRadius="4"
+                           Padding="4">
+                        <Image Source="{StaticResource RehauLogoDrawing}"
+                               Width="44" Height="44"
+                               Stretch="Uniform"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                    </Border>
+
+                    <!-- Название -->
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="РЕХАУ"
+                                  FontSize="22" FontWeight="Bold"
+                                  Foreground="White"
+                                  FontFamily="{StaticResource FontFamily.Main}"/>
+                        <TextBlock Text="Калькулятор снеготаяния"
+                                  FontSize="12"
+                                  Foreground="#CCCCCC"
+                                  FontFamily="{StaticResource FontFamily.Main}"/>
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- Название текущего модуля -->
-                <TextBlock Grid.Column="1"
-                          Text="{Binding CurrentTitle}"
-                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          Foreground="White"/>
+                <Border Grid.Column="1"
+                       Background="#F5F5F5"
+                       CornerRadius="4"
+                       Padding="16,6"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center">
+                    <TextBlock Text="{Binding CurrentTitle}"
+                              FontSize="14" FontWeight="SemiBold"
+                              Foreground="{DynamicResource RehauBlackBrush}"
+                              FontFamily="{StaticResource FontFamily.Main}"/>
+                </Border>
 
-                <!-- Информация о проекте -->
-                <TextBlock Grid.Column="2"
-                          Text="Версия 1.0"
-                          Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                          VerticalAlignment="Center"
-                          Foreground="White"/>
+                <!-- Информация о версии и кнопки управления окном -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Версия -->
+                    <TextBlock Text="v1.0"
+                              FontSize="11"
+                              Foreground="#AAAAAA"
+                              VerticalAlignment="Center"
+                              FontFamily="{StaticResource FontFamily.Main}"
+                              Margin="0,0,16,0"/>
+
+                    <!-- Кнопки управления окном -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                        <!-- Кнопка "Свернуть" -->
+                        <Button x:Name="MinimizeButton"
+                                Width="40" Height="32"
+                                Click="MinimizeButton_Click"
+                                ToolTip="Свернуть"
+                                Background="Transparent"
+                                BorderThickness="0">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#4FC7B5"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <Path Data="M0,0 L12,0"
+                                  Stroke="White"
+                                  StrokeThickness="2"
+                                  Width="12" Height="2"
+                                  Opacity="0.8"/>
+                        </Button>
+
+                        <!-- Кнопка "Развернуть/Восстановить" -->
+                        <Button x:Name="MaximizeRestoreButton"
+                                Width="40" Height="32"
+                                Click="MaximizeRestoreButton_Click"
+                                ToolTip="Развернуть"
+                                Background="Transparent"
+                                BorderThickness="0">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#4FC7B5"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <Path x:Name="MaximizeRestoreIcon"
+                                  Data="M0,0 L12,0 L12,12 L0,12 Z"
+                                  Stroke="White"
+                                  StrokeThickness="2"
+                                  Width="12" Height="12"
+                                  Opacity="0.8"/>
+                        </Button>
+
+                        <!-- Кнопка "Закрыть" -->
+                        <Button x:Name="CloseButton"
+                                Width="40" Height="32"
+                                Click="CloseButton_Click"
+                                ToolTip="Закрыть"
+                                Background="Transparent"
+                                BorderThickness="0">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#E50040"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <Path Data="M0,0 L12,12 M12,0 L0,12"
+                                  Stroke="White"
+                                  StrokeThickness="2"
+                                  Width="12" Height="12"
+                                  Opacity="0.8"/>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
             </Grid>
-        </materialDesign:ColorZone>
+        </Border>
 
         <!-- Основной контент -->
         <Grid Grid.Row="1">
@@ -75,17 +280,18 @@
             <Grid Grid.Column="0" x:Name="SidebarGrid">
                 <Grid.Style>
                     <Style TargetType="Grid">
-                        <Setter Property="Width" Value="220"/>
+                        <Setter Property="Width" Value="230"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
-                                <Setter Property="Width" Value="65"/>
+                                <Setter Property="Width" Value="70"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
                 
-                <materialDesign:ColorZone Mode="PrimaryLight"
-                                          Background="{DynamicResource PrimaryHueLightBrush}">
+<Border Background="{DynamicResource RehauBackgroundGrayBrush}"
+                        BorderBrush="{DynamicResource RehauGrayBrush}"
+                        BorderThickness="0,0,1,0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -97,70 +303,129 @@
                                 x:Name="ToggleSidebarButton"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Top"
-                                Margin="0,4,4,0"
-                                Width="28" Height="28"
+                                Margin="0,8,8,0"
+                                Width="32" Height="32"
                                 Command="{Binding ToggleSidebarCommand}"
                                 ToolTip="{Binding IsSidebarCollapsed, Converter={StaticResource SidebarTooltipConverter}}"
                                 AutomationProperties.Name="Свернуть/развернуть панель навигации"
                                 AutomationProperties.HelpText="Нажмите для переключения состояния боковой панели (Ctrl+B)"
-                                Style="{StaticResource MaterialDesignIconButton}">
-                            <materialDesign:PackIcon Width="18" Height="18">
-                                <materialDesign:PackIcon.Style>
-                                    <Style TargetType="materialDesign:PackIcon">
-                                        <Setter Property="Kind" Value="ChevronLeft"/>
+                                Background="{DynamicResource RehauTealLightBrush}"
+                                Foreground="White"
+                                BorderThickness="0">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="{DynamicResource RehauTealLightBrush}"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="4">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource RehauTealBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <Path x:Name="ChevronIcon" Width="18" Height="18" Stroke="White" StrokeThickness="2" Stretch="Uniform">
+                                <Path.Style>
+                                    <Style TargetType="Path">
+                                        <Setter Property="Data" Value="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
-                                                <Setter Property="Kind" Value="ChevronRight"/>
+                                                <Setter Property="Data" Value="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </materialDesign:PackIcon.Style>
-                            </materialDesign:PackIcon>
+                                </Path.Style>
+                            </Path>
                         </Button>
 
                         <!-- Меню навигации -->
                         <ListBox Grid.Row="1"
                                 ItemsSource="{Binding MenuItems}"
                                 SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
-                                Style="{StaticResource MaterialDesignNavigationPrimaryListBox}"
-                                Margin="0,8,0,0">
+                                Margin="8,8,8,8"
+                                BorderThickness="0"
+                                Background="Transparent">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Margin" Value="0,2"/>
+                                    <Setter Property="Padding" Value="12,10"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="Transparent"
+                                                        BorderThickness="0"
+                                                        CornerRadius="4"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <!-- Nav.Hover: бирюзовый текст, прозрачный красный фон -->
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#1AE50040"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource RehauTealLightBrush}"/>
+                                        </Trigger>
+                                        <!-- Nav.Active: красный текст, красный полупрозрачный фон -->
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource RehauRedBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
                                         <!-- Иконка -->
-                                        <materialDesign:PackIcon Grid.Column="0"
-                                                                Kind="{Binding Icon}"
-                                                                Width="24" Height="24"
-                                                                Margin="4,0,0,0"
-                                                                HorizontalAlignment="Left"
-                                                                VerticalAlignment="Center">
-                                            <materialDesign:PackIcon.Style>
-                                                <Style TargetType="materialDesign:PackIcon" BasedOn="{StaticResource {x:Type materialDesign:PackIcon}}">
-                                                    <Style.Triggers>
-                                                        <!-- Tooltip только в свёрнутом режиме -->
-                                                        <DataTrigger Binding="{Binding DataContext.IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                                                            <Setter Property="ToolTip" Value="{Binding Title}"/>
-                                                            <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
-                                                            <Setter Property="ToolTipService.Placement" Value="Right"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </materialDesign:PackIcon.Style>
-                                        </materialDesign:PackIcon>
+                                        <Path Grid.Column="0"
+                                              Data="{Binding IconPath}"
+                                              Width="24" Height="24"
+                                              Margin="0,0,12,0"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"
+                                              Stretch="Uniform"
+                                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"/>
 
                                         <!-- Текст -->
                                         <TextBlock Grid.Column="1"
                                                   Text="{Binding Title}"
-                                                  Margin="4,0,0,0"
+                                                  Margin="0,0,0,0"
                                                   HorizontalAlignment="Left"
-                                                  VerticalAlignment="Center">
+                                                  VerticalAlignment="Center"
+                                                  FontWeight="Medium"
+                                                  FontSize="14"
+                                                  TextWrapping="Wrap"
+                                                  TextAlignment="Left"
+                                                  MaxWidth="140"
+                                                  Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}">
                                             <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}">
+                                                <Style TargetType="TextBlock">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding DataContext.IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
                                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -169,20 +434,46 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
+                                        
+                                        <!-- Бейдж предупреждения (!) -->
+                                        <Border Grid.Column="2"
+                                                 Style="{StaticResource NavigationBadgeStyle}"
+                                                 Background="#FFB300"
+                                                 Visibility="{Binding HasWarning, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBlock Text="!"
+                                                       Foreground="White"
+                                                       FontWeight="Bold"
+                                                       FontSize="11"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                        
+                                        <!-- Бейдж расчёта (⏳) -->
+                                        <Border Grid.Column="2"
+                                                 Style="{StaticResource NavigationBadgeStyle}"
+                                                 Background="#2196F3"
+                                                 Visibility="{Binding IsCalculating, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBlock Text="⏳"
+                                                       Foreground="White"
+                                                       FontSize="11"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
                                     </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
                     </Grid>
-                </materialDesign:ColorZone>
+                </Border>
             </Grid>
 
             <!-- Область контента -->
             <ScrollViewer Grid.Column="1"
                           HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto"
-                          Padding="0">
-                <ContentControl Content="{Binding CurrentView}"/>
+                          Padding="0"
+                          Background="{DynamicResource RehauBackgroundBrush}">
+                <ContentControl Content="{Binding CurrentView}" Margin="0"/>
             </ScrollViewer>
         </Grid>
     </Grid>

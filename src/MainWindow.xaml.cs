@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +15,9 @@ using SnowMeltingCalculator.Views.Climate;
 using SnowMeltingCalculator.Views.Construction;
 using SnowMeltingCalculator.Views.Thermal;
 using SnowMeltingCalculator.Views.Hydraulics;
+using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Models.Enums;
+using SnowMeltingCalculator.Models.Navigation;
 
 namespace SnowMeltingCalculator
 {
@@ -41,7 +46,8 @@ namespace SnowMeltingCalculator
             var thermalViewModel = services.GetRequiredService<ThermalViewModel>();
             var constructionViewModel = services.GetRequiredService<ConstructionViewModel>();
             var circuitsViewModel = services.GetRequiredService<CircuitsViewModel>();
-            _viewModel = new MainViewModel(climateViewModel, thermalViewModel, constructionViewModel, circuitsViewModel);
+            var calculationStateService = services.GetRequiredService<ICalculationStateService>();
+            _viewModel = new MainViewModel(climateViewModel, thermalViewModel, constructionViewModel, circuitsViewModel, calculationStateService);
             DataContext = _viewModel;
             
             // Подписываемся на изменение состояния боковой панели для анимации
@@ -102,6 +108,92 @@ namespace SnowMeltingCalculator
 
             sidebarGrid.BeginAnimation(System.Windows.Controls.Grid.WidthProperty, animation);
         }
+
+        #region Обработчики кнопок управления окном
+
+        /// <summary>
+        /// Обработчик перетаскивания окна за хедер
+        /// </summary>
+        private void HeaderBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                DragMove();
+            }
+        }
+
+        /// <summary>
+        /// Обработчик кнопки "Свернуть"
+        /// </summary>
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        /// <summary>
+        /// Обработчик кнопки "Развернуть/Восстановить"
+        /// </summary>
+        private void MaximizeRestoreButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                WindowState = WindowState.Normal;
+                UpdateMaximizeRestoreButton(sender as System.Windows.Controls.Button, false);
+            }
+            else
+            {
+                WindowState = WindowState.Maximized;
+                UpdateMaximizeRestoreButton(sender as System.Windows.Controls.Button, true);
+            }
+        }
+
+        /// <summary>
+        /// Обработчик кнопки "Закрыть"
+        /// </summary>
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        /// <summary>
+        /// Обновление иконки кнопки развернуть/восстановить
+        /// </summary>
+        private void UpdateMaximizeRestoreButton(System.Windows.Controls.Button? button, bool isMaximized)
+        {
+            if (button == null) return;
+
+            var path = FindVisualChild<Path>(button);
+            if (path != null)
+            {
+                // Иконка "Развернуть": квадрат
+                // Иконка "Восстановить": два квадрата (один поверх другого)
+                path.Data = isMaximized 
+                    ? Geometry.Parse("M4,4 L4,20 L20,20 L20,4 Z M8,4 L8,0 L24,0 L24,16 L20,16") // Восстановить
+                    : Geometry.Parse("M0,0 L16,0 L16,16 L0,16 Z"); // Развернуть
+            }
+
+            button.ToolTip = isMaximized ? "Восстановить" : "Развернуть";
+        }
+
+        /// <summary>
+        /// Поиск визуального дочернего элемента
+        /// </summary>
+        private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+                if (child is T result)
+                    return result;
+
+                var descendant = FindVisualChild<T>(child);
+                if (descendant != null)
+                    return descendant;
+            }
+            return null;
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -113,20 +205,33 @@ namespace SnowMeltingCalculator
         private readonly ThermalViewModel _thermalViewModel;
         private readonly ConstructionViewModel _constructionViewModel;
         private readonly CircuitsViewModel _circuitsViewModel;
+        private readonly ICalculationStateService _calculationStateService;
+
+        // Кэшированные View (создаются только один раз)
+        private ClimateView? _climateView;
+        private ThermalView? _thermalView;
+        private ConstructionView? _constructionView;
+        private CircuitsView? _circuitsView;
+        private CircuitsResultsView? _circuitsResultsView;
 
         public MainViewModel(
             ClimateViewModel climateViewModel,
             ThermalViewModel thermalViewModel,
             ConstructionViewModel constructionViewModel,
-            CircuitsViewModel circuitsViewModel)
+            CircuitsViewModel circuitsViewModel,
+            ICalculationStateService calculationStateService)
         {
             _climateViewModel = climateViewModel;
             _thermalViewModel = thermalViewModel;
             _constructionViewModel = constructionViewModel;
             _circuitsViewModel = circuitsViewModel;
+            _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             
-            // Установка начального представления
-            _currentView = new ClimateView { DataContext = _climateViewModel };
+            // Подписка на изменения состояния
+            _calculationStateService.StateChanged += OnCalculationStateChanged;
+            
+            // Установка начального представления (используем кэшированный View)
+            _currentView = _climateView ??= new ClimateView { DataContext = _climateViewModel };
             _selectedMenuItem = MenuItems[0];
             
             // Загрузка состояния боковой панели из настроек
@@ -145,7 +250,7 @@ namespace SnowMeltingCalculator
             new MenuItem { Title = "Климат", Icon = "WeatherCloudy" },
             new MenuItem { Title = "Конструкция", Icon = "Layers" },
             new MenuItem { Title = "Тепловой расчёт", Icon = "Fire" },
-            new MenuItem { Title = "Контура", Icon = "Pipe" },
+            new MenuItem { Title = "Гидравлический расчёт", Icon = "Pipe" },
             new MenuItem { Title = "Результаты", Icon = "ChartBar" }
         };
 
@@ -214,7 +319,7 @@ namespace SnowMeltingCalculator
                 "Климат" => "Климатические данные",
                 "Конструкция" => "Конструкция системы",
                 "Тепловой расчёт" => "Тепловой расчёт",
-                "Контура" => "Гидравлический расчёт",
+                "Гидравлический расчёт" => "Гидравлический расчёт",
                 "Результаты" => "Результаты расчёта",
                 _ => "Калькулятор снеготаяния РЕХАУ"
             };
@@ -229,12 +334,12 @@ namespace SnowMeltingCalculator
             {
                 CurrentView = menuItem.Title switch
                 {
-                    "Климат" => new ClimateView { DataContext = _climateViewModel },
-                    "Тепловой расчёт" => new ThermalView { DataContext = _thermalViewModel },
-                    "Конструкция" => new ConstructionView { DataContext = _constructionViewModel },
-                    "Контура" => new CircuitsView { DataContext = _circuitsViewModel },
-                    "Результаты" => new CircuitsResultsView { DataContext = _circuitsViewModel },
-                    _ => new ClimateView { DataContext = _climateViewModel }
+                    "Климат" => _climateView ??= new ClimateView { DataContext = _climateViewModel },
+                    "Тепловой расчёт" => _thermalView ??= new ThermalView { DataContext = _thermalViewModel },
+                    "Конструкция" => _constructionView ??= new ConstructionView { DataContext = _constructionViewModel },
+                    "Гидравлический расчёт" => _circuitsView ??= new CircuitsView { DataContext = _circuitsViewModel },
+                    "Результаты" => _circuitsResultsView ??= new CircuitsResultsView { DataContext = _circuitsViewModel },
+                    _ => _climateView ??= new ClimateView { DataContext = _climateViewModel }
                 };
                 
                 UpdateCurrentTitle();
@@ -251,15 +356,105 @@ namespace SnowMeltingCalculator
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 
-                // Возвращаемся к климату
-                CurrentView = new ClimateView { DataContext = _climateViewModel };
+                // Возвращаемся к климату (используем кэшированный View)
+                CurrentView = _climateView ??= new ClimateView { DataContext = _climateViewModel };
             }
         }
+
+        #region Обработка событий состояния расчёта
+
+        /// <summary>
+        /// Обработчик события изменения состояния расчёта
+        /// </summary>
+        private void OnCalculationStateChanged(object? sender, ModuleStateChangedEventArgs e)
+        {
+            // Обновить бейджи в зависимости от модуля
+            switch (e.Module)
+            {
+                case "Thermal":
+                    UpdateThermalBadge(e.State, e.Message);
+                    break;
+                case "Hydraulics":
+                    UpdateHydraulicsBadge(e.State);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Обновить бейдж теплового расчёта
+        /// </summary>
+        private void UpdateThermalBadge(ModuleState state, string? message)
+        {
+            var thermalMenuItem = MenuItems.FirstOrDefault(m => m.Title == "Тепловой расчёт");
+            if (thermalMenuItem == null) return;
+
+            switch (state)
+            {
+                case ModuleState.Actual:
+                    thermalMenuItem.HasWarning = false;
+                    thermalMenuItem.IsCalculating = false;
+                    thermalMenuItem.BadgeColor = string.Empty;
+                    break;
+                case ModuleState.NeedsRecalculation:
+                    thermalMenuItem.HasWarning = true;
+                    thermalMenuItem.IsCalculating = false;
+                    thermalMenuItem.BadgeColor = "#FFB300"; // Оранжевый
+                    break;
+                case ModuleState.Calculating:
+                    thermalMenuItem.HasWarning = false;
+                    thermalMenuItem.IsCalculating = true;
+                    thermalMenuItem.BadgeColor = "#2196F3"; // Синий
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Обновить бейдж гидравлического расчёта
+        /// </summary>
+        private void UpdateHydraulicsBadge(ModuleState state)
+        {
+            var hydraulicsMenuItem = MenuItems.FirstOrDefault(m => m.Title == "Гидравлический расчёт");
+            if (hydraulicsMenuItem == null) return;
+
+            switch (state)
+            {
+                case ModuleState.Actual:
+                    hydraulicsMenuItem.HasWarning = false;
+                    hydraulicsMenuItem.IsCalculating = false;
+                    hydraulicsMenuItem.BadgeColor = string.Empty;
+                    break;
+                case ModuleState.NeedsRecalculation:
+                    // Гидравлика не использует NeedsRecalculation (автопересчёт)
+                    break;
+                case ModuleState.Calculating:
+                    hydraulicsMenuItem.HasWarning = false;
+                    hydraulicsMenuItem.IsCalculating = true;
+                    hydraulicsMenuItem.BadgeColor = "#2196F3"; // Синий
+                    break;
+            }
+        }
+
+        #endregion
     }
 
-    public class MenuItem
+    /// <summary>
+    /// Элемент меню навигации
+    /// </summary>
+    public partial class MenuItem : ObservableObject
     {
-        public string Title { get; set; } = string.Empty;
-        public string Icon { get; set; } = string.Empty;
+        [ObservableProperty]
+        private string _title = string.Empty;
+
+        [ObservableProperty]
+        private string _icon = string.Empty;
+
+        [ObservableProperty]
+        private bool _hasWarning;
+
+        [ObservableProperty]
+        private bool _isCalculating;
+
+        [ObservableProperty]
+        private string _badgeColor = string.Empty;
     }
 }

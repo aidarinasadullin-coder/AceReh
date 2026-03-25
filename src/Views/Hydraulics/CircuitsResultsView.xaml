@@ -14,84 +14,64 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
 
-        <!-- Стили -->
-        <Style x:Key="ResultGroupStyle" TargetType="Border">
-            <Setter Property="Background" Value="#FAFAFA"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="15"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-            <Setter Property="CornerRadius" Value="5"/>
-        </Style>
+        <!-- ============================================ -->
+        <!-- REHAU СТИЛИ (используем стили из Dictionary.xaml) -->
+        <!-- ============================================ -->
 
-        <Style x:Key="GroupHeaderStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-            <Setter Property="Foreground" Value="#1976D2"/>
-        </Style>
-
+        <!-- Стиль для строки результата -->
         <Style x:Key="ResultRowStyle" TargetType="Grid">
             <Setter Property="Margin" Value="0,3"/>
         </Style>
 
+        <!-- Стиль для подписи результата -->
         <Style x:Key="ResultLabelStyle" TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
+            <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         </Style>
 
+        <!-- Стиль для значения результата -->
         <Style x:Key="ResultValueStyle" TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         </Style>
 
+        <!-- Стиль для единиц измерения -->
         <Style x:Key="ResultUnitStyle" TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="5,0,0,0"/>
             <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Foreground" Value="#999"/>
+            <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
+            <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         </Style>
 
+        <!-- Стиль для выделенного значения -->
         <Style x:Key="HighlightValueStyle" TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Foreground" Value="#1976D2"/>
-        </Style>
-
-        <Style x:Key="WarningTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FF9800"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,2"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-        </Style>
-
-        <Style x:Key="ErrorTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#F44336"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,2"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-        </Style>
-
-        <Style x:Key="SuccessTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#4CAF50"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Foreground" Value="{DynamicResource RehauRedDarkBrush}"/>
+            <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         </Style>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="10">
-            
+        <StackPanel Margin="{StaticResource Spacing.SM.Thickness}">
+
             <!-- Информация о коллекторе -->
-            <Border Style="{StaticResource ResultGroupStyle}"
+            <Border Style="{StaticResource Card.Default}"
+                    Margin="0,0,0,10"
                     Visibility="{Binding SelectedCollector, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="Параметры коллектора" Style="{StaticResource GroupHeaderStyle}"/>
+                    <TextBlock Text="Параметры коллектора"
+                               Style="{StaticResource Text.H4}"
+                               Foreground="{DynamicResource RehauRedDarkBrush}"
+                               Margin="0,0,0,10"/>
 
                     <!-- Номер коллектора -->
                     <Grid Style="{StaticResource ResultRowStyle}">
@@ -135,10 +115,14 @@
             </Border>
 
             <!-- Общие параметры -->
-            <Border Style="{StaticResource ResultGroupStyle}"
+            <Border Style="{StaticResource Card.Default}"
+                    Margin="0,0,0,10"
                     Visibility="{Binding SelectedCollector.Summary, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="Общие параметры" Style="{StaticResource GroupHeaderStyle}"/>
+                    <TextBlock Text="Общие параметры"
+                               Style="{StaticResource Text.H4}"
+                               Foreground="{DynamicResource RehauRedDarkBrush}"
+                               Margin="0,0,0,10"/>
 
                     <!-- Общая длина труб -->
                     <Grid Style="{StaticResource ResultRowStyle}">
@@ -188,10 +172,14 @@
             </Border>
 
             <!-- Потери давления -->
-            <Border Style="{StaticResource ResultGroupStyle}"
+            <Border Style="{StaticResource Card.Default}"
+                    Margin="0,0,0,10"
                     Visibility="{Binding SelectedCollector.Summary, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="Потери давления" Style="{StaticResource GroupHeaderStyle}"/>
+                    <TextBlock Text="Потери давления"
+                               Style="{StaticResource Text.H4}"
+                               Foreground="{DynamicResource RehauRedDarkBrush}"
+                               Margin="0,0,0,10"/>
 
                     <!-- Потери при рабочей температуре -->
                     <Grid Style="{StaticResource ResultRowStyle}">
@@ -261,35 +249,33 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
-                        <TextBlock Grid.Column="0" 
-                                   Text="⚠ ПРЕВЫШЕНИЕ ЛИМИТА (320 мбар)"
-                                   Style="{StaticResource ResultLabelStyle}"
-                                   FontWeight="Bold"
-                                   Foreground="#F44336"/>
+<TextBlock Grid.Column="0" 
+                                    Text="⚠ Превышение лимита (320 мбар)"
+                                    Style="{StaticResource ResultLabelStyle}"
+                                    FontWeight="Bold"
+                                    Foreground="{DynamicResource RehauRedBrush}"/>
                     </Grid>
                 </StackPanel>
             </Border>
 
             <!-- Предупреждения -->
-            <Border Background="#FFF3E0" 
-                    Padding="10" 
-                    Margin="0,0,0,10"
-                    CornerRadius="5">
+            <Border Style="{StaticResource RehauWarningBlockStyle}"
+                    Margin="0,0,0,10">
                 <Border.Visibility>
                     <MultiBinding Converter="{StaticResource BooleanToVisibilityConverter}">
                         <Binding Path="SelectedCollector.Summary.Warnings" Converter="{StaticResource NullToVisibilityConverter}"/>
                     </MultiBinding>
                 </Border.Visibility>
                 <StackPanel>
-                    <TextBlock Text="Предупреждения" 
-                               FontWeight="Bold"
-                               Foreground="#E65100"
+                    <TextBlock Text="Предупреждения"
+                               Style="{StaticResource Text.CaptionBold}"
+                               Foreground="{DynamicResource RehauRedDarkBrush}"
                                Margin="0,0,0,5"/>
-                    
+
                     <ItemsControl ItemsSource="{Binding SelectedCollector.Summary.Warnings}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}" Style="{StaticResource WarningTextStyle}">
+                                <TextBlock Text="{Binding}" Style="{StaticResource RehauWarningTextStyle}">
                                     <TextBlock.Margin>
                                         <Thickness Left="10" Top="2" Right="0" Bottom="2"/>
                                     </TextBlock.Margin>
@@ -301,17 +287,15 @@
             </Border>
 
             <!-- Статус расчёта -->
-            <Border Background="#E8F5E9" 
-                    Padding="10" 
-                    CornerRadius="5"
+            <Border Style="{StaticResource RehauSuccessBlockStyle}"
                     Visibility="{Binding SelectedCollector.Summary.IsValid, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="✓ " 
-                               Foreground="#2E7D32"
+                    <TextBlock Text="✓ "
+                               Foreground="{DynamicResource RehauTealDarkBrush}"
                                FontWeight="Bold"
                                FontSize="14"/>
-                    <TextBlock Text="Расчёт выполнен успешно" 
-                               Style="{StaticResource SuccessTextStyle}"
+                    <TextBlock Text="Расчёт выполнен успешно"
+                               Style="{StaticResource RehauSuccessTextStyle}"
                                FontWeight="Bold"/>
                 </StackPanel>
             </Border>

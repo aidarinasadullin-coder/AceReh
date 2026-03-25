@@ -9,6 +9,15 @@ namespace SnowMeltingCalculator.Models.Hydraulics
     public class CircuitTemperatureResult
     {
         /// <summary>
+        /// Максимально допустимые удельные потери, Па/м
+        /// </summary>
+        /// <remarks>
+        /// Ограничение РЕХАУ: R ≤ 300 Па/м для рабочей температуры.
+        /// При холодном пуске удельные потери могут превышать 300 Па/м из-за повышенной вязкости.
+        /// </remarks>
+        public static readonly double MaxPressureLossPerMeter = 300.0;
+
+        /// <summary>
         /// Температура теплоносителя, °C
         /// </summary>
         public double Temperature { get; set; }
@@ -48,6 +57,15 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Удельные потери давления, Па/м
         /// </summary>
         public double PressureLossPerMeter { get; set; }
+
+        /// <summary>
+        /// Признак превышения удельных потерь (R > 300 Па/м)
+        /// </summary>
+        /// <remarks>
+        /// Проверка выполняется только для рабочей температуры.
+        /// При холодном пуске удельные потери могут превышать 300 Па/м из-за повышенной вязкости.
+        /// </remarks>
+        public bool IsPressureLossPerMeterExceeded => PressureLossPerMeter > MaxPressureLossPerMeter;
         
         #region Новые свойства для гидравлики (DpRohr, DpVerteiler, DpVent, DpGesamt)
         
@@ -295,8 +313,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
                 // Шаг_укладки в см, поэтому делим на 100 для получения площади в м²
                 if (PipeSpacing_cm > 0 && value > 0)
                 {
-                    _circuitArea = value * PipeSpacing_cm / 100.0;
-                    OnPropertyChanged(nameof(CircuitArea));
+                    CircuitArea = value * PipeSpacing_cm / 100.0;
                 }
             }
             finally
@@ -334,8 +351,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
                 // Шаг_укладки в см, поэтому умножаем на 100 для получения длины в м
                 if (PipeSpacing_cm > 0 && value > 0)
                 {
-                    _circuitLength = value * 100.0 / PipeSpacing_cm;
-                    OnPropertyChanged(nameof(CircuitLength));
+                    CircuitLength = value * 100.0 / PipeSpacing_cm;
                 }
             }
             finally
@@ -363,14 +379,12 @@ namespace SnowMeltingCalculator.Models.Hydraulics
                     if (IsLengthUserInput && CircuitLength > 0)
                     {
                         // Пользователь ввёл длину - пересчитать площадь
-                        _circuitArea = CircuitLength * value / 100.0;
-                        OnPropertyChanged(nameof(CircuitArea));
+                        CircuitArea = CircuitLength * value / 100.0;
                     }
                     else if (IsAreaUserInput && CircuitArea > 0)
                     {
                         // Пользователь ввёл площадь - пересчитать длину
-                        _circuitLength = CircuitArea * 100.0 / value;
-                        OnPropertyChanged(nameof(CircuitLength));
+                        CircuitLength = CircuitArea * 100.0 / value;
                     }
                 }
             }
@@ -398,8 +412,17 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Расход теплоносителя (V_dot), л/ч
         /// </summary>
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FlowRate_Ls))]
         private double _flowRate;
-        
+
+        /// <summary>
+        /// Расход теплоносителя в л/с (вычисляется из FlowRate)
+        /// </summary>
+        /// <remarks>
+        /// Формула: FlowRate_Ls = FlowRate / 3600
+        /// </remarks>
+        public double FlowRate_Ls => FlowRate / 3600.0;
+
         /// <summary>
         /// Скорость потока (v), м/с (вычисляется)
         /// </summary>
@@ -415,6 +438,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         [NotifyPropertyChangedFor(nameof(CurrentResult))]
         [NotifyPropertyChangedFor(nameof(FlowRegimeDescription))]
         [NotifyPropertyChangedFor(nameof(TotalLoss_mbar))]
+        [NotifyPropertyChangedFor(nameof(PressureLossWarning))]
         private CircuitTemperatureResult _operatingResult = new();
         
         // === Результаты при расчётной температуре ===
@@ -468,6 +492,18 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Признак активного контура
         /// </summary>
         public bool IsActive => CircuitLength > 0;
+
+        /// <summary>
+        /// Предупреждение о превышении удельных потерь (только для рабочей температуры)
+        /// </summary>
+        /// <remarks>
+        /// Проверка R ≤ 300 Па/м выполняется только для рабочей температуры.
+        /// При холодном пуске удельные потери могут превышать 300 Па/м из-за повышенной вязкости.
+        /// </remarks>
+        public string? PressureLossWarning =>
+            OperatingResult?.PressureLossPerMeter > CircuitTemperatureResult.MaxPressureLossPerMeter
+                ? $"Удельные потери {OperatingResult.PressureLossPerMeter:F0} Па/м > {CircuitTemperatureResult.MaxPressureLossPerMeter:F0} Па/м"
+                : null;
         
         // === Вычисляемые свойства для отображения ===
         
@@ -500,6 +536,6 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <summary>
         /// Получить результат в мбар для текущего режима
         /// </summary>
-        public double TotalLoss_mbar => CurrentResult.TotalLoss_mbar;
+        public double TotalLoss_mbar => CurrentResult.DpGesamt / 100.0;
     }
 }

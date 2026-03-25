@@ -367,16 +367,20 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// 2. Референсный контур получает максимальные обороты:
         ///    - HKV-D: 2.5 оборота
         ///    - IV: 8.0 оборотов
-        /// 3. Рассчитать дросселирование для каждого контура:
+        /// 3. Референсный контур имеет Throttling = 0 (не требует дросселирования)
+        /// 4. Рассчитать дросселирование для нереференсных контуров:
         ///    zu_drosseln = DpGesamt_max - DpGesamt_контур
-        /// 4. Для нереференсных контуров рассчитать Kv для дросселирования
-        /// 5. Рассчитать обороты по формуле umdreh1(Kv, type)
+        /// 5. Для нереференсных контуров рассчитать Kv для дросселирования
+        /// 6. Рассчитать обороты по формуле umdreh1(Kv, type)
         /// 
         /// Балансировка выполняется только для рабочей температуре.
         /// 
         /// Важно: Референсный контур — это контур с максимальным DpGesamt,
         /// а не с максимальными потерями в трубе. Это необходимо для корректной
         /// балансировки, так как DpGesamt включает все потери.
+        /// 
+        /// Важно: Референсный контур НЕ требует дросселирования (Throttling = 0),
+        /// так как он имеет максимальные потери и определяет требуемый напор насоса.
         /// </remarks>
         public List<CircuitRow> CalculateBalancing(List<CircuitRow> circuits, ValveType valveType)
         {
@@ -389,41 +393,43 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             if (activeCircuits.Count == 0)
                 return circuits;
 
-            // === ИЗМЕНЕНИЕ: Найти контур с МАКСИМАЛЬНЫМ DpGesamt (референсный) ===
+            // === ШАГ 1: Найти контур с МАКСИМАЛЬНЫМ DpGesamt (референсный) ===
             double maxDpGesamt = activeCircuits.Max(c => c.OperatingResult.DpGesamt);
 
-            // === ИЗМЕНЕНИЕ: Максимальные обороты для типа клапана ===
+            // === ШАГ 2: Максимальные обороты для типа клапана ===
             double maxTurns = ValveTurnsCalculator.GetMaxTurns(valveType);
 
-            // Рассчитать дросселирование для каждого контура
+            // === ШАГ 3: Определить референсный контур и рассчитать параметры ===
             foreach (var circuit in activeCircuits)
             {
                 double dpGesamt = circuit.OperatingResult.DpGesamt;
 
-                // === ИЗМЕНЕНИЕ: zu_drosseln зависит от типа клапана ===
-                if (valveType == ValveType.HKV_D)
-                {
-                    // HKV-D: zu_drosseln = DpGesamt_max - DpRohr - DpVent
-                    circuit.Throttling = maxDpGesamt - (circuit.OperatingResult.DpRohr + circuit.OperatingResult.DpVent);
-                }
-                else
-                {
-                    // IV: zu_drosseln = DpGesamt_max - DpRohr - DpVerteiler
-                    circuit.Throttling = maxDpGesamt - (circuit.OperatingResult.DpRohr + circuit.OperatingResult.DpVerteiler);
-                }
-
-                // === ИЗМЕНЕНИЕ: Референсный контур — контур с максимальным DpGesamt ===
+                // Определить, является ли контур референсным
                 circuit.IsReferenceCircuit = Math.Abs(dpGesamt - maxDpGesamt) < 0.01;
 
                 if (circuit.IsReferenceCircuit)
                 {
-                    // === ИЗМЕНЕНИЕ: Референсный контур получает МАКСИМАЛЬНЫЕ обороты ===
+                    // === ВАЖНО: Референсный контур НЕ требует дросселирования ===
+                    circuit.Throttling = 0;
                     circuit.ValveTurns = maxTurns;
                     circuit.ValveTurnsWarning = null;
                 }
                 else
                 {
-                    // Расчёт Kv для дросселирования
+                    // === ШАГ 4: Рассчитать дросселирование для нереференсных контуров ===
+                    // zu_drosseln зависит от типа клапана
+                    if (valveType == ValveType.HKV_D)
+                    {
+                        // HKV-D: zu_drosseln = DpGesamt_max - DpRohr - DpVent
+                        circuit.Throttling = maxDpGesamt - (circuit.OperatingResult.DpRohr + circuit.OperatingResult.DpVent);
+                    }
+                    else
+                    {
+                        // IV: zu_drosseln = DpGesamt_max - DpRohr - DpVerteiler
+                        circuit.Throttling = maxDpGesamt - (circuit.OperatingResult.DpRohr + circuit.OperatingResult.DpVerteiler);
+                    }
+
+                    // === ШАГ 5: Рассчитать Kv и обороты для дросселирования ===
                     double density_g_cm3 = circuit.OperatingResult.Density;
                     double kv = CalculateKvForThrottling(circuit.FlowRate, circuit.Throttling, density_g_cm3);
                     var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, valveType);
@@ -432,27 +438,36 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 }
             }
 
-            // Пересчитать потери на клапане при текущих оборотах
-            foreach (var circuit in activeCircuits)
+            // === ВАЖНО: DpVent для HKV-D НЕ пересчитывается, так как не зависит от Kv ===
+            // Для HKV-D: DpVent = 15000 × (ρ/2000) × v² — не зависит от Kv
+            // Для IV: DpVent = (V_dot/1000/Kv)² × 100000 × ρ/1000 — зависит от Kv
+            if (valveType != ValveType.HKV_D)
             {
-                // Рассчитать Kv для текущих оборотов
-                double kv = ValveTurnsCalculator.CalculateKvFromTurns(circuit.ValveTurns, valveType);
+                // Пересчитать потери на клапане при текущих оборотах ТОЛЬКО для IV
+                foreach (var circuit in activeCircuits)
+                {
+                    // Рассчитать Kv для текущих оборотов
+                    double kv = ValveTurnsCalculator.CalculateKvFromTurns(circuit.ValveTurns, valveType);
 
-                // Пересчитать потери на клапане
-                double density_g_cm3 = circuit.OperatingResult.Density;
+                    // === Рабочая температура ===
+                    double densityOperating = circuit.OperatingResult.Density;
+                    circuit.OperatingResult.DpVent = Math.Pow(circuit.FlowRate / 1000.0 / kv, 2) * 100000 * densityOperating;
 
-                // === ИЗМЕНЕНИЕ: Использовать DpVent вместо ValveLoss ===
-                // Примечание: DpVent уже рассчитан в CalculateAtTemperature
-                // Здесь мы пересчитываем DpVent для текущих оборотов
-                circuit.OperatingResult.DpVent = Math.Pow(circuit.FlowRate / 1000.0 / kv, 2) * 100000 * density_g_cm3;
-
-                // Обновить DpGesamt (вычисляется автоматически)
-                // DpGesamt = DpRohr + DpVerteiler + DpVent
-
-                // === УСТАРЕВШЕЕ: Обновить ValveLoss для обратной совместимости ===
 #pragma warning disable CS0618 // Type or member is obsolete
-                circuit.OperatingResult.ValveLoss = circuit.OperatingResult.DpVent;
+                    circuit.OperatingResult.ValveLoss = circuit.OperatingResult.DpVent;
 #pragma warning restore CS0618
+
+                    // === Расчётная температура (холодный пуск) ===
+                    if (circuit.DesignResult != null)
+                    {
+                        double densityDesign = circuit.DesignResult.Density;
+                        circuit.DesignResult.DpVent = Math.Pow(circuit.FlowRate / 1000.0 / kv, 2) * 100000 * densityDesign;
+
+#pragma warning disable CS0618 // Type or member is obsolete
+                        circuit.DesignResult.ValveLoss = circuit.DesignResult.DpVent;
+#pragma warning restore CS0618
+                    }
+                }
             }
 
             return circuits;
