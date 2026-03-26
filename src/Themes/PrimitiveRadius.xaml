@@ -1,0 +1,43 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ============================================ -->
+    <!-- RADIUS TOKENS (Primitive Layer) -->
+    <!-- Система скругления углов для дизайн-системы REHAU -->
+    <!-- ============================================ -->
+
+    <!-- Токены скругления -->
+    <CornerRadius x:Key="Radius.None">0</CornerRadius>
+    <CornerRadius x:Key="Radius.SM">4</CornerRadius>
+    <CornerRadius x:Key="Radius.MD">8</CornerRadius>
+    <CornerRadius x:Key="Radius.LG">12</CornerRadius>
+    <CornerRadius x:Key="Radius.XL">16</CornerRadius>
+    <CornerRadius x:Key="Radius.Full">999</CornerRadius>
+
+    <!-- Значения для использования в ControlTemplate -->
+    <system:Double x:Key="Radius.SM.Value">4</system:Double>
+    <system:Double x:Key="Radius.MD.Value">8</system:Double>
+    <system:Double x:Key="Radius.LG.Value">12</system:Double>
+    <system:Double x:Key="Radius.XL.Value">16</system:Double>
+    <system:Double x:Key="Radius.Full.Value">999</system:Double>
+
+    <!-- Специализированные скругления для компонентов -->
+    <CornerRadius x:Key="Radius.Button">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Card">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Input">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Modal">16</CornerRadius>
+    <CornerRadius x:Key="Radius.Tag">4</CornerRadius>
+    <CornerRadius x:Key="Radius.Avatar">999</CornerRadius>
+    <CornerRadius x:Key="Radius.Badge">999</CornerRadius>
+
+    <!-- Скругления для разных состояний -->
+    <CornerRadius x:Key="Radius.Button.Small">4</CornerRadius>
+    <CornerRadius x:Key="Radius.Button.Medium">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Button.Large">12</CornerRadius>
+
+    <!-- Скругления для панелей -->
+    <CornerRadius x:Key="Radius.Panel.Header">12,12,0,0</CornerRadius>
+    <CornerRadius x:Key="Radius.PanelFooter">0,0,12,12</CornerRadius>
+
+</ResourceDictionary>

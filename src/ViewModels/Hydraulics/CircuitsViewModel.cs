@@ -134,6 +134,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 if (SetProperty(ref _currentMode, value))
                 {
                     UpdateCircuitDisplayMode();
+                    // DpVent больше не нужно пересчитывать при переключении режима,
+                    // так как он уже рассчитан с дефолтным Kv в CalculateAtTemperature()
                 }
             }
         }
@@ -457,7 +459,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         {
             // Установить флаг выполнения расчёта
             _calculationStateService.SetHydraulicsCalculating();
-            
+
             try
             {
                 var collector = SelectedCollector;
@@ -477,14 +479,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     };
                 }
 
-                var kv = collector.ValveType switch
-                {
-                    ValveType.HKV_D => 1.2,
-                    ValveType.IV_1_25 => 1.45,
-                    ValveType.IV_1_5 => 1.5,
-                    _ => 1.2
-                };
-
                 var operatingTemp = input.OperatingTemperature;
                 var designTemp = _climateViewModel.AirTemperature;
 
@@ -497,6 +491,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 // Получить шаг укладки из ThermalViewModel (мм → см)
                 double pipeSpacing_cm = _thermalViewModel.PipeSpacing / 10.0;
 
+                // === ЭТАП 1: Рассчитать FlowRate для всех контуров (не зависит от kv) ===
                 foreach (var circuit in collector.Circuits)
                 {
                     if (circuit.CircuitLength <= 0) continue;
@@ -506,6 +501,33 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
                     var flowRate = _circuitsCalculator.CalculateFlowRate(power, input.DeltaT, glycolOperating.Density, glycolOperating.SpecificHeat);
                     circuit.FlowRate = flowRate;
+                }
+
+                // === ЭТАП 2: Вычислить summary для определения типа коллектора ===
+                var summary = _circuitsCalculator.CalculateCollectorSummary(
+                    new System.Collections.Generic.List<CircuitRow>(collector.Circuits),
+                    collector.CollectorNumber,
+                    collector.ValveType
+                );
+                collector.Summary = summary;
+
+                // === ЭТАП 3: Автоматический выбор типа коллектора по расходу ===
+                // ВАЖНО: Вызывается ДО вычисления kv, чтобы тип коллектора был правильным
+                AutoSelectCollectorType();
+
+                // === ЭТАП 4: Вычислить kv для правильного типа коллектора ===
+                var kv = collector.ValveType switch
+                {
+                    ValveType.HKV_D => 1.2,
+                    ValveType.IV_1_25 => 1.45,
+                    ValveType.IV_1_5 => 1.5,
+                    _ => 1.2
+                };
+
+                // === ЭТАП 5: Рассчитать OperatingResult и DesignResult с правильным kv ===
+                foreach (var circuit in collector.Circuits)
+                {
+                    if (circuit.CircuitLength <= 0) continue;
 
                     var operatingResult = _circuitsCalculator.CalculateAtTemperature(
                         circuit,
@@ -530,55 +552,19 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     circuit.DisplayMode = CurrentMode;
                 }
 
-                var summary = _circuitsCalculator.CalculateCollectorSummary(
+                // === ЭТАП 6: Обновить summary с новыми результатами ===
+                summary = _circuitsCalculator.CalculateCollectorSummary(
                     new System.Collections.Generic.List<CircuitRow>(collector.Circuits),
                     collector.CollectorNumber,
                     collector.ValveType
                 );
                 collector.Summary = summary;
 
-                // Автоматический выбор типа коллектора по расходу
-                AutoSelectCollectorType();
-
+                // === ЭТАП 7: Балансировка ===
                 _circuitsCalculator.CalculateBalancing(
                     new System.Collections.Generic.List<CircuitRow>(collector.Circuits),
                     collector.ValveType
                 );
-
-                // === Пересчёт DpVent с правильным kv после балансировки ===
-                // CalculateBalancing() вычисляет ValveTurns и обновляет DpVent для IV коллекторов
-                // Но OperatingResult и DesignResult были рассчитаны с kv по умолчанию
-                // Нужно пересчитать DpVent с kv из ValveTurns для текущего режима
-
-                foreach (var circuit in collector.Circuits)
-                {
-                    if (circuit.CircuitLength <= 0) continue;
-                    if (circuit.ValveTurns <= 0) continue; // Балансировка не выполнена
-
-                    // Вычислить kv из ValveTurns
-                    double kvFromTurns = ValveTurnsCalculator.CalculateKvFromTurns(circuit.ValveTurns, collector.ValveType);
-
-                    // Получить текущий результат (OperatingResult или DesignResult)
-                    var currentResult = CurrentMode == HydraulicMode.OperatingTemperature
-                        ? circuit.OperatingResult
-                        : circuit.DesignResult;
-
-                    if (currentResult == null) continue;
-
-                    // Пересчитать DpVent для IV коллекторов
-                    if (collector.ValveType != ValveType.HKV_D)
-                    {
-                        // DpVent = (V_dot/1000/Kv)² × 100000 × ρ/1000
-                        double flowRate = circuit.FlowRate;
-                        double density_g_cm3 = currentResult.Density / 1000.0; // кг/м³ → г/см³
-                        double dpVent = Math.Pow(flowRate / 1000.0 / kvFromTurns, 2) * 100000 * density_g_cm3;
-
-                        // Обновить DpVent в текущем результате
-                        currentResult.DpVent = dpVent;
-
-                        // DpGesamt пересчитается автоматически (свойство)
-                    }
-                }
 
                 foreach (var circuit in collector.Circuits)
                 {
@@ -630,9 +616,31 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             InputData.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(HydraulicInputData.SupplySpacing_cm))
+                {
                     OnPropertyChanged(nameof(SupplySpacing_cm));
+                    // Синхронизировать значения во всех контурах
+                    foreach (var collector in Collectors)
+                    {
+                        foreach (var circuit in collector.Circuits)
+                        {
+                            circuit.SupplySpacing_cm = InputData.SupplySpacing_cm;
+                        }
+                    }
+                    Calculate();
+                }
                 if (e.PropertyName == nameof(HydraulicInputData.SupplyHeatPercent))
+                {
                     OnPropertyChanged(nameof(SupplyHeatPercent));
+                    // Синхронизировать значения во всех контурах
+                    foreach (var collector in Collectors)
+                    {
+                        foreach (var circuit in collector.Circuits)
+                        {
+                            circuit.SupplyHeatPercent = InputData.SupplyHeatPercent;
+                        }
+                    }
+                    Calculate();
+                }
             };
 
             AddCollector();

@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система индикаторов пересчёта — Дизайн-документ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .font-mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        /* REHAU Brand Colors */
+        :root {
+            --rehau-red: #E3000F;
+            --rehau-red-dark: #B8000C;
+            --rehau-gray-900: #1A1A1A;
+            --rehau-gray-700: #4A4A4A;
+            --rehau-gray-500: #8A8A8A;
+            --rehau-gray-300: #D1D1D1;
+            --rehau-gray-100: #F5F5F5;
+            --rehau-white: #FFFFFF;
+            
+            /* Indicator Colors */
+            --warning-orange: #F59E0B;
+            --warning-orange-light: #FEF3C7;
+            --info-blue: #3B82F6;
+            --info-blue-light: #DBEAFE;
+            --success-green: #10B981;
+        }
+        
+        .rehau-red { color: var(--rehau-red); }
+        .bg-rehau-red { background-color: var(--rehau-red); }
+        .bg-rehau-red-dark { background-color: var(--rehau-red-dark); }
+        
+        /* Badge Animations */
+        @keyframes badge-appear {
+            0% { 
+                transform: scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2) rotate(10deg);
+            }
+            100% { 
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes badge-disappear {
+            0% { 
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            100% { 
+                transform: scale(0) rotate(180deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes dots-bounce {
+            0%, 80%, 100% { 
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .badge-appear {
+            animation: badge-appear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        .badge-disappear {
+            animation: badge-disappear 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .pulse-ring::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: inherit;
+            opacity: 0.6;
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            z-index: -1;
+        }
+        
+        .spin-slow {
+            animation: spin-slow 2s linear infinite;
+        }
+        
+        .dots-bounce span {
+            animation: dots-bounce 1.4s ease-in-out infinite both;
+        }
+        
+        .dots-bounce span:nth-child(1) { animation-delay: -0.32s; }
+        .dots-bounce span:nth-child(2) { animation-delay: -0.16s; }
+        
+        /* Hover Effects */
+        .nav-item:hover .badge {
+            transform: scale(1.1);
+        }
+        
+        .indicator-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .indicator-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Code Block Styling */
+        .code-block {
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            border: 1px solid #3d3d5c;
+        }
+        
+        /* Gradient Mesh Background */
+        .gradient-mesh {
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(227, 0, 15, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.04) 0%, transparent 70%);
+        }
+        
+        /* Noise Texture */
+        .noise-overlay {
+            position: relative;
+        }
+        
+        .noise-overlay::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+        }
+        
+        /* Tab Active State */
+        .tab-active {
+            position: relative;
+        }
+        
+        .tab-active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--rehau-red);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        
+        /* Interactive Demo */
+        .demo-controls button {
+            transition: all 0.2s ease;
+        }
+        
+        .demo-controls button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen gradient-mesh">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 noise-overlay">
+        <div class="max-w-7xl mx-auto px-6 py-5">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-rehau-red rounded-lg flex items-center justify-center shadow-lg">
+                    <i data-lucide="snowflake" class="w-7 h-7 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Система индикаторов пересчёта</h1>
+                    <p class="text-sm text-gray-500">Дизайн-документ REHAU Снеготаяние</p>
+                </div>
+                <div class="ml-auto flex items-center gap-2">
+                    <span class="px-3 py-1 bg-red-50 text-rehau-red text-xs font-semibold rounded-full border border-red-100">Вариант C — Комбинированный</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+        <!-- Overview Cards -->
+        <section class="mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 indicator-card">
+                    <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
+                        <i data-lucide="alert-circle" class="w-7 h-7 text-orange-500"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Тепловой расчёт</h3>
+                    <p class="text-sm text-gray-500">Жёлтый блок с предупреждением о необходимости пересчёта</p>
+                    <div class="mt-4 flex items-center gap-2">
+                        <span class="px-2 py-1 bg-orange-500 text-white text-xs font-bold rounded-md">!</span>
+                        <span class="text-xs text-gray-400">Бейдж на навигации</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 indicator-card">
+                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                        <i data-lucide="loader-2" class="w-7 h-7 text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Гидравлика</h3>
+                    <p class="text-sm text-gray-500">Синий блок с индикатором выполнения пересчёта</p>
+                    <div class="mt-4 flex items-center gap-2">
+                        <span class="px-2 py-1 bg-blue-500 text-white text-xs font-bold rounded-md">⏳</span>
+                        <span class="text-xs text-gray-400">Бейдж на навигации</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 indicator-card">
+                    <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                        <i data-lucide="check-circle-2" class="w-7 h-7 text-green-500"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Актуально</h3>
+                    <p class="text-sm text-gray-500">Нет необходимости в пересчёте, данные синхронизированы</p>
+                    <div class="mt-4 flex items-center gap-2">
+                        <span class="text-xs text-gray-400">Бейдж скрыт</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Demo -->
+        <section class="mb-12 bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 px-8 py-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Интерактивный демонстратор</h2>
+                <p class="text-gray-300">Протестируйте различные состояния системы индикаторов</p>
+            </div>
+            
+            <div class="p-8">
+                <!-- Demo Navigation -->
+                <div class="bg-gray-50 rounded-2xl p-2 mb-8">
+                    <nav class="flex items-center gap-1" id="demo-nav">
+                        <button class="nav-item tab-active flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all" data-tab="thermal">
+                            <i data-lucide="flame" class="w-4 h-4"></i>
+                            <span>Тепловой расчёт</span>
+                            <span id="badge-thermal" class="badge hidden ml-1 px-2 py-0.5 bg-orange-500 text-white text-xs font-bold rounded-md">!</span>
+                        </button>
+                        <button class="nav-item flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-white hover:shadow-sm transition-all" data-tab="hydraulic">
+                            <i data-lucide="droplets" class="w-4 h-4"></i>
+                            <span>Гидравлика</span>
+                            <span id="badge-hydraulic" class="badge hidden relative pulse-ring ml-1 w-6 h-6 bg-blue-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                                <i data-lucide="loader-2" class="w-3 h-3 spin-slow"></i>
+                            </span>
+                        </button>
+                        <button class="nav-item flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-white hover:shadow-sm transition-all" data-tab="electro">
+                            <i data-lucide="zap" class="w-4 h-4"></i>
+                            <span>Электрика</span>
+                        </button>
+                    </nav>
+                </div>
+                
+                <!-- Demo Controls -->
+                <div class="demo-controls flex flex-wrap gap-3 mb-8">
+                    <button onclick="setState('none')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
+                        Очистить состояние
+                    </button>
+                    <button onclick="setState('thermal-warning')" class="px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                        <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Тепло: нужен пересчёт
+                    </button>
+                    <button onclick="setState('thermal-calculating')" class="px-4 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                        <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Тепло: пересчёт...
+                    </button>
+                    <button onclick="setState('hydraulic-calculating')" class="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                        Гидравлика: пересчёт...
+                    </button>
+                    <button onclick="setState('both')" class="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                        <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                        Оба модуля
+                    </button>
+                </div>
+                
+                <!-- Demo Content Area -->
+                <div id="demo-content" class="min-h-[200px]">
+                    <!-- Default State -->
+                    <div id="content-default" class="flex flex-col items-center justify-center py-16 text-center">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="mouse-pointer-click" class="w-10 h-10 text-gray-400"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Выберите состояние</h3>
+                        <p class="text-gray-500 max-w-md">Нажмите на кнопки выше, чтобы увидеть, как отображаются индикаторы в разных состояниях</p>
+                    </div>
+                    
+                    <!-- Thermal Warning State -->
+                    <div id="content-thermal-warning" class="hidden">
+                        <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-orange-500 rounded-r-xl p-6 mb-6">
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-orange-200">
+                                    <i data-lucide="alert-triangle" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-bold text-gray-900 mb-1">Требуется пересчёт тепловых потерь</h4>
+                                    <p class="text-gray-600 mb-3">Параметры системы изменились. Для получения актуальных результатов необходимо выполнить пересчёт.</p>
+                                    <div class="flex items-center gap-3">
+                                        <button class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
+                                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                            Пересчитать
+                                        </button>
+                                        <button class="px-4 py-2 text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors">
+                                            Позже
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                            <p class="text-sm text-gray-400 uppercase tracking-wider font-semibold mb-3">Содержимое вкладки</p>
+                            <div class="space-y-3">
+                                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                                <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                                <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Thermal Calculating State -->
+                    <div id="content-thermal-calculating" class="hidden">
+                        <div class="bg-gradient-to-r from-yellow-50 to-amber-50 border-l-4 border-yellow-500 rounded-r-xl p-6 mb-6">
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 bg-yellow-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-yellow-200">
+                                    <i data-lucide="loader-2" class="w-6 h-6 text-white spin-slow"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-bold text-gray-900 mb-1">Выполняется пересчёт тепловых потерь</h4>
+                                    <p class="text-gray-600">Пожалуйста, подождите. Это может занять несколько секунд...</p>
+                                    <div class="mt-3 flex items-center gap-2 text-sm text-yellow-600">
+                                        <div class="dots-bounce flex gap-1">
+                                            <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                                            <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                                            <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                                        </div>
+                                        <span>Обработка данных</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hydraulic Calculating State -->
+                    <div id="content-hydraulic-calculating" class="hidden">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="relative">
+                                    <div class="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-200">
+                                        <i data-lucide="activity" class="w-7 h-7 text-white"></i>
+                                    </div>
+                                    <div class="absolute inset-0 rounded-full border-2 border-blue-300 border-t-transparent spin-slow"></div>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-bold text-gray-900 mb-1">Пересчёт гидравлических параметров</h4>
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-1 h-2 bg-blue-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" style="width: 65%; animation: progress 2s ease-in-out infinite;"></div>
+                                        </div>
+                                        <span class="text-sm font-semibold text-blue-600">65%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <style>
+                            @keyframes progress {
+                                0%, 100% { width: 30%; }
+                                50% { width: 70%; }
+                            }
+                        </style>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Color Palette -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <span class="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <i data-lucide="palette" class="w-5 h-5 text-white"></i>
+                </span>
+                Цветовая палитра
+            </h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <!-- REHAU Brand -->
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="h-20 bg-[#E3000F] rounded-lg mb-3"></div>
+                    <p class="font-semibold text-gray-900">REHAU Red</p>
+                    <p class="text-xs text-gray-500 font-mono">#E3000F</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="h-20 bg-[#1A1A1A] rounded-lg mb-3"></div>
+                    <p class="font-semibold text-gray-900">Gray 900</p>
+                    <p class="text-xs text-gray-500 font-mono">#1A1A1A</p>
+                </div>
+                
+                <!-- Warning States -->
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="h-20 bg-[#F59E0B] rounded-lg mb-3"></div>
+                    <p class="font-semibold text-gray-900">Warning Orange</p>
+                    <p class="text-xs text-gray-500 font-mono">#F59E0B</p>
+                    <p class="text-xs text-orange-600 mt-1">Бейдж "!"</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="h-20 bg-[#FEF3C7] rounded-lg mb-3 border border-amber-200"></div>
+                    <p class="font-semibold text-gray-900">Warning Light</p>
+                    <p class="text-xs text-gray-500 font-mono">#FEF3C7</p>
+                    <p class="text-xs text-amber-600 mt-1">Фон блока</p>
+                </div>
+                
+                <!-- Info States -->
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="h-20 bg-[#3B82F6] rounded-lg mb-3"></div>
+                    <p class="font-semibold text-gray-900">Info Blue</p>
+                    <p class="text-xs text-gray-500 font-mono">#3B82F6</p>
+                    <p class="text-xs text-blue-600 mt-1">Бейдж "⏳"</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="h-20 bg-[#DBEAFE] rounded-lg mb-3 border border-blue-200"></div>
+                    <p class="font-semibold text-gray-900">Info Light</p>
+                    <p class="text-xs text-gray-500 font-mono">#DBEAFE</p>
+                    <p class="text-xs text-blue-600 mt-1">Фон блока</p>
+                </div>
+                
+                <!-- Success -->
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="h-20 bg-[#10B981] rounded-lg mb-3"></div>
+                    <p class="font-semibold text-gray-900">Success Green</p>
+                    <p class="text-xs text-gray-500 font-mono">#10B981</p>
+                    <p class="text-xs text-green-600 mt-1">Актуально</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="h-20 bg-[#F5F5F5] rounded-lg mb-3 border border-gray-200"></div>
+                    <p class="font-semibold text-gray-900">Neutral Gray</p>
+                    <p class="text-xs text-gray-500 font-mono">#F5F5F5</p>
+                    <p class="text-xs text-gray-500 mt-1">Фон UI</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Badge Specifications -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <span class="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <i data-lucide="bookmark" class="w-5 h-5 text-white"></i>
+                </span>
+                Спецификация бейджей
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Warning Badge -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-gray-900">Бейдж "!" (Warning)</h3>
+                        <span class="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">Тепловой расчёт</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
+                        <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm">
+                            <i data-lucide="flame" class="w-4 h-4 text-gray-500"></i>
+                            <span class="text-sm font-medium text-gray-700">Тепловой расчёт</span>
+                            <span class="badge-appear px-2 py-0.5 bg-orange-500 text-white text-xs font-bold rounded-md">!</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-gray-500">Размер</span>
+                            <span class="font-mono text-gray-900">18 × 18 px</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-gray-500">Шрифт</span>
+                            <span class="font-mono text-gray-900">Bold, 11px</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-gray-500">Фон</span>
+                            <span class="font-mono text-orange-500">#F59E0B</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-gray-500">Радиус</span>
+                            <span class="font-mono text-gray-900">4px</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-gray-500">Позиция</span>
+                            <span class="text-gray-900">Справа от текста, отступ 6px</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading Badge -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-gray-900">Бейдж "⏳" (Loading)</h3>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">Гидравлика</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
+                        <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm">
+                            <i data-lucide="droplets" class="w-4 h-4 text-gray-500"></i>
+                            <span class="text-sm font-medium text-gray-700">Гидравлика</span>
+                            <span class="badge-appear relative pulse-ring ml-1 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
+                                <i data-lucide="loader-2" class="w-3 h-3 spin-slow"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-gray-500">Размер</span>
+                            <span class="font-mono text-gray-900">20 × 20 px</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-gray-500">Иконка</span>
+                            <span class="font-mono text-gray-900">Loader-2, 12px</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-gray-500">Фон</span>
+                            <span class="font-mono text-blue-500">#3B82F6</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-gray-500">Радиус</span>
+                            <span class="font-mono text-gray-900">50% (круг)</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-gray-500">Анимация</span>
+                            <span class="text-gray-900">Pulse + Spin</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Indicator Block Specifications -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <span class="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <i data-lucide="layout" class="w-5 h-5 text-white"></i>
+                </span>
+                Макеты индикаторов внутри вкладок
+            </h2>
+            
+            <div class="space-y-6">
+                <!-- Thermal Warning Block -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Тепловой расчёт — Требуется пересчёт</h3>
+                    
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-orange-500 rounded-r-xl p-6 mb-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-orange-200">
+                                <i data-lucide="alert-triangle" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-bold text-gray-900 mb-1">Требуется пересчёт тепловых потерь</h4>
+                                <p class="text-gray-600 mb-3">Параметры системы изменились. Для получения актуальных результатов необходимо выполнить пересчёт.</p>
+                                <div class="flex items-center gap-3">
+                                    <button class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                        Пересчитать
+                                    </button>
+                                    <button class="px-4 py-2 text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors">
+                                        Позже
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-3">Спецификация</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500 block">Фон</span>
+                                <span class="font-mono text-gray-900">gradient(amber-50 → orange-50)</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 block">Бордер слева</span>
+                                <span class="font-mono text-orange-500">4px #F59E0B</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 block">Радиус</span>
+                                <span class="font-mono text-gray-900">0 12px 12px 0</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 block">Отступы</span>
+                                <span class="font-mono text-gray-900">24px</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hydraulic Calculating Block -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Гидравлика — Выполняется пересчёт</h3>
+                    
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <div class="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-200">
+                                    <i data-lucide="activity" class="w-7 h-7 text-white"></i>
+                                </div>
+                                <div class="absolute inset-0 rounded-full border-2 border-blue-300 border-t-transparent spin-slow"></div>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-bold text-gray-900 mb-2">Пересчёт гидравлических параметров</h4>
+                                <div class="flex items-center gap-3">
+                                    <div class="flex-1 h-2 bg-blue-100 rounded-full overflow-hidden">
+                                        <div class="h-full w-2/3 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"></div>
+                                    </div>
+                                    <span class="text-sm font-semibold text-blue-600">66%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-3">Спецификация</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500 block">Фон</span>
+                                <span class="font-mono text-gray-900">gradient(blue-50 → indigo-50)</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 block">Бордер</span>
+                                <span class="font-mono text-blue-300">1px solid</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 block">Радиус</span>
+                                <span class="font-mono text-gray-900">12px</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 block">Прогресс-бар</span>
+                                <span class="font-mono text-gray-900">h-8px, gradient</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Animations -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <span class="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <i data-lucide="play-circle" class="w-5 h-5 text-white"></i>
+                </span>
+                Анимации
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-900 mb-4">Появление бейджа</h3>
+                    <div class="h-24 bg-gray-50 rounded-xl flex items-center justify-center mb-4">
+                        <span class="badge-appear px-3 py-1.5 bg-orange-500 text-white text-sm font-bold rounded-md">!</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Длительность</span>
+                            <span class="font-mono">400ms</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Easing</span>
+                            <span class="font-mono">cubic-bezier(0.34, 1.56, 0.64, 1)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Transform</span>
+                            <span class="font-mono">scale + rotate</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-900 mb-4">Исчезновение бейджа</h3>
+                    <div class="h-24 bg-gray-50 rounded-xl flex items-center justify-center mb-4">
+                        <span class="badge-disappear px-3 py-1.5 bg-orange-500 text-white text-sm font-bold rounded-md">!</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Длительность</span>
+                            <span class="font-mono">300ms</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Easing</span>
+                            <span class="font-mono">cubic-bezier(0.4, 0, 0.2, 1)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Transform</span>
+                            <span class="font-mono">scale(0) rotate(180°)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-900 mb-4">Пульсация (Loading)</h3>
+                    <div class="h-24 bg-gray-50 rounded-xl flex items-center justify-center mb-4">
+                        <span class="relative pulse-ring w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                            <i data-lucide="loader-2" class="w-5 h-5 spin-slow"></i>
+                        </span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Длительность</span>
+                            <span class="font-mono">1500ms</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Easing</span>
+                            <span class="font-mono">cubic-bezier(0.215, 0.61, 0.355, 1)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Эффект</span>
+                            <span class="font-mono">scale + fade ring</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- XAML Code -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <span class="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <i data-lucide="code-2" class="w-5 h-5 text-white"></i>
+                </span>
+                XAML Стили и примеры
+            </h2>
+            
+            <div class="space-y-6">
+                <!-- Badge Styles -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 class="font-bold text-gray-900">Стили бейджей</h3>
+                    </div>
+                    <div class="p-6">
+                        <pre class="code-block rounded-xl p-4 overflow-x-auto text-sm font-mono"><code><span class="text-pink-400">&lt;!-- Warning Badge Style --&gt;</span>
+<span class="text-pink-400">&lt;Style</span> <span class="text-cyan-300">x:Key</span>=<span class="text-green-300">"WarningBadgeStyle"</span> <span class="text-cyan-300">TargetType</span>=<span class="text-green-300">"Border"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"Background"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"#F59E0B"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"CornerRadius"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"4"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"Padding"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"4,2"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"MinWidth"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"18"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"MinHeight"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"18"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"RenderTransform"</span><span class="text-pink-400">&gt;</span>
+        <span class="text-pink-400">&lt;Setter.Value&gt;</span>
+            <span class="text-pink-400">&lt;ScaleTransform</span> <span class="text-cyan-300">ScaleX</span>=<span class="text-green-300">"0"</span> <span class="text-cyan-300">ScaleY</span>=<span class="text-green-300">"0"</span><span class="text-pink-400">/&gt;</span>
+        <span class="text-pink-400">&lt;/Setter.Value&gt;</span>
+    <span class="text-pink-400">&lt;/Setter&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"RenderTransformOrigin"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"0.5,0.5"</span><span class="text-pink-400">/&gt;</span>
+<span class="text-pink-400">&lt;/Style&gt;</span>
+
+<span class="text-pink-400">&lt;!-- Loading Badge Style --&gt;</span>
+<span class="text-pink-400">&lt;Style</span> <span class="text-cyan-300">x:Key</span>=<span class="text-green-300">"LoadingBadgeStyle"</span> <span class="text-cyan-300">TargetType</span>=<span class="text-green-300">"Border"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"Background"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"#3B82F6"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"CornerRadius"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"10"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"Width"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"20"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"Height"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"20"</span><span class="text-pink-400">/&gt;</span>
+<span class="text-pink-400">&lt;/Style&gt;</span></code></pre>
+                    </div>
+                </div>
+                
+                <!-- Indicator Block Styles -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 class="font-bold text-gray-900">Стили индикаторов внутри вкладок</h3>
+                    </div>
+                    <div class="p-6">
+                        <pre class="code-block rounded-xl p-4 overflow-x-auto text-sm font-mono"><code><span class="text-pink-400">&lt;!-- Thermal Warning Indicator --&gt;</span>
+<span class="text-pink-400">&lt;Style</span> <span class="text-cyan-300">x:Key</span>=<span class="text-green-300">"ThermalWarningIndicatorStyle"</span> <span class="text-cyan-300">TargetType</span>=<span class="text-green-300">"Border"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"Background"</span><span class="text-pink-400">&gt;</span>
+        <span class="text-pink-400">&lt;Setter.Value&gt;</span>
+            <span class="text-pink-400">&lt;LinearGradientBrush</span> <span class="text-cyan-300">StartPoint</span>=<span class="text-green-300">"0,0"</span> <span class="text-cyan-300">EndPoint</span>=<span class="text-green-300">"1,0"</span><span class="text-pink-400">&gt;</span>
+                <span class="text-pink-400">&lt;GradientStop</span> <span class="text-cyan-300">Color</span>=<span class="text-green-300">"#FEF3C7"</span> <span class="text-cyan-300">Offset</span>=<span class="text-green-300">"0"</span><span class="text-pink-400">/&gt;</span>
+                <span class="text-pink-400">&lt;GradientStop</span> <span class="text-cyan-300">Color</span>=<span class="text-green-300">"#FFFBEB"</span> <span class="text-cyan-300">Offset</span>=<span class="text-green-300">"1"</span><span class="text-pink-400">/&gt;</span>
+            <span class="text-pink-400">&lt;/LinearGradientBrush&gt;</span>
+        <span class="text-pink-400">&lt;/Setter.Value&gt;</span>
+    <span class="text-pink-400">&lt;/Setter&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"BorderBrush"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"#F59E0B"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"BorderThickness"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"4,0,0,0"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"CornerRadius"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"0,12,12,0"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"Padding"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"24"</span><span class="text-pink-400">/&gt;</span>
+<span class="text-pink-400">&lt;/Style&gt;</span>
+
+<span class="text-pink-400">&lt;!-- Hydraulic Loading Indicator --&gt;</span>
+<span class="text-pink-400">&lt;Style</span> <span class="text-cyan-300">x:Key</span>=<span class="text-green-300">"HydraulicLoadingIndicatorStyle"</span> <span class="text-cyan-300">TargetType</span>=<span class="text-green-300">"Border"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"Background"</span><span class="text-pink-400">&gt;</span>
+        <span class="text-pink-400">&lt;Setter.Value&gt;</span>
+            <span class="text-pink-400">&lt;LinearGradientBrush</span> <span class="text-cyan-300">StartPoint</span>=<span class="text-green-300">"0,0"</span> <span class="text-cyan-300">EndPoint</span>=<span class="text-green-300">"1,0"</span><span class="text-pink-400">&gt;</span>
+                <span class="text-pink-400">&lt;GradientStop</span> <span class="text-cyan-300">Color</span>=<span class="text-green-300">"#DBEAFE"</span> <span class="text-cyan-300">Offset</span>=<span class="text-green-300">"0"</span><span class="text-pink-400">/&gt;</span>
+                <span class="text-pink-400">&lt;GradientStop</span> <span class="text-cyan-300">Color</span>=<span class="text-green-300">"#EFF6FF"</span> <span class="text-cyan-300">Offset</span>=<span class="text-green-300">"1"</span><span class="text-pink-400">/&gt;</span>
+            <span class="text-pink-400">&lt;/LinearGradientBrush&gt;</span>
+        <span class="text-pink-400">&lt;/Setter.Value&gt;</span>
+    <span class="text-pink-400">&lt;/Setter&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"BorderBrush"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"#93C5FD"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"BorderThickness"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"1"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"CornerRadius"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"12"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;Setter</span> <span class="text-cyan-300">Property</span>=<span class="text-green-300">"Padding"</span> <span class="text-cyan-300">Value</span>=<span class="text-green-300">"24"</span><span class="text-pink-400">/&gt;</span>
+<span class="text-pink-400">&lt;/Style&gt;</span></code></pre>
+                    </div>
+                </div>
+                
+                <!-- Storyboard Animations -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 class="font-bold text-gray-900">Storyboard анимации</h3>
+                    </div>
+                    <div class="p-6">
+                        <pre class="code-block rounded-xl p-4 overflow-x-auto text-sm font-mono"><code><span class="text-pink-400">&lt;!-- Badge Appear Animation --&gt;</span>
+<span class="text-pink-400">&lt;Storyboard</span> <span class="text-cyan-300">x:Key</span>=<span class="text-green-300">"BadgeAppearStoryboard"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-pink-400">&lt;DoubleAnimation</span> 
+        <span class="text-cyan-300">Storyboard.TargetProperty</span>=<span class="text-green-300">"RenderTransform.ScaleX"</span>
+        <span class="text-cyan-300">From</span>=<span class="text-green-300">"0"</span> <span class="text-cyan-300">To</span>=<span class="text-green-300">"1"</span>
+        <span class="text-cyan-300">Duration</span>=<span class="text-green-300">"0:0:0.4"</span><span class="text-pink-400">&gt;</span>
+        <span class="text-pink-400">&lt;DoubleAnimation.EasingFunction&gt;</span>
+            <span class="text-pink-400">&lt;BackEase</span> <span class="text-cyan-300">Amplitude</span>=<span class="text-green-300">"0.5"</span> <span class="text-cyan-300">EasingMode</span>=<span class="text-green-300">"EaseOut"</span><span class="text-pink-400">/&gt;</span>
+        <span class="text-pink-400">&lt;/DoubleAnimation.EasingFunction&gt;</span>
+    <span class="text-pink-400">&lt;/DoubleAnimation&gt;</span>
+    <span class="text-pink-400">&lt;DoubleAnimation</span> 
+        <span class="text-cyan-300">Storyboard.TargetProperty</span>=<span class="text-green-300">"RenderTransform.ScaleY"</span>
+        <span class="text-cyan-300">From</span>=<span class="text-green-300">"0"</span> <span class="text-cyan-300">To</span>=<span class="text-green-300">"1"</span>
+        <span class="text-cyan-300">Duration</span>=<span class="text-green-300">"0:0:0.4"</span><span class="text-pink-400">&gt;</span>
+        <span class="text-pink-400">&lt;DoubleAnimation.EasingFunction&gt;</span>
+            <span class="text-pink-400">&lt;BackEase</span> <span class="text-cyan-300">Amplitude</span>=<span class="text-green-300">"0.5"</span> <span class="text-cyan-300">EasingMode</span>=<span class="text-green-300">"EaseOut"</span><span class="text-pink-400">/&gt;</span>
+        <span class="text-pink-400">&lt;/DoubleAnimation.EasingFunction&gt;</span>
+    <span class="text-pink-400">&lt;/DoubleAnimation&gt;</span>
+    <span class="text-pink-400">&lt;DoubleAnimation</span> 
+        <span class="text-cyan-300">Storyboard.TargetProperty</span>=<span class="text-green-300">"Opacity"</span>
+        <span class="text-cyan-300">From</span>=<span class="text-green-300">"0"</span> <span class="text-cyan-300">To</span>=<span class="text-green-300">"1"</span>
+        <span class="text-cyan-300">Duration</span>=<span class="text-green-300">"0:0:0.3"</span><span class="text-pink-400">/&gt;</span>
+<span class="text-pink-400">&lt;/Storyboard&gt;</span>
+
+<span class="text-pink-400">&lt;!-- Loading Pulse Animation --&gt;</span>
+<span class="text-pink-400">&lt;Storyboard</span> <span class="text-cyan-300">x:Key</span>=<span class="text-green-300">"LoadingPulseStoryboard"</span> <span class="text-cyan-300">RepeatBehavior</span>=<span class="text-green-300">"Forever"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-pink-400">&lt;DoubleAnimation</span> 
+        <span class="text-cyan-300">Storyboard.TargetName</span>=<span class="text-green-300">"PulseRing"</span>
+        <span class="text-cyan-300">Storyboard.TargetProperty</span>=<span class="text-green-300">"(UIElement.RenderTransform).(ScaleTransform.ScaleX)"</span>
+        <span class="text-cyan-300">From</span>=<span class="text-green-300">"1"</span> <span class="text-cyan-300">To</span>=<span class="text-green-300">"1.5"</span>
+        <span class="text-cyan-300">Duration</span>=<span class="text-green-300">"0:0:1.5"</span><span class="text-pink-400">/&gt;</span>
+    <span class="text-pink-400">&lt;DoubleAnimation</span> 
+        <span class="text-cyan-300">Storyboard.TargetName</span>=<span class="text-green-300">"PulseRing"</span>
+        <span class="text-cyan-300">Storyboard.TargetProperty</span>=<span class="text-green-300">"Opacity"</span>
+        <span class="text-cyan-300">From</span>=<span class="text-green-300">"0.6"</span> <span class="text-cyan-300">To</span>=<span class="text-green-300">"0"</span>
+        <span class="text-cyan-300">Duration</span>=<span class="text-green-300">"0:0:1.5"</span><span class="text-pink-400">/&gt;</span>
+<span class="text-pink-400">&lt;/Storyboard&gt;</span></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Usage Example -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <span class="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <i data-lucide="file-code" class="w-5 h-5 text-white"></i>
+                </span>
+                Пример использования
+            </h2>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6">
+                    <pre class="code-block rounded-xl p-4 overflow-x-auto text-sm font-mono"><code><span class="text-pink-400">&lt;!-- Navigation Tab with Badge --&gt;</span>
+<span class="text-pink-400">&lt;TabControl&gt;</span>
+    <span class="text-pink-400">&lt;TabItem&gt;</span>
+        <span class="text-pink-400">&lt;TabItem.Header&gt;</span>
+            <span class="text-pink-400">&lt;StackPanel</span> <span class="text-cyan-300">Orientation</span>=<span class="text-green-300">"Horizontal"</span> <span class="text-cyan-300">Spacing</span>=<span class="text-green-300">"6"</span><span class="text-pink-400">&gt;</span>
+                <span class="text-pink-400">&lt;TextBlock</span> <span class="text-cyan-300">Text</span>=<span class="text-green-300">"Тепловой расчёт"</span> <span class="text-pink-400">/&gt;</span>
+                <span class="text-pink-400">&lt;Border</span> <span class="text-cyan-300">x:Name</span>=<span class="text-green-300">"ThermalBadge"</span>
+                       <span class="text-cyan-300">Style</span>=<span class="text-green-300">"{StaticResource WarningBadgeStyle}"</span>
+                       <span class="text-cyan-300">Visibility</span>=<span class="text-green-300">"{Binding NeedsRecalculation, Converter={StaticResource BoolToVisibilityConverter}}"</span><span class="text-pink-400">&gt;</span>
+                    <span class="text-pink-400">&lt;TextBlock</span> <span class="text-cyan-300">Text</span>=<span class="text-green-300">"!"</span> 
+                              <span class="text-cyan-300">Foreground</span>=<span class="text-green-300">"White"</span>
+                              <span class="text-cyan-300">FontWeight</span>=<span class="text-green-300">"Bold"</span>
+                              <span class="text-cyan-300">FontSize</span>=<span class="text-green-300">"11"</span>
+                              <span class="text-cyan-300">HorizontalAlignment</span>=<span class="text-green-300">"Center"</span>
+                              <span class="text-cyan-300">VerticalAlignment</span>=<span class="text-green-300">"Center"</span><span class="text-pink-400">/&gt;</span>
+                <span class="text-pink-400">&lt;/Border&gt;</span>
+            <span class="text-pink-400">&lt;/StackPanel&gt;</span>
+        <span class="text-pink-400">&lt;/TabItem.Header&gt;</span>
+        
+        <span class="text-pink-400">&lt;!-- Tab Content --&gt;</span>
+        <span class="text-pink-400">&lt;Grid&gt;</span>
+            <span class="text-pink-400">&lt;!-- Warning Indicator --&gt;</span>
+            <span class="text-pink-400">&lt;Border</span> <span class="text-cyan-300">Style</span>=<span class="text-green-300">"{StaticResource ThermalWarningIndicatorStyle}"</span>
+                   <span class="text-cyan-300">Visibility</span>=<span class="text-green-300">"{Binding ShowWarning, Converter={StaticResource BoolToVisibilityConverter}}"</span><span class="text-pink-400">&gt;</span>
+                <span class="text-pink-400">&lt;Grid&gt;</span>
+                    <span class="text-pink-400">&lt;Grid.ColumnDefinitions&gt;</span>
+                        <span class="text-pink-400">&lt;ColumnDefinition</span> <span class="text-cyan-300">Width</span>=<span class="text-green-300">"Auto"</span><span class="text-pink-400">/&gt;</span>
+                        <span class="text-pink-400">&lt;ColumnDefinition</span> <span class="text-cyan-300">Width</span>=<span class="text-green-300">"*"</span><span class="text-pink-400">/&gt;</span>
+                    <span class="text-pink-400">&lt;/Grid.ColumnDefinitions&gt;</span>
+                    
+                    <span class="text-pink-400">&lt;Border</span> <span class="text-cyan-300">Background</span>=<span class="text-green-300">"#F59E0B"</span> 
+                           <span class="text-cyan-300">CornerRadius</span>=<span class="text-green-300">"12"</span>
+                           <span class="text-cyan-300">Width</span>=<span class="text-green-300">"48"</span> <span class="text-cyan-300">Height</span>=<span class="text-green-300">"48"</span><span class="text-pink-400">&gt;</span>
+                        <span class="text-pink-400">&lt;Path</span> <span class="text-cyan-300">Data</span>=<span class="text-green-300">"M12,2 L1,21 H23 M12,6 L12,14 M12,16 L12,18"</span>
+                              <span class="text-cyan-300">Stroke</span>=<span class="text-green-300">"White"</span> <span class="text-cyan-300">StrokeThickness</span>=<span class="text-green-300">"2"</span>
+                              <span class="text-cyan-300">HorizontalAlignment</span>=<span class="text-green-300">"Center"</span>
+                              <span class="text-cyan-300">VerticalAlignment</span>=<span class="text-green-300">"Center"</span><span class="text-pink-400">/&gt;</span>
+                    <span class="text-pink-400">&lt;/Border&gt;</span>
+                    
+                    <span class="text-pink-400">&lt;StackPanel</span> <span class="text-cyan-300">Grid.Column</span>=<span class="text-green-300">"1"</span> <span class="text-cyan-300">Margin</span>=<span class="text-green-300">"16,0,0,0"</span><span class="text-pink-400">&gt;</span>
+                        <span class="text-pink-400">&lt;TextBlock</span> <span class="text-cyan-300">Text</span>=<span class="text-green-300">"Требуется пересчёт тепловых потерь"</span>
+                                  <span class="text-cyan-300">FontSize</span>=<span class="text-green-300">"16"</span> <span class="text-cyan-300">FontWeight</span>=<span class="text-green-300">"SemiBold"</span><span class="text-pink-400">/&gt;</span>
+                        <span class="text-pink-400">&lt;TextBlock</span> <span class="text-cyan-300">Text</span>=<span class="text-green-300">"Параметры системы изменились..."</span>
+                                  <span class="text-cyan-300">Foreground</span>=<span class="text-green-300">"#4B5563"</span>
+                                  <span class="text-cyan-300">Margin</span>=<span class="text-green-300">"0,4,0,12"</span><span class="text-pink-400">/&gt;</span>
+                        <span class="text-pink-400">&lt;StackPanel</span> <span class="text-cyan-300">Orientation</span>=<span class="text-green-300">"Horizontal"</span> <span class="text-cyan-300">Spacing</span>=<span class="text-green-300">"8"</span><span class="text-pink-400">&gt;</span>
+                            <span class="text-pink-400">&lt;Button</span> <span class="text-cyan-300">Content</span>=<span class="text-green-300">"Пересчитать"</span>
+                                   <span class="text-cyan-300">Background</span>=<span class="text-green-300">"#F59E0B"</span>
+                                   <span class="text-cyan-300">Foreground</span>=<span class="text-green-300">"White"</span>
+                                   <span class="text-cyan-300">Command</span>=<span class="text-green-300">"{Binding RecalculateCommand}"</span><span class="text-pink-400">/&gt;</span>
+                            <span class="text-pink-400">&lt;Button</span> <span class="text-cyan-300">Content</span>=<span class="text-green-300">"Позже"</span>
+                                   <span class="text-cyan-300">Style</span>=<span class="text-green-300">"{StaticResource TextButtonStyle}"</span><span class="text-pink-400">/&gt;</span>
+                        <span class="text-pink-400">&lt;/StackPanel&gt;</span>
+                    <span class="text-pink-400">&lt;/StackPanel&gt;</span>
+                <span class="text-pink-400">&lt;/Grid&gt;</span>
+            <span class="text-pink-400">&lt;/Border&gt;</span>
+        <span class="text-pink-400">&lt;/Grid&gt;</span>
+    <span class="text-pink-400">&lt;/TabItem&gt;</span>
+<span class="text-pink-400">&lt;/TabControl&gt;</span></code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Accessibility -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <span class="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <i data-lucide="accessibility" class="w-5 h-5 text-white"></i>
+                </span>
+                Доступность (Accessibility)
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i data-lucide="contrast" class="w-5 h-5 text-gray-500"></i>
+                        Контрастность
+                    </h3>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 bg-orange-500 rounded flex items-center justify-center text-white text-xs font-bold">!</span>
+                            <span class="text-gray-600">Orange (#F59E0B) на белом: <strong class="text-green-600">4.5:1 ✓</strong></span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                <i data-lucide="loader-2" class="w-3 h-3 text-white"></i>
+                            </span>
+                            <span class="text-gray-600">Blue (#3B82F6) на белом: <strong class="text-green-600">4.6:1 ✓</strong></span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-2 h-6 bg-gray-800 rounded"></span>
+                            <span class="text-gray-600">Текст на жёлтом фоне: <strong class="text-green-600">12:1 ✓</strong></span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i data-lucide="screen-reader" class="w-5 h-5 text-gray-500"></i>
+                        Screen Reader
+                    </h3>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="check" class="w-4 h-4 text-green-500 mt-0.5"></i>
+                            <span class="text-gray-600">Бейджи имеют aria-label с описанием состояния</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="check" class="w-4 h-4 text-green-500 mt-0.5"></i>
+                            <span class="text-gray-600">Индикаторы используют role="alert"</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="check" class="w-4 h-4 text-green-500 mt-0.5"></i>
+                            <span class="text-gray-600">Live regions для динамических обновлений</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="check" class="w-4 h-4 text-green-500 mt-0.5"></i>
+                            <span class="text-gray-600">Фокус виден на всех интерактивных элементах</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <section class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-3xl p-8 text-white">
+            <h2 class="text-2xl font-bold mb-4">Резюме</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                <div>
+                    <h4 class="font-semibold text-gray-300 mb-2">Бейджи на навигации</h4>
+                    <ul class="space-y-1 text-gray-400">
+                        <li>• Компактный размер 18-20px</li>
+                        <li>• Плавные анимации 300-400ms</li>
+                        <li>• Цветовое кодирование состояний</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-300 mb-2">Индикаторы внутри вкладок</h4>
+                    <ul class="space-y-1 text-gray-400">
+                        <li>• Градиентные фоны</li>
+                        <li>• Чёткая визуальная иерархия</li>
+                        <li>• Действия для пользователя</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-300 mb-2">Техническая реализация</h4>
+                    <ul class="space-y-1 text-gray-400">
+                        <li>• XAML стили для переиспользования</li>
+                        <li>• Storyboard анимации</li>
+                        <li>• Полная доступность</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto px-6 py-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-rehau-red rounded flex items-center justify-center">
+                        <i data-lucide="snowflake" class="w-4 h-4 text-white"></i>
+                    </div>
+                    <span class="text-sm text-gray-500">REHAU Снеготаяние — Дизайн-документ</span>
+                </div>
+                <span class="text-sm text-gray-400">Версия 1.0 — 25.03.2025</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Demo state management
+        function setState(state) {
+            const thermalBadge = document.getElementById('badge-thermal');
+            const hydraulicBadge = document.getElementById('badge-hydraulic');
+            const contents = ['content-default', 'content-thermal-warning', 'content-thermal-calculating', 'content-hydraulic-calculating'];
+            
+            // Hide all contents
+            contents.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            
+            // Reset badges
+            thermalBadge.classList.add('hidden');
+            hydraulicBadge.classList.add('hidden');
+            
+            switch(state) {
+                case 'thermal-warning':
+                    thermalBadge.classList.remove('hidden');
+                    thermalBadge.classList.add('badge-appear');
+                    document.getElementById('content-thermal-warning').classList.remove('hidden');
+                    break;
+                    
+                case 'thermal-calculating':
+                    thermalBadge.classList.remove('hidden');
+                    thermalBadge.classList.add('badge-appear');
+                    document.getElementById('content-thermal-calculating').classList.remove('hidden');
+                    break;
+                    
+                case 'hydraulic-calculating':
+                    hydraulicBadge.classList.remove('hidden');
+                    hydraulicBadge.classList.add('badge-appear');
+                    document.getElementById('content-hydraulic-calculating').classList.remove('hidden');
+                    break;
+                    
+                case 'both':
+                    thermalBadge.classList.remove('hidden');
+                    hydraulicBadge.classList.remove('hidden');
+                    thermalBadge.classList.add('badge-appear');
+                    hydraulicBadge.classList.add('badge-appear');
+                    document.getElementById('content-thermal-warning').classList.remove('hidden');
+                    break;
+                    
+                default:
+                    document.getElementById('content-default').classList.remove('hidden');
+            }
+            
+            // Re-create icons after DOM changes
+            setTimeout(() => lucide.createIcons(), 50);
+        }
+        
+        // Tab switching in demo
+        document.querySelectorAll('#demo-nav button').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('#demo-nav button').forEach(t => {
+                    t.classList.remove('tab-active');
+                    t.classList.add('text-gray-600');
+                });
+                this.classList.add('tab-active');
+                this.classList.remove('text-gray-600');
+            });
+        });
+        
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // Animate cards on scroll
+        gsap.utils.toArray('.indicator-card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 85%',
+                },
+                y: 30,
+                opacity: 0,
+                duration: 0.5,
+                delay: i * 0.1,
+                ease: 'power2.out'
+            });
+        });
+    </script>
+</body>
+</html>

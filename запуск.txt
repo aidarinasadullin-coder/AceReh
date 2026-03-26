@@ -1,5 +1,0 @@
-cd /mnt/d/IA/ACE
-opencode
-
-cd "D:\IA\ace"
-dotnet run --project src\SnowMeltingCalculator.csproj
