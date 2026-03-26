@@ -1,0 +1,67 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ============================================ -->
+    <!-- SPACING TOKENS (Primitive Layer) -->
+    <!-- Система отступов для дизайн-системы REHAU -->
+    <!-- ============================================ -->
+
+    <!-- Базовая единица: 4px -->
+    <system:Double x:Key="Spacing.Base">4</system:Double>
+
+    <!-- Токены отступов -->
+    <system:Double x:Key="Spacing.XXS">4</system:Double>    <!-- Extra Extra Small -->
+    <system:Double x:Key="Spacing.XS">8</system:Double>     <!-- Extra Small -->
+    <system:Double x:Key="Spacing.SM">12</system:Double>    <!-- Small -->
+    <system:Double x:Key="Spacing.MD">16</system:Double>    <!-- Medium -->
+    <system:Double x:Key="Spacing.LG">24</system:Double>    <!-- Large -->
+    <system:Double x:Key="Spacing.XL">32</system:Double>    <!-- Extra Large -->
+    <system:Double x:Key="Spacing.XXL">48</system:Double>   <!-- Extra Extra Large -->
+    <system:Double x:Key="Spacing.XXXL">64</system:Double>  <!-- Extra Extra Extra Large -->
+
+    <!-- Thickness для использования в Margin/Padding -->
+    <Thickness x:Key="Spacing.XXS.Thickness">4</Thickness>
+    <Thickness x:Key="Spacing.XS.Thickness">8</Thickness>
+    <Thickness x:Key="Spacing.SM.Thickness">12</Thickness>
+    <Thickness x:Key="Spacing.MD.Thickness">16</Thickness>
+    <Thickness x:Key="Spacing.LG.Thickness">24</Thickness>
+    <Thickness x:Key="Spacing.XL.Thickness">32</Thickness>
+    <Thickness x:Key="Spacing.XXL.Thickness">48</Thickness>
+    <Thickness x:Key="Spacing.XXXL.Thickness">64</Thickness>
+
+    <!-- Горизонтальные отступы -->
+    <Thickness x:Key="Spacing.XXS.Horizontal">4,0,4,0</Thickness>
+    <Thickness x:Key="Spacing.XS.Horizontal">8,0,8,0</Thickness>
+    <Thickness x:Key="Spacing.SM.Horizontal">12,0,12,0</Thickness>
+    <Thickness x:Key="Spacing.MD.Horizontal">16,0,16,0</Thickness>
+    <Thickness x:Key="Spacing.LG.Horizontal">24,0,24,0</Thickness>
+    <Thickness x:Key="Spacing.XL.Horizontal">32,0,32,0</Thickness>
+
+    <!-- Вертикальные отступы -->
+    <Thickness x:Key="Spacing.XXS.Vertical">0,4,0,4</Thickness>
+    <Thickness x:Key="Spacing.XS.Vertical">0,8,0,8</Thickness>
+    <Thickness x:Key="Spacing.SM.Vertical">0,12,0,12</Thickness>
+    <Thickness x:Key="Spacing.MD.Vertical">0,16,0,16</Thickness>
+    <Thickness x:Key="Spacing.LG.Vertical">0,24,0,24</Thickness>
+    <Thickness x:Key="Spacing.XL.Vertical">0,32,0,32</Thickness>
+
+    <!-- Стандартные отступы для карточек -->
+    <Thickness x:Key="Spacing.Card.Padding">16</Thickness>
+    <Thickness x:Key="Spacing.Card.Margin">8</Thickness>
+
+    <!-- Стандартные отступы для контента -->
+    <Thickness x:Key="Spacing.Content.Padding">24</Thickness>
+    <Thickness x:Key="Spacing.Section.Margin">0,0,0,24</Thickness>
+
+    <!-- GridLength для использования в Grid -->
+    <GridLength x:Key="Spacing.XXS.Grid">4</GridLength>
+    <GridLength x:Key="Spacing.XS.Grid">8</GridLength>
+    <GridLength x:Key="Spacing.SM.Grid">12</GridLength>
+    <GridLength x:Key="Spacing.MD.Grid">16</GridLength>
+    <GridLength x:Key="Spacing.LG.Grid">24</GridLength>
+    <GridLength x:Key="Spacing.XL.Grid">32</GridLength>
+    <GridLength x:Key="Spacing.XXL.Grid">48</GridLength>
+    <GridLength x:Key="Spacing.XXXL.Grid">64</GridLength>
+
+</ResourceDictionary>

@@ -483,17 +483,6 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         private string? _valveTurnsWarning;
 
         /// <summary>
-        /// Kv из ValveTurns (для корректного расчёта DpVent)
-        /// </summary>
-        /// <remarks>
-        /// Сохраняется после балансировки для использования при пересчёте
-        /// при переключении режимов (рабочая/расчётная температура).
-        /// Если 0 — используется kv по умолчанию для типа клапана.
-        /// </remarks>
-        [ObservableProperty]
-        private double _kvFromValveTurns;
-
-        /// <summary>
         /// Признак референсного контура (с максимальными потерями)
         /// </summary>
         [ObservableProperty]
@@ -532,7 +521,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// </summary>
         public CircuitTemperatureResult CurrentResult => 
             DisplayMode == HydraulicMode.DesignTemperature ? DesignResult : OperatingResult;
-        
+
         /// <summary>
         /// Описание режима течения для текущего режима
         /// </summary>
