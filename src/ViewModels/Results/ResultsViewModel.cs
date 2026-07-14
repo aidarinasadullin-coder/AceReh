@@ -1606,7 +1606,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             // Принудительно вызываем пересчёт гидравлики, т.к. PropertyChanged может не сработать
             if (_thermalViewModel.Result?.IsValid == true)
             {
-                _circuitsViewModel.UpdateFromThermalModule();
+                _circuitsViewModel.UpdateFromThermalModule(_thermalViewModel.Result, _thermalViewModel.SelectedPipe);
             }
 
             // Восстанавливаем результаты контуров из сохранённых данных
