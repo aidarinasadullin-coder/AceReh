@@ -551,11 +551,11 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act
             var ethyleneProps = service.GetProperties(GlycolType.Ethylene, 50, 37.8);
             var propyleneProps = service.GetProperties(GlycolType.Propylene, 50, 37.8);
-            
+
             // Assert
             Assert.That(ethyleneProps.Density, Is.GreaterThan(0), "Этиленгликоль: плотность должна быть > 0");
             Assert.That(propyleneProps.Density, Is.GreaterThan(0), "Пропиленгликоль: плотность должна быть > 0");
@@ -568,19 +568,19 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var service = new GlycolDataService("data/glycol_data.json");
             double concentration = 50;
             double temperature = 37.8; // Температура ASHRAE
-            
+
             // Act
             var ethylene = service.GetProperties(GlycolType.Ethylene, concentration, temperature);
             var propylene = service.GetProperties(GlycolType.Propylene, concentration, temperature);
-            
+
             // Assert
             // Этиленгликоль при 50% и 37.8°C: ~1086.6 кг/м³ (из JSON)
             // Пропиленгликоль при 50% и 37.8°C: ~1037 кг/м³ (из JSON)
-            Assert.That(ethylene.Density, Is.GreaterThan(1080).And.LessThan(1095), 
+            Assert.That(ethylene.Density, Is.GreaterThan(1080).And.LessThan(1095),
                 $"Этиленгликоль: плотность должна быть 1080-1095 кг/м³, получено {ethylene.Density}");
-            Assert.That(propylene.Density, Is.GreaterThan(1030).And.LessThan(1045), 
+            Assert.That(propylene.Density, Is.GreaterThan(1030).And.LessThan(1045),
                 $"Пропиленгликоль: плотность должна быть 1030-1045 кг/м³, получено {propylene.Density}");
-            Assert.That(Math.Abs(ethylene.Density - propylene.Density), Is.GreaterThan(40), 
+            Assert.That(Math.Abs(ethylene.Density - propylene.Density), Is.GreaterThan(40),
                 "Плотности должны различаться минимум на 40 кг/м³");
         }
 
@@ -591,19 +591,19 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var service = new GlycolDataService("data/glycol_data.json");
             double concentration = 50;
             double temperature = 37.8; // Температура ASHRAE
-            
+
             // Act
             var ethylene = service.GetProperties(GlycolType.Ethylene, concentration, temperature);
             var propylene = service.GetProperties(GlycolType.Propylene, concentration, temperature);
-            
+
             // Assert
             // Этиленгликоль при 50% и 37.8°C: ~1.3 мм²/с (из JSON)
             // Пропиленгликоль при 50% и 37.8°C: ~4.19 мм²/с (из JSON)
-            Assert.That(propylene.KinematicViscosity, Is.GreaterThan(ethylene.KinematicViscosity), 
+            Assert.That(propylene.KinematicViscosity, Is.GreaterThan(ethylene.KinematicViscosity),
                 "Пропиленгликоль должен иметь более высокую вязкость");
             // Разница должна быть значительной (минимум 200%)
             double ratio = propylene.KinematicViscosity / ethylene.KinematicViscosity;
-            Assert.That(ratio, Is.GreaterThan(2.0), 
+            Assert.That(ratio, Is.GreaterThan(2.0),
                 $"Отношение вязкостей должно быть > 2.0, получено {ratio:F2}");
         }
 
@@ -614,21 +614,21 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var service = new GlycolDataService("data/glycol_data.json");
             double concentration = 50;
             double temperature = 37.8; // Температура ASHRAE
-            
+
             // Act
             var ethylene = service.GetProperties(GlycolType.Ethylene, concentration, temperature);
             var propylene = service.GetProperties(GlycolType.Propylene, concentration, temperature);
-            
+
             // Assert
             // Этиленгликоль при 50% и 37.8°C: ~4.05 кДж/(кг·К) (из JSON)
             // Пропиленгликоль при 50% и 37.8°C: ~3.90 кДж/(кг·К) (из JSON)
             // Проверяем, что значения в разумных пределах
-            Assert.That(ethylene.SpecificHeat, Is.GreaterThan(3.5).And.LessThan(4.5), 
+            Assert.That(ethylene.SpecificHeat, Is.GreaterThan(3.5).And.LessThan(4.5),
                 $"Этиленгликоль: теплоёмкость должна быть 3.5-4.5 кДж/(кг·К), получено {ethylene.SpecificHeat}");
-            Assert.That(propylene.SpecificHeat, Is.GreaterThan(3.5).And.LessThan(4.5), 
+            Assert.That(propylene.SpecificHeat, Is.GreaterThan(3.5).And.LessThan(4.5),
                 $"Пропиленгликоль: теплоёмкость должна быть 3.5-4.5 кДж/(кг·К), получено {propylene.SpecificHeat}");
             // Проверяем, что значения различаются
-            Assert.That(Math.Abs(ethylene.SpecificHeat - propylene.SpecificHeat), Is.GreaterThan(0.05), 
+            Assert.That(Math.Abs(ethylene.SpecificHeat - propylene.SpecificHeat), Is.GreaterThan(0.05),
                 "Теплоёмкости должны различаться");
         }
 
@@ -637,15 +637,15 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("non_existent_file.json"); // Файл не существует
-            
+
             // Act
             var ethylene = service.GetProperties(GlycolType.Ethylene, 50, 37.8);
             var propylene = service.GetProperties(GlycolType.Propylene, 50, 37.8);
-            
+
             // Assert - даже fallback данные должны различаться
-            Assert.That(ethylene.Density, Is.Not.EqualTo(propylene.Density), 
+            Assert.That(ethylene.Density, Is.Not.EqualTo(propylene.Density),
                 "Fallback плотность должна различаться для разных гликолей");
-            Assert.That(ethylene.KinematicViscosity, Is.Not.EqualTo(propylene.KinematicViscosity), 
+            Assert.That(ethylene.KinematicViscosity, Is.Not.EqualTo(propylene.KinematicViscosity),
                 "Fallback вязкость должна различаться для разных гликолей");
         }
 
@@ -654,21 +654,21 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act
             var props = service.GetProperties(GlycolType.Ethylene, 50, 37.8);
-            
+
             // Assert - проверка по данным ASHRAE из JSON
             // При 50% концентрации и 37.8°C:
             // Плотность: ~1086.6 кг/м³ (интерполяция между 32.2 и 43.3)
             // Вязкость: ~1.3 мм²/с
             // Теплоёмкость: ~4.05 кДж/(кг·К)
-            Assert.That(props.Density, Is.GreaterThan(1080).And.LessThan(1095), 
+            Assert.That(props.Density, Is.GreaterThan(1080).And.LessThan(1095),
                 $"Плотность этиленгликоля 50% при 37.8°C должна быть ~1086.6 кг/м³, получено {props.Density}");
             // Вязкость при 37.8°C интерполируется между 32.2 и 43.3
-            Assert.That(props.KinematicViscosity, Is.GreaterThan(1.0).And.LessThan(2.5), 
+            Assert.That(props.KinematicViscosity, Is.GreaterThan(1.0).And.LessThan(2.5),
                 $"Вязкость этиленгликоля 50% при 37.8°C должна быть ~1.3-2.0 мм²/с, получено {props.KinematicViscosity}");
-            Assert.That(props.SpecificHeat, Is.GreaterThan(3.5).And.LessThan(4.5), 
+            Assert.That(props.SpecificHeat, Is.GreaterThan(3.5).And.LessThan(4.5),
                 $"Теплоёмкость этиленгликоля 50% при 37.8°C должна быть ~4.05 кДж/(кг·К), получено {props.SpecificHeat}");
         }
 
@@ -677,21 +677,21 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act
             var props = service.GetProperties(GlycolType.Propylene, 50, 37.8);
-            
+
             // Assert - проверка по данным ASHRAE из JSON
             // При 50% концентрации и 37.8°C:
             // Плотность: ~1037 кг/м³
             // Вязкость: ~4.19 мм²/с
             // Теплоёмкость: ~3.90 кДж/(кг·К)
-            Assert.That(props.Density, Is.GreaterThan(1030).And.LessThan(1045), 
+            Assert.That(props.Density, Is.GreaterThan(1030).And.LessThan(1045),
                 $"Плотность пропиленгликоля 50% при 37.8°C должна быть ~1037 кг/м³, получено {props.Density}");
             // Вязкость при 37.8°C интерполируется между 32.2 и 43.3
-            Assert.That(props.KinematicViscosity, Is.GreaterThan(3.0).And.LessThan(7.0), 
+            Assert.That(props.KinematicViscosity, Is.GreaterThan(3.0).And.LessThan(7.0),
                 $"Вязкость пропиленгликоля 50% при 37.8°C должна быть ~4-6 мм²/с, получено {props.KinematicViscosity}");
-            Assert.That(props.SpecificHeat, Is.GreaterThan(3.5).And.LessThan(4.5), 
+            Assert.That(props.SpecificHeat, Is.GreaterThan(3.5).And.LessThan(4.5),
                 $"Теплоёмкость пропиленгликоля 50% при 37.8°C должна быть ~3.90 кДж/(кг·К), получено {props.SpecificHeat}");
         }
 
@@ -700,17 +700,17 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act - используем точки данных ASHRAE для проверки
             // Плотность уменьшается с ростом температуры
             var props15 = service.GetProperties(GlycolType.Ethylene, 50, 15.6);
             var props32 = service.GetProperties(GlycolType.Ethylene, 50, 32.2);
             var props48 = service.GetProperties(GlycolType.Ethylene, 50, 48.9);
-            
+
             // Assert - плотность должна уменьшаться с ростом температуры
-            Assert.That(props15.Density, Is.GreaterThan(props32.Density), 
+            Assert.That(props15.Density, Is.GreaterThan(props32.Density),
                 "Плотность при 15.6°C должна быть выше, чем при 32.2°C");
-            Assert.That(props32.Density, Is.GreaterThan(props48.Density), 
+            Assert.That(props32.Density, Is.GreaterThan(props48.Density),
                 "Плотность при 32.2°C должна быть выше, чем при 48.9°C");
         }
 
@@ -730,16 +730,16 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
             // Assert - свойства воды при 20°C
             // Плотность воды ≈ 998 кг/м³
-            Assert.That(properties.Density, Is.GreaterThan(990).And.LessThan(1010), 
+            Assert.That(properties.Density, Is.GreaterThan(990).And.LessThan(1010),
                 $"Плотность воды при 20°C должна быть ~998 кг/м³, получено {properties.Density}");
             // Вязкость воды ≈ 1.0 мм²/с
-            Assert.That(properties.KinematicViscosity, Is.GreaterThan(0.5).And.LessThan(2.0), 
+            Assert.That(properties.KinematicViscosity, Is.GreaterThan(0.5).And.LessThan(2.0),
                 $"Вязкость воды при 20°C должна быть ~1.0 мм²/с, получено {properties.KinematicViscosity}");
             // Теплоёмкость воды ≈ 4.18 кДж/(кг·К)
-            Assert.That(properties.SpecificHeat, Is.GreaterThan(4.0).And.LessThan(4.5), 
+            Assert.That(properties.SpecificHeat, Is.GreaterThan(4.0).And.LessThan(4.5),
                 $"Теплоёмкость воды должна быть ~4.18 кДж/(кг·К), получено {properties.SpecificHeat}");
             // Теплопроводность воды ≈ 0.6 Вт/(м·К)
-            Assert.That(properties.ThermalConductivity, Is.GreaterThan(0.5).And.LessThan(0.7), 
+            Assert.That(properties.ThermalConductivity, Is.GreaterThan(0.5).And.LessThan(0.7),
                 $"Теплопроводность воды при 20°C должна быть ~0.57 Вт/(м·К), получено {properties.ThermalConductivity}");
             // Концентрация должна быть 0
             Assert.That(properties.Concentration, Is.EqualTo(0));
@@ -749,31 +749,31 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void GetWaterProperties_TemperatureRange_ValidProperties()
         {
             // Arrange & Act & Assert - проверяем свойства воды в диапазоне температур
-            
+
             // При 0°C
             var props0 = _service.GetWaterProperties(0);
-            Assert.That(props0.Density, Is.GreaterThan(990).And.LessThan(1010), 
+            Assert.That(props0.Density, Is.GreaterThan(990).And.LessThan(1010),
                 $"Плотность воды при 0°C должна быть ~999.8 кг/м³, получено {props0.Density}");
-            
+
             // При 20°C
             var props20 = _service.GetWaterProperties(20);
-            Assert.That(props20.Density, Is.GreaterThan(990).And.LessThan(1010), 
+            Assert.That(props20.Density, Is.GreaterThan(990).And.LessThan(1010),
                 $"Плотность воды при 20°C должна быть ~998 кг/м³, получено {props20.Density}");
-            
+
             // При 50°C
             var props50 = _service.GetWaterProperties(50);
-            Assert.That(props50.Density, Is.GreaterThan(980).And.LessThan(1000), 
+            Assert.That(props50.Density, Is.GreaterThan(980).And.LessThan(1000),
                 $"Плотность воды при 50°C должна быть ~988 кг/м³, получено {props50.Density}");
-            
+
             // При 90°C (максимальная температура)
             var props90 = _service.GetWaterProperties(90);
-            Assert.That(props90.Density, Is.GreaterThan(950).And.LessThan(980), 
+            Assert.That(props90.Density, Is.GreaterThan(950).And.LessThan(980),
                 $"Плотность воды при 90°C должна быть ~965 кг/м³, получено {props90.Density}");
-            
+
             // Вязкость должна уменьшаться с ростом температуры
-            Assert.That(props0.KinematicViscosity, Is.GreaterThan(props20.KinematicViscosity), 
+            Assert.That(props0.KinematicViscosity, Is.GreaterThan(props20.KinematicViscosity),
                 "Вязкость при 0°C должна быть выше, чем при 20°C");
-            Assert.That(props20.KinematicViscosity, Is.GreaterThan(props50.KinematicViscosity), 
+            Assert.That(props20.KinematicViscosity, Is.GreaterThan(props50.KinematicViscosity),
                 "Вязкость при 20°C должна быть выше, чем при 50°C");
         }
 
@@ -806,11 +806,11 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var props4 = _service.GetWaterProperties(4); // Максимум плотности при 4°C
             var props20 = _service.GetWaterProperties(20);
             var props60 = _service.GetWaterProperties(60);
-            
+
             // Assert - плотность уменьшается с ростом температуры (после 4°C)
-            Assert.That(props4.Density, Is.GreaterThanOrEqualTo(props20.Density), 
+            Assert.That(props4.Density, Is.GreaterThanOrEqualTo(props20.Density),
                 "Плотность при 4°C должна быть максимальной");
-            Assert.That(props20.Density, Is.GreaterThan(props60.Density), 
+            Assert.That(props20.Density, Is.GreaterThan(props60.Density),
                 "Плотность при 20°C должна быть выше, чем при 60°C");
         }
 
@@ -821,11 +821,11 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var props10 = _service.GetWaterProperties(10);
             var props40 = _service.GetWaterProperties(40);
             var props80 = _service.GetWaterProperties(80);
-            
+
             // Assert - вязкость уменьшается с ростом температуры
-            Assert.That(props10.KinematicViscosity, Is.GreaterThan(props40.KinematicViscosity), 
+            Assert.That(props10.KinematicViscosity, Is.GreaterThan(props40.KinematicViscosity),
                 "Вязкость при 10°C должна быть выше, чем при 40°C");
-            Assert.That(props40.KinematicViscosity, Is.GreaterThan(props80.KinematicViscosity), 
+            Assert.That(props40.KinematicViscosity, Is.GreaterThan(props80.KinematicViscosity),
                 "Вязкость при 40°C должна быть выше, чем при 80°C");
         }
 
@@ -846,13 +846,13 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             double temperature = 20;
-            
+
             // Act
             var waterProps = _service.GetProperties(GlycolType.Ethylene, 0, temperature);
             var glycolProps = _service.GetProperties(GlycolType.Ethylene, 50, temperature);
-            
+
             // Assert - вода имеет более высокую теплоёмкость, чем гликолевый раствор
-            Assert.That(waterProps.SpecificHeat, Is.GreaterThan(glycolProps.SpecificHeat), 
+            Assert.That(waterProps.SpecificHeat, Is.GreaterThan(glycolProps.SpecificHeat),
                 "Теплоёмкость воды должна быть выше, чем у гликолевого раствора");
         }
 
@@ -861,13 +861,13 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             double temperature = 20;
-            
+
             // Act
             var waterProps = _service.GetProperties(GlycolType.Ethylene, 0, temperature);
             var glycolProps = _service.GetProperties(GlycolType.Ethylene, 50, temperature);
-            
+
             // Assert - вода имеет более высокую теплопроводность, чем гликолевый раствор
-            Assert.That(waterProps.ThermalConductivity, Is.GreaterThan(glycolProps.ThermalConductivity), 
+            Assert.That(waterProps.ThermalConductivity, Is.GreaterThan(glycolProps.ThermalConductivity),
                 "Теплопроводность воды должна быть выше, чем у гликолевого раствора");
         }
 
@@ -876,13 +876,13 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             double temperature = 20;
-            
+
             // Act
             var waterProps = _service.GetProperties(GlycolType.Ethylene, 0, temperature);
             var glycolProps = _service.GetProperties(GlycolType.Ethylene, 50, temperature);
-            
+
             // Assert - вода имеет более низкую вязкость, чем гликолевый раствор
-            Assert.That(waterProps.KinematicViscosity, Is.LessThan(glycolProps.KinematicViscosity), 
+            Assert.That(waterProps.KinematicViscosity, Is.LessThan(glycolProps.KinematicViscosity),
                 "Вязкость воды должна быть ниже, чем у гликолевого раствора");
         }
 

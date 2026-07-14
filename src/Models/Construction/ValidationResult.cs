@@ -115,7 +115,7 @@ namespace SnowMeltingCalculator.Models.Construction
                 return "Валидация пройдена успешно";
 
             var result = IsValid ? "Валидация пройдена с предупреждениями" : "Валидация не пройдена";
-            
+
             if (Errors.Count > 0)
             {
                 result += $"\nОшибки ({Errors.Count}):";

@@ -116,16 +116,19 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 result.DpVent = Math.Pow(circuit.FlowRate / 1000.0 / kv, 2) * 100000 * density_g_cm3;
             }
 
-#pragma warning disable CS0618
-            result.CircuitPipeLoss = circuit.CircuitLength * pressureLossPerMeter;
-            result.SupplyPipeLoss = circuit.SupplyLength * pressureLossPerMeter;
-            result.ValveLoss = result.DpVent;
-#pragma warning restore CS0618
-
             return result;
         }
 
-        public List<CircuitRow> CalculateAllCircuits(List<CircuitRow> circuits, HydraulicInputData inputData, double pipeSpacing_cm)
+        public List<CircuitRow> CalculateAllCircuits(
+            List<CircuitRow> circuits,
+            HydraulicInputData inputData,
+            double pipeSpacing_cm,
+            double powerUp,
+            double powerDown,
+            double operatingTemperature,
+            double designTemperature,
+            double deltaT,
+            double innerDiameter)
         {
             if (circuits == null || circuits.Count == 0)
                 return new List<CircuitRow>();
@@ -143,12 +146,12 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             var glycolPropsOperating = _glycolService.GetProperties(
                 inputData.GlycolType,
                 inputData.GlycolConcentration,
-                inputData.OperatingTemperature);
+                operatingTemperature);
 
             var glycolPropsDesign = _glycolService.GetProperties(
                 inputData.GlycolType,
                 inputData.GlycolConcentration,
-                inputData.DesignTemperature);
+                designTemperature);
 
             double kv = ValveTurnsCalculator.GetDefaultKv(inputData.ValveType);
 
@@ -157,27 +160,27 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 if (!circuit.IsActive)
                     continue;
 
-                circuit.Power = CalculateCircuitPower(circuit, inputData.PowerUp, inputData.PowerDown, pipeSpacing_cm);
+                circuit.Power = CalculateCircuitPower(circuit, powerUp, powerDown, pipeSpacing_cm);
 
                 circuit.FlowRate = CalculateFlowRate(
                     circuit.Power,
-                    inputData.DeltaT,
+                    deltaT,
                     glycolPropsOperating.Density,
                     glycolPropsOperating.SpecificHeat);
 
                 circuit.OperatingResult = CalculateAtTemperature(
                     circuit,
-                    inputData.OperatingTemperature,
+                    operatingTemperature,
                     glycolPropsOperating,
-                    inputData.InnerDiameter,
+                    innerDiameter,
                     kv,
                     inputData.ValveType);
 
                 circuit.DesignResult = CalculateAtTemperature(
                     circuit,
-                    inputData.DesignTemperature,
+                    designTemperature,
                     glycolPropsDesign,
-                    inputData.InnerDiameter,
+                    innerDiameter,
                     kv,
                     inputData.ValveType);
             }

@@ -37,7 +37,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// - 50% пропиленгликоль: ~1040 кг/м³ при 40°C
         /// </remarks>
         double GetDensity(GlycolType glycolType, double concentration, double temperature);
-        
+
         /// <summary>
         /// Получить удельную теплоёмкость гликоля
         /// </summary>
@@ -54,7 +54,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// - 50% пропиленгликоль: ~3.50 кДж/(кг·К) при 40°C
         /// </remarks>
         double GetSpecificHeat(GlycolType glycolType, double concentration, double temperature);
-        
+
         /// <summary>
         /// Получить кинематическую вязкость гликоля
         /// </summary>
@@ -73,7 +73,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// - 50% этиленгликоль при -15°C: ~18.17 мм²/с
         /// </remarks>
         double GetKinematicViscosity(GlycolType glycolType, double concentration, double temperature);
-        
+
         /// <summary>
         /// Получить теплопроводность гликоля
         /// </summary>
@@ -89,7 +89,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// - 50% этиленгликоль: ~0.42 Вт/(м·К) при 40°C
         /// </remarks>
         double GetThermalConductivity(GlycolType glycolType, double concentration, double temperature);
-        
+
         /// <summary>
         /// Получить все свойства гликоля
         /// </summary>
@@ -108,7 +108,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// так как интерполяция выполняется один раз.
         /// </remarks>
         GlycolProperties GetProperties(GlycolType glycolType, double concentration, double temperature);
-        
+
         /// <summary>
         /// Проверить, поддерживается ли температура
         /// </summary>
@@ -119,7 +119,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// Для воды (концентрация 0%): 0°C до 90°C
         /// </remarks>
         bool IsTemperatureSupported(double temperature);
-        
+
         /// <summary>
         /// Проверить, поддерживается ли концентрация
         /// </summary>
@@ -129,31 +129,31 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// Диапазон концентраций: 0% (вода) до 90%
         /// </remarks>
         bool IsConcentrationSupported(double concentration);
-        
+
         /// <summary>
         /// Получить минимальную поддерживаемую температуру
         /// </summary>
         /// <returns>Минимальная температура, °C</returns>
         double GetMinTemperature();
-        
+
         /// <summary>
         /// Получить максимальную поддерживаемую температуру
         /// </summary>
         /// <returns>Максимальная температура, °C</returns>
         double GetMaxTemperature();
-        
+
         /// <summary>
         /// Получить минимальную поддерживаемую концентрацию
         /// </summary>
         /// <returns>Минимальная концентрация, %</returns>
         double GetMinConcentration();
-        
+
         /// <summary>
         /// Получить максимальную поддерживаемую концентрацию
         /// </summary>
         /// <returns>Максимальная концентрация, %</returns>
         double GetMaxConcentration();
-        
+
         /// <summary>
         /// Получить свойства воды при заданной температуре
         /// </summary>

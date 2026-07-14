@@ -43,10 +43,10 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             // Assert
             Assert.That(circuit.IsLengthUserInput, Is.True, "Должен быть установлен флаг IsLengthUserInput");
             Assert.That(circuit.IsAreaUserInput, Is.False, "Флаг IsAreaUserInput должен быть сброшен");
-            
+
             // Формула: S = L / (100 / VA_hk) = 100 / (100 / 20) = 100 / 5 = 20 м²
             Assert.That(circuit.CircuitArea, Is.EqualTo(20.0).Within(0.01), "Площадь должна быть вычислена");
-            
+
             // Поле площади должно быть заблокировано
             Assert.That(circuit.IsAreaReadOnly, Is.True, "Поле площади должно быть заблокировано");
             Assert.That(circuit.IsLengthReadOnly, Is.False, "Поле длины должно быть активно");
@@ -75,7 +75,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             // Act - пользователь вводит длину несколько раз
             circuit.CircuitLength = 100;
             var firstArea = circuit.CircuitArea;
-            
+
             circuit.CircuitLength = 150;
 
             // Assert
@@ -100,10 +100,10 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             // Assert
             Assert.That(circuit.IsAreaUserInput, Is.True, "Должен быть установлен флаг IsAreaUserInput");
             Assert.That(circuit.IsLengthUserInput, Is.False, "Флаг IsLengthUserInput должен быть сброшен");
-            
+
             // Формула: L = S × (100 / VA_hk) = 20 × (100 / 20) = 20 × 5 = 100 м
             Assert.That(circuit.CircuitLength, Is.EqualTo(100.0).Within(0.01), "Длина должна быть вычислена");
-            
+
             // Поле длины должно быть заблокировано
             Assert.That(circuit.IsLengthReadOnly, Is.True, "Поле длины должно быть заблокировано");
             Assert.That(circuit.IsAreaReadOnly, Is.False, "Поле площади должно быть активно");
@@ -360,16 +360,16 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             // Act - вводим длину, затем очищаем и вводим площадь
             circuit.CircuitLength = originalLength;
             var calculatedArea = circuit.CircuitArea;
-            
+
             // Очищаем оба поля
             circuit.CircuitLength = 0;
             circuit.CircuitArea = 0; // Очищаем площадь, чтобы избежать конфликта
-            
+
             // Вводим площадь
             circuit.CircuitArea = calculatedArea;
 
             // Assert
-            Assert.That(circuit.CircuitLength, Is.EqualTo(originalLength).Within(0.01), 
+            Assert.That(circuit.CircuitLength, Is.EqualTo(originalLength).Within(0.01),
                 "Круговой расчёт должен давать исходное значение");
         }
 
@@ -496,35 +496,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         #region Тесты CircuitTemperatureResult
 
         [Test]
-        public void CircuitTemperatureResult_CircuitPipeLoss_mbar_ConvertsCorrectly()
-        {
-            // Arrange
-            var result = new CircuitTemperatureResult
-            {
-                CircuitPipeLoss = 23360.0 // 233.6 мбар в Па
-            };
-
-            // Act & Assert
-            Assert.That(result.CircuitPipeLoss_mbar, Is.EqualTo(233.6).Within(0.01), 
-                "CircuitPipeLoss_mbar должен быть CircuitPipeLoss / 100");
-        }
-
-        [Test]
-        public void CircuitTemperatureResult_ValveLoss_mbar_ConvertsCorrectly()
-        {
-            // Arrange
-            var result = new CircuitTemperatureResult
-            {
-                ValveLoss = 5730.0 // 57.3 мбар в Па
-            };
-
-            // Act & Assert
-            Assert.That(result.ValveLoss_mbar, Is.EqualTo(57.3).Within(0.01), 
-                "ValveLoss_mbar должен быть ValveLoss / 100");
-        }
-
-        [Test]
-        public void CircuitTemperatureResult_TotalLoss_CalculatesCorrectly()
+        public void CircuitTemperatureResult_DpGesamt_CalculatesCorrectly()
         {
             // Arrange
             var result = new CircuitTemperatureResult
@@ -536,29 +508,12 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
 
             // Act & Assert
             var expectedTotal = 23360.0 + 1000.0 + 5730.0;
-            Assert.That(result.TotalLoss, Is.EqualTo(expectedTotal).Within(0.01), 
-                "TotalLoss должен быть суммой DpRohr + DpVerteiler + DpVent");
+            Assert.That(result.DpGesamt, Is.EqualTo(expectedTotal).Within(0.01),
+                "DpGesamt должен быть суммой DpRohr + DpVerteiler + DpVent");
         }
 
         [Test]
-        public void CircuitTemperatureResult_TotalLoss_mbar_ConvertsCorrectly()
-        {
-            // Arrange
-            var result = new CircuitTemperatureResult
-            {
-                DpRohr = 23360.0,
-                DpVerteiler = 1000.0,
-                DpVent = 5730.0
-            };
-
-            // Act & Assert
-            var expectedTotal_mbar = (23360.0 + 1000.0 + 5730.0) / 100.0;
-            Assert.That(result.TotalLoss_mbar, Is.EqualTo(expectedTotal_mbar).Within(0.01), 
-                "TotalLoss_mbar должен быть TotalLoss / 100");
-        }
-
-        [Test]
-        public void CircuitTemperatureResult_ZeroLosses_ReturnsZero_mbar()
+        public void CircuitTemperatureResult_ZeroLosses_ReturnsZero()
         {
             // Arrange
             var result = new CircuitTemperatureResult();
@@ -568,8 +523,6 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             Assert.That(result.DpVerteiler, Is.EqualTo(0.0).Within(0.01));
             Assert.That(result.DpVent, Is.EqualTo(0.0).Within(0.01));
             Assert.That(result.DpGesamt, Is.EqualTo(0.0).Within(0.01));
-            Assert.That(result.TotalLoss, Is.EqualTo(0.0).Within(0.01));
-            Assert.That(result.TotalLoss_mbar, Is.EqualTo(0.0).Within(0.01));
         }
 
         [Test]

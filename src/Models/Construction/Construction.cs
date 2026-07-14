@@ -115,10 +115,10 @@ namespace SnowMeltingCalculator.Models.Construction
         {
             ArgumentNullException.ThrowIfNull(material, nameof(material));
 
-            if (thickness < 10 || thickness > 1000)
+            if (thickness > 1000)
             {
-                throw new ArgumentOutOfRangeException(nameof(thickness), 
-                    "Толщина слоя должна быть от 10 до 1000 мм");
+                throw new ArgumentOutOfRangeException(nameof(thickness),
+                    "Толщина слоя не может превышать 1000 мм");
             }
 
             var layer = new Layer
@@ -145,10 +145,10 @@ namespace SnowMeltingCalculator.Models.Construction
         {
             ArgumentNullException.ThrowIfNull(material, nameof(material));
 
-            if (thickness < 10 || thickness > 1000)
+            if (thickness > 1000)
             {
-                throw new ArgumentOutOfRangeException(nameof(thickness), 
-                    "Толщина слоя должна быть от 10 до 1000 мм");
+                throw new ArgumentOutOfRangeException(nameof(thickness),
+                    "Толщина слоя не может превышать 1000 мм");
             }
 
             var layer = new Layer
@@ -295,9 +295,9 @@ namespace SnowMeltingCalculator.Models.Construction
             // Проверка толщины слоёв
             foreach (var layer in LayersAbovePipe.Concat(Layers))
             {
-                if (layer.Thickness < 10 || layer.Thickness > 1000)
+                if (layer.Thickness > 1000)
                 {
-                    result.AddError($"Толщина слоя '{layer.Material?.Name ?? "Не указан"}' должна быть от 10 до 1000 мм (текущая: {layer.Thickness} мм)");
+                    result.AddError($"Толщина слоя '{layer.Material?.Name ?? "Не указан"}' не может превышать 1000 мм (текущая: {layer.Thickness} мм)");
                 }
             }
 

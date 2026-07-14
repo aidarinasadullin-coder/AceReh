@@ -33,8 +33,7 @@ namespace SnowMeltingCalculator.Repositories.Construction
             if (dataPath == null)
             {
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                var projectRoot = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", ".."));
-                _dataPath = Path.Combine(projectRoot, "data", "materials_db.json");
+                _dataPath = Path.Combine(baseDir, "data", "materials_db.json");
             }
             else
             {
@@ -68,7 +67,7 @@ namespace SnowMeltingCalculator.Repositories.Construction
 
                 var materialsData = JsonSerializer.Deserialize<MaterialsDbModel>(jsonContent, options);
 
-                _materials = materialsData?.Materials?.Select(MapToMaterial).ToList() 
+                _materials = materialsData?.Materials?.Select(MapToMaterial).ToList()
                     ?? Material.GetDefaultMaterials();
 
                 return _materials;

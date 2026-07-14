@@ -286,6 +286,11 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         public ConstructionViewModel ConstructionViewModel => _constructionViewModel;
 
+        /// <summary>
+        /// Сервис состояния расчёта (канонический источник шага укладки)
+        /// </summary>
+        public ICalculationStateService CalculationStateService => _calculationStateService;
+
         // ============================================
         // Блок 5 - Гидравлика
         // ============================================
@@ -476,15 +481,15 @@ namespace SnowMeltingCalculator.ViewModels.Results
         {
             // Обновляем климатические данные (могли измениться)
             LoadClimateData();
-            
+
             // Обновляем данные конструкции и теплового расчёта
             LoadConstructionData();
             LoadThermalData();
-            
+
             // Обновляем гидравлические данные
             LoadHydraulicsData();
             RecalculateKpi();
-            
+
             // Проверяем готовность данных после загрузки всех модулей
             CheckDataReadiness();
         }
@@ -663,7 +668,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 {
                     LayersAbovePipe = _constructionViewModel.LayersAbovePipe,
                     LayersBelowPipe = _constructionViewModel.LayersBelowPipe,
-                    PipeSpacing = _constructionViewModel.PipeSpacing,
+                    PipeSpacing = _calculationStateService.PipeSpacing,
                     CompactMode = true,
                     ShowDimensionLine = true,
                     FixedScaleFactor = 0.25
@@ -1047,7 +1052,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private void LoadThermalData()
         {
             PipeType = _thermalViewModel.SelectedPipe?.Name ?? string.Empty;
-            PipeSpacing = _thermalViewModel.PipeSpacing;
+            PipeSpacing = _calculationStateService.PipeSpacing;
             OperatingMode = _thermalViewModel.SelectedMode;
             GroundTemperature = _thermalViewModel.GroundTemperature;
 
@@ -1346,7 +1351,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             {
                 SelectedCollectorIndex = -1;
             }
-            
+
             // Обновляем данные выбранного коллектора
             UpdateCollectorSummary();
             UpdateCircuitsFilter();
@@ -1538,79 +1543,78 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 _thermalViewModel.SupplyTemperature = data.ThermalData.SupplyTemperature;
                 _thermalViewModel.GroundTemperature = data.ThermalData.GroundTemperature;
                 _calculationStateService.SetPipeSpacing(data.ThermalData.PipeSpacing, "ResultsViewModel.LoadProject");
-                _thermalViewModel.PipeSpacing = data.ThermalData.PipeSpacing;
 
                 // Восстанавливаем выбранную трубу
-            if (data.ThermalData.SelectedPipe != null)
-            {
-                var pipe = Models.Thermal.PipeType.StandardPipes.FirstOrDefault(p =>
-                    p.Name == data.ThermalData.SelectedPipe.Name &&
-                    Math.Abs(p.OuterDiameter - data.ThermalData.SelectedPipe.OuterDiameter) < 0.01);
-                if (pipe != null)
+                if (data.ThermalData.SelectedPipe != null)
                 {
-                    _thermalViewModel.SelectedPipe = pipe;
-                }
-            }
-
-            // Восстанавливаем результат теплового расчёта
-            if (data.ThermalData.Result != null)
-            {
-                _thermalViewModel.Result = new ThermalCalculationResult
-                {
-                    PowerUp = data.ThermalData.Result.PowerUp,
-                    PowerDown = data.ThermalData.Result.PowerDown,
-                    PowerTotal = data.ThermalData.Result.PowerTotal,
-                    SupplyTemperature = data.ThermalData.Result.SupplyTemperature,
-                    ReturnTemperature = data.ThermalData.Result.ReturnTemperature,
-                    MeanTemperature = data.ThermalData.Result.MeanTemperature,
-                    DeltaT = data.ThermalData.Result.DeltaT,
-                    IsValid = data.ThermalData.Result.IsValid
-                };
-            }
-
-            // Загружаем данные гидравлики
-            _circuitsViewModel.InputData.GlycolType = data.HydraulicsData.GlycolType;
-            _circuitsViewModel.InputData.GlycolConcentration = data.HydraulicsData.GlycolConcentration;
-            _circuitsViewModel.InputData.SupplySpacing_cm = data.HydraulicsData.SupplySpacingCm;
-            _circuitsViewModel.InputData.SupplyHeatPercent = data.HydraulicsData.SupplyHeatPercent;
-
-            // Загружаем коллекторы
-            _circuitsViewModel.Collectors.Clear();
-            foreach (var collectorData in data.HydraulicsData.Collectors)
-            {
-                var collector = new CollectorData(collectorData.CollectorNumber)
-                {
-                    CollectorType = collectorData.CollectorType,
-                    ValveType = collectorData.ValveType
-                };
-
-                foreach (var circuitData in collectorData.Circuits)
-                {
-                    collector.Circuits.Add(new CircuitRow
+                    var pipe = Models.Thermal.PipeType.StandardPipes.FirstOrDefault(p =>
+                        p.Name == data.ThermalData.SelectedPipe.Name &&
+                        Math.Abs(p.OuterDiameter - data.ThermalData.SelectedPipe.OuterDiameter) < 0.01);
+                    if (pipe != null)
                     {
-                        CircuitNumber = circuitData.CircuitNumber,
-                        CircuitLength = circuitData.CircuitLength,
-                        SupplyLength = circuitData.SupplyLength,
-                        SupplySpacing_cm = circuitData.SupplySpacingCm,
-                        SupplyHeatPercent = circuitData.SupplyHeatPercent,
-                        PipeSpacing_cm = circuitData.PipeSpacingCm
-                    });
+                        _thermalViewModel.SelectedPipe = pipe;
+                    }
                 }
 
-                _circuitsViewModel.Collectors.Add(collector);
-            }
+                // Восстанавливаем результат теплового расчёта
+                if (data.ThermalData.Result != null)
+                {
+                    _thermalViewModel.Result = new ThermalCalculationResult
+                    {
+                        PowerUp = data.ThermalData.Result.PowerUp,
+                        PowerDown = data.ThermalData.Result.PowerDown,
+                        PowerTotal = data.ThermalData.Result.PowerTotal,
+                        SupplyTemperature = data.ThermalData.Result.SupplyTemperature,
+                        ReturnTemperature = data.ThermalData.Result.ReturnTemperature,
+                        MeanTemperature = data.ThermalData.Result.MeanTemperature,
+                        DeltaT = data.ThermalData.Result.DeltaT,
+                        IsValid = data.ThermalData.Result.IsValid
+                    };
+                }
 
-            // Обновляем все данные
-            RefreshAll();
+                // Загружаем данные гидравлики
+                _circuitsViewModel.InputData.GlycolType = data.HydraulicsData.GlycolType;
+                _circuitsViewModel.InputData.GlycolConcentration = data.HydraulicsData.GlycolConcentration;
+                _circuitsViewModel.InputData.SupplySpacing_cm = data.HydraulicsData.SupplySpacingCm;
+                _circuitsViewModel.InputData.SupplyHeatPercent = data.HydraulicsData.SupplyHeatPercent;
 
-            // Принудительно вызываем пересчёт гидравлики, т.к. PropertyChanged может не сработать
-            if (_thermalViewModel.Result?.IsValid == true)
-            {
-                _circuitsViewModel.UpdateFromThermalModule(_thermalViewModel.Result, _thermalViewModel.SelectedPipe);
-            }
+                // Загружаем коллекторы
+                _circuitsViewModel.Collectors.Clear();
+                foreach (var collectorData in data.HydraulicsData.Collectors)
+                {
+                    var collector = new CollectorData(collectorData.CollectorNumber)
+                    {
+                        CollectorType = collectorData.CollectorType,
+                        ValveType = collectorData.ValveType
+                    };
 
-            // Восстанавливаем результаты контуров из сохранённых данных
-            RestoreCircuitsResults(data.HydraulicsData.Collectors);
+                    foreach (var circuitData in collectorData.Circuits)
+                    {
+                        collector.Circuits.Add(new CircuitRow
+                        {
+                            CircuitNumber = circuitData.CircuitNumber,
+                            CircuitLength = circuitData.CircuitLength,
+                            SupplyLength = circuitData.SupplyLength,
+                            SupplySpacing_cm = circuitData.SupplySpacingCm,
+                            SupplyHeatPercent = circuitData.SupplyHeatPercent,
+                            PipeSpacing_cm = circuitData.PipeSpacingCm
+                        });
+                    }
+
+                    _circuitsViewModel.Collectors.Add(collector);
+                }
+
+                // Обновляем все данные
+                RefreshAll();
+
+                // Принудительно вызываем пересчёт гидравлики, т.к. PropertyChanged может не сработать
+                if (_thermalViewModel.Result?.IsValid == true)
+                {
+                    _circuitsViewModel.UpdateFromThermalModule(_thermalViewModel.Result, _thermalViewModel.SelectedPipe);
+                }
+
+                // Восстанавливаем результаты контуров из сохранённых данных
+                RestoreCircuitsResults(data.HydraulicsData.Collectors);
 
                 // Уведомляем об изменении проекта
                 ProjectChanged?.Invoke(this, data);
@@ -1743,7 +1747,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 SelectedMode = _thermalViewModel.SelectedMode,
                 SupplyTemperature = _thermalViewModel.SupplyTemperature,
                 GroundTemperature = _thermalViewModel.GroundTemperature,
-                PipeSpacing = _thermalViewModel.PipeSpacing,
+                PipeSpacing = _calculationStateService.PipeSpacing,
                 SelectedPipe = _thermalViewModel.SelectedPipe != null ? new PipeTypeProjectData
                 {
                     Name = _thermalViewModel.SelectedPipe.Name,

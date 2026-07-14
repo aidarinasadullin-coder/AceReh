@@ -110,12 +110,12 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         public void Merge(ValidationResult other)
         {
             if (other == null) return;
-            
+
             foreach (var error in other.Errors)
             {
                 AddError(error);
             }
-            
+
             foreach (var warning in other.Warnings)
             {
                 AddWarning(warning);
@@ -129,10 +129,10 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         {
             if (IsValid && !HasWarnings)
                 return "Валидация пройдена успешно";
-            
+
             if (!IsValid)
                 return $"Ошибки: {Errors.Count}, Предупреждения: {Warnings.Count}";
-            
+
             return $"Предупреждения: {Warnings.Count}";
         }
     }

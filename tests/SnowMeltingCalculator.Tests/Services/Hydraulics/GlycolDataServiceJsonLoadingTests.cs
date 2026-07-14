@@ -16,10 +16,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act
             var properties = service.GetProperties(GlycolType.Ethylene, 50, 40);
-            
+
             // Assert
             Assert.That(properties.Density, Is.GreaterThan(0));
             Assert.That(properties.SpecificHeat, Is.GreaterThan(0));
@@ -32,10 +32,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("nonexistent_file.json");
-            
+
             // Act
             var properties = service.GetProperties(GlycolType.Ethylene, 50, 20);
-            
+
             // Assert - должны вернуться встроенные данные
             Assert.That(properties.Density, Is.GreaterThan(0));
             Assert.That(properties.SpecificHeat, Is.GreaterThan(0));
@@ -46,10 +46,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act - интерполяция между точками
             var density = service.GetDensity(GlycolType.Ethylene, 50, 40);
-            
+
             // Assert
             Assert.That(density, Is.InRange(1000, 1100)); // Разумный диапазон для 50% этиленгликоля при 40°C
         }
@@ -59,10 +59,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act
             var viscosity = service.GetKinematicViscosity(GlycolType.Ethylene, 50, 40);
-            
+
             // Assert
             Assert.That(viscosity, Is.GreaterThan(0));
             // Вязкость 50% этиленгликоля при 40°C должна быть около 2-5 мм²/с
@@ -74,11 +74,11 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act
             var ethylene = service.GetProperties(GlycolType.Ethylene, 50, 40);
             var propylene = service.GetProperties(GlycolType.Propylene, 50, 40);
-            
+
             // Assert
             Assert.That(ethylene.Density, Is.GreaterThan(0));
             Assert.That(propylene.Density, Is.GreaterThan(0));
@@ -90,12 +90,12 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act - несколько вызовов должны использовать кэш
             var props1 = service.GetProperties(GlycolType.Ethylene, 50, 40);
             var props2 = service.GetProperties(GlycolType.Ethylene, 50, 40);
             var props3 = service.GetProperties(GlycolType.Ethylene, 50, 40);
-            
+
             // Assert - значения должны быть одинаковыми
             Assert.That(props1.Density, Is.EqualTo(props2.Density));
             Assert.That(props1.Density, Is.EqualTo(props3.Density));
@@ -106,12 +106,12 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act & Assert
-            Assert.Throws<ArgumentOutOfRangeException>(() => 
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 service.GetProperties(GlycolType.Ethylene, 5, 40)); // Концентрация < 10%
-            
-            Assert.Throws<ArgumentOutOfRangeException>(() => 
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 service.GetProperties(GlycolType.Ethylene, 95, 40)); // Концентрация > 90%
         }
 
@@ -120,12 +120,12 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act & Assert
-            Assert.Throws<ArgumentOutOfRangeException>(() => 
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 service.GetProperties(GlycolType.Ethylene, 50, -50)); // Температура < MIN
-            
-            Assert.Throws<ArgumentOutOfRangeException>(() => 
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
                 service.GetProperties(GlycolType.Ethylene, 50, 150)); // Температура > MAX
         }
 
@@ -134,7 +134,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService();
-            
+
             // Act & Assert
             Assert.That(service.IsTemperatureSupported(-50), Is.False);
             Assert.That(service.IsTemperatureSupported(0), Is.True);
@@ -148,7 +148,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService();
-            
+
             // Act & Assert
             Assert.That(service.IsConcentrationSupported(5), Is.False);
             Assert.That(service.IsConcentrationSupported(10), Is.True);
@@ -162,10 +162,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService();
-            
+
             // Act
             var minTemp = service.GetMinTemperature();
-            
+
             // Assert
             Assert.That(minTemp, Is.EqualTo(-34.4));
         }
@@ -189,10 +189,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService();
-            
+
             // Act
             var minConc = service.GetMinConcentration();
-            
+
             // Assert
             Assert.That(minConc, Is.EqualTo(10.0));
         }
@@ -202,10 +202,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService();
-            
+
             // Act
             var maxConc = service.GetMaxConcentration();
-            
+
             // Assert
             Assert.That(maxConc, Is.EqualTo(90.0));
         }
@@ -215,12 +215,12 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act - интерполяция между точками
             var props1 = service.GetProperties(GlycolType.Ethylene, 50, 40);
             var props2 = service.GetProperties(GlycolType.Ethylene, 50, 45);
             var props3 = service.GetProperties(GlycolType.Ethylene, 50, 50);
-            
+
             // Assert - значения должны плавно изменяться
             // Плотность уменьшается с ростом температуры
             Assert.That(props1.Density, Is.GreaterThan(props2.Density));
@@ -232,10 +232,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act
             var props = service.GetProperties(GlycolType.Ethylene, 50, 40);
-            
+
             // Assert - все свойства должны быть согласованы
             Assert.That(props.GlycolType, Is.EqualTo(GlycolType.Ethylene));
             Assert.That(props.Concentration, Is.EqualTo(50));

@@ -35,7 +35,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// Минимальная поддерживаемая температура, °C
         /// </summary>
         private const double MIN_TEMPERATURE = -34.4;
-        
+
         /// <summary>
         /// Максимальная поддерживаемая температура, °C
         /// </summary>
@@ -45,7 +45,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// Минимальная поддерживаемая концентрация, %
         /// </summary>
         private const double MIN_CONCENTRATION = 10.0;
-        
+
         /// <summary>
         /// Максимальная поддерживаемая концентрация, %
         /// </summary>
@@ -54,7 +54,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <summary>
         /// Создать экземпляр сервиса с путём к файлу данных по умолчанию
         /// </summary>
-        public GlycolDataService() : this("data/glycol_data.json")
+        public GlycolDataService() : this(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "glycol_data.json"))
         {
         }
 
@@ -372,7 +372,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                     };
 
                     var rawContainer = JsonSerializer.Deserialize<GlycolRawContainer>(json, options);
-                    
+
                     if (rawContainer == null)
                     {
                         _cachedJsonData = GetDefaultData();
@@ -386,7 +386,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 {
                     // Логировать предупреждение
                     System.Diagnostics.Debug.WriteLine($"[GlycolDataService] Ошибка загрузки JSON: {ex.Message}. Используются fallback данные.");
-                    
+
                     // При ошибке парсинга используем встроенные данные
                     _cachedJsonData = GetDefaultData();
                 }
@@ -423,12 +423,12 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         private GlycolTypeData ConvertGlycolTypeData(GlycolTypeRawData raw)
         {
             // Получаем концентрации из первого доступного свойства
-            var concentrations = raw.Density?.Concentrations 
-                ?? raw.SpecificHeat?.Concentrations 
-                ?? raw.KinematicViscosity?.Concentrations 
-                ?? raw.ThermalConductivity?.Concentrations 
+            var concentrations = raw.Density?.Concentrations
+                ?? raw.SpecificHeat?.Concentrations
+                ?? raw.KinematicViscosity?.Concentrations
+                ?? raw.ThermalConductivity?.Concentrations
                 ?? Array.Empty<double>();
-            
+
             var densityData = raw.Density?.Data ?? new List<TemperatureDataRow>();
             var specificHeatData = raw.SpecificHeat?.Data ?? new List<TemperatureDataRow>();
             var viscosityData = raw.KinematicViscosity?.Data ?? new List<TemperatureDataRow>();
@@ -1031,7 +1031,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         {
             [JsonPropertyName("ethylene_glycol")]
             public GlycolTypeRawData? EthyleneGlycol { get; set; }
-            
+
             [JsonPropertyName("propylene_glycol")]
             public GlycolTypeRawData? PropyleneGlycol { get; set; }
         }
@@ -1043,13 +1043,13 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         {
             [JsonPropertyName("density_kg_m3")]
             public PropertyDataWithConcentrations? Density { get; set; }
-            
+
             [JsonPropertyName("specific_heat_kJ_kgK")]
             public PropertyDataWithConcentrations? SpecificHeat { get; set; }
-            
+
             [JsonPropertyName("kinematic_viscosity_mm2_s")]
             public PropertyDataWithConcentrations? KinematicViscosity { get; set; }
-            
+
             [JsonPropertyName("thermal_conductivity_W_mK")]
             public PropertyDataWithConcentrations? ThermalConductivity { get; set; }
         }
@@ -1061,7 +1061,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         {
             [JsonPropertyName("concentration_vol_pct")]
             public double[]? Concentrations { get; set; }
-            
+
             [JsonPropertyName("data")]
             public List<TemperatureDataRow>? Data { get; set; }
         }
@@ -1073,7 +1073,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         {
             [JsonPropertyName("temp_c")]
             public double? TempC { get; set; }
-            
+
             [JsonPropertyName("values")]
             public double?[]? Values { get; set; }
         }

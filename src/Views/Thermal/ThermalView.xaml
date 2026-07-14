@@ -11,7 +11,11 @@
              d:DataContext="{d:DesignInstance Type=vm:ThermalViewModel, IsDesignTimeCreatable=False}"
              Background="{DynamicResource RehauBackgroundBrush}">
 
-    <Grid Margin="{StaticResource Spacing.LG.Thickness}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                  HorizontalScrollBarVisibility="Disabled"
+                  Focusable="True"
+                  PanningMode="VerticalOnly">
+        <Grid Margin="{StaticResource Spacing.LG.Thickness}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -24,7 +28,7 @@
 
 <!-- Заголовок страницы -->
         <TextBlock Grid.Row="0"
-                   Text="Теплотехнический расчёт"
+                   Text="Тепловой расчёт"
                    Style="{StaticResource Text.H2}"
                    Foreground="{DynamicResource RehauBlackBrush}"
                    Margin="0,0,0,20"/>
@@ -545,7 +549,7 @@
                                       FontSize="11"
                                       Foreground="{DynamicResource RehauGrayBrush}"/>
                             <TextBlock FontSize="14" Foreground="{DynamicResource RehauBlackBrush}">
-                                <Run Text="{Binding Result.R1Total, Mode=OneWay, StringFormat={}{0:F4}}"/>
+                                <Run Text="{Binding R1Total, Mode=OneWay, StringFormat={}{0:F4}}"/>
                                 <Run Text=" м²·К/Вт"/>
                             </TextBlock>
                         </StackPanel>
@@ -556,7 +560,7 @@
                                       FontSize="11"
                                       Foreground="{DynamicResource RehauGrayBrush}"/>
                             <TextBlock FontSize="14" Foreground="{DynamicResource RehauBlackBrush}">
-                                <Run Text="{Binding Result.R2Total, Mode=OneWay, StringFormat={}{0:F4}}"/>
+                                <Run Text="{Binding R2Total, Mode=OneWay, StringFormat={}{0:F4}}"/>
                                 <Run Text=" м²·К/Вт"/>
                             </TextBlock>
                         </StackPanel>
@@ -598,4 +602,5 @@
             </StackPanel>
         </Border>
     </Grid>
+    </ScrollViewer>
 </UserControl>

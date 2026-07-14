@@ -276,7 +276,7 @@ namespace SnowMeltingCalculator.Controls.Climate
         {
             var listBox = (ListBox)sender;
             var item = listBox.SelectedItem as CityMatchResult;
-            
+
             if (item != null)
             {
                 SelectItem(item);
@@ -385,13 +385,13 @@ namespace SnowMeltingCalculator.Controls.Climate
         private void SelectItem(CityMatchResult item)
         {
             _isNavigating = true;
-            
+
             SelectedCity = item.City;
             SearchQuery = item.City.Name;
             ClosePopup();
-            
+
             CitySelected?.Invoke(this, new CitySelectedEventArgs { City = item.City });
-            
+
             _isNavigating = false;
         }
 

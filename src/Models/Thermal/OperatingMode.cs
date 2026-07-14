@@ -13,14 +13,14 @@ namespace SnowMeltingCalculator.Models.Thermal
         /// </summary>
         [Description("Антиобледенение (t_П = +3°C) - минимальная мощность")]
         AntiIcing = 3,
-        
+
         /// <summary>
         /// Таяние (t_П = +5°C)
         /// Стандартный режим
         /// </summary>
         [Description("Таяние (t_П = +5°C) - стандартный режим")]
         Melting = 5,
-        
+
         /// <summary>
         /// Интенсивное (t_П = +7°C)
         /// Максимальная мощность

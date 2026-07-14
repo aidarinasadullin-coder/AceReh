@@ -28,7 +28,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// Загружает данные из data/rehau_products.json
         /// </remarks>
         System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Collector>> GetAllAsync();
-        
+
         /// <summary>
         /// Получить коллектор по идентификатору
         /// </summary>
@@ -40,7 +40,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// - "IV-1.25", "IV-1.5"
         /// </remarks>
         System.Threading.Tasks.Task<Collector?> GetByIdAsync(string id);
-        
+
         /// <summary>
         /// Получить коллекторы по типу
         /// </summary>
@@ -52,7 +52,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// - CollectorType.IV — промышленные коллекторы
         /// </remarks>
         System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Collector>> GetByTypeAsync(CollectorType type);
-        
+
         /// <summary>
         /// Получить коллектор по количеству контуров
         /// </summary>
@@ -67,7 +67,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// Для IV: возвращает первый доступный промышленный коллектор
         /// </remarks>
         System.Threading.Tasks.Task<Collector?> GetByCircuitsAsync(int circuits);
-        
+
         /// <summary>
         /// Подобрать коллектор для заданного количества контуров и расхода
         /// </summary>
@@ -84,13 +84,13 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// - HKV-D: макс. 12 контуров, макс. 1.5 м³/ч, макс. 320 мбар
         /// </remarks>
         Collector? SelectCollector(int circuits, double totalFlowRate_m3_h);
-        
+
         /// <summary>
         /// Получить список доступных количеств контуров для HKV-D
         /// </summary>
         /// <returns>Список количеств контуров: 2, 4, 6, 8, 10, 12</returns>
         System.Collections.Generic.IEnumerable<int> GetAvailableCircuitCounts();
-        
+
         /// <summary>
         /// Проверить, подходит ли коллектор для заданных параметров
         /// </summary>
@@ -106,23 +106,23 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// - Давление ≤ MaxPressure
         /// </remarks>
         bool IsCollectorSuitable(
-            Collector collector, 
-            int circuits, 
-            double totalFlowRate_m3_h, 
+            Collector collector,
+            int circuits,
+            double totalFlowRate_m3_h,
             double pressure_mbar);
-        
+
         /// <summary>
         /// Получить максимальное количество контуров для HKV-D
         /// </summary>
         /// <returns>Максимальное количество контуров (12)</returns>
         int GetMaxCircuitsForHKV();
-        
+
         /// <summary>
         /// Получить максимальный расход для HKV-D
         /// </summary>
         /// <returns>Максимальный расход, м³/ч (1.5)</returns>
         double GetMaxFlowRateForHKV();
-        
+
         /// <summary>
         /// Получить максимальное давление для HKV-D
         /// </summary>

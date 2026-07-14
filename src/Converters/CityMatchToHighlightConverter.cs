@@ -41,7 +41,7 @@ namespace SnowMeltingCalculator.Converters
                     continue;
 
                 var run = new Run { Text = parts[i] };
-                
+
                 // Нечётные части — подсвеченные
                 if (i % 2 == 1)
                 {
@@ -52,7 +52,7 @@ namespace SnowMeltingCalculator.Converters
                 {
                     run.Foreground = NormalBrush;
                 }
-                
+
                 inlines.Add(run);
             }
 
@@ -78,12 +78,12 @@ namespace SnowMeltingCalculator.Converters
         {
             var textBlock = new System.Windows.Controls.TextBlock();
             var inlines = CreateInlines(highlightedText, highlightBrush, normalBrush);
-            
+
             foreach (var inline in inlines)
             {
                 textBlock.Inlines.Add(inline);
             }
-            
+
             return textBlock;
         }
 
@@ -100,7 +100,7 @@ namespace SnowMeltingCalculator.Converters
             Brush? normalBrush = null)
         {
             var inlines = new List<Inline>();
-            
+
             if (string.IsNullOrEmpty(highlightedText))
             {
                 return inlines;
@@ -117,7 +117,7 @@ namespace SnowMeltingCalculator.Converters
                     continue;
 
                 var run = new Run { Text = parts[i] };
-                
+
                 // Нечётные части — подсвеченные
                 if (i % 2 == 1)
                 {
@@ -128,7 +128,7 @@ namespace SnowMeltingCalculator.Converters
                 {
                     run.Foreground = nBrush;
                 }
-                
+
                 inlines.Add(run);
             }
 

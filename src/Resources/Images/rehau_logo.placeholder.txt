@@ -1,0 +1,32 @@
+# REHAU Logo Placeholder
+
+This file is a placeholder for the REHAU logo.
+
+## SVG to PNG Conversion Required
+
+The file `rehau_logo.png` should be created from `resources/РЕХАУ_logo.svg` with the following specifications:
+- Dimensions: 300×90 pixels
+- Resolution: 300 DPI
+- Format: PNG with transparency
+
+## Recommended Tools for Conversion
+
+1. **Inkscape (Command Line)**:
+   ```bash
+   inkscape resources/РЕХАУ_logo.svg --export-filename=src/Resources/Images/rehau_logo.png --export-width=300 --export-height=90
+   ```
+
+2. **Online Converters**:
+   - CloudConvert
+   - Convertio
+   - SVG to PNG online tools
+
+3. **Image Editors**:
+   - Adobe Illustrator
+   - Adobe Photoshop
+   - GIMP (free)
+   - Figma
+
+## Alternative: Use SVG Directly
+
+The application can be modified to use SVG directly instead of PNG if preferred.

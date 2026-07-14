@@ -96,9 +96,9 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void CalculateLaminarFrictionFactor_ThrowsForInvalidRe()
         {
             // Act & Assert
-            Assert.Throws<System.ArgumentException>(() => 
+            Assert.Throws<System.ArgumentException>(() =>
                 FlowRegimeCalculator.CalculateLaminarFrictionFactor(0));
-            Assert.Throws<System.ArgumentException>(() => 
+            Assert.Throws<System.ArgumentException>(() =>
                 FlowRegimeCalculator.CalculateLaminarFrictionFactor(-100));
         }
 
@@ -127,9 +127,9 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void CalculateTransitionalFrictionFactor_ThrowsForInvalidRe()
         {
             // Act & Assert
-            Assert.Throws<System.ArgumentException>(() => 
+            Assert.Throws<System.ArgumentException>(() =>
                 FlowRegimeCalculator.CalculateTransitionalFrictionFactor(2000, 16, 0.007));
-            Assert.Throws<System.ArgumentException>(() => 
+            Assert.Throws<System.ArgumentException>(() =>
                 FlowRegimeCalculator.CalculateTransitionalFrictionFactor(5000, 16, 0.007));
         }
 
@@ -154,14 +154,14 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             Assert.That(lambda, Is.LessThan(0.05));
         }
 
-[Test]
+        [Test]
         public void CalculateTurbulentFrictionFactor_ThrowsForInvalidRe()
         {
             // Arrange
             double re = 3000; // Меньше границы турбулентного режима
-            
+
             // Act & Assert
-            Assert.Throws<System.ArgumentException>(() => 
+            Assert.Throws<System.ArgumentException>(() =>
                 FlowRegimeCalculator.CalculateTurbulentFrictionFactor(re, 16, 0.007));
         }
 

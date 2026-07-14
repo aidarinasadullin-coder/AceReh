@@ -227,7 +227,7 @@ namespace SnowMeltingCalculator.Behaviors
 
             // Получаем системный десятичный разделитель
             var decimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
-            
+
             // Если введена точка или запятая
             if (e.Text == "." || e.Text == ",")
             {
@@ -235,7 +235,7 @@ namespace SnowMeltingCalculator.Behaviors
                 {
                     // Заменяем на системный разделитель
                     e.Handled = true;
-                    
+
                     // Проверяем, нет ли уже разделителя в тексте
                     if (!textBox.Text.Contains(decimalSeparator))
                     {
@@ -254,10 +254,10 @@ namespace SnowMeltingCalculator.Behaviors
             {
                 var text = (string)e.DataObject.GetData(typeof(string));
                 var decimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
-                
+
                 // Заменяем все точки и запятые на системный разделитель
                 var normalizedText = text.Replace(".", decimalSeparator).Replace(",", decimalSeparator);
-                
+
                 if (text != normalizedText)
                 {
                     var dataObject = new DataObject();
@@ -413,7 +413,7 @@ namespace SnowMeltingCalculator.Behaviors
                         textBox.CaretIndex = textBox.Text.Length;
                         textBox.SelectionLength = 0;
                     }), System.Windows.Threading.DispatcherPriority.Background);
-                    
+
                     // Сбрасываем флаг - последующие изменения не будут обрабатываться
                     _isFirstInput[textBox] = false;
                 }

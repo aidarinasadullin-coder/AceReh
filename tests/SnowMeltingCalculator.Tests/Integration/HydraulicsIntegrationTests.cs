@@ -26,24 +26,28 @@ namespace SnowMeltingCalculator.Tests.Integration
                 new CircuitRow { CircuitLength = 100, SupplyLength = 10, PipeSpacing_cm = 20 },
                 new CircuitRow { CircuitLength = 80, SupplyLength = 8, PipeSpacing_cm = 20 }
             };
-            
+
+            double powerUp = 256;
+            double powerDown = 5;
+            double supplyTemperature = 50;
+            double returnTemperature = 30;
+            double operatingTemperature = (supplyTemperature + returnTemperature) / 2.0;
+            double designTemperature = -30;
+            double deltaT = supplyTemperature - returnTemperature;
+            double innerDiameter = 16;
+            double pipeSpacing_cm = 20;
+
             var inputData = new HydraulicInputData
             {
-                PowerUp = 256,
-                PowerDown = 5,
-                SupplyTemperature = 50,
-                ReturnTemperature = 30,
-                ColdFiveDayTemperature = -30,
-                InnerDiameter = 16,
                 GlycolType = GlycolType.Ethylene,
                 GlycolConcentration = 50,
                 ValveType = ValveType.HKV_D
             };
-            
-            var result = _circuitsCalculator.CalculateAllCircuits(circuits, inputData, 20.0);
+
+            var result = _circuitsCalculator.CalculateAllCircuits(circuits, inputData, pipeSpacing_cm, powerUp, powerDown, operatingTemperature, designTemperature, deltaT, innerDiameter);
             var balanced = _circuitsCalculator.CalculateBalancing(result, ValveType.HKV_D);
             var summary = _circuitsCalculator.CalculateCollectorSummary(balanced, 1, ValveType.HKV_D);
-            
+
             Assert.That(result.Count, Is.EqualTo(2));
             Assert.That(summary.CircuitCount, Is.EqualTo(2));
             Assert.That(summary.TotalPower, Is.GreaterThan(0));
@@ -53,24 +57,27 @@ namespace SnowMeltingCalculator.Tests.Integration
         [Test]
         public void Integration_WithGlycolService()
         {
+            double powerUp = 300;
+            double powerDown = 10;
+            double supplyTemperature = 60;
+            double returnTemperature = 40;
+            double operatingTemperature = (supplyTemperature + returnTemperature) / 2.0;
+            double designTemperature = -35;
+            double deltaT = supplyTemperature - returnTemperature;
+            double innerDiameter = 16;
+
             var inputData = new HydraulicInputData
             {
-                PowerUp = 300,
-                PowerDown = 10,
-                SupplyTemperature = 60,
-                ReturnTemperature = 40,
-                ColdFiveDayTemperature = -35,
-                InnerDiameter = 16,
                 GlycolType = GlycolType.Ethylene,
                 GlycolConcentration = 40,
                 ValveType = ValveType.IV_1_25
             };
-            
+
             var glycolProps = _glycolService.GetProperties(
                 inputData.GlycolType,
                 inputData.GlycolConcentration,
-                inputData.OperatingTemperature);
-            
+                operatingTemperature);
+
             Assert.That(glycolProps.Density, Is.GreaterThan(1000));
             Assert.That(glycolProps.KinematicViscosity, Is.GreaterThan(0));
         }
@@ -78,14 +85,18 @@ namespace SnowMeltingCalculator.Tests.Integration
         [Test]
         public void Integration_MultipleCollectors()
         {
+            double powerUp = 256;
+            double powerDown = 5;
+            double supplyTemperature = 50;
+            double returnTemperature = 30;
+            double operatingTemperature = (supplyTemperature + returnTemperature) / 2.0;
+            double designTemperature = -30;
+            double deltaT = supplyTemperature - returnTemperature;
+            double innerDiameter = 16;
+            double pipeSpacing_cm = 20;
+
             var inputData = new HydraulicInputData
             {
-                PowerUp = 256,
-                PowerDown = 5,
-                SupplyTemperature = 50,
-                ReturnTemperature = 30,
-                ColdFiveDayTemperature = -30,
-                InnerDiameter = 16,
                 GlycolType = GlycolType.Ethylene,
                 GlycolConcentration = 50,
                 ValveType = ValveType.HKV_D
@@ -103,11 +114,11 @@ namespace SnowMeltingCalculator.Tests.Integration
                 new CircuitRow { CircuitNumber = 2, CircuitLength = 85, SupplyLength = 8, PipeSpacing_cm = 20 }
             };
 
-            var result1 = _circuitsCalculator.CalculateAllCircuits(collector1Circuits, inputData, 20.0);
+            var result1 = _circuitsCalculator.CalculateAllCircuits(collector1Circuits, inputData, pipeSpacing_cm, powerUp, powerDown, operatingTemperature, designTemperature, deltaT, innerDiameter);
             var balanced1 = _circuitsCalculator.CalculateBalancing(result1, inputData.ValveType);
             var summary1 = _circuitsCalculator.CalculateCollectorSummary(balanced1, 1, inputData.ValveType);
 
-            var result2 = _circuitsCalculator.CalculateAllCircuits(collector2Circuits, inputData, 20.0);
+            var result2 = _circuitsCalculator.CalculateAllCircuits(collector2Circuits, inputData, pipeSpacing_cm, powerUp, powerDown, operatingTemperature, designTemperature, deltaT, innerDiameter);
             var balanced2 = _circuitsCalculator.CalculateBalancing(result2, inputData.ValveType);
             var summary2 = _circuitsCalculator.CalculateCollectorSummary(balanced2, 2, inputData.ValveType);
 
@@ -153,20 +164,24 @@ namespace SnowMeltingCalculator.Tests.Integration
                 }
             };
 
+            double powerUp = 256;
+            double powerDown = 5;
+            double supplyTemperature = 50;
+            double returnTemperature = 30;
+            double operatingTemperature = (supplyTemperature + returnTemperature) / 2.0;
+            double designTemperature = -30;
+            double deltaT = supplyTemperature - returnTemperature;
+            double innerDiameter = 16;
+            double pipeSpacing_cm = 20;
+
             var inputData = new HydraulicInputData
             {
-                PowerUp = 256,
-                PowerDown = 5,
-                SupplyTemperature = 50,
-                ReturnTemperature = 30,
-                ColdFiveDayTemperature = -30,
-                InnerDiameter = 16,
                 GlycolType = GlycolType.Ethylene,
                 GlycolConcentration = 50,
                 ValveType = ValveType.HKV_D
             };
 
-            var calculated = _circuitsCalculator.CalculateAllCircuits(circuits, inputData, 20.0);
+            var calculated = _circuitsCalculator.CalculateAllCircuits(circuits, inputData, pipeSpacing_cm, powerUp, powerDown, operatingTemperature, designTemperature, deltaT, innerDiameter);
             var balanced = _circuitsCalculator.CalculateBalancing(calculated, inputData.ValveType);
             var summary = _circuitsCalculator.CalculateCollectorSummary(balanced, 1, inputData.ValveType);
 
@@ -178,7 +193,7 @@ namespace SnowMeltingCalculator.Tests.Integration
             }
 
             Assert.That(referenceCircuits.Count, Is.EqualTo(1), "Должен быть один референсный контур");
-            
+
             var reference = referenceCircuits[0];
             // Для референсного контура throttling = DpVerteiler (для HKV-D) или DpVent (для IV)
             // Это не равно 0, потому что throttling = maxDpGesamt - (DpRohr + DpVent) = DpVerteiler

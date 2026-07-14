@@ -41,11 +41,6 @@ namespace SnowMeltingCalculator.Services.Construction
         private const double GroundwaterThresholdForLambdaB = 1.0;
 
         /// <summary>
-        /// Минимальная толщина слоя, мм
-        /// </summary>
-        private const double MinLayerThickness = 10.0;
-
-        /// <summary>
         /// Максимальная толщина слоя, мм
         /// </summary>
         private const double MaxLayerThickness = 1000.0;
@@ -136,12 +131,11 @@ namespace SnowMeltingCalculator.Services.Construction
         {
             foreach (var layer in construction.LayersAbovePipe.Concat(construction.Layers))
             {
-                if (layer.Thickness < MinLayerThickness || layer.Thickness > MaxLayerThickness)
+                if (layer.Thickness > MaxLayerThickness)
                 {
                     result.AddError(
-                        $"Толщина слоя '{layer.Material?.Name ?? "Не указан"}' должна быть " +
-                        $"от {MinLayerThickness} до {MaxLayerThickness} мм " +
-                        $"(текущая: {layer.Thickness:F0} мм)");
+                        $"Толщина слоя '{layer.Material?.Name ?? "Не указан"}' не может превышать " +
+                        $"{MaxLayerThickness} мм (текущая: {layer.Thickness:F0} мм)");
                 }
             }
         }
@@ -151,7 +145,7 @@ namespace SnowMeltingCalculator.Services.Construction
         /// </summary>
         private static void ValidateGroundwaterLevel(ConstructionModel construction, ValidationResult result)
         {
-            if (construction.GroundwaterLevel < MinGroundwaterLevel || 
+            if (construction.GroundwaterLevel < MinGroundwaterLevel ||
                 construction.GroundwaterLevel > MaxGroundwaterLevel)
             {
                 result.AddError(

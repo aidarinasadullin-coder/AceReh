@@ -59,7 +59,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             Assert.That(turns, Is.EqualTo(7.5).Within(0.01));
         }
 
-[Test]
+        [Test]
         public void CalculateTurns_HKV_D_FormulaCalculation()
         {
             // Arrange
@@ -335,14 +335,14 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             Assert.That(ValveTurnsCalculator.KV_IV_1_5, Is.EqualTo(1.5));
         }
 
-        #pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         [Test]
         public void MaxTurns_IsEight()
         {
             // Assert
             Assert.That(ValveTurnsCalculator.MaxTurns, Is.EqualTo(8.0));
         }
-        #pragma warning restore CS0618
+#pragma warning restore CS0618
 
         #endregion
 
@@ -423,7 +423,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             Assert.That(warning, Does.Contain("8"));
         }
 
-[Test]
+        [Test]
         public void CalculateTurnsWithWarning_HKV_D_ExceedsMaxTurns_Returns_2_5()
         {
             // Arrange

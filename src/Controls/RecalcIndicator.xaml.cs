@@ -25,7 +25,7 @@ namespace SnowMeltingCalculator.Controls
     public partial class RecalcIndicator : UserControl
     {
         #region Dependency Properties
-        
+
         /// <summary>
         /// Состояние индикатора
         /// </summary>
@@ -35,7 +35,7 @@ namespace SnowMeltingCalculator.Controls
                 typeof(RecalcState),
                 typeof(RecalcIndicator),
                 new PropertyMetadata(RecalcState.Info));
-        
+
         /// <summary>
         /// Текст сообщения
         /// </summary>
@@ -45,7 +45,7 @@ namespace SnowMeltingCalculator.Controls
                 typeof(string),
                 typeof(RecalcIndicator),
                 new PropertyMetadata("Данные актуальны"));
-        
+
         /// <summary>
         /// Показывать ли кнопку пересчёта
         /// </summary>
@@ -55,7 +55,7 @@ namespace SnowMeltingCalculator.Controls
                 typeof(bool),
                 typeof(RecalcIndicator),
                 new PropertyMetadata(false));
-        
+
         /// <summary>
         /// Команда пересчёта
         /// </summary>
@@ -65,11 +65,11 @@ namespace SnowMeltingCalculator.Controls
                 typeof(ICommand),
                 typeof(RecalcIndicator),
                 new PropertyMetadata(null));
-        
+
         #endregion
-        
+
         #region Properties
-        
+
         /// <summary>
         /// Состояние индикатора
         /// </summary>
@@ -78,7 +78,7 @@ namespace SnowMeltingCalculator.Controls
             get => (RecalcState)GetValue(StateProperty);
             set => SetValue(StateProperty, value);
         }
-        
+
         /// <summary>
         /// Текст сообщения
         /// </summary>
@@ -87,7 +87,7 @@ namespace SnowMeltingCalculator.Controls
             get => (string)GetValue(MessageProperty);
             set => SetValue(MessageProperty, value);
         }
-        
+
         /// <summary>
         /// Показывать ли кнопку пересчёта
         /// </summary>
@@ -96,7 +96,7 @@ namespace SnowMeltingCalculator.Controls
             get => (bool)GetValue(ShowButtonProperty);
             set => SetValue(ShowButtonProperty, value);
         }
-        
+
         /// <summary>
         /// Команда пересчёта
         /// </summary>
@@ -105,16 +105,16 @@ namespace SnowMeltingCalculator.Controls
             get => (ICommand)GetValue(RecalculateCommandProperty);
             set => SetValue(RecalculateCommandProperty, value);
         }
-        
+
         #endregion
-        
+
         #region Constructor
-        
+
         public RecalcIndicator()
         {
             InitializeComponent();
         }
-        
+
         #endregion
     }
 }

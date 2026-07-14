@@ -8,6 +8,7 @@ using SnowMeltingCalculator.Models.Navigation;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Thermal;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.ViewModels.Thermal
 {
@@ -20,6 +21,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         private readonly IClimateData _climateData;
         private readonly IConstructionData _constructionData;
         private readonly ICalculationStateService _calculationStateService;
+        private readonly CalculationContext _calculationContext;
 
         #region Observable Properties
 
@@ -100,7 +102,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         partial void OnSelectedPipeChanged(PipeType? value)
         {
             OnPropertyChanged(nameof(IsPipeSpacingEnabled));
-            
+
             if (Result != null)
             {
                 _calculationStateService.SetThermalNeedsRecalculation("Тип трубы изменён. Требуется пересчёт.");
@@ -114,7 +116,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         {
             // Обновляем шаг укладки в сервисе для визуализации
             _calculationStateService.SetPipeSpacing(value, "ThermalViewModel");
-            
+
             if (Result != null)
             {
                 _calculationStateService.SetThermalNeedsRecalculation("Шаг укладки изменён. Требуется пересчёт.");
@@ -215,12 +217,14 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             IThermalCalculator calculator,
             IClimateData climateData,
             IConstructionData constructionData,
-            ICalculationStateService calculationStateService)
+            ICalculationStateService calculationStateService,
+            CalculationContext calculationContext)
         {
             _calculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
             _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
             _constructionData = constructionData ?? throw new ArgumentNullException(nameof(constructionData));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
+            _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
 
             // Инициализация коллекций
             AvailablePipes = new ObservableCollection<PipeType>(PipeType.StandardPipes);
@@ -243,6 +247,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
 
             // Подписка на изменения состояния расчёта
             _calculationStateService.StateChanged += OnCalculationStateChanged;
+
+            // Подписка на изменения канонического шага укладки
+            _calculationStateService.PipeSpacingChanged += OnPipeSpacingServiceChanged;
         }
 
         #endregion
@@ -270,8 +277,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
 
             try
             {
-                // 1. Собрать ThermalInputs из свойств (включая климат и конструкцию)
+                // 1. Собрать ThermalInputs из свойств
                 var parameters = BuildThermalInputs();
+                _calculationContext.UpdateThermalInputs(parameters, "Thermal");
 
                 // 2. Вызвать _calculator.Calculate(parameters, _climateData, _constructionData)
                 Result = await Task.Run(() => _calculator.Calculate(parameters, _climateData, _constructionData));
@@ -280,6 +288,12 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 if (Result != null && !Result.IsValid && Result.ValidationErrors.Length > 0)
                 {
                     ValidationMessage = string.Join("; ", Result.ValidationErrors);
+                }
+
+                // Публикуем валидный результат в общий контекст
+                if (Result != null && Result.IsValid)
+                {
+                    _calculationContext.UpdateThermal(Result, "Thermal");
                 }
 
                 // Сбросить состояние после успешного расчёта
@@ -370,7 +384,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             }
 
             // Валидация климатических данных
-            if (!_climateData.AirTemperature.Equals(0) && 
+            if (!_climateData.AirTemperature.Equals(0) &&
                 (_climateData.AirTemperature < -50 || _climateData.AirTemperature > 10))
             {
                 errors.Add("Климатические данные: температура должна быть от -50°C до +10°C");
@@ -431,6 +445,14 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             // Уведомить UI об изменении свойств RecalcMessage и NeedsRecalculation
             OnPropertyChanged(nameof(RecalcMessage));
             OnPropertyChanged(nameof(NeedsRecalculation));
+        }
+
+        /// <summary>
+        /// Обработчик изменения канонического шага укладки из ICalculationStateService
+        /// </summary>
+        private void OnPipeSpacingServiceChanged(object? sender, int spacing)
+        {
+            PipeSpacing = spacing;
         }
 
         #endregion

@@ -28,10 +28,10 @@ namespace SnowMeltingCalculator
 
             // Настройка DI
             var services = new ServiceCollection();
-            
+
             // Регистрация всех сервисов приложения
             services.AddApplicationServices();
-            
+
             _serviceProvider = services.BuildServiceProvider();
             Services = _serviceProvider;
 
@@ -61,19 +61,19 @@ namespace SnowMeltingCalculator
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка при запуске приложения: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
-                
+
                 if (ex.InnerException != null)
                 {
                     System.Diagnostics.Debug.WriteLine($"InnerException: {ex.InnerException.Message}");
                     System.Diagnostics.Debug.WriteLine($"InnerException StackTrace: {ex.InnerException.StackTrace}");
                 }
-                
+
                 MessageBox.Show(
                     $"Ошибка при запуске приложения:\n{ex.Message}\n\n{(ex.InnerException != null ? ex.InnerException.Message : "")}\n\n{ex.StackTrace}",
                     "Ошибка запуска",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
-                
+
                 Shutdown();
             }
         }

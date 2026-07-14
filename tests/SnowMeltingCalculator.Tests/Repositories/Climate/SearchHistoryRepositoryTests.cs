@@ -35,7 +35,7 @@ namespace SnowMeltingCalculator.Tests.Repositories.Climate
             _repository = null!;
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            
+
             // Удаляем тестовую БД
             if (File.Exists(_dbPath))
             {

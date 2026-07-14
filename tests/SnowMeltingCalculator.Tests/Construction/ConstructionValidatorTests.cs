@@ -123,10 +123,10 @@ namespace SnowMeltingCalculator.Tests.Construction
             var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 40); // минимальная стяжка
-            
+
             // Act
             var result = _validator.Validate(construction);
-            
+
             // Assert - минимальная стяжка валидна
             Assert.That(result.IsValid, Is.True);
         }
@@ -139,10 +139,10 @@ namespace SnowMeltingCalculator.Tests.Construction
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
             construction.AddLayerAbovePipe(concrete, 100); // нормальная толщина
             construction.AddLayerBelowPipe(concrete, 100); // слой под трубой
-            
+
             // Act
             var result = _validator.Validate(construction);
-            
+
             // Assert - конструкция валидна
             Assert.That(result.IsValid, Is.True);
         }

@@ -10,7 +10,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// (средняя температура подачи и обратки)
         /// </summary>
         OperatingTemperature,
-        
+
         /// <summary>
         /// Расчёт при расчётной температуре (холодный пуск)
         /// (температура холодной пятидневки из климатологии)

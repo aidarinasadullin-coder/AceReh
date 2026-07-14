@@ -19,30 +19,30 @@ namespace SnowMeltingCalculator.Services.Navigation
     public class CalculationStateService : ICalculationStateService
     {
         #region Private Fields
-        
+
         private bool _thermalNeedsRecalculation;
         private bool _thermalIsCalculating;
         private string _thermalValidationMessage = string.Empty;
-        
+
         private bool _hydraulicsIsCalculating;
-        
+
         private int _pipeSpacing = 200; // Шаг укладки по умолчанию
-        
+
         #endregion
-        
+
         #region ICalculationStateService Implementation
-        
+
         #region Тепловой расчёт
-        
+
         /// <inheritdoc/>
         public bool ThermalNeedsRecalculation => _thermalNeedsRecalculation;
-        
+
         /// <inheritdoc/>
         public bool ThermalIsCalculating => _thermalIsCalculating;
-        
+
         /// <inheritdoc/>
         public string ThermalValidationMessage => _thermalValidationMessage;
-        
+
         /// <inheritdoc/>
         public void SetThermalNeedsRecalculation(string message)
         {
@@ -50,7 +50,7 @@ namespace SnowMeltingCalculator.Services.Navigation
             _thermalValidationMessage = message;
             OnStateChanged("Thermal", ModuleState.NeedsRecalculation, message);
         }
-        
+
         /// <inheritdoc/>
         public void SetThermalCalculating()
         {
@@ -58,7 +58,7 @@ namespace SnowMeltingCalculator.Services.Navigation
             _thermalNeedsRecalculation = false;
             OnStateChanged("Thermal", ModuleState.Calculating);
         }
-        
+
         /// <inheritdoc/>
         public void ResetThermalState()
         {
@@ -67,47 +67,47 @@ namespace SnowMeltingCalculator.Services.Navigation
             _thermalValidationMessage = string.Empty;
             OnStateChanged("Thermal", ModuleState.Actual);
         }
-        
+
         #endregion
-        
+
         #region Гидравлический расчёт
-        
+
         /// <inheritdoc/>
         public bool HydraulicsIsCalculating => _hydraulicsIsCalculating;
-        
+
         /// <inheritdoc/>
         public void SetHydraulicsCalculating()
         {
             _hydraulicsIsCalculating = true;
             OnStateChanged("Hydraulics", ModuleState.Calculating);
         }
-        
+
         /// <inheritdoc/>
         public void ResetHydraulicsState()
         {
             _hydraulicsIsCalculating = false;
             OnStateChanged("Hydraulics", ModuleState.Actual);
         }
-        
+
         #endregion
-        
+
         #region Параметры конструкции
-        
+
         /// <inheritdoc/>
         public int PipeSpacing => _pipeSpacing;
-        
+
         /// <inheritdoc/>
         public event EventHandler<int>? PipeSpacingChanged;
-        
+
         /// <inheritdoc/>
         public bool IsLoadProjectInProgress { get; set; }
-        
+
         /// <inheritdoc/>
         public void SetPipeSpacing(int spacing)
         {
             SetPipeSpacing(spacing, "ThermalViewModel");
         }
-        
+
         /// <inheritdoc/>
         public void SetPipeSpacing(int spacing, string source)
         {
@@ -123,20 +123,20 @@ namespace SnowMeltingCalculator.Services.Navigation
                 PipeSpacingChanged?.Invoke(this, spacing);
             }
         }
-        
+
         #endregion
-        
+
         #region Событие
-        
+
         /// <inheritdoc/>
         public event EventHandler<ModuleStateChangedEventArgs>? StateChanged;
-        
+
         #endregion
-        
+
         #endregion
-        
+
         #region Private Methods
-        
+
         /// <summary>
         /// Вызвать событие изменения состояния
         /// </summary>
@@ -152,7 +152,7 @@ namespace SnowMeltingCalculator.Services.Navigation
                 Message = message
             });
         }
-        
+
         #endregion
     }
 }

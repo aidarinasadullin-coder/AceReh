@@ -5,6 +5,7 @@ using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.ViewModels.Thermal;
+using SnowMeltingCalculator.Core;
 using System;
 using System.Threading.Tasks;
 
@@ -39,7 +40,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
                 LambdaE = 1.6
             };
             _mockCalculationStateService = new Mock<ICalculationStateService>();
-            _viewModel = new ThermalViewModel(_mockCalculator, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object);
+            _viewModel = new ThermalViewModel(_mockCalculator, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object, new CalculationContext());
         }
 
         #region Constructor Tests
@@ -83,7 +84,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                new ThermalViewModel(null!, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object));
+                new ThermalViewModel(null!, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object, new CalculationContext()));
         }
 
         [Test]
@@ -91,7 +92,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                new ThermalViewModel(_mockCalculator, null!, _mockConstructionData, _mockCalculationStateService.Object));
+                new ThermalViewModel(_mockCalculator, null!, _mockConstructionData, _mockCalculationStateService.Object, new CalculationContext()));
         }
 
         [Test]
@@ -99,7 +100,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                new ThermalViewModel(_mockCalculator, _mockClimateData, null!, _mockCalculationStateService.Object));
+                new ThermalViewModel(_mockCalculator, _mockClimateData, null!, _mockCalculationStateService.Object, new CalculationContext()));
         }
 
         #endregion
@@ -172,9 +173,9 @@ namespace SnowMeltingCalculator.Tests.Thermal
             // Assert
             Assert.That(_viewModel.Result, Is.Not.Null);
             // Проверяем, что калькулятор получил данные из климатического модуля
-            Assert.That(_mockCalculator.LastParameters!.AirTemperature, Is.EqualTo(-30.0));
-            Assert.That(_mockCalculator.LastParameters.WindSpeed, Is.EqualTo(8.0));
-            Assert.That(_mockCalculator.LastParameters.SnowfallIntensity, Is.EqualTo(3.0));
+            Assert.That(_mockCalculator.LastClimateData!.AirTemperature, Is.EqualTo(-30.0));
+            Assert.That(_mockCalculator.LastClimateData.WindSpeed, Is.EqualTo(8.0));
+            Assert.That(_mockCalculator.LastClimateData.SnowfallIntensity, Is.EqualTo(3.0));
         }
 
         [Test]
@@ -191,9 +192,9 @@ namespace SnowMeltingCalculator.Tests.Thermal
 
             // Assert
             Assert.That(_viewModel.Result, Is.Not.Null);
-            Assert.That(_mockCalculator.LastParameters!.R1Total, Is.EqualTo(0.08));
-            Assert.That(_mockCalculator.LastParameters.R2Total, Is.EqualTo(0.12));
-            Assert.That(_mockCalculator.LastParameters.LambdaE, Is.EqualTo(1.8));
+            Assert.That(_mockCalculator.LastConstructionData!.R1Total, Is.EqualTo(0.08));
+            Assert.That(_mockCalculator.LastConstructionData.R2Total, Is.EqualTo(0.12));
+            Assert.That(_mockCalculator.LastConstructionData.LambdaE, Is.EqualTo(1.8));
         }
 
         [Test]
@@ -359,10 +360,10 @@ namespace SnowMeltingCalculator.Tests.Thermal
 
         #endregion
 
-        #region BuildThermalParameters Tests
+        #region BuildThermalInputs Tests
 
         [Test]
-        public void BuildThermalParameters_ReturnsCorrectParameters()
+        public void BuildThermalInputs_ReturnsCorrectParameters()
         {
             // Arrange
             _viewModel.SelectedMode = OperatingMode.Intensive;
@@ -372,7 +373,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
             _viewModel.PipeSpacing = 150;
 
             // Act
-            var parameters = _viewModel.BuildThermalParameters();
+            var parameters = _viewModel.BuildThermalInputs();
 
             // Assert
             Assert.That(parameters.Mode, Is.EqualTo(OperatingMode.Intensive));
@@ -384,7 +385,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         }
 
         [Test]
-        public void BuildThermalParameters_IncludesClimateData()
+        public async Task Calculate_PassesClimateData()
         {
             // Arrange
             _viewModel.SelectedPipe = PipeType.StandardPipes[1];
@@ -393,16 +394,17 @@ namespace SnowMeltingCalculator.Tests.Thermal
             _mockClimateData.SnowfallIntensity = 1.5;
 
             // Act
-            var parameters = _viewModel.BuildThermalParameters();
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
 
             // Assert
-            Assert.That(parameters.AirTemperature, Is.EqualTo(-25.0));
-            Assert.That(parameters.WindSpeed, Is.EqualTo(6.0));
-            Assert.That(parameters.SnowfallIntensity, Is.EqualTo(1.5));
+            Assert.That(_mockCalculator.LastClimateData, Is.Not.Null);
+            Assert.That(_mockCalculator.LastClimateData!.AirTemperature, Is.EqualTo(-25.0));
+            Assert.That(_mockCalculator.LastClimateData.WindSpeed, Is.EqualTo(6.0));
+            Assert.That(_mockCalculator.LastClimateData.SnowfallIntensity, Is.EqualTo(1.5));
         }
 
         [Test]
-        public void BuildThermalParameters_IncludesConstructionData()
+        public async Task Calculate_PassesConstructionData()
         {
             // Arrange
             _viewModel.SelectedPipe = PipeType.StandardPipes[1];
@@ -411,12 +413,13 @@ namespace SnowMeltingCalculator.Tests.Thermal
             _mockConstructionData.LambdaE = 1.9;
 
             // Act
-            var parameters = _viewModel.BuildThermalParameters();
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
 
             // Assert
-            Assert.That(parameters.R1Total, Is.EqualTo(0.07));
-            Assert.That(parameters.R2Total, Is.EqualTo(0.15));
-            Assert.That(parameters.LambdaE, Is.EqualTo(1.9));
+            Assert.That(_mockCalculator.LastConstructionData, Is.Not.Null);
+            Assert.That(_mockCalculator.LastConstructionData!.R1Total, Is.EqualTo(0.07));
+            Assert.That(_mockCalculator.LastConstructionData.R2Total, Is.EqualTo(0.15));
+            Assert.That(_mockCalculator.LastConstructionData.LambdaE, Is.EqualTo(1.9));
         }
 
         #endregion
@@ -561,7 +564,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
     /// </summary>
     internal class MockThermalCalculator : IThermalCalculator
     {
-        public ThermalParameters? LastParameters { get; private set; }
+        public ThermalInputs? LastParameters { get; private set; }
 
         public double CalculateHeatTransferCoefficient(double surfaceTemp, double airTemp, double windSpeed)
         {
@@ -589,22 +592,29 @@ namespace SnowMeltingCalculator.Tests.Thermal
             return (m, etaR);
         }
 
-        public double CalculateExcessTemperature(ThermalParameters parameters, double powerUp, double rFb, double rD, double etaR)
+        public IClimateData? LastClimateData { get; private set; }
+        public IConstructionData? LastConstructionData { get; private set; }
+
+        public double CalculateExcessTemperature(ThermalInputs parameters, double powerUp, double rFb, double rD, double etaR, IClimateData climate, IConstructionData construction)
         {
             if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+            if (climate == null) throw new ArgumentNullException(nameof(climate));
+            if (construction == null) throw new ArgumentNullException(nameof(construction));
             if (etaR > 1.0) throw new ArgumentOutOfRangeException(nameof(etaR));
             return powerUp * rFb / etaR;
         }
 
-        public ThermalCalculationResult Calculate(ThermalParameters parameters)
+        public ThermalCalculationResult Calculate(ThermalInputs inputs, IClimateData climate, IConstructionData construction)
         {
-            LastParameters = parameters;
+            LastParameters = inputs;
+            LastClimateData = climate;
+            LastConstructionData = construction;
 
-            var alpha = CalculateHeatTransferCoefficient((int)parameters.Mode, parameters.AirTemperature, parameters.WindSpeed);
-            var powerUp = CalculatePowerUp(parameters.SnowfallIntensity, (int)parameters.Mode, parameters.AirTemperature, alpha);
-            var (rFb, rD) = CalculateThermalResistance(parameters.R1Total, parameters.R2Total, alpha);
-            var (m, etaR) = CalculateRodTheory(rFb, rD, parameters.LambdaE, parameters.Pipe.OuterDiameter / 1000.0, parameters.PipeSpacing / 1000.0);
-            var excessTemp = CalculateExcessTemperature(parameters, powerUp, rFb, rD, etaR);
+            var alpha = CalculateHeatTransferCoefficient((int)inputs.Mode, climate.AirTemperature, climate.WindSpeed);
+            var powerUp = CalculatePowerUp(climate.SnowfallIntensity, (int)inputs.Mode, climate.AirTemperature, alpha);
+            var (rFb, rD) = CalculateThermalResistance(construction.R1Total, construction.R2Total, alpha);
+            var (m, etaR) = CalculateRodTheory(rFb, rD, inputs.LambdaE, inputs.Pipe.OuterDiameter / 1000.0, inputs.PipeSpacing / 1000.0);
+            var excessTemp = CalculateExcessTemperature(inputs, powerUp, rFb, rD, etaR, climate, construction);
 
             return new ThermalCalculationResult
             {
@@ -612,16 +622,14 @@ namespace SnowMeltingCalculator.Tests.Thermal
                 PowerUp = powerUp,
                 PowerDown = powerUp * 0.1,
                 PowerTotal = powerUp * 1.1,
-                MeltingHeat = parameters.SnowfallIntensity * 100,
+                MeltingHeat = climate.SnowfallIntensity * 100,
                 RadiationHeat = 0.3,
-                ConvectionHeat = powerUp - parameters.SnowfallIntensity * 100 - 0.3,
+                ConvectionHeat = powerUp - climate.SnowfallIntensity * 100 - 0.3,
                 ExcessTemperature = excessTemp,
-                MeanTemperature = parameters.SupplyTemperature - parameters.DeltaT / 2,
-                SupplyTemperature = parameters.SupplyTemperature,
-                ReturnTemperature = parameters.SupplyTemperature - parameters.DeltaT,
-                DeltaT = parameters.DeltaT,
-                R1Total = parameters.R1Total,
-                R2Total = parameters.R2Total,
+                MeanTemperature = inputs.SupplyTemperature - inputs.DeltaT / 2,
+                SupplyTemperature = inputs.SupplyTemperature,
+                ReturnTemperature = inputs.SupplyTemperature - inputs.DeltaT,
+                DeltaT = inputs.DeltaT,
                 RFb = rFb,
                 RD = rD,
                 ParameterM = m,
@@ -633,15 +641,25 @@ namespace SnowMeltingCalculator.Tests.Thermal
             };
         }
 
-        public bool Validate(ThermalParameters parameters, out string[] errors)
+        public bool Validate(ThermalInputs inputs, IClimateData climate, IConstructionData construction, out string[] errors)
         {
             errors = Array.Empty<string>();
-            if (parameters == null)
+            if (inputs == null)
             {
                 errors = new[] { "Параметры не заданы" };
                 return false;
             }
-            if (parameters.WindSpeed < 0)
+            if (climate == null)
+            {
+                errors = new[] { "Климатические данные не заданы" };
+                return false;
+            }
+            if (construction == null)
+            {
+                errors = new[] { "Данные конструкции не заданы" };
+                return false;
+            }
+            if (climate.WindSpeed < 0)
             {
                 errors = new[] { "Скорость ветра не может быть отрицательной" };
                 return false;

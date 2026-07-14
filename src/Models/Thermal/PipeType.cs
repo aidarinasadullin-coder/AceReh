@@ -9,37 +9,37 @@ namespace SnowMeltingCalculator.Models.Thermal
         /// Название трубы
         /// </summary>
         public string Name { get; set; } = string.Empty;
-        
+
         /// <summary>
         /// Артикул
         /// </summary>
         public string Article { get; set; } = string.Empty;
-        
+
         /// <summary>
         /// Наружный диаметр, мм
         /// </summary>
         public double OuterDiameter { get; set; }
-        
+
         /// <summary>
         /// Внутренний диаметр, мм
         /// </summary>
         public double InnerDiameter { get; set; }
-        
+
         /// <summary>
         /// Толщина стенки, мм
         /// </summary>
         public double WallThickness { get; set; }
-        
+
         /// <summary>
         /// Теплопроводность материала трубы, Вт/м·К
         /// </summary>
         public double ThermalConductivity { get; set; }
-        
+
         /// <summary>
         /// Отображаемое имя
         /// </summary>
         public string DisplayName => $"{Name} (Ø{OuterDiameter}×{WallThickness})";
-        
+
         /// <summary>
         /// Стандартные трубы РЕХАУ RAUTHERM S
         /// </summary>
@@ -73,7 +73,7 @@ namespace SnowMeltingCalculator.Models.Thermal
                 ThermalConductivity = 0.35
             }
         };
-        
+
         public override string ToString() => DisplayName;
     }
 }

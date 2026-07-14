@@ -43,13 +43,13 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
             // Act - используем ID из встроенных данных
             var collectors = await _repository.GetAllAsync();
             var firstCollector = collectors.FirstOrDefault();
-            
+
             // Assert
             Assert.That(firstCollector, Is.Not.Null);
-            
+
             // Act - получаем по ID
             var collector = await _repository.GetByIdAsync(firstCollector!.Id);
-            
+
             // Assert
             Assert.That(collector, Is.Not.Null);
             Assert.That(collector!.Id, Is.EqualTo(firstCollector.Id));

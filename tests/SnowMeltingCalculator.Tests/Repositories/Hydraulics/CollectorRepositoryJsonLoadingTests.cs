@@ -18,10 +18,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository("data/rehau_products.json");
-            
+
             // Act
             var collectors = await repository.GetAllAsync();
-            
+
             // Assert
             Assert.That(collectors, Is.Not.Empty);
         }
@@ -31,10 +31,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository("nonexistent_file.json");
-            
+
             // Act
             var collectors = await repository.GetAllAsync();
-            
+
             // Assert - должны вернуться встроенные данные
             Assert.That(collectors, Is.Not.Empty);
             Assert.That(collectors.Any(c => c.Type == CollectorType.HKV), Is.True);
@@ -45,10 +45,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository("data/rehau_products.json");
-            
+
             // Act
             var collector = await repository.GetByIdAsync("HKV_4");
-            
+
             // Assert
             Assert.That(collector, Is.Not.Null);
             Assert.That(collector.Id, Is.EqualTo("HKV_4"));
@@ -60,11 +60,11 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository("data/rehau_products.json");
-            
+
             // Act
             var hkvCollectors = await repository.GetByTypeAsync(CollectorType.HKV);
             var ivCollectors = await repository.GetByTypeAsync(CollectorType.IV);
-            
+
             // Assert
             Assert.That(hkvCollectors.All(c => c.Type == CollectorType.HKV), Is.True);
             Assert.That(ivCollectors.All(c => c.Type == CollectorType.IV), Is.True);
@@ -75,10 +75,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository("data/rehau_products.json");
-            
+
             // Act
             var collector = await repository.GetByCircuitsAsync(4);
-            
+
             // Assert
             Assert.That(collector, Is.Not.Null);
             Assert.That(collector.Circuits, Is.EqualTo(4));
@@ -89,10 +89,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository("data/rehau_products.json");
-            
+
             // Act
             var collector = repository.SelectCollector(4, 1.0);
-            
+
             // Assert
             Assert.That(collector, Is.Not.Null);
             Assert.That(collector.Circuits >= 4, Is.True);
@@ -104,10 +104,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository("data/rehau_products.json");
-            
+
             // Act
             var collector = repository.SelectCollector(20, 1.0);
-            
+
             // Assert
             Assert.That(collector, Is.Null);
         }
@@ -117,12 +117,12 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository("data/rehau_products.json");
-            
+
             // Act - несколько вызовов должны использовать кэш
             var collectors1 = await repository.GetAllAsync();
             var collectors2 = await repository.GetAllAsync();
             var collectors3 = await repository.GetAllAsync();
-            
+
             // Assert - количество должно быть одинаковым
             Assert.That(collectors1.Count(), Is.EqualTo(collectors2.Count()));
             Assert.That(collectors1.Count(), Is.EqualTo(collectors3.Count()));
@@ -140,10 +140,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
                 MaxFlowRate = 1.5,
                 MaxPressure = 320
             };
-            
+
             // Act
             var result = repository.IsCollectorSuitable(collector, 4, 1.0, 200);
-            
+
             // Assert
             Assert.That(result, Is.True);
         }
@@ -160,10 +160,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
                 MaxFlowRate = 1.5,
                 MaxPressure = 320
             };
-            
+
             // Act
             var result = repository.IsCollectorSuitable(collector, 6, 1.0, 200);
-            
+
             // Assert
             Assert.That(result, Is.False);
         }
@@ -180,10 +180,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
                 MaxFlowRate = 1.5,
                 MaxPressure = 320
             };
-            
+
             // Act
             var result = repository.IsCollectorSuitable(collector, 4, 2.0, 200);
-            
+
             // Assert
             Assert.That(result, Is.False);
         }
@@ -200,10 +200,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
                 MaxFlowRate = 1.5,
                 MaxPressure = 320
             };
-            
+
             // Act
             var result = repository.IsCollectorSuitable(collector, 4, 1.0, 400);
-            
+
             // Assert
             Assert.That(result, Is.False);
         }
@@ -213,10 +213,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository();
-            
+
             // Act
             var counts = repository.GetAvailableCircuitCounts();
-            
+
             // Assert
             Assert.That(counts, Contains.Item(2));
             Assert.That(counts, Contains.Item(4));
@@ -229,10 +229,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository();
-            
+
             // Act
             var maxCircuits = repository.GetMaxCircuitsForHKV();
-            
+
             // Assert
             Assert.That(maxCircuits, Is.EqualTo(12));
         }
@@ -242,10 +242,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository();
-            
+
             // Act
             var maxFlow = repository.GetMaxFlowRateForHKV();
-            
+
             // Assert
             Assert.That(maxFlow, Is.EqualTo(1.5));
         }
@@ -255,10 +255,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository();
-            
+
             // Act
             var maxPressure = repository.GetMaxPressureForHKV();
-            
+
             // Assert
             Assert.That(maxPressure, Is.EqualTo(320));
         }
@@ -268,12 +268,12 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository("data/rehau_products.json");
-            
+
             // Act
             var collectors = await repository.GetAllAsync();
             var hasHKV = collectors.Any(c => c.Type == CollectorType.HKV);
             var hasIV = collectors.Any(c => c.Type == CollectorType.IV);
-            
+
             // Assert
             Assert.That(hasHKV, Is.True, "Должны быть HKV коллекторы");
             Assert.That(hasIV, Is.True, "Должны быть IV коллекторы");
@@ -284,10 +284,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         {
             // Arrange
             var repository = new CollectorRepository("data/rehau_products.json");
-            
+
             // Act
             var hkvCollectors = await repository.GetByTypeAsync(CollectorType.HKV);
-            
+
             // Assert
             foreach (var collector in hkvCollectors)
             {

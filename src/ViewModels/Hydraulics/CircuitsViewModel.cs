@@ -1,33 +1,43 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Models.Navigation;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Hydraulics;
 using SnowMeltingCalculator.Services.Navigation;
-using SnowMeltingCalculator.ViewModels.Climate;
-using SnowMeltingCalculator.ViewModels.Thermal;
 
 namespace SnowMeltingCalculator.ViewModels.Hydraulics
 {
     public partial class CircuitsViewModel : ObservableObject
     {
+        #region Constants
+
+        private const double DefaultSupplyTemperature = 50.0;
+        private const double DefaultReturnTemperature = 30.0;
+        private const double DefaultPowerUp = 180.0;
+        private const double DefaultPowerDown = 80.0;
+        private const double DefaultInnerDiameter = 14.2;
+
+        #endregion
+
         #region Services
 
         private readonly ICircuitsCalculator _circuitsCalculator;
         private readonly IGlycolDataService _glycolService;
-        private readonly ThermalViewModel _thermalViewModel;
-        private readonly ClimateViewModel _climateViewModel;
         private readonly ICalculationStateService _calculationStateService;
         private readonly ICircuitsValidator _validator;
         private readonly ICollectorTypeSelector _collectorTypeSelector;
+        private readonly CalculationContext _calculationContext;
 
         private PropertyChangedEventHandler? _inputDataPropertyChangedHandler;
+        private EventHandler<ContextChangedEventArgs>? _contextChangedHandler;
+        private EventHandler<int>? _pipeSpacingChangedHandler;
 
         #endregion
 
@@ -77,9 +87,14 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// Входные данные для гидравлического расчёта
         /// </summary>
         /// <remarks>
-        /// Заполняются из ThermalModule при изменении результата теплового расчёта
+        /// Содержит только гидравлически-локальные данные (гликоль, шаг подводки,
+        /// доля тепла от подводок, тип клапана). Значения из ThermalModule,
+        /// ClimateModule и ICalculationStateService читаются через CalculationContext.
         /// </remarks>
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SupplySpacing_cm))]
+        [NotifyPropertyChangedFor(nameof(SupplyHeatPercent))]
+        [NotifyPropertyChangedFor(nameof(GlycolTypeName))]
         private HydraulicInputData _inputData = new();
 
         #endregion
@@ -106,49 +121,56 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// Температура подачи, °C
         /// </summary>
         /// <remarks>
-        /// Берётся из InputData.SupplyTemperature (из ThermalViewModel.Result)
+        /// Берётся из CalculationContext.ThermalResult или ThermalInputs.
         /// </remarks>
-        public double SupplyTemperature => InputData.SupplyTemperature;
+        public double SupplyTemperature =>
+            _calculationContext.IsThermalValid
+                ? _calculationContext.SupplyTemperature
+                : _calculationContext.ThermalInputs?.SupplyTemperature ?? DefaultSupplyTemperature;
 
         /// <summary>
         /// Температура обратки, °C
         /// </summary>
         /// <remarks>
-        /// Берётся из InputData.ReturnTemperature (из ThermalViewModel.Result)
+        /// Берётся из CalculationContext.ThermalResult.
         /// </remarks>
-        public double ReturnTemperature => InputData.ReturnTemperature;
+        public double ReturnTemperature =>
+            _calculationContext.IsThermalValid
+                ? _calculationContext.ReturnTemperature
+                : DefaultReturnTemperature;
 
         /// <summary>
         /// Тип трубы (наименование)
         /// </summary>
         /// <remarks>
-        /// Берётся из InputData.SelectedPipe.Name
+        /// Берётся из CalculationContext.ThermalInputs.Pipe.Name
         /// </remarks>
-        public string PipeType => InputData.SelectedPipe?.Name ?? "Труба не выбрана";
+        public string PipeType => _calculationContext.ThermalInputs?.Pipe?.Name ?? "Труба не выбрана";
 
         /// <summary>
         /// Наружный диаметр трубы, мм
         /// </summary>
         /// <remarks>
-        /// Берётся из InputData.SelectedPipe.OuterDiameter
+        /// Берётся из CalculationContext.ThermalInputs.Pipe.OuterDiameter
         /// </remarks>
-        public double OuterDiameter => InputData.SelectedPipe?.OuterDiameter ?? 0;
+        public double OuterDiameter => _calculationContext.ThermalInputs?.Pipe?.OuterDiameter ?? 0;
 
         /// <summary>
         /// Толщина стенки трубы, мм
         /// </summary>
         /// <remarks>
-        /// Берётся из InputData.SelectedPipe.WallThickness
+        /// Берётся из CalculationContext.ThermalInputs.Pipe.WallThickness
         /// </remarks>
-        public double WallThickness => InputData.SelectedPipe?.WallThickness ?? 0;
+        public double WallThickness => _calculationContext.ThermalInputs?.Pipe?.WallThickness ?? 0;
 
         /// <summary>
         /// Внутренний диаметр трубы, мм
         /// </summary>
         /// <remarks>
-        /// Берётся из InputData.InnerDiameter
+        /// Берётся из CalculationContext.ThermalInputs.Pipe.InnerDiameter
         /// </remarks>
-        public double InnerDiameter => InputData.InnerDiameter;
+        public double InnerDiameter =>
+            _calculationContext.ThermalInputs?.Pipe?.InnerDiameter ?? DefaultInnerDiameter;
 
         /// <summary>
         /// Шероховатость трубы, мм (константа для PE-Xa)
@@ -170,14 +192,17 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// </summary>
         /// <remarks>
         /// Используется для расчёта при "холодном пуске".
-        /// Берётся из ClimateViewModel.AirTemperature.
+        /// Берётся из CalculationContext.AirTemperature (таблица 1.6 СП 131.13330.2025).
         /// </remarks>
-        public double DesignTemperature => _climateViewModel.AirTemperature;
+        public double DesignTemperature => _calculationContext.AirTemperature;
 
         /// <summary>
         /// Рабочая температура теплоносителя, °C
         /// </summary>
-        public double OperatingTemperatureValue => InputData.OperatingTemperature;
+        public double OperatingTemperatureValue =>
+            _calculationContext.IsThermalValid
+                ? _calculationContext.ThermalResult!.MeanTemperature
+                : 0;
 
         /// <summary>
         /// Расчётная температура наружного воздуха, °C (М10/М15/М20)
@@ -200,25 +225,33 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// Удельная мощность вверх, Вт/м²
         /// </summary>
         /// <remarks>
-        /// Берётся из InputData.PowerUp (из ThermalViewModel.Result.PowerUp)
+        /// Берётся из CalculationContext.ThermalResult.PowerUp
         /// </remarks>
-        public double PowerUp => InputData.PowerUp;
+        public double PowerUp =>
+            _calculationContext.IsThermalValid
+                ? _calculationContext.PowerUp
+                : DefaultPowerUp;
 
         /// <summary>
         /// Удельная мощность вниз, Вт/м²
         /// </summary>
         /// <remarks>
-        /// Берётся из InputData.PowerDown (из ThermalViewModel.Result.PowerDown)
+        /// Берётся из CalculationContext.ThermalResult.PowerDown
         /// </remarks>
-        public double PowerDown => InputData.PowerDown;
+        public double PowerDown =>
+            _calculationContext.IsThermalValid
+                ? _calculationContext.PowerDown
+                : DefaultPowerDown;
 
         /// <summary>
         /// Шаг укладки, см
         /// </summary>
         /// <remarks>
-        /// Берётся из InputData.PipeSpacing (мм) / 10
+        /// Берётся из CalculationContext.ThermalInputs.PipeSpacing (мм) или
+        /// ICalculationStateService.PipeSpacing (мм), делённый на 10.
         /// </remarks>
-        public double PipeSpacing_cm => InputData.PipeSpacing / 10.0;
+        public double PipeSpacing_cm =>
+            (_calculationContext.ThermalInputs?.PipeSpacing ?? _calculationStateService.PipeSpacing) / 10.0;
 
         /// <summary>
         /// Шаг подводки, см
@@ -330,7 +363,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             });
 
             AddCircuitCommand.NotifyCanExecuteChanged();
-            
+
             // === Пересчитать гидравлику после добавления контура ===
             // Это необходимо для обновления референсного контура и балансировки
             Calculate();
@@ -354,7 +387,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 RenumberCircuits(collector);
                 AddCircuitCommand.NotifyCanExecuteChanged();
                 RemoveCircuitCommand.NotifyCanExecuteChanged();
-                
+
                 // === Пересчитать гидравлику после удаления контура ===
                 // Это необходимо для обновления референсного контура и балансировки
                 Calculate();
@@ -369,39 +402,44 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
             try
             {
-                // Убедиться, что InputData содержит тепловые входные данные из контрактов
-                if (InputData.PipeSpacing <= 0)
+                var thermalResult = _calculationContext.ThermalResult;
+                var thermalInputs = _calculationContext.ThermalInputs;
+
+                double supplyTemperature;
+                double returnTemperature;
+                double powerUp;
+                double powerDown;
+
+                if (_calculationContext.IsThermalValid)
                 {
-                    InputData.PipeSpacing = _calculationStateService.PipeSpacing;
+                    supplyTemperature = thermalResult!.SupplyTemperature;
+                    returnTemperature = thermalResult.ReturnTemperature;
+                    powerUp = thermalResult.PowerUp;
+                    powerDown = thermalResult.PowerDown;
+                }
+                else
+                {
+                    // Холодный пуск без теплового расчёта — fallback-значения
+                    supplyTemperature = 35.0;
+                    returnTemperature = 30.0;
+                    powerUp = DefaultPowerUp;
+                    powerDown = DefaultPowerDown;
                 }
 
-                if (InputData.SelectedPipe != null && InputData.InnerDiameter <= 0)
+                double deltaT = thermalResult?.DeltaT ?? thermalInputs?.DeltaT ?? (supplyTemperature - returnTemperature);
+                if (deltaT <= 0)
                 {
-                    InputData.InnerDiameter = InputData.SelectedPipe.InnerDiameter;
+                    deltaT = 5.0;
                 }
 
-                if (InputData.InnerDiameter <= 0)
-                {
-                    InputData.InnerDiameter = 14.2;
-                    InputData.SupplyTemperature = 35;
-                    InputData.ReturnTemperature = 30;
-                    InputData.PowerUp = 180;
-                    InputData.PowerDown = 80;
-                    InputData.ColdFiveDayTemperature = -28;
-                }
-
-                if (InputData.PipeSpacing <= 0)
-                {
-                    InputData.PipeSpacing = _calculationStateService.PipeSpacing;
-                }
+                double innerDiameter = thermalInputs?.Pipe?.InnerDiameter ?? DefaultInnerDiameter;
+                double pipeSpacing_mm = thermalInputs?.PipeSpacing ?? _calculationStateService.PipeSpacing;
 
                 var collector = SelectedCollector;
                 if (collector == null) return;
 
-                var input = InputData;
-
-                var operatingTemp = input.OperatingTemperature;
-                var designTemp = _climateViewModel.AirTemperature;
+                double operatingTemp = thermalResult?.MeanTemperature ?? 0.0;
+                double designTemp = _calculationContext.AirTemperature;
 
                 var glycolOperating = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, operatingTemp);
                 var glycolDesign = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, designTemp);
@@ -409,24 +447,33 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 OperatingGlycolProperties = glycolOperating;
                 DesignGlycolProperties = glycolDesign;
 
-                // Получить шаг укладки из InputData (мм → см)
-                double pipeSpacing_cm = InputData.PipeSpacing / 10.0;
+                // Получить шаг укладки из контекста (мм → см)
+                double pipeSpacing_cm = pipeSpacing_mm / 10.0;
+
+                // Синхронизировать шаг укладки во всех контурах перед расчётом
+                foreach (var col in Collectors)
+                {
+                    foreach (var circuit in col.Circuits)
+                    {
+                        circuit.PipeSpacing_cm = pipeSpacing_cm;
+                    }
+                }
 
                 // === ЭТАП 1: Рассчитать FlowRate для всех контуров (не зависит от kv) ===
                 foreach (var circuit in collector.Circuits)
                 {
                     if (circuit.CircuitLength <= 0) continue;
 
-                    var power = _circuitsCalculator.CalculateCircuitPower(circuit, input.PowerUp, input.PowerDown, pipeSpacing_cm);
+                    var power = _circuitsCalculator.CalculateCircuitPower(circuit, powerUp, powerDown, pipeSpacing_cm);
                     circuit.Power = power;
 
-                    var flowRate = _circuitsCalculator.CalculateFlowRate(power, input.DeltaT, glycolOperating.Density, glycolOperating.SpecificHeat);
+                    var flowRate = _circuitsCalculator.CalculateFlowRate(power, deltaT, glycolOperating.Density, glycolOperating.SpecificHeat);
                     circuit.FlowRate = flowRate;
                 }
 
                 // === ЭТАП 2: Вычислить summary для определения типа коллектора ===
                 var summary = _circuitsCalculator.CalculateCollectorSummary(
-                    new System.Collections.Generic.List<CircuitRow>(collector.Circuits),
+                    new List<CircuitRow>(collector.Circuits),
                     collector.CollectorNumber,
                     collector.ValveType
                 );
@@ -454,7 +501,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                         circuit,
                         operatingTemp,
                         glycolOperating,
-                        input.InnerDiameter,
+                        innerDiameter,
                         kv,
                         collector.ValveType
                     );
@@ -464,7 +511,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                         circuit,
                         designTemp,
                         glycolDesign,
-                        input.InnerDiameter,
+                        innerDiameter,
                         kv,
                         collector.ValveType
                     );
@@ -475,7 +522,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
                 // === ЭТАП 6: Обновить summary с новыми результатами ===
                 summary = _circuitsCalculator.CalculateCollectorSummary(
-                    new System.Collections.Generic.List<CircuitRow>(collector.Circuits),
+                    new List<CircuitRow>(collector.Circuits),
                     collector.CollectorNumber,
                     collector.ValveType
                 );
@@ -483,7 +530,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
                 // === ЭТАП 7: Балансировка ===
                 _circuitsCalculator.CalculateBalancing(
-                    new System.Collections.Generic.List<CircuitRow>(collector.Circuits),
+                    new List<CircuitRow>(collector.Circuits),
                     collector.ValveType
                 );
 
@@ -514,28 +561,28 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         public CircuitsViewModel(
             ICircuitsCalculator circuitsCalculator,
             IGlycolDataService glycolService,
-            ThermalViewModel thermalViewModel,
-            ClimateViewModel climateViewModel,
             ICalculationStateService calculationStateService,
             ICircuitsValidator validator,
-            ICollectorTypeSelector collectorTypeSelector)
+            ICollectorTypeSelector collectorTypeSelector,
+            CalculationContext calculationContext)
         {
             _circuitsCalculator = circuitsCalculator ?? throw new ArgumentNullException(nameof(circuitsCalculator));
             _glycolService = glycolService ?? throw new ArgumentNullException(nameof(glycolService));
-            _thermalViewModel = thermalViewModel ?? throw new ArgumentNullException(nameof(thermalViewModel));
-            _climateViewModel = climateViewModel ?? throw new ArgumentNullException(nameof(climateViewModel));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
             _collectorTypeSelector = collectorTypeSelector ?? throw new ArgumentNullException(nameof(collectorTypeSelector));
+            _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
 
             // Подписка на изменения состояния расчёта
             _calculationStateService.StateChanged += OnCalculationStateChanged;
 
-            // Подписка на изменения результата теплового расчёта
-            _thermalViewModel.PropertyChanged += OnThermalViewModelPropertyChanged;
+            // Подписка на изменения шага укладки (ThermalViewModel -> CalculationStateService)
+            _pipeSpacingChangedHandler = OnPipeSpacingChanged;
+            _calculationStateService.PipeSpacingChanged += _pipeSpacingChangedHandler;
 
-            // Подписка на изменения климатических данных
-            _climateViewModel.PropertyChanged += OnClimatePropertyChanged;
+            // Подписка на изменения единого контекста расчёта (T15)
+            _contextChangedHandler = OnCalculationContextChanged;
+            _calculationContext.ContextChanged += _contextChangedHandler;
 
             // Инициализация InputData с переподпиской
             SetInputData(new HydraulicInputData());
@@ -623,65 +670,47 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         }
 
         /// <summary>
-        /// Обработчик изменения свойств ThermalViewModel
-        /// </summary>
-        /// <remarks>
-        /// T7: отключён. CircuitsViewModel теперь читает тепловые входные данные из InputData и контрактов,
-        /// а не напрямую из полей ThermalViewModel. Подписка сохранена, т.к. T15 полностью удалит
-        /// зависимость от ThermalViewModel.
-        /// </remarks>
-        private void OnThermalViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            // T7: тело обработчика отключено; тепловые входные данные берутся из InputData и контрактов.
-        }
-
-        /// <summary>
         /// Обновить данные из ThermalModule
         /// </summary>
         /// <remarks>
-        /// Заполняет InputData данными из теплового расчёта, переданными через параметры.
-        /// CircuitsViewModel больше не читает поля ThermalViewModel напрямую.
+        /// Заполняет единый CalculationContext данными из теплового расчёта.
+        /// CircuitsViewModel больше не хранит тепловые параметры в InputData.
         /// </remarks>
         public void UpdateFromThermalModule(IThermalCalculationResult? thermalResult, PipeType? selectedPipe)
         {
-            InputData.ThermalResult = thermalResult;
-            InputData.SelectedPipe = selectedPipe;
-
             if (thermalResult == null || !thermalResult.IsValid)
             {
-                // Сбросить данные, если результат невалиден
+                // Сбросить гидравлические входные данные
                 SetInputData(new HydraulicInputData());
+
+                // Инвалидировать тепловой результат в контексте, чтобы свойства вернули fallback
+                _calculationContext.UpdateThermal(
+                    new ThermalCalculationResult { IsValid = false },
+                    "CircuitsViewModel"
+                );
+
+                NotifyThermalPropertiesChanged();
                 return;
             }
 
-            // Обновить данные из ThermalResult
-            InputData.PowerUp = thermalResult.PowerUp;
-            InputData.PowerDown = thermalResult.PowerDown;
-            InputData.SupplyTemperature = thermalResult.SupplyTemperature;
-            InputData.ReturnTemperature = thermalResult.ReturnTemperature;
-
-            // Получить внутренний диаметр трубы из выбранной трубы
+            // Обновить входные параметры трубы в контексте (только если передана труба)
             if (selectedPipe != null)
             {
-                InputData.InnerDiameter = selectedPipe.InnerDiameter;
+                var inputs = _calculationContext.ThermalInputs ?? new ThermalInputs();
+                _calculationContext.UpdateThermalInputs(
+                    inputs with { Pipe = selectedPipe },
+                    "CircuitsViewModel"
+                );
+            }
+
+            // Обновить результат теплового расчёта в контексте
+            if (thermalResult is ThermalCalculationResult result)
+            {
+                _calculationContext.UpdateThermal(result, "CircuitsViewModel");
             }
 
             // Уведомить об изменении свойств для отображения в блоках
-            OnPropertyChanged(nameof(OperatingTemperatureValue));
-            OnPropertyChanged(nameof(DesignTemperatureValue));
-            OnPropertyChanged(nameof(OperatingModeButtonText));
-            OnPropertyChanged(nameof(DesignModeButtonText));
-            OnPropertyChanged(nameof(InnerDiameter));
-            OnPropertyChanged(nameof(SupplyTemperature));
-            OnPropertyChanged(nameof(ReturnTemperature));
-            OnPropertyChanged(nameof(PowerUp));
-            OnPropertyChanged(nameof(PowerDown));
-            OnPropertyChanged(nameof(PipeSpacing_cm));
-            OnPropertyChanged(nameof(PipeType));
-            OnPropertyChanged(nameof(OuterDiameter));
-            OnPropertyChanged(nameof(WallThickness));
-            OnPropertyChanged(nameof(SupplySpacing_cm));
-            OnPropertyChanged(nameof(SupplyHeatPercent));
+            NotifyThermalPropertiesChanged();
 
             // Выполнить расчёт после обновления данных
             Calculate();
@@ -715,18 +744,49 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         }
 
         /// <summary>
-        /// Обработчик изменения свойств ClimateViewModel
+        /// Обработчик изменения единого контекста расчёта
         /// </summary>
-        private void OnClimatePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        /// <remarks>
+        /// Реагируем на ThermalResult (логическое завершение теплового расчёта) и Climate.
+        /// ThermalInputs игнорируем здесь, потому что PushThermalResultToContext обновляет
+        /// и Inputs, и Result — обработка Result даёт ровно один пересчёт на логическое
+        /// изменение. UpdateFromThermalModule вызывает Calculate() явно.
+        /// </remarks>
+        private void OnCalculationContextChanged(object? sender, ContextChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ClimateViewModel.AirTemperature))
-            {
-                UpdateFromClimateModule();
+            // Игнорировать собственные изменения контекста — Calculate вызывается явно
+            if (e.Source == "CircuitsViewModel")
+                return;
 
-                // Уведомить об изменении расчётной температуры
-                OnPropertyChanged(nameof(DesignTemperatureValue));
-                OnPropertyChanged(nameof(DesignModeButtonText));
+            switch (e.PropertyName)
+            {
+                case nameof(CalculationContext.ThermalResult):
+                    Calculate();
+                    break;
+
+                case nameof(CalculationContext.Climate):
+                    UpdateFromClimateModule();
+                    break;
             }
+        }
+
+        /// <summary>
+        /// Обработчик изменения шага укладки из ICalculationStateService
+        /// </summary>
+        private void OnPipeSpacingChanged(object? sender, int spacing)
+        {
+            var pipeSpacing_cm = spacing / 10.0;
+
+            foreach (var collector in Collectors)
+            {
+                foreach (var circuit in collector.Circuits)
+                {
+                    circuit.PipeSpacing_cm = pipeSpacing_cm;
+                }
+            }
+
+            OnPropertyChanged(nameof(PipeSpacing_cm));
+            Calculate();
         }
 
         /// <summary>
@@ -759,7 +819,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     }
                     Calculate();
                 }
-                if (e.PropertyName == nameof(HydraulicInputData.SupplyHeatPercent))
+                else if (e.PropertyName == nameof(HydraulicInputData.SupplyHeatPercent))
                 {
                     OnPropertyChanged(nameof(SupplyHeatPercent));
                     foreach (var collector in Collectors)
@@ -771,32 +831,34 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     }
                     Calculate();
                 }
-                if (e.PropertyName == nameof(HydraulicInputData.GlycolType))
+                else if (e.PropertyName == nameof(HydraulicInputData.GlycolType))
                 {
                     OnPropertyChanged(nameof(GlycolTypeName));
                     Calculate();
                 }
-                if (e.PropertyName == nameof(HydraulicInputData.GlycolConcentration))
+                else if (e.PropertyName == nameof(HydraulicInputData.GlycolConcentration))
                 {
                     Calculate();
                 }
             };
 
             InputData.PropertyChanged += _inputDataPropertyChangedHandler;
+
+            // Уведомить об изменении локальных свойств при замене InputData
+            OnPropertyChanged(nameof(SupplySpacing_cm));
+            OnPropertyChanged(nameof(SupplyHeatPercent));
+            OnPropertyChanged(nameof(GlycolTypeName));
         }
 
         /// <summary>
         /// Обновить данные из ClimateModule
         /// </summary>
         /// <remarks>
-        /// Вызывается при изменении ClimateViewModel.AirTemperature.
-        /// Обновляет InputData.ColdFiveDayTemperature и выполняет пересчёт.
+        /// Вызывается при изменении CalculationContext.Climate (в том числе AirTemperature).
+        /// Выполняет пересчёт и уведомляет UI об изменении расчётной температуры.
         /// </remarks>
         public void UpdateFromClimateModule()
         {
-            // Расчётная температура (М10/М15/М20)
-            InputData.ColdFiveDayTemperature = _climateViewModel.AirTemperature;
-
             // Уведомить об изменении расчётной температуры
             OnPropertyChanged(nameof(DesignTemperatureValue));
             OnPropertyChanged(nameof(DesignModeButtonText));
@@ -812,6 +874,25 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         {
             // Уведомить UI об изменении свойства IsCalculating
             OnPropertyChanged(nameof(IsCalculating));
+        }
+
+        private void NotifyThermalPropertiesChanged()
+        {
+            OnPropertyChanged(nameof(OperatingTemperatureValue));
+            OnPropertyChanged(nameof(DesignTemperatureValue));
+            OnPropertyChanged(nameof(OperatingModeButtonText));
+            OnPropertyChanged(nameof(DesignModeButtonText));
+            OnPropertyChanged(nameof(InnerDiameter));
+            OnPropertyChanged(nameof(SupplyTemperature));
+            OnPropertyChanged(nameof(ReturnTemperature));
+            OnPropertyChanged(nameof(PowerUp));
+            OnPropertyChanged(nameof(PowerDown));
+            OnPropertyChanged(nameof(PipeSpacing_cm));
+            OnPropertyChanged(nameof(PipeType));
+            OnPropertyChanged(nameof(OuterDiameter));
+            OnPropertyChanged(nameof(WallThickness));
+            OnPropertyChanged(nameof(SupplySpacing_cm));
+            OnPropertyChanged(nameof(SupplyHeatPercent));
         }
 
         #endregion

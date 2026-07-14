@@ -1,3 +1,4 @@
+using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Thermal;
 
 namespace SnowMeltingCalculator.Services.Thermal
@@ -71,27 +72,44 @@ namespace SnowMeltingCalculator.Services.Thermal
         /// <param name="rFb">Сопротивление вверх, м²·К/Вт</param>
         /// <param name="rD">Сопротивление вниз, м²·К/Вт</param>
         /// <param name="etaR">КПД ребра</param>
+        /// <param name="climate">Климатические данные</param>
+        /// <param name="construction">Данные конструкции</param>
         /// <returns>Избыточная температура JHmü, °C</returns>
         double CalculateExcessTemperature(
-            ThermalParameters parameters,
+            ThermalInputs parameters,
             double powerUp,
             double rFb,
             double rD,
-            double etaR);
+            double etaR,
+            IClimateData climate,
+            IConstructionData construction);
 
         /// <summary>
         /// Выполнить полный тепловой расчёт
         /// </summary>
-        /// <param name="parameters">Входные параметры</param>
+        /// <param name="inputs">Входные параметры теплового расчёта</param>
+        /// <param name="climate">Климатические данные из контрактной шины</param>
+        /// <param name="construction">Данные конструкции из контрактной шины</param>
         /// <returns>Результат расчёта</returns>
-        ThermalCalculationResult Calculate(ThermalParameters parameters);
+        /// <remarks>
+        /// Калькулятор получает климатические и конструктивные данные
+        /// через аргументы <paramref name="climate"/> и <paramref name="construction"/>,
+        /// а не из полей <paramref name="inputs"/>.
+        /// </remarks>
+        ThermalCalculationResult Calculate(ThermalInputs inputs, IClimateData climate, IConstructionData construction);
 
         /// <summary>
         /// Валидация входных параметров
         /// </summary>
-        /// <param name="parameters">Параметры для проверки</param>
+        /// <param name="inputs">Входные параметры теплового расчёта</param>
+        /// <param name="climate">Климатические данные из контрактной шины</param>
+        /// <param name="construction">Данные конструкции из контрактной шины</param>
         /// <param name="errors">Список ошибок валидации</param>
         /// <returns>true если параметры валидны</returns>
-        bool Validate(ThermalParameters parameters, out string[] errors);
+        /// <remarks>
+        /// Валидация охватывает тепловые параметры, климатические данные
+        /// и данные конструкции, полученные через контрактные объекты.
+        /// </remarks>
+        bool Validate(ThermalInputs inputs, IClimateData climate, IConstructionData construction, out string[] errors);
     }
 }

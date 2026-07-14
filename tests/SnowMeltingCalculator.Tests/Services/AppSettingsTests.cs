@@ -20,15 +20,15 @@ namespace SnowMeltingCalculator.Tests.Services
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "SnowMeltingCalculator",
                 "settings.json");
-            
+
             // Удаляем файл настроек перед каждым тестом
             if (File.Exists(_settingsPath))
             {
                 File.Delete(_settingsPath);
             }
-            
+
             // Сбрасываем singleton через рефлексию
-            var field = typeof(AppSettings).GetField("_instance", 
+            var field = typeof(AppSettings).GetField("_instance",
                 System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
             field?.SetValue(null, null);
         }

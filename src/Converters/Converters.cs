@@ -97,21 +97,21 @@ namespace SnowMeltingCalculator.Converters
 
             var enumValue = value;
             var field = enumValue.GetType().GetField(enumValue.ToString()!);
-            
+
             if (field == null)
                 return enumValue.ToString() ?? string.Empty;
 
             // Пытаемся получить атрибут Display
             var displayAttr = field.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.DisplayAttribute), false)
                 .FirstOrDefault() as System.ComponentModel.DataAnnotations.DisplayAttribute;
-            
+
             if (displayAttr != null)
                 return displayAttr.GetName() ?? enumValue.ToString() ?? string.Empty;
 
             // Пытаемся получить атрибут Description
             var descriptionAttr = field.GetCustomAttributes(typeof(System.ComponentModel.DescriptionAttribute), false)
                 .FirstOrDefault() as System.ComponentModel.DescriptionAttribute;
-            
+
             if (descriptionAttr != null)
                 return descriptionAttr.Description;
 
@@ -281,8 +281,8 @@ namespace SnowMeltingCalculator.Converters
         {
             if (value is bool isCollapsed)
             {
-                return isCollapsed 
-                    ? "Развернуть панель (Ctrl+B)" 
+                return isCollapsed
+                    ? "Развернуть панель (Ctrl+B)"
                     : "Свернуть панель (Ctrl+B)";
             }
             return "Свернуть панель (Ctrl+B)";
@@ -336,13 +336,13 @@ namespace SnowMeltingCalculator.Converters
         {
             if (value == null)
                 return "—";
-            
+
             if (value is double d && d == 0)
                 return "—";
-            
+
             if (value is int i && i == 0)
                 return "—";
-            
+
             return value;
         }
 
@@ -436,6 +436,26 @@ namespace SnowMeltingCalculator.Converters
                 }
             }
             return "—";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Конвертер: Order (0, 1, 2...) → номер слоя (1, 2, 3...)
+    /// </summary>
+    public class OrderToNumberConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is int order)
+            {
+                return (order + 1).ToString();
+            }
+            return "1";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -76,7 +76,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             double[] temperatures = { -15, -5, 5, 15, 25, 35, 45, 55, 65, 75, 85 };
 
             // Act
-            var viscosities = temperatures.Select(t => 
+            var viscosities = temperatures.Select(t =>
                 _service.GetKinematicViscosity(GlycolType.Ethylene, concentration, t)).ToArray();
 
             // Assert - каждое последующее значение должно быть меньше предыдущего
@@ -97,7 +97,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             double[] temperatures = { -15, -5, 5, 15, 25, 35, 45, 55, 65, 75, 85 };
 
             // Act
-            var viscosities = temperatures.Select(t => 
+            var viscosities = temperatures.Select(t =>
                 _service.GetKinematicViscosity(GlycolType.Propylene, concentration, t)).ToArray();
 
             // Assert
@@ -140,18 +140,18 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             var service = new GlycolDataService("data/glycol_data.json");
-            
+
             // Act - концентрация 50%, температуры -15°C и +40°C
             var propsAtMinus15 = service.GetProperties(GlycolType.Ethylene, 50.0, -15.0);
             var propsAtPlus40 = service.GetProperties(GlycolType.Ethylene, 50.0, 40.0);
-            
+
             // Assert
             Console.WriteLine($"При -15°C: вязкость = {propsAtMinus15.KinematicViscosity:F2} мм²/с, плотность = {propsAtMinus15.Density:F1} кг/м³");
             Console.WriteLine($"При +40°C: вязкость = {propsAtPlus40.KinematicViscosity:F2} мм²/с, плотность = {propsAtPlus40.Density:F1} кг/м³");
-            
+
             Assert.That(propsAtMinus15.KinematicViscosity, Is.GreaterThan(propsAtPlus40.KinematicViscosity),
                 $"Вязкость при -15°C ({propsAtMinus15.KinematicViscosity:F2}) должна быть ВЫШЕ, чем при +40°C ({propsAtPlus40.KinematicViscosity:F2})");
-            
+
             Assert.That(propsAtMinus15.Density, Is.GreaterThan(propsAtPlus40.Density),
                 $"Плотность при -15°C ({propsAtMinus15.Density:F1}) должна быть ВЫШЕ, чем при +40°C ({propsAtPlus40.Density:F1})");
         }
@@ -209,7 +209,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             double[] temperatures = { -15, -5, 5, 15, 25, 35, 45, 55, 65, 75, 85 };
 
             // Act
-            var densities = temperatures.Select(t => 
+            var densities = temperatures.Select(t =>
                 _service.GetDensity(GlycolType.Ethylene, concentration, t)).ToArray();
 
             // Assert - каждое последующее значение должно быть меньше предыдущего
@@ -392,7 +392,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             double[] interpolatedTemps = { -10, 0, 10, 20, 30, 40, 50, 60, 70, 80 };
 
             // Act & Assert - проверяем монотонность для каждого свойства
-            var viscosities = interpolatedTemps.Select(t => 
+            var viscosities = interpolatedTemps.Select(t =>
                 _service.GetKinematicViscosity(GlycolType.Ethylene, concentration, t)).ToArray();
 
             for (int i = 1; i < interpolatedTemps.Length; i++)
@@ -539,7 +539,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
         #region Тесты для проверки данных JSON
 
-/// <summary>
+        /// <summary>
         /// Проверка данных JSON: вязкость уменьшается с ростом температуры
         /// </summary>
         [Test]

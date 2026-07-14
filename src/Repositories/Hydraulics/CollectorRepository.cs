@@ -33,7 +33,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// <summary>
         /// Создать экземпляр репозитория с путём к файлу данных по умолчанию
         /// </summary>
-        public CollectorRepository() : this("data/rehau_products.json")
+        public CollectorRepository() : this(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "rehau_products.json"))
         {
         }
 
@@ -140,9 +140,9 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// <param name="pressure_mbar">Давление, мбар</param>
         /// <returns>true, если коллектор подходит</returns>
         public bool IsCollectorSuitable(
-            Collector collector, 
-            int circuits, 
-            double totalFlowRate_m3_h, 
+            Collector collector,
+            int circuits,
+            double totalFlowRate_m3_h,
             double pressure_mbar)
         {
             if (collector == null)

@@ -20,12 +20,12 @@ namespace SnowMeltingCalculator.Models.Navigation
         /// Модуль, состояние которого изменилось
         /// </summary>
         public string Module { get; set; } = string.Empty;
-        
+
         /// <summary>
         /// Новое состояние модуля
         /// </summary>
         public ModuleState State { get; set; }
-        
+
         /// <summary>
         /// Сообщение (для Warning)
         /// </summary>
