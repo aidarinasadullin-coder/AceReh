@@ -59,6 +59,16 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         private int _pipeSpacing = 200;
 
         /// <summary>
+        /// Термическое сопротивление слоёв над трубой, м²·К/Вт
+        /// </summary>
+        public double R1Total => _constructionData.R1Total;
+
+        /// <summary>
+        /// Термическое сопротивление слоёв под трубой, м²·К/Вт
+        /// </summary>
+        public double R2Total => _constructionData.R2Total;
+
+        /// <summary>
         /// Доступные значения шага укладки, мм
         /// </summary>
         public int[] AvailablePipeSpacings { get; } = new[] { 150, 200, 250, 300 };
@@ -102,6 +112,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         partial void OnPipeSpacingChanged(int value)
         {
+            // Обновляем шаг укладки в сервисе для визуализации
+            _calculationStateService.SetPipeSpacing(value, "ThermalViewModel");
+            
             if (Result != null)
             {
                 _calculationStateService.SetThermalNeedsRecalculation("Шаг укладки изменён. Требуется пересчёт.");
@@ -257,21 +270,11 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
 
             try
             {
-                // 1. Собрать ThermalParameters из свойств
-                var parameters = BuildThermalParameters();
+                // 1. Собрать ThermalInputs из свойств (включая климат и конструкцию)
+                var parameters = BuildThermalInputs();
 
-                // 2. Получить климатические данные из IClimateData
-                parameters.AirTemperature = _climateData.AirTemperature;
-                parameters.WindSpeed = _climateData.WindSpeed;
-                parameters.SnowfallIntensity = _climateData.SnowfallIntensity;
-
-                // 3. Получить данные конструкции из IConstructionData
-                parameters.R1Total = _constructionData.R1Total;
-                parameters.R2Total = _constructionData.R2Total;
-                parameters.LambdaE = _constructionData.LambdaE;
-
-                // 4. Вызвать _calculator.Calculate(parameters)
-                Result = await Task.Run(() => _calculator.Calculate(parameters));
+                // 2. Вызвать _calculator.Calculate(parameters, _climateData, _constructionData)
+                Result = await Task.Run(() => _calculator.Calculate(parameters, _climateData, _constructionData));
 
                 // 5. Отобразить ошибки в ValidationMessage
                 if (Result != null && !Result.IsValid && Result.ValidationErrors.Length > 0)
@@ -317,9 +320,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// <summary>
         /// Получить параметры теплового расчёта
         /// </summary>
-        public ThermalParameters BuildThermalParameters()
+        public ThermalInputs BuildThermalInputs()
         {
-            return new ThermalParameters
+            return new ThermalInputs
             {
                 Mode = SelectedMode,
                 SupplyTemperature = SupplyTemperature,
@@ -327,11 +330,6 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 GroundTemperature = GroundTemperature,
                 Pipe = SelectedPipe!, // Валидация гарантирует, что SelectedPipe не null при вызове
                 PipeSpacing = PipeSpacing,
-                AirTemperature = _climateData.AirTemperature,
-                WindSpeed = _climateData.WindSpeed,
-                SnowfallIntensity = _climateData.SnowfallIntensity,
-                R1Total = _constructionData.R1Total,
-                R2Total = _constructionData.R2Total,
                 LambdaE = _constructionData.LambdaE
             };
         }
@@ -415,6 +413,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         private void OnConstructionDataChanged(object? sender, ConstructionDataChangedEventArgs e)
         {
+            OnPropertyChanged(nameof(R1Total));
+            OnPropertyChanged(nameof(R2Total));
+
             if (Result != null)
             {
                 Result = null;
