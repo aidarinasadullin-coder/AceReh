@@ -70,6 +70,39 @@ namespace SnowMeltingCalculator.Services.Navigation
         
         #endregion
         
+        #region Параметры конструкции
+        
+        /// <summary>
+        /// Шаг укладки труб, мм
+        /// Используется для визуализации в модуле "Конструкция"
+        /// </summary>
+        int PipeSpacing { get; }
+        
+        /// <summary>
+        /// Событие изменения шага укладки
+        /// </summary>
+        event EventHandler<int>? PipeSpacingChanged;
+        
+        /// <summary>
+        /// Признак выполнения загрузки проекта
+        /// </summary>
+        bool IsLoadProjectInProgress { get; set; }
+        
+        /// <summary>
+        /// Установить шаг укладки труб
+        /// </summary>
+        /// <param name="spacing">Шаг укладки, мм</param>
+        void SetPipeSpacing(int spacing);
+        
+        /// <summary>
+        /// Установить шаг укладки труб с указанием источника вызова
+        /// </summary>
+        /// <param name="spacing">Шаг укладки, мм</param>
+        /// <param name="source">Источник вызова</param>
+        void SetPipeSpacing(int spacing, string source);
+        
+        #endregion
+        
         #region Событие
         
         /// <summary>

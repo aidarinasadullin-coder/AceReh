@@ -26,6 +26,8 @@ namespace SnowMeltingCalculator.Services.Navigation
         
         private bool _hydraulicsIsCalculating;
         
+        private int _pipeSpacing = 200; // Шаг укладки по умолчанию
+        
         #endregion
         
         #region ICalculationStateService Implementation
@@ -85,6 +87,41 @@ namespace SnowMeltingCalculator.Services.Navigation
         {
             _hydraulicsIsCalculating = false;
             OnStateChanged("Hydraulics", ModuleState.Actual);
+        }
+        
+        #endregion
+        
+        #region Параметры конструкции
+        
+        /// <inheritdoc/>
+        public int PipeSpacing => _pipeSpacing;
+        
+        /// <inheritdoc/>
+        public event EventHandler<int>? PipeSpacingChanged;
+        
+        /// <inheritdoc/>
+        public bool IsLoadProjectInProgress { get; set; }
+        
+        /// <inheritdoc/>
+        public void SetPipeSpacing(int spacing)
+        {
+            SetPipeSpacing(spacing, "ThermalViewModel");
+        }
+        
+        /// <inheritdoc/>
+        public void SetPipeSpacing(int spacing, string source)
+        {
+            if (source != "ThermalViewModel" &&
+                !(source == "ResultsViewModel.LoadProject" && IsLoadProjectInProgress))
+            {
+                throw new InvalidOperationException($"SetPipeSpacing called from non-canonical source: {source}");
+            }
+
+            if (_pipeSpacing != spacing)
+            {
+                _pipeSpacing = spacing;
+                PipeSpacingChanged?.Invoke(this, spacing);
+            }
         }
         
         #endregion
