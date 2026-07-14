@@ -14,7 +14,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             Assert.That((int)ValveType.IV_1_25, Is.EqualTo(1));
             Assert.That((int)ValveType.IV_1_5, Is.EqualTo(2));
         }
-        
+
         [Test]
         public void ValveType_HasThreeValues()
         {
@@ -22,7 +22,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
             var values = Enum.GetValues<ValveType>();
             Assert.That(values.Length, Is.EqualTo(3));
         }
-        
+
         [Test]
         public void ValveType_NamesAreCorrect()
         {

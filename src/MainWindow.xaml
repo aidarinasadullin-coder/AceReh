@@ -92,13 +92,15 @@
         </Grid.RowDefinitions>
 
         <!-- Header с логотипом REHAU -->
-        <Border Grid.Row="0" Background="{DynamicResource RehauRedBrush}"
+        <Border Grid.Row="0"
+                Background="{DynamicResource RehauRedBrush}"
                 BorderBrush="{DynamicResource RehauRedDarkBrush}" BorderThickness="0,0,0,2"
                 MouseLeftButtonDown="HeaderBorder_MouseLeftButtonDown">
             <Grid Margin="{StaticResource Spacing.MD.Horizontal}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
@@ -130,19 +132,46 @@
 
                 <!-- Название текущего модуля -->
                 <Border Grid.Column="1"
-                       Background="#F5F5F5"
+                       Background="Transparent"
                        CornerRadius="4"
                        Padding="16,6"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center">
                     <TextBlock Text="{Binding CurrentTitle}"
                               FontSize="14" FontWeight="SemiBold"
-                              Foreground="{DynamicResource RehauBlackBrush}"
+                              Foreground="White"
                               FontFamily="{StaticResource FontFamily.Main}"/>
                 </Border>
 
+                <!-- Menu Файл -->
+                <Menu Grid.Column="2" Background="Transparent" VerticalAlignment="Center" Margin="0,0,16,0">
+                    <MenuItem Header="Файл" Foreground="White" FontSize="13">
+                        <MenuItem.Resources>
+                            <SolidColorBrush x:Key="MenuBackground" Color="#FFE4002B"/>
+                            <SolidColorBrush x:Key="MenuItemBackground" Color="#FFE4002B"/>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Background" Value="{StaticResource MenuItemBackground}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="FontSize" Value="13"/>
+                                <Setter Property="Padding" Value="12,8"/>
+                            </Style>
+                        </MenuItem.Resources>
+                        <MenuItem Header="Сохранить" 
+                                  Command="{Binding ResultsViewModel.SaveProjectCommand}" 
+                                  InputGestureText="Ctrl+S"/>
+                        <MenuItem Header="Сохранить как..." 
+                                  Command="{Binding ResultsViewModel.SaveProjectAsCommand}" 
+                                  InputGestureText="Ctrl+Shift+S"/>
+                        <MenuItem Header="Открыть..." 
+                                  Command="{Binding ResultsViewModel.OpenProjectCommand}" 
+                                  InputGestureText="Ctrl+O"/>
+                        <Separator/>
+                        <MenuItem Header="Выход" Click="CloseButton_Click"/>
+                    </MenuItem>
+                </Menu>
+
                 <!-- Информация о версии и кнопки управления окном -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
                     <!-- Версия -->
                     <TextBlock Text="v1.0"
                               FontSize="11"
@@ -155,7 +184,7 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
                         <!-- Кнопка "Свернуть" -->
                         <Button x:Name="MinimizeButton"
-                                Width="40" Height="32"
+                                Width="40" Height="40"
                                 Click="MinimizeButton_Click"
                                 ToolTip="Свернуть"
                                 Background="Transparent"
@@ -183,16 +212,16 @@
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
-                            <Path Data="M0,0 L12,0"
+                            <Path Data="M4,20 L20,20"
                                   Stroke="White"
                                   StrokeThickness="2"
-                                  Width="12" Height="2"
+                                  Width="24" Height="24"
                                   Opacity="0.8"/>
                         </Button>
 
                         <!-- Кнопка "Развернуть/Восстановить" -->
                         <Button x:Name="MaximizeRestoreButton"
-                                Width="40" Height="32"
+                                Width="40" Height="40"
                                 Click="MaximizeRestoreButton_Click"
                                 ToolTip="Развернуть"
                                 Background="Transparent"
@@ -221,16 +250,16 @@
                                 </Style>
                             </Button.Style>
                             <Path x:Name="MaximizeRestoreIcon"
-                                  Data="M0,0 L12,0 L12,12 L0,12 Z"
+                                  Data="M3,3 L15,3 L15,15 L3,15 Z"
                                   Stroke="White"
                                   StrokeThickness="2"
-                                  Width="12" Height="12"
+                                  Width="18" Height="18"
                                   Opacity="0.8"/>
                         </Button>
 
                         <!-- Кнопка "Закрыть" -->
                         <Button x:Name="CloseButton"
-                                Width="40" Height="32"
+                                Width="40" Height="40"
                                 Click="CloseButton_Click"
                                 ToolTip="Закрыть"
                                 Background="Transparent"
@@ -258,10 +287,10 @@
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
-                            <Path Data="M0,0 L12,12 M12,0 L0,12"
+                            <Path Data="M4,4 L20,20 M20,4 L4,20"
                                   Stroke="White"
                                   StrokeThickness="2"
-                                  Width="12" Height="12"
+                                  Width="24" Height="24"
                                   Opacity="0.8"/>
                         </Button>
                     </StackPanel>
@@ -468,13 +497,10 @@
             </Grid>
 
             <!-- Область контента -->
-            <ScrollViewer Grid.Column="1"
-                          HorizontalScrollBarVisibility="Disabled"
-                          VerticalScrollBarVisibility="Auto"
-                          Padding="0"
-                          Background="{DynamicResource RehauBackgroundBrush}">
-                <ContentControl Content="{Binding CurrentView}" Margin="0"/>
-            </ScrollViewer>
+            <ContentControl Grid.Column="1" 
+                            Content="{Binding CurrentView}" 
+                            Margin="0"
+                            Background="{DynamicResource RehauBackgroundBrush}"/>
         </Grid>
     </Grid>
 

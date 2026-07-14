@@ -121,22 +121,22 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// <summary>
         /// Kv выбранного коллектора
         /// </summary>
-        public string SelectedCollectorKv => SelectedCollector != null 
-            ? $"{SelectedCollector.Kv:F2} м³/ч" 
+        public string SelectedCollectorKv => SelectedCollector != null
+            ? $"{SelectedCollector.Kv:F2} м³/ч"
             : "—";
 
         /// <summary>
         /// Максимальный расход выбранного коллектора
         /// </summary>
-        public string SelectedCollectorMaxFlow => SelectedCollector != null 
-            ? $"{SelectedCollector.MaxFlowRate_L_h:F0} л/ч" 
+        public string SelectedCollectorMaxFlow => SelectedCollector != null
+            ? $"{SelectedCollector.MaxFlowRate_L_h:F0} л/ч"
             : "—";
 
         /// <summary>
         /// Максимальное давление выбранного коллектора
         /// </summary>
-        public string SelectedCollectorMaxPressure => SelectedCollector != null 
-            ? $"{SelectedCollector.MaxPressure:F0} мбар" 
+        public string SelectedCollectorMaxPressure => SelectedCollector != null
+            ? $"{SelectedCollector.MaxPressure:F0} мбар"
             : "—";
 
         /// <summary>

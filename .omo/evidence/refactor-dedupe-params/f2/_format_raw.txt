@@ -1,0 +1,551 @@
+﻿dotnet : D:\IA\ace\src\Services\Project\ProjectFileService.cs(144,54): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤
+В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 21 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace
+\src\SnowMeltingCalculator.csproj]
+строка:1 знак:1
++ dotnet format SnowMeltingCalculator.sln --verify-no-changes --include ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\IA\ace\src\S...culator.csproj]:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+D:\IA\ace\src\Services\Results\PdfExportService.cs(404,99): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░
+╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 50 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\
+ace\src\SnowMeltingCalculator.csproj]
+D:\IA\ace\src\Services\Results\PdfExportService.cs(416,132): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨
+░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 50 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA
+\ace\src\SnowMeltingCalculator.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Climate\ClimateViewModelTests.cs(526,96): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤
+В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 22 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s
+\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Climate\ClimateViewModelTests.cs(527,43): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤
+В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 22 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s
+\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Core\ValidationExtensionsTests.cs(34,61): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤
+В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Core\ValidationExtensionsTests.cs(45,61): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤
+В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Core\ValidationExtensionsTests.cs(97,61): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤
+В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Core\ValidationExtensionsTests.cs(122,61): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕
+╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. 
+[D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Core\ValidationExtensionsTests.cs(133,61): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕
+╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. 
+[D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Core\ValidationExtensionsTests.cs(193,61): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕
+╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. 
+[D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Core\ValidationExtensionsTests.cs(233,55): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕
+╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. 
+[D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\ClimateToHydraulicsIntegrationTests.cs(193,135)
+: error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 22 characters with '\r\n\
+s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.cspr
+oj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\ClimateToHydraulicsIntegrationTests.cs(359,56):
+ error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s
+\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\ClimateToHydraulicsIntegrationTests.cs(519,55):
+ error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s
+\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\DoubleCalculationPreventionTests.cs(192,135): e
+rror WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 22 characters with '\r\n\s\s
+\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\DoubleCalculationPreventionTests.cs(239,10): er
+ror WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 10 characters with '\r\n\r\n\
+s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\DoubleCalculationPreventionTests.cs(242,1): err
+or WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 1 characters with '\r\n\s\s\s\
+s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\GlycolAutoRecalculationTests.cs(94,75): error W
+HITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 22 characters with '\r\n\s\s\s\s\s
+\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\GlycolAutoRecalculationTests.cs(95,72): error W
+HITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s
+\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\GlycolAutoRecalculationTests.cs(176,135): error
+ WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 22 characters with '\r\n\s\s\s\s
+\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\PipeSpacingSynchronizationTests.cs(191,135): er
+ror WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 22 characters with '\r\n\s\s\
+s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\PipeSpacingSynchronizationTests.cs(237,58): err
+or WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s
+\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\PipeSpacingSynchronizationTests.cs(382,46): err
+or WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s
+\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\PipeSpacingSynchronizationTests.cs(404,51): err
+or WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s
+\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\PipeSpacingSynchronizationTests.cs(406,10): err
+or WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 10 characters with '\r\n\r\n\s
+\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\PipeSpacingSynchronizationTests.cs(409,1): erro
+r WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 1 characters with '\r\n\s\s\s\s
+\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\PipeSpacingSynchronizationTests.cs(411,1): erro
+r WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 9 characters with '\r\n\s\s\s\s
+\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\ThermalToHydraulicsIntegrationTests.cs(194,135)
+: error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 22 characters with '\r\n\
+s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.cspr
+oj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Integration\HydraulicsIntegrationTests.cs(28,15): error WHITESPACE: ╨Ш╤Б╨┐╤
+А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s
+'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Integration\HydraulicsIntegrationTests.cs(45,15): error WHITESPACE: ╨Ш╤Б╨┐╤
+А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s
+'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Integration\HydraulicsIntegrationTests.cs(49,103): error WHITESPACE: ╨Ш╤Б╨┐
+╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\
+s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Integration\HydraulicsIntegrationTests.cs(74,15): error WHITESPACE: ╨Ш╤Б╨┐╤
+А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s
+'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Integration\HydraulicsIntegrationTests.cs(79,39): error WHITESPACE: ╨Ш╤Б╨┐╤
+А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s
+'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Integration\HydraulicsIntegrationTests.cs(195,104): error WHITESPACE: ╨Ш╤Б╨
+┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(45,104): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨
+▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(47,83): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓
+╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA
+\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(48,110): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨
+▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(50,54): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓
+╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA
+\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(77,49): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓
+╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [D
+:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(102,108): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░
+╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. 
+[D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(104,81): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨
+▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\I
+A\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(105,111): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░
+╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. 
+[D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(107,52): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨
+▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\I
+A\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(362,54): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨
+▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(364,32): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨
+▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\I
+A\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(366,37): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨
+▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 1 characters with '\s'. [D:\IA\ace\tests\SnowMeltingCalc
+ulator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(366,82): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨
+▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(368,30): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨
+▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\I
+A\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(372,88): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨
+▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s
+'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Models\Hydraulics\CircuitRowTests.cs(511,81): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨
+▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s
+'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(23,65): error WHITESPACE: ╨Ш
+╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\
+s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(25,59): error WHITESPACE: ╨Ш
+╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\
+s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(97,55): error WHITESPACE: ╨Ш
+╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\
+s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(108,51): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(119,51): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(130,51): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(230,51): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(238,51): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(246,51): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(254,51): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(757,55): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(774,51): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1060,84): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1062,22): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1063,73): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1064,85): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1065,83): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1067,73): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1069,125): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s
+\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1071,79): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1119,10): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 2 characters with '\r\n\r\n\s\s\s\s\s\s\s\s'.
+ [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1209,10): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1210,83): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1211,87): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1212,89): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1214,60): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1267,124): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s
+\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1269,89): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1270,75): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1271,83): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1273,68): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1274,63): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1275,83): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1277,65): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1279,120): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s
+\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1281,65): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1288,10): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1289,95): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1291,50): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1352,133): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s
+\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1354,46): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1365,10): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1366,89): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1367,75): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1369,23): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1370,42): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 2 characters with '\s\s'. [D:\IA\ace\tests\Sn
+owMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1370,81): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1422,99): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1424,99): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1425,80): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1427,61): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1428,102): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1434,10): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1435,96): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1437,23): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1475,60): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1476,62): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 29 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1477,67): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 29 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1479,70): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1481,60): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1482,62): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 29 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1483,67): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 29 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1714,67): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\
+s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Services\Hydraulics\CircuitsCalculatorTests.cs(1716,59): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Thermal\ThermalCalculatorTests.cs(161,49): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕
+╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. 
+[D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Thermal\ThermalCalculatorTests.cs(165,102): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨
+╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [D:
+\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Thermal\ThermalCalculatorTests.cs(167,74): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕
+╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 13 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s'. [D:\IA\a
+ce\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\Thermal\ThermalCalculatorTests.cs(169,81): error WHITESPACE: ╨Ш╤Б╨┐╤А╨░╨▓╨╕
+╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 18 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s\s'. 
+[D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(47,1): error WHITESPACE: ╨Ш
+╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\
+s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(48,75): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(51,1): error WHITESPACE: ╨Ш
+╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\
+s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(52,46): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(55,1): error WHITESPACE: ╨Ш
+╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\
+s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(56,44): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(71,1): error WHITESPACE: ╨Ш
+╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\
+s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(72,45): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(76,1): error WHITESPACE: ╨Ш
+╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\
+s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(77,56): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(85,1): error WHITESPACE: ╨Ш
+╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\
+s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(86,51): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(90,1): error WHITESPACE: ╨Ш
+╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\
+s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(91,56): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(99,1): error WHITESPACE: ╨Ш
+╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s\
+s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(649,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(650,69): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(673,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(674,72): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(697,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(698,72): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(721,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(722,69): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(746,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(747,72): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(770,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(771,72): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(793,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(794,72): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(816,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(817,72): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(840,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(841,75): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(862,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(863,52): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(887,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(888,87): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(889,55): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(916,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(917,66): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(918,56): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(945,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(946,65): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(974,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(975,65): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(997,1): error WHITESPACE: ╨
+Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\s
+\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(998,59): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(999,64): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1024,1): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1025,74): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s
+\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1202,1): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1203,32): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s
+\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1226,1): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1227,34): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 14 characters with '\r\n\s\s\s\s\s\s\s\s\s\s
+\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1245,61): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 19 characters with '\r\n\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1246,59): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 19 characters with '\r\n\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1248,1): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1251,1): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1261,61): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 19 characters with '\r\n\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1262,59): error WHITESPACE:
+ ╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 19 characters with '\r\n\s\s\s\s\s\s\s\s\s\s
+\s\s\s\s\s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1264,1): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]
+D:\IA\ace\tests\SnowMeltingCalculator.Tests\ViewModels\Hydraulics\CircuitsViewModelTests.cs(1267,1): error WHITESPACE: 
+╨Ш╤Б╨┐╤А╨░╨▓╨╕╤В╤М ╤Д╨╛╤А╨╝╨░╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╤А╨╛╨▒╨╡╨╗╨╛╨▓. Replace 26 characters with '\r\n\s\s\s\s\s\s\s\s\s\s\
+s\s'. [D:\IA\ace\tests\SnowMeltingCalculator.Tests\SnowMeltingCalculator.Tests.csproj]

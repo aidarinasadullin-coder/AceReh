@@ -35,22 +35,22 @@ namespace SnowMeltingCalculator.Configuration
         /// <summary>
         /// ViewModel климатического модуля
         /// </summary>
-        public ClimateViewModel ClimateViewModel => 
-            _serviceProvider?.GetRequiredService<ClimateViewModel>() 
+        public ClimateViewModel ClimateViewModel =>
+            _serviceProvider?.GetRequiredService<ClimateViewModel>()
             ?? throw new InvalidOperationException("ServiceProvider не инициализирован");
 
         /// <summary>
         /// ViewModel теплового расчёта
         /// </summary>
-        public ThermalViewModel ThermalViewModel => 
-            _serviceProvider?.GetRequiredService<ThermalViewModel>() 
+        public ThermalViewModel ThermalViewModel =>
+            _serviceProvider?.GetRequiredService<ThermalViewModel>()
             ?? throw new InvalidOperationException("ServiceProvider не инициализирован");
 
         /// <summary>
         /// ViewModel конструктора конструкции
         /// </summary>
-        public ConstructionViewModel ConstructionViewModel => 
-            _serviceProvider?.GetRequiredService<ConstructionViewModel>() 
+        public ConstructionViewModel ConstructionViewModel =>
+            _serviceProvider?.GetRequiredService<ConstructionViewModel>()
             ?? throw new InvalidOperationException("ServiceProvider не инициализирован");
 
         /// <summary>

@@ -16,59 +16,59 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         {
             // Arrange
             var collector = new Collector { Type = CollectorType.HKV };
-            
+
             // Act & Assert
             Assert.That(collector.IsResidential, Is.True);
             Assert.That(collector.IsIndustrial, Is.False);
         }
-        
+
         [Test]
         public void IsIndustrial_ReturnsTrueForIV()
         {
             // Arrange
             var collector = new Collector { Type = CollectorType.IV };
-            
+
             // Act & Assert
             Assert.That(collector.IsIndustrial, Is.True);
             Assert.That(collector.IsResidential, Is.False);
         }
-        
+
         [Test]
         public void MaxPressure_Pa_CalculatesCorrectly()
         {
             // Arrange
             var collector = new Collector { MaxPressure = 320 };
-            
+
             // Act & Assert
             Assert.That(collector.MaxPressure_Pa, Is.EqualTo(32000));
         }
-        
+
         [Test]
         public void MaxFlowRate_L_h_CalculatesCorrectly()
         {
             // Arrange
             var collector = new Collector { MaxFlowRate = 1.5 };
-            
+
             // Act & Assert
             Assert.That(collector.MaxFlowRate_L_h, Is.EqualTo(1500));
         }
-        
+
         [Test]
         public void MaxPressure_Pa_WithZeroValue_ReturnsZero()
         {
             // Arrange
             var collector = new Collector { MaxPressure = 0 };
-            
+
             // Act & Assert
             Assert.That(collector.MaxPressure_Pa, Is.EqualTo(0));
         }
-        
+
         [Test]
         public void MaxFlowRate_L_h_WithZeroValue_ReturnsZero()
         {
             // Arrange
             var collector = new Collector { MaxFlowRate = 0 };
-            
+
             // Act & Assert
             Assert.That(collector.MaxFlowRate_L_h, Is.EqualTo(0));
         }
@@ -86,12 +86,12 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
                 Type = CollectorType.HKV,
                 Circuits = 4
             };
-            
+
             // Act & Assert
             Assert.That(collector.IsSuitableForCircuits(2), Is.True);
             Assert.That(collector.IsSuitableForCircuits(4), Is.True);
         }
-        
+
         [Test]
         public void IsSuitableForCircuits_ReturnsFalseForExceededCount()
         {
@@ -101,11 +101,11 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
                 Type = CollectorType.HKV,
                 Circuits = 4
             };
-            
+
             // Act & Assert
             Assert.That(collector.IsSuitableForCircuits(6), Is.False);
         }
-        
+
         [Test]
         public void IsSuitableForCircuits_ReturnsFalseForLessThanTwo()
         {
@@ -115,12 +115,12 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
                 Type = CollectorType.HKV,
                 Circuits = 4
             };
-            
+
             // Act & Assert
             Assert.That(collector.IsSuitableForCircuits(1), Is.False);
             Assert.That(collector.IsSuitableForCircuits(0), Is.False);
         }
-        
+
         [Test]
         public void IsSuitableForCircuits_ForIndustrial_ReturnsTrue()
         {
@@ -130,7 +130,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
                 Type = CollectorType.IV,
                 Circuits = 1
             };
-            
+
             // Act & Assert
             Assert.That(collector.IsSuitableForCircuits(1), Is.True);
             Assert.That(collector.IsSuitableForCircuits(10), Is.True);
@@ -145,28 +145,28 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         {
             // Arrange
             var collector = new Collector { MaxFlowRate = 1.5 };
-            
+
             // Act & Assert
             Assert.That(collector.IsSuitableForFlowRate(1.0), Is.True);
             Assert.That(collector.IsSuitableForFlowRate(1.5), Is.True);
         }
-        
+
         [Test]
         public void IsSuitableForFlowRate_ReturnsFalseForExceededFlow()
         {
             // Arrange
             var collector = new Collector { MaxFlowRate = 1.5 };
-            
+
             // Act & Assert
             Assert.That(collector.IsSuitableForFlowRate(2.0), Is.False);
         }
-        
+
         [Test]
         public void IsSuitableForFlowRate_WithZeroFlow_ReturnsTrue()
         {
             // Arrange
             var collector = new Collector { MaxFlowRate = 1.5 };
-            
+
             // Act & Assert
             Assert.That(collector.IsSuitableForFlowRate(0), Is.True);
         }
@@ -180,28 +180,28 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         {
             // Arrange
             var collector = new Collector { MaxPressure = 320 };
-            
+
             // Act & Assert
             Assert.That(collector.IsSuitableForPressure(200), Is.True);
             Assert.That(collector.IsSuitableForPressure(320), Is.True);
         }
-        
+
         [Test]
         public void IsSuitableForPressure_ReturnsFalseForExceededPressure()
         {
             // Arrange
             var collector = new Collector { MaxPressure = 320 };
-            
+
             // Act & Assert
             Assert.That(collector.IsSuitableForPressure(400), Is.False);
         }
-        
+
         [Test]
         public void IsSuitableForPressure_WithZeroPressure_ReturnsTrue()
         {
             // Arrange
             var collector = new Collector { MaxPressure = 320 };
-            
+
             // Act & Assert
             Assert.That(collector.IsSuitableForPressure(0), Is.True);
         }
@@ -222,17 +222,17 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
                 MaxFlowRate = 1.5,
                 MaxPressure = 320
             };
-            
+
             // Act
             var description = collector.GetDescription();
-            
+
             // Assert
             Assert.That(description, Does.Contain("HKV-D 4"));
             Assert.That(description, Does.Contain("Kv=1.2"));
             Assert.That(description, Does.Contain("1.5 м³/ч"));
             Assert.That(description, Does.Contain("320 мбар"));
         }
-        
+
         [Test]
         public void GetDescription_WithAllFields_ReturnsCompleteDescription()
         {
@@ -245,10 +245,10 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
                 MaxFlowRate = 2.0,
                 MaxPressure = 400
             };
-            
+
             // Act
             var description = collector.GetDescription();
-            
+
             // Assert
             Assert.That(description, Does.Contain("IV 1¼"));
             Assert.That(description, Does.Contain("Kv=1.45"));
@@ -265,37 +265,37 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         {
             // Arrange & Act
             var collector = new Collector();
-            
+
             // Assert
             Assert.That(collector.Id, Is.EqualTo(string.Empty));
         }
-        
+
         [Test]
         public void Default_NameIsEmptyString()
         {
             // Arrange & Act
             var collector = new Collector();
-            
+
             // Assert
             Assert.That(collector.Name, Is.EqualTo(string.Empty));
         }
-        
+
         [Test]
         public void Default_MaxSettingIs8()
         {
             // Arrange & Act
             var collector = new Collector();
-            
+
             // Assert
             Assert.That(collector.MaxSetting, Is.EqualTo(8));
         }
-        
+
         [Test]
         public void Default_CircuitsIsZero()
         {
             // Arrange & Act
             var collector = new Collector();
-            
+
             // Assert
             Assert.That(collector.Circuits, Is.EqualTo(0));
         }
@@ -319,12 +319,12 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
                 MaxFlowRate = 1.5,
                 MaxPressure = 320
             };
-            
+
             // Assert
             Assert.That(collector.Type, Is.EqualTo(CollectorType.HKV));
             Assert.That(collector.IsResidential, Is.True);
         }
-        
+
         [Test]
         public void Collector_CanBeCreatedWithIVType()
         {
@@ -340,7 +340,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
                 MaxFlowRate = 2.0,
                 MaxPressure = 400
             };
-            
+
             // Assert
             Assert.That(collector.Type, Is.EqualTo(CollectorType.IV));
             Assert.That(collector.IsIndustrial, Is.True);

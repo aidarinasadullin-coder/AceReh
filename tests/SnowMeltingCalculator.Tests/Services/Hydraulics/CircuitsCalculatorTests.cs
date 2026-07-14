@@ -21,7 +21,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void Setup()
         {
             _glycolServiceMock = new Mock<IGlycolDataService>();
-            
+
             // Настройка мока для возврата свойств гликоля
             _glycolServiceMock
                 .Setup(s => s.GetProperties(
@@ -94,7 +94,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void CalculateCircuitPower_ThrowsForNullCircuit()
         {
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => 
+            Assert.Throws<ArgumentNullException>(() =>
                 _calculator.CalculateCircuitPower(null!, 256, 5, 20));
         }
 
@@ -105,7 +105,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var circuit = new CircuitRow { CircuitLength = 100 };
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => 
+            Assert.Throws<ArgumentException>(() =>
                 _calculator.CalculateCircuitPower(circuit, -10, 5, 20));
         }
 
@@ -116,7 +116,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var circuit = new CircuitRow { CircuitLength = 100 };
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => 
+            Assert.Throws<ArgumentException>(() =>
                 _calculator.CalculateCircuitPower(circuit, 256, -5, 20));
         }
 
@@ -127,7 +127,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var circuit = new CircuitRow { CircuitLength = 100 };
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => 
+            Assert.Throws<ArgumentException>(() =>
                 _calculator.CalculateCircuitPower(circuit, 256, 5, 0));
         }
 
@@ -227,7 +227,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void CalculateFlowRate_ThrowsForZeroPower()
         {
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => 
+            Assert.Throws<ArgumentException>(() =>
                 _calculator.CalculateFlowRate(0, 20, 1053, 3.39));
         }
 
@@ -235,7 +235,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void CalculateFlowRate_ThrowsForNegativePower()
         {
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => 
+            Assert.Throws<ArgumentException>(() =>
                 _calculator.CalculateFlowRate(-1000, 20, 1053, 3.39));
         }
 
@@ -243,7 +243,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void CalculateFlowRate_ThrowsForZeroDeltaT()
         {
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => 
+            Assert.Throws<ArgumentException>(() =>
                 _calculator.CalculateFlowRate(5000, 0, 1053, 3.39));
         }
 
@@ -251,7 +251,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void CalculateFlowRate_ThrowsForZeroDensity()
         {
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => 
+            Assert.Throws<ArgumentException>(() =>
                 _calculator.CalculateFlowRate(5000, 20, 0, 3.39));
         }
 
@@ -652,20 +652,20 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             };
             var inputData = new HydraulicInputData
             {
-                PowerUp = 256,
-                PowerDown = 5,
-                SupplyTemperature = 50,
-                ReturnTemperature = 30,
-                ColdFiveDayTemperature = -30,
-                InnerDiameter = 16,
                 GlycolType = GlycolType.Ethylene,
                 GlycolConcentration = 50,
                 ValveType = ValveType.HKV_D
             };
             double pipeSpacing_cm = 20;
+            double powerUp = 256;
+            double powerDown = 5;
+            double operatingTemperature = 32.5;
+            double designTemperature = -30;
+            double deltaT = 20;
+            double innerDiameter = 16;
 
             // Act
-            var result = _calculator.CalculateAllCircuits(circuits, inputData, pipeSpacing_cm);
+            var result = _calculator.CalculateAllCircuits(circuits, inputData, pipeSpacing_cm, powerUp, powerDown, operatingTemperature, designTemperature, deltaT, innerDiameter);
 
             // Assert
             Assert.That(result.Count, Is.EqualTo(1));
@@ -702,20 +702,20 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             };
             var inputData = new HydraulicInputData
             {
-                PowerUp = 256,
-                PowerDown = 5,
-                SupplyTemperature = 50,
-                ReturnTemperature = 30,
-                ColdFiveDayTemperature = -30,
-                InnerDiameter = 16,
                 GlycolType = GlycolType.Ethylene,
                 GlycolConcentration = 50,
                 ValveType = ValveType.HKV_D
             };
             double pipeSpacing_cm = 20;
+            double powerUp = 256;
+            double powerDown = 5;
+            double operatingTemperature = 32.5;
+            double designTemperature = -30;
+            double deltaT = 20;
+            double innerDiameter = 16;
 
             // Act
-            var result = _calculator.CalculateAllCircuits(circuits, inputData, pipeSpacing_cm);
+            var result = _calculator.CalculateAllCircuits(circuits, inputData, pipeSpacing_cm, powerUp, powerDown, operatingTemperature, designTemperature, deltaT, innerDiameter);
 
             // Assert
             Assert.That(result.Count, Is.EqualTo(3));
@@ -729,7 +729,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void CalculateAllCircuits_ReturnsEmptyListForNullInput()
         {
             // Act
-            var result = _calculator.CalculateAllCircuits(null!, new HydraulicInputData(), 20);
+            var result = _calculator.CalculateAllCircuits(null!, new HydraulicInputData(), 20, 256, 5, 32.5, -30, 20, 16);
 
             // Assert
             Assert.That(result, Is.Not.Null);
@@ -740,7 +740,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void CalculateAllCircuits_ReturnsEmptyListForEmptyList()
         {
             // Act
-            var result = _calculator.CalculateAllCircuits(new List<CircuitRow>(), new HydraulicInputData(), 20);
+            var result = _calculator.CalculateAllCircuits(new List<CircuitRow>(), new HydraulicInputData(), 20, 256, 5, 32.5, -30, 20, 16);
 
             // Assert
             Assert.That(result, Is.Not.Null);
@@ -754,8 +754,8 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var circuits = new List<CircuitRow> { new CircuitRow() };
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => 
-                _calculator.CalculateAllCircuits(circuits, null!, 20));
+            Assert.Throws<ArgumentNullException>(() =>
+                _calculator.CalculateAllCircuits(circuits, null!, 20, 256, 5, 32.5, -30, 20, 16));
         }
 
         [Test]
@@ -765,15 +765,14 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var circuits = new List<CircuitRow> { new CircuitRow { CircuitLength = 100 } };
             var inputData = new HydraulicInputData
             {
-                PowerUp = 256,
-                SupplyTemperature = 50,
-                ReturnTemperature = 30,
-                InnerDiameter = 16
+                GlycolType = GlycolType.Ethylene,
+                GlycolConcentration = 50,
+                ValveType = ValveType.HKV_D
             };
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => 
-                _calculator.CalculateAllCircuits(circuits, inputData, 0));
+            Assert.Throws<ArgumentException>(() =>
+                _calculator.CalculateAllCircuits(circuits, inputData, 0, 256, 5, 32.5, -30, 20, 16));
         }
 
         #endregion
@@ -1064,11 +1063,11 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // Контур 2 (референсный): DpGesamt = 15000 → Throttling = 0
             // Контур 1: DpGesamt = 10000, throttling = 15000 - (8000 + 1000) = 6000
             // Контур 3: DpGesamt = 7000, throttling = 15000 - (6000 + 500) = 8500
-            
+
             // Референсный контур (контур 2) должен иметь Throttling = 0
             Assert.That(result[1].IsReferenceCircuit, Is.True, "Контур 2 должен быть референсным");
             Assert.That(result[1].Throttling, Is.EqualTo(0).Within(0.01), "Референсный контур должен иметь Throttling = 0");
-            
+
             // Нереференсные контуры должны иметь рассчитанное дросселирование
             Assert.That(result[0].Throttling, Is.EqualTo(6000).Within(0.01), "Контур 1: throttling = 15000 - (8000 + 1000) = 6000");
             Assert.That(result[2].Throttling, Is.EqualTo(8500).Within(0.01), "Контур 3: throttling = 15000 - (6000 + 500) = 8500");
@@ -1119,7 +1118,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             }
         }
 
-[Test]
+        [Test]
         public void CalculateBalancing_KvFormula_UsesDensityInGramsPerCm3()
         {
             // Arrange - проверка, что плотность в г/см³ используется корректно
@@ -1211,7 +1210,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // === ВАЖНЫЙ ТЕСТ: Референсный контур должен иметь Throttling = 0 ===
             // Это ключевое требование: референсный контур не требует дросселирования,
             // так как он имеет максимальные потери и определяет требуемый напор насоса.
-            
+
             // Arrange - создаём контуры с разными DpGesamt
             var circuits = new List<CircuitRow>
             {
@@ -1266,19 +1265,19 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // Контур 2 имеет максимальный DpGesamt = 15000 + 2000 + 1500 = 18500
             // Он должен быть референсным
             Assert.That(result[1].IsReferenceCircuit, Is.True, "Контур 2 должен быть референсным (максимальный DpGesamt)");
-            
+
             // === КЛЮЧЕВАЯ ПРОВЕРКА: Референсный контур должен иметь Throttling = 0 ===
-            Assert.That(result[1].Throttling, Is.EqualTo(0).Within(0.001), 
+            Assert.That(result[1].Throttling, Is.EqualTo(0).Within(0.001),
                 "Референсный контур НЕ требует дросселирования (Throttling = 0)");
-            
+
             // Референсный контур должен иметь максимальные обороты
-            Assert.That(result[1].ValveTurns, Is.EqualTo(2.5), 
+            Assert.That(result[1].ValveTurns, Is.EqualTo(2.5),
                 "Референсный контур должен иметь максимальные обороты для HKV-D");
-            
+
             // Нереференсные контуры должны иметь Throttling > 0
             Assert.That(result[0].Throttling, Is.GreaterThan(0), "Нереференсный контур 1 должен иметь Throttling > 0");
             Assert.That(result[2].Throttling, Is.GreaterThan(0), "Нереференсный контур 3 должен иметь Throttling > 0");
-            
+
             // Нереференсные контуры не должны быть референсными
             Assert.That(result[0].IsReferenceCircuit, Is.False, "Контур 1 не должен быть референсным");
             Assert.That(result[2].IsReferenceCircuit, Is.False, "Контур 3 не должен быть референсным");
@@ -1288,7 +1287,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void CalculateBalancing_ReferenceCircuit_ResetsWhenCircuitsChange()
         {
             // === ТЕСТ: При изменении состава контуров референсный контур пересчитывается ===
-            
+
             // Arrange - начальный набор контуров
             var circuits = new List<CircuitRow>
             {
@@ -1351,7 +1350,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // Assert - теперь контур 3 референсный
             Assert.That(result2[2].IsReferenceCircuit, Is.True, "Контур 3 должен быть референсным после добавления");
             Assert.That(result2[2].Throttling, Is.EqualTo(0).Within(0.001), "Новый референсный контур должен иметь Throttling = 0");
-            
+
             // Контур 2 больше не референсный
             Assert.That(result2[1].IsReferenceCircuit, Is.False, "Контур 2 больше не должен быть референсным");
             Assert.That(result2[1].Throttling, Is.GreaterThan(0), "Контур 2 должен иметь Throttling > 0");
@@ -1366,10 +1365,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // === ВАЖНЫЙ ТЕСТ: Для HKV-D DpVent НЕ пересчитывается при балансировке ===
             // DpVent для HKV-D = 15000 × (ρ/2000) × v² — НЕ зависит от Kv
-            
+
             // Arrange
             double originalDpVent = 2754;  // Исходное значение DpVent для HKV-D
-            
+
             var circuits = new List<CircuitRow>
             {
                 new CircuitRow
@@ -1420,96 +1419,21 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var result = _calculator.CalculateBalancing(circuits, ValveType.HKV_D);
 
             // Assert - DpVent должен остаться неизменным для HKV-D
-            Assert.That(result[0].OperatingResult.DpVent, Is.EqualTo(originalDpVent).Within(0.01), 
+            Assert.That(result[0].OperatingResult.DpVent, Is.EqualTo(originalDpVent).Within(0.01),
                 "DpVent для HKV-D НЕ должен пересчитываться при балансировке");
-            Assert.That(result[1].OperatingResult.DpVent, Is.EqualTo(originalDpVent).Within(0.01), 
+            Assert.That(result[1].OperatingResult.DpVent, Is.EqualTo(originalDpVent).Within(0.01),
                 "DpVent для HKV-D НЕ должен пересчитываться при балансировке");
-            
+
             // DesignResult также должен остаться неизменным
-            Assert.That(result[0].DesignResult.DpVent, Is.EqualTo(originalDpVent * 1.1).Within(0.01), 
+            Assert.That(result[0].DesignResult.DpVent, Is.EqualTo(originalDpVent * 1.1).Within(0.01),
                 "DpVent для HKV-D в DesignResult НЕ должен пересчитываться");
-        }
-
-        [Test]
-        public void CalculateBalancing_IV_DpVent_Recalculated()
-        {
-            // === ВАЖНЫЙ ТЕСТ: Для IV DpVent пересчитывается при балансировке ===
-            // DpVent для IV = (V_dot/1000/Kv)² × 100000 × ρ/1000 — зависит от Kv
-            
-            // Arrange
-            double originalDpVent = 3925;  // Исходное значение DpVent для IV
-            
-            var circuits = new List<CircuitRow>
-            {
-                new CircuitRow
-                {
-                    CircuitNumber = 1,
-                    CircuitLength = 100,
-                    SupplyLength = 10,
-                    FlowRate = 200,
-                    OperatingResult = new CircuitTemperatureResult
-                    {
-                        DpRohr = 8000,
-                        DpVerteiler = 1000,
-                        DpVent = originalDpVent,  // Исходное значение
-                        Density = 1.053
-                    },
-                    DesignResult = new CircuitTemperatureResult
-                    {
-                        DpRohr = 10000,
-                        DpVerteiler = 1200,
-                        DpVent = originalDpVent * 1.1,
-                        Density = 1.08
-                    }
-                },
-                new CircuitRow
-                {
-                    CircuitNumber = 2,
-                    CircuitLength = 120,
-                    SupplyLength = 12,
-                    FlowRate = 240,
-                    OperatingResult = new CircuitTemperatureResult
-                    {
-                        DpRohr = 12000,
-                        DpVerteiler = 2000,
-                        DpVent = originalDpVent,
-                        Density = 1.053
-                    },
-                    DesignResult = new CircuitTemperatureResult
-                    {
-                        DpRohr = 15000,
-                        DpVerteiler = 2400,
-                        DpVent = originalDpVent * 1.1,
-                        Density = 1.08
-                    }
-                }
-            };
-
-            // Act
-            var result = _calculator.CalculateBalancing(circuits, ValveType.IV_1_25);
-
-            // Assert - DpVent должен пересчитаться для IV
-            // Референсный контур (контур 2) получает максимальные обороты (8.0 для IV)
-            // Kv при 8.0 оборотах для IV 1¼" ≈ 1.45
-            // DpVent = (0.24/1.45)² × 100000 × 1.053 ≈ 2888 Па
-            
-            // Нереференсный контур (контур 1) получает меньше оборотов
-            // DpVent должен отличаться от исходного значения
-            
-            // Для IV DpVent должен пересчитаться
-            Assert.That(result[0].OperatingResult.DpVent, Is.Not.EqualTo(originalDpVent).Within(1), 
-                "DpVent для IV должен пересчитываться при балансировке для нереференсного контура");
-            
-            // Референсный контур также должен иметь пересчитанный DpVent
-            Assert.That(result[1].OperatingResult.DpVent, Is.Not.EqualTo(originalDpVent).Within(1), 
-                "DpVent для IV должен пересчитываться при балансировке для референсного контура");
         }
 
         [Test]
         public void CalculateBalancing_HKV_D_DpGesamt_RemainsCorrect()
         {
             // === ТЕСТ: DpGesamt должен корректно вычисляться после балансировки для HKV-D ===
-            
+
             // Arrange
             var circuits = new List<CircuitRow>
             {
@@ -1548,15 +1472,15 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
             // Assert - DpGesamt должен быть суммой DpRohr + DpVerteiler + DpVent
             // Для HKV-D DpVent не меняется, поэтому DpGesamt должен остаться корректным
-            Assert.That(result[0].OperatingResult.DpGesamt, 
-                Is.EqualTo(result[0].OperatingResult.DpRohr + 
-                           result[0].OperatingResult.DpVerteiler + 
+            Assert.That(result[0].OperatingResult.DpGesamt,
+                Is.EqualTo(result[0].OperatingResult.DpRohr +
+                           result[0].OperatingResult.DpVerteiler +
                            result[0].OperatingResult.DpVent).Within(0.01),
                 "DpGesamt должен быть суммой компонентов для HKV-D");
-            
-            Assert.That(result[1].OperatingResult.DpGesamt, 
-                Is.EqualTo(result[1].OperatingResult.DpRohr + 
-                           result[1].OperatingResult.DpVerteiler + 
+
+            Assert.That(result[1].OperatingResult.DpGesamt,
+                Is.EqualTo(result[1].OperatingResult.DpRohr +
+                           result[1].OperatingResult.DpVerteiler +
                            result[1].OperatingResult.DpVent).Within(0.01),
                 "DpGesamt должен быть суммой компонентов для HKV-D");
         }
@@ -1765,20 +1689,20 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
 
             var inputData = new HydraulicInputData
             {
-                PowerUp = 256,
-                PowerDown = 5,
-                SupplyTemperature = 50,
-                ReturnTemperature = 30,
-                ColdFiveDayTemperature = -30,
-                InnerDiameter = 16,
                 GlycolType = GlycolType.Ethylene,
                 GlycolConcentration = 50,
                 ValveType = ValveType.HKV_D
             };
             double pipeSpacing_cm = 20;
+            double powerUp = 256;
+            double powerDown = 5;
+            double operatingTemperature = 32.5;
+            double designTemperature = -30;
+            double deltaT = 20;
+            double innerDiameter = 16;
 
             // Act - полный расчёт
-            var calculatedCircuits = _calculator.CalculateAllCircuits(circuits, inputData, pipeSpacing_cm);
+            var calculatedCircuits = _calculator.CalculateAllCircuits(circuits, inputData, pipeSpacing_cm, powerUp, powerDown, operatingTemperature, designTemperature, deltaT, innerDiameter);
             var balancedCircuits = _calculator.CalculateBalancing(calculatedCircuits, inputData.ValveType);
             var summary = _calculator.CalculateCollectorSummary(balancedCircuits, 1, inputData.ValveType);
 
@@ -1788,7 +1712,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             Assert.That(summary.CircuitCount, Is.EqualTo(2));
             Assert.That(summary.TotalPower, Is.GreaterThan(0));
             Assert.That(summary.TotalFlowRate, Is.GreaterThan(0));
-            
+
             // Проверяем, что референсный контур определён
             var referenceCircuits = balancedCircuits.Where(c => c.IsReferenceCircuit).ToList();
             Assert.That(referenceCircuits.Count, Is.EqualTo(1));

@@ -58,7 +58,7 @@ namespace SnowMeltingCalculator.Tests.AttachedProperties
             // Arrange
             var textBlock = new TextBlock();
             textBlock.Inlines.Add(new Run("Existing"));
-            
+
             var inlines = new List<Inline>
             {
                 new Run("First"),
@@ -133,10 +133,10 @@ namespace SnowMeltingCalculator.Tests.AttachedProperties
 
             // Assert
             Assert.That(textBlock.Inlines.Count, Is.EqualTo(2));
-            
+
             var firstRun = (Run)textBlock.Inlines.FirstInline;
             Assert.That(firstRun.Text, Is.EqualTo("Hello "));
-            
+
             var secondRun = (Run)textBlock.Inlines.FirstInline.NextInline;
             Assert.That(secondRun.Text, Is.EqualTo("World"));
             Assert.That(secondRun.FontWeight, Is.EqualTo(FontWeights.Bold));

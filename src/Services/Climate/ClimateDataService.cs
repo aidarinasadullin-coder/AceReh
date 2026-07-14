@@ -89,7 +89,7 @@ namespace SnowMeltingCalculator.Services.Climate
             if (string.IsNullOrWhiteSpace(name))
                 return null;
 
-            return _citiesCache.FirstOrDefault(c => 
+            return _citiesCache.FirstOrDefault(c =>
                 c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -218,10 +218,10 @@ namespace SnowMeltingCalculator.Services.Climate
 
             // Определение типа совпадения
             var matchType = DetermineMatchType(city, query);
-            
+
             // Подсветка в названии
             var highlightedName = HighlightText(city.Name, query);
-            
+
             // Подсветка в регионе (если совпадение)
             var highlightedRegion = city.Region.Contains(query, StringComparison.OrdinalIgnoreCase)
                 ? HighlightText(city.Region, query)
@@ -237,10 +237,10 @@ namespace SnowMeltingCalculator.Services.Climate
         {
             if (city.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase))
                 return MatchType.StartsWith;
-            
+
             if (city.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
                 return MatchType.Contains;
-            
+
             return MatchType.Region;
         }
 
@@ -271,7 +271,7 @@ namespace SnowMeltingCalculator.Services.Climate
                 return Enumerable.Empty<CityInfo>();
 
             var entries = await _historyRepository.GetAllAsync();
-            
+
             return entries
                 .OrderByDescending(e => e.LastUsed)
                 .Take(limit)
@@ -292,7 +292,7 @@ namespace SnowMeltingCalculator.Services.Climate
                 return;
 
             var existing = await _historyRepository.GetByCityIdAsync(city.Name);
-            
+
             if (existing != null)
             {
                 existing.LastUsed = DateTime.UtcNow;

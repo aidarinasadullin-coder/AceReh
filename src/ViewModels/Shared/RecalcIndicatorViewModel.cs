@@ -25,29 +25,29 @@ namespace SnowMeltingCalculator.ViewModels.Shared
     public partial class RecalcIndicatorViewModel : ObservableObject
     {
         #region Observable Properties
-        
+
         /// <summary>
         /// Текущее состояние индикатора
         /// </summary>
         [ObservableProperty]
         private RecalcState _state = RecalcState.Info;
-        
+
         /// <summary>
         /// Показывать ли индикатор
         /// </summary>
         [ObservableProperty]
         private bool _isVisible = true;
-        
+
         /// <summary>
         /// Показывать ли кнопку пересчёта
         /// </summary>
         [ObservableProperty]
         private bool _showRecalculateButton = false;
-        
+
         #endregion
-        
+
         #region Computed Properties
-        
+
         /// <summary>
         /// Текст сообщения в зависимости от состояния
         /// </summary>
@@ -59,7 +59,7 @@ namespace SnowMeltingCalculator.ViewModels.Shared
             RecalcState.Success => "Пересчёт завершён",
             _ => ""
         };
-        
+
         /// <summary>
         /// Путь к иконке в зависимости от состояния
         /// </summary>
@@ -71,31 +71,31 @@ namespace SnowMeltingCalculator.ViewModels.Shared
             RecalcState.Success => "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z",
             _ => ""
         };
-        
+
         #endregion
-        
+
         #region Commands
-        
+
         /// <summary>
         /// Команда пересчёта
         /// </summary>
         public IRelayCommand RecalculateCommand { get; }
-        
+
         #endregion
-        
+
         #region Constructor
-        
+
         public RecalcIndicatorViewModel()
         {
             RecalculateCommand = new RelayCommand(OnRecalculate, CanRecalculate);
         }
-        
+
         #endregion
-        
+
         #region Private Methods
-        
+
         private bool CanRecalculate() => State == RecalcState.Warning;
-        
+
         private void OnRecalculate()
         {
             // Переход в состояние обработки
@@ -103,15 +103,15 @@ namespace SnowMeltingCalculator.ViewModels.Shared
             ShowRecalculateButton = false;
             OnPropertyChanged(nameof(Message));
             OnPropertyChanged(nameof(IconPath));
-            
+
             // Здесь должен быть вызов события или делегата для начала пересчёта
             // После завершения пересчёта вызвать MarkAsCalculated()
         }
-        
+
         #endregion
-        
+
         #region Public Methods
-        
+
         /// <summary>
         /// Отметить данные как требующие пересчёта (Warning - жёлтый)
         /// </summary>
@@ -122,7 +122,7 @@ namespace SnowMeltingCalculator.ViewModels.Shared
             OnPropertyChanged(nameof(Message));
             OnPropertyChanged(nameof(IconPath));
         }
-        
+
         /// <summary>
         /// Отметить данные как актуальные (Info - серый)
         /// </summary>
@@ -133,7 +133,7 @@ namespace SnowMeltingCalculator.ViewModels.Shared
             OnPropertyChanged(nameof(Message));
             OnPropertyChanged(nameof(IconPath));
         }
-        
+
         /// <summary>
         /// Отметить пересчёт как завершённый (Success - зелёный)
         /// </summary>
@@ -143,7 +143,7 @@ namespace SnowMeltingCalculator.ViewModels.Shared
             ShowRecalculateButton = false;
             OnPropertyChanged(nameof(Message));
             OnPropertyChanged(nameof(IconPath));
-            
+
             // Автоматически скрыть через 3 секунды
             _ = Task.Delay(3000).ContinueWith(_ =>
             {
@@ -153,7 +153,7 @@ namespace SnowMeltingCalculator.ViewModels.Shared
                 OnPropertyChanged(nameof(IconPath));
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
-        
+
         /// <summary>
         /// Начать процесс пересчёта (Processing - синий)
         /// </summary>
@@ -164,7 +164,7 @@ namespace SnowMeltingCalculator.ViewModels.Shared
             OnPropertyChanged(nameof(Message));
             OnPropertyChanged(nameof(IconPath));
         }
-        
+
         #endregion
     }
 }

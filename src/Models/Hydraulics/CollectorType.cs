@@ -20,7 +20,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Максимальное давление: 320 мбар
         /// </remarks>
         HKV = 0,
-        
+
         /// <summary>
         /// Промышленный коллектор IV
         /// </summary>

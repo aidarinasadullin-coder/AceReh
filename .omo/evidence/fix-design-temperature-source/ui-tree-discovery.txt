@@ -1,0 +1,159 @@
+﻿Discovery started at 07/14/2026 20:45:59
+MainWindowHandle=5377296
+Window title='Калькулятор снеготаяния REHAU'
+
+=== Full UI tree (depth 12) ===
+[Window] Name='Калькулятор снеготаяния REHAU' AutoId='' Class='Window' Rect=830;350;900;700
+  [Image] Name='' AutoId='' Class='Image' Rect=850;354;44;44
+  [Text] Name='РЕХАУ' AutoId='' Class='TextBlock' Rect=910;355;153;27
+  [Text] Name='Калькулятор снеготаяния' AutoId='' Class='TextBlock' Rect=910;382;153;15
+  [Text] Name='Климатические данные' AutoId='' Class='TextBlock' Rect=1189;368;169;16
+  [Menu] Name='' AutoId='' Class='Menu' Rect=1485;358;56;36
+    [MenuItem] Name='Файл' AutoId='' Class='MenuItem' Rect=1485;358;56;36
+      [Text] Name='Файл' AutoId='' Class='TextBlock' Rect=1498;367;30;18
+  [Text] Name='v1.0' AutoId='' Class='TextBlock' Rect=1557;369;21;14
+  [Button] Name='' AutoId='MinimizeButton' Class='Button' Rect=1594;356;40;40
+  [Button] Name='' AutoId='MaximizeRestoreButton' Class='Button' Rect=1634;356;40;40
+  [Button] Name='' AutoId='CloseButton' Class='Button' Rect=1674;356;40;40
+  [Button] Name='Свернуть/развернуть панель навигации' AutoId='ToggleSidebarButton' Class='Button' Rect=1019;412;32;32
+  [List] Name='' AutoId='' Class='ListBox' Rect=838;452;213;590
+    [ListItem] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839;455;211;44
+      [Text] Name='Климат' AutoId='' Class='TextBlock' Rect=887;469;52;16
+    [ListItem] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839;503;211;44
+      [Text] Name='Конструкция' AutoId='' Class='TextBlock' Rect=887;517;90;16
+    [ListItem] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839;551;211;44
+      [Text] Name='Тепловой расчёт' AutoId='' Class='TextBlock' Rect=887;565;118;16
+    [ListItem] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839;599;211;54
+      [Text] Name='Гидравлический расчёт' AutoId='' Class='TextBlock' Rect=887;609;115;34
+    [ListItem] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839;657;211;44
+      [Text] Name='Результаты' AutoId='' Class='TextBlock' Rect=887;670;80;17
+  [Custom] Name='' AutoId='' Class='ClimateView' Rect=1060;404;670;646
+    [Pane] Name='' AutoId='' Class='ScrollViewer' Rect=1060;404;670;646
+      [Text] Name='Климатические параметры' AutoId='' Class='TextBlock' Rect=1084;428;622;29
+      [Text] Name='Выбор города' AutoId='' Class='TextBlock' Rect=1117;510;556;19
+      [Custom] Name='' AutoId='Root' Class='CityAutoCompleteBox' Rect=1117;529;448;51
+        [Edit] Name='' AutoId='SearchTextBox' Class='TextBox' Rect=1117;529;448;51 Value=
+        [Text] Name='Введите город...' AutoId='PlaceholderTextBlock' Class='TextBlock' Rect=1129;550;436;17
+      [Button] Name='Сбросить' AutoId='' Class='Button' Rect=1577;534;96;40
+        [Text] Name='Сбросить' AutoId='' Class='TextBlock' Rect=1594;546;62;17
+      [Text] Name='Климатические параметры' AutoId='' Class='TextBlock' Rect=1117;646;556;19
+      [Text] Name='Расчётная температура:' AutoId='' Class='TextBlock' Rect=1117;665;173;15
+      [Edit] Name='' AutoId='' Class='TextBox' Rect=1117;686;151;50 Value=-15.0
+      [Text] Name='°C' AutoId='' Class='TextBlock' Rect=1276;704;14;14
+      [Text] Name='Скорость ветра:' AutoId='' Class='TextBlock' Rect=1314;665;359;15
+      [Edit] Name='' AutoId='' Class='TextBox' Rect=1314;686;331;50 Value=5.0
+      [Text] Name='м/с' AutoId='' Class='TextBlock' Rect=1653;704;20;14
+      [Text] Name='Влажность воздуха:' AutoId='' Class='TextBlock' Rect=1117;748;173;15
+      [Edit] Name='' AutoId='' Class='TextBox' Rect=1117;769;155;51 Value=70
+      [Text] Name='%' AutoId='' Class='TextBlock' Rect=1280;787;10;15
+      [Text] Name='Интенсивность снегопада (в водном эквиваленте):' AutoId='' Class='TextBlock' Rect=1314;748;359;15
+      [Edit] Name='' AutoId='' Class='TextBox' Rect=1314;769;321;51 Value=0.0
+      [Text] Name='мм/ч' AutoId='' Class='TextBlock' Rect=1643;787;30;15
+      [Text] Name='ℹ️ 1 мм/ч воды ≈ 1 см/ч снега (для свежего снега)' AutoId='' Class='TextBlock' Rect=1314;824;359;13
+      [Text] Name='Климатическая зона:' AutoId='' Class='TextBlock' Rect=1117;849;556;14
+      [ComboBox] Name='' AutoId='' Class='ComboBox' Rect=1117;869;556;40
+      [CheckBox] Name='Повышенные требования (колонка -20°C)' AutoId='' Class='CheckBox' Rect=1117;933;556;16
+        [Text] Name='Повышенные требования (колонка -20°C)' AutoId='' Class='TextBlock' Rect=1137;932;252;15
+
+Climate menu item not found
+
+=== Climate view controls ===
+
+-- ControlType System.Windows.Automation.ControlType (5 items) --
+[0] Name='' AutoId='SearchTextBox' Class='TextBox' Rect=1117,529,448,51 Value=
+[1] Name='' AutoId='' Class='TextBox' Rect=1117,686,151,50 Value=-15.0
+[2] Name='' AutoId='' Class='TextBox' Rect=1314,686,331,50 Value=5.0
+[3] Name='' AutoId='' Class='TextBox' Rect=1117,769,155,51 Value=70
+[4] Name='' AutoId='' Class='TextBox' Rect=1314,769,321,51 Value=0.0
+
+-- ControlType System.Windows.Automation.ControlType (1 items) --
+[0] Name='' AutoId='' Class='ListBox' Rect=838,452,213,590
+
+-- ControlType System.Windows.Automation.ControlType (5 items) --
+[0] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,455,211,44
+[1] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,503,211,44
+[2] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,551,211,44
+[3] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,599,211,54
+[4] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,657,211,44
+
+-- ControlType System.Windows.Automation.ControlType (5 items) --
+[0] Name='' AutoId='MinimizeButton' Class='Button' Rect=1594,356,40,40
+[1] Name='' AutoId='MaximizeRestoreButton' Class='Button' Rect=1634,356,40,40
+[2] Name='' AutoId='CloseButton' Class='Button' Rect=1674,356,40,40
+[3] Name='Свернуть/развернуть панель навигации' AutoId='ToggleSidebarButton' Class='Button' Rect=1019,412,32,32
+[4] Name='Сбросить' AutoId='' Class='Button' Rect=1577,534,96,40
+
+-- ControlType System.Windows.Automation.ControlType (26 items) --
+[0] Name='РЕХАУ' AutoId='' Class='TextBlock' Rect=910,355,153,27
+[1] Name='Калькулятор снеготаяния' AutoId='' Class='TextBlock' Rect=910,382,153,15
+[2] Name='Климатические данные' AutoId='' Class='TextBlock' Rect=1189,368,169,16
+[3] Name='Файл' AutoId='' Class='TextBlock' Rect=1498,367,30,18
+[4] Name='v1.0' AutoId='' Class='TextBlock' Rect=1557,369,21,14
+[5] Name='Климат' AutoId='' Class='TextBlock' Rect=887,469,52,16
+[6] Name='Конструкция' AutoId='' Class='TextBlock' Rect=887,517,90,16
+[7] Name='Тепловой расчёт' AutoId='' Class='TextBlock' Rect=887,565,118,16
+[8] Name='Гидравлический расчёт' AutoId='' Class='TextBlock' Rect=887,609,115,34
+[9] Name='Результаты' AutoId='' Class='TextBlock' Rect=887,670,80,17
+[10] Name='Климатические параметры' AutoId='' Class='TextBlock' Rect=1084,428,622,29
+[11] Name='Выбор города' AutoId='' Class='TextBlock' Rect=1117,510,556,19
+[12] Name='Введите город...' AutoId='PlaceholderTextBlock' Class='TextBlock' Rect=1129,550,436,17
+[13] Name='Сбросить' AutoId='' Class='TextBlock' Rect=1594,546,62,17
+[14] Name='Климатические параметры' AutoId='' Class='TextBlock' Rect=1117,646,556,19
+[15] Name='Расчётная температура:' AutoId='' Class='TextBlock' Rect=1117,665,173,15
+[16] Name='°C' AutoId='' Class='TextBlock' Rect=1276,704,14,14
+[17] Name='Скорость ветра:' AutoId='' Class='TextBlock' Rect=1314,665,359,15
+[18] Name='м/с' AutoId='' Class='TextBlock' Rect=1653,704,20,14
+[19] Name='Влажность воздуха:' AutoId='' Class='TextBlock' Rect=1117,748,173,15
+[20] Name='%' AutoId='' Class='TextBlock' Rect=1280,787,10,15
+[21] Name='Интенсивность снегопада (в водном эквиваленте):' AutoId='' Class='TextBlock' Rect=1314,748,359,15
+[22] Name='мм/ч' AutoId='' Class='TextBlock' Rect=1643,787,30,15
+[23] Name='ℹ️ 1 мм/ч воды ≈ 1 см/ч снега (для свежего снега)' AutoId='' Class='TextBlock' Rect=1314,824,359,13
+[24] Name='Климатическая зона:' AutoId='' Class='TextBlock' Rect=1117,849,556,14
+[25] Name='Повышенные требования (колонка -20°C)' AutoId='' Class='TextBlock' Rect=1137,932,252,15
+
+Setting edit #0 name='' class='TextBox' to 'РњРѕСЃРєРІР°'
+
+=== After typing city ===
+
+-- ControlType System.Windows.Automation.ControlType (5 items) --
+[0] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,455,211,44
+[1] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,503,211,44
+[2] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,551,211,44
+[3] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,599,211,54
+[4] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,657,211,44
+
+-- ControlType System.Windows.Automation.ControlType (25 items) --
+[0] Name='РЕХАУ' AutoId='' Class='TextBlock' Rect=910,355,153,27
+[1] Name='Калькулятор снеготаяния' AutoId='' Class='TextBlock' Rect=910,382,153,15
+[2] Name='Климатические данные' AutoId='' Class='TextBlock' Rect=1189,368,169,16
+[3] Name='Файл' AutoId='' Class='TextBlock' Rect=1498,367,30,18
+[4] Name='v1.0' AutoId='' Class='TextBlock' Rect=1557,369,21,14
+[5] Name='Климат' AutoId='' Class='TextBlock' Rect=887,469,52,16
+[6] Name='Конструкция' AutoId='' Class='TextBlock' Rect=887,517,90,16
+[7] Name='Тепловой расчёт' AutoId='' Class='TextBlock' Rect=887,565,118,16
+[8] Name='Гидравлический расчёт' AutoId='' Class='TextBlock' Rect=887,609,115,34
+[9] Name='Результаты' AutoId='' Class='TextBlock' Rect=887,670,80,17
+[10] Name='Климатические параметры' AutoId='' Class='TextBlock' Rect=1084,428,622,29
+[11] Name='Выбор города' AutoId='' Class='TextBlock' Rect=1117,510,556,19
+[12] Name='Сбросить' AutoId='' Class='TextBlock' Rect=1594,547,62,17
+[13] Name='Климатические параметры' AutoId='' Class='TextBlock' Rect=1117,648,556,19
+[14] Name='Расчётная температура:' AutoId='' Class='TextBlock' Rect=1117,667,173,15
+[15] Name='°C' AutoId='' Class='TextBlock' Rect=1276,706,14,14
+[16] Name='Скорость ветра:' AutoId='' Class='TextBlock' Rect=1314,667,359,15
+[17] Name='м/с' AutoId='' Class='TextBlock' Rect=1653,706,20,14
+[18] Name='Влажность воздуха:' AutoId='' Class='TextBlock' Rect=1117,750,173,15
+[19] Name='%' AutoId='' Class='TextBlock' Rect=1280,789,10,15
+[20] Name='Интенсивность снегопада (в водном эквиваленте):' AutoId='' Class='TextBlock' Rect=1314,750,359,15
+[21] Name='мм/ч' AutoId='' Class='TextBlock' Rect=1643,789,30,15
+[22] Name='ℹ️ 1 мм/ч воды ≈ 1 см/ч снега (для свежего снега)' AutoId='' Class='TextBlock' Rect=1314,826,359,13
+[23] Name='Климатическая зона:' AutoId='' Class='TextBlock' Rect=1117,851,556,14
+[24] Name='Повышенные требования (колонка -20°C)' AutoId='' Class='TextBlock' Rect=1137,934,252,15
+
+-- ControlType System.Windows.Automation.ControlType (5 items) --
+[0] Name='' AutoId='SearchTextBox' Class='TextBox' Rect=1117,529,448,53 Value=РњРѕСЃРєРІР°
+[1] Name='' AutoId='' Class='TextBox' Rect=1117,688,151,50 Value=-15.0
+[2] Name='' AutoId='' Class='TextBox' Rect=1314,688,331,50 Value=5.0
+[3] Name='' AutoId='' Class='TextBox' Rect=1117,771,155,51 Value=70
+[4] Name='' AutoId='' Class='TextBox' Rect=1314,771,321,51 Value=0.0
+
+Discovery finished at 07/14/2026 20:46:08

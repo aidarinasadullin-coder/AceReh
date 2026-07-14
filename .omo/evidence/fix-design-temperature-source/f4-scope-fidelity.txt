@@ -1,0 +1,59 @@
+﻿F4 Scope-Fidelity Check — fix-design-temperature-source
+========================================================
+Date: 2026-07-14
+
+1. Guardrail file: src/Services/Thermal/ThermalCalculator.cs
+   git diff --stat: 165 lines changed (97 ins, 68 del)
+   NATURE OF CHANGES: Method signature refactor from refactor-dedupe-params
+   (T7/T15) — CalculateExcessTemperature now accepts explicit IClimateData /
+   IConstructionData parameters instead of reading from ThermalParameters.
+   These are pre-existing working-tree changes from a DIFFERENT refactor, NOT
+   from fix-design-temperature-source.
+   Evidence (task-1-fix-design-temperature-source.txt line 78): "ThermalCalculator.cs: NOT modified"
+   Verdict: NOT touched by this plan. Pre-existing changes from refactor-dedupe-params.
+
+2. Guardrail file: src/Services/Hydraulics/CircuitsCalculator.cs
+   git diff --stat: 33 lines changed (18 ins, 15 del)
+   NATURE OF CHANGES: CalculateAllCircuits signature expanded to accept explicit
+   parameters (powerUp, powerDown, operatingTemperature, designTemperature, deltaT,
+   innerDiameter) instead of reading from inputData.* fields. This is the
+   refactor-dedupe-params parameter-deduplication work, NOT a design-temperature-
+   source change.
+   Evidence (task-1-fix-design-temperature-source.txt line 79): "CircuitsCalculator.cs: NOT modified"
+   Verdict: NOT touched by this plan. Pre-existing changes from refactor-dedupe-params.
+
+3. Guardrail file: tests/SnowMeldingCalculator.Tests/baseline_refactor_dedupe.json
+   git diff --stat: (no output — zero changes)
+   Verdict: PASS — zero changes.
+
+4. ColdFiveDayTemperature field preservation
+   src/Models/Climate/ClimateData.cs:
+     line 26: double ColdFiveDayTemperature { get; }       (IClimateData interface)
+     line 62: public double ColdFiveDayTemperature { get; set; }  (ClimateData class)
+     line 94: ColdFiveDayTemperature = ColdFiveDayTemperature  (copy constructor)
+   src/ViewModels/Climate/ClimateViewModel.cs: 6 matches (lines 383, 407, 486, 522, 561, 722)
+     — still used as informational/display field (SyncToClimateData, OnSelectedCityChanged, reset).
+   src/ViewModels/Hydraulics/CircuitsViewModel.cs: 0 matches (correctly removed as design-temp source)
+   Verdict: PASS — ColdFiveDayTemperature preserved as informational field on
+   IClimateData / ClimateData / ClimateViewModel.
+
+5. Public property names unchanged
+   CircuitsViewModel.cs:
+     line 197: public double DesignTemperature => _calculationContext.AirTemperature;
+     line 210: public double DesignTemperatureValue => DesignTemperature;
+   Names DesignTemperature and DesignTemperatureValue are preserved; only the
+   source switched (ColdFiveDayTemperature -> AirTemperature).
+   Verdict: PASS — no renamed public properties, no new product features.
+
+Summary
+-------
+- The fix-design-temperature-source plan touched ONLY CircuitsViewModel.cs
+  (and test files). Guardrail files ThermalCalculator.cs and CircuitsCalculator.cs
+  have working-tree changes, but these are pre-existing from the refactor-dedupe-
+  params refactor (T7/T15) — parameter deduplication, not design-temperature
+  source. The plan did NOT broaden scope into these files.
+- baseline_refactor_dedupe.json: zero changes.
+- ColdFiveDayTemperature: preserved as informational field.
+- DesignTemperature / DesignTemperatureValue: names unchanged.
+
+F4 VERDICT: APPROVE

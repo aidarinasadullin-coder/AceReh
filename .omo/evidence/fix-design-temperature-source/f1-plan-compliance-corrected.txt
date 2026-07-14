@@ -1,0 +1,162 @@
+﻿================================================================================
+F1 PLAN-COMPLIANCE AUDIT (CORRECTED) — fix-design-temperature-source
+Date: 2026-07-14
+Auditor: explore agent (re-run)
+Supersedes: f1-plan-compliance.txt (REJECT — wrong comparison baseline)
+================================================================================
+
+0. WHY THIS RE-RUN
+   The first F1 audit ran `git diff` against HEAD (master), which sits BEFORE
+   the uncommitted `refactor-dedupe-params` branch contents. The working tree
+   carries ~254 changed files on top of HEAD, so the diff reported 207 changed
+   files, 2512 insertions, 33893 deletions — the ENTIRE refactor-dedupe-params
+   delta, not the delta attributable to fix-design-temperature-source.
+   That comparison is not meaningful for this sub-plan. This corrected audit
+   isolates ONLY the changes attributable to fix-design-temperature-source by
+   classifying every working-tree change against:
+     (a) the plan's declared scope (3 files),
+     (b) the refactor-dedupe-params refactor (pre-existing, out of scope),
+     (c) NEW violations introduced by this fix.
+   Evidence sources consulted:
+     - .omo/evidence/fix-design-temperature-source/f1-plan-compliance.txt (prior REJECT)
+     - .omo/evidence/fix-design-temperature-source/f4-scope-fidelity.txt (F4 APPROVE)
+     - .omo/evidence/fix-design-temperature-source/task-1-fix-design-temperature-source.txt
+     - git status --short (includes untracked files)
+     - git diff -- <file> for each candidate file
+
+1. WORKING-TREE CLASSIFICATION (git status --short, ~254 entries)
+
+   Category (a) — ATTRIBUTABLE TO fix-design-temperature-source (3 files):
+     [a1] src/ViewModels/Hydraulics/CircuitsViewModel.cs            (M)
+     [a2] tests/SnowMeltingCalculator.Tests/IntegrationTests/
+          Hydraulics/ClimateToHydraulicsIntegrationTests.cs        (?? untracked/new)
+     [a3] .omo/notepads/refactor-dedupe-params/learnings.md         (M, 269 lines)
+
+   Category (b) — PRE-EXISTING refactor-dedupe-params work (out of scope):
+     - src/Services/Thermal/ThermalCalculator.cs        (M, 165 lines) — see F4 §1
+     - src/Services/Hydraulics/CircuitsCalculator.cs    (M, 33 lines)  — see F4 §2
+     - All other src/, tests/, Work/ deletions, docs/ additions, etc.
+       (~250 files): parameter-deduplication refactor (T7/T15), Work/ tree
+       cleanup, new modules (Project, Results, Visualization, Core, Fixtures,
+       RefactorBaseline), installer/, publish/, resources/ — none of these
+       touch the design-temperature SOURCE.
+
+   Category (c) — NEW violations introduced by this fix: NONE FOUND.
+
+2. FILE-BY-FILE EVIDENCE — CATEGORY (a)
+
+   [a1] src/ViewModels/Hydraulics/CircuitsViewModel.cs
+        git diff shows the design-temperature source switched:
+          OLD: public double DesignTemperature => _climateViewModel.AirTemperature;
+               (and earlier in HEAD: _calculationContext.Climate?.ColdFiveDayTemperature ?? 0.0)
+          NEW: public double DesignTemperature => _calculationContext.AirTemperature;
+        In Calculate():
+          OLD: double designTemp = _climateViewModel.AirTemperature;
+               (and earlier: coldFiveDayTemperature = _climateContext.Climate?.ColdFiveDayTemperature ?? -28.0)
+          NEW: double designTemp = _calculationContext.AirTemperature;
+        XML doc updated: "Берётся из CalculationContext.AirTemperature
+        (таблица 1.6 СП 131.13330.2025)."
+        UpdateFromClimateModule() no longer writes InputData.ColdFiveDayTemperature;
+        it only notifies UI and calls Calculate().
+        NOTE: This file ALSO carries pre-existing refactor-dedupe-params hunks
+        (CalculationContext injection, removal of ThermalViewModel/ClimateViewModel
+        ctor params, NotifyThermalPropertiesChanged extraction, fallback constants).
+        Those hunks are refactor-dedupe-params work, NOT this fix. The
+        fix-attributable delta within this file is precisely the
+        DesignTemperature source switch + the designTemp local + the XML doc
+        comment + the UpdateFromClimateModule simplification. This matches
+        task-1 evidence lines 14-28 exactly.
+        Grep gate (task-1 line 32): "ColdFiveDayTemperature" in this file -> 0 matches. PASS.
+        Public property names DesignTemperature / DesignTemperatureValue preserved (F4 §5). PASS.
+
+   [a2] tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/
+        ClimateToHydraulicsIntegrationTests.cs
+        git status: "?? " — UNTRACKED / NEW file (not "zero diff" — the prior
+        F1 audit's "ZERO diff" finding was an artifact of comparing to HEAD,
+        which cannot see untracked files via `git diff`).
+        File exists on disk (Test-Path -> True).
+        Contains regression tests for city-selected scenarios:
+          - DesignTemperatureValue_FollowsAirTemperature_WithCitySelected
+            (line 555, parameterized) — asserts DesignTemperatureValue follows
+            AirTemperature per table 1.6 СП 131.13330.2025, and that
+            ColdFiveDayTemperature retains its original T5Days092 value.
+          - AirTemperature_ExtremeValues_UpdatesCorrectly (line 464)
+          - AirTemperature_SameValue_DoesNotTriggerDuplicateCalculate (line 481)
+          - OnClimatePropertyChanged_WhenAirTemperatureChanged_* (lines 245, 267, 364)
+          - UpdateFromClimateModule_UpdatesDesignTemperatureFromAirTemperature (line 294)
+        Assertion messages corrected to reference AirTemperature (not
+        ColdFiveDayTemperature) as the design-temperature source — e.g. line 263:
+          "DesignTemperatureValue должен быть обновлён из AirTemperature"
+        line 579:
+          "DesignTemperatureValue должен следовать AirTemperature (...), а не T5Days092"
+        This satisfies the plan's T3 assertion-message-fix requirement.
+        PASS — new untracked regression test file attributable to this fix.
+
+   [a3] .omo/notepads/refactor-dedupe-params/learnings.md
+        git diff --stat: 269 lines changed (222 ins, 47 del).
+        Notes describing the fix-design-temperature-source work (post-F4 cleanup
+        note, T1/T2/T3 learnings). This is the plan's declared notepad artifact.
+        PASS.
+
+3. GUARDRAIL FILES — CATEGORY (b), NOT (c)
+
+   [g1] src/Services/Thermal/ThermalCalculator.cs
+        git diff --stat: 165 lines changed (97 ins, 68 del).
+        F4 §1: "Method signature refactor from refactor-dedupe-params (T7/T15) —
+        CalculateExcessTemperature now accepts explicit IClimateData /
+        IConstructionData parameters instead of reading from ThermalParameters.
+        These are pre-existing working-tree changes from a DIFFERENT refactor,
+        NOT from fix-design-temperature-source."
+        task-1 line 78: "ThermalCalculator.cs: NOT modified".
+        No design-temperature-SOURCE change in this diff (parameter deduplication
+        only). NOT a violation attributable to this fix.
+
+   [g2] src/Services/Hydraulics/CircuitsCalculator.cs
+        git diff --stat: 33 lines changed (18 ins, 15 del).
+        F4 §2: "CalculateAllCircuits signature expanded to accept explicit
+        parameters (powerUp, powerDown, operatingTemperature, designTemperature,
+        deltaT, innerDiameter) instead of reading from inputData.* fields. This
+        is the refactor-dedupe-params parameter-deduplication work, NOT a
+        design-temperature-source change."
+        task-1 line 79: "CircuitsCalculator.cs: NOT modified".
+        The `designTemperature` parameter here is a pass-through signature
+        change from refactor-dedupe-params; it does NOT change WHERE the design
+        temperature comes from (that change is in CircuitsViewModel, category a1).
+        NOT a violation attributable to this fix.
+
+   [g3] tests/SnowMeltingCalculator.Tests/baseline_refactor_dedupe.json
+        git status: "?? " — UNTRACKED, not modified (no "M" entry).
+        git diff --stat: (no output — zero tracked changes).
+        F4 §3: "git diff --stat: (no output — zero changes). Verdict: PASS."
+        task-1 line 82: "baseline_refactor_dedupe.json: NOT modified".
+        Untouched by this fix. PASS.
+
+4. SCOPE SUMMARY
+   Changes attributable to fix-design-temperature-source are limited to the
+   three declared files (a1, a2, a3). The guardrail files (g1, g2) have
+   working-tree diffs but those are pre-existing refactor-dedupe-params changes
+   (parameter deduplication), already verified by F4 and task-1 evidence —
+   NOT design-temperature-source changes and NOT introduced by this fix.
+   baseline_refactor_dedupe.json (g3) is untouched.
+   No NEW violation introduced by this fix was found.
+
+5. PRIOR F1 REJECT — ROOT CAUSE
+   The prior F1 audit rejected because it compared the entire working tree to
+   HEAD (which precedes the uncommitted refactor-dedupe-params work), reporting
+   204 unexpected files and 2 guardrail "violations". That comparison baseline
+   is incorrect for a sub-plan applied on top of an already-dirty working tree.
+   Isolating the fix-attributable delta eliminates all 204 "unexpected" files
+   (they are refactor-dedupe-params) and both guardrail "violations" (they are
+   refactor-dedupe-params). The prior REJECT was an artifact of the wrong
+   comparison baseline, not a real plan-scope violation.
+
+6. CROSS-CHECK WITH DOWNSTREAM GATES
+   - F2 (code quality): APPROVE
+   - F3 (manual QA):     APPROVE
+   - F4 (scope fidelity): APPROVE
+   - task-1 evidence:    DesignTemperature source switched, grep gate PASS,
+                         build PASS (0 new warnings), 12/12 tests PASS.
+
+================================================================================
+F1 VERDICT: APPROVE
+================================================================================

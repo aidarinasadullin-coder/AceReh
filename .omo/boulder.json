@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "active_work_id": "fix-design-temperature-source",
+  "works": {
+    "fix-design-temperature-source": {
+      "work_id": "fix-design-temperature-source",
+      "active_plan": ".omo/plans/fix-design-temperature-source.md",
+      "plan_name": "fix-design-temperature-source",
+      "session_ids": ["codex:atlas-main"],
+      "status": "active",
+      "worktree_path": null
+    }
+  }
+}

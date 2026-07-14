@@ -10,7 +10,7 @@ namespace SnowMeltingCalculator.Services.Climate
     {
         private readonly ISearchHistoryRepository _repository;
         private readonly IClimateDataService _climateService;
-        
+
         /// <summary>
         /// Создать сервис истории поиска
         /// </summary>
@@ -21,16 +21,16 @@ namespace SnowMeltingCalculator.Services.Climate
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _climateService = climateService ?? throw new ArgumentNullException(nameof(climateService));
         }
-        
+
         /// <summary>
         /// Получить последние N городов из истории
         /// </summary>
         public async Task<IEnumerable<SearchHistoryEntry>> GetRecentAsync(int limit = 10, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
+
             var entries = await _repository.GetAllAsync();
-            
+
             return entries
                 .OrderByDescending(e => e.LastUsed)
                 .Take(limit)
@@ -42,19 +42,19 @@ namespace SnowMeltingCalculator.Services.Climate
                 .Where(e => e.City != null)
                 .ToList();
         }
-        
+
         /// <summary>
         /// Добавить или обновить запись в истории
         /// </summary>
         public async Task AddAsync(string cityId, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
+
             if (string.IsNullOrWhiteSpace(cityId))
                 return;
-            
+
             var existing = await _repository.GetByCityIdAsync(cityId);
-            
+
             if (existing != null)
             {
                 existing.LastUsed = DateTime.UtcNow;
@@ -71,7 +71,7 @@ namespace SnowMeltingCalculator.Services.Climate
                 });
             }
         }
-        
+
         /// <summary>
         /// Очистить историю поиска
         /// </summary>

@@ -15,6 +15,11 @@ using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
+using SnowMeltingCalculator.ViewModels.Results;
+using SnowMeltingCalculator.Services.Results;
+using SnowMeltingCalculator.Services.Project;
+using SnowMeltingCalculator.Services.Visualization;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Configuration
 {
@@ -109,6 +114,12 @@ namespace SnowMeltingCalculator.Configuration
             // Services - Калькулятор контуров (без состояния)
             services.AddSingleton<ICircuitsCalculator, CircuitsCalculator>();
 
+            // Services - Валидатор контуров и коллекторов
+            services.AddScoped<ICircuitsValidator, CircuitsValidator>();
+
+            // Services - Селектор типа коллектора (без состояния)
+            services.AddScoped<ICollectorTypeSelector, CollectorTypeSelector>();
+
             // ViewModels - Singleton для модуля "Контура" (сохранение состояния между навигациями)
             services.AddSingleton<CircuitsViewModel>();
 
@@ -126,6 +137,26 @@ namespace SnowMeltingCalculator.Configuration
             // Services - Singleton для глобального состояния расчёта
             services.AddSingleton<ICalculationStateService, CalculationStateService>();
 
+            // Singleton inter-module calculation bus
+            services.AddSingleton<CalculationContext>();
+
+            return services;
+        }
+
+        /// <summary>
+        /// Добавить сервисы модуля результатов
+        /// </summary>
+        public static IServiceCollection AddResultsModule(this IServiceCollection services)
+        {
+            // Services
+            services.AddSingleton<IProjectInfoService, ProjectInfoService>();
+            services.AddSingleton<IPdfExportService, PdfExportService>();
+            services.AddSingleton<IProjectFileService, ProjectFileService>();
+            services.AddSingleton<IConstructionVisualizationImageService, ConstructionVisualizationImageService>();
+
+            // ViewModels
+            services.AddSingleton<ResultsViewModel>();
+
             return services;
         }
 
@@ -139,7 +170,8 @@ namespace SnowMeltingCalculator.Configuration
                 .AddClimateModule()
                 .AddThermalModule()
                 .AddConstructionModule()
-                .AddHydraulicsModule();
+                .AddHydraulicsModule()
+                .AddResultsModule();
         }
     }
 }

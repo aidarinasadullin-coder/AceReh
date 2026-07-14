@@ -1,0 +1,86 @@
+Task 3 — Fix contradictory assertions in ClimateToHydraulicsIntegrationTests.cs
+==============================================================================
+Timestamp (ISO 8601, +05:00): 2026-07-14T20:35:28+05:00
+Plan reference: .omo/plans/fix-design-temperature-source.md todo 3 (lines 100-110)
+
+Changes applied to
+------------------
+File: tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs
+
+1. File remarks (was line 25):
+   - Before: "IClimateData.ColdFiveDayTemperature обновляется"
+   - After:  "AirTemperature обновляется"
+   Why: the remark describes the design-temperature update path, which now
+   follows _calculationContext.AirTemperature (table 1.6), not the raw
+   informational ColdFiveDayTemperature field.
+
+2. Assertion message (was line 520):
+   - Before: "DesignTemperatureValue должен возвращать ColdFiveDayTemperature"
+   - After:  "DesignTemperatureValue должен возвращать AirTemperature"
+   Why: the DesignTemperatureValue_ReturnsCorrectValue test verifies
+   _viewModel.DesignTemperatureValue == _climateViewModel.AirTemperature
+   (fallback path, no city selected). The previous message contradicted the
+   actual expectation.
+
+3. Test method rename (was line 294):
+   - Before: UpdateFromClimateModule_UpdatesColdFiveDayTemperature
+   - After:  UpdateFromClimateModule_UpdatesDesignTemperatureFromAirTemperature
+   Why: the test body (lines ~295-308) asserts DesignTemperatureValue follows
+   AirTemperature across five values, never touching ColdFiveDayTemperature.
+   The old name was misleading and contradicted the actual contract.
+   Verified the old name is referenced only in this file, so the rename
+   has no other call sites to update.
+
+NOT modified (preserved on purpose per task MUST NOT DO list):
+  - Line 421:  informational assert on _climateData.ColdFiveDayTemperature
+               (verifies raw T5Days092 storage when AirTemperature is set
+                directly without city selection)
+  - Lines 580-581: informational assert on _climateData.ColdFiveDayTemperature
+               in DesignTemperatureValue_FollowsAirTemperature_WithCitySelected
+               (verifies ColdFiveDayTemperature preserves original T5Days092
+                even when AirTemperature is overridden by table 1.6)
+  - No expected values were changed.
+  - No tests were removed.
+  - No other files were touched.
+  - baseline_refactor_dedupe.json was not touched.
+
+Grep gate verification
+----------------------
+$ grep -n "ColdFiveDayTemperature" tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs
+421: Assert.That(_climateData.ColdFiveDayTemperature, Is.EqualTo(-28.0), "ColdFiveDayTemperature из Climate");
+580: Assert.That(_climateData.ColdFiveDayTemperature, Is.EqualTo(t5Days092),
+581:     "ColdFiveDayTemperature должна сохранять исходное значение T5Days092");
+
+Exactly the two informational asserts on _climateData.ColdFiveDayTemperature
+remain. No matches in any DesignTemperatureValue assertion message.
+Acceptance criterion from plan todo 3 satisfied.
+
+Test run
+--------
+$ dotnet test tests/SnowMeltingCalculator.Tests/SnowMeltingCalculator.Tests.csproj --filter "ClimateToHydraulicsIntegrationTests" --logger "console;verbosity=minimal"
+
+  SnowMeltingCalculator -> src/bin/Debug/net8.0-windows/win-x64/SnowMeltingCalculator.dll
+  SnowMeltingCalculator.Tests -> tests/SnowMeltingCalculator.Tests/bin/Debug/net8.0-windows/SnowMeltingCalculator.Tests.dll
+  Тестовый запуск для SnowMeltingCalculator.Tests/bin/Debug/net8.0-windows/SnowMeltingCalculator.Tests.dll (.NETCoreApp,Version=v8.0)
+  Версия VSTest 17.11.1 (x64)
+
+  Запуск выполнения тестов; подождите...
+  Общее количество тестовых файлов (1), соответствующих указанному шаблону.
+
+  Пройден!   : не пройдено 0, пройдено 17, пропущено 0, всего 17, длительность 156 ms.
+
+Result: 17 passed / 0 failed / 0 skipped. Exit code 0.
+
+Pre-existing build warnings (CS8625, CS8618, CS8602, CS0219, CS1998) appear
+in other test files (FlowRegimeToColorConverterTests.cs,
+CityMatchToHighlightConverterTests.cs, CollectorViewModelTests.cs,
+HydraulicsIntegrationTests.cs, CollectorRepositoryJsonLoadingTests.cs,
+AppSettingsTests.cs, SearchHistoryServiceTests.cs, CircuitsCalculatorTests.cs).
+None of them originate in the file edited by this task. Out of scope.
+
+Conclusion
+----------
+Task 3 complete. All three text changes applied as specified, the grep gate
+shows only the two informational _climateData.ColdFiveDayTemperature asserts,
+and the filtered test suite for ClimateToHydraulicsIntegrationTests is green
+(17/17, 156 ms).

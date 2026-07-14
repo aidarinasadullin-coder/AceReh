@@ -12,6 +12,7 @@ using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.ViewModels.Climate;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
 {
@@ -26,10 +27,11 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
         private Mock<IThermalCalculator> _thermalCalculatorMock = null!;
         private Mock<IClimateDataService> _climateDataServiceMock = null!;
         private Mock<ICalculationStateService> _calculationStateServiceMock = null!;
+        private Mock<ICircuitsValidator> _validatorMock = null!;
+        private Mock<ICollectorTypeSelector> _collectorTypeSelectorMock = null!;
         private ClimateData _climateData = null!;
         private ConstructionData _constructionData = null!;
-        private ThermalViewModel _thermalViewModel = null!;
-        private ClimateViewModel _climateViewModel = null!;
+        private CalculationContext _calculationContext = null!;
         private CircuitsViewModel _viewModel = null!;
 
         [SetUp]
@@ -40,24 +42,17 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             _thermalCalculatorMock = new Mock<IThermalCalculator>();
             _climateDataServiceMock = new Mock<IClimateDataService>();
             _calculationStateServiceMock = new Mock<ICalculationStateService>();
-            
+            _validatorMock = new Mock<ICircuitsValidator>();
+            _collectorTypeSelectorMock = new Mock<ICollectorTypeSelector>();
+
             // Создаём реальные объекты для ClimateData и ConstructionData
             _climateData = new ClimateData();
             _constructionData = new ConstructionData();
-            
-            // Создаём реальные ViewModel с моками сервисов
-            _thermalViewModel = new ThermalViewModel(
-                _thermalCalculatorMock.Object,
-                _climateData,
-                _constructionData,
-                _calculationStateServiceMock.Object
-            );
-            
-            _climateViewModel = new ClimateViewModel(
-                _climateDataServiceMock.Object,
-                _climateData
-            );
-            
+
+            // Создаём общий контекст расчёта
+            _calculationContext = new CalculationContext();
+            _calculationContext.UpdateClimate(_climateData, "Climate");
+
             // Настраиваем моки для гликоля
             _glycolServiceMock
                 .Setup(g => g.GetProperties(It.IsAny<GlycolType>(), It.IsAny<double>(), It.IsAny<double>()))
@@ -68,13 +63,108 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                     KinematicViscosity = 0.000005
                 });
 
+            // Настраиваем мок для валидатора
+            // Явная настройка для null контура - используем It.Is с проверкой на null
+            _validatorMock
+                .Setup(v => v.CanRemoveCircuit(It.Is<CircuitRow?>(c => c == null), It.IsAny<CollectorData?>()))
+                .Returns(false);
+
+            // Настройка для null коллектора
+            _validatorMock
+                .Setup(v => v.CanRemoveCircuit(It.Is<CircuitRow?>(c => c != null), It.Is<CollectorData?>(c => c == null)))
+                .Returns(false);
+
+            // Настройка для валидных случаев (не-null)
+            _validatorMock
+                .Setup(v => v.CanRemoveCircuit(It.Is<CircuitRow?>(c => c != null), It.Is<CollectorData?>(c => c != null)))
+                .Returns((CircuitRow? circuit, CollectorData? collector) =>
+                {
+                    // Можно удалить только если в коллекторе больше 1 контура
+                    return collector!.Circuits.Count > 1;
+                });
+
+            // Явная настройка для null коллектора
+            _validatorMock
+                .Setup(v => v.CanRemoveCollector(It.Is<CollectorData?>(c => c == null), It.IsAny<int>()))
+                .Returns(false);
+
+            // Настройка для валидных случаев (не-null)
+            _validatorMock
+                .Setup(v => v.CanRemoveCollector(It.Is<CollectorData?>(c => c != null), It.IsAny<int>()))
+                .Returns((CollectorData? collector, int count) =>
+                {
+                    // Можно удалить только если в системе больше 1 коллектора
+                    return count > 1;
+                });
+
+            _validatorMock
+                .Setup(v => v.ConfirmDeleteCircuit(It.IsAny<int>()))
+                .Returns(true);
+            _validatorMock
+                .Setup(v => v.ConfirmDeleteCollector(It.IsAny<int>()))
+                .Returns(true);
+
+            // Настраиваем мок для селектора типа коллектора
+            _collectorTypeSelectorMock
+                .Setup(s => s.SelectCollectorType(It.IsAny<CollectorData>()))
+                .Returns((CollectorData collector) =>
+                {
+                    var summary = collector.Summary;
+                    if (summary == null)
+                        return new CollectorSelectionResult();
+
+                    var totalFlowRate_m3h = summary.TotalFlowRate / 1000.0;
+                    var result = new CollectorSelectionResult();
+
+                    if (totalFlowRate_m3h >= 2.5)
+                    {
+                        result.CollectorType = "IV 1½\" (2-12 контуров)";
+                        result.ValveType = ValveType.IV_1_5;
+                    }
+                    else if (totalFlowRate_m3h > 1.5)
+                    {
+                        result.CollectorType = "IV 1¼\" (2-12 контуров)";
+                        result.ValveType = ValveType.IV_1_25;
+                    }
+                    else
+                    {
+                        result.CollectorType = "HKV-D (2-12 контуров)";
+                        result.ValveType = ValveType.HKV_D;
+                    }
+
+                    // Проверка давления
+                    var warnings = new System.Collections.Generic.List<string>();
+                    if (summary.PressureLoss_Operating_Pa > CollectorSummary.MaxAllowedPressure_Pa)
+                    {
+                        double pressureKPa = summary.PressureLoss_Operating_Pa / 1000.0;
+                        warnings.Add($"Превышение давления (рабочий режим): {pressureKPa:F1} кПа > 32 кПа");
+                    }
+                    if (summary.PressureLoss_Cold_Pa > CollectorSummary.MaxAllowedPressure_Pa)
+                    {
+                        double pressureKPa = summary.PressureLoss_Cold_Pa / 1000.0;
+                        warnings.Add($"Превышение давления (холодный пуск): {pressureKPa:F1} кПа > 32 кПа");
+                    }
+
+                    if (warnings.Count > 0)
+                    {
+                        result.Warning = string.Join("\n", warnings);
+                    }
+                    else if (totalFlowRate_m3h >= 7.0)
+                    {
+                        result.Warning = $"Превышение расхода: {totalFlowRate_m3h.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)} м³/ч ≥ 7.0 м³/ч. Рекомендуется разделить на несколько коллекторов.";
+                    }
+
+                    return result;
+                });
+
             // Создаём ViewModel
             _viewModel = new CircuitsViewModel(
                 _circuitsCalculatorMock.Object,
                 _glycolServiceMock.Object,
-                _thermalViewModel,
-                _climateViewModel,
-                _calculationStateServiceMock.Object
+                _calculationStateServiceMock.Object,
+                _validatorMock.Object,
+                _collectorTypeSelectorMock.Object,
+                _calculationContext
             );
         }
 
@@ -556,7 +646,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "IV 1½\" (2-12 контуров)"; // Начинаем с другого типа
             collector.ValveType = ValveType.IV_1_5;
-            
+
             // Устанавливаем расход 1000 л/ч = 1.0 м³/ч (< 1.5 м³/ч)
             collector.Summary = new CollectorSummary
             {
@@ -580,7 +670,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "HKV-D (2-12 контуров)";
             collector.ValveType = ValveType.HKV_D;
-            
+
             // Устанавливаем расход 2000 л/ч = 2.0 м³/ч (1.5 < x < 2.5)
             collector.Summary = new CollectorSummary
             {
@@ -604,7 +694,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "HKV-D (2-12 контуров)";
             collector.ValveType = ValveType.HKV_D;
-            
+
             // Устанавливаем расход 3000 л/ч = 3.0 м³/ч (2.5 ≤ x < 7.0)
             collector.Summary = new CollectorSummary
             {
@@ -628,7 +718,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "HKV-D (2-12 контуров)";
             collector.ValveType = ValveType.HKV_D;
-            
+
             // Устанавливаем расход 8000 л/ч = 8.0 м³/ч (≥ 7.0 м³/ч)
             collector.Summary = new CollectorSummary
             {
@@ -653,7 +743,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "HKV-D (2-12 контуров)";
             collector.ValveType = ValveType.HKV_D;
-            
+
             // Устанавливаем расход 5000 л/ч = 5.0 м³/ч (2.5 ≤ x < 7.0)
             collector.Summary = new CollectorSummary
             {
@@ -677,7 +767,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "IV 1¼\" (2-12 контуров)";
             collector.ValveType = ValveType.IV_1_25;
-            
+
             // Устанавливаем расход ровно 1500 л/ч = 1.5 м³/ч (граница)
             collector.Summary = new CollectorSummary
             {
@@ -700,7 +790,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "IV 1¼\" (2-12 контуров)";
             collector.ValveType = ValveType.IV_1_25;
-            
+
             // Устанавливаем расход ровно 2500 л/ч = 2.5 м³/ч (граница)
             collector.Summary = new CollectorSummary
             {
@@ -723,7 +813,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "IV 1½\" (2-12 контуров)";
             collector.ValveType = ValveType.IV_1_5;
-            
+
             // Устанавливаем расход ровно 7000 л/ч = 7.0 м³/ч (граница)
             collector.Summary = new CollectorSummary
             {
@@ -747,7 +837,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "HKV-D (2-12 контуров)";
             collector.ValveType = ValveType.HKV_D;
-            
+
             // Устанавливаем расход 6990 л/ч = 6.99 м³/ч (чуть меньше 7.0)
             collector.Summary = new CollectorSummary
             {
@@ -769,7 +859,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
         {
             // Arrange
             var collector = _viewModel.Collectors[0];
-            
+
             // Сначала устанавливаем предупреждение
             collector.Summary = new CollectorSummary
             {
@@ -794,7 +884,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "HKV-D (2-12 контуров)";
             collector.ValveType = ValveType.HKV_D;
-            
+
             // Устанавливаем давление в рабочем режиме выше лимита (43.7 кПа > 32 кПа)
             // и нормальное давление в холодном режиме
             collector.Summary = new CollectorSummary
@@ -823,7 +913,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "HKV-D (2-12 контуров)";
             collector.ValveType = ValveType.HKV_D;
-            
+
             // Устанавливаем нормальное давление в рабочем режиме
             // и давление в холодном режиме выше лимита
             collector.Summary = new CollectorSummary
@@ -852,7 +942,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "HKV-D (2-12 контуров)";
             collector.ValveType = ValveType.HKV_D;
-            
+
             // Устанавливаем превышение давления в обоих режимах
             collector.Summary = new CollectorSummary
             {
@@ -881,7 +971,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "HKV-D (2-12 контуров)";
             collector.ValveType = ValveType.HKV_D;
-            
+
             // Устанавливаем нормальное давление в обоих режимах
             collector.Summary = new CollectorSummary
             {
@@ -904,7 +994,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "HKV-D (2-12 контуров)";
             collector.ValveType = ValveType.HKV_D;
-            
+
             // Устанавливаем превышение давления И расхода
             // Предупреждение о давлении должно иметь приоритет
             collector.Summary = new CollectorSummary
@@ -931,7 +1021,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             var collector = _viewModel.Collectors[0];
             collector.CollectorType = "HKV-D (2-12 контуров)";
             collector.ValveType = ValveType.HKV_D;
-            
+
             // Устанавливаем давление ровно на лимите (32 кПа = 32000 Па)
             collector.Summary = new CollectorSummary
             {
@@ -1109,7 +1199,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
 
             // Act - начальное значение
             var result1 = collector.CollectorTypeDisplayWithCount;
-            
+
             // Добавляем контур
             collector.Circuits.Add(new CircuitRow { CircuitNumber = 2 });
             var result2 = collector.CollectorTypeDisplayWithCount;
@@ -1133,7 +1223,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
 
             // Act - начальное значение
             var result1 = collector.CollectorTypeDisplayWithCount;
-            
+
             // Меняем тип клапана
             collector.ValveType = ValveType.IV_1_5;
             var result2 = collector.CollectorTypeDisplayWithCount;
@@ -1152,13 +1242,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
         /// </summary>
         private static T InvokePrivateMethod<T>(object obj, string methodName, object?[]? parameters = null)
         {
-            var method = obj.GetType().GetMethod(methodName, 
-                System.Reflection.BindingFlags.NonPublic | 
+            var method = obj.GetType().GetMethod(methodName,
+                System.Reflection.BindingFlags.NonPublic |
                 System.Reflection.BindingFlags.Instance);
-            
+
             if (method == null)
                 throw new System.Exception($"Метод {methodName} не найден");
-            
+
             var result = method.Invoke(obj, parameters);
             return (T)result!;
         }
@@ -1168,13 +1258,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
         /// </summary>
         private static void InvokePrivateMethod(object obj, string methodName, object?[]? parameters = null)
         {
-            var method = obj.GetType().GetMethod(methodName, 
-                System.Reflection.BindingFlags.NonPublic | 
+            var method = obj.GetType().GetMethod(methodName,
+                System.Reflection.BindingFlags.NonPublic |
                 System.Reflection.BindingFlags.Instance);
-            
+
             if (method == null)
                 throw new System.Exception($"Метод {methodName} не найден");
-            
+
             method.Invoke(obj, parameters);
         }
 

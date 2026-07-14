@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Services.Climate;
 
@@ -16,6 +17,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         private readonly IClimateDataService _climateService;
         private readonly IClimateData _climateData;
         private readonly ISearchHistoryService? _historyService;
+        private readonly CalculationContext _calculationContext;
         private CityInfo? _originalCityData;
         private CancellationTokenSource? _searchCts;
 
@@ -206,12 +208,14 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// Создать ViewModel
         /// </summary>
         public ClimateViewModel(
-            IClimateDataService climateService, 
+            IClimateDataService climateService,
             IClimateData climateData,
+            CalculationContext calculationContext,
             ISearchHistoryService? historyService = null)
         {
             _climateService = climateService ?? throw new ArgumentNullException(nameof(climateService));
             _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
+            _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
             _historyService = historyService;
         }
 
@@ -267,13 +271,13 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 }
 
                 var cities = await _climateService.SearchCitiesWithPriorityAsync(
-                    SearchQuery, 
+                    SearchQuery,
                     _searchCts.Token);
 
                 FilteredCitiesWithHighlight.Clear();
                 foreach (var city in cities)
                 {
-                    var (highlightedName, highlightedRegion, matchType) = 
+                    var (highlightedName, highlightedRegion, matchType) =
                         _climateService.HighlightMatch(city, SearchQuery);
                     var zone = _climateService.DetermineZone(city.T5Days092, false);
 
@@ -337,7 +341,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             if (_historyService == null) return;
 
             var cities = await _historyService.GetRecentAsync(10);
-            
+
             RecentCities.Clear();
             foreach (var entry in cities)
             {
@@ -360,7 +364,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             }
 
             var cities = _climateService.GetAllCities().OrderBy(c => c.Name).Take(100);
-            
+
             FilteredCities.Clear();
             foreach (var city in cities)
             {
@@ -401,7 +405,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             {
                 // Сохраняем температуру холодной пятидневки (информационно)
                 ColdFiveDayTemperature = _originalCityData.T5Days092;
-                
+
                 // Определяем расчётную температуру по таблице 1.6
                 var coldFiveDayTemp = _originalCityData.T5Days092;
                 if (IsHighRequirements)
@@ -420,7 +424,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 {
                     AirTemperature = -20.0; // -37°C и ниже
                 }
-                
+
                 WindSpeed = _originalCityData.WindAvgTempLe8;
                 Humidity = _originalCityData.Humidity15hCold;
                 SelectedZone = _climateService.DetermineZone(_originalCityData.T5Days092, IsHighRequirements);
@@ -445,7 +449,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 await _climateService.LoadClimateDataAsync();
                 OnPropertyChanged(nameof(IsDataLoaded));
                 OnPropertyChanged(nameof(CitiesCount));
-                
+
                 if (FilteredCities.Count == 0)
                 {
                     await LoadAllCitiesCommand.ExecuteAsync(null);
@@ -513,11 +517,11 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             if (value != null)
             {
                 _originalCityData = value;
-                
+
                 // Сохраняем температуру холодной пятидневки (информационно)
                 ColdFiveDayTemperature = value.T5Days092;
                 IsCitySelected = true;
-                
+
                 // Определяем расчётную температуру по таблице 1.6
                 var coldFiveDayTemp = value.T5Days092;
                 if (IsHighRequirements)
@@ -536,7 +540,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 {
                     AirTemperature = -20.0; // -37°C и ниже
                 }
-                
+
                 WindSpeed = value.WindAvgTempLe8;
                 Humidity = value.Humidity15hCold;
                 SelectedZone = _climateService.DetermineZone(value.T5Days092, IsHighRequirements);
@@ -718,6 +722,8 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 data.ColdFiveDayTemperature = SelectedCity?.T5Days092 ?? AirTemperature;
 
                 data.RaiseDataChanged("Sync", null, null, IsValid);
+
+                _calculationContext.UpdateClimate(_climateData, "Climate");
             }
         }
 

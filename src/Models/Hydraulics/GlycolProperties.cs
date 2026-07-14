@@ -33,7 +33,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// - 50% этиленгликоль при 40°C: ~1053 кг/м³
         /// </remarks>
         public double Density { get; set; }
-        
+
         /// <summary>
         /// Удельная теплоёмкость (c_p), кДж/(кг·К)
         /// </summary>
@@ -48,7 +48,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// - 50% этиленгликоль при 40°C: ~3.39 кДж/(кг·К)
         /// </remarks>
         public double SpecificHeat { get; set; }
-        
+
         /// <summary>
         /// Кинематическая вязкость (ν), мм²/с
         /// </summary>
@@ -66,7 +66,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// - 50% этиленгликоль при -15°C: ~18.17 мм²/с
         /// </remarks>
         public double KinematicViscosity { get; set; }
-        
+
         /// <summary>
         /// Теплопроводность (λ), Вт/(м·К)
         /// </summary>
@@ -81,26 +81,26 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// - 50% этиленгликоль при 40°C: ~0.42 Вт/(м·К)
         /// </remarks>
         public double ThermalConductivity { get; set; }
-        
+
         // === Дополнительные свойства ===
-        
+
         /// <summary>
         /// Температура, для которой получены свойства, °C
         /// </summary>
         public double Temperature { get; set; }
-        
+
         /// <summary>
         /// Концентрация гликоля, %
         /// </summary>
         public double Concentration { get; set; }
-        
+
         /// <summary>
         /// Тип гликоля
         /// </summary>
         public GlycolType GlycolType { get; set; }
-        
+
         // === Вычисляемые свойства ===
-        
+
         /// <summary>
         /// Кинематическая вязкость в м²/с
         /// </summary>
@@ -108,7 +108,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Преобразование: ν [м²/с] = ν [мм²/с] × 10⁻⁶
         /// </remarks>
         public double KinematicViscosity_m2_s => KinematicViscosity * 1e-6;
-        
+
         /// <summary>
         /// Динамическая вязкость (μ), Па·с
         /// </summary>
@@ -119,7 +119,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// - ν — кинематическая вязкость, м²/с
         /// </remarks>
         public double DynamicViscosity => Density * KinematicViscosity_m2_s;
-        
+
         /// <summary>
         /// Температуропроводность (a), м²/с
         /// </summary>
@@ -133,7 +133,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Примечание: c_p нужно перевести из кДж/(кг·К) в Дж/(кг·К)
         /// </remarks>
         public double ThermalDiffusivity => ThermalConductivity / (Density * SpecificHeat * 1000);
-        
+
         /// <summary>
         /// Число Прандтля (Pr), безразмерное
         /// </summary>
@@ -146,14 +146,14 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Число Прандтля характеризует отношение вязкостных и тепловых свойств.
         /// </remarks>
         public double PrandtlNumber => KinematicViscosity_m2_s / ThermalDiffusivity;
-        
+
         // === Методы ===
-        
+
         /// <summary>
         /// Создать пустые свойства
         /// </summary>
         public static GlycolProperties Empty => new();
-        
+
         /// <summary>
         /// Создать свойства для воды
         /// </summary>
@@ -167,7 +167,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
             double viscosity = Math.Exp(-1.597 + 0.181 * temperature - 0.003 * Math.Pow(temperature, 2));
             double specificHeat = 4.18; // кДж/(кг·К)
             double conductivity = 0.6 - 0.0015 * temperature; // Вт/(м·К)
-            
+
             return new GlycolProperties
             {
                 Density = density,
@@ -179,7 +179,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
                 GlycolType = GlycolType.Ethylene
             };
         }
-        
+
         /// <summary>
         /// Получить строковое представление
         /// </summary>
@@ -187,7 +187,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         {
             return $"ρ={Density:F1} кг/м³, ν={KinematicViscosity:F2} мм²/с, c_p={SpecificHeat:F2} кДж/(кг·К)";
         }
-        
+
         /// <summary>
         /// Получить детальное описание
         /// </summary>

@@ -1,0 +1,68 @@
+T2 — Remove duplicate MinPipeSpacing/MaxPipeSpacing from ThermalConstants
+========================================================================
+
+Task
+----
+Keep the canonical declarations in src/Core/Constants/ValidationConstants.cs
+and remove the duplicate declarations from src/Core/Constants/ThermalConstants.cs.
+Migrate any src/ references from ThermalConstants.{Min,Max}PipeSpacing to
+ValidationConstants.{Min,Max}PipeSpacing.
+
+Reference scan BEFORE the edit
+------------------------------
+- ThermalConstants.MinPipeSpacing  / ThermalConstants.MaxPipeSpacing in src/:
+  0 matches (no migration needed)
+- ValidationConstants.MinPipeSpacing / ValidationConstants.MaxPipeSpacing in src/:
+  2 references in src/Core/Extensions/ValidationExtensions.cs (lines 293-294)
+  These already point at the canonical class.
+- ValidationConstants.{Min,Max}PipeSpacing in tests/:
+  ValidationExtensionsTests.cs lines 558-559 already point at the canonical class.
+
+Edit applied
+------------
+File: src/Core/Constants/ThermalConstants.cs
+Removed the entire region "Ограничения шага укладки" (formerly lines 184-196,
+including the two duplicate const declarations MinPipeSpacing = 50.0 and
+MaxPipeSpacing = 500.0). The numeric values are unchanged in
+ValidationConstants.cs (50.0 and 500.0, lines 128 and 133).
+
+Verification
+------------
+1) Reference scan AFTER the edit (src/**/*.cs for
+   ThermalConstants.(MinPipeSpacing|MaxPipeSpacing)):
+
+   (0 matches - PASS)
+
+2) dotnet build src/SnowMeltingCalculator.csproj -c Debug
+   Exit code: 0
+   Errors: 0
+   Warnings (pre-existing, unrelated to this change): 6
+     - CS1998 in src/ViewModels/Hydraulics/CollectorViewModel.cs:191
+     - CS8604 in src/ViewModels/Results/ResultsViewModel.cs:509
+     - CS0169 in src/MainWindow.xaml.cs:32
+     (each appears twice because the WPF temp project also compiles)
+
+3) dotnet test tests/SnowMeltingCalculator.Tests
+   Result: 1076 passed, 1 failed, 2 explicitly skipped
+   The 1 failure is pre-existing and unrelated to this change:
+     Test:    FullWorkflow_ThermalClimateGlycol_TriggersCorrectNumberOfCalculates
+     File:    tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/
+              DoubleCalculationPreventionTests.cs:593
+     Reason:  Moq.Verify expected 4 calls to IGlycolDataService.GetProperties,
+              but received 8 (the mock now sees one call per glycol type
+              per temperature instead of being deduplicated). The test
+              concerns calculation-deduplication behaviour in the
+              hydraulics layer and has no relationship to the
+              MinPipeSpacing/MaxPipeSpacing constants.
+   Skipped (explicit [Ignore], expected):
+     - RegenerateCircuitsBaseline
+     - RegenerateBaseline
+
+Outcome
+-------
+- Duplicate declarations in ThermalConstants.cs: REMOVED.
+- src/ references to ThermalConstants.{Min,Max}PipeSpacing: 0 (no migration
+  was required because no src/ file referenced them).
+- Build: PASS (exit 0).
+- Tests: PASS for the scope of this change. The single failing test is
+  pre-existing and unrelated.

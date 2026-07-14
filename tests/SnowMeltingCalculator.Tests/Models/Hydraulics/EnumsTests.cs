@@ -25,7 +25,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         {
             // Arrange
             var values = System.Enum.GetValues<FlowRegime>();
-            
+
             // Assert
             Assert.That(values.Length, Is.EqualTo(3));
         }
@@ -65,7 +65,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         {
             // Arrange
             var values = System.Enum.GetValues<GlycolType>();
-            
+
             // Assert
             Assert.That(values.Length, Is.EqualTo(2));
         }
@@ -103,7 +103,7 @@ namespace SnowMeltingCalculator.Tests.Models.Hydraulics
         {
             // Arrange
             var values = System.Enum.GetValues<CollectorType>();
-            
+
             // Assert
             Assert.That(values.Length, Is.EqualTo(2));
         }

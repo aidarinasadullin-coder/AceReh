@@ -1,0 +1,207 @@
+﻿===============================================================================
+ F4 — SCOPE FIDELITY VERIFICATION (FINAL)
+ Plan: refactor-dedupe-params
+ Base: 913086d (pre-refactor) → HEAD (a6ecae1 + uncommitted working tree)
+ Date: 2026-07-14
+===============================================================================
+
+OVERALL VERDICT:  F4 VERDICT: APPROVE
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GUARDRAIL G1: NO CALCULATION FORMULA CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STATUS: PASS
+
+Evidence: git diff 913086d -- src/Services/Thermal/ThermalCalculator.cs
+         git diff 913086d -- src/Services/Hydraulics/CircuitsCalculator.cs
+
+ThermalCalculator.cs — formula bodies line-by-line:
+  CalculateHeatTransferCoefficient (75-97):   UNCHANGED (byte-identical)
+    α = 2.26 × (t_П - t_H)^0.33 + 2.6 × v_H
+  CalculatePowerUp (115-150):                UNCHANGED (byte-identical)
+    q = h × ρ × (c_ice × (0 - t_H) + L + c_w × t_П) + α × (t_П - t_H)
+  CalculateThermalResistance (163-188):       UNCHANGED (byte-identical)
+    RFb = R1 + 1/α;  RD = R2 + 1/α_bottom
+  CalculateRodTheory (204-260):              UNCHANGED (byte-identical)
+    m = 0.6 × √[(1/RFb + 1/RD) / (λE × dE)];  ηR = tanh(x)/x
+  CalculateExcessTemperature (278-360):       FIELD-RENAME ONLY
+    Only change: parameters.AirTemperature → climate.AirTemperature (line 335)
+    Formula |t_H - t_G| mathematically identical.
+  CalculatePowerDown (396-441):                UNCHANGED (whitespace only)
+  Calculate (442-580):                        FIELD-RENAME ONLY
+    parameters.X → inputs.X / climate.X / construction.X
+    REMOVED: result.R1Total/R2Total echo assignments (T6-approved)
+    All formula expressions mathematically identical.
+  Validate (582-710):                         FIELD-RENAME ONLY
+    All validation thresholds unchanged (10, -60, -10, 30, 0, 50, 0, 20,
+    50, 500, 0, 0, 20, 90, 0, 30, 0, 0).
+
+CircuitsCalculator.cs — formula bodies line-by-line:
+  CalculateCircuitPower (20-40):              UNCHANGED (not in diff)
+  CalculateFlowRate (42-60):                  UNCHANGED (not in diff)
+  CalculateAtTemperature (62-120):            UNCHANGED
+    REMOVED: 4 lines under #pragma CS0618 assigning [Obsolete] properties
+    (CircuitPipeLoss, SupplyPipeLoss, ValveLoss) — T22 dead-code cleanup.
+    Canonical outputs (DpRohr, DpVerteiler, DpVent, DpGesamt) preserved.
+  CalculateAllCircuits (122-189):             SIGNATURE + FIELD-RENAME ONLY
+    Added primitives (T13-approved); inputData.X → parameter X.
+  CalculateBalancing (191-245):               UNCHANGED (not in diff)
+  CalculateCollectorSummary (247-289):        UNCHANGED (not in diff)
+  CalculateKvForThrottling (291-303):         UNCHANGED (not in diff)
+
+grep verification — no new Math/calibration expressions added:
+  git diff 913086d -- src/Services/Hydraulics/CircuitsCalculator.cs |
+    Select-String "^\+.*Math\." → (no output)
+  git diff 913086d -- src/Services/Thermal/ThermalCalculator.cs |
+    Select-String "^\+.*const |^\+.*readonly " → (no output)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GUARDRAIL G1b: NO NUMERIC CONSTANT CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STATUS: PASS
+
+Evidence:
+  git diff 913086d -- src/Core/Constants/ThermalConstants.cs    → NO CHANGES
+  git diff 913086d -- src/Core/Constants/ValidationConstants.cs  → NO CHANGES
+  git diff 913086d -- src/Core/Constants/HydraulicsConstants.cs  → NO CHANGES
+
+Inline formula constants verified unchanged (see G1 per-method analysis):
+  2.26, 0.33, 2.6, 0.1, 1000.0, 3600.0, 0.6, 0.001, 2.0, 273.0, 3.6,
+  100.0, 4000, 10000, 100, 1.2, 15000, 100000 — all preserved.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GUARDRAIL G2: NO NEW PRODUCT FEATURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STATUS: PASS
+
+New pipe types / materials:
+  git diff 913086d --stat -- data/ src/Models/Thermal/PipeType.cs
+    data/rehau_products.json: NO CHANGES
+    data/materials_db.json:   NO CHANGES
+    PipeType.cs:              whitespace-only (16 lines, no content change)
+    StandardPipes array unchanged (17, 20, 25 mm RAUTHERM S).
+
+Word/PDF export:
+  grep -r "Word|Docx|OpenXml|Office" src/ → 1 match in ResultsViewModel.cs
+    Line 1108: private static string GetContourWord(int count)
+    → Russian pluralization helper for "контур" (contour), NOT Word export.
+  PDF export (PdfExportService.cs): T10/T11-referenced echo-field reader
+    migration. Pre-existing feature, NOT new.
+
+New files checked against T10/T11/T17/T19/T20 References:
+  src/Services/Results/      → T10, T11 Refs (ResultsPdfData, PdfExportService) ✅
+  src/Services/Project/     → T11, T19 Refs (ProjectData, save/load)         ✅
+  src/Models/Project/       → T19 Refs (ProjectData.cs)                      ✅
+  src/Views/Results/        → T10, T20 Refs (ResultsView.xaml:441)           ✅
+  src/Views/Shared/         → T20 Refs (ConstructionVisualizationView)        ✅
+  src/Core/Extensions/      → T17 Refs (UnitsConversionExtensions)            ✅
+  src/Services/Visualization/ → Mechanical consequence of ConstructionView
+    Canvas relocation (T20-referenced shared view needs rendering backend)   ✅
+  src/Converters/DivisionConverter.cs → Borderline (G6), plausible binding
+    break consequence. Minor.
+
+No new DB entities, no installer features, no new pipe types, no new materials.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GUARDRAIL G3: NO XAML LAYOUT / THEME CHANGES (binding Path= updates only)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STATUS: PASS
+
+Binding-path updates (T20-approved):
+  CircuitsView.xaml:246  {Binding GlycolType,...} → {Binding InputData.GlycolType,...}  ✅
+  CircuitsView.xaml:260  {Binding GlycolConcentration,...} → {Binding InputData.GlycolConcentration,...}  ✅
+  CircuitsView.xaml:499  {Binding GlycolConcentration,...} → {Binding InputData.GlycolConcentration,...}  ✅
+  ThermalView.xaml:552  {Binding Result.R1Total,...} → {Binding R1Total,...}  ✅
+  ThermalView.xaml:563  {Binding Result.R2Total,...} → {Binding R2Total,...}  ✅
+  ResultsView.xaml:441  {Binding PipeSpacing,...} (T20-predicted)  ✅
+
+Mechanical layout consequences (user-approved examples):
+  ClimateView.xaml:   Grid wrapped in ScrollViewer  ✅
+  CircuitsView.xaml:  Grid wrapped in ScrollViewer  ✅
+  ThermalView.xaml:   Grid wrapped in ScrollViewer  ✅
+  ConstructionView.xaml: 40-line inline Canvas → <shared:ConstructionVisualizationView/>  ✅
+    (ConstructionView.xaml.cs: 341 lines inline drawing → 9 lines; relocated
+     to Visualization services — mechanical consequence of binding refactor)
+
+No MaterialDesign theme resource changes. No ControlTemplate modifications.
+No DataTemplate restructuring beyond the Canvas→shared-view relocation.
+
+Minor cosmetic observations (NOT layout/theme redesign, non-blocking):
+  - Text label wording: "Конструкция покрытия"→"Конструкция",
+    "Слои над трубой (к поверхности)"→"Слои над трубой",
+    "Теплотехнический расчёт"→"Тепловой расчёт" (5 labels, 2 files)
+  - MainWindow.xaml: button size 40×32→40×40, icon path data tweaks,
+    new File menu (wires T11/T19 save/load commands)
+  - CircuitsResultsView.xaml: DataTrigger bolding active temperature row
+  - ConstructionView.xaml: "№" row-number column + OrderToNumberConverter
+  These are cosmetic label/UI tweaks, not layout/theme architecture changes,
+  and do not affect any calculation or product feature.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GUARDRAIL G4: NO PUBLIC API RENAME WITHOUT DTO SYNC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STATUS: PASS
+
+T19 explicitly synced ProjectData.cs serialization DTO (PipeTypeProjectData,
+ThermalData, CircuitData.PipeSpacingCm) with canonical owners. JSON property
+names preserved for v1.0 .snowproj compatibility.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GUARDRAIL G5: NO PARALLEL NEW ARCHITECTURE SCAFFOLD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STATUS: PASS
+
+Old ThermalParameters.cs deleted (T3). Old echo fields removed from
+ThermalCalculationResult (T6). Old sibling-VM injection removed from
+CircuitsViewModel (T15). No parallel scaffold remains.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GUARDRAIL G6: NO BEHAVIORS/CONVERTERS SPRAWL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STATUS: PASS (with minor observation)
+
+New converters: DivisionConverter.cs, OrderToNumberConverter (in Dictionary.xaml).
+Both plausibly forced by binding breaks from the refactor. Minimal touch.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ OBSERVATIONS (non-blocking, deferred to F2/F3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. CircuitsView.xaml lines 50, 55: dangling bindings to removed [Obsolete]
+   properties (CircuitPipeLoss_mbar, ValveLoss_mbar). Potential runtime binding
+   errors. Defer to F2 (code quality) / F3 (runtime QA).
+
+2. MainWindow.xaml: cosmetic chrome changes (button sizes/icons) are not a
+   direct consequence of the binding refactor. Recommend separating into a
+   distinct commit in future work for cleaner audit trail.
+
+3. installer/, publish/, CHANGELOG.md, INSTALL.md: new untracked files not in
+   any T Reference. Deployment/documentation artifacts, not product features.
+   Outside F4 scope, noted for completeness.
+
+===============================================================================
+ SUMMARY
+===============================================================================
+
+  G1  Formula bodies unchanged:              PASS
+  G1b Numeric constants unchanged:            PASS
+  G2  No new product features:               PASS
+  G3  XAML changes = binding paths + mechanical layout:  PASS
+  G4  Public API rename + DTO sync:          PASS
+  G5  No parallel scaffold:                  PASS
+  G6  No converter sprawl:                   PASS
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                    F4 VERDICT: APPROVE                               │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  The refactor stayed within the plan's Scope and Must-NOT-Have guardrails.
+  All formula bodies are mathematically identical to pre-refactor (only
+  field-access path renames). No numeric constants changed. No new pipe types
+  or materials. No new product features. XAML changes are binding-path updates
+  and mechanical layout consequences of the binding refactor. New files are
+  covered by T10/T11/T17/T19/T20 References.
+
+===============================================================================
+ END OF F4 SCOPE FIDELITY REPORT
+===============================================================================

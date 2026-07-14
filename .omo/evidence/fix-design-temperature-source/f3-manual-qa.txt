@@ -1,0 +1,127 @@
+﻿2026-07-14 20:55:22.380  Launching D:\IA\ace\src\bin\Debug\net8.0-windows\win-x64\SnowMeltingCalculator.exe
+2026-07-14 20:55:23.297  MainWindowHandle=2818954
+2026-07-14 20:55:25.417  Window title='Калькулятор снеготаяния REHAU'
+2026-07-14 20:55:25.960  Selected menu: Климат
+2026-07-14 20:55:26.616  Found city search box
+2026-07-14 20:55:26.882  Typed city: Москва (value='Москва')
+2026-07-14 20:55:28.464  Found suggestion item Name='SnowMeltingCalculator.Models.Climate.CityMatchResult' Rect=1120,585,442,40
+2026-07-14 20:55:28.961  Clicked suggestion at 1341,605
+2026-07-14 20:55:30.168  --- After city selection ---
+2026-07-14 20:55:30.242  ControlType ControlType.Text count=29
+2026-07-14 20:55:30.254    [0] Name='РЕХАУ' AutoId='' Class='TextBlock' Rect=910,355,153,27
+2026-07-14 20:55:30.257    [1] Name='Калькулятор снеготаяния' AutoId='' Class='TextBlock' Rect=910,382,153,15
+2026-07-14 20:55:30.259    [2] Name='Климатические данные' AutoId='' Class='TextBlock' Rect=1189,368,169,16
+2026-07-14 20:55:30.260    [3] Name='Файл' AutoId='' Class='TextBlock' Rect=1498,367,30,18
+2026-07-14 20:55:30.263    [4] Name='v1.0' AutoId='' Class='TextBlock' Rect=1557,369,21,14
+2026-07-14 20:55:30.266    [5] Name='Климат' AutoId='' Class='TextBlock' Rect=887,469,52,16
+2026-07-14 20:55:30.269    [6] Name='Конструкция' AutoId='' Class='TextBlock' Rect=887,517,90,16
+2026-07-14 20:55:30.271    [7] Name='Тепловой расчёт' AutoId='' Class='TextBlock' Rect=887,565,118,16
+2026-07-14 20:55:30.272    [8] Name='Гидравлический расчёт' AutoId='' Class='TextBlock' Rect=887,609,115,34
+2026-07-14 20:55:30.274    [9] Name='Результаты' AutoId='' Class='TextBlock' Rect=887,670,80,17
+2026-07-14 20:55:30.276    [10] Name='Климатические параметры' AutoId='' Class='TextBlock' Rect=1084,428,605,29
+2026-07-14 20:55:30.277    [11] Name='Выбор города' AutoId='' Class='TextBlock' Rect=1117,510,539,19
+2026-07-14 20:55:30.279    [12] Name='Сбросить' AutoId='' Class='TextBlock' Rect=1577,546,62,17
+2026-07-14 20:55:30.281    [13] Name='Москва (Московская область)' AutoId='' Class='TextBlock' Rect=1145,595,181,14
+2026-07-14 20:55:30.282    [14] Name='Климатические параметры' AutoId='' Class='TextBlock' Rect=1117,678,539,19
+2026-07-14 20:55:30.285    [15] Name='Температура холодной пятидневки:  -23.0 °C  (по СП 131.13330.2025)' AutoId='' Class='TextBlock' Rect=1157,705,403,20
+2026-07-14 20:55:30.287    [16] Name='Расчётная температура:' AutoId='' Class='TextBlock' Rect=1117,749,168,15
+2026-07-14 20:55:30.288    [17] Name='°C' AutoId='' Class='TextBlock' Rect=1271,788,14,14
+2026-07-14 20:55:30.291    [18] Name='Скорость ветра:' AutoId='' Class='TextBlock' Rect=1309,749,347,15
+2026-07-14 20:55:30.292    [19] Name='м/с' AutoId='' Class='TextBlock' Rect=1636,788,20,14
+2026-07-14 20:55:30.294    [20] Name='Влажность воздуха:' AutoId='' Class='TextBlock' Rect=1117,832,168,15
+2026-07-14 20:55:30.296    [21] Name='%' AutoId='' Class='TextBlock' Rect=1275,871,10,15
+2026-07-14 20:55:30.298    [22] Name='Интенсивность снегопада (в водном эквиваленте):' AutoId='' Class='TextBlock' Rect=1309,832,347,15
+2026-07-14 20:55:30.301    [23] Name='мм/ч' AutoId='' Class='TextBlock' Rect=1626,871,30,15
+2026-07-14 20:55:30.303    [24] Name='ℹ️ 1 мм/ч воды ≈ 1 см/ч снега (для свежего снега)' AutoId='' Class='TextBlock' Rect=1309,908,347,13
+2026-07-14 20:55:30.306    [25] Name='Климатическая зона:' AutoId='' Class='TextBlock' Rect=1117,933,539,14
+2026-07-14 20:55:30.310    [26] Name='Повышенные требования (колонка -20°C)' AutoId='' Class='TextBlock' Rect=1137,1016,252,15
+2026-07-14 20:55:30.312    [27] Name='Колонка -15°C (-37°C < t < -27°C)' AutoId='' Class='TextBlock' Rect=1145,1101,200,15
+2026-07-14 20:55:30.317    [28] Name='Сбросить к данным города' AutoId='' Class='TextBlock' Rect=1492,1171,180,17
+2026-07-14 20:55:30.368  ControlType ControlType.Edit count=5
+2026-07-14 20:55:30.373    [0] Name='' AutoId='SearchTextBox' Class='TextBox' Rect=1117,529,431,51 Value=Москва
+2026-07-14 20:55:30.378    [1] Name='' AutoId='' Class='TextBox' Rect=1117,770,146,50 Value=-10.0
+2026-07-14 20:55:30.383    [2] Name='' AutoId='' Class='TextBox' Rect=1309,770,319,50 Value=1.7
+2026-07-14 20:55:30.389    [3] Name='' AutoId='' Class='TextBox' Rect=1117,853,150,51 Value=76
+2026-07-14 20:55:30.393    [4] Name='' AutoId='' Class='TextBox' Rect=1309,853,309,51 Value=0.0
+2026-07-14 20:55:30.453  ControlType ControlType.Button count=10
+2026-07-14 20:55:30.456    [0] Name='' AutoId='MinimizeButton' Class='Button' Rect=1594,356,40,40
+2026-07-14 20:55:30.464    [1] Name='' AutoId='MaximizeRestoreButton' Class='Button' Rect=1634,356,40,40
+2026-07-14 20:55:30.468    [2] Name='' AutoId='CloseButton' Class='Button' Rect=1674,356,40,40
+2026-07-14 20:55:30.470    [3] Name='Свернуть/развернуть панель навигации' AutoId='ToggleSidebarButton' Class='Button' Rect=1019,412,32,32
+2026-07-14 20:55:30.471    [4] Name='Сбросить' AutoId='' Class='Button' Rect=1560,534,96,40
+2026-07-14 20:55:30.473    [5] Name='Сбросить к данным города' AutoId='' Class='Button' Rect=1475,1160,214,40
+2026-07-14 20:55:30.474    [6] Name='' AutoId='PART_LineUpButton' Class='RepeatButton' Rect=1713,404,17,17
+2026-07-14 20:55:30.476    [7] Name='' AutoId='PageUp' Class='RepeatButton' Rect=Empty
+2026-07-14 20:55:30.477    [8] Name='' AutoId='PageDown' Class='RepeatButton' Rect=1713,903,17,130
+2026-07-14 20:55:30.478    [9] Name='' AutoId='PART_LineDownButton' Class='RepeatButton' Rect=1713,1033,17,17
+2026-07-14 20:55:30.512  ControlType ControlType.ListItem count=5
+2026-07-14 20:55:30.515    [0] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,455,211,44
+2026-07-14 20:55:30.516    [1] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,503,211,44
+2026-07-14 20:55:30.517    [2] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,551,211,44
+2026-07-14 20:55:30.518    [3] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,599,211,54
+2026-07-14 20:55:30.519    [4] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,657,211,44
+2026-07-14 20:55:30.556  Climate AirTemperature edit #1 value='-10.0'
+2026-07-14 20:55:31.027  Selected menu: Тепловой расчёт
+2026-07-14 20:55:31.700  Found thermal 'Рассчитать' button
+2026-07-14 20:55:31.707  Clicked thermal 'Рассчитать'
+2026-07-14 20:55:35.227  Selected menu: Гидравлический расчёт
+2026-07-14 20:55:37.332  Design temperature value text='-10.0°C'
+2026-07-14 20:55:37.333  --- Hydraulics tab relevant controls ---
+2026-07-14 20:55:37.503  ControlType ControlType.Text count=181
+2026-07-14 20:55:37.505    [0] Name='РЕХАУ' AutoId='' Class='TextBlock' Rect=910,355,153,27
+2026-07-14 20:55:37.506    [1] Name='Калькулятор снеготаяния' AutoId='' Class='TextBlock' Rect=910,382,153,15
+2026-07-14 20:55:37.508    [2] Name='Гидравлический расчёт' AutoId='' Class='TextBlock' Rect=1189,368,170,16
+2026-07-14 20:55:37.509    [3] Name='Файл' AutoId='' Class='TextBlock' Rect=1498,367,30,18
+2026-07-14 20:55:37.510    [4] Name='v1.0' AutoId='' Class='TextBlock' Rect=1557,369,21,14
+2026-07-14 20:55:37.511    [5] Name='Климат' AutoId='' Class='TextBlock' Rect=887,469,52,16
+2026-07-14 20:55:37.512    [6] Name='Конструкция' AutoId='' Class='TextBlock' Rect=887,517,90,16
+2026-07-14 20:55:37.514    [7] Name='Тепловой расчёт' AutoId='' Class='TextBlock' Rect=887,565,118,16
+2026-07-14 20:55:37.515    [8] Name='Гидравлический расчёт' AutoId='' Class='TextBlock' Rect=887,609,115,34
+2026-07-14 20:55:37.516    [9] Name='Результаты' AutoId='' Class='TextBlock' Rect=887,670,80,17
+2026-07-14 20:55:37.516    [10] Name='Гидравлический расчёт' AutoId='' Class='TextBlock' Rect=1072,416,278,29
+2026-07-14 20:55:37.517    [11] Name='Тип гликоля:' AutoId='' Class='TextBlock' Rect=1089,486,75,17
+2026-07-14 20:55:37.519    [12] Name='Концентрация (%):' AutoId='' Class='TextBlock' Rect=1344,486,114,17
+2026-07-14 20:55:37.520    [13] Name='Рабочая температура' AutoId='' Class='TextBlock' Rect=1560,479,132,14
+2026-07-14 20:55:37.521    [14] Name='0.0°C' AutoId='' Class='TextBlock' Rect=1560,493,132,17
+2026-07-14 20:55:37.524    [15] Name='Расчётная температура' AutoId='' Class='TextBlock' Rect=1726,479,146,14
+2026-07-14 20:55:37.525    [16] Name='-10.0°C' AutoId='' Class='TextBlock' Rect=1726,493,146,17
+2026-07-14 20:55:37.527    [17] Name='Шаг подводки (см):' AutoId='' Class='TextBlock' Rect=1089,532,116,17
+2026-07-14 20:55:37.528    [18] Name='Полезное тепло от подводок (%):' AutoId='' Class='TextBlock' Rect=1295,532,202,17
+2026-07-14 20:55:37.529    [19] Name='Свойства теплоносителя' AutoId='' Class='TextBlock' Rect=1089,597,595,19
+2026-07-14 20:55:37.530    [20] Name='Рабочая температура: 0.0°C' AutoId='' Class='TextBlock' Rect=1089,616,216,15
+2026-07-14 20:55:37.531    [21] Name='Плотность:' AutoId='' Class='TextBlock' Rect=1089,638,120,15
+2026-07-14 20:55:37.533    [22] Name='1097.0' AutoId='' Class='TextBlock' Rect=1209,638,37,15
+2026-07-14 20:55:37.534    [23] Name=' кг/м³' AutoId='' Class='TextBlock' Rect=1251,638,34,15
+2026-07-14 20:55:37.535    [24] Name='Теплоёмкость:' AutoId='' Class='TextBlock' Rect=1089,657,120,14
+2026-07-14 20:55:37.536    [25] Name='2.52' AutoId='' Class='TextBlock' Rect=1209,657,25,14
+2026-07-14 20:55:37.537    [26] Name=' кДж/(кг·К)' AutoId='' Class='TextBlock' Rect=1239,657,66,14
+2026-07-14 20:55:37.538    [27] Name='Вязкость:' AutoId='' Class='TextBlock' Rect=1089,675,120,15
+2026-07-14 20:55:37.540    [28] Name='10.72' AutoId='' Class='TextBlock' Rect=1209,675,31,15
+2026-07-14 20:55:37.541    [29] Name=' мм²/с' AutoId='' Class='TextBlock' Rect=1245,675,37,15
+2026-07-14 20:55:37.682  ControlType ControlType.Edit count=3
+2026-07-14 20:55:37.686    [0] Name='' AutoId='' Class='TextBox' Rect=1468,482,60,26 Value=50
+2026-07-14 20:55:37.691    [1] Name='' AutoId='' Class='TextBox' Rect=1215,527,60,26 Value=5
+2026-07-14 20:55:37.695    [2] Name='' AutoId='' Class='TextBox' Rect=1507,527,60,26 Value=10
+2026-07-14 20:55:37.895  ControlType ControlType.Button count=12
+2026-07-14 20:55:37.898    [0] Name='' AutoId='MinimizeButton' Class='Button' Rect=1594,356,40,40
+2026-07-14 20:55:37.900    [1] Name='' AutoId='MaximizeRestoreButton' Class='Button' Rect=1634,356,40,40
+2026-07-14 20:55:37.903    [2] Name='' AutoId='CloseButton' Class='Button' Rect=1674,356,40,40
+2026-07-14 20:55:37.906    [3] Name='Свернуть/развернуть панель навигации' AutoId='ToggleSidebarButton' Class='Button' Rect=1019,412,32,32
+2026-07-14 20:55:37.909    [4] Name='+ Добавить коллектор' AutoId='' Class='Button' Rect=1072,1025,182,40
+2026-07-14 20:55:37.910    [5] Name='- Удалить коллектор' AutoId='' Class='Button' Rect=1264,1025,167,40
+2026-07-14 20:55:37.913    [6] Name='+ Добавить контур' AutoId='' Class='Button' Rect=1441,1025,159,40
+2026-07-14 20:55:37.914    [7] Name='Рассчитать' AutoId='' Class='Button' Rect=1610,1025,104,40
+2026-07-14 20:55:37.915    [8] Name='' AutoId='PART_LineUpButton' Class='RepeatButton' Rect=1713,404,17,17
+2026-07-14 20:55:37.917    [9] Name='' AutoId='PageUp' Class='RepeatButton' Rect=Empty
+2026-07-14 20:55:37.920    [10] Name='' AutoId='PageDown' Class='RepeatButton' Rect=1713,915,17,118
+2026-07-14 20:55:37.922    [11] Name='' AutoId='PART_LineDownButton' Class='RepeatButton' Rect=1713,1033,17,17
+2026-07-14 20:55:38.116  ControlType ControlType.ListItem count=5
+2026-07-14 20:55:38.118    [0] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,455,211,44
+2026-07-14 20:55:38.120    [1] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,503,211,44
+2026-07-14 20:55:38.123    [2] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,551,211,44
+2026-07-14 20:55:38.124    [3] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,599,211,54
+2026-07-14 20:55:38.127    [4] Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,657,211,44
+2026-07-14 20:55:38.199  Screenshot saved=True path=D:\IA\ace\.omo\evidence\fix-design-temperature-source\f3-manual-qa.png
+2026-07-14 20:55:38.219  Stopped app process
+2026-07-14 20:55:38.220  F3 VERDICT: APPROVE
+

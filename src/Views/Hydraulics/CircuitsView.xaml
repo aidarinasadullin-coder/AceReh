@@ -45,16 +45,6 @@
             <Setter Property="FontSize" Value="14"/>
         </Style>
 
-        <!-- Стиль для ячеек с потерями давления в контуре (цветовая индикация) -->
-        <Style x:Key="CircuitPressureCellStyle" TargetType="DataGridCell">
-            <Setter Property="Foreground" Value="{Binding CurrentResult.CircuitPipeLoss_mbar, Converter={StaticResource PressureColorConverter}}"/>
-        </Style>
-
-        <!-- Стиль для ячеек с потерями давления на клапане (цветовая индикация) -->
-        <Style x:Key="ValvePressureCellStyle" TargetType="DataGridCell">
-            <Setter Property="Foreground" Value="{Binding CurrentResult.ValveLoss_mbar, Converter={StaticResource PressureColorConverter}}"/>
-        </Style>
-
         <!-- Стиль для TabControl — вкладки визуально часть блока таблицы -->
         <Style x:Key="CollectorTabControlStyle" TargetType="TabControl">
             <Setter Property="BorderBrush" Value="{DynamicResource RehauGrayBrush}"/>
@@ -177,7 +167,11 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="{StaticResource Spacing.SM.Thickness}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                  HorizontalScrollBarVisibility="Disabled"
+                  Focusable="True"
+                  PanningMode="VerticalOnly">
+        <Grid Margin="{StaticResource Spacing.SM.Thickness}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -239,7 +233,7 @@
                                Style="{StaticResource Text.Body}"
                                VerticalAlignment="Center"
                                Margin="0,0,10,0"/>
-                    <ComboBox SelectedValue="{Binding GlycolType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <ComboBox SelectedValue="{Binding InputData.GlycolType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               SelectedValuePath="Tag"
                               Width="150"
                               Height="26"
@@ -253,7 +247,7 @@
                                Style="{StaticResource Text.Body}"
                                VerticalAlignment="Center"
                                Margin="0,0,10,0"/>
-                    <TextBox Text="{Binding GlycolConcentration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"
+                    <TextBox Text="{Binding InputData.GlycolConcentration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"
                              Width="60"
                              Height="26"
                              VerticalContentAlignment="Center"
@@ -492,7 +486,7 @@
                     <!-- Концентрация -->
                     <StackPanel Orientation="Horizontal" Margin="0,2">
                         <TextBlock Text="Конц.:" Width="100" FontSize="11"/>
-                        <TextBlock Text="{Binding GlycolConcentration, StringFormat=F0}"
+                        <TextBlock Text="{Binding InputData.GlycolConcentration, StringFormat=F0}"
                                    FontSize="11"/>
                         <TextBlock Text=" %" FontSize="11"/>
                     </StackPanel>
@@ -969,4 +963,5 @@
             </Grid>
         </Border>
     </Grid>
+    </ScrollViewer>
 </UserControl>

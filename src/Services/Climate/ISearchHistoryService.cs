@@ -14,14 +14,14 @@ namespace SnowMeltingCalculator.Services.Climate
         /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Список записей истории, отсортированный по дате использования</returns>
         Task<IEnumerable<SearchHistoryEntry>> GetRecentAsync(int limit = 10, CancellationToken cancellationToken = default);
-        
+
         /// <summary>
         /// Добавить или обновить запись в истории
         /// </summary>
         /// <param name="cityId">Идентификатор города (CityInfo.Name)</param>
         /// <param name="cancellationToken">Токен отмены</param>
         Task AddAsync(string cityId, CancellationToken cancellationToken = default);
-        
+
         /// <summary>
         /// Очистить историю поиска
         /// </summary>

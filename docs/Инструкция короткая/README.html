@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Краткое руководство — Расчёт системы снеготаяния</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 15px; line-height: 1.6; color: #222;
+    display: flex; min-height: 100vh;
+  }
+
+  /* ─── Sidebar ─── */
+  nav {
+    position: fixed; top: 0; left: 0; width: 220px; height: 100vh;
+    background: #1e293b; color: #cbd5e1; overflow-y: auto; z-index: 100;
+    padding: 20px 0;
+  }
+  nav h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; padding: 0 20px 12px; border-bottom: 1px solid #334155; margin-bottom: 8px; }
+  nav a {
+    display: block; padding: 8px 20px; color: #94a3b8; text-decoration: none;
+    font-size: 13px; border-left: 3px solid transparent; transition: .15s;
+  }
+  nav a:hover, nav a.active { color: #fff; background: #334155; border-left-color: #3b82f6; }
+  nav .sub { padding-left: 36px; font-size: 12px; }
+
+  /* ─── Main ─── */
+  main { margin-left: 220px; flex: 1; max-width: 960px; padding: 40px 50px; }
+
+  h1 { font-size: 26px; margin-bottom: 24px; color: #0f172a; }
+  h2 {
+    font-size: 20px; margin: 40px 0 16px; padding: 12px 16px; border-radius: 8px;
+    scroll-margin-top: 20px;
+  }
+  h3 { font-size: 16px; margin: 24px 0 10px; color: #1e293b; }
+  p  { margin: 8px 0; }
+  ul, ol { margin: 8px 0 8px 20px; }
+  li { margin: 4px 0; }
+
+  /* ─── Section colours ─── */
+  .s-step1  { background: #eff6ff; border-left: 4px solid #3b82f6; }  /* blue   */
+  .s-step2  { background: #f0fdf4; border-left: 4px solid #22c55e; }  /* green  */
+  .s-step3  { background: #fff7ed; border-left: 4px solid #f97316; }  /* orange */
+  .s-step4  { background: #fef2f2; border-left: 4px solid #ef4444; }  /* red    */
+  .s-step5  { background: #faf5ff; border-left: 4px solid #a855f7; }  /* purple */
+  .s-input  { background: #f8fafc; border-left: 4px solid #64748b; }  /* grey   */
+  .s-tips   { background: #fefce8; border-left: 4px solid #eab308; }  /* yellow */
+
+  h2 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; }
+
+  /* ─── Images ─── */
+  figure { margin: 12px 0; text-align: center; }
+  figure img {
+    max-width: 100%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08); cursor: pointer;
+    transition: transform .2s;
+  }
+  figure img:hover { transform: scale(1.02); }
+  figcaption { font-size: 12px; color: #64748b; margin-top: 4px; }
+
+  /* ─── Tooltip ─── */
+  .term {
+    display: inline-block; border-bottom: 1px dashed #3b82f6; color: #2563eb;
+    cursor: help; position: relative; font-weight: 600;
+  }
+  .term .tip {
+    visibility: hidden; opacity: 0; position: absolute; bottom: calc(100% + 6px); left: 50%;
+    transform: translateX(-50%); background: #1e293b; color: #f1f5f9;
+    padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 400;
+    white-space: nowrap; z-index: 50; transition: .15s; pointer-events: none;
+  }
+  .term .tip::after {
+    content: ''; position: absolute; top: 100%; left: 50%;
+    transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1e293b;
+  }
+  .term:hover .tip { visibility: visible; opacity: 1; }
+
+  /* ─── Tables ─── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th, td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; }
+  th { background: #f1f5f9; font-weight: 600; }
+
+  /* ─── Checklist ─── */
+  .checklist { list-style: none; margin: 12px 0; padding: 0; }
+  .checklist li { margin: 6px 0; padding: 6px 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; }
+  .checklist li input { margin-right: 10px; }
+
+  /* ─── Blockquote (note) ─── */
+  blockquote {
+    margin: 12px 0; padding: 10px 16px; background: #f1f5f9; border-left: 4px solid #3b82f6;
+    border-radius: 6px; font-size: 14px; color: #334155;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    nav { position: static; width: 100%; height: auto; max-height: 260px; }
+    main { margin-left: 0; padding: 20px; }
+  }
+
+  /* ─── Lightbox ─── */
+  .lightbox {
+    display: none; position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,.85); cursor: pointer;
+    justify-content: center; align-items: center;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 95vw; max-height: 95vh; object-fit: contain;
+    border-radius: 4px; box-shadow: 0 4px 24px rgba(0,0,0,.5);
+    cursor: default;
+  }
+  .lightbox .close {
+    position: absolute; top: 20px; right: 30px;
+    color: #fff; font-size: 36px; cursor: pointer;
+    line-height: 1; user-select: none; opacity: .7; transition: .2s;
+  }
+  .lightbox .close:hover { opacity: 1; }
+
+  /* ─── ScrollTop ─── */
+  .scroll-top {
+    position: fixed; bottom: 30px; right: 30px; width: 44px; height: 44px;
+    background: #3b82f6; color: #fff; border: none; border-radius: 50%;
+    cursor: pointer; font-size: 20px; box-shadow: 0 4px 12px rgba(59,130,246,.35);
+    z-index: 99; display: none; transition: .2s;
+  }
+  .scroll-top:hover { background: #2563eb; transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+<!-- ─── Sidebar ─── -->
+<nav>
+  <h2>Содержание</h2>
+  <a href="#input">Исходные данные</a>
+  <a href="#step1">Шаг 1 — Климат</a>
+  <a href="#step2">Шаг 2 — Конструкция</a>
+  <a href="#step3">Шаг 3 — Тепловой расчёт</a>
+  <a href="#step4">Шаг 4 — Гидравлика</a>
+  <a class="sub" href="#step4-glycol">Гликоль</a>
+  <a class="sub" href="#step4-circuits">Контуры</a>
+  <a class="sub" href="#step4-collector">Коллектор</a>
+  <a class="sub" href="#step4-cold">Холодный пуск</a>
+  <a href="#step5">Шаг 5 — Результаты</a>
+  <a href="#tips">Советы</a>
+  <a href="#checklist">Чек-лист</a>
+</nav>
+
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ─── Main ─── -->
+<main>
+
+<h1>Краткое руководство по расчёту системы снеготаяния</h1>
+
+<!-- ════════════════ ИСХОДНЫЕ ДАННЫЕ ════════════════ -->
+<h2 class="s-input" id="input"><span class="dot" style="background:#64748b"></span>Исходные данные</h2>
+
+<ul>
+  <li><strong>Город / регион</strong> — определяет климатические параметры (T_холодной пятидневки, ветер, влажность)</li>
+  <li><strong>Интенсивность снегопада</strong> — мм/ч (водяной эквивалент)</li>
+  <li><strong>Пирог покрытия</strong> — материалы и толщины слоёв над и под трубой</li>
+  <li><strong>Уровень грунтовых вод (<span class="term">УГВ<span class="tip">Уровень грунтовых вод. Влияет на выбор λА (сухие) или λБ (влажные) для слоёв под трубой</span></span>)</strong></li>
+  <li><strong>Тип трубы</strong> — RAUTHERM S (17 / 20 / 25 × 2.0 мм)</li>
+  <li><strong>Тип и концентрация гликоля</strong> — этиленгликоль / пропиленгликоль, 10–90 %</li>
+  <li><strong>Контуры</strong> — количество, длины, площади, подводки</li>
+</ul>
+
+<!-- ════════════════ ШАГ 1 ════════════════ -->
+<h2 class="s-step1" id="step1"><span class="dot" style="background:#3b82f6"></span>Шаг 1 — Климат</h2>
+
+<ol>
+  <li>Ввести город в строке поиска → выбрать из списка.</li>
+  <li>Автозаполнятся: <span class="term">T_воздуха<span class="tip">Расчётная температура наружного воздуха, °C. Определяется по T5Days092: ≥−27 → −10, −37…−27 → −15, <−37 → −20</span></span>, скорость ветра, влажность, климатическая зона.</li>
+  <li><strong>Что можно изменить вручную:</strong> T_воздуха (для более сурового микроклимата), скорость ветра / влажность (по локальным данным).</li>
+</ol>
+
+<figure><img src="images/город.gif" alt="Выбор города"><figcaption>Выбор города из списка</figcaption></figure>
+<figure><img src="images/изменения_климат.gif" alt="Изменение климатических параметров"><figcaption>Ручная корректировка</figcaption></figure>
+
+<ol start="4">
+  <li>Кнопка <strong>«Сбросить к данным города»</strong> — восстанавливает авто-расчётные значения T_воздуха и ветра.</li>
+</ol>
+
+<figure><img src="images/сброс.gif" alt="Сброс к данным города"><figcaption>Сброс к авто-значениям</figcaption></figure>
+
+<ol start="5">
+  <li>Флаг <strong>«Повышенные требования»</strong> — принудительно T_воздуха = −20 °C.</li>
+</ol>
+
+<figure><img src="images/пов_треб.gif" alt="Повышенные требования"><figcaption>Включение повышенных требований</figcaption></figure>
+
+<p><strong>Валидация:</strong> T_воздуха −50…+10 °C · Ветер 0.1–30 м/с · Влажность 20–100 % · Снегопад 0–20 мм/ч</p>
+
+<blockquote>Перейти к следующему шагу: <strong>«Далее»</strong></blockquote>
+
+<!-- ════════════════ ШАГ 2 ════════════════ -->
+<h2 class="s-step2" id="step2"><span class="dot" style="background:#22c55e"></span>Шаг 2 — Конструкция</h2>
+
+<ol>
+  <li><strong>Добавление слоёв:</strong> выбрать материал, задать толщину и <span class="term">λ<span class="tip">Коэффициент теплопроводности, Вт/(м·К). Определяет способность материала проводить тепло</span></span>. Программа пересчитывает <span class="term">R<span class="tip">Термическое сопротивление, м²·К/Вт. R = толщина / λ</span></span>.</li>
+</ol>
+
+<figure><img src="images/доб.сл.gif" alt="Добавление слоя"><figcaption>Добавление и настройка слоя</figcaption></figure>
+
+<ol start="2">
+  <li><strong>Удаление слоя</strong> — кнопка удаления рядом со слоем.</li>
+</ol>
+
+<figure><img src="images/Удаление_слоя.gif" alt="Удаление слоя"><figcaption>Удаление слоя конструкции</figcaption></figure>
+
+<ol start="3">
+  <li><strong>Уровень грунтовых вод:</strong>
+    <ul>
+      <li><span class="term">УГВ<span class="tip">Уровень грунтовых вод относительно трубы, м</span></span> ≥ 1 м → λА (сухие)</li>
+      <li>УГВ &lt; 1 м → λБ (влажные)</li>
+    </ul>
+  </li>
+</ol>
+
+<figure><img src="images/УГВ.gif" alt="Настройка УГВ"><figcaption>Выбор уровня грунтовых вод</figcaption></figure>
+
+<p><strong>Ограничения:</strong> толщина над трубой ≥ 40 мм (без нагрузок) / ≥ 50 мм (с нагрузками) · Бетон: T_подачи ≤ 50 °C · Асфальт: T_воздуха ≥ −15 °C</p>
+
+<blockquote>Перейти к следующему шагу: <strong>«Далее»</strong></blockquote>
+
+<!-- ════════════════ ШАГ 3 ════════════════ -->
+<h2 class="s-step3" id="step3"><span class="dot" style="background:#f97316"></span>Шаг 3 — Тепловой расчёт</h2>
+
+<ol>
+  <li><strong>Выбор режима:</strong> Антиобледенение (+3 °C) / Таяние (+5 °C) / Интенсивный (+7 °C). При смене — бейдж пересчёта → «Рассчитать».</li>
+</ol>
+
+<figure><img src="images/режим.gif" alt="Выбор режима"><figcaption>Выбор режима работы</figcaption></figure>
+
+<ol start="2">
+  <li><strong>Выбор трубы и шага укладки.</strong></li>
+</ol>
+
+<figure><img src="images/тр_шаг.gif" alt="Труба и шаг"><figcaption>Выбор типа трубы и шага укладки</figcaption></figure>
+
+<ol start="3">
+  <li><strong>Температура подачи.</strong> Программа рекомендует <span class="term">ΔT<span class="tip">Температурный перепад между подачей и обраткой, К. Рекомендуется ≈ 15 K</span></span> ≈ 15 K. Пользователь корректирует T_подачи.</li>
+</ol>
+
+<figure><img src="images/изм_темп.gif" alt="Изменение температуры"><figcaption>Корректировка температуры подачи</figcaption></figure>
+
+<ol start="4">
+  <li><strong>Просмотр дополнительных расчётных параметров</strong> (Q_таяние, Q_конв, КПД ребра <span class="term">ηR<span class="tip">Коэффициент эффективности ребра (теплоотдачи трубы). Рассчитывается по теории стержня</span></span>, параметр <span class="term">m<span class="tip">Характеристический параметр ребра, 1/м</span></span>, сопротивления R1, R2 и др.).</li>
+</ol>
+
+<figure><img src="images/параметры.gif" alt="Дополнительные параметры"><figcaption>Просмотр дополнительных параметров</figcaption></figure>
+
+<p><strong>Результаты:</strong> <span class="term">α<span class="tip">Коэффициент теплоотдачи поверхности, Вт/(м²·К). Зависит от разности температур и скорости ветра</span></span> · PowerUp · q_D · q_total · T_средняя · T_обратки · ΔT · Удельный расход</p>
+
+<p><strong>Проверки:</strong> T_подачи &gt; T_средняя · ΔT ≤ 30 K · T_обратки &gt; T_замерзания</p>
+
+<blockquote>Перейти к следующему шагу: <strong>«Далее»</strong></blockquote>
+
+<!-- ════════════════ ШАГ 4 ════════════════ -->
+<h2 class="s-step4" id="step4"><span class="dot" style="background:#ef4444"></span>Шаг 4 — Гидравлика</h2>
+
+<h3 id="step4-glycol">1. Выбор гликоля</h3>
+<p>Тип и концентрация. Свойства теплоносителя (<span class="term">ρ<span class="tip">Плотность теплоносителя, кг/м³</span></span>, <span class="term">c_p<span class="tip">Удельная теплоёмкость, кДж/(кг·К)</span></span>, <span class="term">ν<span class="tip">Кинематическая вязкость, мм²/с</span></span>, <span class="term">λ_тепл<span class="tip">Теплопроводность теплоносителя, Вт/(м·К)</span></span>, <span class="term">Pr<span class="tip">Число Прандтля — отношение вязкости к температуропроводности</span></span>) пересчитываются автоматически.</p>
+
+<figure><img src="images/гликоль.gif" alt="Выбор гликоля"><figcaption>Выбор типа и концентрации гликоля</figcaption></figure>
+
+<h3 id="step4-supply">2. Параметры подводок</h3>
+<p>Шаг подводки (по умолчанию 5 см) и доля тепла от подводок (по умолчанию 10 %).</p>
+
+<figure><img src="images/подводки.gif" alt="Параметры подводок"><figcaption>Настройка подводок</figcaption></figure>
+
+<h3 id="step4-circuits">3. Заполнение контуров</h3>
+<p>Длина или площадь. Добавление / удаление контуров.</p>
+
+<figure><img src="images/контура.gif" alt="Контуры"><figcaption>Редактирование контуров</figcaption></figure>
+
+<blockquote>⚠️ <strong>Известная особенность:</strong> Контуры могут добавиться с шагом, отличным от заданного в тепловом расчёте. <strong>Workaround:</strong> перейти в Шаг 3, изменить шаг укладки, рассчитать, вернуть нужный шаг, рассчитать снова.</blockquote>
+
+<figure><img src="images/баг_шаг_укладки.gif" alt="Баг шага укладки"><figcaption>Исправление шага укладки в контурах</figcaption></figure>
+
+<h3 id="step4-collector">4. Автоподбор коллектора</h3>
+
+<table>
+  <tr><th>Суммарный расход</th><th>Коллектор</th><th><span class="term">Kv<span class="tip">Коэффициент пропускной способности клапана, м³/ч</span></span></th></tr>
+  <tr><td>≤ 1.5 м³/ч</td><td>HKV-D</td><td>1.2</td></tr>
+  <tr><td>1.5–2.5 м³/ч</td><td>IV 1¼"</td><td>1.45</td></tr>
+  <tr><td>2.5–7.0 м³/ч</td><td>IV 1½"</td><td>1.5</td></tr>
+</table>
+
+<p>При превышении порога 1.5 м³/ч тип коллектора в результатах меняется автоматически.</p>
+
+<h3>5. Добавление / переключение коллекторов</h3>
+<figure><img src="images/коллектор.gif..gif" alt="Коллектор"><figcaption>Управление коллекторами</figcaption></figure>
+
+<h3>6. Подсветка превышений</h3>
+<p>Контуры с <span class="term">R<span class="tip">Удельные потери давления в трубе, Па/м</span></span> &gt; 300 Па/м подсвечиваются.</p>
+
+<figure><img src="images/300Па.gif" alt="Подсветка превышений"><figcaption>Подсветка превышения удельных потерь</figcaption></figure>
+
+<h3 id="step4-cold">7. Рабочая / Расчётная температура</h3>
+<p>Переключение между режимами. При расчётной температуре (холодный пуск) вязкость <span class="term">ν<span class="tip">Кинематическая вязкость, мм²/с. При низких температурах значительно возрастает у гликолей</span></span> резко растёт → <span class="term">Re<span class="tip">Число Рейнольдса — критерий режима течения. Re &lt; 2300 — ламинарный, 2300–4000 — переходный, &gt; 4000 — турбулентный</span></span> падает → <span class="term">λ<span class="tip">Коэффициент гидравлического трения. Определяется по режиму течения</span></span> и <span class="term">Δp<span class="tip">Потери давления, Па. Δp = DpRohr + DpVerteiler + DpVent</span></span> растут.</p>
+
+<figure><img src="images/раб_расч_темп.gif" alt="Переключение режимов"><figcaption>Переключение рабочая / расчётная температура</figcaption></figure>
+
+<p><strong>Валидация:</strong> v 0.1–2.0 м/с · R ≤ 300 Па/м · Δp ≤ 320 мбар (рабочий режим)</p>
+
+<blockquote>Перейти к следующему шагу: <strong>«Далее»</strong></blockquote>
+
+<!-- ════════════════ ШАГ 5 ════════════════ -->
+<h2 class="s-step5" id="step5"><span class="dot" style="background:#a855f7"></span>Шаг 5 — Результаты</h2>
+
+<ul>
+  <li><strong>Сводка:</strong> объект, площадь, контуры, режим, температуры, мощность, расход, коллектор, потери давления</li>
+  <li><strong>Таблица контуров:</strong> расход, скорость, Re, λ, потери, <span class="term">Kv<span class="tip">Коэффициент пропускной способности для балансировки, м³/ч</span></span>, обороты вентиля</li>
+  <li><strong>Параметры теплоносителя:</strong> ρ, c_p, ν, λ_тепл, Pr при рабочей и расчётной температуре</li>
+  <li><strong>Экспорт PDF</strong></li>
+  <li><strong>Сохранение проекта:</strong> заполнить номер проекта и наименование → «Сохранить»</li>
+</ul>
+
+<figure><img src="images/проект.gif" alt="Сохранение проекта"><figcaption>Сохранение расчёта</figcaption></figure>
+
+<blockquote>Перейти к следующему шагу: <strong>«Далее»</strong></blockquote>
+
+<!-- ════════════════ СОВЕТЫ ════════════════ -->
+<h2 class="s-tips" id="tips"><span class="dot" style="background:#eab308"></span>Советы</h2>
+
+<table>
+  <tr><th>Ситуация</th><th>Рекомендация</th></tr>
+  <tr><td><span class="term">Δp<span class="tip">Потери давления на коллектор, мбар. Предел — 320 мбар</span></span> &gt; 320 мбар (рабочий)</td><td>Уменьшить длины контуров или разделить на 2 коллектора</td></tr>
+  <tr><td>T_обратки &lt; 0 °C</td><td>Поднять T_подачи</td></tr>
+  <tr><td><span class="term">v<span class="tip">Скорость потока теплоносителя в трубе, м/с</span></span> &lt; 0.1 м/с</td><td>Увеличить <span class="term">ΔT<span class="tip">Температурный перепад, К</span></span> или уменьшить число контуров</td></tr>
+  <tr><td>v &gt; 2.0 м/с</td><td>Уменьшить ΔT или увеличить число контуров</td></tr>
+  <tr><td>Длина контура &gt; 120 м (Ø20)</td><td>Разбить на несколько контуров</td></tr>
+  <tr><td>Холодный пуск &gt; 320 мбар</td><td>Нормально для запуска — предусмотреть насос с запасом напора</td></tr>
+  <tr><td>T_обратки &lt; T_замерзания</td><td>Сменить гликоль на более концентрированный или поднять T_подачи</td></tr>
+  <tr><td>T_подачи &gt; 50 °C (бетон)</td><td>Предупреждение — решение за проектировщиком</td></tr>
+</table>
+
+<!-- ════════════════ ЧЕК-ЛИСТ ════════════════ -->
+<h2 class="s-input" id="checklist"><span class="dot" style="background:#64748b"></span>Чек-лист</h2>
+
+<ul class="checklist">
+  <li><label><input type="checkbox"> Город выбран, климатические параметры проверены</label></li>
+  <li><label><input type="checkbox"> Пирог конструкции собран, УГВ задан</label></li>
+  <li><label><input type="checkbox"> Режим работы выбран</label></li>
+  <li><label><input type="checkbox"> T_подачи скорректирована по рекомендации программы</label></li>
+  <li><label><input type="checkbox"> Труба и шаг укладки выбраны</label></li>
+  <li><label><input type="checkbox"> Тип и концентрация гликоля установлены</label></li>
+  <li><label><input type="checkbox"> Контуры заполнены (длина / площадь, подводки)</label></li>
+  <li><label><input type="checkbox"> Выполнен гидравлический расчёт</label></li>
+  <li><label><input type="checkbox"> Рабочий Δp ≤ 320 мбар ✓</label></li>
+  <li><label><input type="checkbox"> Холодный пуск проверен (насос с запасом)</label></li>
+  <li><label><input type="checkbox"> Проект сохранён</label></li>
+</ul>
+
+</main>
+
+<!-- ─── Lightbox ─── -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="close" onclick="closeLightbox()">&times;</span>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- ─── Script ─── -->
+<script>
+  // ── Lightbox ──
+  function openLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+  // Click on any figure image → open lightbox
+  document.querySelectorAll('figure img').forEach(img => {
+    img.addEventListener('click', e => {
+      e.stopPropagation();
+      openLightbox(img.src);
+    });
+  });
+
+  // ── Scroll-to-top ──
+  const btn = document.getElementById('scrollTop');
+  window.addEventListener('scroll', () => {
+    btn.style.display = window.scrollY > 400 ? 'block' : 'none';
+  });
+
+  // ── Active link highlight ──
+  const links = document.querySelectorAll('nav a[href^="#"]');
+  const sections = [];
+  links.forEach(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ el, a });
+  });
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      const rect = s.el.getBoundingClientRect();
+      if (rect.top <= 120) current = s.el.id;
+    });
+    links.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+
+</body>
+</html>

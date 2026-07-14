@@ -77,7 +77,7 @@ namespace SnowMeltingCalculator.Tests.Converters
             var value = "Свернуть панель (Ctrl+B)";
 
             // Act & Assert
-            Assert.Throws<NotImplementedException>(() => 
+            Assert.Throws<NotImplementedException>(() =>
                 _converter.ConvertBack(value, typeof(bool), null, CultureInfo.InvariantCulture));
         }
     }

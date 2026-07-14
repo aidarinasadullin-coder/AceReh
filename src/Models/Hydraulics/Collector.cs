@@ -19,19 +19,19 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Формат: "HKV-D-2", "HKV-D-4", ..., "IV-1.25", "IV-1.5"
         /// </remarks>
         public string Id { get; set; } = string.Empty;
-        
+
         /// <summary>
         /// Краткое название коллектора
         /// </summary>
         /// <example>HKV-D 4</example>
         public string Name { get; set; } = string.Empty;
-        
+
         /// <summary>
         /// Полное название коллектора
         /// </summary>
         /// <example>Коллектор HKV-D 4 контура</example>
         public string FullName { get; set; } = string.Empty;
-        
+
         /// <summary>
         /// Тип коллектора
         /// </summary>
@@ -40,7 +40,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// IV — промышленный коллектор
         /// </remarks>
         public CollectorType Type { get; set; }
-        
+
         /// <summary>
         /// Количество контуров
         /// </summary>
@@ -49,13 +49,13 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Для IV: определяется размером подключения
         /// </remarks>
         public int Circuits { get; set; }
-        
+
         /// <summary>
         /// Размер подключения
         /// </summary>
         /// <example>1¼", 1½"</example>
         public string ConnectionSize { get; set; } = string.Empty;
-        
+
         /// <summary>
         /// Коэффициент пропускной способности вентиля (Kv), м³/ч
         /// </summary>
@@ -66,7 +66,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// - IV 1½": Kv = 1.5 м³/ч
         /// </remarks>
         public double Kv { get; set; }
-        
+
         /// <summary>
         /// Максимальный расход через коллектор, м³/ч
         /// </summary>
@@ -74,7 +74,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Для HKV-D: 1.5 м³/ч
         /// </remarks>
         public double MaxFlowRate { get; set; }
-        
+
         /// <summary>
         /// Максимальное давление, мбар
         /// </summary>
@@ -82,7 +82,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Для HKV-D: 320 мбар
         /// </remarks>
         public double MaxPressure { get; set; }
-        
+
         /// <summary>
         /// Максимальная настройка вентиля
         /// </summary>
@@ -90,41 +90,41 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Диапазон: 1-8
         /// </remarks>
         public int MaxSetting { get; set; } = 8;
-        
+
         /// <summary>
         /// Артикул РЕХАУ
         /// </summary>
         public string? ArticleNumber { get; set; }
-        
+
         /// <summary>
         /// Примечания
         /// </summary>
         public string? Notes { get; set; }
-        
+
         // === Вычисляемые свойства ===
-        
+
         /// <summary>
         /// Признак бытового коллектора
         /// </summary>
         public bool IsResidential => Type == CollectorType.HKV;
-        
+
         /// <summary>
         /// Признак промышленного коллектора
         /// </summary>
         public bool IsIndustrial => Type == CollectorType.IV;
-        
+
         /// <summary>
         /// Максимальное давление в Па
         /// </summary>
         public double MaxPressure_Pa => MaxPressure * 100;
-        
+
         /// <summary>
         /// Максимальный расход в л/ч
         /// </summary>
         public double MaxFlowRate_L_h => MaxFlowRate * 1000;
-        
+
         // === Методы ===
-        
+
         /// <summary>
         /// Проверить, подходит ли коллектор для заданного количества контуров
         /// </summary>
@@ -136,11 +136,11 @@ namespace SnowMeltingCalculator.Models.Hydraulics
             {
                 return circuitCount >= 2 && circuitCount <= Circuits;
             }
-            
+
             // Для промышленных коллекторов проверка по расходу
             return true;
         }
-        
+
         /// <summary>
         /// Проверить, подходит ли коллектор для заданного расхода
         /// </summary>
@@ -150,7 +150,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         {
             return flowRate_m3_h <= MaxFlowRate;
         }
-        
+
         /// <summary>
         /// Проверить, подходит ли коллектор для заданного давления
         /// </summary>
@@ -160,7 +160,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         {
             return pressure_mbar <= MaxPressure;
         }
-        
+
         /// <summary>
         /// Получить описание коллектора
         /// </summary>

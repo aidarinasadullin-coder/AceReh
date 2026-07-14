@@ -18,12 +18,12 @@ namespace SnowMeltingCalculator.Models.Enums
         /// Данные актуальны
         /// </summary>
         Actual,
-        
+
         /// <summary>
         /// Требуется пересчёт
         /// </summary>
         NeedsRecalculation,
-        
+
         /// <summary>
         /// Выполняется расчёт
         /// </summary>

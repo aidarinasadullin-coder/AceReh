@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:construction="clr-namespace:SnowMeltingCalculator.Models.Construction"
              xmlns:behaviors="clr-namespace:SnowMeltingCalculator.Behaviors"
+             xmlns:shared="clr-namespace:SnowMeltingCalculator.Views.Shared"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="900"
              Background="{DynamicResource RehauBackgroundBrush}">
@@ -15,13 +16,13 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
 <!-- Заголовок страницы -->
         <TextBlock Grid.Row="0"
-                   Text="Конструкция покрытия"
+                   Text="Конструкция"
                    Style="{StaticResource Text.H2}"
                    Foreground="{DynamicResource RehauBlackBrush}"
                    Margin="0,0,0,20"/>
@@ -116,8 +117,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0"
-                              Text="Слои над трубой (к поверхности)"
+<TextBlock Grid.Column="0"
+                               Text="Слои над трубой"
                               Style="{StaticResource Text.H4}"
                               Foreground="{DynamicResource RehauBlackBrush}"/>
 
@@ -142,12 +143,25 @@
                           GridLinesVisibility="Horizontal"
                           HeadersVisibility="Column"
                           MinHeight="160"
-                          MaxHeight="300"
                           BorderThickness="1"
                           BorderBrush="{DynamicResource RehauGrayBrush}"
                           RowBackground="{DynamicResource RehauCardBrush}"
                           AlternatingRowBackground="{DynamicResource RehauBackgroundGrayBrush}">
                     <DataGrid.Columns>
+                        <!-- № -->
+                        <DataGridTextColumn Header="№"
+                                          Binding="{Binding Order, Converter={StaticResource OrderToNumberConverter}}"
+                                          Width="40"
+                                          IsReadOnly="True"
+                                          Foreground="{DynamicResource RehauBlackBrush}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextAlignment" Value="Center"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
                         <!-- Материал -->
                         <DataGridTemplateColumn Header="Материал" Width="*">
                             <DataGridTemplateColumn.CellTemplate>
@@ -240,8 +254,8 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0"
-                                  Text="Слои под трубой (к грунту)"
+<TextBlock Grid.Column="0"
+                                   Text="Слои под трубой"
                                   Style="{StaticResource Text.H4}"
                                   Foreground="{DynamicResource RehauBlackBrush}"/>
 
@@ -266,12 +280,25 @@
                               GridLinesVisibility="Horizontal"
                               HeadersVisibility="Column"
                               MinHeight="160"
-                              MaxHeight="300"
                               BorderThickness="1"
                               BorderBrush="{DynamicResource RehauGrayBrush}"
                               RowBackground="{DynamicResource RehauCardBrush}"
                               AlternatingRowBackground="{DynamicResource RehauBackgroundGrayBrush}">
                         <DataGrid.Columns>
+                            <!-- № -->
+                            <DataGridTextColumn Header="№"
+                                              Binding="{Binding Order, Converter={StaticResource OrderToNumberConverter}}"
+                                              Width="40"
+                                              IsReadOnly="True"
+                                              Foreground="{DynamicResource RehauBlackBrush}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Center"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
                             <!-- Материал -->
                             <DataGridTemplateColumn Header="Материал" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
@@ -340,52 +367,14 @@
                 </StackPanel>
             </Border>
 
-            <!-- Визуализация "Пирога" -->
-            <Border Grid.Column="1" Margin="12,0,0,0" Style="{StaticResource Card.Default}">
-                <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
-                    <TextBlock Text="Визуализация"
-                              Style="{StaticResource Text.H4}"
-                              Foreground="{DynamicResource RehauBlackBrush}"/>
-
-                    <Border BorderBrush="{DynamicResource RehauTealBrush}"
-                            BorderThickness="2"
-                            CornerRadius="8"
-                            Padding="8"
-                            MinHeight="300"
-                            Background="{DynamicResource RehauCardBrush}">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" 
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      MaxHeight="400">
-                            <Canvas x:Name="ConstructionCanvas"
-                                    Background="Transparent"
-                                    Height="400">
-                                <!-- Визуализация будет отрисовываться в code-behind -->
-                            </Canvas>
-                        </ScrollViewer>
-                    </Border>
-
-                    <!-- Легенда -->
-                    <StackPanel Margin="0,12,0,0">
-                        <TextBlock Text="Легенда:" FontSize="11" Foreground="{DynamicResource RehauGrayBrush}" FontWeight="SemiBold"/>
-                        <ItemsControl ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                     Margin="0,4,0,0">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal" Margin="4,2">
-                                        <Rectangle Width="12" Height="12" Fill="{Binding GetColor}" RadiusX="2" RadiusY="2"/>
-                                        <TextBlock Text="{Binding Name}" FontSize="10" Margin="4,0,0,0" Foreground="{DynamicResource RehauBlackBrush}"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
+            <!-- Визуализация конструкции -->
+            <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                <TextBlock Text="Визуализация"
+                           Style="{StaticResource Text.H4}"
+                           Foreground="{DynamicResource RehauBlackBrush}"
+                           Margin="0,0,0,8"/>
+                <shared:ConstructionVisualizationView DataContext="{Binding}"/>
+            </StackPanel>
         </Grid>
 
         <!-- Результаты и Валидация -->

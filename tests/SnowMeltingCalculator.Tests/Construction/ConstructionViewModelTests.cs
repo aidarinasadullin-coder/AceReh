@@ -1,8 +1,11 @@
 using NUnit.Framework;
+using Moq;
 using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Construction;
+using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.ViewModels.Construction;
+using SnowMeltingCalculator.Core;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -21,6 +24,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         private MockConstructionService _mockService = null!;
         private MockMaterialRepository _mockMaterialRepository = null!;
         private MockConstructionRepository _mockConstructionRepository = null!;
+        private Mock<ICalculationStateService> _mockCalculationStateService = null!;
 
         [SetUp]
         public void Setup()
@@ -28,11 +32,15 @@ namespace SnowMeltingCalculator.Tests.Construction
             _mockService = new MockConstructionService();
             _mockMaterialRepository = new MockMaterialRepository();
             _mockConstructionRepository = new MockConstructionRepository();
+            _mockCalculationStateService = new Mock<ICalculationStateService>();
+            _mockCalculationStateService.SetupGet(s => s.PipeSpacing).Returns(200);
             var construction = new ConstructionModel();
             _viewModel = new ConstructionViewModel(
                 _mockService,
                 _mockMaterialRepository,
                 _mockConstructionRepository,
+                _mockCalculationStateService.Object,
+                new CalculationContext(),
                 construction);
         }
 

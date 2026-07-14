@@ -9,6 +9,8 @@ using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Construction;
+using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Core;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
 
 namespace SnowMeltingCalculator.ViewModels.Construction
@@ -21,6 +23,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private readonly IConstructionService _constructionService;
         private readonly IMaterialRepository _materialRepository;
         private readonly IConstructionRepository _constructionRepository;
+        private readonly ICalculationStateService _calculationStateService;
+        private readonly CalculationContext _calculationContext;
         private readonly ConstructionValidator _validator;
         private readonly ConstructionModel _construction;
         private bool _isSyncing; // Флаг для предотвращения рекурсии при синхронизации
@@ -117,6 +121,14 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         [ObservableProperty]
         private bool _hasUnsavedChanges;
 
+        /// <summary>
+        /// Шаг укладки труб, мм (получается из ThermalViewModel через сервис)
+        /// </summary>
+        public int PipeSpacing
+        {
+            get { return _calculationStateService.PipeSpacing; }
+        }
+
         #endregion
 
         #region Computed Properties
@@ -166,20 +178,27 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             IConstructionService constructionService,
             IMaterialRepository materialRepository,
             IConstructionRepository constructionRepository,
+            ICalculationStateService calculationStateService,
+            CalculationContext calculationContext,
             ConstructionModel construction)
         {
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
             _constructionRepository = constructionRepository ?? throw new ArgumentNullException(nameof(constructionRepository));
+            _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
+            _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
             _validator = new ConstructionValidator();
             _construction = construction ?? throw new ArgumentNullException(nameof(construction));
 
             // Подписываемся на изменения коллекций
             LayersAbovePipe.CollectionChanged += OnLayersCollectionChanged;
             LayersBelowPipe.CollectionChanged += OnLayersCollectionChanged;
-            
+
             // Подписываемся на изменения в модели Construction
             _construction.DataChanged += OnConstructionDataChanged;
+
+            // Подписываемся на изменения шага укладки
+            _calculationStateService.PipeSpacingChanged += OnPipeSpacingChanged;
         }
 
         #endregion
@@ -255,7 +274,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
 
             var defaultMaterial = AvailableMaterials.FirstOrDefault(m => m.Id == 1) ?? AvailableMaterials.First();
             var lambda = GroundwaterLevel < 1.0 ? defaultMaterial.LambdaB : defaultMaterial.LambdaA;
-            
+
             var layer = new Layer
             {
                 Material = defaultMaterial,
@@ -369,7 +388,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                     $"construction_{DateTime.Now:yyyyMMdd_HHmmss}.json");
 
                 await _constructionRepository.SaveConstructionAsync(_construction, filePath);
-                
+
                 HasUnsavedChanges = false;
                 ValidationMessage = "Конструкция сохранена успешно";
                 IsValid = true;
@@ -527,8 +546,17 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             // Валидация
             Validate();
 
+            // Синхронизируем с моделью перед уведомлением
+            SyncToModel();
+
             // Уведомляем об изменении данных
             OnDataChanged();
+
+            // Публикуем в общий контекст при валидных данных
+            if (IsValid)
+            {
+                _calculationContext.UpdateConstruction(_construction, "Construction");
+            }
         }
 
         /// <summary>
@@ -609,6 +637,14 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             // Можно добавить логику при выборе слоя
         }
 
+        /// <summary>
+        /// Обработчик изменения шага укладки труб
+        /// </summary>
+        private void OnPipeSpacingChanged(object? sender, int spacing)
+        {
+            OnPropertyChanged(nameof(PipeSpacing));
+        }
+
         #endregion
 
         #region Private Methods
@@ -652,7 +688,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             try
             {
                 // При изменении толщины или λ пересчитываем R
-                if (e.PropertyName == nameof(Layer.Thickness) || 
+                if (e.PropertyName == nameof(Layer.Thickness) ||
                     e.PropertyName == nameof(Layer.CalculatedLambda) ||
                     e.PropertyName == nameof(Layer.Material))
                 {
@@ -690,7 +726,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private void SyncFromModel()
         {
             if (_isSyncing) return;
-            
+
             _isSyncing = true;
             try
             {
@@ -724,7 +760,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private void SyncToModel()
         {
             if (_isSyncing) return;
-            
+
             _isSyncing = true;
             try
             {

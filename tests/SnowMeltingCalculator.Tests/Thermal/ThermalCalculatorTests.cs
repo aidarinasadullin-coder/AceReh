@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Thermal;
 using System;
@@ -12,11 +13,15 @@ namespace SnowMeltingCalculator.Tests.Thermal
     public class ThermalCalculatorTests
     {
         private ThermalCalculator _calculator = null!;
+        private IClimateData _climateData = null!;
+        private IConstructionData _constructionData = null!;
 
         [SetUp]
         public void Setup()
         {
             _calculator = new ThermalCalculator();
+            _climateData = CreateClimateData();
+            _constructionData = CreateConstructionData();
         }
 
         #region CalculateHeatTransferCoefficient Tests
@@ -144,23 +149,24 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Calculate_RadiationHeat_IsCalculatedForReference()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.SnowfallIntensity = 2.0;
-            parameters.SupplyTemperature = 70.0;  // Увеличиваем температуру подачи для валидности расчёта
+            var inputs = CreateValidInputs();
+            inputs = inputs with { SupplyTemperature = 70.0 };  // Увеличиваем температуру подачи для валидности расчёта
+            var climate = CreateClimateData(snowfall: 2.0);
+            var construction = CreateConstructionData();
 
             // Act
-            var result = _calculator.Calculate(parameters);
+            var result = _calculator.Calculate(inputs, climate, construction);
 
             // Assert - сначала проверяем, что расчёт валиден
-            Assert.That(result.IsValid, Is.True, 
+            Assert.That(result.IsValid, Is.True,
                 $"Расчёт должен быть валидным. Ошибки: {string.Join(", ", result.ValidationErrors ?? new string[0])}");
 
             // RadiationHeat должен вычисляться для справки, но НЕ входить в PowerUp
             Assert.That(result.RadiationHeat, Is.GreaterThan(0), "RadiationHeat должен вычисляться");
-            
+
             // PowerUp = MeltingHeat + ConvectionHeat (БЕЗ RadiationHeat)
             var expectedPowerUp = result.MeltingHeat + result.ConvectionHeat;
-            Assert.That(result.PowerUp, Is.EqualTo(expectedPowerUp).Within(0.1), 
+            Assert.That(result.PowerUp, Is.EqualTo(expectedPowerUp).Within(0.1),
                 "PowerUp должен быть равен MeltingHeat + ConvectionHeat (без RadiationHeat)");
         }
 
@@ -355,14 +361,14 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void CalculateExcessTemperature_ValidInput_ReturnsPositiveValue()
         {
             // Arrange
-            var parameters = CreateValidParameters();
+            var inputs = CreateValidInputs();
             var powerUp = 300.0;  // Вт/м²
             var rFb = 0.09;       // м²·К/Вт
             var rD = 0.10;        // м²·К/Вт
             var etaR = 0.85;
 
             // Act
-            var excessTemp = _calculator.CalculateExcessTemperature(parameters, powerUp, rFb, rD, etaR);
+            var excessTemp = _calculator.CalculateExcessTemperature(inputs, powerUp, rFb, rD, etaR, _climateData, _constructionData);
 
             // Assert
             Assert.That(excessTemp, Is.GreaterThan(0));
@@ -372,7 +378,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void CalculateExcessTemperature_NullParameters_ThrowsException()
         {
             // Arrange
-            ThermalParameters parameters = null!;
+            ThermalInputs inputs = null!;
             var powerUp = 300.0;
             var rFb = 0.09;
             var rD = 0.10;
@@ -380,14 +386,14 @@ namespace SnowMeltingCalculator.Tests.Thermal
 
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                _calculator.CalculateExcessTemperature(parameters, powerUp, rFb, rD, etaR));
+                _calculator.CalculateExcessTemperature(inputs, powerUp, rFb, rD, etaR, _climateData, _constructionData));
         }
 
         [Test]
         public void CalculateExcessTemperature_InvalidEtaR_ThrowsException()
         {
             // Arrange
-            var parameters = CreateValidParameters();
+            var inputs = CreateValidInputs();
             var powerUp = 300.0;
             var rFb = 0.09;
             var rD = 0.10;
@@ -395,7 +401,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
 
             // Act & Assert
             Assert.Throws<ArgumentOutOfRangeException>(() =>
-                _calculator.CalculateExcessTemperature(parameters, powerUp, rFb, rD, etaR));
+                _calculator.CalculateExcessTemperature(inputs, powerUp, rFb, rD, etaR, _climateData, _constructionData));
         }
 
         #endregion
@@ -406,10 +412,10 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Calculate_ValidParameters_ReturnsValidResult()
         {
             // Arrange
-            var parameters = CreateValidParameters();
+            var inputs = CreateValidInputs();
 
             // Act
-            var result = _calculator.Calculate(parameters);
+            var result = _calculator.Calculate(inputs, _climateData, _constructionData);
 
             // Assert
             Assert.That(result.IsValid, Is.True, $"Validation errors: {string.Join(", ", result.ValidationErrors)}");
@@ -423,11 +429,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Calculate_MeltingMode_SurfaceTempIs5C()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.Mode = OperatingMode.Melting;
+            var inputs = CreateValidInputs();
+            inputs = inputs with { Mode = OperatingMode.Melting };
 
             // Act
-            var result = _calculator.Calculate(parameters);
+            var result = _calculator.Calculate(inputs, _climateData, _constructionData);
 
             // Assert
             Assert.That(result.IsValid, Is.True);
@@ -439,11 +445,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Calculate_AntiIcingMode_SurfaceTempIs3C()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.Mode = OperatingMode.AntiIcing;
+            var inputs = CreateValidInputs();
+            inputs = inputs with { Mode = OperatingMode.AntiIcing };
 
             // Act
-            var result = _calculator.Calculate(parameters);
+            var result = _calculator.Calculate(inputs, _climateData, _constructionData);
 
             // Assert
             Assert.That(result.IsValid, Is.True);
@@ -455,11 +461,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Calculate_IntensiveMode_SurfaceTempIs7C()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.Mode = OperatingMode.Intensive;
+            var inputs = CreateValidInputs();
+            inputs = inputs with { Mode = OperatingMode.Intensive };
 
             // Act
-            var result = _calculator.Calculate(parameters);
+            var result = _calculator.Calculate(inputs, _climateData, _constructionData);
 
             // Assert
             Assert.That(result.IsValid, Is.True);
@@ -471,15 +477,13 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Calculate_WithSnowfall_HigherPowerThanWithout()
         {
             // Arrange
-            var parametersWithSnow = CreateValidParameters();
-            parametersWithSnow.SnowfallIntensity = 20.0;  // мм/ч
-
-            var parametersNoSnow = CreateValidParameters();
-            parametersNoSnow.SnowfallIntensity = 0.0;
+            var inputs = CreateValidInputs();
+            var climateWithSnow = CreateClimateData(snowfall: 20.0);
+            var climateNoSnow = CreateClimateData(snowfall: 0.0);
 
             // Act
-            var resultWithSnow = _calculator.Calculate(parametersWithSnow);
-            var resultNoSnow = _calculator.Calculate(parametersNoSnow);
+            var resultWithSnow = _calculator.Calculate(inputs, climateWithSnow, _constructionData);
+            var resultNoSnow = _calculator.Calculate(inputs, climateNoSnow, _constructionData);
 
             // Assert
             Assert.That(resultWithSnow.PowerUp, Is.GreaterThan(resultNoSnow.PowerUp));
@@ -489,15 +493,13 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Calculate_ColderClimate_HigherPower()
         {
             // Arrange
-            var parametersWarm = CreateValidParameters();
-            parametersWarm.AirTemperature = -10.0;
-
-            var parametersCold = CreateValidParameters();
-            parametersCold.AirTemperature = -30.0;
+            var inputs = CreateValidInputs();
+            var climateWarm = CreateClimateData(airTemp: -10.0);
+            var climateCold = CreateClimateData(airTemp: -30.0);
 
             // Act
-            var resultWarm = _calculator.Calculate(parametersWarm);
-            var resultCold = _calculator.Calculate(parametersCold);
+            var resultWarm = _calculator.Calculate(inputs, climateWarm, _constructionData);
+            var resultCold = _calculator.Calculate(inputs, climateCold, _constructionData);
 
             // Assert
             // Более холодный климат требует большей мощности
@@ -508,15 +510,13 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Calculate_HigherWindSpeed_HigherAlpha()
         {
             // Arrange
-            var parametersLowWind = CreateValidParameters();
-            parametersLowWind.WindSpeed = 2.0;
-
-            var parametersHighWind = CreateValidParameters();
-            parametersHighWind.WindSpeed = 8.0;
+            var inputs = CreateValidInputs();
+            var climateLowWind = CreateClimateData(windSpeed: 2.0);
+            var climateHighWind = CreateClimateData(windSpeed: 8.0);
 
             // Act
-            var resultLowWind = _calculator.Calculate(parametersLowWind);
-            var resultHighWind = _calculator.Calculate(parametersHighWind);
+            var resultLowWind = _calculator.Calculate(inputs, climateLowWind, _constructionData);
+            var resultHighWind = _calculator.Calculate(inputs, climateHighWind, _constructionData);
 
             // Assert
             // Более высокая скорость ветра → больший α
@@ -527,10 +527,10 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Calculate_ReturnsFlowRates()
         {
             // Arrange
-            var parameters = CreateValidParameters();
+            var inputs = CreateValidInputs();
 
             // Act
-            var result = _calculator.Calculate(parameters);
+            var result = _calculator.Calculate(inputs, _climateData, _constructionData);
 
             // Assert
             Assert.That(result.MassFlowRate, Is.GreaterThan(0));
@@ -541,17 +541,14 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Calculate_ReturnsThermalResistances()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.R1Total = 0.05;
-            parameters.R2Total = 0.10;
+            var inputs = CreateValidInputs();
+            var construction = CreateConstructionData(r1: 0.05, r2: 0.10);
 
             // Act
-            var result = _calculator.Calculate(parameters);
+            var result = _calculator.Calculate(inputs, _climateData, construction);
 
             // Assert
-            Assert.That(result.R1Total, Is.EqualTo(0.05).Within(0.001));
-            Assert.That(result.R2Total, Is.EqualTo(0.10).Within(0.001));
-            Assert.That(result.RFb, Is.GreaterThan(result.R1Total));
+            Assert.That(result.RFb, Is.GreaterThan(construction.R1Total));
         }
 
         #endregion
@@ -562,10 +559,10 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_ValidParameters_ReturnsTrue()
         {
             // Arrange
-            var parameters = CreateValidParameters();
+            var inputs = CreateValidInputs();
 
             // Act
-            var isValid = _calculator.Validate(parameters, out var errors);
+            var isValid = _calculator.Validate(inputs, _climateData, _constructionData, out var errors);
 
             // Assert
             Assert.That(isValid, Is.True);
@@ -576,10 +573,10 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_NullParameters_ReturnsFalse()
         {
             // Arrange
-            ThermalParameters parameters = null!;
+            ThermalInputs inputs = null!;
 
             // Act
-            var isValid = _calculator.Validate(parameters, out var errors);
+            var isValid = _calculator.Validate(inputs, _climateData, _constructionData, out var errors);
 
             // Assert
             Assert.That(isValid, Is.False);
@@ -590,11 +587,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_NegativeWindSpeed_ReturnsFalse()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.WindSpeed = -5.0;
+            var inputs = CreateValidInputs();
+            var climate = CreateClimateData(windSpeed: -5.0);
 
             // Act
-            var isValid = _calculator.Validate(parameters, out var errors);
+            var isValid = _calculator.Validate(inputs, climate, _constructionData, out var errors);
 
             // Assert
             Assert.That(isValid, Is.False);
@@ -605,11 +602,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_ExcessiveWindSpeed_ReturnsFalse()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.WindSpeed = 100.0;
+            var inputs = CreateValidInputs();
+            var climate = CreateClimateData(windSpeed: 100.0);
 
             // Act
-            var isValid = _calculator.Validate(parameters, out var errors);
+            var isValid = _calculator.Validate(inputs, climate, _constructionData, out var errors);
 
             // Assert
             Assert.That(isValid, Is.False);
@@ -620,11 +617,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_InvalidPipeSpacing_ReturnsFalse()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.PipeSpacing = 10.0;  // Слишком мало
+            var inputs = CreateValidInputs();
+            inputs = inputs with { PipeSpacing = 10.0 };  // Слишком мало
 
             // Act
-            var isValid = _calculator.Validate(parameters, out var errors);
+            var isValid = _calculator.Validate(inputs, _climateData, _constructionData, out var errors);
 
             // Assert
             Assert.That(isValid, Is.False);
@@ -635,11 +632,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_InvalidAirTemperature_ReturnsFalse()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.AirTemperature = 20.0;  // Слишком тепло
+            var inputs = CreateValidInputs();
+            var climate = CreateClimateData(airTemp: 20.0);  // Слишком тепло
 
             // Act
-            var isValid = _calculator.Validate(parameters, out var errors);
+            var isValid = _calculator.Validate(inputs, climate, _constructionData, out var errors);
 
             // Assert
             Assert.That(isValid, Is.False);
@@ -650,11 +647,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_NullPipe_ReturnsFalse()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.Pipe = null!;
+            var inputs = CreateValidInputs();
+            inputs = inputs with { Pipe = null! };
 
             // Act
-            var isValid = _calculator.Validate(parameters, out var errors);
+            var isValid = _calculator.Validate(inputs, _climateData, _constructionData, out var errors);
 
             // Assert
             Assert.That(isValid, Is.False);
@@ -665,11 +662,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_NegativeSnowfallIntensity_ReturnsFalse()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.SnowfallIntensity = -1.0;
+            var inputs = CreateValidInputs();
+            var climate = CreateClimateData(snowfall: -1.0);
 
             // Act
-            var isValid = _calculator.Validate(parameters, out var errors);
+            var isValid = _calculator.Validate(inputs, climate, _constructionData, out var errors);
 
             // Assert
             Assert.That(isValid, Is.False);
@@ -680,11 +677,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
         public void Validate_ExcessiveSnowfallIntensity_ReturnsFalse()
         {
             // Arrange
-            var parameters = CreateValidParameters();
-            parameters.SnowfallIntensity = 150.0;  // > 20 мм/ч
+            var inputs = CreateValidInputs();
+            var climate = CreateClimateData(snowfall: 150.0);  // > 20 мм/ч
 
             // Act
-            var isValid = _calculator.Validate(parameters, out var errors);
+            var isValid = _calculator.Validate(inputs, climate, _constructionData, out var errors);
 
             // Assert
             Assert.That(isValid, Is.False);
@@ -696,13 +693,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
         #region Helper Methods
 
         /// <summary>
-        /// Создать валидные параметры для тестов
-        /// Климатические данные: Сочи (Краснодарский край)
-        /// t_5days_092 = -2°C, wind_max_jan = 2.8 м/с
+        /// Создать валидные входные параметры теплового расчёта для тестов
         /// </summary>
-        private ThermalParameters CreateValidParameters()
+        private ThermalInputs CreateValidInputs()
         {
-            return new ThermalParameters
+            return new ThermalInputs
             {
                 Mode = OperatingMode.Melting,
                 SupplyTemperature = 50.0,
@@ -710,14 +705,37 @@ namespace SnowMeltingCalculator.Tests.Thermal
                 GroundTemperature = 10.0,
                 Pipe = PipeType.StandardPipes[1],  // 20x2.0
                 PipeSpacing = 200.0,
-                R1Total = 0.05,
-                R2Total = 0.10,
                 LambdaE = 1.6,
-                AirTemperature = -2.0,        // t_5days_092 для Сочи
-                WindSpeed = 2.8,               // wind_max_jan для Сочи
-                SnowfallIntensity = 0.0,       // Без снегопада (только подогрев)
                 CoolantDensity = 1053.0,
                 CoolantHeatCapacity = 3.39
+            };
+        }
+
+        /// <summary>
+        /// Создать климатические данные для тестов
+        /// По умолчанию: Сочи (Краснодарский край)
+        /// t_5days_092 = -2°C, wind_max_jan = 2.8 м/с
+        /// </summary>
+        private ClimateData CreateClimateData(double airTemp = -2.0, double windSpeed = 2.8, double snowfall = 0.0)
+        {
+            return new ClimateData
+            {
+                AirTemperature = airTemp,
+                WindSpeed = windSpeed,
+                SnowfallIntensity = snowfall
+            };
+        }
+
+        /// <summary>
+        /// Создать данные конструкции для тестов
+        /// </summary>
+        private ConstructionData CreateConstructionData(double r1 = 0.05, double r2 = 0.10, double lambdaE = 1.6)
+        {
+            return new ConstructionData
+            {
+                R1Total = r1,
+                R2Total = r2,
+                LambdaE = lambdaE
             };
         }
 

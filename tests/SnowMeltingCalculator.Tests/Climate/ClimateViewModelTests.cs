@@ -2,6 +2,7 @@ using NUnit.Framework;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.Services.Climate;
+using SnowMeltingCalculator.Core;
 using System;
 using System.Threading.Tasks;
 
@@ -22,7 +23,7 @@ namespace SnowMeltingCalculator.Tests.Climate
         {
             _mockService = new MockClimateDataService();
             _climateData = new ClimateData();
-            _viewModel = new ClimateViewModel(_mockService, _climateData);
+            _viewModel = new ClimateViewModel(_mockService, _climateData, new CalculationContext());
         }
 
         #region SelectCity Tests
@@ -522,8 +523,8 @@ namespace SnowMeltingCalculator.Tests.Climate
                 var after = city.Name.Substring(index + query.Length);
                 var highlightedName = $"{before}**{match}**{after}";
 
-                var matchType = city.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase) 
-                    ? MatchType.StartsWith 
+                var matchType = city.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase)
+                    ? MatchType.StartsWith
                     : MatchType.Contains;
 
                 return (highlightedName, city.Region, matchType);

@@ -52,23 +52,23 @@ namespace SnowMeltingCalculator.Tests.Services.Climate
         public async Task GetRecentAsync_RespectsLimit()
         {
             // Arrange - используем города, которые есть в MockClimateDataService
-            await _mockRepository.AddAsync(new SearchHistoryEntry 
-            { 
-                CityId = "Москва", 
-                LastUsed = DateTime.UtcNow.AddDays(-1), 
-                UseCount = 1 
+            await _mockRepository.AddAsync(new SearchHistoryEntry
+            {
+                CityId = "Москва",
+                LastUsed = DateTime.UtcNow.AddDays(-1),
+                UseCount = 1
             });
-            await _mockRepository.AddAsync(new SearchHistoryEntry 
-            { 
-                CityId = "Санкт-Петербург", 
-                LastUsed = DateTime.UtcNow.AddDays(-2), 
-                UseCount = 1 
+            await _mockRepository.AddAsync(new SearchHistoryEntry
+            {
+                CityId = "Санкт-Петербург",
+                LastUsed = DateTime.UtcNow.AddDays(-2),
+                UseCount = 1
             });
-            await _mockRepository.AddAsync(new SearchHistoryEntry 
-            { 
-                CityId = "Сочи", 
-                LastUsed = DateTime.UtcNow.AddDays(-3), 
-                UseCount = 1 
+            await _mockRepository.AddAsync(new SearchHistoryEntry
+            {
+                CityId = "Сочи",
+                LastUsed = DateTime.UtcNow.AddDays(-3),
+                UseCount = 1
             });
 
             // Act
@@ -134,7 +134,7 @@ namespace SnowMeltingCalculator.Tests.Services.Climate
             // Assert
             var entries = await _mockRepository.GetAllAsync();
             var entry = entries.FirstOrDefault(e => e.CityId == "Москва");
-            
+
             Assert.That(entry, Is.Not.Null);
             Assert.That(entry!.UseCount, Is.EqualTo(1));
         }
@@ -143,11 +143,11 @@ namespace SnowMeltingCalculator.Tests.Services.Climate
         public async Task AddAsync_ExistingEntry_IncrementsUseCount()
         {
             // Arrange
-            await _mockRepository.AddAsync(new SearchHistoryEntry 
-            { 
-                CityId = "Москва", 
-                LastUsed = DateTime.UtcNow.AddDays(-1), 
-                UseCount = 1 
+            await _mockRepository.AddAsync(new SearchHistoryEntry
+            {
+                CityId = "Москва",
+                LastUsed = DateTime.UtcNow.AddDays(-1),
+                UseCount = 1
             });
 
             // Act
@@ -156,7 +156,7 @@ namespace SnowMeltingCalculator.Tests.Services.Climate
             // Assert
             var entries = await _mockRepository.GetAllAsync();
             var entry = entries.FirstOrDefault(e => e.CityId == "Москва");
-            
+
             Assert.That(entry, Is.Not.Null);
             Assert.That(entry!.UseCount, Is.EqualTo(2));
         }
@@ -166,11 +166,11 @@ namespace SnowMeltingCalculator.Tests.Services.Climate
         {
             // Arrange
             var oldTime = DateTime.UtcNow.AddDays(-1);
-            await _mockRepository.AddAsync(new SearchHistoryEntry 
-            { 
-                CityId = "Москва", 
-                LastUsed = oldTime, 
-                UseCount = 1 
+            await _mockRepository.AddAsync(new SearchHistoryEntry
+            {
+                CityId = "Москва",
+                LastUsed = oldTime,
+                UseCount = 1
             });
 
             // Act
@@ -179,7 +179,7 @@ namespace SnowMeltingCalculator.Tests.Services.Climate
             // Assert
             var entries = await _mockRepository.GetAllAsync();
             var entry = entries.FirstOrDefault(e => e.CityId == "Москва");
-            
+
             Assert.That(entry, Is.Not.Null);
             Assert.That(entry!.LastUsed, Is.GreaterThan(oldTime));
         }
@@ -266,7 +266,7 @@ namespace SnowMeltingCalculator.Tests.Services.Climate
 
         public Task<SearchHistoryEntry?> GetByCityIdAsync(string cityId)
         {
-            return Task.FromResult(_entries.FirstOrDefault(e => 
+            return Task.FromResult(_entries.FirstOrDefault(e =>
                 e.CityId.Equals(cityId, StringComparison.OrdinalIgnoreCase)));
         }
 
@@ -368,8 +368,8 @@ namespace SnowMeltingCalculator.Tests.Services.Climate
                 var after = city.Name.Substring(index + query.Length);
                 var highlightedName = $"{before}**{match}**{after}";
 
-                var matchType = city.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase) 
-                    ? MatchType.StartsWith 
+                var matchType = city.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase)
+                    ? MatchType.StartsWith
                     : MatchType.Contains;
 
                 return (highlightedName, city.Region, matchType);
@@ -401,7 +401,7 @@ namespace SnowMeltingCalculator.Tests.Services.Climate
 
         public CityInfo? GetCityByName(string name)
         {
-            return _cities.FirstOrDefault(c => 
+            return _cities.FirstOrDefault(c =>
                 c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 

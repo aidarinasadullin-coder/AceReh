@@ -1,0 +1,120 @@
+CircuitsViewModel.cs reconstruction — 2026-07-14 20:21:30
+===============================================================
+
+Context
+-------
+The previous T1/T15 refactor of src/ViewModels/Hydraulics/CircuitsViewModel.cs was
+accidentally discarded by `git checkout`. The HEAD version used the pre-refactor
+HydraulicInputData model (with SupplyTemperature, ReturnTemperature, SelectedPipe,
+PowerUp, PowerDown, PipeSpacing, OperatingTemperature, ColdFiveDayTemperature) and
+depended directly on ThermalViewModel and ClimateViewModel.
+
+The working tree already contains the refactored HydraulicInputData (hydraulic-local
+fields only: GlycolType, GlycolConcentration, SupplySpacing_cm, SupplyHeatPercent,
+ValveType) and the CalculationContext bus. The file had to be reconstructed to compile
+against those types while preserving behavior and the public API used by tests and
+ResultsViewModel.
+
+Mapping decisions
+-----------------
+1. Constructor
+   - Removed: ThermalViewModel, ClimateViewModel parameters.
+   - Added:    CalculationContext calculationContext parameter.
+   - Signature now matches CircuitsViewModelTests and DI registration:
+       public CircuitsViewModel(
+           ICircuitsCalculator circuitsCalculator,
+           IGlycolDataService glycolService,
+           ICalculationStateService calculationStateService,
+           ICircuitsValidator validator,
+           ICollectorTypeSelector collectorTypeSelector,
+           CalculationContext calculationContext)
+
+2. Thermal/climate subscriptions
+   - Removed: _thermalViewModel.PropertyChanged and _climateViewModel.PropertyChanged
+              handlers.
+   - Added:   _calculationContext.ContextChanged handler.
+              - React to ThermalResult/ThermalInputs changes -> Calculate().
+              - React to Climate changes -> UpdateFromClimateModule().
+              - Ignore changes emitted with Source == "CircuitsViewModel" to avoid
+                duplicate recalculation when UpdateFromThermalModule itself writes
+                to the context and then calls Calculate() explicitly.
+
+3. InputData scope
+   - HydraulicInputData now stores only hydraulic-local data:
+       GlycolType, GlycolConcentration, SupplySpacing_cm, SupplyHeatPercent, ValveType.
+   - SetInputData() subscription logic is preserved for those fields.
+
+4. Property mappings (old InputData.* -> new source)
+   - SupplyTemperature        -> _calculationContext.ThermalResult?.SupplyTemperature
+                                 ?? _calculationContext.ThermalInputs?.SupplyTemperature
+                                 ?? 50.0 (fallback matches old HydraulicInputData default)
+   - ReturnTemperature        -> _calculationContext.ThermalResult?.ReturnTemperature
+                                 ?? 30.0 (fallback)
+   - PipeType / OuterDiameter /
+     WallThickness            -> _calculationContext.ThermalInputs?.Pipe.*
+   - InnerDiameter            -> _calculationContext.ThermalInputs?.Pipe.InnerDiameter
+                                 ?? 14.2 (fallback)
+   - OperatingTemperatureValue-> _calculationContext.ThermalResult?.MeanTemperature ?? 0
+   - PowerUp / PowerDown      -> _calculationContext.ThermalResult?.PowerUp/PowerDown
+                                 with fallback 180.0 / 80.0 when not IsThermalValid
+   - PipeSpacing_cm           -> (_calculationContext.ThermalInputs?.PipeSpacing
+                                 ?? _calculationStateService.PipeSpacing) / 10.0
+   - DesignTemperature        -> _calculationContext.AirTemperature
+   - DesignTemperatureValue   -> DesignTemperature
+
+5. Calculate()
+   - Removed all writes to InputData for thermal/climate fields (they no longer exist).
+   - Reads supply/return/power/deltaT/innerDiameter/pipeSpacing from CalculationContext
+     with the same cold-start fallback values used before the refactor:
+       supply=35, return=30, powerUp=180, powerDown=80, innerDiameter=14.2,
+       designTemp = _calculationContext.AirTemperature.
+   - Calculator formulas, kv table, and stage ordering are untouched.
+
+6. UpdateFromThermalModule(IThermalCalculationResult?, PipeType?)
+   - When result is null or invalid: reset InputData, push an invalid
+     ThermalCalculationResult into CalculationContext, notify property changes,
+     return (old behavior did not recalculate on reset).
+   - When result is valid:
+       - If selectedPipe != null, update CalculationContext.ThermalInputs with the
+         new pipe (preserves existing pipe when null is passed, per tests).
+       - Update CalculationContext.ThermalResult with the result.
+       - Notify property changes and call Calculate().
+
+7. UpdateFromClimateModule()
+   - Removed write to InputData.ColdFiveDayTemperature (field no longer exists).
+   - Raises DesignTemperatureValue / DesignModeButtonText property changes and calls
+     Calculate(), using _calculationContext.AirTemperature as the design temperature.
+
+8. Public API preserved
+   - Properties: DesignTemperature, DesignTemperatureValue, OperatingTemperatureValue,
+     SupplyTemperature, ReturnTemperature, PowerUp, PowerDown, PipeSpacing_cm,
+     PipeType, InnerDiameter, OuterDiameter, WallThickness, GlycolTypeName, etc.
+   - Commands: AddCollector, RemoveCollector, AddCircuit, RemoveCircuit, Calculate,
+     SwitchMode.
+   - Methods: UpdateFromThermalModule(IThermalCalculationResult?, PipeType?),
+              UpdateFromClimateModule().
+
+Verification
+------------
+- dotnet build src/SnowMeltingCalculator.csproj -c Debug
+  -> succeeded with 0 errors from CircuitsViewModel.cs.
+- dotnet build src/SnowMeltingCalculator.csproj -c Debug /p:TreatWarningsAsErrors=true
+  -> 3 pre-existing errors in unrelated files (CollectorViewModel.cs:191,
+     ResultsViewModel.cs:518, MainWindow.xaml.cs:32), identical to the pre-T1 baseline
+     documented in task-1-fix-design-temperature-source.txt. CircuitsViewModel.cs
+     contributes no warnings or errors.
+- grep ColdFiveDayTemperature in src/ViewModels/Hydraulics/CircuitsViewModel.cs
+  -> 0 matches.
+- dotnet test ... --filter "FullyQualifiedName~CircuitsViewModelTests"
+  -> 54 passed, 0 failed.
+- dotnet test ... --filter "FullyQualifiedName~ClimateToHydraulicsIntegrationTests"
+  -> 17 passed, 0 failed.
+- dotnet test ... --filter "FullyQualifiedName~ThermalToHydraulicsIntegrationTests"
+  -> 12 passed, 0 failed.
+
+Files changed
+-------------
+- src/ViewModels/Hydraulics/CircuitsViewModel.cs (reconstructed)
+- .omo/evidence/fix-design-temperature-source/reconstruction-2026-07-14-202130.txt (this file)
+
+No other .cs files were modified.

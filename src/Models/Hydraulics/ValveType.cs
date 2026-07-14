@@ -23,7 +23,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Диапазон Kv: 0.8 - 4.0
         /// </remarks>
         HKV_D = 0,
-        
+
         /// <summary>
         /// IV 1¼" (промышленный коллектор)
         /// </summary>
@@ -33,7 +33,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Диапазон Kv: 0.5 - 3.0
         /// </remarks>
         IV_1_25 = 1,
-        
+
         /// <summary>
         /// IV 1½" (промышленный коллектор)
         /// </summary>

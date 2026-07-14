@@ -19,7 +19,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Коэффициент трения: λ = 64 / Re (формула Пуазейля)
         /// </remarks>
         Laminar = 0,
-        
+
         /// <summary>
         /// Переходный режим течения (2300 ≤ Re ≤ 4000)
         /// </summary>
@@ -28,7 +28,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Коэффициент трения: линейная интерполяция между λ_lam и λ_turb
         /// </remarks>
         Transitional = 1,
-        
+
         /// <summary>
         /// Турбулентный режим течения (Re &gt; 4000)
         /// </summary>

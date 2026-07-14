@@ -1,4 +1,5 @@
 using System;
+using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Thermal;
 
 namespace SnowMeltingCalculator.Services.Thermal
@@ -277,16 +278,28 @@ namespace SnowMeltingCalculator.Services.Thermal
         /// E = s / (d - s) - s = толщина стенки трубы, d = наружный диаметр
         /// </remarks>
         public double CalculateExcessTemperature(
-            ThermalParameters parameters,
+            ThermalInputs parameters,
             double powerUp,
             double rFb,
             double rD,
-            double etaR)
+            double etaR,
+            IClimateData climate,
+            IConstructionData construction)
         {
             // Валидация
             if (parameters == null)
             {
                 throw new ArgumentNullException(nameof(parameters));
+            }
+
+            if (climate == null)
+            {
+                throw new ArgumentNullException(nameof(climate));
+            }
+
+            if (construction == null)
+            {
+                throw new ArgumentNullException(nameof(construction));
             }
 
             if (powerUp <= 0)
@@ -319,7 +332,7 @@ namespace SnowMeltingCalculator.Services.Thermal
             var b = 1.0 / rFb + 1.0 / rD;
 
             // C = |t_H - t_G|
-            var c = Math.Abs(parameters.AirTemperature - parameters.GroundTemperature);
+            var c = Math.Abs(climate.AirTemperature - parameters.GroundTemperature);
 
             // D = lR / (π × λR)
             // lR = шаг труб (spacing)
@@ -383,41 +396,43 @@ namespace SnowMeltingCalculator.Services.Thermal
         {
             // JHmü_low = T_mean - t_G (избыточная температура вниз)
             var jhmuLow = meanTemperature - groundTemperature;
-            
+
             // A = 1/ηR
             var a = 1.0 / etaR;
-            
+
             // B = 1/RFb + 1/RD
             var b = 1.0 / rFb + 1.0 / rD;
-            
+
             // C = |t_H - t_G|
             var c = Math.Abs(airTemperature - groundTemperature);
-            
+
             // D = lR / (π × λR)
             var spacingM = pipeSpacing / 1000.0;  // мм → м
             var dCoefficient = spacingM / (Math.PI * pipeThermalConductivity);
-            
+
             // E = s / (d - s)
             var wallThicknessM = pipeWallThickness / 1000.0;  // мм → м
             var outerDiameterM = pipeOuterDiameter / 1000.0;    // мм → м
             var eCoefficient = wallThicknessM / (outerDiameterM - wallThicknessM);
-            
+
             // q_D = (JHmü_low × RFb + C × D × E) / (RFb × RD × (A + B × D × E))
             var numerator = jhmuLow * rFb + c * dCoefficient * eCoefficient;
             var denominator = rFb * rD * (a + b * dCoefficient * eCoefficient);
-            
+
             return numerator / denominator;
         }
 
         /// <summary>
         /// Выполнить полный тепловой расчёт
         /// </summary>
-        /// <param name="parameters">Входные параметры</param>
+        /// <param name="inputs">Входные параметры теплового расчёта</param>
+        /// <param name="climate">Климатические данные</param>
+        /// <param name="construction">Данные конструкции</param>
         /// <returns>Результат расчёта</returns>
-        public ThermalCalculationResult Calculate(ThermalParameters parameters)
+        public ThermalCalculationResult Calculate(ThermalInputs inputs, IClimateData climate, IConstructionData construction)
         {
             // Валидация входных параметров
-            var isValid = Validate(parameters, out var errors);
+            var isValid = Validate(inputs, climate, construction, out var errors);
 
             var result = new ThermalCalculationResult
             {
@@ -433,40 +448,38 @@ namespace SnowMeltingCalculator.Services.Thermal
             try
             {
                 // Определение температуры поверхности по режиму
-                var surfaceTemp = (int)parameters.Mode;  // OperatingMode содержит температуру поверхности
+                var surfaceTemp = (int)inputs.Mode;  // OperatingMode содержит температуру поверхности
 
                 // 1. Расчёт коэффициента теплоотдачи
                 var alpha = CalculateHeatTransferCoefficient(
                     surfaceTemp,
-                    parameters.AirTemperature,
-                    parameters.WindSpeed);
+                    climate.AirTemperature,
+                    climate.WindSpeed);
                 result.Alpha = alpha;
 
                 // 2. Расчёт мощности вверх
                 var powerUp = CalculatePowerUp(
-                    parameters.SnowfallIntensity,
+                    climate.SnowfallIntensity,
                     surfaceTemp,
-                    parameters.AirTemperature,
+                    climate.AirTemperature,
                     alpha);
                 result.PowerUp = powerUp;
 
                 // 3. Расчёт тепловых сопротивлений
                 var (rFb, rD) = CalculateThermalResistance(
-                    parameters.R1Total,
-                    parameters.R2Total,
+                    construction.R1Total,
+                    construction.R2Total,
                     alpha);
                 result.RFb = rFb;
                 result.RD = rD;
-                result.R1Total = parameters.R1Total;
-                result.R2Total = parameters.R2Total;
 
                 // 4. Расчёт параметров теории стержня
-                var dE = parameters.Pipe.OuterDiameter / 1000.0;  // мм → м
-                var spacingM = parameters.PipeSpacing / 1000.0;   // мм → м
+                var dE = inputs.Pipe.OuterDiameter / 1000.0;  // мм → м
+                var spacingM = inputs.PipeSpacing / 1000.0;   // мм → м
 
                 var (m, etaR) = CalculateRodTheory(
                     rFb, rD,
-                    parameters.LambdaE,
+                    inputs.LambdaE,
                     dE,
                     spacingM);
                 result.ParameterM = m;
@@ -474,52 +487,54 @@ namespace SnowMeltingCalculator.Services.Thermal
 
                 // 5. Расчёт избыточной температуры
                 var excessTemp = CalculateExcessTemperature(
-                    parameters,
+                    inputs,
                     powerUp,
                     rFb,
                     rD,
-                    etaR);
+                    etaR,
+                    climate,
+                    construction);
                 result.ExcessTemperature = excessTemp;
 
                 // 6. Расчёт температур теплоносителя
                 // Средняя температура = избыточная + температура наружного воздуха (формула 7)
-                result.MeanTemperature = excessTemp + parameters.AirTemperature;
-                
+                result.MeanTemperature = excessTemp + climate.AirTemperature;
+
                 // Температура подачи - входной параметр (задаётся пользователем, формула 8.1)
-                result.SupplyTemperature = parameters.SupplyTemperature;
-                
+                result.SupplyTemperature = inputs.SupplyTemperature;
+
                 // Проверка: температура подачи должна быть больше средней температуры (формула 8.2)
                 // Округляем минимальную температуру вверх до десятых для корректного отображения в сообщении
                 var minSupplyTemp = Math.Ceiling(result.MeanTemperature * 10) / 10;
                 if (result.SupplyTemperature <= result.MeanTemperature)
                 {
                     result.IsValid = false;
-                    result.ValidationErrors = new[] { 
+                    result.ValidationErrors = new[] {
                         $"При текущих параметрах системы не обеспечивается требуемая мощность. " +
                         $"Температура подачи ({result.SupplyTemperature:F1}°C) должна быть не менее {minSupplyTemp:F1}°C. " +
                         $"Увеличьте температуру подачи, уменьшите интенсивность снегопада или измените режим работы."
                     };
                     return result;
                 }
-                
+
                 // Температура обратки (арифметическая формула 8.2)
                 result.ReturnTemperature = 2 * result.MeanTemperature - result.SupplyTemperature;
-                
+
                 // Температурный перепад (формула 8.3)
                 result.DeltaT = result.SupplyTemperature - result.ReturnTemperature;
 
                 // 7. Расчёт составляющих мощности (для справки)
-                var h = parameters.SnowfallIntensity / 1000.0 / 3600.0;
+                var h = climate.SnowfallIntensity / 1000.0 / 3600.0;
                 result.MeltingHeat = h * SnowDensity * (
-                    IceHeatCapacity * (0 - parameters.AirTemperature) +
+                    IceHeatCapacity * (0 - climate.AirTemperature) +
                     IceMeltingHeat +
                     WaterHeatCapacity * surfaceTemp);
                 // Лучистый теплообмен: Q = ε × σ × T⁴
                 // где T - абсолютная температура поверхности в Кельвинах
                 result.RadiationHeat = EmissionCoefficient * StefanBoltzmann *
                     Math.Pow(273.0 + surfaceTemp, 4);
-                result.ConvectionHeat = alpha * (surfaceTemp - parameters.AirTemperature);
-                
+                result.ConvectionHeat = alpha * (surfaceTemp - climate.AirTemperature);
+
                 // Убеждаемся, что PowerUp точно равен сумме составляющих (для корректного отображения)
                 result.PowerUp = result.MeltingHeat + result.ConvectionHeat;
 
@@ -527,15 +542,15 @@ namespace SnowMeltingCalculator.Services.Thermal
                 // q_D = (JHmü_low × RFb + C × D × E) / (RFb × RD × (A + B × D × E))
                 var powerDown = CalculatePowerDown(
                     result.MeanTemperature,
-                    parameters.GroundTemperature,
-                    parameters.AirTemperature,
+                    inputs.GroundTemperature,
+                    climate.AirTemperature,
                     rFb,
                     rD,
                     etaR,
-                    parameters.PipeSpacing,
-                    parameters.Pipe.OuterDiameter,
-                    parameters.Pipe.WallThickness,
-                    parameters.Pipe.ThermalConductivity);
+                    inputs.PipeSpacing,
+                    inputs.Pipe.OuterDiameter,
+                    inputs.Pipe.WallThickness,
+                    inputs.Pipe.ThermalConductivity);
                 result.PowerDown = powerDown;
 
                 // 9. Суммарная мощность
@@ -544,8 +559,8 @@ namespace SnowMeltingCalculator.Services.Thermal
                 // 10. Расчёт расхода теплоносителя
                 // ṁ = q_total / (c_p / 3.6) / ΔT
                 // V_dot = ṁ / ρ × 1000
-                var cp = parameters.CoolantHeatCapacity;  // кДж/кг·К
-                var rho = parameters.CoolantDensity;      // кг/м³
+                var cp = inputs.CoolantHeatCapacity;  // кДж/кг·К
+                var rho = inputs.CoolantDensity;      // кг/м³
 
                 // Массовый расход: кг/(ч·м²)
                 result.MassFlowRate = result.PowerTotal / (cp / 3.6) / result.DeltaT;
@@ -567,99 +582,113 @@ namespace SnowMeltingCalculator.Services.Thermal
         /// <summary>
         /// Валидация входных параметров
         /// </summary>
-        /// <param name="parameters">Параметры для проверки</param>
+        /// <param name="inputs">Входные параметры теплового расчёта</param>
+        /// <param name="climate">Климатические данные</param>
+        /// <param name="construction">Данные конструкции</param>
         /// <param name="errors">Список ошибок валидации</param>
         /// <returns>true если параметры валидны</returns>
-        public bool Validate(ThermalParameters parameters, out string[] errors)
+        public bool Validate(ThermalInputs inputs, IClimateData climate, IConstructionData construction, out string[] errors)
         {
             var errorList = new List<string>();
 
-            if (parameters == null)
+            if (inputs == null)
             {
                 errors = new[] { "Параметры не заданы" };
                 return false;
             }
 
+            if (climate == null)
+            {
+                errors = new[] { "Климатические данные не заданы" };
+                return false;
+            }
+
+            if (construction == null)
+            {
+                errors = new[] { "Данные конструкции не заданы" };
+                return false;
+            }
+
             // Проверка трубы
-            if (parameters.Pipe == null)
+            if (inputs.Pipe == null)
             {
                 errorList.Add("Тип трубы не задан");
             }
             else
             {
-                if (parameters.Pipe.OuterDiameter <= 0)
+                if (inputs.Pipe.OuterDiameter <= 0)
                 {
                     errorList.Add("Наружный диаметр трубы должен быть положительным");
                 }
 
-                if (parameters.Pipe.WallThickness <= 0)
+                if (inputs.Pipe.WallThickness <= 0)
                 {
                     errorList.Add("Толщина стенки трубы должна быть положительной");
                 }
 
-                if (parameters.Pipe.ThermalConductivity <= 0)
+                if (inputs.Pipe.ThermalConductivity <= 0)
                 {
                     errorList.Add("Теплопроводность материала трубы должна быть положительной");
                 }
             }
 
             // Проверка температур
-            if (parameters.AirTemperature > 10)
+            if (climate.AirTemperature > 10)
             {
                 errorList.Add("Температура наружного воздуха не должна превышать +10°C");
             }
 
-            if (parameters.AirTemperature < -60)
+            if (climate.AirTemperature < -60)
             {
                 errorList.Add("Температура наружного воздуха не должна быть ниже -60°C");
             }
 
-            if (parameters.GroundTemperature < -10 || parameters.GroundTemperature > 30)
+            if (inputs.GroundTemperature < -10 || inputs.GroundTemperature > 30)
             {
                 errorList.Add("Температура грунта должна быть в диапазоне от -10°C до +30°C");
             }
 
             // Проверка скорости ветра
-            if (parameters.WindSpeed < 0)
+            if (climate.WindSpeed < 0)
             {
                 errorList.Add("Скорость ветра не может быть отрицательной");
             }
 
-            if (parameters.WindSpeed > 50)
+            if (climate.WindSpeed > 50)
             {
                 errorList.Add("Скорость ветра не должна превышать 50 м/с");
             }
 
             // Проверка интенсивности снегопада
-            if (parameters.SnowfallIntensity < 0)
+            if (climate.SnowfallIntensity < 0)
             {
                 errorList.Add("Интенсивность снегопада не может быть отрицательной");
             }
 
-            if (parameters.SnowfallIntensity > 20)
+            if (climate.SnowfallIntensity > 20)
             {
                 errorList.Add("Интенсивность снегопада не должна превышать 20 мм/ч");
             }
 
             // Проверка шага укладки
-            if (parameters.PipeSpacing < 50 || parameters.PipeSpacing > 500)
+            if (inputs.PipeSpacing < 50 || inputs.PipeSpacing > 500)
             {
                 errorList.Add("Шаг укладки трубы должен быть в диапазоне от 50 до 500 мм");
             }
 
             // Проверка тепловых сопротивлений
-            if (parameters.R1Total < 0)
+            if (construction.R1Total < 0)
             {
                 errorList.Add("Сопротивление слоёв над трубой не может быть отрицательным");
             }
 
-            if (parameters.R2Total < 0)
+            if (construction.R2Total < 0)
             {
                 errorList.Add("Сопротивление слоёв под трубой не может быть отрицательным");
             }
 
             // Проверка теплопроводности стяжки
-            if (parameters.LambdaE <= 0)
+            if (inputs.LambdaE <= 0)
             {
                 errorList.Add("Теплопроводность стяжки должна быть положительной");
             }
@@ -669,25 +698,25 @@ namespace SnowMeltingCalculator.Services.Thermal
             // - Для PE-Xa: макс. 65°C
             // - Для бетона: макс. 50°C
             // Общее ограничение: 20-90°C
-            if (parameters.SupplyTemperature < 20 || parameters.SupplyTemperature > 90)
+            if (inputs.SupplyTemperature < 20 || inputs.SupplyTemperature > 90)
             {
                 errorList.Add("Температура подачи должна быть в диапазоне от 20°C до 90°C");
             }
 
             // Примечание: температурный перепад (DeltaT) теперь рассчитывается автоматически,
             // но параметр остаётся для совместимости с гидравлическим расчётом
-            if (parameters.DeltaT <= 0 || parameters.DeltaT > 30)
+            if (inputs.DeltaT <= 0 || inputs.DeltaT > 30)
             {
                 errorList.Add("Температурный перепад должен быть в диапазоне от 1 до 30 К");
             }
 
             // Проверка теплоносителя
-            if (parameters.CoolantDensity <= 0)
+            if (inputs.CoolantDensity <= 0)
             {
                 errorList.Add("Плотность теплоносителя должна быть положительной");
             }
 
-            if (parameters.CoolantHeatCapacity <= 0)
+            if (inputs.CoolantHeatCapacity <= 0)
             {
                 errorList.Add("Теплоёмкость теплоносителя должна быть положительной");
             }

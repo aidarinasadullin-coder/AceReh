@@ -23,7 +23,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// Диапазон концентраций: 10-90%
         /// </remarks>
         Ethylene = 0,
-        
+
         /// <summary>
         /// Пропиленгликоль (C3H8O2)
         /// </summary>

@@ -116,10 +116,10 @@ namespace SnowMeltingCalculator.Behaviors
             {
                 if (child is T parent)
                     return parent;
-                
+
                 child = VisualTreeHelper.GetParent(child);
             }
-            
+
             return null;
         }
 

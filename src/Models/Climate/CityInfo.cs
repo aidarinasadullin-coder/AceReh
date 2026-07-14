@@ -42,6 +42,21 @@ namespace SnowMeltingCalculator.Models.Climate
         public double TAbsMin { get; set; }
 
         /// <summary>
+        /// Продолжительность периода со средней суточной температурой ≤0°C, дней
+        /// </summary>
+        public int Period_0_Days { get; set; }
+
+        /// <summary>
+        /// Продолжительность периода со средней суточной температурой ≤8°C (отопительный период), дней
+        /// </summary>
+        public int Period_8_Days { get; set; }
+
+        /// <summary>
+        /// Продолжительность периода со средней суточной температурой ≤10°C, дней
+        /// </summary>
+        public int Period_10_Days { get; set; }
+
+        /// <summary>
         /// Отображаемое имя: "Город (Регион)"
         /// </summary>
         public string DisplayName => $"{Name} ({Region})";

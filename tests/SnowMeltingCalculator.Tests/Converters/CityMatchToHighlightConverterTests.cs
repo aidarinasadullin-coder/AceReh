@@ -49,12 +49,12 @@ namespace SnowMeltingCalculator.Tests.Converters
             // Assert
             var inlines = (System.Collections.Generic.List<Inline>)result;
             Assert.That(inlines.Count, Is.EqualTo(2));
-            
+
             // Первая часть - обычный текст
             var firstRun = (Run)inlines[0];
             Assert.That(firstRun.Text, Is.EqualTo("Мос"));
             Assert.That(firstRun.FontWeight, Is.Not.EqualTo(System.Windows.FontWeights.Bold));
-            
+
             // Вторая часть - подсвеченный текст
             var secondRun = (Run)inlines[1];
             Assert.That(secondRun.Text, Is.EqualTo("ква"));
@@ -73,12 +73,12 @@ namespace SnowMeltingCalculator.Tests.Converters
             // Assert
             var inlines = (System.Collections.Generic.List<Inline>)result;
             Assert.That(inlines.Count, Is.EqualTo(2));
-            
+
             // Первая часть - подсвеченный текст
             var firstRun = (Run)inlines[0];
             Assert.That(firstRun.Text, Is.EqualTo("Мос"));
             Assert.That(firstRun.FontWeight, Is.EqualTo(System.Windows.FontWeights.Bold));
-            
+
             // Вторая часть - обычный текст
             var secondRun = (Run)inlines[1];
             Assert.That(secondRun.Text, Is.EqualTo("ква"));
@@ -101,7 +101,7 @@ namespace SnowMeltingCalculator.Tests.Converters
             // Assert
             var inlines = (System.Collections.Generic.List<Inline>)result;
             Assert.That(inlines.Count, Is.EqualTo(3));
-            
+
             // Чередование: подсвеченный, обычный, подсвеченный
             Assert.That(((Run)inlines[0]).FontWeight, Is.EqualTo(System.Windows.FontWeights.Bold));
             Assert.That(((Run)inlines[0]).Text, Is.EqualTo("Мос"));
@@ -123,7 +123,7 @@ namespace SnowMeltingCalculator.Tests.Converters
             // Assert
             var inlines = (System.Collections.Generic.List<Inline>)result;
             Assert.That(inlines.Count, Is.EqualTo(1));
-            
+
             var run = (Run)inlines[0];
             Assert.That(run.Text, Is.EqualTo("Москва"));
             Assert.That(run.FontWeight, Is.Not.EqualTo(System.Windows.FontWeights.Bold));
@@ -168,7 +168,7 @@ namespace SnowMeltingCalculator.Tests.Converters
 
             // Assert
             var inlines = (System.Collections.Generic.List<Inline>)result;
-            
+
             // Обычный текст - чёрный REHAU (#1D1D1B)
             var normalRun = (Run)inlines[0];
             Assert.That(normalRun.Foreground, Is.InstanceOf<SolidColorBrush>());
@@ -176,7 +176,7 @@ namespace SnowMeltingCalculator.Tests.Converters
             Assert.That(normalBrush.Color.R, Is.EqualTo((byte)0x1D));
             Assert.That(normalBrush.Color.G, Is.EqualTo((byte)0x1D));
             Assert.That(normalBrush.Color.B, Is.EqualTo((byte)0x1B));
-            
+
             // Подсвеченный текст - бирюзовый REHAU (#4FC7B5)
             var highlightRun = (Run)inlines[1];
             Assert.That(highlightRun.Foreground, Is.InstanceOf<SolidColorBrush>());
@@ -211,7 +211,7 @@ namespace SnowMeltingCalculator.Tests.Converters
             var value = new System.Collections.Generic.List<Inline>();
 
             // Act & Assert
-            Assert.Throws<NotImplementedException>(() => 
+            Assert.Throws<NotImplementedException>(() =>
                 _converter.ConvertBack(value, typeof(string), null, CultureInfo.InvariantCulture));
         }
 
@@ -273,10 +273,10 @@ namespace SnowMeltingCalculator.Tests.Converters
 
             // Assert
             Assert.That(inlines.Count, Is.EqualTo(2));
-            
+
             var normalRun = (Run)inlines[0];
             Assert.That(normalRun.Foreground, Is.EqualTo(normalBrush));
-            
+
             var highlightRun = (Run)inlines[1];
             Assert.That(highlightRun.Foreground, Is.EqualTo(highlightBrush));
         }

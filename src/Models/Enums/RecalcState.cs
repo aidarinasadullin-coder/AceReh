@@ -18,17 +18,17 @@ namespace SnowMeltingCalculator.Models.Enums
         /// Данные актуальны (серый цвет)
         /// </summary>
         Info,
-        
+
         /// <summary>
         /// Требуется пересчёт (жёлтый цвет #FFF8E8, оранжевая рамка #FFB300)
         /// </summary>
         Warning,
-        
+
         /// <summary>
         /// Выполняется пересчёт (синий цвет #E3F2FD, синяя рамка #2196F3)
         /// </summary>
         Processing,
-        
+
         /// <summary>
         /// Пересчёт завершён (зелёный цвет #E8F6F4, зелёная рамка #4FC7B5)
         /// </summary>

@@ -1,0 +1,9 @@
+=== git diff --stat (modified files) ===
+warning: in the working copy of 'tests/SnowMeltingCalculator.Tests/Construction/ConstructionViewModelTests.cs', LF will be replaced by CRLF the next time Git touches it
+ .../Construction/ConstructionViewModelTests.cs                      | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+=== git status --short (new/modified files) ===
+ M tests/SnowMeltingCalculator.Tests/Construction/ConstructionViewModelTests.cs
+?? tests/SnowMeltingCalculator.Tests/RefactorBaseline/ThermalBaselineTests.cs
+?? tests/SnowMeltingCalculator.Tests/baseline_refactor_dedupe.json

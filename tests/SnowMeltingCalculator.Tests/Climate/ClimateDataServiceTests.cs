@@ -172,7 +172,7 @@ namespace SnowMeltingCalculator.Tests.Climate
             foreach (var temp in temperatures)
             {
                 var zone = _service.DetermineZone(temp, isHighRequirements: true);
-                Assert.That(zone, Is.EqualTo(ClimateZone.Zone_M20_Plus), 
+                Assert.That(zone, Is.EqualTo(ClimateZone.Zone_M20_Plus),
                     $"Temperature {temp} with high requirements should return Zone_M20_Plus");
             }
         }
@@ -242,7 +242,7 @@ namespace SnowMeltingCalculator.Tests.Climate
             // Act
             await _service.LoadClimateDataAsync();
             var count1 = _service.CitiesCount;
-            
+
             await _service.LoadClimateDataAsync();
             var count2 = _service.CitiesCount;
 
@@ -573,7 +573,7 @@ namespace SnowMeltingCalculator.Tests.Climate
         public Task<CityInfo?> GetCityByNameAsync(string name)
         {
             var cities = LoadCitiesAsync().Result;
-            return Task.FromResult(cities.FirstOrDefault(c => 
+            return Task.FromResult(cities.FirstOrDefault(c =>
                 c.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
         }
 

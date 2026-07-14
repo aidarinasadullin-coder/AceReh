@@ -191,7 +191,7 @@ namespace SnowMeltingCalculator.Tests.Converters
             var value = new SolidColorBrush(Colors.Green);
 
             // Act & Assert
-            Assert.Throws<NotImplementedException>(() => 
+            Assert.Throws<NotImplementedException>(() =>
                 _converter.ConvertBack(value, typeof(double), null, CultureInfo.InvariantCulture));
         }
     }

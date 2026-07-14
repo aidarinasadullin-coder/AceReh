@@ -1,0 +1,55 @@
+﻿================================================================================
+F1 PLAN-COMPLIANCE AUDIT — fix-design-temperature-source
+Date: 2026-07-14
+Auditor: explore agent
+================================================================================
+
+1. DIFF SUMMARY
+   Total files changed: 207
+   Total insertions:    2512
+   Total deletions:     33893
+
+2. EXPECTED CHANGED FILES (plan scope: 3 files)
+   [PASS] src/ViewModels/Hydraulics/CircuitsViewModel.cs          — FOUND in diff (333 lines changed)
+   [FAIL] tests/.../IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs
+           — File EXISTS on disk at expected path but NOT in git diff.
+           — Diff instead contains: tests/.../Integration/HydraulicsIntegrationTests.cs (85 lines, different path)
+           — Also in diff: tests/.../ViewModels/Hydraulics/CircuitsViewModelTests.cs (182 lines)
+           — Plan F1 says "(и/или CircuitsViewModelTests.cs)" so CircuitsViewModelTests.cs is acceptable.
+           — However, ClimateToHydraulicsIntegrationTests.cs has ZERO diff — task T3 assertions fix is MISSING.
+   [PASS] .omo/notepads/refactor-dedupe-params/learnings.md       — FOUND in diff (269 lines changed)
+
+3. GUARDRAIL FILES (must have ZERO diff)
+   [FAIL] src/Services/Thermal/ThermalCalculator.cs               — CHANGED (165 lines) — VIOLATION
+   [FAIL] src/Services/Hydraulics/CircuitsCalculator.cs            — CHANGED (33 lines) — VIOLATION
+   [PASS] tests/.../baseline_refactor_dedupe.json                  — NOT in diff (clean)
+   [PASS] docs/инструкция/README v.2.1.md                          — NOT in diff (clean)
+
+4. UNEXPECTED CHANGED FILES (204 files beyond plan scope)
+   Categories of unexpected changes:
+   - Work/ directory: ~90 files DELETED (entire Work/ tree removed)
+   - Root files deleted: cleanup_report.md, extract_vba.ps1, gidravlica.xls, indicators-design-system.html, excel_output.txt
+   - src/Models/: 20+ files changed (CircuitRow, Collector, HydraulicInputData, ThermalCalculationResult, ThermalParameters deleted, PipeLengthPerArea deleted, etc.)
+   - src/Services/: 10+ files changed (ThermalCalculator, CircuitsCalculator, FlowRegimeCalculator, GlycolDataService, etc.)
+   - src/ViewModels/: 8+ files changed (ClimateViewModel, ConstructionViewModel, CollectorViewModel, ResultsViewModel, ThermalViewModel, etc.)
+   - src/Views/: 6 files changed
+   - src/Configuration/: 2 files changed
+   - src/Converters/: 2 files changed
+   - src/Repositories/: 4 files changed
+   - tests/: 30+ files changed
+   - Binary files deleted: Berechnung.png, Inter fonts (.otf/.ttf), gidravlica.xls
+
+5. ROOT CAUSE ANALYSIS
+   The diff appears to represent the ENTIRE refactor-dedupe-params branch
+   accumulated changes, NOT just the fix-design-temperature-source delta.
+   The working tree has not been isolated to the plan scope. This suggests
+   the fix was applied on top of an uncommitted working tree that already
+   contained the full refactor-dedupe-params changes, or the comparison
+   base is incorrect.
+
+6. VERDICT
+   F1 VERDICT: REJECT — 204 unexpected file changes; 2 guardrail violations
+   (ThermalCalculator.cs, CircuitsCalculator.cs); ClimateToHydraulicsIntegrationTests.cs
+   has zero diff (T3 assertion fixes missing).
+
+================================================================================

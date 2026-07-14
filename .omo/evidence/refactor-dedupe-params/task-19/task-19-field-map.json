@@ -1,0 +1,64 @@
+{
+  "task": "T19",
+  "description": "Serialization DTO field sync — JSON properties that must be preserved verbatim across Project save/load for v1.0 compatibility",
+  "version": "1.0",
+  "canonicalOwners": {
+    "ThermalData.PipeSpacing": "ICalculationStateService.PipeSpacing (via ThermalViewModel / ResultsViewModel.LoadProject)",
+    "ThermalData.SelectedPipe": "ThermalViewModel.SelectedPipe (PipeTypeProjectData round-trips name, outer/inner diameter, wall thickness)",
+    "ConstructionData.R1": "ConstructionViewModel.R1Total / ConstructionModel total thermal resistance above pipe",
+    "ConstructionData.R2": "ConstructionViewModel.R2Total / ConstructionModel total thermal resistance below pipe",
+    "CircuitData.PipeSpacingCm": "CircuitRow.PipeSpacing_cm (per-circuit pipe spacing in centimeters)"
+  },
+  "fields": [
+    {
+      "jsonPath": "thermalData.pipeSpacing",
+      "csharpProperty": "ThermalProjectData.PipeSpacing",
+      "type": "int",
+      "unit": "mm",
+      "fixtureValue": 250,
+      "fallbackWhenMissing": 200,
+      "notes": "Canonical unit is mm. Missing key must fall back to 200 mm without corrupting other fields."
+    },
+    {
+      "jsonPath": "thermalData.selectedPipe",
+      "csharpProperty": "ThermalProjectData.SelectedPipe",
+      "type": "PipeTypeProjectData",
+      "fixtureValue": {
+        "name": "RAUTHERM S 20x2,0",
+        "outerDiameter": 20.0,
+        "innerDiameter": 16.0,
+        "wallThickness": 2.0
+      },
+      "notes": "Saved as a flat DTO; load path matches by name + outer diameter against PipeType.StandardPipes."
+    },
+    {
+      "jsonPath": "constructionData.r1",
+      "csharpProperty": "ConstructionProjectData.R1",
+      "type": "double",
+      "fixtureValue": 0.0875,
+      "notes": "Total thermal resistance above the pipe (m2·K/W)."
+    },
+    {
+      "jsonPath": "constructionData.r2",
+      "csharpProperty": "ConstructionProjectData.R2",
+      "type": "double",
+      "fixtureValue": 0.175,
+      "notes": "Total thermal resistance below the pipe (m2·K/W)."
+    },
+    {
+      "jsonPath": "hydraulicsData.collectors[].circuits[].pipeSpacingCm",
+      "csharpProperty": "CircuitProjectData.PipeSpacingCm",
+      "type": "double",
+      "unit": "cm",
+      "fixtureValue": 25.0,
+      "notes": "Per-circuit pipe spacing in cm; must survive round-trip unchanged."
+    }
+  ],
+  "loadPathReferences": [
+    "src/ViewModels/Results/ResultsViewModel.cs:LoadProjectData",
+    "src/Models/Project/ProjectData.cs"
+  ],
+  "savePathReferences": [
+    "src/ViewModels/Results/ResultsViewModel.cs:SaveCurrentProject"
+  ]
+}

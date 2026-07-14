@@ -191,8 +191,17 @@
                         
                         <TextBlock Grid.Column="0" Text="При рабочей температуре:" Style="{StaticResource ResultLabelStyle}"/>
                         <TextBlock Grid.Column="1" 
-                                   Text="{Binding SelectedCollector.Summary.PressureLoss_Operating_mbar, StringFormat={}{0:F1}}"
-                                   Style="{StaticResource ResultValueStyle}"/>
+                                   Text="{Binding SelectedCollector.Summary.PressureLoss_Operating_mbar, StringFormat={}{0:F1}}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource ResultValueStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentMode}" Value="OperatingTemperature">
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <TextBlock Grid.Column="2" Text="мбар" Style="{StaticResource ResultUnitStyle}"/>
                     </Grid>
 
@@ -206,8 +215,17 @@
                         
                         <TextBlock Grid.Column="0" Text="При расчётной температуре:" Style="{StaticResource ResultLabelStyle}"/>
                         <TextBlock Grid.Column="1" 
-                                   Text="{Binding SelectedCollector.Summary.PressureLoss_Cold_mbar, StringFormat={}{0:F1}}"
-                                   Style="{StaticResource ResultValueStyle}"/>
+                                   Text="{Binding SelectedCollector.Summary.PressureLoss_Cold_mbar, StringFormat={}{0:F1}}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource ResultValueStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentMode}" Value="DesignTemperature">
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <TextBlock Grid.Column="2" Text="мбар" Style="{StaticResource ResultUnitStyle}"/>
                     </Grid>
 

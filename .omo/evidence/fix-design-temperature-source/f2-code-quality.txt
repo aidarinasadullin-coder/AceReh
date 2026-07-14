@@ -1,0 +1,57 @@
+﻿================================================================================
+F2 CODE-QUALITY REVIEW — fix-design-temperature-source
+Date: 2026-07-14 20:47:12
+Reviewer: oracle agent
+================================================================================
+
+1. DOTNET FORMAT (--verify-no-changes)
+   Command: dotnet format --verify-no-changes --include
+            "src/ViewModels/Hydraulics/CircuitsViewModel.cs"
+            --include "tests/.../ClimateToHydraulicsIntegrationTests.cs"
+   Result:  EXIT_CODE=0 — no formatting changes needed.
+   Status: PASS
+
+2. LSP DIAGNOSTICS
+   Files checked:
+   - src/ViewModels/Hydraulics/CircuitsViewModel.cs
+   - tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs
+   Result: LSP server 'csharp' is NOT INSTALLED (user previously declined
+           installation). Diagnostics unavailable.
+   Fallback: Build gate (dotnet build, 0 errors) and full test suite
+             (1084 passed) act as the type/syntax quality signal.
+   Status: N/A (LSP unavailable — noted explicitly per MUST DO)
+
+3. STUB / TODO / FIXME / HACK / PLACEHOLDER / HARDCODED SEARCH
+   Pattern: TODO|FIXME|HACK|XXX|placeholder|stub|hardcoded|hard-coded|hard coded
+   Files searched:
+   - src/ViewModels/Hydraulics/CircuitsViewModel.cs       → 0 matches
+   - tests/.../IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs → 0 matches
+   Status: PASS
+
+4. FULL TEST SUITE
+   Command: dotnet test tests/SnowMeltingCalculator.Tests/SnowMeltingCalculator.Tests.csproj --logger "console;verbosity=minimal"
+   Result:  1084 passed, 0 failed, 0 skipped
+            (2 baseline-regen tests explicitly skipped: RegenerateCircuitsBaseline,
+             RegenerateBaseline — pre-existing skip, not related to this plan)
+   Duration: ~11s
+   Status: PASS
+
+5. PLAN GREP GATE (supplementary)
+   grep -n "ColdFiveDayTemperature" src/ViewModels/Hydraulics/CircuitsViewModel.cs
+   Result: 0 matches (source switched to AirTemperature)
+   Status: PASS
+
+6. BUILD GATE (supplementary)
+   dotnet build src/SnowMeltingCalculator.csproj -c Debug --no-incremental
+   Result: 0 errors, 6 pre-existing warnings (all in out-of-scope files:
+           CollectorViewModel.cs:191, ResultsViewModel.cs:518, MainWindow.xaml.cs:32)
+   Status: PASS (no new warnings introduced by this plan)
+
+================================================================================
+VERDICT: F2 VERDICT: APPROVE
+================================================================================
+All code-quality gates pass. dotnet format clean, no stubs/TODOs/FIXMEs in
+changed files, full test suite green (1084/1084). LSP csharp unavailable
+(user declined) — build + test gates serve as the quality signal. No new
+warnings introduced by the plan's two changed files.
+================================================================================

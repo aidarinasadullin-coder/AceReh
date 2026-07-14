@@ -40,7 +40,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// - q_down — мощность вниз, Вт/м²
         /// </remarks>
         double CalculateCircuitPower(CircuitRow circuit, double q_up, double q_down, double pipeSpacing_cm);
-        
+
         /// <summary>
         /// Рассчитать расход теплоносителя V_dot
         /// </summary>
@@ -62,7 +62,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// и получения результата в л/ч.
         /// </remarks>
         double CalculateFlowRate(double power, double deltaT, double density, double specificHeat);
-        
+
         /// <summary>
         /// Рассчитать гидравлику контура при заданной температуре
         /// </summary>
@@ -110,7 +110,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             double innerDiameter,
             double kv,
             ValveType valveType);
-        
+
         /// <summary>
         /// Рассчитать все контура коллектора
         /// </summary>
@@ -137,8 +137,14 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         List<CircuitRow> CalculateAllCircuits(
             List<CircuitRow> circuits,
             HydraulicInputData inputData,
-            double pipeSpacing_cm);
-        
+            double pipeSpacing_cm,
+            double powerUp,
+            double powerDown,
+            double operatingTemperature,
+            double designTemperature,
+            double deltaT,
+            double innerDiameter);
+
         /// <summary>
         /// Рассчитать балансировку контуров
         /// </summary>
@@ -162,7 +168,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         List<CircuitRow> CalculateBalancing(
             List<CircuitRow> circuits,
             ValveType valveType);
-        
+
         /// <summary>
         /// Рассчитать итоги коллектора
         /// </summary>

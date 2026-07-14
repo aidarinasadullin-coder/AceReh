@@ -23,8 +23,7 @@ namespace SnowMeltingCalculator.Repositories
             if (dataPath == null)
             {
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                var projectRoot = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", ".."));
-                _dataPath = Path.Combine(projectRoot, "data", "climate_db.json");
+                _dataPath = Path.Combine(baseDir, "data", "climate_db.json");
             }
             else
             {
@@ -49,7 +48,7 @@ namespace SnowMeltingCalculator.Repositories
             try
             {
                 var jsonContent = await File.ReadAllTextAsync(_dataPath);
-                
+
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
@@ -78,7 +77,7 @@ namespace SnowMeltingCalculator.Repositories
         public async Task<CityInfo?> GetCityByNameAsync(string name)
         {
             var cities = await LoadCitiesAsync();
-            return cities.FirstOrDefault(c => 
+            return cities.FirstOrDefault(c =>
                 c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -107,7 +106,10 @@ namespace SnowMeltingCalculator.Repositories
                 WindAvgTempLe8 = jsonModel.Wind_Avg_T_Le_8 ?? 0,
                 Humidity15hCold = jsonModel.Humidity_15h_Cold ?? 0,
                 TColdDays098 = jsonModel.T_Cold_Days_098 ?? 0,
-                TAbsMin = jsonModel.T_Abs_Min ?? 0
+                TAbsMin = jsonModel.T_Abs_Min ?? 0,
+                Period_0_Days = jsonModel.Period_0_Days ?? 150,
+                Period_8_Days = jsonModel.Period_8_Days ?? 220,
+                Period_10_Days = jsonModel.Period_10_Days ?? 240
             };
         }
 
