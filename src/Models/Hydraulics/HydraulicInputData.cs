@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using SnowMeltingCalculator.Models.Thermal;
 
 namespace SnowMeltingCalculator.Models.Hydraulics
 {
@@ -58,7 +59,28 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// </remarks>
         [ObservableProperty]
         private double _innerDiameter;
-        
+
+        /// <summary>
+        /// Шаг укладки трубы, мм
+        /// </summary>
+        /// <remarks>
+        /// Получается из ICalculationStateService.PipeSpacing
+        /// </remarks>
+        public double PipeSpacing { get; set; }
+
+        /// <summary>
+        /// Выбранный тип трубы
+        /// </summary>
+        /// <remarks>
+        /// Получается из ThermalViewModel.SelectedPipe
+        /// </remarks>
+        public PipeType? SelectedPipe { get; set; }
+
+        /// <summary>
+        /// Результат теплового расчёта
+        /// </summary>
+        public IThermalCalculationResult? ThermalResult { get; set; }
+
         // === Данные из ClimateModule ===
         
         /// <summary>
