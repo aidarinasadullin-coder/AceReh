@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Thermal;
 
 namespace SnowMeltingCalculator.Models.Construction
@@ -83,11 +82,6 @@ namespace SnowMeltingCalculator.Models.Construction
         /// LambdaE = λ материала вокруг трубы (первый слой над трубой)
         /// </summary>
         public double LambdaE => MaterialAroundPipe?.LambdaA ?? 1.6;
-
-        /// <summary>
-        /// Признак валидности данных конструкции
-        /// </summary>
-        public bool IsValid => ValidateConstruction().IsValid;
 
         /// <summary>
         /// Событие изменения данных
@@ -268,65 +262,6 @@ namespace SnowMeltingCalculator.Models.Construction
             }
         }
 
-        // === Валидация ===
-
-        /// <summary>
-        /// Валидация конструкции
-        /// </summary>
-        /// <returns>Результат валидации</returns>
-        public ValidationResult ValidateConstruction()
-        {
-            var result = ValidationResult.Success();
-
-            // Проверка наличия слоёв
-            if (LayersAbovePipe.Count == 0 && Layers.Count == 0)
-            {
-                result.AddError("Конструкция должна содержать хотя бы один слой");
-                return result;
-            }
-
-            // Проверка минимальной стяжки над трубой
-            var minThickness = HasLoads ? 50.0 : 40.0;
-            var totalAbove = LayersAbovePipe.Sum(l => l.Thickness);
-            if (LayersAbovePipe.Count > 0 && totalAbove < minThickness)
-            {
-                result.AddError($"Минимальная толщина слоёв над трубой: {minThickness} мм (текущая: {totalAbove} мм)");
-            }
-
-            // Проверка толщины слоёв
-            foreach (var layer in LayersAbovePipe.Concat(Layers))
-            {
-                if (layer.Thickness > 1000)
-                {
-                    result.AddError($"Толщина слоя '{layer.Material?.Name ?? "Не указан"}' не может превышать 1000 мм (текущая: {layer.Thickness} мм)");
-                }
-            }
-
-            // Проверка УГВ
-            if (GroundwaterLevel < 0 || GroundwaterLevel > 10)
-            {
-                result.AddError("Уровень грунтовых вод должен быть от 0 до 10 м");
-            }
-
-            // Проверка материалов
-            foreach (var layer in LayersAbovePipe)
-            {
-                if (layer.Material?.MaxSupplyTemp.HasValue == true)
-                {
-                    // Предупреждение о максимальной температуре подачи
-                    result.AddWarning($"Материал '{layer.Material.Name}': максимальная температура подачи {layer.Material.MaxSupplyTemp}°C");
-                }
-
-                if (layer.Material?.MinOutdoorTemp.HasValue == true)
-                {
-                    // Предупреждение о минимальной температуре воздуха
-                    result.AddWarning($"Материал '{layer.Material.Name}': не применять при температуре <= {layer.Material.MinOutdoorTemp}°C");
-                }
-            }
-
-            return result;
-        }
-
         // === События ===
 
         /// <summary>
@@ -352,7 +287,7 @@ namespace SnowMeltingCalculator.Models.Construction
         /// </summary>
         private void OnDataChanged()
         {
-            RaiseDataChanged("Construction", null, null, IsValid);
+            RaiseDataChanged("Construction", null, null);
         }
 
         // === Утилиты ===

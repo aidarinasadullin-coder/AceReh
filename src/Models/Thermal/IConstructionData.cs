@@ -21,9 +21,9 @@ namespace SnowMeltingCalculator.Models.Thermal
         double LambdaE { get; }
 
         /// <summary>
-        /// Признак валидности данных конструкции
+        /// Признак валидности данных конструкции (заглушка по умолчанию до todo 11)
         /// </summary>
-        bool IsValid { get; }
+        bool IsValid => true;
 
         /// <summary>
         /// Событие изменения данных
@@ -39,7 +39,6 @@ namespace SnowMeltingCalculator.Models.Thermal
         public double R1Total { get; set; } = 0.05;
         public double R2Total { get; set; } = 0.1;
         public double LambdaE { get; set; } = 1.6;
-        public bool IsValid => R1Total > 0 && R2Total > 0 && LambdaE > 0;
 
         public event EventHandler<ConstructionDataChangedEventArgs>? DataChanged;
 

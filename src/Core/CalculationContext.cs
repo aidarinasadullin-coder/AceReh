@@ -264,10 +264,7 @@ namespace SnowMeltingCalculator.Core
             ThermalResult = null;
             HydraulicsResults = null;
 
-            if (construction.IsValid)
-            {
-                State = CalculationState.ConstructionReady;
-            }
+            State = CalculationState.ConstructionReady;
 
             OnContextChanged(nameof(Construction), oldValue, construction, source);
         }
@@ -407,10 +404,6 @@ namespace SnowMeltingCalculator.Core
             {
                 errors.Add("Конструкция не задана");
             }
-            else if (!Construction.IsValid)
-            {
-                errors.Add("Конструкция задана некорректно");
-            }
 
             // Проверка теплового расчёта
             if (ThermalResult == null)
@@ -433,8 +426,7 @@ namespace SnowMeltingCalculator.Core
         {
             return Climate != null &&
                    !string.IsNullOrEmpty(Climate.SelectedCity) &&
-                   Construction != null &&
-                   Construction.IsValid;
+                   Construction != null;
         }
 
         /// <summary>
