@@ -31,6 +31,15 @@
 - Did not modify `CircuitsCalculator`, fix glycol constant inconsistencies, or register the validator in DI.
 
 
+## Todo 9 — Delete duplicate ValidationResult classes
+
+- Deleted `src/Models/Hydraulics/ValidationResult.cs` and `src/Models/Construction/ValidationResult.cs`.
+- Updated `HydraulicInputData.Validate()` and `Construction.ValidateConstruction()` to return `SnowMeltingCalculator.Core.ValidationResult` and use `ValidationResult.Success()` / `AddError(...)`.
+- Removed `using ValidationResult = SnowMeltingCalculator.Core.ValidationResult;` aliases from `IConstructionService.cs`, `ConstructionService.cs`, `ConstructionValidator.cs`, `ConstructionViewModelTests.cs`, `ConstructionValidatorTests.cs`, and `ConstructionServiceTests.cs`; replaced with plain `using SnowMeltingCalculator.Core;`.
+- Build: `dotnet build src/SnowMeltingCalculator.csproj -c Debug` > 0 errors.
+- Targeted tests (`ConstructionValidatorTests`, `ConstructionServiceTests`, `HydraulicInputDataTests`, `ConstructionViewModelTests`) > 75 passed, 0 failed.
+- Grep for `Models\.(Hydraulics|Construction)\.ValidationResult` returns zero matches.
+- Commit: `refactor(validation): delete duplicate ValidationResult classes, unify on Core.ValidationResult`.
 
 - Created `ThermalValidator : IValidator<ThermalInputs>` in `src/Services/Thermal/ThermalValidator.cs`.
 - Constructor injects `IThermalCalculator`, `IClimateData`, and `IConstructionData`.
@@ -57,5 +66,43 @@
 - Targeted tests (`ThermalResultValidatorTests`) > 10 passed, 0 failed.
 - Note: a clean of `src/obj` and `src/bin` was required to clear stale WPF generated-file artifacts before the build succeeded; the artifacts were unrelated to the validator changes.
 
+## Todo 10 — Remove Construction.ValidateConstruction() + Construction.IsValid
+
+- Removed `public bool IsValid => ValidateConstruction().IsValid;` from `src/Models/Construction/Construction.cs`.
+- Removed the entire `ValidateConstruction()` method from `Construction.cs`.
+- Updated `OnDataChanged()` to call `RaiseDataChanged(...)` with the default `isValid = true` so `ConstructionDataChangedEventArgs.IsValid` is still populated.
+- Removed the now-unused `using SnowMeltingCalculator.Core;` from `Construction.cs`.
+- Kept `IConstructionData.IsValid` as a default interface implementation returning `true` (temporary placeholder) so `ThermalViewModel` (todo 11) continues to compile without changes.
+- Removed the explicit `IsValid` property from the `ConstructionData` stub; it now uses the interface default.
+- Updated `CalculationContext`:
+  - `UpdateConstruction` sets `State = CalculationState.ConstructionReady` whenever `Construction` is non-null.
+  - `GetValidationErrors` only adds the generic "Конструкция не задана" error when `Construction == null`.
+  - `IsReadyForThermalCalculation` only checks `Construction != null` (no longer reads `Construction.IsValid`).
+- `ConstructionViewModel` already uses the injected `_validator` in `Validate()`; no direct reads of `_construction.IsValid` remain.
+- No tests directly referenced `Construction.IsValid` or `Construction.ValidateConstruction()`; targeted tests continue to pass.
+- Build: `dotnet build src/SnowMeltingCalculator.csproj -c Debug` > 0 errors, 6 pre-existing warnings.
+- Targeted tests (`ConstructionValidatorTests`, `ConstructionServiceTests`, `ConstructionViewModelTests`, `CalculationContext`) > 82 passed, 0 failed.
+- Grep verification:
+  - `Construction.ValidateConstruction()` → zero matches in `src/`.
+  - `Construction.IsValid` in `src/Models/Construction/Construction.cs` → zero matches.
+  - `Models.Construction.ValidationResult` → zero matches.
+
+## Todo 11 — Remove HydraulicInputData.Validate() + update ThermalViewModel
+
+- Removed `public bool IsValid => Validate().IsValid;` and `public ValidationResult Validate()` from `src/Models/Hydraulics/HydraulicInputData.cs`.
+- Removed the now-unused `using SnowMeltingCalculator.Core;` from `HydraulicInputData.cs`.
+- Removed `inputData.Validate()` call from `CircuitsCalculator.CalculateAllCircuits`; the calculator no longer validates its input internally.
+- Updated `ThermalViewModel` to constructor-inject `IValidator<ThermalInputs>` (`ThermalValidator`) and `IValidator<ThermalCalculationResult>` (`ThermalResultValidator`).
+- Rewrote `ThermalViewModel.ValidateInput()` to build `ThermalInputs` and return `_thermalValidator.Validate(parameters)` as `Core.ValidationResult`.
+- Updated `ThermalViewModel.Calculate()` to validate the result with `_thermalResultValidator.Validate(Result)` after calculation and merge any errors into `ValidationMessage`; valid results are still published to `CalculationContext`.
+- Updated `HydraulicInputDataTests` to keep only the default-values test; all validation behavior is covered by `HydraulicValidatorTests`.
+- Updated `ThermalViewModelTests` and the five hydraulics integration test fixtures to pass the new validator arguments to the `ThermalViewModel` constructor; tests use real `ThermalValidator` (with a real `ThermalCalculator` for validation) and `ThermalResultValidator`.
+- Adjusted two `ThermalViewModelTests` assertions to match the unified validator messages: "Тип трубы" instead of "тип трубы" and "Температура наружного воздуха" instead of "Климатические данные".
+- Build: `dotnet build src/SnowMeltingCalculator.csproj -c Debug` → 0 errors, 6 pre-existing warnings.
+- Targeted tests (`HydraulicInputDataTests`, `HydraulicValidatorTests`, `ThermalValidatorTests`, `ThermalResultValidatorTests`, `ThermalViewModel`) → 72 passed, 0 failed.
+- Integration tests (`ThermalToHydraulicsIntegrationTests`, `PipeSpacingSynchronizationTests`, `GlycolAutoRecalculationTests`, `DoubleCalculationPreventionTests`, `ClimateToHydraulicsIntegrationTests`, `CircuitsCalculatorTests`) → 125 passed, 0 failed.
+- Grep verification:
+  - `HydraulicInputData.Validate()` / `HydraulicInputData.IsValid` → zero matches in `src/`.
+  - `inputData.Validate()` in `src/Services/Hydraulics/CircuitsCalculator.cs` → zero matches.
 
 

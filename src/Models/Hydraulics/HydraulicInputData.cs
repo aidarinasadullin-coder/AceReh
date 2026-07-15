@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Models.Hydraulics
 {
@@ -62,31 +61,5 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         [ObservableProperty]
         private ValveType _valveType = ValveType.HKV_D;
 
-        // === Валидация ===
-
-        /// <summary>
-        /// Признак валидности данных
-        /// </summary>
-        public bool IsValid => Validate().IsValid;
-
-        /// <summary>
-        /// Валидировать входные данные
-        /// </summary>
-        /// <returns>Результат валидации</returns>
-        public ValidationResult Validate()
-        {
-            var result = ValidationResult.Success();
-
-            if (GlycolConcentration < 10 || GlycolConcentration > 90)
-                result.AddError($"Концентрация гликоля должна быть от 10 до 90% (текущая: {GlycolConcentration:F0}%)");
-
-            if (SupplySpacing_cm <= 0)
-                result.AddError("Шаг подводки должен быть положительным");
-
-            if (SupplyHeatPercent < 0 || SupplyHeatPercent > 100)
-                result.AddError($"Доля тепла от подводок должна быть от 0 до 100% (текущая: {SupplyHeatPercent:F0}%)");
-
-            return result;
-        }
     }
 }

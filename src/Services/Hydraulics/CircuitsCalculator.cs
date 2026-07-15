@@ -139,10 +139,6 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             if (pipeSpacing_cm <= 0)
                 throw new ArgumentException("Шаг укладки должен быть положительным", nameof(pipeSpacing_cm));
 
-            var validationResult = inputData.Validate();
-            if (!validationResult.IsValid)
-                throw new ArgumentException($"Некорректные входные данные: {string.Join(", ", validationResult.Errors)}");
-
             var glycolPropsOperating = _glycolService.GetProperties(
                 inputData.GlycolType,
                 inputData.GlycolConcentration,

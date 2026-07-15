@@ -22,6 +22,8 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         private readonly IConstructionData _constructionData;
         private readonly ICalculationStateService _calculationStateService;
         private readonly CalculationContext _calculationContext;
+        private readonly IValidator<ThermalInputs> _thermalValidator;
+        private readonly IValidator<ThermalCalculationResult> _thermalResultValidator;
 
         #region Observable Properties
 
@@ -218,13 +220,17 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             IClimateData climateData,
             IConstructionData constructionData,
             ICalculationStateService calculationStateService,
-            CalculationContext calculationContext)
+            CalculationContext calculationContext,
+            IValidator<ThermalInputs> thermalValidator,
+            IValidator<ThermalCalculationResult> thermalResultValidator)
         {
             _calculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
             _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
             _constructionData = constructionData ?? throw new ArgumentNullException(nameof(constructionData));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
+            _thermalValidator = thermalValidator ?? throw new ArgumentNullException(nameof(thermalValidator));
+            _thermalResultValidator = thermalResultValidator ?? throw new ArgumentNullException(nameof(thermalResultValidator));
 
             // Инициализация коллекций
             AvailablePipes = new ObservableCollection<PipeType>(PipeType.StandardPipes);
@@ -264,9 +270,11 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         {
             if (IsCalculating) return;
 
-            // Валидация
-            if (!ValidateInput())
+            // Валидация входных данных
+            var inputValidation = ValidateInput();
+            if (!inputValidation.IsValid)
             {
+                ValidationMessage = string.Join("; ", inputValidation.Errors.Select(e => e.Message));
                 return;
             }
 
@@ -284,14 +292,28 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 // 2. Вызвать _calculator.Calculate(parameters, _climateData, _constructionData)
                 Result = await Task.Run(() => _calculator.Calculate(parameters, _climateData, _constructionData));
 
+                // 3. Пост-расчётная валидация результата
+                var resultValidation = Result != null ? _thermalResultValidator.Validate(Result) : ValidationResult.Success();
+
                 // 5. Отобразить ошибки в ValidationMessage
+                var messages = new List<string>();
                 if (Result != null && !Result.IsValid && Result.ValidationErrors.Length > 0)
                 {
-                    ValidationMessage = string.Join("; ", Result.ValidationErrors);
+                    messages.AddRange(Result.ValidationErrors);
+                }
+
+                if (!resultValidation.IsValid)
+                {
+                    messages.AddRange(resultValidation.Errors.Select(e => e.Message));
+                }
+
+                if (messages.Count > 0)
+                {
+                    ValidationMessage = string.Join("; ", messages);
                 }
 
                 // Публикуем валидный результат в общий контекст
-                if (Result != null && Result.IsValid)
+                if (Result != null && Result.IsValid && resultValidation.IsValid)
                 {
                     _calculationContext.UpdateThermal(Result, "Thermal");
                 }
@@ -355,59 +377,11 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// <summary>
         /// Валидация входных данных
         /// </summary>
-        private bool ValidateInput()
+        /// <returns>Результат валидации</returns>
+        private ValidationResult ValidateInput()
         {
-            var errors = new List<string>();
-
-            // Валидация выбранной трубы
-            if (SelectedPipe == null)
-            {
-                errors.Add("Необходимо выбрать тип трубы");
-            }
-
-            // Валидация температуры подачи
-            if (SupplyTemperature < 20 || SupplyTemperature > 90)
-            {
-                errors.Add("Температура подачи должна быть от 20°C до 90°C");
-            }
-
-            // Валидация температуры грунта
-            if (GroundTemperature < -10 || GroundTemperature > 30)
-            {
-                errors.Add("Температура грунта должна быть от -10°C до +30°C");
-            }
-
-            // Валидация шага укладки трубы
-            if (PipeSpacing < 100 || PipeSpacing > 500)
-            {
-                errors.Add("Шаг укладки трубы должен быть от 100 мм до 500 мм");
-            }
-
-            // Валидация климатических данных
-            if (!_climateData.AirTemperature.Equals(0) &&
-                (_climateData.AirTemperature < -50 || _climateData.AirTemperature > 10))
-            {
-                errors.Add("Климатические данные: температура должна быть от -50°C до +10°C");
-            }
-
-            if (_climateData.WindSpeed < 0.1 || _climateData.WindSpeed > 30)
-            {
-                errors.Add("Климатические данные: скорость ветра должна быть от 0.1 до 30 м/с");
-            }
-
-            if (_climateData.SnowfallIntensity < 0 || _climateData.SnowfallIntensity > 20)
-            {
-                errors.Add("Климатические данные: интенсивность снегопада должна быть от 0 до 20 мм/ч");
-            }
-
-            // Валидация данных конструкции
-            if (!_constructionData.IsValid)
-            {
-                errors.Add("Данные конструкции не валидны");
-            }
-
-            ValidationMessage = string.Join("; ", errors);
-            return errors.Count == 0;
+            var parameters = BuildThermalInputs();
+            return _thermalValidator.Validate(parameters);
         }
 
         /// <summary>
