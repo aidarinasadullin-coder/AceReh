@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Models.Hydraulics
 {
@@ -74,7 +75,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <returns>Результат валидации</returns>
         public ValidationResult Validate()
         {
-            var result = new ValidationResult();
+            var result = ValidationResult.Success();
 
             if (GlycolConcentration < 10 || GlycolConcentration > 90)
                 result.AddError($"Концентрация гликоля должна быть от 10 до 90% (текущая: {GlycolConcentration:F0}%)");

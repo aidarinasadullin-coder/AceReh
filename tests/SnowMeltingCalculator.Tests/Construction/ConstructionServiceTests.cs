@@ -4,7 +4,6 @@ using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Services.Construction;
 using System;
 using System.Linq;
-using ValidationResult = SnowMeltingCalculator.Core.ValidationResult;
 
 namespace SnowMeltingCalculator.Tests.Construction
 {

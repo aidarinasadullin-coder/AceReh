@@ -3,7 +3,6 @@ using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Services.Construction;
 using System.Linq;
-using ValidationResult = SnowMeltingCalculator.Core.ValidationResult;
 
 namespace SnowMeltingCalculator.Tests.Construction
 {
