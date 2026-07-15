@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -16,6 +17,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
     {
         private readonly IClimateDataService _climateService;
         private readonly IClimateData _climateData;
+        private readonly IValidator<IClimateData> _climateValidator;
         private readonly ISearchHistoryService? _historyService;
         private readonly CalculationContext _calculationContext;
         private CityInfo? _originalCityData;
@@ -210,11 +212,13 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         public ClimateViewModel(
             IClimateDataService climateService,
             IClimateData climateData,
+            IValidator<IClimateData> climateValidator,
             CalculationContext calculationContext,
             ISearchHistoryService? historyService = null)
         {
             _climateService = climateService ?? throw new ArgumentNullException(nameof(climateService));
             _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
+            _climateValidator = climateValidator ?? throw new ArgumentNullException(nameof(climateValidator));
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
             _historyService = historyService;
         }
@@ -657,30 +661,10 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// </summary>
         private bool ValidateAll()
         {
-            var errors = new List<string>();
+            var result = _climateValidator.Validate(GetClimateData());
 
-            if (AirTemperature < -50 || AirTemperature > 10)
-            {
-                errors.Add("Температура должна быть от -50°C до +10°C");
-            }
-
-            if (WindSpeed < 0.1 || WindSpeed > 30)
-            {
-                errors.Add("Скорость ветра от 0.1 до 30 м/с");
-            }
-
-            if (Humidity < 20 || Humidity > 100)
-            {
-                errors.Add("Влажность от 20% до 100%");
-            }
-
-            if (SnowfallIntensity < 0 || SnowfallIntensity > 20)
-            {
-                errors.Add("Интенсивность от 0 до 20 мм/ч");
-            }
-
-            ValidationMessage = string.Join("; ", errors);
-            var isValid = errors.Count == 0;
+            ValidationMessage = string.Join("; ", result.Errors.Select(e => e.Message));
+            var isValid = result.IsValid;
 
             ValidationChanged?.Invoke(this, new ValidationEventArgs
             {
