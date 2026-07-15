@@ -244,7 +244,7 @@ namespace SnowMeltingCalculator.Tests.Core
             var context = CreateValidContext(provider);
 
             context.UpdateThermalInputs(null!);
-            context.UpdateHydraulics((HydraulicInputData?)null);
+            context.UpdateHydraulics((HydraulicInputData)null!);
 
             // Act
             var result = pipeline.ValidateAll(context);
