@@ -572,7 +572,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             IsValid = result.IsValid;
 
             var messages = new System.Collections.Generic.List<string>();
-            messages.AddRange(result.Errors);
+            messages.AddRange(result.Errors.Select(e => e.Message));
             messages.AddRange(result.Warnings);
 
             ValidationMessage = string.Join("\n", messages);
