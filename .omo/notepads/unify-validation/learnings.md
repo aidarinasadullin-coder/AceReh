@@ -9,8 +9,28 @@
 - Validation logic, thresholds, and messages were left unchanged; only result types and using statements were modified.
 - Build: `dotnet build src/SnowMeltingCalculator.csproj -c Debug` > 0 errors.
 - Targeted tests (`ConstructionValidatorTests`, `ConstructionServiceTests`, `ConstructionViewModelTests`) > 65 passed, 0 failed.
+## Todo 6 — HydraulicValidator
 
-## Todo 4 — ThermalValidator
+- Created `HydraulicValidator : IValidator<HydraulicInputData>` in `src/Services/Hydraulics/HydraulicValidator.cs`.
+- Extracted the three rules from `HydraulicInputData.Validate()` (lines 75-89) unchanged:
+  - `GlycolConcentration` must be between 10 and 90% inclusive.
+  - `SupplySpacing_cm` must be greater than 0.
+  - `SupplyHeatPercent` must be between 0 and 100% inclusive.
+- Preserved the original Russian error messages verbatim, including the interpolated current-value formatting.
+- Because `SnowMeltingCalculator.Models.Hydraulics` still contains its own `ValidationResult` type, added a `using ValidationResult = SnowMeltingCalculator.Core.ValidationResult;` alias in the validator, matching the pattern used for `ConstructionValidator`.
+- `HydraulicInputData.Validate()` and `IsValid` were left untouched (todo 11).
+- Added TDD tests in `tests/SnowMeltingCalculator.Tests/Services/Hydraulics/HydraulicValidatorTests.cs` covering:
+  - valid data and boundary values,
+  - glycol concentration too low/high and just outside bounds,
+  - supply spacing zero and negative,
+  - heat percent too low/high and just outside bounds,
+  - combined errors (3 errors and 2 errors),
+  - null input throwing `ArgumentNullException`.
+- Build: `dotnet build src/SnowMeltingCalculator.csproj -c Debug` > 0 errors.
+- Targeted tests (`HydraulicValidatorTests`) > 17 passed, 0 failed.
+- Did not modify `CircuitsCalculator`, fix glycol constant inconsistencies, or register the validator in DI.
+
+
 
 - Created `ThermalValidator : IValidator<ThermalInputs>` in `src/Services/Thermal/ThermalValidator.cs`.
 - Constructor injects `IThermalCalculator`, `IClimateData`, and `IConstructionData`.
