@@ -10,14 +10,15 @@ namespace SnowMeltingCalculator.Services.Construction
     /// </summary>
     public class ConstructionService : IConstructionService
     {
-        private readonly ConstructionValidator _validator;
+        private readonly IValidator<ConstructionModel> _validator;
 
         /// <summary>
         /// Создать сервис
         /// </summary>
-        public ConstructionService()
+        /// <param name="validator">Валидатор конструкции</param>
+        public ConstructionService(IValidator<ConstructionModel> validator)
         {
-            _validator = new ConstructionValidator();
+            _validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
         /// <summary>

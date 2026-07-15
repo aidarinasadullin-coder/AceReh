@@ -25,7 +25,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private readonly IConstructionRepository _constructionRepository;
         private readonly ICalculationStateService _calculationStateService;
         private readonly CalculationContext _calculationContext;
-        private readonly ConstructionValidator _validator;
+        private readonly IValidator<ConstructionModel> _validator;
         private readonly ConstructionModel _construction;
         private bool _isSyncing; // Флаг для предотвращения рекурсии при синхронизации
 
@@ -180,6 +180,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             IConstructionRepository constructionRepository,
             ICalculationStateService calculationStateService,
             CalculationContext calculationContext,
+            IValidator<ConstructionModel> validator,
             ConstructionModel construction)
         {
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
@@ -187,7 +188,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             _constructionRepository = constructionRepository ?? throw new ArgumentNullException(nameof(constructionRepository));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
-            _validator = new ConstructionValidator();
+            _validator = validator ?? throw new ArgumentNullException(nameof(validator));
             _construction = construction ?? throw new ArgumentNullException(nameof(construction));
 
             // Подписываемся на изменения коллекций

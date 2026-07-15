@@ -6,6 +6,7 @@ using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Models.Hydraulics;
 
+
 namespace SnowMeltingCalculator.Core
 {
     /// <summary>
@@ -212,6 +213,11 @@ namespace SnowMeltingCalculator.Core
         /// </summary>
         public bool IsHydraulicsValid => HydraulicsResults != null && HydraulicsResults.Count > 0;
 
+        /// <summary>
+        /// Входные данные гидравлического расчёта
+        /// </summary>
+        public HydraulicInputData? Hydraulics { get; private set; }
+
         #endregion
 
         #region Events
@@ -307,6 +313,19 @@ namespace SnowMeltingCalculator.Core
         }
 
         /// <summary>
+        /// Обновить входные данные гидравлического расчёта
+        /// </summary>
+        /// <param name="inputs">Входные данные гидравлического расчёта</param>
+        /// <param name="source">Источник изменения (имя модуля)</param>
+        public void UpdateHydraulics(HydraulicInputData inputs, string source = "Hydraulics")
+        {
+            var oldValue = Hydraulics;
+            Hydraulics = inputs;
+
+            OnContextChanged(nameof(Hydraulics), oldValue, inputs, source);
+        }
+
+        /// <summary>
         /// Обновить результаты гидравлического расчёта
         /// </summary>
         /// <param name="results">Результаты расчёта по коллекторам</param>
@@ -345,6 +364,7 @@ namespace SnowMeltingCalculator.Core
             Construction = null;
             ThermalResult = null;
             HydraulicsResults = null;
+            Hydraulics = null;
             State = CalculationState.NotInitialized;
             ErrorMessage = string.Empty;
 
