@@ -747,10 +747,14 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// Обработчик изменения единого контекста расчёта
         /// </summary>
         /// <remarks>
-        /// Реагируем на ThermalResult (логическое завершение теплового расчёта) и Climate.
-        /// ThermalInputs игнорируем здесь, потому что PushThermalResultToContext обновляет
-        /// и Inputs, и Result — обработка Result даёт ровно один пересчёт на логическое
-        /// изменение. UpdateFromThermalModule вызывает Calculate() явно.
+        /// Реагируем на ThermalInputs, ThermalResult и Climate.
+        /// - ThermalInputs: уведомляем UI о смене трубы/шага укладки (без пересчёта,
+        ///   т.к. изменение входных данных ещё не означает готовности результата).
+        /// - ThermalResult (логическое завершение теплового расчёта): уведомляем UI
+        ///   и запускаем гидравлический пересчёт.
+        /// - Climate: обновляем расчётную температуру и пересчитываем гидравлику.
+        /// Собственные изменения контекста (Source == "CircuitsViewModel") игнорируем,
+        /// чтобы избежать двойного пересчёта — Calculate вызывается явно.
         /// </remarks>
         private void OnCalculationContextChanged(object? sender, ContextChangedEventArgs e)
         {
@@ -760,7 +764,12 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
             switch (e.PropertyName)
             {
+                case nameof(CalculationContext.ThermalInputs):
+                    NotifyThermalPropertiesChanged();
+                    break;
+
                 case nameof(CalculationContext.ThermalResult):
+                    NotifyThermalPropertiesChanged();
                     Calculate();
                     break;
 
