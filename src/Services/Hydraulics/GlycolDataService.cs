@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
@@ -40,16 +41,6 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// Максимальная поддерживаемая температура, °C
         /// </summary>
         private const double MAX_TEMPERATURE = 100.0;
-
-        /// <summary>
-        /// Минимальная поддерживаемая концентрация, %
-        /// </summary>
-        private const double MIN_CONCENTRATION = 10.0;
-
-        /// <summary>
-        /// Максимальная поддерживаемая концентрация, %
-        /// </summary>
-        private const double MAX_CONCENTRATION = 90.0;
 
         /// <summary>
         /// Создать экземпляр сервиса с путём к файлу данных по умолчанию
@@ -192,7 +183,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             // Концентрация 0% разрешена для воды
             if (concentration == 0)
                 return true;
-            return concentration >= MIN_CONCENTRATION && concentration <= MAX_CONCENTRATION;
+            return concentration >= ValidationConstants.MinGlycolConcentration
+                && concentration <= ValidationConstants.MaxGlycolConcentration;
         }
 
         /// <summary>
@@ -211,13 +203,13 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// Получить минимальную поддерживаемую концентрацию
         /// </summary>
         /// <returns>Минимальная концентрация, %</returns>
-        public double GetMinConcentration() => MIN_CONCENTRATION;
+        public double GetMinConcentration() => ValidationConstants.MinGlycolConcentration;
 
         /// <summary>
         /// Получить максимальную поддерживаемую концентрацию
         /// </summary>
         /// <returns>Максимальная концентрация, %</returns>
-        public double GetMaxConcentration() => MAX_CONCENTRATION;
+        public double GetMaxConcentration() => ValidationConstants.MaxGlycolConcentration;
 
         /// <summary>
         /// Получить свойства воды при заданной температуре
@@ -659,10 +651,11 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 return;
             }
 
-            if (concentration < MIN_CONCENTRATION || concentration > MAX_CONCENTRATION)
+            if (concentration < ValidationConstants.MinGlycolConcentration
+                || concentration > ValidationConstants.MaxGlycolConcentration)
             {
                 throw new ArgumentOutOfRangeException(nameof(concentration),
-                    $"Концентрация должна быть 0% (вода) или в диапазоне {MIN_CONCENTRATION}-{MAX_CONCENTRATION}%, получено: {concentration}%");
+                    $"Концентрация должна быть 0% (вода) или в диапазоне {ValidationConstants.MinGlycolConcentration}-{ValidationConstants.MaxGlycolConcentration}%, получено: {concentration}%");
             }
 
             if (temperature < MIN_TEMPERATURE || temperature > MAX_TEMPERATURE)
