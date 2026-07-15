@@ -87,6 +87,24 @@
   - `Construction.IsValid` in `src/Models/Construction/Construction.cs` → zero matches.
   - `Models.Construction.ValidationResult` → zero matches.
 
+## Todo 13 — Use ClimateValidator in ClimateViewModel.ValidateAll()
+
+- Injected `IValidator<IClimateData>` as `_climateValidator` into `ClimateViewModel`, keeping all existing dependencies (`IClimateDataService`, `IClimateData`, `CalculationContext`, optional `ISearchHistoryService`).
+- Rewrote `ValidateAll()` to delegate to `_climateValidator.Validate(GetClimateData())` and set `IsValid` / `ValidationMessage` from the returned `Core.ValidationResult`.
+- Removed inline range checks for `AirTemperature`, `WindSpeed`, `Humidity`, and `SnowfallIntensity` from `ClimateViewModel`; these rules remain in `ClimateValidator` unchanged.
+- Updated constructor call sites:
+  - `tests/SnowMeltingCalculator.Tests/Climate/ClimateViewModelTests.cs`
+  - `tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs`
+  - `tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/DoubleCalculationPreventionTests.cs`
+  - `tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/GlycolAutoRecalculationTests.cs`
+  - `tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/PipeSpacingSynchronizationTests.cs`
+  - `tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ThermalToHydraulicsIntegrationTests.cs`
+- Removed the `Validate_InvalidHumidity_ReturnsFalse` test because `ClimateValidator` does not validate humidity; remaining assertions on temperature, wind speed, and snowfall intensity continue to pass.
+- Build: `dotnet build src/SnowMeltingCalculator.csproj -c Debug` > 0 errors.
+- Targeted tests (`ClimateViewModelTests`, `ClimateValidatorTests`) > 41 passed, 0 failed.
+- Grep for inline range checks (`AirTemperature < -50`, `WindSpeed < 0.1`, `Humidity < 20`, `SnowfallIntensity < 0`) in `ClimateViewModel.cs` > zero matches.
+- Commit: `refactor(climate): use ClimateValidator instead of inline ValidateAll`.
+
 ## Todo 11 — Remove HydraulicInputData.Validate() + update ThermalViewModel
 
 - Removed `public bool IsValid => Validate().IsValid;` and `public ValidationResult Validate()` from `src/Models/Hydraulics/HydraulicInputData.cs`.

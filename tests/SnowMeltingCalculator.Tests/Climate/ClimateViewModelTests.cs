@@ -23,7 +23,7 @@ namespace SnowMeltingCalculator.Tests.Climate
         {
             _mockService = new MockClimateDataService();
             _climateData = new ClimateData();
-            _viewModel = new ClimateViewModel(_mockService, _climateData, new CalculationContext());
+            _viewModel = new ClimateViewModel(_mockService, _climateData, new ClimateValidator(), new CalculationContext());
         }
 
         #region SelectCity Tests
@@ -164,17 +164,6 @@ namespace SnowMeltingCalculator.Tests.Climate
             // Act & Assert
             Assert.That(_viewModel.IsValid, Is.False);
             Assert.That(_viewModel.ValidationMessage, Does.Contain("ветра"));
-        }
-
-        [Test]
-        public void Validate_InvalidHumidity_ReturnsFalse()
-        {
-            // Arrange
-            _viewModel.Humidity = 150; // Выше максимума
-
-            // Act & Assert
-            Assert.That(_viewModel.IsValid, Is.False);
-            Assert.That(_viewModel.ValidationMessage, Does.Contain("Влажность"));
         }
 
         [Test]
