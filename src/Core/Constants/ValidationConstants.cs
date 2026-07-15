@@ -236,12 +236,12 @@ namespace SnowMeltingCalculator.Core.Constants
         /// <summary>
         /// Минимальная концентрация гликоля, %
         /// </summary>
-        public const double MinGlycolConcentration = 0.0;
+        public const double MinGlycolConcentration = 10.0;
 
         /// <summary>
         /// Максимальная концентрация гликоля, %
         /// </summary>
-        public const double MaxGlycolConcentration = 60.0;
+        public const double MaxGlycolConcentration = 90.0;
 
         #endregion
 
