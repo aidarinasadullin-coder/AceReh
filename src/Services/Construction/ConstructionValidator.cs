@@ -1,5 +1,7 @@
+using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Construction;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
+using ValidationResult = SnowMeltingCalculator.Core.ValidationResult;
 
 namespace SnowMeltingCalculator.Services.Construction
 {
@@ -13,7 +15,7 @@ namespace SnowMeltingCalculator.Services.Construction
     /// - Асфальт: не применять при температуре наружного воздуха < -15°C
     /// - УГВ < 1м: использовать λБ для слоёв под трубой
     /// </remarks>
-    public class ConstructionValidator
+    public class ConstructionValidator : IValidator<ConstructionModel>
     {
         /// <summary>
         /// Минимальная толщина слоёв над трубой без нагрузок, мм

@@ -1,7 +1,9 @@
 using NUnit.Framework;
+using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Services.Construction;
 using System.Linq;
+using ValidationResult = SnowMeltingCalculator.Core.ValidationResult;
 
 namespace SnowMeltingCalculator.Tests.Construction
 {
@@ -32,7 +34,7 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // Assert
             Assert.That(result.IsValid, Is.False);
-            Assert.That(result.Errors.Any(e => e.Contains("хотя бы один слой")), Is.True);
+            Assert.That(result.Errors.Any(e => e.Message.Contains("хотя бы один слой")), Is.True);
         }
 
         [Test]
@@ -67,7 +69,7 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // Assert
             Assert.That(result.IsValid, Is.False);
-            Assert.That(result.Errors.Any(e => e.Contains("40")), Is.True);
+            Assert.That(result.Errors.Any(e => e.Message.Contains("40")), Is.True);
         }
 
         [Test]
@@ -83,7 +85,7 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // Assert
             Assert.That(result.IsValid, Is.False);
-            Assert.That(result.Errors.Any(e => e.Contains("50")), Is.True);
+            Assert.That(result.Errors.Any(e => e.Message.Contains("50")), Is.True);
         }
 
         [Test]
@@ -164,7 +166,7 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // Assert
             Assert.That(result.IsValid, Is.False);
-            Assert.That(result.Errors.Any(e => e.Contains("грунтовых вод")), Is.True);
+            Assert.That(result.Errors.Any(e => e.Message.Contains("грунтовых вод")), Is.True);
         }
 
         [Test]
@@ -250,7 +252,7 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // Assert
             Assert.That(result.IsValid, Is.False);
-            Assert.That(result.Errors.Any(e => e.Contains("-15")), Is.True);
+            Assert.That(result.Errors.Any(e => e.Message.Contains("-15")), Is.True);
         }
 
         [Test]

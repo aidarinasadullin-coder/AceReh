@@ -1,8 +1,10 @@
 using NUnit.Framework;
+using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Services.Construction;
 using System;
 using System.Linq;
+using ValidationResult = SnowMeltingCalculator.Core.ValidationResult;
 
 namespace SnowMeltingCalculator.Tests.Construction
 {
@@ -288,7 +290,7 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // Assert
             Assert.That(result.IsValid, Is.False);
-            Assert.That(result.Errors.Any(e => e.Contains("Минимальная толщина")), Is.True);
+            Assert.That(result.Errors.Any(e => e.Message.Contains("Минимальная толщина")), Is.True);
         }
 
         [Test]
