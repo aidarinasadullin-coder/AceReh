@@ -1,0 +1,36 @@
+﻿2026-07-15 01:32:04.606  Launching D:\IA\ace\src\bin\Debug\net8.0-windows\win-x64\SnowMeltingCalculator.exe
+2026-07-15 01:32:06.750  MainWindowHandle=5441424
+2026-07-15 01:32:06.751  --- Step 1: Select Moscow ---
+2026-07-15 01:32:11.465  --- Step 2: Thermal first calculation ---
+2026-07-15 01:32:12.614  Pipe combo IsEnabled=True; Spacing combo IsEnabled=False
+2026-07-15 01:32:13.991  Sent keyboard selection to combo, current value=''
+2026-07-15 01:32:13.992  After pipe selection: pipe value=''; spacing enabled=True
+2026-07-15 01:32:15.586  Sent keyboard selection to combo, current value=''
+2026-07-15 01:32:17.505  Thermal set: supply=45; TextBox value after set='45.0'
+2026-07-15 01:32:19.046  --- Step 3: Hydraulics first read ---
+2026-07-15 01:32:19.996  Screenshot saved: D:\IA\ace\.omo\evidence\fix-thermal-to-hydraulics-sync\task-2-manual-qa-1.png
+2026-07-15 01:32:19.999  --- Hydraulics block values ---
+2026-07-15 01:32:20.316  *верх* -> 180.0
+2026-07-15 01:32:20.622  *низ* -> 80.0
+2026-07-15 01:32:20.919  Шаг: -> 20
+2026-07-15 01:32:21.182  *D_нар* -> 0.0
+2026-07-15 01:32:21.472  D_вн: -> 14.2
+2026-07-15 01:32:21.758  T_подачи: -> 50.0
+2026-07-15 01:32:22.061  T_обратки: -> 30.0
+2026-07-15 01:32:22.062  --- Step 4: Thermal second calculation ---
+2026-07-15 01:32:23.135  Second pass - Pipe combo IsEnabled=True; Spacing combo IsEnabled=True
+2026-07-15 01:32:24.508  Sent keyboard selection to combo, current value=''
+2026-07-15 01:32:26.107  Sent keyboard selection to combo, current value=''
+2026-07-15 01:32:28.007  Thermal set: supply=40; TextBox value after set='40.0'
+2026-07-15 01:32:29.537  --- Step 5: Hydraulics second read ---
+2026-07-15 01:32:30.418  Screenshot saved: D:\IA\ace\.omo\evidence\fix-thermal-to-hydraulics-sync\task-2-manual-qa-2.png
+2026-07-15 01:32:30.420  --- Hydraulics block values ---
+2026-07-15 01:32:30.743  *верх* -> 180.0
+2026-07-15 01:32:31.045  *низ* -> 80.0
+2026-07-15 01:32:31.329  Шаг: -> 15
+2026-07-15 01:32:31.596  *D_нар* -> 0.0
+2026-07-15 01:32:31.898  D_вн: -> 14.2
+2026-07-15 01:32:32.163  T_подачи: -> 50.0
+2026-07-15 01:32:32.454  T_обратки: -> 30.0
+2026-07-15 01:32:32.456  MANUAL QA COMPLETE
+2026-07-15 01:32:32.494  Stopped app process

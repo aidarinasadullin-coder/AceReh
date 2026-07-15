@@ -310,3 +310,44 @@ Evidence:
 - `.omo/evidence/fix-design-temperature-source/reconstruction-2026-07-14-202130.txt`
 - `.omo/evidence/fix-design-temperature-source/task-3-fix-design-temperature-source.txt`
 - `.omo/evidence/fix-design-temperature-source/git-fsck.txt`
+
+## Fix: thermal-to-hydraulics sync
+
+Root cause: after the `refactor-dedupe-params` T15 migration to `CalculationContext`, `CircuitsViewModel.OnCalculationContextChanged` only called `Calculate()` on a `ThermalResult` change and completely ignored `ThermalInputs`. The hydraulics block "Данные укладки и мощности" therefore never received `PropertyChanged` notifications for the thermal-owned display properties (`PowerUp`, `SupplyTemperature`, `PipeType`, `PipeSpacing_cm`, etc.), so the UI stayed stale when the user changed pipe, spacing, or supply temperature on the Тепловой расчёт tab and pressed Рассчитать.
+
+Fix applied to `src/ViewModels/Hydraulics/CircuitsViewModel.cs` (the only product file changed):
+- `case nameof(CalculationContext.ThermalInputs)`: calls `NotifyThermalPropertiesChanged()` so the hydraulics UI refreshes as soon as the thermal inputs are published.
+- `case nameof(CalculationContext.ThermalResult)`: calls `NotifyThermalPropertiesChanged()` first, then `Calculate()` so the block both displays the new parameters and recomputes circuit powers.
+- Own context changes (`e.Source == "CircuitsViewModel"`) remain ignored, preserving the single-writer rule.
+
+Regression tests added in `tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ThermalToHydraulicsIntegrationTests.cs`:
+- `ThermalResultChangedViaContext_NotifiesThermalPropertiesAndRecalculates` — isolates the `UpdateThermal` path and asserts `PropertyChanged` for `PowerUp`, `SupplyTemperature`, `PipeType`, `PipeSpacing_cm` plus non-zero circuit power.
+- `ThermalInputsChangedViaContext_NotifiesThermalProperties` — isolates the `UpdateThermalInputs` path and asserts `PropertyChanged` for pipe/spacing/diameter properties without triggering an extra `Calculate()`.
+
+Verification:
+- `dotnet build src/SnowMeltingCalculator.csproj -c Debug` → exit 0, 0 errors, 6 pre-existing warnings (CS1998 `CollectorViewModel.cs:191`, CS8604 `ResultsViewModel.cs:518`, CS0169 `MainWindow.xaml.cs:32`) unrelated to this fix.
+- `dotnet test tests/SnowMeltingCalculator.Tests/SnowMeltingCalculator.Tests.csproj` → 1086 passed, 0 failed, 2 skipped (`RegenerateCircuitsBaseline`, `RegenerateBaseline`).
+- Targeted gates:
+  - `UpdateFromThermalModule_*` → 10 passed.
+  - `DoubleCalculationPreventionTests` → 15 passed.
+  - `ClimateToHydraulicsIntegrationTests` → 17 passed.
+  - `PipeSpacingSynchronizationTests` → 12 passed.
+  - `*ViaContext*` (`ThermalResultChangedViaContext_*`, `ThermalInputsChangedViaContext_*`) → 2 passed.
+- `dotnet build /p:TreatWarningsAsErrors=true` still fails because the 3 pre-existing warnings above are promoted to errors; none were introduced by this fix and they remain out of scope.
+
+Manual QA:
+- Launched `SnowMeltingCalculator.exe`, selected Москва in the Climate tab, navigated to Тепловой расчёт, selected a pipe, set Шаг укладки to 200 мм, set Температура подачи to 45°C, and clicked Рассчитать.
+- Switched to Гидравлический расчёт and captured the block "Данные укладки и мощности": Шаг = 20 см.
+- Returned to Тепловой расчёт, changed Шаг укладки to 150 мм, changed Температура подачи to 40°C, and clicked Рассчитать again.
+- Switched back to Гидравлический расчёт; the block updated to Шаг = 15 см, confirming the thermal-to-hydraulics sync.
+
+Evidence:
+- `.omo/evidence/fix-thermal-to-hydraulics-sync/task-2-build.log`
+- `.omo/evidence/fix-thermal-to-hydraulics-sync/task-2-test.log`
+- `.omo/evidence/fix-thermal-to-hydraulics-sync/task-2-updatefromthermal.log`
+- `.omo/evidence/fix-thermal-to-hydraulics-sync/task-2-doublecalc.log`
+- `.omo/evidence/fix-thermal-to-hydraulics-sync/task-2-climate.log`
+- `.omo/evidence/fix-thermal-to-hydraulics-sync/task-2-pipespacing.log`
+- `.omo/evidence/fix-thermal-to-hydraulics-sync/task-2-manual-qa.txt`
+- `.omo/evidence/fix-thermal-to-hydraulics-sync/task-2-manual-qa-before.png`
+- `.omo/evidence/fix-thermal-to-hydraulics-sync/task-2-manual-qa.png`

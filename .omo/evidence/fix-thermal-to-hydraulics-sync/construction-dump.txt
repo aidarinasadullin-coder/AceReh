@@ -1,0 +1,96 @@
+﻿2026-07-15 01:20:13.349  Window: Калькулятор снеготаяния REHAU
+2026-07-15 01:20:17.042  --- Construction tab controls ---
+2026-07-15 01:20:17.170  [1] ControlType.Text Name='РЕХАУ' AutoId='' Class='TextBlock' Rect=910,355,153,27 Value='РЕХАУ' IsEnabled=True
+2026-07-15 01:20:17.174  [2] ControlType.Text Name='Калькулятор снеготаяния' AutoId='' Class='TextBlock' Rect=910,382,153,15 Value='Калькулятор снеготаяния' IsEnabled=True
+2026-07-15 01:20:17.176  [3] ControlType.Text Name='Конструкция' AutoId='' Class='TextBlock' Rect=1227,368,93,16 Value='Конструкция' IsEnabled=True
+2026-07-15 01:20:17.179  [6] ControlType.Text Name='Файл' AutoId='' Class='TextBlock' Rect=1498,367,30,18 Value='Файл' IsEnabled=True
+2026-07-15 01:20:17.181  [7] ControlType.Text Name='v1.0' AutoId='' Class='TextBlock' Rect=1557,369,21,14 Value='v1.0' IsEnabled=True
+2026-07-15 01:20:17.184  [8] ControlType.Button Name='' AutoId='MinimizeButton' Class='Button' Rect=1594,356,40,40 Value='' IsEnabled=True
+2026-07-15 01:20:17.186  [9] ControlType.Button Name='' AutoId='MaximizeRestoreButton' Class='Button' Rect=1634,356,40,40 Value='' IsEnabled=True
+2026-07-15 01:20:17.188  [10] ControlType.Button Name='' AutoId='CloseButton' Class='Button' Rect=1674,356,40,40 Value='' IsEnabled=True
+2026-07-15 01:20:17.191  [11] ControlType.Button Name='Свернуть/развернуть панель навигации' AutoId='ToggleSidebarButton' Class='Button' Rect=1019,412,32,32 Value='Свернуть/развернуть панель навигации' IsEnabled=True
+2026-07-15 01:20:17.193  [13] ControlType.ListItem Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,455,211,44 Value='SnowMeltingCalculator.MenuItem' IsEnabled=True
+2026-07-15 01:20:17.195  [14] ControlType.Text Name='Климат' AutoId='' Class='TextBlock' Rect=887,469,52,16 Value='Климат' IsEnabled=True
+2026-07-15 01:20:17.198  [15] ControlType.ListItem Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,503,211,44 Value='SnowMeltingCalculator.MenuItem' IsEnabled=True
+2026-07-15 01:20:17.199  [16] ControlType.Text Name='Конструкция' AutoId='' Class='TextBlock' Rect=887,517,90,16 Value='Конструкция' IsEnabled=True
+2026-07-15 01:20:17.203  [17] ControlType.ListItem Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,551,211,44 Value='SnowMeltingCalculator.MenuItem' IsEnabled=True
+2026-07-15 01:20:17.217  [18] ControlType.Text Name='Тепловой расчёт' AutoId='' Class='TextBlock' Rect=887,565,118,16 Value='Тепловой расчёт' IsEnabled=True
+2026-07-15 01:20:17.219  [19] ControlType.ListItem Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,599,211,54 Value='SnowMeltingCalculator.MenuItem' IsEnabled=True
+2026-07-15 01:20:17.221  [20] ControlType.Text Name='Гидравлический расчёт' AutoId='' Class='TextBlock' Rect=887,609,115,34 Value='Гидравлический расчёт' IsEnabled=True
+2026-07-15 01:20:17.223  [21] ControlType.ListItem Name='SnowMeltingCalculator.MenuItem' AutoId='' Class='ListBoxItem' Rect=839,657,211,44 Value='SnowMeltingCalculator.MenuItem' IsEnabled=True
+2026-07-15 01:20:17.225  [22] ControlType.Text Name='Результаты' AutoId='' Class='TextBlock' Rect=887,670,80,17 Value='Результаты' IsEnabled=True
+2026-07-15 01:20:17.228  [24] ControlType.Text Name='Конструкция' AutoId='' Class='TextBlock' Rect=1080,424,630,29 Value='Конструкция' IsEnabled=True
+2026-07-15 01:20:17.230  [25] ControlType.Text Name='Параметры' AutoId='' Class='TextBlock' Rect=1113,506,564,19 Value='Параметры' IsEnabled=True
+2026-07-15 01:20:17.233  [26] ControlType.Text Name='Уровень грунтовых вод:' AutoId='' Class='TextBlock' Rect=1113,525,334,15 Value='Уровень грунтовых вод:' IsEnabled=True
+2026-07-15 01:20:17.235  [27] ControlType.ComboBox Name='' AutoId='' Class='ComboBox' Rect=1113,546,334,40 Value='' IsEnabled=True
+2026-07-15 01:20:17.237  [29] ControlType.Text Name='Наличие нагрузок на покрытие' AutoId='' Class='TextBlock' Rect=1491,547,186,14 Value='Наличие нагрузок на покрытие' IsEnabled=True
+2026-07-15 01:20:17.239  [30] ControlType.Text Name='Шаблоны конструкций' AutoId='' Class='TextBlock' Rect=1113,652,564,19 Value='Шаблоны конструкций' IsEnabled=True
+2026-07-15 01:20:17.241  [31] ControlType.ComboBox Name='' AutoId='' Class='ComboBox' Rect=1113,671,441,40 Value='' IsEnabled=True
+2026-07-15 01:20:17.244  [32] ControlType.Button Name='Применить' AutoId='' Class='Button' Rect=1570,671,107,40 Value='Применить' IsEnabled=False
+2026-07-15 01:20:17.246  [33] ControlType.Text Name='Применить' AutoId='' Class='TextBlock' Rect=1586,682,75,17 Value='Применить' IsEnabled=False
+2026-07-15 01:20:17.248  [34] ControlType.Text Name='Слои над трубой' AutoId='' Class='TextBlock' Rect=1113,777,267,40 Value='Слои над трубой' IsEnabled=True
+2026-07-15 01:20:17.250  [35] ControlType.Text Name='Общая толщина: 100 мм' AutoId='' Class='TextBlock' Rect=1380,789,148,15 Value='Общая толщина: 100 мм' IsEnabled=True
+2026-07-15 01:20:17.253  [36] ControlType.Button Name='Добавить слой' AutoId='' Class='Button' Rect=1544,777,133,40 Value='Добавить слой' IsEnabled=True
+2026-07-15 01:20:17.255  [37] ControlType.Text Name='Добавить слой' AutoId='' Class='TextBlock' Rect=1561,788,99,17 Value='Добавить слой' IsEnabled=True
+2026-07-15 01:20:17.257  [41] ControlType.Text Name='№' AutoId='' Class='TextBlock' Rect=1119,834,13,14 Value='№' IsEnabled=True
+2026-07-15 01:20:17.260  [44] ControlType.Text Name='Материал' AutoId='' Class='TextBlock' Rect=1159,834,59,14 Value='Материал' IsEnabled=True
+2026-07-15 01:20:17.263  [48] ControlType.Text Name='Толщина, мм' AutoId='' Class='TextBlock' Rect=1357,834,78,14 Value='Толщина, мм' IsEnabled=True
+2026-07-15 01:20:17.265  [52] ControlType.Text Name='λ, Вт/м·К' AutoId='' Class='TextBlock' Rect=1457,834,53,14 Value='λ, Вт/м·К' IsEnabled=True
+2026-07-15 01:20:17.267  [56] ControlType.Text Name='R, м²·К/Вт' AutoId='' Class='TextBlock' Rect=1557,834,59,14 Value='R, м²·К/Вт' IsEnabled=True
+2026-07-15 01:20:17.270  [60] ControlType.Text Name='' AutoId='' Class='TextBlock' Rect=Empty Value='' IsEnabled=True
+2026-07-15 01:20:17.272  [65] ControlType.Text Name='1' AutoId='' Class='TextBlock' Rect=1115,857,38,15 Value='1' IsEnabled=True
+2026-07-15 01:20:17.275  [67] ControlType.ComboBox Name='' AutoId='' Class='ComboBox' Rect=1155,853,196,22 Value='' IsEnabled=True
+2026-07-15 01:20:17.280  [69] ControlType.Edit Name='' AutoId='' Class='TextBox' Rect=1353,853,98,22 Value='100' IsEnabled=True
+2026-07-15 01:20:17.282  [71] ControlType.Edit Name='' AutoId='' Class='TextBox' Rect=1453,853,98,22 Value='1.500' IsEnabled=True
+2026-07-15 01:20:17.284  [73] ControlType.Text Name='0.0667' AutoId='' Class='TextBlock' Rect=1555,853,94,22 Value='0.0667' IsEnabled=True
+2026-07-15 01:20:17.286  [75] ControlType.Button Name='✕' AutoId='' Class='Button' Rect=1653,853,22,22 Value='✕' IsEnabled=True
+2026-07-15 01:20:17.288  [76] ControlType.Text Name='✕' AutoId='' Class='TextBlock' Rect=1658,856,12,17 Value='✕' IsEnabled=True
+2026-07-15 01:20:17.290  [77] ControlType.Text Name='Слои под трубой' AutoId='' Class='TextBlock' Rect=1113,1055,43,77 Value='Слои под трубой' IsEnabled=True
+2026-07-15 01:20:17.292  [78] ControlType.Text Name='Общая толщина: 350 мм' AutoId='' Class='TextBlock' Rect=1156,1086,150,14 Value='Общая толщина: 350 мм' IsEnabled=True
+2026-07-15 01:20:17.294  [79] ControlType.Button Name='Добавить слой' AutoId='' Class='Button' Rect=1322,1073,133,40 Value='Добавить слой' IsEnabled=True
+2026-07-15 01:20:17.296  [80] ControlType.Text Name='Добавить слой' AutoId='' Class='TextBlock' Rect=1339,1085,99,17 Value='Добавить слой' IsEnabled=True
+2026-07-15 01:20:17.298  [84] ControlType.Text Name='№' AutoId='' Class='TextBlock' Rect=1119,1149,13,14 Value='№' IsEnabled=True
+2026-07-15 01:20:17.301  [87] ControlType.Text Name='Материал' AutoId='' Class='TextBlock' Rect=1149,1149,59,14 Value='Материал' IsEnabled=True
+2026-07-15 01:20:17.303  [91] ControlType.Text Name='Толщина, мм' AutoId='' Class='TextBlock' Rect=1169,1149,78,14 Value='Толщина, мм' IsEnabled=True
+2026-07-15 01:20:17.305  [95] ControlType.Text Name='λ, Вт/м·К' AutoId='' Class='TextBlock' Rect=1259,1149,53,14 Value='λ, Вт/м·К' IsEnabled=True
+2026-07-15 01:20:17.307  [99] ControlType.Text Name='R, м²·К/Вт' AutoId='' Class='TextBlock' Rect=1349,1149,59,14 Value='R, м²·К/Вт' IsEnabled=True
+2026-07-15 01:20:17.310  [103] ControlType.Text Name='' AutoId='' Class='TextBlock' Rect=Empty Value='' IsEnabled=True
+2026-07-15 01:20:17.313  [108] ControlType.Text Name='1' AutoId='' Class='TextBlock' Rect=1115,1172,28,14 Value='1' IsEnabled=True
+2026-07-15 01:20:17.314  [110] ControlType.ComboBox Name='' AutoId='' Class='ComboBox' Rect=1145,1168,150,22 Value='' IsEnabled=True
+2026-07-15 01:20:17.317  [112] ControlType.Edit Name='' AutoId='' Class='TextBox' Rect=1165,1168,88,22 Value='150' IsEnabled=True
+2026-07-15 01:20:17.318  [114] ControlType.Edit Name='' AutoId='' Class='TextBox' Rect=1255,1168,88,22 Value='0.400' IsEnabled=True
+2026-07-15 01:20:17.321  [116] ControlType.Text Name='0.3750' AutoId='' Class='TextBlock' Rect=1347,1168,84,22 Value='0.3750' IsEnabled=True
+2026-07-15 01:20:17.323  [118] ControlType.Button Name='✕' AutoId='' Class='Button' Rect=1435,1168,22,22 Value='✕' IsEnabled=True
+2026-07-15 01:20:17.324  [119] ControlType.Text Name='✕' AutoId='' Class='TextBlock' Rect=1440,1171,12,17 Value='✕' IsEnabled=True
+2026-07-15 01:20:17.327  [122] ControlType.Text Name='2' AutoId='' Class='TextBlock' Rect=1115,1197,28,14 Value='2' IsEnabled=True
+2026-07-15 01:20:17.328  [124] ControlType.ComboBox Name='' AutoId='' Class='ComboBox' Rect=1145,1193,150,22 Value='' IsEnabled=True
+2026-07-15 01:20:17.331  [126] ControlType.Edit Name='' AutoId='' Class='TextBox' Rect=1165,1193,88,22 Value='200' IsEnabled=True
+2026-07-15 01:20:17.333  [128] ControlType.Edit Name='' AutoId='' Class='TextBox' Rect=1255,1193,88,22 Value='0.500' IsEnabled=True
+2026-07-15 01:20:17.334  [130] ControlType.Text Name='0.4000' AutoId='' Class='TextBlock' Rect=1347,1193,84,22 Value='0.4000' IsEnabled=True
+2026-07-15 01:20:17.337  [132] ControlType.Button Name='✕' AutoId='' Class='Button' Rect=1435,1193,22,22 Value='✕' IsEnabled=True
+2026-07-15 01:20:17.338  [133] ControlType.Text Name='✕' AutoId='' Class='TextBlock' Rect=1440,1196,12,17 Value='✕' IsEnabled=True
+2026-07-15 01:20:17.340  [134] ControlType.Text Name='Визуализация' AutoId='' Class='TextBlock' Rect=1512,1022,198,19 Value='Визуализация' IsEnabled=True
+2026-07-15 01:20:17.343  [136] ControlType.Text Name='Бетон плотный
+100 мм' AutoId='' Class='TextBlock' Rect=1444,1089,67,21 Value='Бетон плотный
+100 мм' IsEnabled=True
+2026-07-15 01:20:17.344  [137] ControlType.Text Name='← Поверхность' AutoId='' Class='TextBlock' Rect=1711,1069,79,12 Value='← Поверхность' IsEnabled=True
+2026-07-15 01:20:17.346  [138] ControlType.Text Name='Песок
+150 мм' AutoId='' Class='TextBlock' Rect=1444,1151,32,22 Value='Песок
+150 мм' IsEnabled=True
+2026-07-15 01:20:17.348  [139] ControlType.Text Name='Грунт
+200 мм' AutoId='' Class='TextBlock' Rect=1444,1239,33,21 Value='Грунт
+200 мм' IsEnabled=True
+2026-07-15 01:20:17.350  [140] ControlType.Text Name='← Грунт' AutoId='' Class='TextBlock' Rect=1741,1304,40,12 Value='← Грунт' IsEnabled=True
+2026-07-15 01:20:17.352  [141] ControlType.Text Name='200' AutoId='' Class='TextBlock' Rect=1601,1148,24,12 Value='200' IsEnabled=True
+2026-07-15 01:20:17.354  [142] ControlType.Text Name='Результаты расчёта' AutoId='' Class='TextBlock' Rect=1121,1421,338,19 Value='Результаты расчёта' IsEnabled=True
+2026-07-15 01:20:17.356  [143] ControlType.Text Name='R₁ (над трубой):' AutoId='' Class='TextBlock' Rect=1137,1452,136,15 Value='R₁ (над трубой):' IsEnabled=True
+2026-07-15 01:20:17.358  [144] ControlType.Text Name='0.0667 м²·К/Вт' AutoId='' Class='TextBlock' Rect=1137,1467,136,21 Value='0.0667 м²·К/Вт' IsEnabled=True
+2026-07-15 01:20:17.360  [145] ControlType.Text Name='R₂ (под трубой):' AutoId='' Class='TextBlock' Rect=1329,1452,135,15 Value='R₂ (под трубой):' IsEnabled=True
+2026-07-15 01:20:17.362  [146] ControlType.Text Name='0.7750 м²·К/Вт' AutoId='' Class='TextBlock' Rect=1329,1467,135,21 Value='0.7750 м²·К/Вт' IsEnabled=True
+2026-07-15 01:20:17.364  [147] ControlType.Text Name='λE (вокруг трубы):' AutoId='' Class='TextBlock' Rect=1520,1452,115,15 Value='λE (вокруг трубы):' IsEnabled=True
+2026-07-15 01:20:17.366  [148] ControlType.Text Name='1.500 Вт/м·К' AutoId='' Class='TextBlock' Rect=1520,1467,115,21 Value='1.500 Вт/м·К' IsEnabled=True
+2026-07-15 01:20:17.368  [149] ControlType.Button Name='Сбросить' AutoId='' Class='Button' Rect=1459,1421,96,40 Value='Сбросить' IsEnabled=True
+2026-07-15 01:20:17.370  [150] ControlType.Text Name='Сбросить' AutoId='' Class='TextBlock' Rect=1476,1433,62,16 Value='Сбросить' IsEnabled=True
+2026-07-15 01:20:17.372  [151] ControlType.Button Name='Сохранить' AutoId='' Class='Button' Rect=1567,1421,102,40 Value='Сохранить' IsEnabled=True
+2026-07-15 01:20:17.374  [152] ControlType.Text Name='Сохранить' AutoId='' Class='TextBlock' Rect=1583,1433,70,16 Value='Сохранить' IsEnabled=True
+2026-07-15 01:20:17.376  [153] ControlType.Text Name='Материал 'Бетон плотный': максимальная температура подачи 50°C' AutoId='' Class='TextBlock' Rect=1141,1453,410,15 Value='Материал 'Бетон плотный': максимальная температура подачи 50°C' IsEnabled=True

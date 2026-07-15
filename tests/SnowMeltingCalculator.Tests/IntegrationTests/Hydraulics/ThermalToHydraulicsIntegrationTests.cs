@@ -433,6 +433,79 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
 
         #endregion
 
+        #region Context Change Tests
+
+        [Test]
+        public void ThermalResultChangedViaContext_NotifiesThermalPropertiesAndRecalculates()
+        {
+            // Arrange - seed ThermalInputs (pipe + spacing) before subscribing to events
+            var pipe = new PipeType
+            {
+                Name = "RAUTHERM S 20x2,0",
+                OuterDiameter = 20,
+                InnerDiameter = 16,
+                WallThickness = 2.0
+            };
+            var inputs = new ThermalInputs { Pipe = pipe, PipeSpacing = 200 };
+            _calculationContext.UpdateThermalInputs(inputs, "Thermal");
+
+            var changedProperties = new List<string>();
+            _viewModel.PropertyChanged += (s, e) => changedProperties.Add(e.PropertyName!);
+
+            var result = new ThermalCalculationResult
+            {
+                PowerUp = 300,
+                PowerDown = 20,
+                SupplyTemperature = 55,
+                ReturnTemperature = 40,
+                MeanTemperature = 47.5,
+                DeltaT = 15,
+                IsValid = true
+            };
+
+            // Act - publish thermal result via context only
+            _calculationContext.UpdateThermal(result, "Thermal");
+
+            // Assert - UI block properties were notified
+            Assert.That(changedProperties, Contains.Item(nameof(CircuitsViewModel.PowerUp)), "PowerUp должен уведомлять UI");
+            Assert.That(changedProperties, Contains.Item(nameof(CircuitsViewModel.SupplyTemperature)), "SupplyTemperature должен уведомлять UI");
+            Assert.That(changedProperties, Contains.Item(nameof(CircuitsViewModel.PipeType)), "PipeType должен уведомлять UI");
+            Assert.That(changedProperties, Contains.Item(nameof(CircuitsViewModel.PipeSpacing_cm)), "PipeSpacing_cm должен уведомлять UI");
+
+            // Assert - calculation ran for the selected collector's circuits
+            Assert.That(
+                _viewModel.SelectedCollector!.Circuits.Any(c => c.Power != 0),
+                Is.True,
+                "Хотя бы один контур выбранного коллектора должен получить ненулевую мощность");
+        }
+
+        [Test]
+        public void ThermalInputsChangedViaContext_NotifiesThermalProperties()
+        {
+            // Arrange
+            var changedProperties = new List<string>();
+            _viewModel.PropertyChanged += (s, e) => changedProperties.Add(e.PropertyName!);
+
+            var pipe = new PipeType
+            {
+                Name = "RAUTHERM S 25x2,3",
+                OuterDiameter = 25,
+                InnerDiameter = 20.4,
+                WallThickness = 2.3
+            };
+            var inputs = new ThermalInputs { Pipe = pipe, PipeSpacing = 250 };
+
+            // Act - publish thermal inputs via context only
+            _calculationContext.UpdateThermalInputs(inputs, "Thermal");
+
+            // Assert
+            Assert.That(changedProperties, Contains.Item(nameof(CircuitsViewModel.PipeType)), "PipeType должен уведомлять UI");
+            Assert.That(changedProperties, Contains.Item(nameof(CircuitsViewModel.PipeSpacing_cm)), "PipeSpacing_cm должен уведомлять UI");
+            Assert.That(changedProperties, Contains.Item(nameof(CircuitsViewModel.InnerDiameter)), "InnerDiameter должен уведомлять UI");
+        }
+
+        #endregion
+
         #region Calculate Call Tests
 
         [Test]

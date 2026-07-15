@@ -1,0 +1,72 @@
+﻿F4 SCOPE FIDELITY — fix-thermal-to-hydraulics-sync
+====================================================
+Date: 2026-07-15
+Verifier: oracle (glm-5.2)
+Method: git diff / git status --short (read-only, no file modifications)
+
+VERDICT: APPROVE
+=================
+
+SCOPE CHECKS
+------------
+
+[1] CircuitsViewModel.cs diff contains ONLY OnCalculationContextChanged + comment changes
+    PASS.
+    git diff --stat: 1 file changed, 13 insertions(+), 4 deletions(-)
+    Diff hunks (git diff -U0):
+      @@ -750,4 +750,8 @@   (comment block above OnCalculationContextChanged)
+      @@ -762,0 +767,4 @@  (new ThermalInputs case + NotifyThermalPropertiesChanged in ThermalResult case)
+      @@ -763,0 +772 @@    (Calculate() call in ThermalResult case)
+    All hunks fall within lines 747-772, i.e. the <remarks> comment block and the
+    OnCalculationContextChanged method body (declared at line 759). No other method touched.
+
+[2] UpdateFromThermalModule (declared line 679, body through ~717) NOT modified
+    PASS.
+    Method declaration confirmed at line 679 via grep.
+    First diff hunk starts at line 750 — entirely below the method range.
+    No hunk overlaps lines 679-717.
+
+[3] Calculate() (declared line 398, body through ~547) NOT modified
+    PASS.
+    Method declaration confirmed at line 398 via grep (plan referenced 397-547; off-by-one
+    is the leading blank/comment line, immaterial).
+    First diff hunk starts at line 750 — entirely below the method range.
+    No hunk overlaps lines 397-547.
+
+[4] tests/SnowMeltingCalculator.Tests/baseline_refactor_dedupe.json untouched
+    PASS.
+    git diff -- tests/SnowMeltingCalculator.Tests/baseline_refactor_dedupe.json
+      -> empty output, exit code 0.
+    File does not appear in git diff --name-only output.
+
+[5] No new formula/constant changes in calculator files
+    PASS.
+    git diff --name-only lists only:
+      .omo/notepads/refactor-dedupe-params/learnings.md        (non-code notes)
+      .omo/run-continuation/ses_0a358c786ffeXzxbyBqAXxW7oK.json (session state)
+      src/ViewModels/Hydraulics/CircuitsViewModel.cs            (scope of this plan)
+      tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ThermalToHydraulicsIntegrationTests.cs
+    None of the calculator source files are modified:
+      src/Services/Thermal/ThermalCalculator.cs                 — absent
+      src/Services/Hydraulics/CircuitsCalculator.cs             — absent
+      src/Services/Hydraulics/FlowRegimeCalculator.cs           — absent
+      src/Services/Hydraulics/ValveTurnsCalculator.cs           — absent
+      src/Services/Hydraulics/ICircuitsCalculator.cs            — absent
+      src/Services/Thermal/IThermalCalculator.cs                — absent
+    No formula/constant files touched.
+
+NOTES
+-----
+- The modified test file (ThermalToHydraulicsIntegrationTests.cs) is the integration test
+  for this sync fix and is expected to be in scope of the plan; it is not a calculator file
+  and contains no formulas/constants.
+- The .omo/* modifications are session/notepad artifacts, outside source scope.
+- Line numbers cited from the working-tree version of CircuitsViewModel.cs at verification
+  time; minor drift from plan's cited line numbers (e.g. Calculate at 398 vs plan's 397)
+  is a leading-line artifact and does not affect the verdict.
+
+CONCLUSION
+----------
+All five scope-fidelity checks pass. The change is confined to OnCalculationContextChanged
+and its <remarks> comment in CircuitsViewModel.cs. No calculator logic, formulas, constants,
+UpdateFromThermalModule, Calculate(), or baseline_refactor_dedupe.json were modified.
