@@ -1,5 +1,6 @@
 using System;
 using SnowMeltingCalculator.Core;
+using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
 using ValidationResult = SnowMeltingCalculator.Core.ValidationResult;
 
@@ -26,8 +27,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
 
             var result = new ValidationResult();
 
-            if (input.GlycolConcentration < 10 || input.GlycolConcentration > 90)
-                result.AddError($"Концентрация гликоля должна быть от 10 до 90% (текущая: {input.GlycolConcentration:F0}%)");
+            if (input.GlycolConcentration < ValidationConstants.MinGlycolConcentration || input.GlycolConcentration > ValidationConstants.MaxGlycolConcentration)
+                result.AddError($"Концентрация гликоля должна быть от {ValidationConstants.MinGlycolConcentration:F0} до {ValidationConstants.MaxGlycolConcentration:F0}% (текущая: {input.GlycolConcentration:F0}%)");
 
             if (input.SupplySpacing_cm <= 0)
                 result.AddError("Шаг подводки должен быть положительным");
