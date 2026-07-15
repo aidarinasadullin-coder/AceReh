@@ -1,0 +1,41 @@
+## Todo 2 � ConstructionValidator refactor
+
+- Switched `ConstructionValidator` to implement `IValidator<ConstructionModel>` from `SnowMeltingCalculator.Core` and return `Core.ValidationResult`.
+- Because `Models.Construction` also contains a `ValidationResult` type, added a `using ValidationResult = SnowMeltingCalculator.Core.ValidationResult;` alias in `ConstructionValidator.cs`, `IConstructionService.cs`, `ConstructionService.cs`, and the test files to avoid type ambiguity while keeping the `Models.Construction` using for `Layer`, `Material`, etc.
+- Cascading changes required to keep the build green:
+  - `IConstructionService.ValidateConstruction` and `ConstructionService.ValidateConstruction` return types moved to `Core.ValidationResult`.
+  - `ConstructionViewModel.Validate()` now reads `result.Errors.Select(e => e.Message)` since `Errors` is `List<ValidationError>`.
+  - `ConstructionValidatorTests`, `ConstructionServiceTests`, and `ConstructionViewModelTests` updated to assert on `e.Message` and use the Core alias.
+- Validation logic, thresholds, and messages were left unchanged; only result types and using statements were modified.
+- Build: `dotnet build src/SnowMeltingCalculator.csproj -c Debug` > 0 errors.
+- Targeted tests (`ConstructionValidatorTests`, `ConstructionServiceTests`, `ConstructionViewModelTests`) > 65 passed, 0 failed.
+
+## Todo 4 — ThermalValidator
+
+- Created `ThermalValidator : IValidator<ThermalInputs>` in `src/Services/Thermal/ThermalValidator.cs`.
+- Constructor injects `IThermalCalculator`, `IClimateData`, and `IConstructionData`.
+  - `ThermalCalculator.Validate` is an instance method, so `IThermalCalculator` is required even though the plan checkbox mentions only climate/construction data.
+- `Validate(ThermalInputs)` delegates to `_calculator.Validate(input, _climate, _construction, out string[] errors)` and converts `bool + string[]` to `Core.ValidationResult`.
+- Null `ThermalInputs` throws `ArgumentNullException`, matching the `ClimateValidator` convention.
+- Added TDD tests in `tests/SnowMeltingCalculator.Tests/Services/Thermal/ThermalValidatorTests.cs` covering valid inputs, single/multiple invalid inputs, invalid construction data, and null input.
+- Build: `dotnet build src/SnowMeltingCalculator.csproj -c Debug` > 0 errors.
+- Targeted tests (`ThermalValidatorTests`) > 5 passed, 0 failed.
+
+## Todo 5 — ThermalResultValidator
+
+- Created `ThermalResultValidator : IValidator<ThermalCalculationResult>` in `src/Services/Thermal/ThermalResultValidator.cs`.
+- Post-calculation checks (solves plan p.1):
+  - Computes return temperature as `T_обратки = 2 * MeanTemperature - SupplyTemperature`.
+  - Adds an error when `T_обратки < 0`.
+  - Adds an error when `DeltaT <= 0`.
+  - Adds an error when `DeltaT > ValidationConstants.MaxDeltaT` (30 °C).
+- Returns `SnowMeltingCalculator.Core.ValidationResult`; no ambiguity with other `ValidationResult` types in this file, so no alias was needed.
+- Does not call `ThermalCalculator`; validation is purely post-calculation on the result object.
+- Null `ThermalCalculationResult` throws `ArgumentNullException`, consistent with other validators.
+- Added TDD tests in `tests/SnowMeltingCalculator.Tests/Services/Thermal/ThermalResultValidatorTests.cs` covering valid result, negative return temperature, zero return temperature, excessive ΔT, zero ΔT, negative ΔT, maximum ΔT boundary, combined errors, and null input.
+- Build: `dotnet build src/SnowMeltingCalculator.csproj -c Debug` > 0 errors.
+- Targeted tests (`ThermalResultValidatorTests`) > 10 passed, 0 failed.
+- Note: a clean of `src/obj` and `src/bin` was required to clear stale WPF generated-file artifacts before the build succeeded; the artifacts were unrelated to the validator changes.
+
+
+
