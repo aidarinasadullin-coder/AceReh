@@ -5,7 +5,6 @@ using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.ViewModels.Construction;
-using SnowMeltingCalculator.Core;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -40,7 +39,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                 _mockMaterialRepository,
                 _mockConstructionRepository,
                 _mockCalculationStateService.Object,
-                new CalculationContext(),
+                new SnowMeltingCalculator.Core.CalculationContext(),
                 construction);
         }
 
