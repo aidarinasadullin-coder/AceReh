@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Services.Hydraulics;
 using System;
@@ -884,6 +885,48 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // Assert - вода имеет более низкую вязкость, чем гликолевый раствор
             Assert.That(waterProps.KinematicViscosity, Is.LessThan(glycolProps.KinematicViscosity),
                 "Вязкость воды должна быть ниже, чем у гликолевого раствора");
+        }
+
+        #endregion
+
+        #region Constants Cross-Check Tests
+
+        /// <summary>
+        /// Cross-check: ValidationConstants и реальный сервис должны опираться
+        /// на одинаковые границы 10% / 90%. Это страховка от рассинхронизации,
+        /// если кто-то снова введёт локальные литералы.
+        /// </summary>
+        [Test]
+        public void ValidationConstants_And_HydraulicValidator_Agree_On_GlycolRange()
+        {
+            // Assert
+            Assert.That(ValidationConstants.MinGlycolConcentration, Is.EqualTo(10.0),
+                "MinGlycolConcentration должно быть 10%");
+            Assert.That(ValidationConstants.MaxGlycolConcentration, Is.EqualTo(90.0),
+                "MaxGlycolConcentration должно быть 90%");
+
+            // Сервис должен отдавать те же значения
+            Assert.That(_service.GetMinConcentration(),
+                Is.EqualTo(ValidationConstants.MinGlycolConcentration),
+                "GlycolDataService.GetMinConcentration должен совпадать с ValidationConstants.MinGlycolConcentration");
+            Assert.That(_service.GetMaxConcentration(),
+                Is.EqualTo(ValidationConstants.MaxGlycolConcentration),
+                "GlycolDataService.GetMaxConcentration должен совпадать с ValidationConstants.MaxGlycolConcentration");
+        }
+
+        /// <summary>
+        /// Регрессия: значения за пределами 10–90% должны выбрасывать
+        /// <see cref="ArgumentOutOfRangeException"/> через единый guard в
+        /// <c>ValidateParameters</c>. Случай 0% для воды не проверяем —
+        /// там отдельная ветка с <c>GetWaterProperties</c>.
+        /// </summary>
+        [TestCase(5.0)]
+        [TestCase(95.0)]
+        public void GetProperties_ConcentrationOutOfRange_ThrowsArgumentOutOfRangeException(double concentration)
+        {
+            // Act & Assert
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                _service.GetProperties(GlycolType.Ethylene, concentration, 20.0));
         }
 
         #endregion
