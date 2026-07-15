@@ -9,7 +9,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
     /// Валидатор входных данных гидравлического расчёта
     /// </summary>
     /// <remarks>
-    /// Правила и сообщения сохранены из <see cref="HydraulicInputData.Validate()"/>
+    /// Правила и сообщения сохранены из <see cref="HydraulicInputData"/>
     /// для обеспечения идентичного поведения при переходе на единый <see cref="ValidationResult"/>.
     /// </remarks>
     public class HydraulicValidator : IValidator<HydraulicInputData>

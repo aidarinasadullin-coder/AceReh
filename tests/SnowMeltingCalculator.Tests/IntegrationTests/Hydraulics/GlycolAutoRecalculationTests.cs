@@ -66,7 +66,9 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 _climateData,
                 _constructionData,
                 _calculationStateServiceMock.Object,
-                _calculationContext
+                _calculationContext,
+                new ThermalValidator(new ThermalCalculator(), _climateData, _constructionData),
+                new ThermalResultValidator()
             );
 
             _climateViewModel = new ClimateViewModel(
