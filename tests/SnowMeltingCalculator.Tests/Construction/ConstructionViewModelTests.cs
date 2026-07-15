@@ -41,6 +41,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                 _mockConstructionRepository,
                 _mockCalculationStateService.Object,
                 new SnowMeltingCalculator.Core.CalculationContext(),
+                new ConstructionValidator(),
                 construction);
         }
 

@@ -20,6 +20,8 @@ using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Visualization;
 using SnowMeltingCalculator.Core;
+using SnowMeltingCalculator.Models.Hydraulics;
+using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
 
 namespace SnowMeltingCalculator.Configuration
 {
@@ -171,7 +173,33 @@ namespace SnowMeltingCalculator.Configuration
                 .AddThermalModule()
                 .AddConstructionModule()
                 .AddHydraulicsModule()
-                .AddResultsModule();
+                .AddResultsModule()
+                .AddValidators()
+                .AddValidationPipeline();
+        }
+
+        /// <summary>
+        /// Добавить валидаторы расчётных данных
+        /// </summary>
+        public static IServiceCollection AddValidators(this IServiceCollection services)
+        {
+            services.AddTransient<IValidator<IClimateData>, ClimateValidator>();
+            services.AddTransient<IValidator<ConstructionModel>, ConstructionValidator>();
+            services.AddTransient<IValidator<ThermalInputs>, ThermalValidator>();
+            services.AddTransient<IValidator<ThermalCalculationResult>, ThermalResultValidator>();
+            services.AddTransient<IValidator<HydraulicInputData>, HydraulicValidator>();
+            services.AddTransient<IValidator<CircuitRow>, CircuitValidator>();
+
+            return services;
+        }
+
+        /// <summary>
+        /// Добавить конвейер валидации
+        /// </summary>
+        public static IServiceCollection AddValidationPipeline(this IServiceCollection services)
+        {
+            services.AddTransient<IValidationPipeline, ValidationPipeline>();
+            return services;
         }
     }
 }

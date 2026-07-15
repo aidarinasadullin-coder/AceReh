@@ -19,7 +19,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         [SetUp]
         public void Setup()
         {
-            _service = new ConstructionService();
+            _service = new ConstructionService(new ConstructionValidator());
         }
 
         #region CalculateR1 Tests
