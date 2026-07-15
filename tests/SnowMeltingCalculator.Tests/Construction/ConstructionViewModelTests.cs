@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Moq;
+using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Construction;
@@ -10,7 +11,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
-using ValidationResult = SnowMeltingCalculator.Core.ValidationResult;
 
 namespace SnowMeltingCalculator.Tests.Construction
 {

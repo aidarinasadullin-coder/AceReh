@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Thermal;
 
 namespace SnowMeltingCalculator.Models.Construction
@@ -275,7 +276,7 @@ namespace SnowMeltingCalculator.Models.Construction
         /// <returns>Результат валидации</returns>
         public ValidationResult ValidateConstruction()
         {
-            var result = new ValidationResult();
+            var result = ValidationResult.Success();
 
             // Проверка наличия слоёв
             if (LayersAbovePipe.Count == 0 && Layers.Count == 0)

@@ -1,7 +1,6 @@
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Construction;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
-using ValidationResult = SnowMeltingCalculator.Core.ValidationResult;
 
 namespace SnowMeltingCalculator.Services.Construction
 {
