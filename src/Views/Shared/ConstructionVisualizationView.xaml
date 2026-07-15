@@ -4,18 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="180" d:DesignWidth="400">
-    <Border BorderBrush="{DynamicResource RehauGrayBrush}"
-            BorderThickness="1"
-            CornerRadius="8"
-            Padding="4"
-            MinHeight="120"
-            Background="{DynamicResource RehauCardBrush}">
-        <Canvas x:Name="ConstructionCanvas"
-                Background="Transparent"
-                Width="400"
-                HorizontalAlignment="Center">
-            <!-- Визуализация отрисовывается в code-behind -->
-        </Canvas>
-    </Border>
+             d:DesignHeight="180" d:DesignWidth="600">
+    <Canvas x:Name="ConstructionCanvas"
+            Background="Transparent"
+            HorizontalAlignment="Stretch">
+        <!-- Визуализация отрисовывается в code-behind -->
+    </Canvas>
 </UserControl>

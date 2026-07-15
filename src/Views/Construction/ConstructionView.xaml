@@ -10,8 +10,13 @@
              d:DesignHeight="800" d:DesignWidth="900"
              Background="{DynamicResource RehauBackgroundBrush}">
 
-    <Grid Margin="20">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Focusable="True"
+                  PanningMode="VerticalOnly">
+        <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -239,14 +244,14 @@
         </Border>
 
 <!-- Слои под трубой и Визуализация -->
-        <Grid Grid.Row="4">
+        <Grid Grid.Row="4" x:Name="LayoutGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <!-- Слои под трубой -->
-            <Border Grid.Column="0" Margin="0,0,12,0" Style="{StaticResource Card.Default}">
+            <Border x:Name="LayersBelowCard" Grid.Column="0" Margin="0,0,12,0" Style="{StaticResource Card.Default}">
                 <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
                     <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
@@ -368,13 +373,15 @@
             </Border>
 
             <!-- Визуализация конструкции -->
-            <StackPanel Grid.Column="1" Margin="12,0,0,0">
-                <TextBlock Text="Визуализация"
-                           Style="{StaticResource Text.H4}"
-                           Foreground="{DynamicResource RehauBlackBrush}"
-                           Margin="0,0,0,8"/>
-                <shared:ConstructionVisualizationView DataContext="{Binding}"/>
-            </StackPanel>
+            <Border x:Name="VisualizationCard" Grid.Column="1" Margin="12,0,0,0" Style="{StaticResource Card.Default}">
+                <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
+                    <TextBlock Text="Визуализация"
+                               Style="{StaticResource Text.H4}"
+                               Foreground="{DynamicResource RehauBlackBrush}"
+                               Margin="0,0,0,8"/>
+                    <shared:ConstructionVisualizationView DataContext="{Binding}"/>
+                </StackPanel>
+            </Border>
         </Grid>
 
         <!-- Результаты и Валидация -->
@@ -459,7 +466,7 @@
         </Border>
 
         <!-- Валидация -->
-        <Border Grid.Row="5" Margin="0,16,0,0"
+        <Border Grid.Row="6" Margin="0,16,0,0"
                 Style="{StaticResource Card.Default}"
                 Background="#FFF8E8"
                 BorderBrush="#FFB300"
@@ -479,4 +486,5 @@
             </StackPanel>
         </Border>
     </Grid>
+    </ScrollViewer>
 </UserControl>
