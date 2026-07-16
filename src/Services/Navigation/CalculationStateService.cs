@@ -25,6 +25,7 @@ namespace SnowMeltingCalculator.Services.Navigation
         private string _thermalValidationMessage = string.Empty;
 
         private bool _hydraulicsIsCalculating;
+        private string _hydraulicsValidationMessage = string.Empty;
 
         private int _pipeSpacing = 200; // Шаг укладки по умолчанию
 
@@ -76,16 +77,29 @@ namespace SnowMeltingCalculator.Services.Navigation
         public bool HydraulicsIsCalculating => _hydraulicsIsCalculating;
 
         /// <inheritdoc/>
+        public string HydraulicsValidationMessage => _hydraulicsValidationMessage;
+
+        /// <inheritdoc/>
         public void SetHydraulicsCalculating()
         {
             _hydraulicsIsCalculating = true;
+            _hydraulicsValidationMessage = string.Empty;
             OnStateChanged("Hydraulics", ModuleState.Calculating);
+        }
+
+        /// <inheritdoc/>
+        public void SetHydraulicsError(string message)
+        {
+            _hydraulicsIsCalculating = false;
+            _hydraulicsValidationMessage = message;
+            OnStateChanged("Hydraulics", ModuleState.Error, message);
         }
 
         /// <inheritdoc/>
         public void ResetHydraulicsState()
         {
             _hydraulicsIsCalculating = false;
+            _hydraulicsValidationMessage = string.Empty;
             OnStateChanged("Hydraulics", ModuleState.Actual);
         }
 

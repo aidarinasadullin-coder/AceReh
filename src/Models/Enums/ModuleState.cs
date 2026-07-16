@@ -27,6 +27,11 @@ namespace SnowMeltingCalculator.Models.Enums
         /// <summary>
         /// Выполняется расчёт
         /// </summary>
-        Calculating
+        Calculating,
+
+        /// <summary>
+        /// Ошибка валидации входных данных
+        /// </summary>
+        Error
     }
 }
