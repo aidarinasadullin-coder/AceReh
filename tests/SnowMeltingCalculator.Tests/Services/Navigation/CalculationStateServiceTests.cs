@@ -235,6 +235,95 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
 
         #endregion
 
+        #region Гидравлический расчёт - SetHydraulicsError
+
+        [Test]
+        public void SetHydraulicsError_UpdatesHydraulicsValidationMessage()
+        {
+            // Act
+            _service.SetHydraulicsError("test");
+
+            // Assert
+            Assert.That(_service.HydraulicsValidationMessage, Is.EqualTo("test"));
+        }
+
+        [Test]
+        public void SetHydraulicsError_ResetsIsCalculating()
+        {
+            // Arrange - переводим в Calculating
+            _service.SetHydraulicsCalculating();
+            Assert.That(_service.HydraulicsIsCalculating, Is.True);
+
+            // Act
+            _service.SetHydraulicsError("test");
+
+            // Assert - _hydraulicsIsCalculating должен быть сброшен защитно
+            Assert.That(_service.HydraulicsIsCalculating, Is.False);
+        }
+
+        [Test]
+        public void SetHydraulicsError_FiresStateChanged_WithErrorAndMessage()
+        {
+            // Arrange
+            ModuleStateChangedEventArgs? eventArgs = null;
+            _service.StateChanged += (sender, args) => eventArgs = args;
+
+            // Act
+            _service.SetHydraulicsError("test");
+
+            // Assert
+            Assert.That(eventArgs, Is.Not.Null);
+            Assert.That(eventArgs!.Module, Is.EqualTo("Hydraulics"));
+            Assert.That(eventArgs.State, Is.EqualTo(ModuleState.Error));
+            Assert.That(eventArgs.Message, Is.EqualTo("test"));
+        }
+
+        [Test]
+        public void SetHydraulicsError_UpdatesHydraulicsValidationMessage_FiresStateChanged()
+        {
+            // Arrange - подписка на событие + подсчёт количества вызовов
+            ModuleStateChangedEventArgs? eventArgs = null;
+            var eventCount = 0;
+            _service.StateChanged += (sender, args) =>
+            {
+                eventCount++;
+                eventArgs = args;
+            };
+
+            // Act
+            _service.SetHydraulicsError("test");
+
+            // Assert - ValidationMessage обновлён
+            Assert.That(_service.HydraulicsValidationMessage, Is.EqualTo("test"));
+
+            // Assert - событие вызвано ровно один раз с корректными аргументами
+            Assert.That(eventCount, Is.EqualTo(1), "StateChanged должен вызываться ровно один раз");
+            Assert.That(eventArgs, Is.Not.Null);
+            Assert.That(eventArgs!.Module, Is.EqualTo("Hydraulics"));
+            Assert.That(eventArgs.State, Is.EqualTo(ModuleState.Error));
+            Assert.That(eventArgs.Message, Is.EqualTo("test"));
+        }
+
+        [Test]
+        public void SetHydraulicsError_DoesNotTouchThermalState()
+        {
+            // Arrange
+            ModuleStateChangedEventArgs? lastEventArgs = null;
+            _service.StateChanged += (sender, args) => lastEventArgs = args;
+
+            // Act
+            _service.SetHydraulicsError("test");
+
+            // Assert - ThermalValidationMessage остался пустым, ThermalNeedsRecalculation не выставлен
+            Assert.That(_service.ThermalValidationMessage, Is.EqualTo(string.Empty));
+            Assert.That(_service.ThermalIsCalculating, Is.False);
+            Assert.That(_service.ThermalNeedsRecalculation, Is.False);
+            Assert.That(lastEventArgs, Is.Not.Null);
+            Assert.That(lastEventArgs!.Module, Is.EqualTo("Hydraulics"));
+        }
+
+        #endregion
+
         #region Гидравлический расчёт - ResetHydraulicsState
 
         [Test]
