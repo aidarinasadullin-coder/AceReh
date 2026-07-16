@@ -59,9 +59,20 @@ namespace SnowMeltingCalculator.Services.Navigation
         bool HydraulicsIsCalculating { get; }
 
         /// <summary>
+        /// Сообщение об ошибке валидации гидравлического расчёта
+        /// </summary>
+        string HydraulicsValidationMessage { get; }
+
+        /// <summary>
         /// Установить флаг выполнения расчёта гидравлического расчёта
         /// </summary>
         void SetHydraulicsCalculating();
+
+        /// <summary>
+        /// Установить флаг ошибки валидации гидравлического расчёта
+        /// </summary>
+        /// <param name="message">Сообщение об ошибке</param>
+        void SetHydraulicsError(string message);
 
         /// <summary>
         /// Сбросить состояние гидравлического расчёта
