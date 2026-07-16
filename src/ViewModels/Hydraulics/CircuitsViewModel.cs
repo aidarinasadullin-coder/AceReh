@@ -97,6 +97,17 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         [NotifyPropertyChangedFor(nameof(GlycolTypeName))]
         private HydraulicInputData _inputData = new();
 
+        /// <summary>
+        /// Сообщение об ошибке валидации гликоля для отображения в UI
+        /// </summary>
+        /// <remarks>
+        /// Заполняется при выбросе ArgumentOutOfRangeException в GlycolDataService.
+        /// Очищается в начале каждой попытки расчёта. Ошибка НЕ пробрасывается
+        /// в ThermalViewModel — она локализуется в гидравлическом модуле.
+        /// </remarks>
+        [ObservableProperty]
+        private string _validationMessage = string.Empty;
+
         #endregion
 
         #region Calculation State
@@ -400,8 +411,15 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             // Установить флаг выполнения расчёта
             _calculationStateService.SetHydraulicsCalculating();
 
+            // Флаг обработки ошибки валидации гликоля — если true,
+            // внешний finally не должен сбрасывать ModuleState.Error обратно в Actual
+            bool errorHandled = false;
+
             try
             {
+                // Очистить предыдущее сообщение об ошибке перед новой попыткой
+                ValidationMessage = string.Empty;
+
                 var thermalResult = _calculationContext.ThermalResult;
                 var thermalInputs = _calculationContext.ThermalInputs;
 
@@ -441,8 +459,26 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 double operatingTemp = thermalResult?.MeanTemperature ?? 0.0;
                 double designTemp = _calculationContext.AirTemperature;
 
-                var glycolOperating = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, operatingTemp);
-                var glycolDesign = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, designTemp);
+                // Валидация гликоля: локальный перехват ArgumentOutOfRangeException
+                // (концентрация вне диапазона или температура вне допустимого диапазона).
+                // НЕ пробрасываем вверх — иначе ошибка уйдёт в ThermalViewModel.
+                // 0% (вода) остаётся валидным: short-circuit в GlycolDataService.ValidateParameters.
+                GlycolProperties glycolOperating;
+                GlycolProperties glycolDesign;
+                try
+                {
+                    glycolOperating = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, operatingTemp);
+                    glycolDesign = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, designTemp);
+                }
+                catch (ArgumentOutOfRangeException ex)
+                {
+                    // Показать ошибку в UI гидравлики и зафиксировать её в ModuleState,
+                    // не давая внешнему finally перевести Error обратно в Actual
+                    ValidationMessage = ex.Message;
+                    errorHandled = true;
+                    _calculationStateService.SetHydraulicsError(ex.Message);
+                    return;
+                }
 
                 OperatingGlycolProperties = glycolOperating;
                 DesignGlycolProperties = glycolDesign;
@@ -541,8 +577,9 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             }
             finally
             {
-                // Сбросить состояние после расчёта
-                _calculationStateService.ResetHydraulicsState();
+                // Сбросить состояние после расчёта, только если ошибка валидации не была обработана
+                // (иначе ResetHydraulicsState перезапишет ModuleState.Error → Actual)
+                if (!errorHandled) _calculationStateService.ResetHydraulicsState();
             }
         }
 
