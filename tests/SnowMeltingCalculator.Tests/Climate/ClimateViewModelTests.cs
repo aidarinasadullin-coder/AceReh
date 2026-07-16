@@ -1,7 +1,9 @@
 using NUnit.Framework;
+using Moq;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.Services.Climate;
+using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Core;
 using System;
 using System.Threading.Tasks;
@@ -17,13 +19,15 @@ namespace SnowMeltingCalculator.Tests.Climate
         private ClimateViewModel _viewModel = null!;
         private MockClimateDataService _mockService = null!;
         private ClimateData _climateData = null!;
+        private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
 
         [SetUp]
         public void Setup()
         {
             _mockService = new MockClimateDataService();
             _climateData = new ClimateData();
-            _viewModel = new ClimateViewModel(_mockService, _climateData, new ClimateValidator(), new CalculationContext());
+            _markDirtyServiceMock = new Mock<IMarkDirtyService>();
+            _viewModel = new ClimateViewModel(_mockService, _climateData, new ClimateValidator(), _markDirtyServiceMock.Object, new CalculationContext());
         }
 
         #region SelectCity Tests

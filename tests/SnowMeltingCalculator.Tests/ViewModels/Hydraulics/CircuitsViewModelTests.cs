@@ -9,6 +9,7 @@ using SnowMeltingCalculator.Services.Hydraulics;
 using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Services.Climate;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.ViewModels.Climate;
@@ -29,6 +30,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
         private Mock<ICalculationStateService> _calculationStateServiceMock = null!;
         private Mock<ICircuitsValidator> _validatorMock = null!;
         private Mock<ICollectorTypeSelector> _collectorTypeSelectorMock = null!;
+        private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
         private ClimateData _climateData = null!;
         private ConstructionData _constructionData = null!;
         private CalculationContext _calculationContext = null!;
@@ -44,6 +46,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
             _calculationStateServiceMock = new Mock<ICalculationStateService>();
             _validatorMock = new Mock<ICircuitsValidator>();
             _collectorTypeSelectorMock = new Mock<ICollectorTypeSelector>();
+            _markDirtyServiceMock = new Mock<IMarkDirtyService>();
 
             // Создаём реальные объекты для ClimateData и ConstructionData
             _climateData = new ClimateData();
@@ -164,7 +167,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                 _calculationStateServiceMock.Object,
                 _validatorMock.Object,
                 _collectorTypeSelectorMock.Object,
-                _calculationContext
+                _calculationContext,
+                _markDirtyServiceMock.Object
             );
         }
 

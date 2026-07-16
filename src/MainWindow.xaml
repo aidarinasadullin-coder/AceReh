@@ -7,8 +7,9 @@
         xmlns:views="clr-namespace:SnowMeltingCalculator.Views.Climate"
         xmlns:viewsThermal="clr-namespace:SnowMeltingCalculator.Views.Thermal"
         mc:Ignorable="d"
-        Title="Калькулятор снеготаяния REHAU"
+        Title="{Binding WindowTitle}"
         Height="700" Width="900"
+        Closing="MainWindow_Closing"
         MinHeight="600" MinWidth="800"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource RehauBackgroundBrush}"
@@ -165,6 +166,10 @@
                         <MenuItem Header="Открыть..." 
                                   Command="{Binding ResultsViewModel.OpenProjectCommand}" 
                                   InputGestureText="Ctrl+O"/>
+                        <Separator/>
+                        <MenuItem Header="Создать новый расчёт"
+                                  Command="{Binding NewCalculationCommand}"
+                                  InputGestureText="Ctrl+N"/>
                         <Separator/>
                         <MenuItem Header="Выход" Click="CloseButton_Click"/>
                     </MenuItem>

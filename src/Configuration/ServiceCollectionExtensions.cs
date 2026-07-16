@@ -142,6 +142,9 @@ namespace SnowMeltingCalculator.Configuration
             // Singleton inter-module calculation bus
             services.AddSingleton<CalculationContext>();
 
+            // Диалоговый сервис (шов для тестирования MessageBox)
+            services.AddSingleton<IDialogService, MessageBoxService>();
+
             return services;
         }
 
@@ -151,7 +154,10 @@ namespace SnowMeltingCalculator.Configuration
         public static IServiceCollection AddResultsModule(this IServiceCollection services)
         {
             // Services
-            services.AddSingleton<IProjectInfoService, ProjectInfoService>();
+            services.AddSingleton<ProjectStateService>();
+            services.AddSingleton<IProjectInfoService>(sp => sp.GetRequiredService<ProjectStateService>());
+            services.AddSingleton<IProjectStateService>(sp => sp.GetRequiredService<ProjectStateService>());
+            services.AddSingleton<IMarkDirtyService>(sp => sp.GetRequiredService<ProjectStateService>());
             services.AddSingleton<IPdfExportService, PdfExportService>();
             services.AddSingleton<IProjectFileService, ProjectFileService>();
             services.AddSingleton<IConstructionVisualizationImageService, ConstructionVisualizationImageService>();

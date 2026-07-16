@@ -11,6 +11,7 @@ using SnowMeltingCalculator.Models.Navigation;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Hydraulics;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Results;
 
 namespace SnowMeltingCalculator.ViewModels.Hydraulics
 {
@@ -34,10 +35,13 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         private readonly ICircuitsValidator _validator;
         private readonly ICollectorTypeSelector _collectorTypeSelector;
         private readonly CalculationContext _calculationContext;
+        private readonly IMarkDirtyService _markDirtyService;
 
         private PropertyChangedEventHandler? _inputDataPropertyChangedHandler;
         private EventHandler<ContextChangedEventArgs>? _contextChangedHandler;
         private EventHandler<int>? _pipeSpacingChangedHandler;
+        private bool _isInitializing = true;
+        private bool _isResetting;
 
         #endregion
 
@@ -593,6 +597,29 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
         #endregion
 
+        #region Public Methods
+
+        /// <summary>
+        /// Сбросить ViewModel к начальному состоянию
+        /// </summary>
+        public void Reset()
+        {
+            _isResetting = true;
+            try
+            {
+                Collectors.Clear();
+                SetInputData(new HydraulicInputData());
+                AddCollector();
+                CurrentMode = HydraulicMode.OperatingTemperature;
+            }
+            finally
+            {
+                _isResetting = false;
+            }
+        }
+
+        #endregion
+
         #region Constructor
 
         public CircuitsViewModel(
@@ -601,7 +628,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             ICalculationStateService calculationStateService,
             ICircuitsValidator validator,
             ICollectorTypeSelector collectorTypeSelector,
-            CalculationContext calculationContext)
+            CalculationContext calculationContext,
+            IMarkDirtyService markDirtyService)
         {
             _circuitsCalculator = circuitsCalculator ?? throw new ArgumentNullException(nameof(circuitsCalculator));
             _glycolService = glycolService ?? throw new ArgumentNullException(nameof(glycolService));
@@ -609,6 +637,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
             _collectorTypeSelector = collectorTypeSelector ?? throw new ArgumentNullException(nameof(collectorTypeSelector));
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
+            _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
 
             // Подписка на изменения состояния расчёта
             _calculationStateService.StateChanged += OnCalculationStateChanged;
@@ -621,10 +650,16 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             _contextChangedHandler = OnCalculationContextChanged;
             _calculationContext.ContextChanged += _contextChangedHandler;
 
+            // Подписка на изменения коллекторов и их контуров для отслеживания изменений проекта
+            // ДОЛЖНА быть до AddCollector(), чтобы первый коллектор и его контуры получили обработчики
+            Collectors.CollectionChanged += OnCollectorsCollectionChanged;
+
             // Инициализация InputData с переподпиской
             SetInputData(new HydraulicInputData());
 
             AddCollector();
+
+            _isInitializing = false;
         }
 
         #endregion
@@ -644,6 +679,103 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             for (int i = 0; i < Collectors.Count; i++)
             {
                 Collectors[i].CollectorNumber = i + 1;
+            }
+        }
+
+        /// <summary>
+        /// Обработчик изменения коллекции коллекторов
+        /// </summary>
+        private void OnCollectorsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+            {
+                foreach (CollectorData collector in e.NewItems)
+                {
+                    collector.PropertyChanged += OnCollectorPropertyChanged;
+                    collector.Circuits.CollectionChanged += OnCircuitsCollectionChanged;
+                    foreach (var circuit in collector.Circuits)
+                    {
+                        circuit.PropertyChanged += OnCircuitPropertyChanged;
+                    }
+                }
+            }
+
+            if (e.OldItems != null)
+            {
+                foreach (CollectorData collector in e.OldItems)
+                {
+                    collector.PropertyChanged -= OnCollectorPropertyChanged;
+                    collector.Circuits.CollectionChanged -= OnCircuitsCollectionChanged;
+                    foreach (var circuit in collector.Circuits)
+                    {
+                        circuit.PropertyChanged -= OnCircuitPropertyChanged;
+                    }
+                }
+            }
+
+            if (!_isInitializing && !_isResetting)
+            {
+                _markDirtyService.MarkDirty();
+            }
+        }
+
+        /// <summary>
+        /// Обработчик изменения коллекции контуров внутри коллектора
+        /// </summary>
+        private void OnCircuitsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+            {
+                foreach (CircuitRow circuit in e.NewItems)
+                {
+                    circuit.PropertyChanged += OnCircuitPropertyChanged;
+                }
+            }
+
+            if (e.OldItems != null)
+            {
+                foreach (CircuitRow circuit in e.OldItems)
+                {
+                    circuit.PropertyChanged -= OnCircuitPropertyChanged;
+                }
+            }
+
+            if (!_isInitializing && !_isResetting)
+            {
+                _markDirtyService.MarkDirty();
+            }
+        }
+
+        /// <summary>
+        /// Обработчик изменения свойств коллектора
+        /// </summary>
+        private void OnCollectorPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(CollectorData.ValveType) ||
+                e.PropertyName == nameof(CollectorData.CollectorType))
+            {
+                if (!_isInitializing && !_isResetting)
+                {
+                    _markDirtyService.MarkDirty();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Обработчик изменения свойств контура
+        /// </summary>
+        private void OnCircuitPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(CircuitRow.CircuitLength) ||
+                e.PropertyName == nameof(CircuitRow.SupplyLength) ||
+                e.PropertyName == nameof(CircuitRow.SupplySpacing_cm) ||
+                e.PropertyName == nameof(CircuitRow.SupplyHeatPercent) ||
+                e.PropertyName == nameof(CircuitRow.PipeSpacing_cm))
+            {
+                if (!_isInitializing && !_isResetting)
+                {
+                    _markDirtyService.MarkDirty();
+                }
             }
         }
 
@@ -853,8 +985,16 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             // Создать обработчик и подписаться на новый InputData
             _inputDataPropertyChangedHandler = (s, e) =>
             {
+                if (_isResetting) return;
+
+                if (!_isInitializing)
+                {
+                    _markDirtyService.MarkDirty();
+                }
+
                 if (e.PropertyName == nameof(HydraulicInputData.SupplySpacing_cm))
                 {
+                    _markDirtyService.MarkDirty();
                     OnPropertyChanged(nameof(SupplySpacing_cm));
                     foreach (var collector in Collectors)
                     {
@@ -867,6 +1007,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 }
                 else if (e.PropertyName == nameof(HydraulicInputData.SupplyHeatPercent))
                 {
+                    _markDirtyService.MarkDirty();
                     OnPropertyChanged(nameof(SupplyHeatPercent));
                     foreach (var collector in Collectors)
                     {
@@ -879,11 +1020,13 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 }
                 else if (e.PropertyName == nameof(HydraulicInputData.GlycolType))
                 {
+                    _markDirtyService.MarkDirty();
                     OnPropertyChanged(nameof(GlycolTypeName));
                     Calculate();
                 }
                 else if (e.PropertyName == nameof(HydraulicInputData.GlycolConcentration))
                 {
+                    _markDirtyService.MarkDirty();
                     Calculate();
                 }
             };

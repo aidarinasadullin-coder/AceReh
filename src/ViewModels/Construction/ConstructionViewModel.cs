@@ -10,6 +10,7 @@ using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Core;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
 
@@ -27,7 +28,9 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private readonly CalculationContext _calculationContext;
         private readonly IValidator<ConstructionModel> _validator;
         private readonly ConstructionModel _construction;
+        private readonly IMarkDirtyService _markDirtyService;
         private bool _isSyncing; // Флаг для предотвращения рекурсии при синхронизации
+        private bool _isResetting;
 
         #region Observable Properties
 
@@ -181,7 +184,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             ICalculationStateService calculationStateService,
             CalculationContext calculationContext,
             IValidator<ConstructionModel> validator,
-            ConstructionModel construction)
+            ConstructionModel construction,
+            IMarkDirtyService markDirtyService)
         {
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
@@ -190,6 +194,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
             _construction = construction ?? throw new ArgumentNullException(nameof(construction));
+            _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
 
             // Подписываемся на изменения коллекций
             LayersAbovePipe.CollectionChanged += OnLayersCollectionChanged;
@@ -248,6 +253,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         [RelayCommand]
         private void AddLayerAbovePipe()
         {
+            if (_isResetting) return;
             if (AvailableMaterials.Count == 0) return;
 
             var defaultMaterial = AvailableMaterials.FirstOrDefault(m => m.Id == 5) ?? AvailableMaterials.First();
@@ -263,6 +269,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             LayersAbovePipe.Add(layer);
             UpdateCalculations();
             HasUnsavedChanges = true;
+            _markDirtyService.MarkDirty();
         }
 
         /// <summary>
@@ -271,6 +278,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         [RelayCommand]
         private void AddLayerBelowPipe()
         {
+            if (_isResetting) return;
             if (AvailableMaterials.Count == 0) return;
 
             var defaultMaterial = AvailableMaterials.FirstOrDefault(m => m.Id == 1) ?? AvailableMaterials.First();
@@ -288,6 +296,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             LayersBelowPipe.Add(layer);
             UpdateCalculations();
             HasUnsavedChanges = true;
+            _markDirtyService.MarkDirty();
         }
 
         /// <summary>
@@ -296,6 +305,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         [RelayCommand]
         private void RemoveLayer(Layer? layer)
         {
+            if (_isResetting) return;
             if (layer == null) return;
 
             if (layer.Position == LayerPosition.AbovePipe)
@@ -320,6 +330,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             SelectedLayer = null;
             UpdateCalculations();
             HasUnsavedChanges = true;
+            _markDirtyService.MarkDirty();
         }
 
         /// <summary>
@@ -328,6 +339,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         [RelayCommand]
         private void ApplyTemplate()
         {
+            if (_isResetting) return;
             if (SelectedTemplate == null) return;
 
             try
@@ -363,6 +375,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
 
                 UpdateCalculations();
                 HasUnsavedChanges = true;
+                _markDirtyService.MarkDirty();
             }
             catch (Exception ex)
             {
@@ -436,63 +449,79 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         }
 
         /// <summary>
+        /// Сбросить ViewModel к значениям по умолчанию
+        /// </summary>
+        public void Reset()
+        {
+            _isResetting = true;
+            try
+            {
+                LayersAbovePipe.Clear();
+                LayersBelowPipe.Clear();
+
+                // Добавляем базовые слои
+                var concrete = AvailableMaterials.FirstOrDefault(m => m.Id == 5);
+                var sand = AvailableMaterials.FirstOrDefault(m => m.Id == 1);
+                var soil = AvailableMaterials.FirstOrDefault(m => m.Id == 2);
+
+                if (concrete != null)
+                {
+                    LayersAbovePipe.Add(new Layer
+                    {
+                        Material = concrete,
+                        Thickness = 100,
+                        CalculatedLambda = concrete.LambdaA,
+                        Position = LayerPosition.AbovePipe,
+                        Order = 0
+                    });
+                }
+
+                if (sand != null)
+                {
+                    LayersBelowPipe.Add(new Layer
+                    {
+                        Material = sand,
+                        Thickness = 150,
+                        CalculatedLambda = sand.LambdaA,
+                        Position = LayerPosition.BelowPipe,
+                        Order = 0
+                    });
+                }
+
+                if (soil != null)
+                {
+                    LayersBelowPipe.Add(new Layer
+                    {
+                        Material = soil,
+                        Thickness = 200,
+                        CalculatedLambda = soil.LambdaA,
+                        Position = LayerPosition.BelowPipe,
+                        Order = 1
+                    });
+                }
+
+                GroundwaterLevel = 2.0;
+                HasLoads = false;
+                SelectedGroundwaterOption = "УГВ >= 1 м (сухие условия)";
+                SelectedTemplate = null;
+                SelectedLayer = null;
+
+                UpdateCalculations();
+                HasUnsavedChanges = false;
+            }
+            finally
+            {
+                _isResetting = false;
+            }
+        }
+
+        /// <summary>
         /// Команда сброса к значениям по умолчанию
         /// </summary>
         [RelayCommand]
         private void ResetToDefault()
         {
-            LayersAbovePipe.Clear();
-            LayersBelowPipe.Clear();
-
-            // Добавляем базовые слои
-            var concrete = AvailableMaterials.FirstOrDefault(m => m.Id == 5);
-            var sand = AvailableMaterials.FirstOrDefault(m => m.Id == 1);
-            var soil = AvailableMaterials.FirstOrDefault(m => m.Id == 2);
-
-            if (concrete != null)
-            {
-                LayersAbovePipe.Add(new Layer
-                {
-                    Material = concrete,
-                    Thickness = 100,
-                    CalculatedLambda = concrete.LambdaA,
-                    Position = LayerPosition.AbovePipe,
-                    Order = 0
-                });
-            }
-
-            if (sand != null)
-            {
-                LayersBelowPipe.Add(new Layer
-                {
-                    Material = sand,
-                    Thickness = 150,
-                    CalculatedLambda = sand.LambdaA,
-                    Position = LayerPosition.BelowPipe,
-                    Order = 0
-                });
-            }
-
-            if (soil != null)
-            {
-                LayersBelowPipe.Add(new Layer
-                {
-                    Material = soil,
-                    Thickness = 200,
-                    CalculatedLambda = soil.LambdaA,
-                    Position = LayerPosition.BelowPipe,
-                    Order = 1
-                });
-            }
-
-            GroundwaterLevel = 2.0;
-            HasLoads = false;
-            SelectedGroundwaterOption = "УГВ >= 1 м (сухие условия)";
-            SelectedTemplate = null;
-            SelectedLayer = null;
-
-            UpdateCalculations();
-            HasUnsavedChanges = false;
+            Reset();
         }
 
         #endregion
@@ -523,6 +552,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
 
             UpdateCalculations();
             HasUnsavedChanges = true;
+            _markDirtyService.MarkDirty();
         }
 
         /// <summary>
@@ -597,6 +627,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         partial void OnGroundwaterLevelChanged(double value)
         {
+            if (_isResetting) return;
+
             // Обновляем λ для слоёв под трубой
             foreach (var layer in LayersBelowPipe)
             {
@@ -610,6 +642,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
 
             UpdateCalculations();
             HasUnsavedChanges = true;
+            _markDirtyService.MarkDirty();
         }
 
         /// <summary>
@@ -617,8 +650,11 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         partial void OnHasLoadsChanged(bool value)
         {
+            if (_isResetting) return;
+
             UpdateCalculations();
             HasUnsavedChanges = true;
+            _markDirtyService.MarkDirty();
         }
 
         /// <summary>
@@ -673,8 +709,9 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 }
             }
 
-            if (!_isSyncing)
+            if (!_isSyncing && !_isResetting)
             {
+                _markDirtyService.MarkDirty();
                 UpdateCalculations();
             }
         }
@@ -684,7 +721,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         private void OnLayerPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (_isSyncing) return;
+            if (_isSyncing || _isResetting) return;
 
             try
             {
@@ -693,6 +730,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                     e.PropertyName == nameof(Layer.CalculatedLambda) ||
                     e.PropertyName == nameof(Layer.Material))
                 {
+                    _markDirtyService.MarkDirty();
                     // При изменении материала обновляем λ с учётом УГВ
                     if (e.PropertyName == nameof(Layer.Material) && sender is Layer layer)
                     {
