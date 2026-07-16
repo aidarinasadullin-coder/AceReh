@@ -476,6 +476,19 @@
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"/>
                                         </Border>
+
+                                        <!-- Бейдж ошибки (!) -->
+                                        <Border Grid.Column="2"
+                                                 Style="{StaticResource NavigationBadgeStyle}"
+                                                 Background="#F44336"
+                                                 Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBlock Text="!"
+                                                       Foreground="White"
+                                                       FontWeight="Bold"
+                                                       FontSize="11"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
                                         
                                         <!-- Бейдж расчёта (⏳) -->
                                         <Border Grid.Column="2"

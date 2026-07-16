@@ -472,6 +472,7 @@ namespace SnowMeltingCalculator
             {
                 case ModuleState.Actual:
                     hydraulicsMenuItem.HasWarning = false;
+                    hydraulicsMenuItem.HasError = false;
                     hydraulicsMenuItem.IsCalculating = false;
                     hydraulicsMenuItem.BadgeColor = string.Empty;
                     break;
@@ -482,6 +483,12 @@ namespace SnowMeltingCalculator
                     hydraulicsMenuItem.HasWarning = false;
                     hydraulicsMenuItem.IsCalculating = true;
                     hydraulicsMenuItem.BadgeColor = "#2196F3"; // Синий
+                    break;
+                case ModuleState.Error:
+                    hydraulicsMenuItem.HasError = true;
+                    hydraulicsMenuItem.HasWarning = false;
+                    hydraulicsMenuItem.IsCalculating = false;
+                    hydraulicsMenuItem.BadgeColor = "#F44336";
                     break;
             }
         }
@@ -502,6 +509,9 @@ namespace SnowMeltingCalculator
 
         [ObservableProperty]
         private bool _hasWarning;
+
+        [ObservableProperty]
+        private bool _hasError;
 
         [ObservableProperty]
         private bool _isCalculating;
