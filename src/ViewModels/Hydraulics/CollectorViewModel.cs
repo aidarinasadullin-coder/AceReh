@@ -192,6 +192,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         {
             try
             {
+                await Task.CompletedTask;
+
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 

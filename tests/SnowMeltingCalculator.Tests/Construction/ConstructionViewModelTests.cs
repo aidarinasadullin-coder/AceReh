@@ -5,6 +5,7 @@ using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.ViewModels.Construction;
 using System;
 using System.Collections.ObjectModel;
@@ -25,6 +26,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         private MockMaterialRepository _mockMaterialRepository = null!;
         private MockConstructionRepository _mockConstructionRepository = null!;
         private Mock<ICalculationStateService> _mockCalculationStateService = null!;
+        private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
 
         [SetUp]
         public void Setup()
@@ -33,6 +35,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             _mockMaterialRepository = new MockMaterialRepository();
             _mockConstructionRepository = new MockConstructionRepository();
             _mockCalculationStateService = new Mock<ICalculationStateService>();
+            _markDirtyServiceMock = new Mock<IMarkDirtyService>();
             _mockCalculationStateService.SetupGet(s => s.PipeSpacing).Returns(200);
             var construction = new ConstructionModel();
             _viewModel = new ConstructionViewModel(
@@ -42,7 +45,8 @@ namespace SnowMeltingCalculator.Tests.Construction
                 _mockCalculationStateService.Object,
                 new SnowMeltingCalculator.Core.CalculationContext(),
                 new ConstructionValidator(),
-                construction);
+                construction,
+                _markDirtyServiceMock.Object);
         }
 
         #region Initialize Tests
@@ -486,6 +490,35 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // Assert
             Assert.That(_viewModel.HasUnsavedChanges, Is.False);
+        }
+
+        [Test]
+        public async Task Reset_AfterAddLayer_ClearsHasUnsavedChanges()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            _viewModel.AddLayerAbovePipeCommand.Execute(null);
+            Assert.That(_viewModel.HasUnsavedChanges, Is.True);
+
+            // Act
+            _viewModel.Reset();
+
+            // Assert
+            Assert.That(_viewModel.HasUnsavedChanges, Is.False);
+        }
+
+        [Test]
+        public async Task AddLayerAbovePipeCommand_SetsHasUnsavedChanges()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            _viewModel.HasUnsavedChanges = false;
+
+            // Act
+            _viewModel.AddLayerAbovePipeCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.HasUnsavedChanges, Is.True);
         }
 
         #endregion

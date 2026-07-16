@@ -8,6 +8,7 @@ using SnowMeltingCalculator.Services.Climate;
 using SnowMeltingCalculator.Services.Hydraulics;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Thermal;
+using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Thermal;
@@ -35,6 +36,7 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
         private Mock<ICalculationStateService> _calculationStateServiceMock = null!;
         private Mock<ICircuitsValidator> _validatorMock = null!;
         private Mock<ICollectorTypeSelector> _collectorTypeSelectorMock = null!;
+        private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
         private ClimateData _climateData = null!;
         private ConstructionData _constructionData = null!;
         private ThermalViewModel _thermalViewModel = null!;
@@ -52,6 +54,7 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
             _calculationStateServiceMock = new Mock<ICalculationStateService>();
             _validatorMock = new Mock<ICircuitsValidator>();
             _collectorTypeSelectorMock = new Mock<ICollectorTypeSelector>();
+            _markDirtyServiceMock = new Mock<IMarkDirtyService>();
 
             // Настраиваем канонический шаг укладки как backed-свойство с событием
             // (ICalculationStateService.PipeSpacing read-only, поэтому используем локальный бэкинг)
@@ -88,13 +91,15 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 _calculationStateServiceMock.Object,
                 _calculationContext,
                 new ThermalValidator(new ThermalCalculator(), _climateData, _constructionData),
-                new ThermalResultValidator()
+                new ThermalResultValidator(),
+                _markDirtyServiceMock.Object
             );
 
             _climateViewModel = new ClimateViewModel(
                 _climateDataServiceMock.Object,
                 _climateData,
                 new ClimateValidator(),
+                _markDirtyServiceMock.Object,
                 _calculationContext
             );
 
@@ -142,7 +147,8 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 _calculationStateServiceMock.Object,
                 _validatorMock.Object,
                 _collectorTypeSelectorMock.Object,
-                _calculationContext
+                _calculationContext,
+                _markDirtyServiceMock.Object
             );
 
             // Создаём коллектор с контурами и устанавливаем как выбранный

@@ -4,6 +4,7 @@ using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.Core;
 using System;
@@ -23,6 +24,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         private ClimateData _mockClimateData = null!;
         private ConstructionData _mockConstructionData = null!;
         private Mock<ICalculationStateService> _mockCalculationStateService = null!;
+        private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
         private IValidator<ThermalInputs> _thermalValidator = null!;
         private IValidator<ThermalCalculationResult> _thermalResultValidator = null!;
 
@@ -43,6 +45,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
                 LambdaE = 1.6
             };
             _mockCalculationStateService = new Mock<ICalculationStateService>();
+            _markDirtyServiceMock = new Mock<IMarkDirtyService>();
             _thermalValidator = new ThermalValidator(new ThermalCalculator(), _mockClimateData, _mockConstructionData);
             _thermalResultValidator = new ThermalResultValidator();
             _viewModel = new ThermalViewModel(
@@ -52,7 +55,8 @@ namespace SnowMeltingCalculator.Tests.Thermal
                 _mockCalculationStateService.Object,
                 new CalculationContext(),
                 _thermalValidator,
-                _thermalResultValidator);
+                _thermalResultValidator,
+                _markDirtyServiceMock.Object);
         }
 
         #region Constructor Tests
@@ -96,7 +100,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                new ThermalViewModel(null!, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object, new CalculationContext(), _thermalValidator, _thermalResultValidator));
+                new ThermalViewModel(null!, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object, new CalculationContext(), _thermalValidator, _thermalResultValidator, _markDirtyServiceMock.Object));
         }
 
         [Test]
@@ -104,7 +108,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                new ThermalViewModel(_mockCalculator, null!, _mockConstructionData, _mockCalculationStateService.Object, new CalculationContext(), _thermalValidator, _thermalResultValidator));
+                new ThermalViewModel(_mockCalculator, null!, _mockConstructionData, _mockCalculationStateService.Object, new CalculationContext(), _thermalValidator, _thermalResultValidator, _markDirtyServiceMock.Object));
         }
 
         [Test]
@@ -112,7 +116,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                new ThermalViewModel(_mockCalculator, _mockClimateData, null!, _mockCalculationStateService.Object, new CalculationContext(), _thermalValidator, _thermalResultValidator));
+                new ThermalViewModel(_mockCalculator, _mockClimateData, null!, _mockCalculationStateService.Object, new CalculationContext(), _thermalValidator, _thermalResultValidator, _markDirtyServiceMock.Object));
         }
 
         [Test]
@@ -120,7 +124,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                new ThermalViewModel(_mockCalculator, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object, new CalculationContext(), null!, _thermalResultValidator));
+                new ThermalViewModel(_mockCalculator, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object, new CalculationContext(), null!, _thermalResultValidator, _markDirtyServiceMock.Object));
         }
 
         [Test]
@@ -128,7 +132,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
         {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() =>
-                new ThermalViewModel(_mockCalculator, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object, new CalculationContext(), _thermalValidator, null!));
+                new ThermalViewModel(_mockCalculator, _mockClimateData, _mockConstructionData, _mockCalculationStateService.Object, new CalculationContext(), _thermalValidator, null!, _markDirtyServiceMock.Object));
         }
 
         #endregion

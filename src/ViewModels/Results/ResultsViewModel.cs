@@ -26,7 +26,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
     /// </summary>
     public partial class ResultsViewModel : ObservableObject
     {
-        private readonly IProjectInfoService _projectInfoService;
+        private readonly IProjectStateService _projectStateService;
+        private readonly IMarkDirtyService _markDirtyService;
+        private readonly IDialogService _dialogService;
         private readonly IPdfExportService _pdfExportService;
         private readonly IProjectFileService _projectFileService;
         private readonly IConstructionVisualizationImageService _constructionVisualizationImageService;
@@ -40,6 +42,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// Текущий путь к файлу проекта
         /// </summary>
         private string? _currentFilePath;
+        private bool _isResetting;
 
         #region Observable Properties
 
@@ -426,7 +429,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// Конструктор ViewModel результатов
         /// </summary>
         public ResultsViewModel(
-            IProjectInfoService projectInfoService,
+            IProjectStateService projectStateService,
+            IMarkDirtyService markDirtyService,
+            IDialogService dialogService,
             IPdfExportService pdfExportService,
             IProjectFileService projectFileService,
             IConstructionVisualizationImageService constructionVisualizationImageService,
@@ -436,7 +441,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
             ThermalViewModel thermalViewModel,
             CircuitsViewModel circuitsViewModel)
         {
-            _projectInfoService = projectInfoService ?? throw new ArgumentNullException(nameof(projectInfoService));
+            _projectStateService = projectStateService ?? throw new ArgumentNullException(nameof(projectStateService));
+            _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
+            _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _pdfExportService = pdfExportService ?? throw new ArgumentNullException(nameof(pdfExportService));
             _projectFileService = projectFileService ?? throw new ArgumentNullException(nameof(projectFileService));
             _constructionVisualizationImageService = constructionVisualizationImageService ?? throw new ArgumentNullException(nameof(constructionVisualizationImageService));
@@ -464,13 +471,17 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         private void OnProjectPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
+            if (_isResetting) return;
+
             if (e.PropertyName == nameof(ProjectNumber))
             {
-                _projectInfoService.ProjectNumber = ProjectNumber;
+                _projectStateService.ProjectNumber = ProjectNumber;
+                _markDirtyService.MarkDirty();
             }
             else if (e.PropertyName == nameof(ProjectObject))
             {
-                _projectInfoService.ProjectObject = ProjectObject;
+                _projectStateService.ProjectObject = ProjectObject;
+                _markDirtyService.MarkDirty();
             }
         }
 
@@ -515,7 +526,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
         [RelayCommand]
         private void SelectCollector(int number)
         {
-            var index = Collectors.IndexOf(Collectors.FirstOrDefault(c => c.Number == number));
+            var collector = Collectors.FirstOrDefault(c => c.Number == number);
+            if (collector == null)
+            {
+                return;
+            }
+
+            var index = Collectors.IndexOf(collector);
             if (index >= 0)
             {
                 SelectedCollectorIndex = index;
@@ -802,6 +819,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             if (await SaveToFile(filePath))
             {
                 _currentFilePath = filePath;
+                _projectStateService.CurrentFilePath = filePath;
             }
         }
 
@@ -827,9 +845,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
             }
 
             // Подтверждение загрузки, если есть несохранённые данные
-            if (!string.IsNullOrEmpty(_currentFilePath) || HasUnsavedData())
+            if (_projectStateService.IsDirty)
             {
-                var result = MessageBox.Show(
+                var result = _dialogService.Show(
                     "Текущий проект будет заменён. Продолжить?",
                     "Открытие проекта",
                     MessageBoxButton.YesNo,
@@ -841,6 +859,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
             LoadProjectData(data);
             _currentFilePath = filePath;
+            _projectStateService.CurrentFilePath = filePath;
+            _projectStateService.MarkClean();
 
             StatusMessage = $"Проект загружен: {Path.GetFileName(filePath)}";
             await Task.Delay(3000);
@@ -974,6 +994,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     StatusMessage = $"Проект сохранён: {Path.GetFileName(filePath)}";
                     await Task.Delay(3000);
                     StatusMessage = string.Empty;
+                    _projectStateService.MarkClean();
                     return true;
                 }
                 else
@@ -1002,8 +1023,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         private void LoadProjectInfo()
         {
-            ProjectNumber = _projectInfoService.ProjectNumber;
-            ProjectObject = _projectInfoService.ProjectObject;
+            ProjectNumber = _projectStateService.ProjectNumber;
+            ProjectObject = _projectStateService.ProjectObject;
         }
 
         /// <summary>
@@ -1503,6 +1524,63 @@ namespace SnowMeltingCalculator.ViewModels.Results
         }
 
         /// <summary>
+        /// Сбросить ViewModel к начальному состоянию
+        /// </summary>
+        public void Reset()
+        {
+            _isResetting = true;
+            try
+            {
+                ProjectNumber = string.Empty;
+                ProjectObject = string.Empty;
+                _currentFilePath = null;
+                _projectStateService.CurrentFilePath = null;
+                StatusMessage = string.Empty;
+                IsOperatingMode = true;
+
+                // Очистка кэшированных результатов
+                TotalThermalPower_kW = 0;
+                SystemVolume_L = 0;
+                PumpFlowRate_m3h = 0;
+                PumpHead_kPa = 0;
+                ExpansionTankVolume_L = 0;
+                SupplyTemperature = 0;
+                ReturnTemperature = 0;
+                OperatingTemperature = 0;
+                GroundTemperature = 0;
+                WindSpeed = 0;
+                SnowfallIntensity = 0;
+                SurfaceTemperature = 0;
+                GlycolConcentration = 0;
+                TotalPowerDensity = 0;
+                R1 = 0;
+                R2 = 0;
+                LambdaE = 0;
+                PowerUp = 0;
+                PowerDown = 0;
+                TotalPipeLength = 0;
+                RzsCount = 0;
+                PumpQ = 0;
+                PumpH = 0;
+                ExpansionTankV = 0;
+                Layers.Clear();
+                Collectors.Clear();
+                Circuits.Clear();
+                CollectorSpecifications.Clear();
+                SelectedCollectorIndex = 0;
+                CollectorSummary = null;
+                MissingModules.Clear();
+                IsDataReady = false;
+
+                _projectStateService.MarkClean();
+            }
+            finally
+            {
+                _isResetting = false;
+            }
+        }
+
+        /// <summary>
         /// Загрузить данные проекта из модели
         /// </summary>
         public void LoadProjectData(ProjectData data)
@@ -1519,8 +1597,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 // Загружаем информацию о проекте
                 ProjectNumber = data.ProjectNumber;
                 ProjectObject = data.ProjectObject;
-                _projectInfoService.ProjectNumber = data.ProjectNumber;
-                _projectInfoService.ProjectObject = data.ProjectObject;
+                _projectStateService.ProjectNumber = data.ProjectNumber;
+                _projectStateService.ProjectObject = data.ProjectObject;
 
                 // Загружаем климатические данные
                 _climateViewModel.SelectedCity = null;
@@ -1618,6 +1696,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
                 // Уведомляем об изменении проекта
                 ProjectChanged?.Invoke(this, data);
+
+                _projectStateService.MarkClean();
             }
             finally
             {
@@ -1841,6 +1921,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// <summary>
         /// Проверить наличие несохранённых данных
         /// </summary>
+        [Obsolete("Use IProjectStateService.IsDirty instead.")]
         private bool HasUnsavedData()
         {
             // Проверяем, есть ли данные для сохранения

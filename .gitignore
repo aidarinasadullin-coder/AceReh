@@ -30,6 +30,9 @@ Work/*.xlsm
 # Trash
 корзина/
 
+# Agent orchestration artifacts (OpenCode / OMO)
+.omo/
+
 # Keep data files
 !data/*.json
 !data/*.yaml

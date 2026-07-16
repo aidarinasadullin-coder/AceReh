@@ -8,6 +8,7 @@ using SnowMeltingCalculator.Models.Navigation;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Thermal;
+using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.ViewModels.Thermal
@@ -24,6 +25,8 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         private readonly CalculationContext _calculationContext;
         private readonly IValidator<ThermalInputs> _thermalValidator;
         private readonly IValidator<ThermalCalculationResult> _thermalResultValidator;
+        private readonly IMarkDirtyService _markDirtyService;
+        private bool _isResetting;
 
         #region Observable Properties
 
@@ -103,6 +106,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         partial void OnSelectedPipeChanged(PipeType? value)
         {
+            if (_isResetting) return;
+
+            _markDirtyService.MarkDirty();
             OnPropertyChanged(nameof(IsPipeSpacingEnabled));
 
             if (Result != null)
@@ -116,6 +122,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         partial void OnPipeSpacingChanged(int value)
         {
+            if (_isResetting) return;
+
+            _markDirtyService.MarkDirty();
             // Обновляем шаг укладки в сервисе для визуализации
             _calculationStateService.SetPipeSpacing(value, "ThermalViewModel");
 
@@ -130,6 +139,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         partial void OnSupplyTemperatureChanged(double value)
         {
+            if (_isResetting) return;
+
+            _markDirtyService.MarkDirty();
             if (Result != null)
             {
                 _calculationStateService.SetThermalNeedsRecalculation("Температура подачи изменена. Требуется пересчёт.");
@@ -141,6 +153,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         partial void OnGroundTemperatureChanged(double value)
         {
+            if (_isResetting) return;
+
+            _markDirtyService.MarkDirty();
             if (Result != null)
             {
                 _calculationStateService.SetThermalNeedsRecalculation("Температура грунта изменена. Требуется пересчёт.");
@@ -152,6 +167,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         partial void OnSelectedModeChanged(OperatingMode value)
         {
+            if (_isResetting) return;
+
+            _markDirtyService.MarkDirty();
             if (Result != null)
             {
                 _calculationStateService.SetThermalNeedsRecalculation("Режим работы изменён. Требуется пересчёт.");
@@ -222,7 +240,8 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             ICalculationStateService calculationStateService,
             CalculationContext calculationContext,
             IValidator<ThermalInputs> thermalValidator,
-            IValidator<ThermalCalculationResult> thermalResultValidator)
+            IValidator<ThermalCalculationResult> thermalResultValidator,
+            IMarkDirtyService markDirtyService)
         {
             _calculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
             _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
@@ -231,6 +250,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
             _thermalValidator = thermalValidator ?? throw new ArgumentNullException(nameof(thermalValidator));
             _thermalResultValidator = thermalResultValidator ?? throw new ArgumentNullException(nameof(thermalResultValidator));
+            _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
 
             // Инициализация коллекций
             AvailablePipes = new ObservableCollection<PipeType>(PipeType.StandardPipes);
@@ -256,7 +276,15 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
 
             // Подписка на изменения канонического шага укладки
             _calculationStateService.PipeSpacingChanged += OnPipeSpacingServiceChanged;
+
+            // Инициализация команды сброса
+            ResetCommand = new RelayCommand(Reset);
         }
+
+        /// <summary>
+        /// Команда сброса к дефолтным значениям
+        /// </summary>
+        public IRelayCommand ResetCommand { get; }
 
         #endregion
 
@@ -335,18 +363,25 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         }
 
         /// <summary>
-        /// Команда сброса к дефолтным значениям
+        /// Сбросить ViewModel к дефолтным значениям
         /// </summary>
-        [RelayCommand]
-        private void Reset()
+        public void Reset()
         {
-            SelectedMode = OperatingMode.Melting;
-            SupplyTemperature = 50.0;
-            GroundTemperature = 10.0;
-            SelectedPipe = null;
-            PipeSpacing = 200;
-            Result = null;
-            ValidationMessage = string.Empty;
+            _isResetting = true;
+            try
+            {
+                SelectedMode = OperatingMode.Melting;
+                SupplyTemperature = 50.0;
+                GroundTemperature = 10.0;
+                SelectedPipe = null;
+                PipeSpacing = 200;
+                Result = null;
+                ValidationMessage = string.Empty;
+            }
+            finally
+            {
+                _isResetting = false;
+            }
         }
 
         #endregion

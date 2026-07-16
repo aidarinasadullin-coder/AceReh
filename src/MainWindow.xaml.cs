@@ -6,6 +6,7 @@ using System.Windows.Shapes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
+using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Services;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Construction;
@@ -18,6 +19,7 @@ using SnowMeltingCalculator.Views.Thermal;
 using SnowMeltingCalculator.Views.Hydraulics;
 using SnowMeltingCalculator.Views.Results;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Models.Enums;
 using SnowMeltingCalculator.Models.Navigation;
 
@@ -29,7 +31,9 @@ namespace SnowMeltingCalculator
     public partial class MainWindow : Window
     {
         private MainViewModel? _viewModel;
-        private ResultsView? _resultsView;
+        private IProjectStateService? _projectStateService;
+        private IDialogService? _dialogService;
+        private bool _isClosingAfterSave;
 
         public MainWindow()
         {
@@ -51,7 +55,10 @@ namespace SnowMeltingCalculator
             var circuitsViewModel = services.GetRequiredService<CircuitsViewModel>();
             var resultsViewModel = services.GetRequiredService<ResultsViewModel>();
             var calculationStateService = services.GetRequiredService<ICalculationStateService>();
-            _viewModel = new MainViewModel(climateViewModel, thermalViewModel, constructionViewModel, circuitsViewModel, resultsViewModel, calculationStateService);
+            _projectStateService = services.GetRequiredService<IProjectStateService>();
+            _dialogService = services.GetRequiredService<IDialogService>();
+            var calculationContext = services.GetRequiredService<CalculationContext>();
+            _viewModel = new MainViewModel(climateViewModel, thermalViewModel, constructionViewModel, circuitsViewModel, resultsViewModel, calculationStateService, _projectStateService, _dialogService, calculationContext);
             DataContext = _viewModel;
 
             // Подписываемся на изменение состояния боковой панели для анимации
@@ -105,6 +112,68 @@ namespace SnowMeltingCalculator
                     e.Handled = true;
                 }
                 return;
+            }
+
+            // Ctrl+N для создания нового расчёта
+            if (e.Key == Key.N && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                if (_viewModel?.NewCalculationCommand != null)
+                {
+                    _viewModel.NewCalculationCommand.ExecuteAsync(null);
+                    e.Handled = true;
+                }
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Обработчик закрытия окна с проверкой несохранённых изменений
+        /// </summary>
+        private async void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            await MainWindow_ClosingAsync(e);
+        }
+
+        private async Task MainWindow_ClosingAsync(System.ComponentModel.CancelEventArgs e)
+        {
+            if (_isClosingAfterSave)
+            {
+                _isClosingAfterSave = false;
+                return;
+            }
+
+            if (_projectStateService == null || !_projectStateService.IsDirty)
+            {
+                return;
+            }
+
+            var result = _dialogService?.Show(
+                "Текущий проект имеет несохранённые изменения. Сохранить перед закрытием?",
+                "Закрытие приложения",
+                MessageBoxButton.YesNoCancel,
+                MessageBoxImage.Question);
+
+            switch (result)
+            {
+                case MessageBoxResult.Cancel:
+                    e.Cancel = true;
+                    break;
+
+                case MessageBoxResult.No:
+                    break;
+
+                case MessageBoxResult.Yes:
+                    e.Cancel = true;
+                    if (_viewModel?.ResultsViewModel.SaveProjectCommand != null)
+                    {
+                        await _viewModel.ResultsViewModel.SaveProjectCommand.ExecuteAsync(null);
+                        if (!_projectStateService.IsDirty)
+                        {
+                            _isClosingAfterSave = true;
+                            Close();
+                        }
+                    }
+                    break;
             }
         }
 
@@ -245,6 +314,9 @@ namespace SnowMeltingCalculator
         private readonly CircuitsViewModel _circuitsViewModel;
         private readonly ResultsViewModel _resultsViewModel;
         private readonly ICalculationStateService _calculationStateService;
+        private readonly IProjectStateService _projectStateService;
+        private readonly IDialogService _dialogService;
+        private readonly CalculationContext _calculationContext;
 
         public ResultsViewModel ResultsViewModel => _resultsViewModel;
 
@@ -261,7 +333,10 @@ namespace SnowMeltingCalculator
             ConstructionViewModel constructionViewModel,
             CircuitsViewModel circuitsViewModel,
             ResultsViewModel resultsViewModel,
-            ICalculationStateService calculationStateService)
+            ICalculationStateService calculationStateService,
+            IProjectStateService projectStateService,
+            IDialogService dialogService,
+            CalculationContext calculationContext)
         {
             _climateViewModel = climateViewModel;
             _thermalViewModel = thermalViewModel;
@@ -269,22 +344,30 @@ namespace SnowMeltingCalculator
             _circuitsViewModel = circuitsViewModel;
             _resultsViewModel = resultsViewModel;
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
+            _projectStateService = projectStateService ?? throw new ArgumentNullException(nameof(projectStateService));
+            _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
 
             // Подписка на изменения состояния
             _calculationStateService.StateChanged += OnCalculationStateChanged;
 
-            // Установка начального представления (используем кэшированный View)
-            _currentView = _climateView ??= new ClimateView { DataContext = _climateViewModel };
+            // Подписка на изменения состояния проекта для обновления заголовка окна
+            _projectStateService.PropertyChanged += OnProjectStateChanged;
+
+            // Начальное представление создаётся лениво при первом обращении (см. CurrentView)
             _selectedMenuItem = MenuItems[0];
 
             // Загрузка состояния боковой панели из настроек
             _isSidebarCollapsed = AppSettings.Instance.IsSidebarCollapsed;
+
+            // Инициализация заголовка окна
+            UpdateWindowTitle();
         }
 
-        private object _currentView;
+        private object? _currentView;
         public object CurrentView
         {
-            get => _currentView;
+            get => _currentView ??= (_climateView ??= new ClimateView { DataContext = _climateViewModel });
             private set => SetProperty(ref _currentView, value);
         }
 
@@ -343,6 +426,94 @@ namespace SnowMeltingCalculator
         private void ToggleSidebar()
         {
             IsSidebarCollapsed = !IsSidebarCollapsed;
+        }
+
+        private string _windowTitle = "Калькулятор снеготаяния REHAU";
+        /// <summary>
+        /// Заголовок главного окна с учётом несохранённых изменений
+        /// </summary>
+        public string WindowTitle
+        {
+            get => _windowTitle;
+            private set => SetProperty(ref _windowTitle, value);
+        }
+
+        private void UpdateWindowTitle()
+        {
+            var prefix = _projectStateService.IsDirty ? "*" : string.Empty;
+            var fileName = !string.IsNullOrEmpty(_projectStateService.CurrentFilePath)
+                ? System.IO.Path.GetFileName(_projectStateService.CurrentFilePath)
+                : null;
+
+            WindowTitle = (prefix, fileName) switch
+            {
+                ("*", null) => "*Новый расчёт — Калькулятор снеготаяния REHAU",
+                ("*", _) => $"*{fileName} — Калькулятор снеготаяния REHAU",
+                ("", _) when fileName != null => $"{fileName} — Калькулятор снеготаяния REHAU",
+                _ => "Калькулятор снеготаяния REHAU"
+            };
+        }
+
+        private void OnProjectStateChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IProjectStateService.IsDirty) ||
+                e.PropertyName == nameof(IProjectStateService.CurrentFilePath))
+            {
+                UpdateWindowTitle();
+            }
+        }
+
+        /// <summary>
+        /// Команда создания нового расчёта
+        /// </summary>
+        [RelayCommand]
+        private async Task NewCalculation()
+        {
+            if (!_projectStateService.IsDirty)
+            {
+                PerformNewCalculationReset();
+                return;
+            }
+
+            var result = _dialogService.Show(
+                "Текущий проект имеет несохранённые изменения. Сохранить перед созданием нового расчёта?",
+                "Создать новый расчёт",
+                MessageBoxButton.YesNoCancel,
+                MessageBoxImage.Question);
+
+            switch (result)
+            {
+                case MessageBoxResult.Yes:
+                    await _resultsViewModel.SaveProjectCommand.ExecuteAsync(null);
+                    if (!_projectStateService.IsDirty)
+                    {
+                        PerformNewCalculationReset();
+                    }
+                    break;
+
+                case MessageBoxResult.No:
+                    PerformNewCalculationReset();
+                    break;
+
+                case MessageBoxResult.Cancel:
+                default:
+                    return;
+            }
+        }
+
+        /// <summary>
+        /// Сброс всех ViewModel в начальное состояние при создании нового расчёта
+        /// </summary>
+        private void PerformNewCalculationReset()
+        {
+            _calculationContext.Reset();
+            _resultsViewModel.Reset();
+            _projectStateService.MarkClean();
+            _climateViewModel.Reset();
+            _constructionViewModel.Reset();
+            _thermalViewModel.Reset();
+            _circuitsViewModel.Reset();
+            _projectStateService.MarkClean();
         }
 
         private string _currentTitle = "Климатические данные";
