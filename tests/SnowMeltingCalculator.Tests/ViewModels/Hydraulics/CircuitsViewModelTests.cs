@@ -1235,6 +1235,228 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
 
         #endregion
 
+        #region Glycol Validation Tests
+
+        private const string GlycolConcentrationErrorText = "Концентрация должна быть от 0% или 10-90%";
+
+        /// <summary>
+        /// Устанавливает моку _glycolService на выброс ArgumentOutOfRangeException
+        /// при вызове GetProperties с указанной концентрацией.
+        /// Регистрируется ПОСЛЕ дефолтного мока в SetUp, чтобы иметь приоритет
+        /// (Moq применяет setups в обратном порядке регистрации).
+        /// </summary>
+        private void SetupGlycolServiceToThrowForConcentration(double concentration, string message)
+        {
+            _glycolServiceMock
+                .Setup(g => g.GetProperties(It.IsAny<GlycolType>(), concentration, It.IsAny<double>()))
+                .Throws(new ArgumentOutOfRangeException("concentration", message));
+        }
+
+        /// <summary>
+        /// Подготавливает один коллектор с одним контуром, имеющим CircuitLength > 0,
+        /// чтобы Calculate() проходил дальше валидации гликоля (либо не проходил —
+        /// для негативных кейсов достаточно, что контур существует).
+        /// </summary>
+        private CircuitRow PrepareSingleActiveCircuit()
+        {
+            var collector = _viewModel.Collectors[0];
+            collector.Circuits.Clear();
+            collector.Circuits.Add(new CircuitRow
+            {
+                CircuitNumber = 1,
+                CircuitLength = 100,
+                SupplyLength = 10
+            });
+            return collector.Circuits[0];
+        }
+
+        [Test]
+        public void Calculate_InvalidConcentration5Percent_SetsValidationMessage_ReturnsEarly()
+        {
+            // Arrange - мок _glycolService бросает ArgumentOutOfRangeException для 5.0
+            SetupGlycolServiceToThrowForConcentration(5.0, GlycolConcentrationErrorText);
+            var circuit = PrepareSingleActiveCircuit();
+            var flowRateBefore = circuit.FlowRate;
+            var operatingResultBefore = circuit.OperatingResult;
+
+            // Act - установка концентрации триггерит Calculate() через PropertyChanged
+            _viewModel.InputData.GlycolConcentration = 5.0;
+
+            // Assert - ValidationMessage содержит текст ошибки гликоля
+            Assert.That(_viewModel.ValidationMessage, Is.Not.Null);
+            Assert.That(_viewModel.ValidationMessage, Is.Not.Empty);
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Концентрация"));
+            // ArgumentOutOfRangeException.Message дописывает "(Parameter 'concentration')" суффиксом,
+            // поэтому проверяем по префиксу, а не полному равенству.
+            Assert.That(_viewModel.ValidationMessage, Does.Contain(GlycolConcentrationErrorText));
+
+            // Assert - GetProperties был вызван с концентрацией 5.0
+            _glycolServiceMock.Verify(
+                g => g.GetProperties(It.IsAny<GlycolType>(), 5.0, It.IsAny<double>()),
+                Times.AtLeastOnce);
+
+            // Assert - SetHydraulicsError был вызван с сообщением об ошибке
+            _calculationStateServiceMock.Verify(
+                s => s.SetHydraulicsError(It.Is<string>(m => m.Contains("Концентрация"))),
+                Times.AtLeastOnce);
+
+            // Assert - расчёт не продолжился: FlowRate и OperatingResult не изменились
+            Assert.That(circuit.FlowRate, Is.EqualTo(flowRateBefore),
+                "FlowRate не должен быть рассчитан при ошибке валидации");
+            Assert.That(circuit.OperatingResult, Is.SameAs(operatingResultBefore),
+                "OperatingResult не должен быть перезаписан при ошибке валидации");
+
+            // Assert - этапы калькулятора, идущие после валидации гликоля, не вызывались
+            _circuitsCalculatorMock.Verify(
+                c => c.CalculateCollectorSummary(It.IsAny<List<CircuitRow>>(), It.IsAny<int>(), It.IsAny<ValveType>()),
+                Times.Never);
+            _circuitsCalculatorMock.Verify(
+                c => c.CalculateAtTemperature(
+                    It.IsAny<CircuitRow>(),
+                    It.IsAny<double>(),
+                    It.IsAny<GlycolProperties>(),
+                    It.IsAny<double>(),
+                    It.IsAny<double>(),
+                    It.IsAny<ValveType>()),
+                Times.Never);
+
+            // Assert - ResetHydraulicsState НЕ вызывался (иначе Error был бы сброшен в Actual)
+            _calculationStateServiceMock.Verify(
+                s => s.ResetHydraulicsState(),
+                Times.Never);
+        }
+
+        [Test]
+        public void Calculate_ValidConcentration0PercentWater_DoesNotThrow_CalculatesSuccessfully()
+        {
+            // Arrange - мок _glycolService возвращает свойства воды для 0.0
+            _glycolServiceMock
+                .Setup(g => g.GetProperties(It.IsAny<GlycolType>(), 0.0, It.IsAny<double>()))
+                .Returns(new GlycolProperties
+                {
+                    Density = 1000,
+                    SpecificHeat = 4.18,
+                    KinematicViscosity = 1.0,
+                    ThermalConductivity = 0.6,
+                    Temperature = 50,
+                    Concentration = 0,
+                    GlycolType = GlycolType.Ethylene
+                });
+            PrepareSingleActiveCircuit();
+
+            // Act - установка концентрации 0% (вода) триггерит Calculate()
+            _viewModel.InputData.GlycolConcentration = 0.0;
+
+            // Assert - ValidationMessage пуст (0% — допустимая концентрация)
+            Assert.That(_viewModel.ValidationMessage, Is.Not.Null);
+            Assert.That(_viewModel.ValidationMessage, Is.EqualTo(string.Empty),
+                "0% (вода) — допустимая концентрация, ValidationMessage должен быть пустым");
+
+            // Assert - GetProperties был вызван с 0.0 (исключения не было)
+            _glycolServiceMock.Verify(
+                g => g.GetProperties(It.IsAny<GlycolType>(), 0.0, It.IsAny<double>()),
+                Times.AtLeastOnce);
+
+            // Assert - расчёт продолжился: этап summary был выполнен
+            _circuitsCalculatorMock.Verify(
+                c => c.CalculateCollectorSummary(It.IsAny<List<CircuitRow>>(), It.IsAny<int>(), It.IsAny<ValveType>()),
+                Times.AtLeastOnce);
+
+            // Assert - ошибка не была выставлена в state service
+            _calculationStateServiceMock.Verify(
+                s => s.SetHydraulicsError(It.IsAny<string>()),
+                Times.Never);
+
+            // Assert - финальный finally-блок сделал ResetHydraulicsState (т.к. errorHandled == false)
+            _calculationStateServiceMock.Verify(
+                s => s.ResetHydraulicsState(),
+                Times.AtLeastOnce);
+        }
+
+        [Test]
+        public void Calculate_ThenFixConcentration_ClearsValidationMessage()
+        {
+            // Arrange - мок бросает для 5.0; для 40.0 сработает дефолтный мок из SetUp,
+            // который возвращает валидные GlycolProperties (Density=1050 и т.д.)
+            SetupGlycolServiceToThrowForConcentration(5.0, GlycolConcentrationErrorText);
+            PrepareSingleActiveCircuit();
+
+            // Act 1 - невалидная концентрация, ошибка
+            _viewModel.InputData.GlycolConcentration = 5.0;
+
+            // Assert 1 - ValidationMessage заполнен после ошибки
+            Assert.That(_viewModel.ValidationMessage, Is.Not.Empty,
+                "После ошибки валидации ValidationMessage должен быть заполнен");
+            _calculationStateServiceMock.Verify(
+                s => s.SetHydraulicsError(It.IsAny<string>()),
+                Times.Once);
+
+            // Act 2 - пользователь исправил концентрацию на валидную
+            _viewModel.InputData.GlycolConcentration = 40.0;
+
+            // Assert 2 - ValidationMessage очищен
+            Assert.That(_viewModel.ValidationMessage, Is.EqualTo(string.Empty),
+                "ValidationMessage должен быть очищен после успешного пересчёта");
+
+            // Assert - SetHydraulicsError был вызван только один раз (из первой попытки)
+            _calculationStateServiceMock.Verify(
+                s => s.SetHydraulicsError(It.IsAny<string>()),
+                Times.Once);
+
+            // Assert - ResetHydraulicsState был вызван только один раз (из второй попытки в finally)
+            _calculationStateServiceMock.Verify(
+                s => s.ResetHydraulicsState(),
+                Times.Once);
+
+            // Assert - расчёт продолжился на второй попытке
+            _circuitsCalculatorMock.Verify(
+                c => c.CalculateCollectorSummary(It.IsAny<List<CircuitRow>>(), It.IsAny<int>(), It.IsAny<ValveType>()),
+                Times.AtLeastOnce);
+        }
+
+        [Test]
+        public void Calculate_InvalidConcentration_DoesNotSetThermalViewModelValidationMessage()
+        {
+            // Arrange - мок _glycolService бросает для 5.0
+            SetupGlycolServiceToThrowForConcentration(5.0, GlycolConcentrationErrorText);
+            PrepareSingleActiveCircuit();
+
+            // Act - ошибка валидации в гидравлическом модуле
+            _viewModel.InputData.GlycolConcentration = 5.0;
+
+            // Assert 1 - гидравлический модуль принял ошибку (sanity check)
+            Assert.That(_viewModel.ValidationMessage, Does.Contain("Концентрация"),
+                "Гидравлический модуль должен отображать ошибку концентрации");
+            _calculationStateServiceMock.Verify(
+                s => s.SetHydraulicsError(It.Is<string>(m => m.Contains("Концентрация"))),
+                Times.AtLeastOnce);
+
+            // Assert 2 (cross-module isolation) - в тепловом модуле методы-мутаторы НЕ вызывались
+            _calculationStateServiceMock.Verify(
+                s => s.SetThermalNeedsRecalculation(It.IsAny<string>()),
+                Times.Never,
+                "Ошибка гидравлики НЕ должна пробрасываться в тепловой модуль через SetThermalNeedsRecalculation");
+            _calculationStateServiceMock.Verify(
+                s => s.SetThermalCalculating(),
+                Times.Never,
+                "Ошибка гидравлики НЕ должна запускать тепловой расчёт");
+            _calculationStateServiceMock.Verify(
+                s => s.ResetThermalState(),
+                Times.Never,
+                "Ошибка гидравлики НЕ должна сбрасывать состояние теплового модуля");
+
+            // Assert 3 (cross-module isolation) - ThermalValidationMessage не содержит текст ошибки гликоля
+            var thermalMessage = _calculationStateServiceMock.Object.ThermalValidationMessage;
+            Assert.That(thermalMessage, Is.Null.Or.Empty,
+                "ThermalValidationMessage должен оставаться пустым после ошибки гидравлики");
+            Assert.That(thermalMessage ?? string.Empty, Does.Not.Contain("Концентрация"),
+                "ThermalValidationMessage не должен содержать текст ошибки концентрации");
+            Assert.That(thermalMessage ?? string.Empty, Is.Not.EqualTo(GlycolConcentrationErrorText),
+                "ThermalValidationMessage не должен совпадать с текстом ошибки гликоля");
+        }
+
+        #endregion
+
         #region Helper Methods
 
         /// <summary>
