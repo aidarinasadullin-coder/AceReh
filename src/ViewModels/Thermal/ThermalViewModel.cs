@@ -384,6 +384,18 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             }
         }
 
+        /// <summary>
+        /// Загрузить готовый результат теплового расчёта (без пересчёта) и опубликовать в контекст.
+        /// Используется путём загрузки проекта как canonical writer thermal-данных.
+        /// </summary>
+        public void LoadResult(ThermalCalculationResult result, ThermalInputs? inputs = null)
+        {
+            Result = result;
+            var thermalInputs = inputs ?? BuildThermalInputs();
+            _calculationContext.UpdateThermalInputs(thermalInputs, "Thermal");
+            _calculationContext.UpdateThermal(result, "Thermal");
+        }
+
         #endregion
 
         #region Public Methods
