@@ -340,8 +340,10 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                     ValidationMessage = string.Join("; ", messages);
                 }
 
-                // Публикуем валидный результат в общий контекст
-                if (Result != null && Result.IsValid && resultValidation.IsValid)
+                // Публикуем результат в общий контекст ВСЕГДА (вкл. invalid) —
+                // потребитель (CircuitsViewModel) реагирует через OnCalculationContextChanged,
+                // вызывая Notify-only без Calculate при invalid.
+                if (Result != null)
                 {
                     _calculationContext.UpdateThermal(Result, "Thermal");
                 }
@@ -353,6 +355,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             {
                 ValidationMessage = $"Ошибка расчёта: {ex.Message}";
                 Result = null;
+                _calculationContext.UpdateThermal(
+                    new ThermalCalculationResult { IsValid = false, ValidationErrors = new[] { $"Ошибка расчёта: {ex.Message}" } },
+                    "Thermal");
                 // При ошибке также сбросить состояние
                 _calculationStateService.ResetThermalState();
             }

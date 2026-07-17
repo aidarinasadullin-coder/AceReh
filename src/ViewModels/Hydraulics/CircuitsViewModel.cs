@@ -894,8 +894,9 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// Реагируем на ThermalInputs, ThermalResult и Climate.
         /// - ThermalInputs: уведомляем UI о смене трубы/шага укладки (без пересчёта,
         ///   т.к. изменение входных данных ещё не означает готовности результата).
-        /// - ThermalResult (логическое завершение теплового расчёта): уведомляем UI
-        ///   и запускаем гидравлический пересчёт.
+        /// - ThermalResult (логическое завершение теплового расчёта): уведомляем UI.
+        ///   Пересчёт гидравлики запускается только при валидном результате;
+        ///   invalid/null оставляет fallback в UI без расчёта по невалидным данным.
         /// - Climate: обновляем расчётную температуру и пересчитываем гидравлику.
         /// Собственные изменения контекста (Source == "CircuitsViewModel") игнорируем,
         /// чтобы избежать двойного пересчёта — Calculate вызывается явно.
@@ -914,7 +915,12 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
                 case nameof(CalculationContext.ThermalResult):
                     NotifyThermalPropertiesChanged();
-                    Calculate();
+                    // Только валидный результат вызывает пересчёт;
+                    // invalid/null показывает fallback в UI без расчёта по невалидным данным.
+                    if (_calculationContext.ThermalResult?.IsValid == true)
+                    {
+                        Calculate();
+                    }
                     break;
 
                 case nameof(CalculationContext.Climate):
