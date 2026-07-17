@@ -849,39 +849,14 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         {
             if (thermalResult == null || !thermalResult.IsValid)
             {
-                // Сбросить гидравлические входные данные
                 SetInputData(new HydraulicInputData());
-
-                // Инвалидировать тепловой результат в контексте, чтобы свойства вернули fallback
-                _calculationContext.UpdateThermal(
-                    new ThermalCalculationResult { IsValid = false },
-                    "CircuitsViewModel"
-                );
-
                 NotifyThermalPropertiesChanged();
                 return;
             }
 
-            // Обновить входные параметры трубы в контексте (только если передана труба)
-            if (selectedPipe != null)
-            {
-                var inputs = _calculationContext.ThermalInputs ?? new ThermalInputs();
-                _calculationContext.UpdateThermalInputs(
-                    inputs with { Pipe = selectedPipe },
-                    "CircuitsViewModel"
-                );
-            }
-
-            // Обновить результат теплового расчёта в контексте
-            if (thermalResult is ThermalCalculationResult result)
-            {
-                _calculationContext.UpdateThermal(result, "CircuitsViewModel");
-            }
-
-            // Уведомить об изменении свойств для отображения в блоках
+            // Тепловые данные уже в CalculationContext (опубликованы ThermalViewModel.LoadResult или ThermalViewModel.Calculate).
+            // CircuitsViewModel — чистый потребитель.
             NotifyThermalPropertiesChanged();
-
-            // Выполнить расчёт после обновления данных
             Calculate();
         }
 
