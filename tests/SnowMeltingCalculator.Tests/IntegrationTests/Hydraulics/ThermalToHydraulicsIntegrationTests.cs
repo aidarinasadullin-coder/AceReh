@@ -262,8 +262,11 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 ReturnTemperature = 30.0,
                 IsValid = true
             };
+            var inputs = _thermalViewModel.BuildThermalInputs();
 
-            // Act - напрямую через публичный метод UpdateFromThermalModule (T15 contract)
+            // Act - seed context externally, then invoke UpdateFromThermalModule (T15 contract)
+            _calculationContext.UpdateThermalInputs(inputs, "Test");
+            _calculationContext.UpdateThermal(thermalResult, "Test");
             _viewModel.UpdateFromThermalModule(thermalResult, null);
 
             // Assert - проверяем, что InputData обновился
@@ -578,8 +581,9 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 IsValid = true
             };
 
-            // Act - параметры трубы в контекст, результат через UpdateFromThermalModule
+            // Act - seed context externally, then invoke UpdateFromThermalModule
             SetThermalInputsInContext(pipe);
+            _calculationContext.UpdateThermal(thermalResult, "Test");
             _viewModel.UpdateFromThermalModule(thermalResult, pipe);
 
             // Assert - все поля должны быть обновлены
@@ -633,8 +637,11 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 ReturnTemperature = 0.0,
                 IsValid = true
             };
+            var inputs = _thermalViewModel.BuildThermalInputs();
 
-            // Act
+            // Act - seed context externally, then invoke UpdateFromThermalModule
+            _calculationContext.UpdateThermalInputs(inputs, "Test");
+            _calculationContext.UpdateThermal(thermalResult, "Test");
             _viewModel.UpdateFromThermalModule(thermalResult, null);
 
             // Assert - нулевые значения должны быть переданы
@@ -654,8 +661,11 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 ReturnTemperature = 30.0,
                 IsValid = true
             };
+            var inputs = _thermalViewModel.BuildThermalInputs();
 
-            // Act
+            // Act - seed context externally, then invoke UpdateFromThermalModule
+            _calculationContext.UpdateThermalInputs(inputs, "Test");
+            _calculationContext.UpdateThermal(thermalResult, "Test");
             _viewModel.UpdateFromThermalModule(thermalResult, null);
 
             // Assert

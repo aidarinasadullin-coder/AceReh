@@ -458,7 +458,12 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 double pipeSpacing_mm = thermalInputs?.PipeSpacing ?? _calculationStateService.PipeSpacing;
 
                 var collector = SelectedCollector;
-                if (collector == null) return;
+                if (collector == null)
+                {
+                    // Нет коллектора — сбросить результаты гидравлики в контексте (не оставлять stale).
+                    _calculationContext.UpdateHydraulics(((List<CollectorSummary>?)null)!, "CircuitsViewModel");
+                    return;
+                }
 
                 double operatingTemp = thermalResult?.MeanTemperature ?? 0.0;
                 double designTemp = _calculationContext.AirTemperature;
@@ -578,11 +583,21 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 {
                     circuit.DisplayMode = CurrentMode;
                 }
+
+                // === ЭТАП 8: Опубликовать результаты гидравлики в общий контекст ===
+                var summaries = Collectors
+                    .Where(c => c.Summary != null)
+                    .Select(c => c.Summary!)
+                    .ToList();
+                _calculationContext.UpdateHydraulics(summaries, "CircuitsViewModel");
             }
             finally
             {
-                // Сбросить состояние после расчёта, только если ошибка валидации не была обработана
-                // (иначе ResetHydraulicsState перезапишет ModuleState.Error → Actual)
+                if (errorHandled)
+                {
+                    // Сбросить результаты гидравлики в контексте, т.к. они могли стать stale.
+                    _calculationContext.UpdateHydraulics(((List<CollectorSummary>?)null)!, "CircuitsViewModel");
+                }
                 if (!errorHandled) _calculationStateService.ResetHydraulicsState();
             }
         }
