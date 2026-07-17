@@ -1685,10 +1685,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 // Обновляем все данные
                 RefreshAll();
 
-                // Принудительно вызываем пересчёт гидравлики, т.к. PropertyChanged может не сработать
-                if (_thermalViewModel.Result?.IsValid == true)
+                // Canonical writer thermal: ThermalViewModel публикует в контекст.
+                // CircuitsViewModel — чистый потребитель; Calculate срабатывает через OnCalculationContextChanged.
+                if (_thermalViewModel.Result != null)
                 {
-                    _circuitsViewModel.UpdateFromThermalModule(_thermalViewModel.Result, _thermalViewModel.SelectedPipe);
+                    _thermalViewModel.LoadResult(_thermalViewModel.Result);
+                    // Если invalid, OnCalculationContextChanged сделает Notify-only без Calculate.
+                    // Если валидный, Calculate сработает автоматически — ручной вызов ниже не нужен.
                 }
 
                 // Восстанавливаем результаты контуров из сохранённых данных
