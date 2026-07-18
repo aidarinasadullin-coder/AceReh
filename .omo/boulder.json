@@ -1,15 +1,30 @@
 {
   "schema_version": 2,
-  "active_work_id": "fix-save-load-roundtrip-20260718",
+  "active_work_id": null,
   "works": {
     "fix-save-load-roundtrip-20260718": {
       "work_id": "fix-save-load-roundtrip-20260718",
       "active_plan": "D:\\IA\\ace\\.omo\\plans\\fix-save-load-roundtrip.md",
       "plan_name": "fix-save-load-roundtrip",
       "session_ids": ["opencode:ses_current"],
-      "status": "active",
+      "status": "completed",
       "started_at": "2026-07-18T00:30:00.000Z",
-      "updated_at": "2026-07-18T00:30:00.000Z",
+      "ended_at": "2026-07-18T01:00:00.000Z",
+      "updated_at": "2026-07-18T01:00:00.000Z",
+      "agent": "atlas",
+      "task_sessions": {},
+      "worktree_path": null
+    },
+    "fix-delta-t-input-20260718": {
+      "work_id": "fix-delta-t-input-20260718",
+      "active_plan": "D:\\IA\\ace\\.omo\\plans\\fix-delta-t-input.md",
+      "plan_name": "fix-delta-t-input",
+      "session_ids": ["opencode:ses_current"],
+      "status": "completed",
+      "started_at": "2026-07-18T01:00:00.000Z",
+      "ended_at": "2026-07-18T02:00:00.000Z",
+      "elapsed_ms": 3600000,
+      "updated_at": "2026-07-18T02:00:00.000Z",
       "agent": "atlas",
       "task_sessions": {},
       "worktree_path": null
