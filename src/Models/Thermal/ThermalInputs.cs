@@ -22,11 +22,6 @@ namespace SnowMeltingCalculator.Models.Thermal
         public double SupplyTemperature { get; init; } = 50.0;
 
         /// <summary>
-        /// Температурный перепад, К
-        /// </summary>
-        public double DeltaT { get; init; } = 15.0;
-
-        /// <summary>
         /// Температура грунта, °C
         /// </summary>
         public double GroundTemperature { get; init; } = 10.0;

@@ -455,7 +455,9 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     powerDown = DefaultPowerDown;
                 }
 
-                double deltaT = thermalResult?.DeltaT ?? thermalInputs?.DeltaT ?? (supplyTemperature - returnTemperature);
+                // DeltaT — выход калькулятора (Supply − Return), не вход. Fallback на 5 К
+                // при холодном пуске без теплового расчёта (supply=35, return=30 по умолчанию).
+                double deltaT = thermalResult?.DeltaT ?? (supplyTemperature - returnTemperature);
                 if (deltaT <= 0)
                 {
                     deltaT = 5.0;
