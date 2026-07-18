@@ -419,7 +419,6 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             {
                 Mode = SelectedMode,
                 SupplyTemperature = SupplyTemperature,
-                DeltaT = 15.0, // Значение по умолчанию для совместимости с гидравлическим расчётом
                 GroundTemperature = GroundTemperature,
                 Pipe = SelectedPipe!, // Валидация гарантирует, что SelectedPipe не null при вызове
                 PipeSpacing = PipeSpacing,
