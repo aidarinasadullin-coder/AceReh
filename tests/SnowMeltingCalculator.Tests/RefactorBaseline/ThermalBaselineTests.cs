@@ -48,7 +48,6 @@ namespace SnowMeltingCalculator.Tests.RefactorBaseline
             {
                 Mode = mode,
                 SupplyTemperature = 50.0,
-                DeltaT = 15.0,
                 GroundTemperature = 10.0,
                 Pipe = PipeType.StandardPipes[pipeIndex],
                 PipeSpacing = 200.0,
