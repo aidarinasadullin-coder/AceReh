@@ -107,6 +107,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         partial void OnSelectedPipeChanged(PipeType? value)
         {
             if (_isResetting) return;
+            if (_calculationStateService.IsLoadProjectInProgress) return;
 
             _markDirtyService.MarkDirty();
             OnPropertyChanged(nameof(IsPipeSpacingEnabled));
@@ -123,6 +124,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         partial void OnPipeSpacingChanged(int value)
         {
             if (_isResetting) return;
+            if (_calculationStateService.IsLoadProjectInProgress) return;
 
             _markDirtyService.MarkDirty();
             // Обновляем шаг укладки в сервисе для визуализации
@@ -140,6 +142,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         partial void OnSupplyTemperatureChanged(double value)
         {
             if (_isResetting) return;
+            if (_calculationStateService.IsLoadProjectInProgress) return;
 
             _markDirtyService.MarkDirty();
             if (Result != null)
@@ -154,6 +157,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         partial void OnGroundTemperatureChanged(double value)
         {
             if (_isResetting) return;
+            if (_calculationStateService.IsLoadProjectInProgress) return;
 
             _markDirtyService.MarkDirty();
             if (Result != null)
@@ -168,6 +172,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         partial void OnSelectedModeChanged(OperatingMode value)
         {
             if (_isResetting) return;
+            if (_calculationStateService.IsLoadProjectInProgress) return;
 
             _markDirtyService.MarkDirty();
             if (Result != null)
