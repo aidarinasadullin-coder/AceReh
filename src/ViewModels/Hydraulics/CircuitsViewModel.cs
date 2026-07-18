@@ -43,6 +43,13 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         private bool _isInitializing = true;
         private bool _isResetting;
 
+        /// <summary>
+        /// Коллекторы, к которым текущий ViewModel уже подписан на события.
+        /// Используется для корректного отсоединения обработчиков при Reset,
+        /// когда ObservableCollection не предоставляет OldItems.
+        /// </summary>
+        private readonly List<CollectorData> _subscribedCollectors = new();
+
         #endregion
 
         #region Observable Properties
@@ -496,11 +503,15 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 double pipeSpacing_cm = pipeSpacing_mm / 10.0;
 
                 // Синхронизировать шаг укладки во всех контурах перед расчётом
-                foreach (var col in Collectors)
+                // При загрузке проекта сохраняем per-circuit значения из файла.
+                if (!_calculationStateService.IsLoadProjectInProgress)
                 {
-                    foreach (var circuit in col.Circuits)
+                    foreach (var col in Collectors)
                     {
-                        circuit.PipeSpacing_cm = pipeSpacing_cm;
+                        foreach (var circuit in col.Circuits)
+                        {
+                            circuit.PipeSpacing_cm = pipeSpacing_cm;
+                        }
                     }
                 }
 
@@ -702,36 +713,104 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// </summary>
         private void OnCollectorsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (e.NewItems != null)
+            switch (e.Action)
             {
-                foreach (CollectorData collector in e.NewItems)
-                {
-                    collector.PropertyChanged += OnCollectorPropertyChanged;
-                    collector.Circuits.CollectionChanged += OnCircuitsCollectionChanged;
-                    foreach (var circuit in collector.Circuits)
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                    if (e.NewItems != null)
                     {
-                        circuit.PropertyChanged += OnCircuitPropertyChanged;
+                        foreach (CollectorData collector in e.NewItems)
+                        {
+                            AttachCircuitEvents(collector);
+                        }
                     }
-                }
-            }
+                    break;
 
-            if (e.OldItems != null)
-            {
-                foreach (CollectorData collector in e.OldItems)
-                {
-                    collector.PropertyChanged -= OnCollectorPropertyChanged;
-                    collector.Circuits.CollectionChanged -= OnCircuitsCollectionChanged;
-                    foreach (var circuit in collector.Circuits)
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                    if (e.OldItems != null)
                     {
-                        circuit.PropertyChanged -= OnCircuitPropertyChanged;
+                        foreach (CollectorData collector in e.OldItems)
+                        {
+                            DetachCircuitEvents(collector);
+                        }
                     }
-                }
+                    break;
+
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
+                    if (e.OldItems != null)
+                    {
+                        foreach (CollectorData collector in e.OldItems)
+                        {
+                            DetachCircuitEvents(collector);
+                        }
+                    }
+                    if (e.NewItems != null)
+                    {
+                        foreach (CollectorData collector in e.NewItems)
+                        {
+                            AttachCircuitEvents(collector);
+                        }
+                    }
+                    break;
+
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+                    // Reset очищает коллекцию; OldItems недоступен, поэтому отсоединяемся
+                    // от всех ранее отслеживаемых коллекторов. Повторная подписка НЕ производится —
+                    // новые элементы попадут сюда через отдельное событие Add.
+                    foreach (var collector in _subscribedCollectors.ToList())
+                    {
+                        DetachCircuitEvents(collector);
+                    }
+                    break;
+
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
+                    // Перемещение не меняет подписок.
+                    break;
             }
 
             if (!_isInitializing && !_isResetting)
             {
                 _markDirtyService.MarkDirty();
             }
+        }
+
+        /// <summary>
+        /// Подписать ViewModel на события коллектора и его контуров.
+        /// </summary>
+        private void AttachCircuitEvents(CollectorData collector)
+        {
+            if (collector == null || _subscribedCollectors.Contains(collector))
+            {
+                return;
+            }
+
+            collector.PropertyChanged += OnCollectorPropertyChanged;
+            collector.Circuits.CollectionChanged += OnCircuitsCollectionChanged;
+            foreach (var circuit in collector.Circuits)
+            {
+                circuit.PropertyChanged += OnCircuitPropertyChanged;
+            }
+
+            _subscribedCollectors.Add(collector);
+        }
+
+        /// <summary>
+        /// Отписать ViewModel от событий коллектора и его контуров.
+        /// </summary>
+        private void DetachCircuitEvents(CollectorData collector)
+        {
+            if (collector == null)
+            {
+                return;
+            }
+
+            collector.PropertyChanged -= OnCollectorPropertyChanged;
+            collector.Circuits.CollectionChanged -= OnCircuitsCollectionChanged;
+            foreach (var circuit in collector.Circuits)
+            {
+                circuit.PropertyChanged -= OnCircuitPropertyChanged;
+            }
+
+            _subscribedCollectors.Remove(collector);
         }
 
         /// <summary>
@@ -982,6 +1061,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             _inputDataPropertyChangedHandler = (s, e) =>
             {
                 if (_isResetting) return;
+                if (_calculationStateService.IsLoadProjectInProgress) return;
 
                 if (!_isInitializing)
                 {
