@@ -1,3 +1,6 @@
+using System.Threading;
+using SnowMeltingCalculator.Core.Results;
+
 namespace SnowMeltingCalculator.Services.Project
 {
     /// <summary>
@@ -10,28 +13,35 @@ namespace SnowMeltingCalculator.Services.Project
         /// </summary>
         /// <param name="filePath">Путь к файлу</param>
         /// <param name="data">Данные проекта</param>
+        /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>true в случае успеха</returns>
-        Task<bool> SaveProjectAsync(string filePath, Models.Project.ProjectData data);
+        [Obsolete("Use SaveProjectResultAsync/LoadProjectResultAsync")]
+        Task<bool> SaveProjectAsync(string filePath, Models.Project.ProjectData data, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Загрузить проект из файла
         /// </summary>
         /// <param name="filePath">Путь к файлу</param>
         /// <returns>Данные проекта или null в случае ошибки</returns>
+        [Obsolete("Use SaveProjectResultAsync/LoadProjectResultAsync")]
         Task<Models.Project.ProjectData?> LoadProjectAsync(string filePath);
 
         /// <summary>
-        /// Получить путь для сохранения файла через диалог
+        /// Сохранить проект в файл с детальным результатом операции
         /// </summary>
-        /// <param name="defaultFileName">Имя файла по умолчанию</param>
-        /// <returns>Путь к файлу или null если отменено</returns>
-        Task<string?> GetSaveFilePathAsync(string defaultFileName);
+        /// <param name="filePath">Путь к файлу</param>
+        /// <param name="data">Данные проекта</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Результат операции сохранения</returns>
+        Task<OperationResult<object?>> SaveProjectResultAsync(string filePath, Models.Project.ProjectData data, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Получить путь к файлу для открытия через диалог
+        /// Загрузить проект из файла с детальным результатом операции
         /// </summary>
-        /// <returns>Путь к файлу или null если отменено</returns>
-        Task<string?> GetOpenFilePathAsync();
+        /// <param name="filePath">Путь к файлу</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Результат операции загрузки</returns>
+        Task<OperationResult<Models.Project.ProjectData>> LoadProjectResultAsync(string filePath, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Проверить, является ли файл проектом SMC

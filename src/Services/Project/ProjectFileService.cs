@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.Win32;
+using SnowMeltingCalculator.Core.Results;
 using SnowMeltingCalculator.Models.Project;
 
 namespace SnowMeltingCalculator.Services.Project
@@ -36,19 +36,11 @@ namespace SnowMeltingCalculator.Services.Project
         }
 
         /// <inheritdoc />
-        public async Task<bool> SaveProjectAsync(string filePath, ProjectData data)
+        [Obsolete("Use SaveProjectResultAsync/LoadProjectResultAsync")]
+        public async Task<bool> SaveProjectAsync(string filePath, ProjectData data, CancellationToken cancellationToken = default)
         {
             try
             {
-                // Обновляем дату изменения
-                data.ModifiedDate = DateTime.Now;
-
-                // Если это новый файл, устанавливаем дату создания
-                if (data.CreatedDate == default)
-                {
-                    data.CreatedDate = DateTime.Now;
-                }
-
                 // Убеждаемся, что расширение правильное
                 if (!filePath.EndsWith(".smc", StringComparison.OrdinalIgnoreCase))
                 {
@@ -56,18 +48,48 @@ namespace SnowMeltingCalculator.Services.Project
                 }
 
                 var json = JsonSerializer.Serialize(data, _jsonOptions);
-                await File.WriteAllTextAsync(filePath, json);
 
+                // Временный файл на том же томе (НЕ Path.GetTempFileName() — может оказаться на другом томе)
+                var tempPath = Path.ChangeExtension(filePath, ".tmp");
+
+                // Атомарно-детерминированная запись: temp → move
+                await File.WriteAllTextAsync(tempPath, json, cancellationToken);
+
+                // Бэкап существующего файла перед move
+                if (File.Exists(filePath))
+                {
+                    var bakPath = filePath + ".bak";
+                    File.Copy(filePath, bakPath, overwrite: true);
+                }
+
+                // Atomic на одном томе NTFS
+                File.Move(tempPath, filePath, overwrite: true);
                 return true;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка сохранения проекта: {ex.Message}");
+
+                // temp-файл мог остаться — почистить
+                try
+                {
+                    var tempPath = Path.ChangeExtension(filePath, ".tmp");
+                    if (File.Exists(tempPath))
+                    {
+                        File.Delete(tempPath);
+                    }
+                }
+                catch
+                {
+                    // Игнорируем ошибки очистки
+                }
+
                 return false;
             }
         }
 
         /// <inheritdoc />
+        [Obsolete("Use SaveProjectResultAsync/LoadProjectResultAsync")]
         public async Task<ProjectData?> LoadProjectAsync(string filePath)
         {
             try
@@ -80,12 +102,6 @@ namespace SnowMeltingCalculator.Services.Project
                 var json = await File.ReadAllTextAsync(filePath);
                 var data = JsonSerializer.Deserialize<ProjectData>(json, _jsonOptions);
 
-                // Обновляем дату изменения при загрузке
-                if (data != null)
-                {
-                    data.ModifiedDate = DateTime.Now;
-                }
-
                 return data;
             }
             catch (Exception ex)
@@ -96,46 +112,82 @@ namespace SnowMeltingCalculator.Services.Project
         }
 
         /// <inheritdoc />
-        public Task<string?> GetSaveFilePathAsync(string defaultFileName)
+        public async Task<OperationResult<object?>> SaveProjectResultAsync(string filePath, ProjectData data, CancellationToken cancellationToken = default)
         {
-            return Task.Run(() =>
+            try
             {
-                var saveFileDialog = new SaveFileDialog
+                // Убеждаемся, что расширение правильное
+                if (!filePath.EndsWith(".smc", StringComparison.OrdinalIgnoreCase))
                 {
-                    Filter = "Проекты SMC (*.smc)|*.smc|Все файлы (*.*)|*.*",
-                    DefaultExt = "smc",
-                    FileName = defaultFileName,
-                    Title = "Сохранить проект"
-                };
-
-                if (saveFileDialog.ShowDialog() == true)
-                {
-                    return saveFileDialog.FileName;
+                    filePath += ".smc";
                 }
 
-                return null;
-            });
+                var json = JsonSerializer.Serialize(data, _jsonOptions);
+
+                // Временный файл на том же томе
+                var tempPath = Path.ChangeExtension(filePath, ".tmp");
+
+                // Атомарно-детерминированная запись: temp → move
+                await File.WriteAllTextAsync(tempPath, json, cancellationToken);
+
+                // Бэкап существующего файла перед move
+                if (File.Exists(filePath))
+                {
+                    var bakPath = filePath + ".bak";
+                    File.Copy(filePath, bakPath, overwrite: true);
+                }
+
+                // Atomic на одном томе NTFS
+                File.Move(tempPath, filePath, overwrite: true);
+                return OperationResult<object?>.Success(null);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка сохранения проекта: {ex.Message}");
+
+                // temp-файл мог остаться — почистить
+                try
+                {
+                    var tempPath = Path.ChangeExtension(filePath, ".tmp");
+                    if (File.Exists(tempPath))
+                    {
+                        File.Delete(tempPath);
+                    }
+                }
+                catch
+                {
+                    // Игнорируем ошибки очистки
+                }
+
+                return OperationResult<object?>.Failure(ex.Message, ex);
+            }
         }
 
         /// <inheritdoc />
-        public Task<string?> GetOpenFilePathAsync()
+        public async Task<OperationResult<ProjectData>> LoadProjectResultAsync(string filePath, CancellationToken cancellationToken = default)
         {
-            return Task.Run(() =>
+            try
             {
-                var openFileDialog = new OpenFileDialog
+                if (!File.Exists(filePath))
                 {
-                    Filter = "Проекты SMC (*.smc)|*.smc|Все файлы (*.*)|*.*",
-                    DefaultExt = "smc",
-                    Title = "Открыть проект"
-                };
-
-                if (openFileDialog.ShowDialog() == true)
-                {
-                    return openFileDialog.FileName;
+                    return OperationResult<ProjectData>.Failure($"Файл не найден: {filePath}");
                 }
 
-                return null;
-            });
+                var json = await File.ReadAllTextAsync(filePath, cancellationToken);
+                var data = JsonSerializer.Deserialize<ProjectData>(json, _jsonOptions);
+
+                if (data == null)
+                {
+                    return OperationResult<ProjectData>.Failure("Ошибка десериализации: deserialized value is null");
+                }
+
+                return OperationResult<ProjectData>.Success(data);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка загрузки проекта: {ex.Message}");
+                return OperationResult<ProjectData>.Failure($"Ошибка десериализации: {ex.Message}", ex);
+            }
         }
 
         /// <inheritdoc />
