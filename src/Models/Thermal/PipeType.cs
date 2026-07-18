@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace SnowMeltingCalculator.Models.Thermal
 {
     /// <summary>
@@ -43,7 +46,7 @@ namespace SnowMeltingCalculator.Models.Thermal
         /// <summary>
         /// Стандартные трубы РЕХАУ RAUTHERM S
         /// </summary>
-        public static PipeType[] StandardPipes => new[]
+        public static readonly IReadOnlyList<PipeType> StandardPipes = new[]
         {
             new PipeType
             {
@@ -75,5 +78,22 @@ namespace SnowMeltingCalculator.Models.Thermal
         };
 
         public override string ToString() => DisplayName;
+
+        public override bool Equals(object? obj) => obj is PipeType other &&
+            string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase) &&
+            OuterDiameter == other.OuterDiameter &&
+            InnerDiameter == other.InnerDiameter &&
+            WallThickness == other.WallThickness;
+
+        public override int GetHashCode() => HashCode.Combine(
+            Name?.ToLowerInvariant(), OuterDiameter, InnerDiameter, WallThickness);
+
+        public static bool operator ==(PipeType? left, PipeType? right)
+        {
+            if (left is null) return right is null;
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(PipeType? left, PipeType? right) => !(left == right);
     }
 }
