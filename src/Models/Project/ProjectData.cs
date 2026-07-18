@@ -321,6 +321,17 @@ namespace SnowMeltingCalculator.Models.Project
         public double Throttling { get; set; }
         public double ValveTurns { get; set; }
         public string FlowRegime { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Режим течения как строка (Laminar, Transitional, Turbulent)
+        /// </summary>
+        public string FlowRegimeString { get; set; } = string.Empty;
+
+        public double Density { get; set; }
+        public double KinematicViscosity { get; set; }
+        public double ReynoldsNumber { get; set; }
+        public double FrictionFactor { get; set; }
+        public double PressureLossPerMeter { get; set; }
     }
 
     /// <summary>
