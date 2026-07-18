@@ -131,7 +131,6 @@ namespace SnowMeltingCalculator.Tests.Services.Thermal
             {
                 Mode = OperatingMode.Melting,
                 SupplyTemperature = 50.0,
-                DeltaT = 15.0,
                 GroundTemperature = 10.0,
                 Pipe = PipeType.StandardPipes[1],
                 PipeSpacing = 200.0,

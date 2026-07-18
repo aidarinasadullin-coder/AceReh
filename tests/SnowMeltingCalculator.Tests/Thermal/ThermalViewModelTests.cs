@@ -411,7 +411,6 @@ namespace SnowMeltingCalculator.Tests.Thermal
             // Assert
             Assert.That(parameters.Mode, Is.EqualTo(OperatingMode.Intensive));
             Assert.That(parameters.SupplyTemperature, Is.EqualTo(60.0));
-            Assert.That(parameters.DeltaT, Is.EqualTo(15.0)); // Значение по умолчанию
             Assert.That(parameters.GroundTemperature, Is.EqualTo(5.0));
             Assert.That(parameters.Pipe.Name, Is.EqualTo("RAUTHERM S 25x2,3"));
             Assert.That(parameters.PipeSpacing, Is.EqualTo(150.0));
@@ -648,6 +647,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
             var (rFb, rD) = CalculateThermalResistance(construction.R1Total, construction.R2Total, alpha);
             var (m, etaR) = CalculateRodTheory(rFb, rD, inputs.LambdaE, inputs.Pipe.OuterDiameter / 1000.0, inputs.PipeSpacing / 1000.0);
             var excessTemp = CalculateExcessTemperature(inputs, powerUp, rFb, rD, etaR, climate, construction);
+            const double fakeDeltaT = 15.0; // явное значение для mock-теста
 
             return new ThermalCalculationResult
             {
@@ -659,10 +659,10 @@ namespace SnowMeltingCalculator.Tests.Thermal
                 RadiationHeat = 0.3,
                 ConvectionHeat = powerUp - climate.SnowfallIntensity * 100 - 0.3,
                 ExcessTemperature = excessTemp,
-                MeanTemperature = inputs.SupplyTemperature - inputs.DeltaT / 2,
+                MeanTemperature = inputs.SupplyTemperature - fakeDeltaT / 2,
                 SupplyTemperature = inputs.SupplyTemperature,
-                ReturnTemperature = inputs.SupplyTemperature - inputs.DeltaT,
-                DeltaT = inputs.DeltaT,
+                ReturnTemperature = inputs.SupplyTemperature - fakeDeltaT,
+                DeltaT = fakeDeltaT,
                 RFb = rFb,
                 RD = rD,
                 ParameterM = m,
