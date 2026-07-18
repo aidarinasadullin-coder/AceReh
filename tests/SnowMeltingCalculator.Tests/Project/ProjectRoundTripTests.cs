@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using NUnit.Framework;
+using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Models.Project;
 using SnowMeltingCalculator.Services.Project;
 
@@ -153,6 +154,242 @@ namespace SnowMeltingCalculator.Tests.Project
             {
                 File.Delete(tempPath);
             }
+        }
+
+        [Test]
+        public async Task ProjectRoundTrip_FlowRegimeRestored()
+        {
+            var data = new ProjectData
+            {
+                Version = "1.0",
+                HydraulicsData = new HydraulicsProjectData
+                {
+                    Collectors = new List<CollectorProjectData>
+                    {
+                        new CollectorProjectData
+                        {
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new CircuitProjectData
+                                {
+                                    OperatingResult = new CircuitResultProjectData
+                                    {
+                                        FlowRegimeString = FlowRegime.Turbulent.ToString()
+                                    },
+                                    DesignResult = new CircuitResultProjectData
+                                    {
+                                        FlowRegimeString = FlowRegime.Laminar.ToString()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"t5-flowregime-{Guid.NewGuid()}.smc");
+            try
+            {
+                var saved = await _service.SaveProjectAsync(tempPath, data);
+                Assert.That(saved, Is.True);
+
+                var loaded = await _service.LoadProjectAsync(tempPath);
+                Assert.That(loaded, Is.Not.Null);
+
+                var circuit = loaded!.HydraulicsData.Collectors[0].Circuits[0];
+                Assert.That(circuit.OperatingResult, Is.Not.Null);
+                Assert.That(circuit.DesignResult, Is.Not.Null);
+                Assert.That(Enum.Parse<FlowRegime>(circuit.OperatingResult!.FlowRegimeString), Is.EqualTo(FlowRegime.Turbulent));
+                Assert.That(Enum.Parse<FlowRegime>(circuit.DesignResult!.FlowRegimeString), Is.EqualTo(FlowRegime.Laminar));
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
+        }
+
+        [Test]
+        public async Task ProjectRoundTrip_PipeSpacingPerCircuitPreserved()
+        {
+            var data = new ProjectData
+            {
+                Version = "1.0",
+                ThermalData = new ThermalProjectData
+                {
+                    PipeSpacing = 250
+                },
+                HydraulicsData = new HydraulicsProjectData
+                {
+                    Collectors = new List<CollectorProjectData>
+                    {
+                        new CollectorProjectData
+                        {
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new CircuitProjectData { PipeSpacingCm = 20.0 },
+                                new CircuitProjectData { PipeSpacingCm = 30.0 }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"t7-pipespacing-{Guid.NewGuid()}.smc");
+            try
+            {
+                var saved = await _service.SaveProjectAsync(tempPath, data);
+                Assert.That(saved, Is.True);
+
+                var loaded = await _service.LoadProjectAsync(tempPath);
+                Assert.That(loaded, Is.Not.Null);
+
+                var circuits = loaded!.HydraulicsData.Collectors[0].Circuits;
+                Assert.That(circuits, Has.Count.EqualTo(2));
+                Assert.That(circuits[0].PipeSpacingCm, Is.EqualTo(20.0),
+                    "First per-circuit PipeSpacing must be preserved on load");
+                Assert.That(circuits[1].PipeSpacingCm, Is.EqualTo(30.0),
+                    "Second per-circuit PipeSpacing must be preserved on load and not reset to global");
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
+        }
+
+        [Test]
+        public async Task FullProject_RoundTrip_PreservesAllCircuitResultDetails()
+        {
+            var data = new ProjectData
+            {
+                Version = "1.0",
+                HydraulicsData = new HydraulicsProjectData
+                {
+                    Collectors = new List<CollectorProjectData>
+                    {
+                        new CollectorProjectData
+                        {
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new CircuitProjectData
+                                {
+                                    OperatingResult = new CircuitResultProjectData
+                                    {
+                                        FlowRegimeString = FlowRegime.Turbulent.ToString(),
+                                        Density = 1.053,
+                                        KinematicViscosity = 1.234,
+                                        ReynoldsNumber = 5678.9,
+                                        FrictionFactor = 0.031,
+                                        PressureLossPerMeter = 215.5
+                                    },
+                                    DesignResult = new CircuitResultProjectData
+                                    {
+                                        FlowRegimeString = FlowRegime.Laminar.ToString(),
+                                        Density = 1.071,
+                                        KinematicViscosity = 2.345,
+                                        ReynoldsNumber = 1234.5,
+                                        FrictionFactor = 0.052,
+                                        PressureLossPerMeter = 312.0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"t8-details-{Guid.NewGuid()}.smc");
+            try
+            {
+                var saved = await _service.SaveProjectAsync(tempPath, data);
+                Assert.That(saved, Is.True);
+
+                var loaded = await _service.LoadProjectAsync(tempPath);
+                Assert.That(loaded, Is.Not.Null);
+
+                var circuit = loaded!.HydraulicsData.Collectors[0].Circuits[0];
+                Assert.That(circuit.OperatingResult, Is.Not.Null);
+                Assert.That(circuit.DesignResult, Is.Not.Null);
+
+                AssertDetailFieldsEqual(data.HydraulicsData.Collectors[0].Circuits[0].OperatingResult!, circuit.OperatingResult!);
+                AssertDetailFieldsEqual(data.HydraulicsData.Collectors[0].Circuits[0].DesignResult!, circuit.DesignResult!);
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
+        }
+
+        [Test]
+        public async Task FullProject_RoundTrip_BackwardCompatible_OldFileLoadsWithDefaults()
+        {
+            var data = new ProjectData
+            {
+                Version = "1.0",
+                HydraulicsData = new HydraulicsProjectData
+                {
+                    Collectors = new List<CollectorProjectData>
+                    {
+                        new CollectorProjectData
+                        {
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new CircuitProjectData
+                                {
+                                    OperatingResult = new CircuitResultProjectData
+                                    {
+                                        FlowRegimeString = FlowRegime.Transitional.ToString()
+                                    },
+                                    DesignResult = new CircuitResultProjectData
+                                    {
+                                        FlowRegimeString = FlowRegime.Laminar.ToString()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"t8-compat-{Guid.NewGuid()}.smc");
+            try
+            {
+                var saved = await _service.SaveProjectAsync(tempPath, data);
+                Assert.That(saved, Is.True);
+
+                ProjectData loaded = null!;
+                Assert.DoesNotThrowAsync(async () => loaded = await _service.LoadProjectAsync(tempPath));
+                Assert.That(loaded, Is.Not.Null);
+
+                var circuit = loaded.HydraulicsData.Collectors[0].Circuits[0];
+                Assert.That(circuit.OperatingResult, Is.Not.Null);
+                Assert.That(circuit.DesignResult, Is.Not.Null);
+
+                Assert.That(circuit.OperatingResult!.Density, Is.EqualTo(0.0));
+                Assert.That(circuit.OperatingResult.KinematicViscosity, Is.EqualTo(0.0));
+                Assert.That(circuit.OperatingResult.ReynoldsNumber, Is.EqualTo(0.0));
+                Assert.That(circuit.OperatingResult.FrictionFactor, Is.EqualTo(0.0));
+                Assert.That(circuit.OperatingResult.PressureLossPerMeter, Is.EqualTo(0.0));
+
+                Assert.That(circuit.DesignResult!.Density, Is.EqualTo(0.0));
+                Assert.That(circuit.DesignResult.KinematicViscosity, Is.EqualTo(0.0));
+                Assert.That(circuit.DesignResult.ReynoldsNumber, Is.EqualTo(0.0));
+                Assert.That(circuit.DesignResult.FrictionFactor, Is.EqualTo(0.0));
+                Assert.That(circuit.DesignResult.PressureLossPerMeter, Is.EqualTo(0.0));
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
+        }
+
+        private static void AssertDetailFieldsEqual(CircuitResultProjectData expected, CircuitResultProjectData actual)
+        {
+            Assert.That(actual.FlowRegimeString, Is.EqualTo(expected.FlowRegimeString));
+            Assert.That(actual.Density, Is.EqualTo(expected.Density));
+            Assert.That(actual.KinematicViscosity, Is.EqualTo(expected.KinematicViscosity));
+            Assert.That(actual.ReynoldsNumber, Is.EqualTo(expected.ReynoldsNumber));
+            Assert.That(actual.FrictionFactor, Is.EqualTo(expected.FrictionFactor));
+            Assert.That(actual.PressureLossPerMeter, Is.EqualTo(expected.PressureLossPerMeter));
         }
     }
 }

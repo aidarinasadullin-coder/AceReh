@@ -3,11 +3,13 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Moq;
 using NUnit.Framework;
 using SnowMeltingCalculator.Core;
+using SnowMeltingCalculator.Core.Results;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Hydraulics;
@@ -67,7 +69,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var constructionVm = CreateConstructionViewModel(_projectStateService);
             var thermalVm = CreateThermalViewModel(_projectStateService);
             var circuitsVm = CreateCircuitsViewModel(_projectStateService);
-            var resultsVm = CreateResultsViewModel(_projectStateService, _projectFileServiceMock.Object);
+            var resultsVm = CreateResultsViewModel(_projectStateService, _projectFileServiceMock.Object, _dialogServiceMock.Object);
 
             _viewModel = new MainViewModel(
                 climateVm,
@@ -142,16 +144,16 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             _dialogServiceMock
                 .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question))
                 .Returns(MessageBoxResult.Yes);
+            _dialogServiceMock
+                .Setup(d => d.ShowSaveFileDialog(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(@"C:\temp\project.smc");
             _projectFileServiceMock
-                .Setup(p => p.GetSaveFilePathAsync(It.IsAny<string>()))
-                .ReturnsAsync(@"C:\temp\project.smc");
-            _projectFileServiceMock
-                .Setup(p => p.SaveProjectAsync(It.IsAny<string>(), It.IsAny<ProjectData>()))
-                .ReturnsAsync(true);
+                .Setup(p => p.SaveProjectResultAsync(It.IsAny<string>(), It.IsAny<ProjectData>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OperationResult<object?>.Success(null));
 
             await _viewModel.NewCalculationCommand.ExecuteAsync(null);
 
-            _projectFileServiceMock.Verify(p => p.SaveProjectAsync(It.IsAny<string>(), It.IsAny<ProjectData>()), Times.Once);
+            _projectFileServiceMock.Verify(p => p.SaveProjectResultAsync(It.IsAny<string>(), It.IsAny<ProjectData>(), It.IsAny<CancellationToken>()), Times.Once);
             Assert.That(_projectStateService.IsDirty, Is.False);
             Assert.That(_calculationContext.Climate, Is.Null);
         }
@@ -164,13 +166,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             _dialogServiceMock
                 .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question))
                 .Returns(MessageBoxResult.Yes);
-            _projectFileServiceMock
-                .Setup(p => p.GetSaveFilePathAsync(It.IsAny<string>()))
-                .ReturnsAsync(string.Empty);
-
             await _viewModel.NewCalculationCommand.ExecuteAsync(null);
 
-            _projectFileServiceMock.Verify(p => p.SaveProjectAsync(It.IsAny<string>(), It.IsAny<ProjectData>()), Times.Never);
+            _projectFileServiceMock.Verify(p => p.SaveProjectResultAsync(It.IsAny<string>(), It.IsAny<ProjectData>(), It.IsAny<CancellationToken>()), Times.Never);
             Assert.That(_projectStateService.IsDirty, Is.True);
             Assert.That(_calculationContext.Climate, Is.Not.Null);
         }
@@ -255,12 +253,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             _dialogServiceMock
                 .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question))
                 .Returns(MessageBoxResult.Yes);
+            _dialogServiceMock
+                .Setup(d => d.ShowSaveFileDialog(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(@"C:\temp\project.smc");
             _projectFileServiceMock
-                .Setup(p => p.GetSaveFilePathAsync(It.IsAny<string>()))
-                .ReturnsAsync(@"C:\temp\project.smc");
-            _projectFileServiceMock
-                .Setup(p => p.SaveProjectAsync(It.IsAny<string>(), It.IsAny<ProjectData>()))
-                .ReturnsAsync(true);
+                .Setup(p => p.SaveProjectResultAsync(It.IsAny<string>(), It.IsAny<ProjectData>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OperationResult<object?>.Success(null));
 
             var window = CreateUninitializedMainWindow();
             SetField(window, "_projectStateService", _projectStateService);
@@ -405,7 +403,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 projectStateService);
         }
 
-        private static ResultsViewModel CreateResultsViewModel(ProjectStateService projectStateService, IProjectFileService projectFileService)
+        private static ResultsViewModel CreateResultsViewModel(ProjectStateService projectStateService, IProjectFileService projectFileService, IDialogService dialogService)
         {
             var climateVm = CreateClimateViewModel(projectStateService);
             var constructionVm = CreateConstructionViewModel(projectStateService);
@@ -415,7 +413,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             return new ResultsViewModel(
                 projectStateService,
                 projectStateService,
-                new Mock<IDialogService>().Object,
+                dialogService,
                 new Mock<IPdfExportService>().Object,
                 projectFileService,
                 new Mock<IConstructionVisualizationImageService>().Object,

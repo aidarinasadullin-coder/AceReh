@@ -472,6 +472,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private void OnProjectPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (_isResetting) return;
+            if (_calculationStateService.IsLoadProjectInProgress) return;
 
             if (e.PropertyName == nameof(ProjectNumber))
             {
@@ -811,7 +812,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private async Task SaveProjectAs()
         {
             var defaultFileName = $"{ProjectNumber}_{DateTime.Now:yyyyMMdd}";
-            var filePath = await _projectFileService.GetSaveFilePathAsync(defaultFileName);
+            var filePath = _dialogService.ShowSaveFileDialog(defaultFileName);
 
             if (string.IsNullOrEmpty(filePath))
                 return;
@@ -829,31 +830,30 @@ namespace SnowMeltingCalculator.ViewModels.Results
         [RelayCommand]
         private async Task OpenProject()
         {
-            var filePath = await _projectFileService.GetOpenFilePathAsync();
+            var filePath = _dialogService.ShowOpenFileDialog();
 
             if (string.IsNullOrEmpty(filePath))
                 return;
 
-            var data = await _projectFileService.LoadProjectAsync(filePath);
-
-            if (data == null)
+            var result = await _projectFileService.LoadProjectResultAsync(filePath);
+            if (!result.IsSuccess || result.Value == null)
             {
-                StatusMessage = "Ошибка загрузки проекта";
-                await Task.Delay(3000);
-                StatusMessage = string.Empty;
+                _dialogService.ShowError($"Не удалось открыть проект: {result.Error}", "Ошибка");
                 return;
             }
+
+            var data = result.Value;
 
             // Подтверждение загрузки, если есть несохранённые данные
             if (_projectStateService.IsDirty)
             {
-                var result = _dialogService.Show(
+                var confirmation = _dialogService.Show(
                     "Текущий проект будет заменён. Продолжить?",
                     "Открытие проекта",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
 
-                if (result != MessageBoxResult.Yes)
+                if (confirmation != MessageBoxResult.Yes)
                     return;
             }
 
@@ -987,23 +987,24 @@ namespace SnowMeltingCalculator.ViewModels.Results
             {
                 StatusMessage = "Сохранение проекта...";
                 var data = SaveCurrentProject();
-                var success = await _projectFileService.SaveProjectAsync(filePath, data);
-
-                if (success)
+                data.ModifiedDate = DateTime.Now;
+                if (data.CreatedDate == default)
                 {
-                    StatusMessage = $"Проект сохранён: {Path.GetFileName(filePath)}";
-                    await Task.Delay(3000);
-                    StatusMessage = string.Empty;
-                    _projectStateService.MarkClean();
-                    return true;
+                    data.CreatedDate = DateTime.Now;
                 }
-                else
+
+                var result = await _projectFileService.SaveProjectResultAsync(filePath, data);
+                if (!result.IsSuccess)
                 {
-                    StatusMessage = "Ошибка при сохранении проекта";
-                    await Task.Delay(3000);
-                    StatusMessage = string.Empty;
+                    _dialogService.ShowError($"Не удалось сохранить проект: {result.Error}", "Ошибка");
                     return false;
                 }
+
+                StatusMessage = $"Проект сохранён: {Path.GetFileName(filePath)}";
+                await Task.Delay(3000);
+                StatusMessage = string.Empty;
+                _projectStateService.MarkClean();
+                return true;
             }
             catch (Exception ex)
             {
@@ -1600,86 +1601,110 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 _projectStateService.ProjectNumber = data.ProjectNumber;
                 _projectStateService.ProjectObject = data.ProjectObject;
 
-                // Загружаем климатические данные
-                _climateViewModel.SelectedCity = null;
-                _climateViewModel.SearchQuery = data.ClimateData.SelectedCity;
-                _climateViewModel.AirTemperature = data.ClimateData.AirTemperature;
-                _climateViewModel.WindSpeed = data.ClimateData.WindSpeed;
-                _climateViewModel.Humidity = data.ClimateData.Humidity;
-                _climateViewModel.SnowfallIntensity = data.ClimateData.SnowfallIntensity;
-                _climateViewModel.SelectedZone = data.ClimateData.SelectedZone;
-                _climateViewModel.IsHighRequirements = data.ClimateData.IsHighRequirements;
-
-                // Загружаем данные конструкции
-                if (data.ConstructionData.Layers.Any())
+                // Загружаем климатические данные и коллекторы под guard загрузки проекта,
+                // чтобы восстановление города не перезаписало сохранённые пользовательские параметры.
+                _climateViewModel.BeginLoadProject();
+                try
                 {
-                    LoadLayersFromProjectData(data.ConstructionData.Layers);
-                }
+                    _climateViewModel.SelectedCity = null;
+                    var city = _climateViewModel.FindCityByName(data.ClimateData.SelectedCity);
+                    _climateViewModel.SearchQuery = data.ClimateData.SelectedCity;
+                    _climateViewModel.AirTemperature = data.ClimateData.AirTemperature;
+                    _climateViewModel.WindSpeed = data.ClimateData.WindSpeed;
+                    _climateViewModel.Humidity = data.ClimateData.Humidity;
+                    _climateViewModel.SnowfallIntensity = data.ClimateData.SnowfallIntensity;
+                    _climateViewModel.SelectedZone = data.ClimateData.SelectedZone;
+                    _climateViewModel.IsHighRequirements = data.ClimateData.IsHighRequirements;
+                    _climateViewModel.SelectedCity = city;
 
-                // Загружаем данные теплового расчёта
-                _thermalViewModel.SelectedMode = data.ThermalData.SelectedMode;
-                _thermalViewModel.SupplyTemperature = data.ThermalData.SupplyTemperature;
-                _thermalViewModel.GroundTemperature = data.ThermalData.GroundTemperature;
-                _calculationStateService.SetPipeSpacing(data.ThermalData.PipeSpacing, "ResultsViewModel.LoadProject");
-
-                // Восстанавливаем выбранную трубу
-                if (data.ThermalData.SelectedPipe != null)
-                {
-                    var pipe = Models.Thermal.PipeType.StandardPipes.FirstOrDefault(p =>
-                        p.Name == data.ThermalData.SelectedPipe.Name &&
-                        Math.Abs(p.OuterDiameter - data.ThermalData.SelectedPipe.OuterDiameter) < 0.01);
-                    if (pipe != null)
+                    // Загружаем данные конструкции
+                    if (data.ConstructionData.Layers.Any())
                     {
-                        _thermalViewModel.SelectedPipe = pipe;
+                        LoadLayersFromProjectData(data.ConstructionData.Layers);
                     }
-                }
 
-                // Восстанавливаем результат теплового расчёта
-                if (data.ThermalData.Result != null)
-                {
-                    _thermalViewModel.Result = new ThermalCalculationResult
+                    // Загружаем данные теплового расчёта
+                    _thermalViewModel.SelectedMode = data.ThermalData.SelectedMode;
+                    _thermalViewModel.SupplyTemperature = data.ThermalData.SupplyTemperature;
+                    _thermalViewModel.GroundTemperature = data.ThermalData.GroundTemperature;
+                    _calculationStateService.SetPipeSpacing(data.ThermalData.PipeSpacing, "ResultsViewModel.LoadProject");
+
+                    // Восстанавливаем выбранную трубу
+                    var restoredPipe = data.ThermalData.SelectedPipe;
+                    if (restoredPipe != null)
                     {
-                        PowerUp = data.ThermalData.Result.PowerUp,
-                        PowerDown = data.ThermalData.Result.PowerDown,
-                        PowerTotal = data.ThermalData.Result.PowerTotal,
-                        SupplyTemperature = data.ThermalData.Result.SupplyTemperature,
-                        ReturnTemperature = data.ThermalData.Result.ReturnTemperature,
-                        MeanTemperature = data.ThermalData.Result.MeanTemperature,
-                        DeltaT = data.ThermalData.Result.DeltaT,
-                        IsValid = data.ThermalData.Result.IsValid
-                    };
-                }
-
-                // Загружаем данные гидравлики
-                _circuitsViewModel.InputData.GlycolType = data.HydraulicsData.GlycolType;
-                _circuitsViewModel.InputData.GlycolConcentration = data.HydraulicsData.GlycolConcentration;
-                _circuitsViewModel.InputData.SupplySpacing_cm = data.HydraulicsData.SupplySpacingCm;
-                _circuitsViewModel.InputData.SupplyHeatPercent = data.HydraulicsData.SupplyHeatPercent;
-
-                // Загружаем коллекторы
-                _circuitsViewModel.Collectors.Clear();
-                foreach (var collectorData in data.HydraulicsData.Collectors)
-                {
-                    var collector = new CollectorData(collectorData.CollectorNumber)
-                    {
-                        CollectorType = collectorData.CollectorType,
-                        ValveType = collectorData.ValveType
-                    };
-
-                    foreach (var circuitData in collectorData.Circuits)
-                    {
-                        collector.Circuits.Add(new CircuitRow
+                        var restoredPipeType = new PipeType
                         {
-                            CircuitNumber = circuitData.CircuitNumber,
-                            CircuitLength = circuitData.CircuitLength,
-                            SupplyLength = circuitData.SupplyLength,
-                            SupplySpacing_cm = circuitData.SupplySpacingCm,
-                            SupplyHeatPercent = circuitData.SupplyHeatPercent,
-                            PipeSpacing_cm = circuitData.PipeSpacingCm
-                        });
+                            Name = restoredPipe.Name,
+                            OuterDiameter = restoredPipe.OuterDiameter,
+                            InnerDiameter = restoredPipe.InnerDiameter,
+                            WallThickness = restoredPipe.WallThickness
+                        };
+                        _thermalViewModel.SelectedPipe = _thermalViewModel.AvailablePipes
+                            .FirstOrDefault(p => p == restoredPipeType)
+                            ?? _thermalViewModel.AvailablePipes.FirstOrDefault();
                     }
 
-                    _circuitsViewModel.Collectors.Add(collector);
+                    // Восстанавливаем результат теплового расчёта
+                    if (data.ThermalData.Result != null)
+                    {
+                        _thermalViewModel.Result = new ThermalCalculationResult
+                        {
+                            PowerUp = data.ThermalData.Result.PowerUp,
+                            PowerDown = data.ThermalData.Result.PowerDown,
+                            PowerTotal = data.ThermalData.Result.PowerTotal,
+                            SupplyTemperature = data.ThermalData.Result.SupplyTemperature,
+                            ReturnTemperature = data.ThermalData.Result.ReturnTemperature,
+                            MeanTemperature = data.ThermalData.Result.MeanTemperature,
+                            DeltaT = data.ThermalData.Result.DeltaT,
+                            IsValid = data.ThermalData.Result.IsValid
+                        };
+                    }
+
+                    // Загружаем коллекторы
+                    _circuitsViewModel.Collectors.Clear();
+                    foreach (var collectorData in data.HydraulicsData.Collectors)
+                    {
+                        var collector = new CollectorData(collectorData.CollectorNumber)
+                        {
+                            CollectorType = collectorData.CollectorType,
+                            ValveType = collectorData.ValveType
+                        };
+
+                        foreach (var circuitData in collectorData.Circuits)
+                        {
+                            collector.Circuits.Add(new CircuitRow
+                            {
+                                CircuitNumber = circuitData.CircuitNumber,
+                                CircuitLength = circuitData.CircuitLength,
+                                SupplyLength = circuitData.SupplyLength,
+                                SupplySpacing_cm = circuitData.SupplySpacingCm,
+                                SupplyHeatPercent = circuitData.SupplyHeatPercent,
+                                PipeSpacing_cm = circuitData.PipeSpacingCm
+                            });
+                        }
+
+                        _circuitsViewModel.Collectors.Add(collector);
+                    }
+
+                    // Загружаем данные гидравлики после восстановления коллекторов,
+                    // чтобы присвоения InputData не пометили проект dirty до завершения загрузки.
+                    _circuitsViewModel.InputData.GlycolType = data.HydraulicsData.GlycolType;
+                    _circuitsViewModel.InputData.GlycolConcentration = data.HydraulicsData.GlycolConcentration;
+                    _circuitsViewModel.InputData.SupplySpacing_cm = data.HydraulicsData.SupplySpacingCm;
+                    _circuitsViewModel.InputData.SupplyHeatPercent = data.HydraulicsData.SupplyHeatPercent;
+
+                    // Выбираем первый загруженный коллектор и обновляем состояние команд
+                    if (_circuitsViewModel.Collectors.Count > 0)
+                    {
+                        _circuitsViewModel.SelectedCollectorIndex = 0;
+                    }
+                    _circuitsViewModel.AddCircuitCommand.NotifyCanExecuteChanged();
+                    _circuitsViewModel.RemoveCircuitCommand.NotifyCanExecuteChanged();
+                }
+                finally
+                {
+                    _climateViewModel.EndLoadProject();
                 }
 
                 // Обновляем все данные
@@ -1749,24 +1774,48 @@ namespace SnowMeltingCalculator.ViewModels.Results
                         // Восстанавливаем OperatingResult
                         if (circuitData.OperatingResult != null)
                         {
+                            if (!Enum.TryParse<FlowRegime>(circuitData.OperatingResult.FlowRegimeString, true, out var operatingFlowRegime) &&
+                                !Enum.TryParse<FlowRegime>(circuitData.OperatingResult.FlowRegime, true, out operatingFlowRegime))
+                            {
+                                operatingFlowRegime = FlowRegime.Laminar;
+                            }
+
                             circuit.OperatingResult = new CircuitTemperatureResult
                             {
                                 DpRohr = circuitData.OperatingResult.DpRohr,
                                 DpVerteiler = circuitData.OperatingResult.DpVerteiler,
                                 DpVent = circuitData.OperatingResult.DpVent,
-                                ZuDrosseln = circuitData.OperatingResult.Throttling
+                                ZuDrosseln = circuitData.OperatingResult.Throttling,
+                                FlowRegime = operatingFlowRegime,
+                                Density = circuitData.OperatingResult.Density,
+                                KinematicViscosity = circuitData.OperatingResult.KinematicViscosity,
+                                ReynoldsNumber = circuitData.OperatingResult.ReynoldsNumber,
+                                FrictionFactor = circuitData.OperatingResult.FrictionFactor,
+                                PressureLossPerMeter = circuitData.OperatingResult.PressureLossPerMeter
                             };
                         }
 
                         // Восстанавливаем DesignResult
                         if (circuitData.DesignResult != null)
                         {
+                            if (!Enum.TryParse<FlowRegime>(circuitData.DesignResult.FlowRegimeString, true, out var designFlowRegime) &&
+                                !Enum.TryParse<FlowRegime>(circuitData.DesignResult.FlowRegime, true, out designFlowRegime))
+                            {
+                                designFlowRegime = FlowRegime.Laminar;
+                            }
+
                             circuit.DesignResult = new CircuitTemperatureResult
                             {
                                 DpRohr = circuitData.DesignResult.DpRohr,
                                 DpVerteiler = circuitData.DesignResult.DpVerteiler,
                                 DpVent = circuitData.DesignResult.DpVent,
-                                ZuDrosseln = circuitData.DesignResult.Throttling
+                                ZuDrosseln = circuitData.DesignResult.Throttling,
+                                FlowRegime = designFlowRegime,
+                                Density = circuitData.DesignResult.Density,
+                                KinematicViscosity = circuitData.DesignResult.KinematicViscosity,
+                                ReynoldsNumber = circuitData.DesignResult.ReynoldsNumber,
+                                FrictionFactor = circuitData.DesignResult.FrictionFactor,
+                                PressureLossPerMeter = circuitData.DesignResult.PressureLossPerMeter
                             };
                         }
                     }
@@ -1784,14 +1833,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 Version = "1.0",
                 ProjectNumber = ProjectNumber,
                 ProjectObject = ProjectObject,
-                ModifiedDate = DateTime.Now,
                 IsOperatingMode = this.IsOperatingMode
             };
 
             // Сохраняем климатические данные
             data.ClimateData = new ClimateProjectData
             {
-                SelectedCity = SelectedCity,
+                SelectedCity = _climateViewModel.SelectedCity?.Name ?? string.Empty,
                 Region = _climateViewModel.SelectedCity?.Region ?? string.Empty,
                 AirTemperature = _climateViewModel.AirTemperature,
                 WindSpeed = _climateViewModel.WindSpeed,
@@ -1888,7 +1936,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
                             DpGesamt = circuit.OperatingResult.DpGesamt,
                             Throttling = circuit.Throttling,
                             ValveTurns = circuit.ValveTurns,
-                            FlowRegime = circuit.OperatingResult.FlowRegime.ToString()
+                            FlowRegime = circuit.OperatingResult.FlowRegime.ToString(),
+                            FlowRegimeString = circuit.OperatingResult.FlowRegime.ToString(),
+                            Density = circuit.OperatingResult.Density,
+                            KinematicViscosity = circuit.OperatingResult.KinematicViscosity,
+                            ReynoldsNumber = circuit.OperatingResult.ReynoldsNumber,
+                            FrictionFactor = circuit.OperatingResult.FrictionFactor,
+                            PressureLossPerMeter = circuit.OperatingResult.PressureLossPerMeter
                         } : null,
                         DesignResult = circuit.DesignResult != null ? new CircuitResultProjectData
                         {
@@ -1901,7 +1955,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
                             DpGesamt = circuit.DesignResult.DpGesamt,
                             Throttling = circuit.Throttling,
                             ValveTurns = circuit.ValveTurns,
-                            FlowRegime = circuit.DesignResult.FlowRegime.ToString()
+                            FlowRegime = circuit.DesignResult.FlowRegime.ToString(),
+                            FlowRegimeString = circuit.DesignResult.FlowRegime.ToString(),
+                            Density = circuit.DesignResult.Density,
+                            KinematicViscosity = circuit.DesignResult.KinematicViscosity,
+                            ReynoldsNumber = circuit.DesignResult.ReynoldsNumber,
+                            FrictionFactor = circuit.DesignResult.FrictionFactor,
+                            PressureLossPerMeter = circuit.DesignResult.PressureLossPerMeter
                         } : null
                     }).ToList(),
                     Summary = c.Summary != null ? new CollectorSummaryProjectData
