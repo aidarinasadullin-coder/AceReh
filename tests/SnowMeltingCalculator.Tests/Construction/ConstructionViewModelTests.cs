@@ -131,6 +131,64 @@ namespace SnowMeltingCalculator.Tests.Construction
             Assert.That(addedLayer.Position, Is.EqualTo(LayerPosition.BelowPipe));
         }
 
+        [Test]
+        public async Task AddLayerAbovePipe_InsertsAtSurface()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            _viewModel.LayersAbovePipe.Clear();
+            var concrete = _viewModel.AvailableMaterials.First(m => m.Id == 5);
+            _viewModel.LayersAbovePipe.Add(new Layer
+            {
+                Material = concrete,
+                Thickness = 100,
+                CalculatedLambda = concrete.LambdaA,
+                Position = LayerPosition.AbovePipe,
+                Order = 0
+            });
+
+            // Act
+            _viewModel.AddLayerAbovePipeCommand.Execute(null);
+
+            // Assert
+            Assert.That(_viewModel.LayersAbovePipe.Count, Is.EqualTo(2));
+            Assert.That(_viewModel.LayersAbovePipe[0].Order, Is.EqualTo(0));
+            Assert.That(_viewModel.LayersAbovePipe[1].Order, Is.EqualTo(1));
+            Assert.That(_viewModel.LayersAbovePipe[1].Material?.Id, Is.EqualTo(concrete.Id));
+        }
+
+        [Test]
+        public async Task LambdaE_StaysConcreteAfterSurfaceAdd()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            _viewModel.LayersAbovePipe.Clear();
+            var concrete = _viewModel.AvailableMaterials.First(m => m.Id == 5);
+            var asphalt = _viewModel.AvailableMaterials.First(m => m.Id == 11); // Асфальт
+            _viewModel.LayersAbovePipe.Add(new Layer
+            {
+                Material = concrete,
+                Thickness = 100,
+                CalculatedLambda = concrete.LambdaA,
+                Position = LayerPosition.AbovePipe,
+                Order = 0
+            });
+            _viewModel.LayersAbovePipe.Insert(0, new Layer
+            {
+                Material = asphalt,
+                Thickness = 50,
+                CalculatedLambda = asphalt.LambdaA,
+                Position = LayerPosition.AbovePipe,
+                Order = 0
+            });
+
+            // Act
+            _viewModel.UpdateCalculations();
+
+            // Assert
+            Assert.That(_viewModel.LambdaE, Is.EqualTo(concrete.LambdaA));
+        }
+
         #endregion
 
         #region RemoveLayer Tests
@@ -259,20 +317,32 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
-        public async Task UpdateCalculations_CalculatesLambdaEFromFirstLayerAbovePipe()
+        public async Task UpdateCalculations_CalculatesLambdaEFromLastLayerAbovePipe()
         {
             // Arrange
             await _viewModel.InitializeCommand.ExecuteAsync(null);
             _viewModel.LayersAbovePipe.Clear();
 
             var concrete = _viewModel.AvailableMaterials.First(m => m.Id == 5); // Бетон плотный
+            var asphalt = _viewModel.AvailableMaterials.First(m => m.Id == 11); // Асфальт
+
+            // LayersAbovePipe stores layers in physical top-to-bottom order.
+            // Direct .Add appends toward the pipe; LastOrDefault selects the nearest-pipe layer.
+            _viewModel.LayersAbovePipe.Add(new Layer
+            {
+                Material = asphalt,
+                Thickness = 50,
+                CalculatedLambda = asphalt.LambdaA,
+                Position = LayerPosition.AbovePipe,
+                Order = 0
+            });
             _viewModel.LayersAbovePipe.Add(new Layer
             {
                 Material = concrete,
                 Thickness = 100,
                 CalculatedLambda = concrete.LambdaA,
                 Position = LayerPosition.AbovePipe,
-                Order = 0
+                Order = 1
             });
 
             // Act
@@ -585,11 +655,6 @@ namespace SnowMeltingCalculator.Tests.Construction
         public double CalculateR2(System.Collections.Generic.IEnumerable<Layer> layersBelowPipe, double groundwaterLevel)
         {
             return layersBelowPipe.Sum(l => l.CalculatedR);
-        }
-
-        public double GetLambdaE(Layer? firstLayerAbovePipe)
-        {
-            return firstLayerAbovePipe?.Material?.LambdaA ?? 1.6;
         }
 
         public ValidationResult ValidateConstruction(ConstructionModel construction)
