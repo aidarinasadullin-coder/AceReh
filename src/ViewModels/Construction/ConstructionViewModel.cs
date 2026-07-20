@@ -262,11 +262,10 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 Material = defaultMaterial,
                 Thickness = 50,
                 CalculatedLambda = defaultMaterial.LambdaA,
-                Position = LayerPosition.AbovePipe,
-                Order = LayersAbovePipe.Count
+                Position = LayerPosition.AbovePipe
             };
 
-            LayersAbovePipe.Add(layer);
+            LayersAbovePipe.Insert(0, layer);
             UpdateCalculations();
             HasUnsavedChanges = true;
             _markDirtyService.MarkDirty();
@@ -311,20 +310,10 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             if (layer.Position == LayerPosition.AbovePipe)
             {
                 LayersAbovePipe.Remove(layer);
-                // Пересчитываем порядок
-                for (int i = 0; i < LayersAbovePipe.Count; i++)
-                {
-                    LayersAbovePipe[i].Order = i;
-                }
             }
             else
             {
                 LayersBelowPipe.Remove(layer);
-                // Пересчитываем порядок
-                for (int i = 0; i < LayersBelowPipe.Count; i++)
-                {
-                    LayersBelowPipe[i].Order = i;
-                }
             }
 
             SelectedLayer = null;
@@ -566,10 +555,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             // Рассчитываем R2
             R2Total = LayersBelowPipe.Sum(l => l.CalculatedR);
 
-            // Рассчитываем LambdaE
-            var firstLayerAbove = LayersAbovePipe.FirstOrDefault();
-            LambdaE = firstLayerAbove?.Material?.LambdaA ?? 1.6;
-
             // Обновляем свойства для UI
             OnPropertyChanged(nameof(TotalThicknessAbovePipe));
             OnPropertyChanged(nameof(TotalThicknessBelowPipe));
@@ -579,6 +564,9 @@ namespace SnowMeltingCalculator.ViewModels.Construction
 
             // Синхронизируем с моделью перед уведомлением
             SyncToModel();
+
+            // LambdaE берётся из модели; единый источник истины
+            LambdaE = _construction.LambdaE;
 
             // Уведомляем об изменении данных
             OnDataChanged();
@@ -818,6 +806,9 @@ namespace SnowMeltingCalculator.ViewModels.Construction
 
                 _construction.GroundwaterLevel = GroundwaterLevel;
                 _construction.HasLoads = HasLoads;
+
+                // Единый источник истины для порядка слоёв
+                _construction.ReindexLayers();
             }
             finally
             {
