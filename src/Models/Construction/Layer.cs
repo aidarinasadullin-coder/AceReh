@@ -102,7 +102,7 @@ namespace SnowMeltingCalculator.Models.Construction
         }
 
         /// <summary>
-        /// Порядковый номер слоя (от поверхности)
+        /// Индекс слоя в коллекции (автоматически переиндексируется). Для LayersAbovePipe 0 = поверхность, растёт к трубе; для LayersBelowPipe 0 = ближайший к трубе, растёт к грунту.
         /// </summary>
         public int Order
         {
