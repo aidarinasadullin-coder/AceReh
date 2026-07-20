@@ -31,13 +31,6 @@ namespace SnowMeltingCalculator.Services.Construction
         double CalculateR2(IEnumerable<Layer> layersBelowPipe, double groundwaterLevel);
 
         /// <summary>
-        /// Получить теплопроводность материала вокруг трубы (LambdaE)
-        /// </summary>
-        /// <param name="firstLayerAbovePipe">Первый слой над трубой (вокруг трубы)</param>
-        /// <returns>LambdaE, Вт/м·К</returns>
-        double GetLambdaE(Layer? firstLayerAbovePipe);
-
-        /// <summary>
         /// Валидация конструкции
         /// </summary>
         /// <param name="construction">Конструкция для валидации</param>
