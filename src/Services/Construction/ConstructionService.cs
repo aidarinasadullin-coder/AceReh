@@ -95,30 +95,6 @@ namespace SnowMeltingCalculator.Services.Construction
         }
 
         /// <summary>
-        /// Получить теплопроводность материала вокруг трубы (LambdaE)
-        /// </summary>
-        /// <remarks>
-        /// LambdaE = λ материала первого слоя над трубой (стяжки/бетона вокруг трубы)
-        /// Если слой не указан, используется значение по умолчанию 1.6 Вт/м·К
-        /// </remarks>
-        public double GetLambdaE(Layer? firstLayerAbovePipe)
-        {
-            if (firstLayerAbovePipe == null)
-            {
-                // Значение по умолчанию для бетона
-                return 1.6;
-            }
-
-            if (firstLayerAbovePipe.Material == null)
-            {
-                throw new InvalidOperationException("Материал слоя не указан");
-            }
-
-            // Для слоёв над трубой всегда используем λА
-            return firstLayerAbovePipe.Material.LambdaA;
-        }
-
-        /// <summary>
         /// Валидация конструкции
         /// </summary>
         public ValidationResult ValidateConstruction(ConstructionModel construction)
