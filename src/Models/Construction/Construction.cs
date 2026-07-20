@@ -16,12 +16,12 @@ namespace SnowMeltingCalculator.Models.Construction
         private bool _hasLoads = false;
 
         /// <summary>
-        /// Слои над трубой (к поверхности)
+        /// Слои над трубой в физическом порядке сверху-вниз: индекс 0 = поверхность, последний элемент = ближайший к трубе (стяжка/бетон вокруг трубы).
         /// </summary>
         public ObservableCollection<Layer> LayersAbovePipe { get; } = new ObservableCollection<Layer>();
 
         /// <summary>
-        /// Слои под трубой (к грунту)
+        /// Все слои конструкции. Слои под трубой хранятся в физическом порядке сверху-вниз: индекс 0 = ближайший к трубе, последний элемент = грунт.
         /// </summary>
         public ObservableCollection<Layer> Layers { get; } = new ObservableCollection<Layer>();
 
@@ -58,10 +58,10 @@ namespace SnowMeltingCalculator.Models.Construction
         }
 
         /// <summary>
-        /// Материал вокруг трубы (для LambdaE)
-        /// Определяется автоматически как первый слой над трубой
+        /// Материал слоя, ближайшего к трубе (последний слой над трубой = стяжка/бетон вокруг трубы).
+        /// Используется для расчёта LambdaE.
         /// </summary>
-        public Material? MaterialAroundPipe => LayersAbovePipe.FirstOrDefault()?.Material;
+        public Material? MaterialAroundPipe => LayersAbovePipe.LastOrDefault()?.Material;
 
         // === IConstructionData Implementation ===
 
@@ -79,7 +79,7 @@ namespace SnowMeltingCalculator.Models.Construction
 
         /// <summary>
         /// Теплопроводность стяжки (бетона) вокруг трубы, Вт/м·К
-        /// LambdaE = λ материала вокруг трубы (первый слой над трубой)
+        /// LambdaE = λ материала вокруг трубы (последний слой над трубой = слой, ближайший к трубе)
         /// </summary>
         public double LambdaE => MaterialAroundPipe?.LambdaA ?? 1.6;
 
@@ -171,24 +171,34 @@ namespace SnowMeltingCalculator.Models.Construction
             if (layer.Position == LayerPosition.AbovePipe)
             {
                 LayersAbovePipe.Remove(layer);
-                // Пересчитываем порядок слоёв
-                for (int i = 0; i < LayersAbovePipe.Count; i++)
-                {
-                    LayersAbovePipe[i].Order = i;
-                }
             }
             else
             {
                 Layers.Remove(layer);
-                // Пересчитываем порядок слоёв
-                int order = 0;
-                foreach (var l in Layers.Where(l => l.Position == LayerPosition.BelowPipe))
-                {
-                    l.Order = order++;
-                }
             }
 
+            ReindexLayers();
             OnDataChanged();
+        }
+
+        /// <summary>
+        /// Единый источник истины для порядка слоёв: переустанавливает <see cref="Layer.Order"/>
+        /// равным индексу элемента в коллекции. Для LayersAbovePipe 0 = поверхность,
+        /// последний = у трубы; для LayersBelowPipe 0 = ближайший к трубе, последний = грунт.
+        /// Вызывайте после любой мутации коллекций слоёв.
+        /// </summary>
+        public void ReindexLayers()
+        {
+            for (int i = 0; i < LayersAbovePipe.Count; i++)
+            {
+                LayersAbovePipe[i].Order = i;
+            }
+
+            var below = Layers.Where(l => l.Position == LayerPosition.BelowPipe).ToList();
+            for (int i = 0; i < below.Count; i++)
+            {
+                below[i].Order = i;
+            }
         }
 
         /// <summary>
@@ -219,15 +229,6 @@ namespace SnowMeltingCalculator.Models.Construction
         public double CalculateR2()
         {
             return Layers.Where(l => l.Position == LayerPosition.BelowPipe).Sum(l => l.CalculatedR);
-        }
-
-        /// <summary>
-        /// Получить теплопроводность материала вокруг трубы (LambdaE)
-        /// </summary>
-        /// <returns>LambdaE, Вт/м·К</returns>
-        public double GetLambdaE()
-        {
-            return MaterialAroundPipe?.LambdaA ?? 1.6;
         }
 
         /// <summary>

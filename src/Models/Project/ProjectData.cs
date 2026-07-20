@@ -13,7 +13,7 @@ namespace SnowMeltingCalculator.Models.Project
         /// <summary>
         /// Версия формата файла
         /// </summary>
-        public string Version { get; set; } = "1.0";
+        public string Version { get; set; } = "1.1";
 
         /// <summary>
         /// Номер проекта
@@ -165,6 +165,11 @@ namespace SnowMeltingCalculator.Models.Project
         /// Расчётная теплопроводность
         /// </summary>
         public double CalculatedLambda { get; set; }
+
+        /// <summary>
+        /// Порядковый номер слоя в коллекции (0 = поверхность / ближайший к трубе для below)
+        /// </summary>
+        public int Order { get; set; }
     }
 
     /// <summary>
