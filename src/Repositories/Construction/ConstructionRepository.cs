@@ -161,6 +161,7 @@ namespace SnowMeltingCalculator.Repositories.Construction
         {
             return new ConstructionDto
             {
+                Version = "1.1",
                 GroundwaterLevel = construction.GroundwaterLevel,
                 HasLoads = construction.HasLoads,
                 LayersAbovePipe = construction.LayersAbovePipe.Select(MapLayerToDto).ToList(),
@@ -203,8 +204,14 @@ namespace SnowMeltingCalculator.Repositories.Construction
                 HasLoads = dto.HasLoads
             };
 
+            // v1.0: chronological Add order = [near pipe, ..., surface].
+            // v1.1: physical top-to-bottom = [surface, ..., near pipe].
+            var aboveLayers = dto.LayersAbovePipe.OrderBy(l => l.Order).ToList();
+            if (string.Compare(dto.Version, "1.1", StringComparison.OrdinalIgnoreCase) < 0)
+                aboveLayers.Reverse(); // реверс после сортировки, иначе OrderBy отменит reverse
+
             // Добавляем слои над трубой
-            foreach (var layerDto in dto.LayersAbovePipe.OrderBy(l => l.Order))
+            foreach (var layerDto in aboveLayers)
             {
                 var material = _materialRepository.GetMaterialById(layerDto.MaterialId);
                 if (material == null)
@@ -233,6 +240,9 @@ namespace SnowMeltingCalculator.Repositories.Construction
                 layer.Order = layerDto.Order;
             }
 
+            // After all layers loaded, reindex so Order matches the new physical indices
+            construction.ReindexLayers();
+
             return construction;
         }
 
@@ -245,6 +255,9 @@ namespace SnowMeltingCalculator.Repositories.Construction
         /// </summary>
         private class ConstructionDto
         {
+            [JsonPropertyName("version")]
+            public string Version { get; set; } = "1.0";
+
             [JsonPropertyName("groundwater_level")]
             public double GroundwaterLevel { get; set; }
 
