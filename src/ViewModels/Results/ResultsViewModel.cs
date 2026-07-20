@@ -1620,7 +1620,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     // Загружаем данные конструкции
                     if (data.ConstructionData.Layers.Any())
                     {
-                        LoadLayersFromProjectData(data.ConstructionData.Layers);
+                        LoadLayersFromProjectData(data.ConstructionData.Layers, data.Version);
                     }
 
                     // Загружаем данные теплового расчёта
@@ -1830,7 +1830,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         {
             var data = new ProjectData
             {
-                Version = "1.0",
+                Version = "1.1",
                 ProjectNumber = ProjectNumber,
                 ProjectObject = ProjectObject,
                 IsOperatingMode = this.IsOperatingMode
@@ -1861,14 +1861,16 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     MaterialName = l.Material?.Name ?? string.Empty,
                     MaterialLambda = l.Material?.LambdaA ?? 0,
                     Thickness = l.Thickness,
-                    CalculatedLambda = l.CalculatedLambda
+                    CalculatedLambda = l.CalculatedLambda,
+                    Order = l.Order
                 }).Concat(_constructionViewModel.LayersBelowPipe.Select(l => new LayerProjectData
                 {
                     Position = LayerPosition.BelowPipe,
                     MaterialName = l.Material?.Name ?? string.Empty,
                     MaterialLambda = l.Material?.LambdaA ?? 0,
                     Thickness = l.Thickness,
-                    CalculatedLambda = l.CalculatedLambda
+                    CalculatedLambda = l.CalculatedLambda,
+                    Order = l.Order
                 })).ToList()
             };
 
@@ -1998,14 +2000,29 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// <summary>
         /// Загрузить слои конструкции из данных проекта
         /// </summary>
-        private void LoadLayersFromProjectData(List<LayerProjectData> layerDataList)
+        private void LoadLayersFromProjectData(List<LayerProjectData> layerDataList, string version)
         {
+            // До v1.1 слои AbovePipe сохранялись в хронологическом порядке (Add в конец),
+            // т.е. [у трубы, поверхность]. С v1.1 физический top-to-bottom: [поверхность, ..., у трубы].
+            var needsAbovePipeReverse = string.Compare(version, "1.1", StringComparison.OrdinalIgnoreCase) < 0;
+
+            var aboveLayers = layerDataList
+                .Where(l => l.Position == LayerPosition.AbovePipe)
+                .Reverse();
+            if (!needsAbovePipeReverse)
+                aboveLayers = aboveLayers.Reverse();
+            aboveLayers = aboveLayers.ToList();
+
+            var belowLayers = layerDataList
+                .Where(l => l.Position == LayerPosition.BelowPipe)
+                .ToList(); // порядок below не менялся
+
+            // Clear + Add по мигрированным коллекциям
             _constructionViewModel.LayersAbovePipe.Clear();
             _constructionViewModel.LayersBelowPipe.Clear();
 
-            foreach (var layerData in layerDataList)
+            foreach (var layerData in aboveLayers)
             {
-                // Находим материал по имени
                 var material = _constructionViewModel.AvailableMaterials
                     .FirstOrDefault(m => m.Name == layerData.MaterialName)
                     ?? Material.GetDefaultMaterial();
@@ -2016,17 +2033,30 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     Material = material,
                     Thickness = layerData.Thickness,
                     CalculatedLambda = layerData.CalculatedLambda,
-                    IsLambdaOverridden = true // Сохраняем переданное значение
+                    IsLambdaOverridden = true, // Сохраняем переданное значение
+                    Order = layerData.Order
                 };
 
-                if (layerData.Position == LayerPosition.AbovePipe)
+                _constructionViewModel.LayersAbovePipe.Add(layer);
+            }
+
+            foreach (var layerData in belowLayers)
+            {
+                var material = _constructionViewModel.AvailableMaterials
+                    .FirstOrDefault(m => m.Name == layerData.MaterialName)
+                    ?? Material.GetDefaultMaterial();
+
+                var layer = new Layer
                 {
-                    _constructionViewModel.LayersAbovePipe.Add(layer);
-                }
-                else
-                {
-                    _constructionViewModel.LayersBelowPipe.Add(layer);
-                }
+                    Position = layerData.Position,
+                    Material = material,
+                    Thickness = layerData.Thickness,
+                    CalculatedLambda = layerData.CalculatedLambda,
+                    IsLambdaOverridden = true, // Сохраняем переданное значение
+                    Order = layerData.Order
+                };
+
+                _constructionViewModel.LayersBelowPipe.Add(layer);
             }
 
             _constructionViewModel.UpdateCalculations();
