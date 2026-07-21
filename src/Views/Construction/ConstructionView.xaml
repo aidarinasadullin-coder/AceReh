@@ -86,7 +86,8 @@
                     <ComboBox Grid.Column="0"
                              ItemsSource="{Binding Templates}"
                              SelectedItem="{Binding SelectedTemplate}"
-                             MinWidth="300"
+                             Width="Auto"
+                             MinWidth="200"
                              ToolTip="Выберите шаблон для быстрого создания типовой конструкции"
                              Style="{StaticResource RehauComboBoxStyle}">
                         <ComboBox.ItemTemplate>
@@ -103,12 +104,22 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
 
-                    <Button Grid.Column="1"
-                           Content="Применить"
-                           Command="{Binding ApplyTemplateCommand}"
-                           Style="{StaticResource RehauPrimaryButtonStyle}"
-                           Margin="16,0,0,0"
-                           IsEnabled="{Binding SelectedTemplate, Converter={StaticResource NullToBoolConverter}}"/>
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Margin="16,0,0,0">
+                        <Button Content="Применить"
+                               Command="{Binding ApplyTemplateCommand}"
+                               Style="{StaticResource RehauPrimaryButtonStyle}"
+                               IsEnabled="{Binding SelectedTemplate, Converter={StaticResource NullToBoolConverter}}"/>
+                        <Button Content="Материалы"
+                               Command="{Binding OpenMaterialEditorCommand}"
+                               Style="{StaticResource RehauSecondaryButtonStyle}"
+                               Margin="8,0,0,0"/>
+                        <Button Content="Шаблоны"
+                               Command="{Binding OpenTemplateEditorCommand}"
+                               Style="{StaticResource RehauSecondaryButtonStyle}"
+                               Margin="8,0,0,0"/>
+                    </StackPanel>
                 </Grid>
             </StackPanel>
         </Border>

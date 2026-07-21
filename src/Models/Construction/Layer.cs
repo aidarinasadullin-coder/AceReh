@@ -39,9 +39,11 @@ namespace SnowMeltingCalculator.Models.Construction
                     _material = value;
                     OnPropertyChanged();
                     // При изменении материала устанавливаем LambdaA по умолчанию
-                    // Для слоёв под трубой UpdateLambda() вызывается отдельно с учётом УГВ
-                    if (!IsLambdaOverridden && _material != null)
+                    // и сбрасываем ручное переопределение, чтобы λ соответствовала новому материалу.
+                    // Для слоёв под трубой UpdateLambda() вызывается отдельно с учётом УГВ.
+                    if (_material != null)
                     {
+                        IsLambdaOverridden = false;
                         CalculatedLambda = _material.LambdaA;
                     }
                 }

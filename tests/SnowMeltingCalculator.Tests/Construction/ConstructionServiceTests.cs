@@ -42,7 +42,21 @@ namespace SnowMeltingCalculator.Tests.Construction
         [SetUp]
         public void Setup()
         {
-            _service = new ConstructionService(new ConstructionValidator());
+            var materialRepoMock = new Mock<IMaterialRepository>();
+            var nextId = 100;
+            materialRepoMock
+                .Setup(r => r.AddAsync(It.IsAny<Material>()))
+                .ReturnsAsync((Material m) =>
+                {
+                    if (m.Id == 0) m.Id = nextId++;
+                    return m;
+                });
+            var templateRepoMock = new Mock<IConstructionTemplateRepository>();
+            templateRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
+            _service = new ConstructionService(
+                new ConstructionValidator(),
+                materialRepoMock.Object,
+                templateRepoMock.Object);
             _projectStateService = new ProjectStateService();
         }
 
@@ -309,7 +323,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
-        public void CreateFromTemplate_InvalidMaterialId_ThrowsInvalidOperationException()
+        public void CreateFromTemplate_InvalidMaterialId_ThrowsMaterialNotFoundException()
         {
             // Arrange
             var template = new ConstructionTemplate
@@ -324,7 +338,327 @@ namespace SnowMeltingCalculator.Tests.Construction
             var materials = Material.GetDefaultMaterials();
 
             // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => _service.CreateFromTemplate(template, materials));
+            Assert.Throws<MaterialNotFoundException>(() => _service.CreateFromTemplate(template, materials));
+        }
+
+        #endregion
+
+        #region ImportProjectMaterialsAsync Tests
+
+        [Test]
+        public async Task ImportProjectMaterialsAsync_NewMaterials_AddsToRepository()
+        {
+            // Arrange
+            var repo = new TestMaterialRepository();
+            repo.Seed(Material.GetDefaultMaterials());
+            var service = new ConstructionService(new ConstructionValidator(), repo, new Mock<IConstructionTemplateRepository>().Object);
+
+            var snapshots = new List<MaterialSnapshot>
+            {
+                new MaterialSnapshot { Id = 999, Name = "Custom A", Category = MaterialCategory.Concrete, LambdaA = 1.0, LambdaB = 1.1, IsBuiltIn = false },
+                new MaterialSnapshot { Id = 998, Name = "Custom B", Category = MaterialCategory.Insulation, LambdaA = 0.5, LambdaB = 0.6, IsBuiltIn = false }
+            };
+
+            // Act
+            await service.ImportProjectMaterialsAsync(snapshots);
+
+            // Assert
+            Assert.That(repo.GetAllMaterials().Any(m => m.Name == "Custom A"), Is.True);
+            Assert.That(repo.GetAllMaterials().Any(m => m.Name == "Custom B"), Is.True);
+        }
+
+        [Test]
+        public async Task ImportProjectMaterialsAsync_ExistingId_Skips()
+        {
+            // Arrange
+            var repo = new TestMaterialRepository();
+            repo.Seed(Material.GetDefaultMaterials());
+            var service = new ConstructionService(new ConstructionValidator(), repo, new Mock<IConstructionTemplateRepository>().Object);
+
+            var existing = repo.GetAllMaterials().First();
+            var countBefore = repo.GetAllMaterials().Count();
+
+            var snapshots = new List<MaterialSnapshot>
+            {
+                new MaterialSnapshot { Id = existing.Id, Name = "New Name", Category = MaterialCategory.Concrete, LambdaA = 1.0, LambdaB = 1.1, IsBuiltIn = false }
+            };
+
+            // Act
+            await service.ImportProjectMaterialsAsync(snapshots);
+
+            // Assert
+            Assert.That(repo.GetAllMaterials().Count(), Is.EqualTo(countBefore));
+        }
+
+        [Test]
+        public async Task ImportProjectMaterialsAsync_ExistingNameCaseInsensitive_Skips()
+        {
+            // Arrange
+            var repo = new TestMaterialRepository();
+            repo.Seed(Material.GetDefaultMaterials());
+            var service = new ConstructionService(new ConstructionValidator(), repo, new Mock<IConstructionTemplateRepository>().Object);
+
+            var existing = repo.GetAllMaterials().First();
+            var countBefore = repo.GetAllMaterials().Count();
+
+            var snapshots = new List<MaterialSnapshot>
+            {
+                new MaterialSnapshot { Id = 999, Name = existing.Name.ToUpperInvariant(), Category = MaterialCategory.Concrete, LambdaA = 1.0, LambdaB = 1.1, IsBuiltIn = false }
+            };
+
+            // Act
+            await service.ImportProjectMaterialsAsync(snapshots);
+
+            // Assert
+            Assert.That(repo.GetAllMaterials().Count(), Is.EqualTo(countBefore));
+        }
+
+        private class TestMaterialRepository : IMaterialRepository
+        {
+            private List<Material>? _materials;
+
+            public bool IsLoaded => _materials != null;
+            public int MaterialsCount => _materials?.Count ?? 0;
+
+            public Task<IEnumerable<Material>> LoadMaterialsAsync()
+            {
+                _materials ??= new List<Material>();
+                return Task.FromResult<IEnumerable<Material>>(_materials);
+            }
+
+            public Material? GetMaterialById(int id)
+            {
+                return _materials?.FirstOrDefault(m => m.Id == id);
+            }
+
+            public IEnumerable<Material> GetMaterialsByCategory(MaterialCategory category)
+            {
+                return _materials?.Where(m => m.Category == category) ?? Enumerable.Empty<Material>();
+            }
+
+            public IEnumerable<Material> GetAllMaterials()
+            {
+                return _materials ?? Enumerable.Empty<Material>();
+            }
+
+            public Task<Material> AddAsync(Material material)
+            {
+                _materials ??= new List<Material>();
+                material.Id = _materials.Count > 0 ? _materials.Max(m => m.Id) + 1 : 1;
+                _materials.Add(material);
+                return Task.FromResult(material);
+            }
+
+            public Task<Material> UpdateAsync(Material material)
+            {
+                var index = _materials?.FindIndex(m => m.Id == material.Id) ?? -1;
+                if (index < 0)
+                {
+                    throw new InvalidOperationException($"Material with id {material.Id} not found");
+                }
+                _materials![index] = material;
+                return Task.FromResult(material);
+            }
+
+            public Task<bool> DeleteAsync(int id)
+            {
+                var material = _materials?.FirstOrDefault(m => m.Id == id);
+                if (material == null)
+                {
+                    return Task.FromResult(false);
+                }
+                _materials!.Remove(material);
+                return Task.FromResult(true);
+            }
+
+            public Task SaveMaterialsAsync()
+            {
+                return Task.CompletedTask;
+            }
+
+            public void Seed(IEnumerable<Material> materials)
+            {
+                _materials = new List<Material>(materials);
+            }
+        }
+
+        #endregion
+
+        #region ImportProjectTemplatesAsync Tests
+
+        [Test]
+        public async Task ImportProjectTemplatesAsync_AddsNewTemplate()
+        {
+            // Arrange
+            var templateRepo = new TestTemplateRepository();
+            templateRepo.Seed(ConstructionTemplate.GetDefaultTemplates());
+
+            var materialRepo = new TestMaterialRepository();
+            materialRepo.Seed(Material.GetDefaultMaterials());
+
+            var service = new ConstructionService(
+                new ConstructionValidator(),
+                materialRepo,
+                templateRepo);
+
+            var imported = new ConstructionTemplate
+            {
+                Name = "Imported User Template",
+                Description = "From project",
+                HasLoads = false,
+                DefaultGroundwaterLevel = 2.0,
+                IsBuiltIn = false,
+                LayersAbovePipe = new List<LayerTemplate>
+                {
+                    new LayerTemplate { MaterialId = 5, Thickness = 80, Position = LayerPosition.AbovePipe, Order = 0 }
+                },
+                LayersBelowPipe = new List<LayerTemplate>(),
+                MaterialSnapshots = new List<MaterialSnapshot>
+                {
+                    MaterialSnapshot.FromMaterial(Material.GetDefaultMaterials().First(m => m.Id == 5))
+                }
+            };
+
+            // Act
+            await service.ImportProjectTemplatesAsync(new[] { imported });
+
+            // Assert
+            Assert.That(templateRepo.GetAllAsync().Result.Any(t => t.Name == "Imported User Template"), Is.True);
+        }
+
+        [Test]
+        public async Task ImportProjectTemplatesAsync_SkipsExistingName()
+        {
+            // Arrange
+            var existingTemplate = ConstructionTemplate.GetDefaultTemplates().First();
+            var templateRepo = new TestTemplateRepository();
+            templateRepo.Seed(ConstructionTemplate.GetDefaultTemplates());
+
+            var materialRepo = new TestMaterialRepository();
+            materialRepo.Seed(Material.GetDefaultMaterials());
+
+            var service = new ConstructionService(
+                new ConstructionValidator(),
+                materialRepo,
+                templateRepo);
+
+            var imported = new ConstructionTemplate
+            {
+                Name = existingTemplate.Name,
+                IsBuiltIn = false,
+                LayersAbovePipe = new List<LayerTemplate>(),
+                LayersBelowPipe = new List<LayerTemplate>(),
+                MaterialSnapshots = new List<MaterialSnapshot>()
+            };
+
+            var countBefore = templateRepo.GetAllAsync().Result.Count();
+
+            // Act
+            await service.ImportProjectTemplatesAsync(new[] { imported });
+
+            // Assert
+            Assert.That(templateRepo.GetAllAsync().Result.Count(), Is.EqualTo(countBefore));
+        }
+
+        [Test]
+        public async Task ImportProjectTemplatesAsync_RemapsMaterialIdByName()
+        {
+            // Arrange
+            var templateRepo = new TestTemplateRepository();
+            templateRepo.Seed(ConstructionTemplate.GetDefaultTemplates());
+
+            var materialRepo = new TestMaterialRepository();
+            materialRepo.Seed(Material.GetDefaultMaterials());
+            materialRepo.AddAsync(new Material
+            {
+                Name = "Imported Concrete",
+                Category = MaterialCategory.Concrete,
+                LambdaA = 1.5,
+                LambdaB = 1.5,
+                IsBuiltIn = false
+            }).Wait();
+            var localMaterial = materialRepo.GetAllMaterials().First(m => m.Name == "Imported Concrete");
+
+            var service = new ConstructionService(
+                new ConstructionValidator(),
+                materialRepo,
+                templateRepo);
+
+            var imported = new ConstructionTemplate
+            {
+                Name = "Imported User Template",
+                IsBuiltIn = false,
+                LayersAbovePipe = new List<LayerTemplate>
+                {
+                    new LayerTemplate { MaterialId = 999, Thickness = 80, Position = LayerPosition.AbovePipe, Order = 0 }
+                },
+                LayersBelowPipe = new List<LayerTemplate>(),
+                MaterialSnapshots = new List<MaterialSnapshot>
+                {
+                    new MaterialSnapshot
+                    {
+                        Id = 999,
+                        Name = "Imported Concrete",
+                        Category = MaterialCategory.Concrete,
+                        LambdaA = 1.5,
+                        LambdaB = 1.5,
+                        IsBuiltIn = false
+                    }
+                }
+            };
+
+            // Act
+            await service.ImportProjectTemplatesAsync(new[] { imported });
+
+            // Assert
+            var added = templateRepo.GetAllAsync().Result.FirstOrDefault(t => t.Name == "Imported User Template");
+            Assert.That(added, Is.Not.Null);
+            Assert.That(added!.LayersAbovePipe[0].MaterialId, Is.EqualTo(localMaterial.Id));
+        }
+
+        [Test]
+        public async Task ImportProjectTemplatesAsync_SkipsWhenMaterialUnresolved()
+        {
+            // Arrange
+            var templateRepo = new TestTemplateRepository();
+            templateRepo.Seed(ConstructionTemplate.GetDefaultTemplates());
+
+            var materialRepo = new TestMaterialRepository();
+            materialRepo.Seed(Material.GetDefaultMaterials());
+
+            var service = new ConstructionService(
+                new ConstructionValidator(),
+                materialRepo,
+                templateRepo);
+
+            var imported = new ConstructionTemplate
+            {
+                Name = "Unresolved Template",
+                IsBuiltIn = false,
+                LayersAbovePipe = new List<LayerTemplate>
+                {
+                    new LayerTemplate { MaterialId = 999, Thickness = 80, Position = LayerPosition.AbovePipe, Order = 0 }
+                },
+                LayersBelowPipe = new List<LayerTemplate>(),
+                MaterialSnapshots = new List<MaterialSnapshot>
+                {
+                    new MaterialSnapshot
+                    {
+                        Id = 999,
+                        Name = "Missing Material",
+                        Category = MaterialCategory.Concrete,
+                        LambdaA = 1.5,
+                        LambdaB = 1.5,
+                        IsBuiltIn = false
+                    }
+                }
+            };
+
+            // Act
+            await service.ImportProjectTemplatesAsync(new[] { imported });
+
+            // Assert
+            Assert.That(templateRepo.GetAllAsync().Result.Any(t => t.Name == "Unresolved Template"), Is.False);
         }
 
         #endregion
@@ -447,7 +781,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var viewModel2 = CreateResultsViewModel(constructionVm2);
 
             // Act
-            viewModel2.LoadProjectData(savedData);
+            await viewModel2.LoadProjectDataAsync(savedData);
 
             // Assert
             Assert.That(constructionVm2.LayersAbovePipe.Count, Is.EqualTo(3));
@@ -504,7 +838,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var viewModel2 = CreateResultsViewModel(constructionVm2);
 
             // Act
-            viewModel2.LoadProjectData(savedData);
+            await viewModel2.LoadProjectDataAsync(savedData);
 
             // Assert
             Assert.That(constructionVm2.LayersAbovePipe.Count, Is.EqualTo(2));
@@ -562,7 +896,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var viewModel = CreateResultsViewModel(constructionVm);
 
             // Act
-            viewModel.LoadProjectData(projectData);
+            await viewModel.LoadProjectDataAsync(projectData);
 
             // Assert
             Assert.That(constructionVm.LayersAbovePipe.Count, Is.EqualTo(2));
@@ -603,11 +937,212 @@ namespace SnowMeltingCalculator.Tests.Construction
             }
         }
 
-        #endregion
+        [Test]
+        public async Task ProjectData_CustomMaterials_RoundTrip()
+        {
+            // Arrange
+            var repo = new TestMaterialRepository();
+            repo.Seed(Material.GetDefaultMaterials());
+            repo.AddAsync(new Material
+            {
+                Name = "Custom Project Material",
+                Category = MaterialCategory.Concrete,
+                LambdaA = 1.23,
+                LambdaB = 1.45,
+                IsBuiltIn = false
+            }).Wait();
 
-        #region Helper Methods
+            var service = new ConstructionService(new ConstructionValidator(), repo, new Mock<IConstructionTemplateRepository>().Object);
+            var constructionVm = CreateConstructionViewModel(repo);
+            await constructionVm.InitializeCommand.ExecuteAsync(null);
 
-        private ResultsViewModel CreateResultsViewModel(ConstructionViewModel constructionVm)
+            var viewModel = CreateResultsViewModel(constructionVm, service, repo);
+
+            // Act — сохраняем
+            var savedData = viewModel.SaveCurrentProject();
+
+            // Assert — пользовательские материалы сохранены
+            Assert.That(savedData.CustomMaterials, Is.Not.Empty);
+            Assert.That(savedData.CustomMaterials.Any(m => m.Name == "Custom Project Material"), Is.True);
+            Assert.That(savedData.CustomMaterials.All(m => !m.IsBuiltIn), Is.True);
+        }
+
+        [Test]
+        public async Task ProjectData_Load_ImportsCustomMaterialsBeforeLayers()
+        {
+            // Arrange
+            var repo = new TestMaterialRepository();
+            repo.Seed(Material.GetDefaultMaterials());
+
+            var service = new ConstructionService(new ConstructionValidator(), repo, new Mock<IConstructionTemplateRepository>().Object);
+            var constructionVm = CreateConstructionViewModel(repo);
+            await constructionVm.InitializeCommand.ExecuteAsync(null);
+
+            var viewModel = CreateResultsViewModel(constructionVm, service, repo);
+
+            var projectData = new ProjectData
+            {
+                Version = "1.1",
+                ProjectNumber = "P-MAT",
+                ProjectObject = "Material Import Test",
+                IsOperatingMode = true,
+                ClimateData = new ClimateProjectData(),
+                ConstructionData = new ConstructionProjectData
+                {
+                    Layers = new List<LayerProjectData>
+                    {
+                        new LayerProjectData
+                        {
+                            Position = LayerPosition.AbovePipe,
+                            MaterialName = "Imported Material",
+                            MaterialLambda = 1.5,
+                            Thickness = 100,
+                            CalculatedLambda = 1.5,
+                            Order = 0
+                        }
+                    }
+                },
+                ThermalData = new ThermalProjectData(),
+                HydraulicsData = new HydraulicsProjectData(),
+                CustomMaterials = new List<MaterialSnapshot>
+                {
+                    new MaterialSnapshot
+                    {
+                        Id = 500,
+                        Name = "Imported Material",
+                        Category = MaterialCategory.Concrete,
+                        LambdaA = 1.5,
+                        LambdaB = 1.6,
+                        IsBuiltIn = false
+                    }
+                }
+            };
+
+            // Act
+            await viewModel.LoadProjectDataAsync(projectData);
+
+            // Assert — материал импортирован и доступен
+            Assert.That(repo.GetAllMaterials().Any(m => m.Name == "Imported Material"), Is.True);
+            // Слой загружен с импортированным материалом
+            Assert.That(constructionVm.LayersAbovePipe.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task ProjectData_CustomTemplates_RoundTrip()
+        {
+            // Arrange
+            var repo = new TestMaterialRepository();
+            repo.Seed(Material.GetDefaultMaterials());
+            await repo.AddAsync(new Material
+            {
+                Name = "Custom Concrete",
+                Category = MaterialCategory.Concrete,
+                LambdaA = 1.5,
+                LambdaB = 1.5,
+                IsBuiltIn = false
+            });
+            var customConcrete = repo.GetAllMaterials().First(m => m.Name == "Custom Concrete");
+
+            var templateRepo = new TestTemplateRepository();
+            templateRepo.Seed(ConstructionTemplate.GetDefaultTemplates());
+
+            var service = new ConstructionService(new ConstructionValidator(), repo, templateRepo);
+            var constructionVm = CreateConstructionViewModel(repo);
+            await constructionVm.InitializeCommand.ExecuteAsync(null);
+
+            constructionVm.Templates.Add(new ConstructionTemplate
+            {
+                Name = "Custom Project Template",
+                Description = "User template",
+                HasLoads = false,
+                DefaultGroundwaterLevel = 2.0,
+                IsBuiltIn = false,
+                LayersAbovePipe = new List<LayerTemplate>
+                {
+                    new LayerTemplate { MaterialId = customConcrete.Id, Thickness = 80, Position = LayerPosition.AbovePipe, Order = 0 }
+                },
+                LayersBelowPipe = new List<LayerTemplate>()
+            });
+
+            var viewModel = CreateResultsViewModel(constructionVm, service, repo);
+
+            // Act
+            var savedData = viewModel.SaveCurrentProject();
+
+            // Assert
+            Assert.That(savedData.CustomTemplates, Is.Not.Empty);
+            Assert.That(savedData.CustomTemplates.Any(t => t.Name == "Custom Project Template"), Is.True);
+            Assert.That(savedData.CustomTemplates[0].MaterialSnapshots.Any(m => m.Name == "Custom Concrete"), Is.True);
+            Assert.That(savedData.CustomTemplates[0].IsBuiltIn, Is.False);
+        }
+
+        [Test]
+        public async Task ProjectRoundTrip_CustomTemplateSurvives()
+        {
+            // Arrange
+            var repo = new TestMaterialRepository();
+            repo.Seed(Material.GetDefaultMaterials());
+            await repo.AddAsync(new Material
+            {
+                Name = "Custom Concrete",
+                Category = MaterialCategory.Concrete,
+                LambdaA = 1.5,
+                LambdaB = 1.5,
+                IsBuiltIn = false
+            });
+            var customConcrete = repo.GetAllMaterials().First(m => m.Name == "Custom Concrete");
+
+            var templateRepo = new TestTemplateRepository();
+            templateRepo.Seed(ConstructionTemplate.GetDefaultTemplates());
+
+            var service = new ConstructionService(new ConstructionValidator(), repo, templateRepo);
+            var constructionVm = CreateConstructionViewModel(repo, templateRepo);
+            await constructionVm.InitializeCommand.ExecuteAsync(null);
+
+            constructionVm.Templates.Add(new ConstructionTemplate
+            {
+                Name = "Custom Project Template",
+                Description = "User template",
+                HasLoads = false,
+                DefaultGroundwaterLevel = 2.0,
+                IsBuiltIn = false,
+                LayersAbovePipe = new List<LayerTemplate>
+                {
+                    new LayerTemplate { MaterialId = customConcrete.Id, Thickness = 80, Position = LayerPosition.AbovePipe, Order = 0 }
+                },
+                LayersBelowPipe = new List<LayerTemplate>()
+            });
+
+            var viewModel = CreateResultsViewModel(constructionVm, service, repo);
+            var savedData = viewModel.SaveCurrentProject();
+
+            // Act — load into a fresh construction view model sharing the same repositories
+            var constructionVm2 = CreateConstructionViewModel(repo, templateRepo);
+            await constructionVm2.InitializeCommand.ExecuteAsync(null);
+            var viewModel2 = CreateResultsViewModel(constructionVm2, service, repo);
+            await viewModel2.LoadProjectDataAsync(savedData);
+
+            // Assert
+            Assert.That(constructionVm2.Templates.Any(t => t.Name == "Custom Project Template"), Is.True);
+        }
+
+        [Test]
+        public void ProjectData_DeserializesOldFileWithoutCustomTemplates()
+        {
+            // Arrange
+            var json = "{\"version\":\"1.1\",\"project_number\":\"P-OLD\",\"project_object\":\"Old\",\"created_date\":\"2026-01-01T00:00:00\",\"modified_date\":\"2026-01-01T00:00:00\",\"climate_data\":{},\"construction_data\":{},\"thermal_data\":{},\"hydraulics_data\":{},\"custom_materials\":[],\"is_operating_mode\":true}";
+            var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower };
+
+            // Act
+            var data = System.Text.Json.JsonSerializer.Deserialize<ProjectData>(json, options);
+
+            // Assert
+            Assert.That(data, Is.Not.Null);
+            Assert.That(data!.CustomTemplates, Is.Not.Null);
+            Assert.That(data.CustomTemplates, Is.Empty);
+        }
+
+        private ResultsViewModel CreateResultsViewModel(ConstructionViewModel constructionVm, IConstructionService service, IMaterialRepository repo)
         {
             return new ResultsViewModel(
                 _projectStateService,
@@ -617,6 +1152,55 @@ namespace SnowMeltingCalculator.Tests.Construction
                 new Mock<IProjectFileService>().Object,
                 new Mock<IConstructionVisualizationImageService>().Object,
                 new CalculationStateService(),
+                repo,
+                service,
+                CreateClimateViewModel(),
+                constructionVm,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+        }
+
+        private static ConstructionViewModel CreateConstructionViewModel(IMaterialRepository repo)
+        {
+            return CreateConstructionViewModel(repo, new Mock<IConstructionTemplateRepository>().Object);
+        }
+
+        private static ConstructionViewModel CreateConstructionViewModel(IMaterialRepository repo, IConstructionTemplateRepository templateRepo)
+        {
+            return new ConstructionViewModel(
+                new Mock<IConstructionService>().Object,
+                repo,
+                new Mock<IConstructionRepository>().Object,
+                new CalculationStateService(),
+                new CalculationContext(),
+                new ConstructionValidator(),
+                new ConstructionModel(),
+                new Mock<IMarkDirtyService>().Object,
+                templateRepo,
+                new Mock<IDialogService>().Object,
+                new Mock<IEditorDialogService>().Object);
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        private ResultsViewModel CreateResultsViewModel(ConstructionViewModel constructionVm)
+        {
+            var materialRepositoryMock = new Mock<IMaterialRepository>();
+            materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(Material.GetDefaultMaterials());
+            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(Material.GetDefaultMaterials());
+
+            return new ResultsViewModel(
+                _projectStateService,
+                _projectStateService,
+                new Mock<IDialogService>().Object,
+                new Mock<IPdfExportService>().Object,
+                new Mock<IProjectFileService>().Object,
+                new Mock<IConstructionVisualizationImageService>().Object,
+                new CalculationStateService(),
+                materialRepositoryMock.Object,
+                _service,
                 CreateClimateViewModel(),
                 constructionVm,
                 CreateThermalViewModel(),
@@ -636,6 +1220,9 @@ namespace SnowMeltingCalculator.Tests.Construction
             var materialRepositoryMock = new Mock<IMaterialRepository>();
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
 
+            var templateRepositoryMock = new Mock<IConstructionTemplateRepository>();
+            templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
+
             return new ConstructionViewModel(
                 new Mock<IConstructionService>().Object,
                 materialRepositoryMock.Object,
@@ -644,7 +1231,10 @@ namespace SnowMeltingCalculator.Tests.Construction
                 new CalculationContext(),
                 new ConstructionValidator(),
                 new ConstructionModel(),
-                new Mock<IMarkDirtyService>().Object);
+                new Mock<IMarkDirtyService>().Object,
+                templateRepositoryMock.Object,
+                new Mock<IDialogService>().Object,
+                new Mock<IEditorDialogService>().Object);
         }
 
         private static ClimateViewModel CreateClimateViewModel()
@@ -712,5 +1302,51 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         #endregion
+
+        /// <summary>
+        /// Lightweight in-memory implementation of <see cref="IConstructionTemplateRepository"/> for import tests.
+        /// </summary>
+        private class TestTemplateRepository : IConstructionTemplateRepository
+        {
+            private List<ConstructionTemplate> _templates = new();
+            private int _nextId = 10;
+
+            public Task<IEnumerable<ConstructionTemplate>> GetAllAsync()
+            {
+                return Task.FromResult(_templates.AsEnumerable());
+            }
+
+            public Task<ConstructionTemplate?> GetByIdAsync(int id)
+            {
+                return Task.FromResult(_templates.FirstOrDefault(t => t.Id == id));
+            }
+
+            public Task<ConstructionTemplate> AddAsync(ConstructionTemplate template)
+            {
+                template.Id = _nextId++;
+                _templates.Add(template);
+                return Task.FromResult(template);
+            }
+
+            public Task<ConstructionTemplate> UpdateAsync(ConstructionTemplate template)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<bool> DeleteAsync(int id)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task SaveAsync()
+            {
+                return Task.CompletedTask;
+            }
+
+            public void Seed(IEnumerable<ConstructionTemplate> templates)
+            {
+                _templates = templates.ToList();
+            }
+        }
     }
 }

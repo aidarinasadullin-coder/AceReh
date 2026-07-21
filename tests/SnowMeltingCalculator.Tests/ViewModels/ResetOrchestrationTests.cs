@@ -211,6 +211,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var materialRepositoryMock = new Mock<IMaterialRepository>();
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
 
+            var templateRepositoryMock = new Mock<IConstructionTemplateRepository>();
+            templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
+
             return new ConstructionViewModel(
                 new Mock<IConstructionService>().Object,
                 materialRepositoryMock.Object,
@@ -219,7 +222,10 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 new CalculationContext(),
                 new ConstructionValidator(),
                 new ConstructionModel(),
-                markDirtyService);
+                markDirtyService,
+                templateRepositoryMock.Object,
+                new Mock<IDialogService>().Object,
+                new Mock<IEditorDialogService>().Object);
         }
 
         private static ThermalViewModel CreateThermalViewModel(IMarkDirtyService markDirtyService)
@@ -269,6 +275,14 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var thermalVm = CreateThermalViewModel(new Mock<IMarkDirtyService>().Object);
             var circuitsVm = CreateCircuitsViewModel(new Mock<IMarkDirtyService>().Object);
 
+            var materialRepositoryMock = new Mock<IMaterialRepository>();
+            materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(new List<Material>());
+            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(new List<Material>());
+
+            var constructionServiceMock = new Mock<IConstructionService>();
+            constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
+                .Returns(Task.CompletedTask);
+
             return new ResultsViewModel(
                 projectStateService,
                 markDirtyService,
@@ -277,6 +291,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 new Mock<IProjectFileService>().Object,
                 new Mock<IConstructionVisualizationImageService>().Object,
                 new CalculationStateService(),
+                materialRepositoryMock.Object,
+                constructionServiceMock.Object,
                 climateVm,
                 constructionVm,
                 thermalVm,

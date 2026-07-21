@@ -1,8 +1,10 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnowMeltingCalculator.Models.Construction;
@@ -29,6 +31,9 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private readonly IValidator<ConstructionModel> _validator;
         private readonly ConstructionModel _construction;
         private readonly IMarkDirtyService _markDirtyService;
+        private readonly IConstructionTemplateRepository _templateRepository;
+        private readonly IDialogService _dialogService;
+        private readonly IEditorDialogService _editorDialogService;
         private bool _isSyncing; // Флаг для предотвращения рекурсии при синхронизации
         private bool _isResetting;
 
@@ -185,7 +190,10 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             CalculationContext calculationContext,
             IValidator<ConstructionModel> validator,
             ConstructionModel construction,
-            IMarkDirtyService markDirtyService)
+            IMarkDirtyService markDirtyService,
+            IConstructionTemplateRepository templateRepository,
+            IDialogService dialogService,
+            IEditorDialogService editorDialogService)
         {
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
@@ -195,6 +203,9 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
             _construction = construction ?? throw new ArgumentNullException(nameof(construction));
             _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
+            _templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));
+            _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            _editorDialogService = editorDialogService ?? throw new ArgumentNullException(nameof(editorDialogService));
 
             // Подписываемся на изменения коллекций
             LayersAbovePipe.CollectionChanged += OnLayersCollectionChanged;
@@ -222,21 +233,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             IsLoading = true;
             try
             {
-                // Загружаем материалы
-                var materials = await _materialRepository.LoadMaterialsAsync();
-                AvailableMaterials.Clear();
-                foreach (var material in materials)
-                {
-                    AvailableMaterials.Add(material);
-                }
-
-                // Загружаем шаблоны
-                var templates = ConstructionTemplate.GetDefaultTemplates();
-                Templates.Clear();
-                foreach (var template in templates)
-                {
-                    Templates.Add(template);
-                }
+                // Загружаем материалы и шаблоны
+                await RefreshCatalogsAsync();
 
                 // Устанавливаем конструкцию по умолчанию
                 ResetToDefault();
@@ -326,51 +324,107 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// Команда применения шаблона
         /// </summary>
         [RelayCommand]
-        private void ApplyTemplate()
+        private async Task ApplyTemplate()
         {
             if (_isResetting) return;
             if (SelectedTemplate == null) return;
 
             try
             {
-                // Создаём новую конструкцию из шаблона
-                var newConstruction = _constructionService.CreateFromTemplate(
-                    SelectedTemplate,
-                    AvailableMaterials);
-
-                // Очищаем текущие слои
-                LayersAbovePipe.Clear();
-                LayersBelowPipe.Clear();
-
-                // Добавляем слои из шаблона
-                foreach (var layer in newConstruction.LayersAbovePipe)
-                {
-                    LayersAbovePipe.Add(layer);
-                }
-
-                foreach (var layer in newConstruction.Layers)
-                {
-                    LayersBelowPipe.Add(layer);
-                }
-
-                // Устанавливаем параметры
-                GroundwaterLevel = SelectedTemplate.DefaultGroundwaterLevel;
-                HasLoads = SelectedTemplate.HasLoads;
-
-                // Обновляем УГВ опцию
-                SelectedGroundwaterOption = GroundwaterLevel < 1.0
-                    ? "УГВ < 1 м (влажные условия)"
-                    : "УГВ >= 1 м (сухие условия)";
-
-                UpdateCalculations();
-                HasUnsavedChanges = true;
-                _markDirtyService.MarkDirty();
+                await ApplySelectedTemplateAsync();
             }
             catch (Exception ex)
             {
                 ValidationMessage = $"Ошибка применения шаблона: {ex.Message}";
                 IsValid = false;
             }
+        }
+
+        /// <summary>
+        /// Применяет выбранный шаблон с возможностью импорта отсутствующего материала.
+        /// </summary>
+        private async Task ApplySelectedTemplateAsync()
+        {
+            try
+            {
+                ApplyTemplateCore(SelectedTemplate!);
+            }
+            catch (MaterialNotFoundException ex) when (ex.Snapshot != null)
+            {
+                var result = _dialogService.Show(
+                    $"Материал '{ex.Snapshot.Name}' (ID {ex.MaterialId}) отсутствует в справочнике. Импортировать из снимка?",
+                    "Импорт материала",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        await _constructionService.ImportMissingMaterialAsync(ex.Snapshot);
+                        await RefreshCatalogsAsync();
+                        ApplyTemplateCore(SelectedTemplate!);
+                    }
+                    catch (Exception importEx)
+                    {
+                        ValidationMessage = $"Ошибка импорта материала: {importEx.Message}";
+                        IsValid = false;
+                    }
+                }
+                else
+                {
+                    _dialogService.ShowError(
+                        $"Материал '{ex.Snapshot.Name}' (ID {ex.MaterialId}) не импортирован. Применение шаблона отменено.",
+                        "Импорт отменён");
+                    ValidationMessage = $"Материал '{ex.Snapshot.Name}' не найден в справочнике";
+                    IsValid = false;
+                }
+            }
+            catch (MaterialNotFoundException ex) when (ex.Snapshot == null)
+            {
+                _dialogService.ShowError(
+                    $"Материал с идентификатором {ex.MaterialId} не найден в справочнике и отсутствует снимок для импорта.",
+                    "Ошибка применения шаблона");
+                ValidationMessage = $"Материал с идентификатором {ex.MaterialId} не найден в справочнике";
+                IsValid = false;
+            }
+        }
+
+        /// <summary>
+        /// Ядро применения шаблона: создание конструкции и копирование слоёв.
+        /// </summary>
+        private void ApplyTemplateCore(ConstructionTemplate template)
+        {
+            // Создаём новую конструкцию из шаблона
+            var newConstruction = _constructionService.CreateFromTemplate(template, AvailableMaterials);
+
+            // Очищаем текущие слои
+            LayersAbovePipe.Clear();
+            LayersBelowPipe.Clear();
+
+            // Добавляем слои из шаблона
+            foreach (var layer in newConstruction.LayersAbovePipe)
+            {
+                LayersAbovePipe.Add(layer);
+            }
+
+            foreach (var layer in newConstruction.Layers)
+            {
+                LayersBelowPipe.Add(layer);
+            }
+
+            // Устанавливаем параметры
+            GroundwaterLevel = template.DefaultGroundwaterLevel;
+            HasLoads = template.HasLoads;
+
+            // Обновляем УГВ опцию
+            SelectedGroundwaterOption = GroundwaterLevel < 1.0
+                ? "УГВ < 1 м (влажные условия)"
+                : "УГВ >= 1 м (сухие условия)";
+
+            UpdateCalculations();
+            HasUnsavedChanges = true;
+            _markDirtyService.MarkDirty();
         }
 
         /// <summary>
@@ -411,30 +465,133 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         {
             // В реальном приложении здесь должен быть диалог выбора файла
             // Для демонстрации используем файл по умолчанию
+            var filePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "SnowMeltingCalculator",
+                "construction_last.json");
+
             try
             {
-                var filePath = System.IO.Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "SnowMeltingCalculator",
-                    "construction_last.json");
+                await LoadConstructionCoreAsync(filePath);
+            }
+            catch (MaterialNotFoundException ex) when (ex.Snapshot != null)
+            {
+                var result = _dialogService.Show(
+                    $"Материал '{ex.Snapshot.Name}' (ID {ex.MaterialId}) отсутствует в справочнике. Импортировать из снимка?",
+                    "Импорт материала",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
 
-                var loadedConstruction = await _constructionRepository.LoadConstructionAsync(filePath);
-
-                if (loadedConstruction != null)
+                if (result == MessageBoxResult.Yes)
                 {
-                    // Копируем данные из загруженной конструкции в текущую
-                    CopyConstructionData(loadedConstruction);
-                    SyncFromModel();
-                    HasUnsavedChanges = false;
-                    ValidationMessage = "Конструкция загружена успешно";
-                    IsValid = true;
+                    try
+                    {
+                        await _constructionService.ImportMissingMaterialAsync(ex.Snapshot);
+                        await RefreshCatalogsAsync();
+                        await LoadConstructionCoreAsync(filePath);
+                    }
+                    catch (Exception importEx)
+                    {
+                        ValidationMessage = $"Ошибка импорта материала: {importEx.Message}";
+                        IsValid = false;
+                    }
                 }
+                else
+                {
+                    _dialogService.ShowError(
+                        $"Материал '{ex.Snapshot.Name}' (ID {ex.MaterialId}) не импортирован. Загрузка конструкции отменена.",
+                        "Импорт отменён");
+                    ValidationMessage = $"Материал '{ex.Snapshot.Name}' не найден в справочнике";
+                    IsValid = false;
+                }
+            }
+            catch (MaterialNotFoundException ex) when (ex.Snapshot == null)
+            {
+                _dialogService.ShowError(
+                    $"Материал с идентификатором {ex.MaterialId} не найден в справочнике и отсутствует снимок для импорта.",
+                    "Ошибка загрузки конструкции");
+                ValidationMessage = $"Материал с идентификатором {ex.MaterialId} не найден в справочнике";
+                IsValid = false;
             }
             catch (Exception ex)
             {
                 ValidationMessage = $"Ошибка загрузки: {ex.Message}";
                 IsValid = false;
             }
+        }
+
+        /// <summary>
+        /// Загружает конструкцию из файла и копирует данные в текущую модель.
+        /// </summary>
+        private async Task LoadConstructionCoreAsync(string filePath)
+        {
+            var loadedConstruction = await _constructionRepository.LoadConstructionAsync(filePath);
+
+            if (loadedConstruction != null)
+            {
+                // Копируем данные из загруженной конструкции в текущую
+                CopyConstructionData(loadedConstruction);
+                SyncFromModel();
+                HasUnsavedChanges = false;
+                ValidationMessage = "Конструкция загружена успешно";
+                IsValid = true;
+            }
+        }
+
+        /// <summary>
+        /// Команда открытия редактора материалов
+        /// </summary>
+        [RelayCommand]
+        private async Task OpenMaterialEditor()
+        {
+            if (_editorDialogService.ShowMaterialEditor() == true)
+            {
+                await RefreshCatalogsAsync();
+            }
+        }
+
+        /// <summary>
+        /// Команда открытия редактора шаблонов
+        /// </summary>
+        [RelayCommand]
+        private async Task OpenTemplateEditor()
+        {
+            if (_editorDialogService.ShowTemplateEditor() != null)
+            {
+                await RefreshCatalogsAsync();
+            }
+        }
+
+        /// <summary>
+        /// Перезагружает материалы и шаблоны из репозиториев и обновляет коллекции.
+        /// </summary>
+        private async Task RefreshCatalogsAsync()
+        {
+            var materials = await _materialRepository.LoadMaterialsAsync();
+            AvailableMaterials.Clear();
+            foreach (var material in materials)
+            {
+                AvailableMaterials.Add(material);
+            }
+
+            var templates = await _templateRepository.GetAllAsync();
+            Templates.Clear();
+            if (templates != null)
+            {
+                foreach (var template in templates)
+                {
+                    Templates.Add(template);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Публичный обёртка для перезагрузки материалов из репозитория.
+        /// Используется при открытии проекта для обновления списка доступных материалов.
+        /// </summary>
+        public async Task ReloadMaterialsAsync()
+        {
+            await RefreshCatalogsAsync();
         }
 
         /// <summary>

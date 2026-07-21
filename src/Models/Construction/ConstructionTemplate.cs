@@ -71,6 +71,16 @@ namespace SnowMeltingCalculator.Models.Construction
         public double DefaultGroundwaterLevel { get; set; } = 2.0;
 
         /// <summary>
+        /// Признак встроенного (предустановленного) шаблона
+        /// </summary>
+        public bool IsBuiltIn { get; set; }
+
+        /// <summary>
+        /// Снимки материалов, используемых в шаблоне, для переносимости между ПК
+        /// </summary>
+        public List<MaterialSnapshot> MaterialSnapshots { get; set; } = new List<MaterialSnapshot>();
+
+        /// <summary>
         /// Получить предустановленные шаблоны конструкций
         /// </summary>
         /// <returns>Список шаблонов</returns>

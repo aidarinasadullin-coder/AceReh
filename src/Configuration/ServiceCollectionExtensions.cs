@@ -88,6 +88,7 @@ namespace SnowMeltingCalculator.Configuration
             // Repositories
             services.AddSingleton<IMaterialRepository, MaterialRepository>();
             services.AddSingleton<IConstructionRepository, ConstructionRepository>();
+            services.AddSingleton<IConstructionTemplateRepository, ConstructionTemplateRepository>();
 
             // Services
             services.AddSingleton<IConstructionService, ConstructionService>();
@@ -98,6 +99,12 @@ namespace SnowMeltingCalculator.Configuration
 
             // ViewModels
             services.AddSingleton<ConstructionViewModel>();
+            services.AddTransient<MaterialEditorViewModel>();
+            services.AddTransient<TemplateEditorViewModel>();
+
+            // Views (редакторские окна — Transient, создаются по запросу)
+            services.AddTransient<Views.Construction.MaterialEditorView>();
+            services.AddTransient<Views.Construction.TemplateEditorView>();
 
             return services;
         }
@@ -144,6 +151,9 @@ namespace SnowMeltingCalculator.Configuration
 
             // Диалоговый сервис (шов для тестирования MessageBox)
             services.AddSingleton<IDialogService, MessageBoxService>();
+
+            // Сервис редакторских диалогов (шов для редакторов материалов и шаблонов)
+            services.AddSingleton<IEditorDialogService, EditorDialogService>();
 
             return services;
         }
@@ -195,6 +205,10 @@ namespace SnowMeltingCalculator.Configuration
             services.AddTransient<IValidator<ThermalCalculationResult>, ThermalResultValidator>();
             services.AddTransient<IValidator<HydraulicInputData>, HydraulicValidator>();
             services.AddTransient<IValidator<CircuitRow>, CircuitValidator>();
+            services.AddTransient<IValidator<Material>, MaterialCrudValidator>();
+            services.AddTransient<MaterialCrudValidator>();
+            services.AddTransient<IValidator<ConstructionTemplate>, ConstructionTemplateValidator>();
+            services.AddTransient<ConstructionTemplateValidator>();
 
             return services;
         }

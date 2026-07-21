@@ -34,6 +34,32 @@ namespace SnowMeltingCalculator.Repositories.Construction
         IEnumerable<Material> GetAllMaterials();
 
         /// <summary>
+        /// Добавить новый материал
+        /// </summary>
+        /// <param name="material">Материал для добавления</param>
+        /// <returns>Добавленный материал с присвоенным идентификатором</returns>
+        Task<Material> AddAsync(Material material);
+
+        /// <summary>
+        /// Обновить существующий материал
+        /// </summary>
+        /// <param name="material">Материал с обновлёнными данными</param>
+        /// <returns>Обновлённый материал</returns>
+        Task<Material> UpdateAsync(Material material);
+
+        /// <summary>
+        /// Удалить материал по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор материала</param>
+        /// <returns>true, если материал был удалён; иначе false</returns>
+        Task<bool> DeleteAsync(int id);
+
+        /// <summary>
+        /// Сохранить все материалы в JSON файл
+        /// </summary>
+        Task SaveMaterialsAsync();
+
+        /// <summary>
         /// Признак того, что данные загружены
         /// </summary>
         bool IsLoaded { get; }
