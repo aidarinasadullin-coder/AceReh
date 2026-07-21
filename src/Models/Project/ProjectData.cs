@@ -139,6 +139,16 @@ namespace SnowMeltingCalculator.Models.Project
         /// Слои конструкции
         /// </summary>
         public List<LayerProjectData> Layers { get; set; } = new();
+
+        /// <summary>
+        /// Уровень грунтовых вод, м
+        /// </summary>
+        public double GroundwaterLevel { get; set; } = 2.0;
+
+        /// <summary>
+        /// Признак наличия нагрузок
+        /// </summary>
+        public bool HasLoads { get; set; }
     }
 
     /// <summary>
@@ -175,6 +185,11 @@ namespace SnowMeltingCalculator.Models.Project
         /// Расчётная теплопроводность
         /// </summary>
         public double CalculatedLambda { get; set; }
+
+        /// <summary>
+        /// Признак ручного переопределения теплопроводности
+        /// </summary>
+        public bool IsLambdaOverridden { get; set; }
 
         /// <summary>
         /// Порядковый номер слоя в коллекции (0 = поверхность / ближайший к трубе для below)
