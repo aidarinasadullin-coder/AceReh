@@ -125,6 +125,66 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
+        public async Task RefreshCatalogsAsync_ClearsAndReloadsMaterials()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            var expectedMaterials = new List<Material>
+            {
+                Material.GetDefaultMaterials().First(m => m.Id == 1)
+            };
+            _materialRepository.Seed(expectedMaterials);
+
+            // Act
+            await _viewModel.ReloadMaterialsAsync();
+
+            // Assert
+            Assert.That(_viewModel.AvailableMaterials, Is.EquivalentTo(expectedMaterials));
+        }
+
+        [Test]
+        public async Task RefreshCatalogsAsync_PreservesLayerMaterialBinding()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            var userMaterial = new Material
+            {
+                Name = "User material",
+                Category = MaterialCategory.Concrete,
+                LambdaA = 1.2,
+                LambdaB = 1.3
+            };
+            await _materialRepository.AddAsync(userMaterial);
+            await _viewModel.ReloadMaterialsAsync();
+
+            var layer = new Layer
+            {
+                Material = userMaterial,
+                Thickness = 100,
+                CalculatedLambda = userMaterial.LambdaA,
+                Position = LayerPosition.AbovePipe,
+                Order = 0
+            };
+            _viewModel.LayersAbovePipe.Clear();
+            _viewModel.LayersAbovePipe.Add(layer);
+
+            // Simulate deletion of the user material from the repository.
+            _materialRepository.Seed(Material.GetDefaultMaterials());
+
+            // Act
+            await _viewModel.ReloadMaterialsAsync();
+
+            // Assert
+            Assert.That(layer.Material, Is.Not.Null);
+            Assert.That(
+                _viewModel.AvailableMaterials.Contains(layer.Material) ||
+                layer.Material.Id == Material.GetDefaultMaterial().Id,
+                Is.True,
+                "Layer.Material must be rebound to a current catalog instance or the default material after its original material was removed.");
+            Assert.That(_viewModel.AvailableMaterials.Select(m => m.Id), Does.Contain(layer.Material.Id));
+        }
+
+        [Test]
         public async Task ApplyTemplate_MaterialNotFound_WithSnapshot_ImportsWhenConfirmed()
         {
             // Arrange
