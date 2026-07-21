@@ -2,6 +2,7 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnowMeltingCalculator.Models.Construction;
+using SnowMeltingCalculator.Services.Construction;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
 
 namespace SnowMeltingCalculator.Repositories.Construction
@@ -86,6 +87,12 @@ namespace SnowMeltingCalculator.Repositories.Construction
             {
                 throw new JsonException($"Ошибка десериализации файла конструкции '{filePath}': {ex.Message}", ex);
             }
+            catch (MaterialNotFoundException)
+            {
+                // Пробрасываем как есть, чтобы вызывающий код мог использовать
+                // сохранённый снимок материала (MaterialSnapshot) для импорта
+                throw;
+            }
             catch (Exception ex)
             {
                 throw new IOException($"Ошибка при загрузке конструкции из файла '{filePath}': {ex.Message}", ex);
@@ -159,6 +166,8 @@ namespace SnowMeltingCalculator.Repositories.Construction
         /// </summary>
         private static ConstructionDto MapToDto(ConstructionModel construction)
         {
+            var allLayers = construction.LayersAbovePipe.Concat(construction.Layers).ToList();
+
             return new ConstructionDto
             {
                 Version = "1.1",
@@ -167,7 +176,13 @@ namespace SnowMeltingCalculator.Repositories.Construction
                 LayersAbovePipe = construction.LayersAbovePipe.Select(MapLayerToDto).ToList(),
                 LayersBelowPipe = construction.Layers
                     .Where(l => l.Position == LayerPosition.BelowPipe)
-                    .Select(MapLayerToDto).ToList()
+                    .Select(MapLayerToDto).ToList(),
+                MaterialSnapshots = allLayers
+                    .Select(l => l.Material)
+                    .Where(m => m != null)
+                    .DistinctBy(m => m!.Id)
+                    .Select(m => MaterialSnapshot.FromMaterial(m!))
+                    .ToList()
             };
         }
 
@@ -216,7 +231,7 @@ namespace SnowMeltingCalculator.Repositories.Construction
                 var material = _materialRepository.GetMaterialById(layerDto.MaterialId);
                 if (material == null)
                 {
-                    throw new InvalidOperationException($"Материал с идентификатором {layerDto.MaterialId} не найден");
+                    throw CreateMaterialNotFoundException(layerDto.MaterialId, dto.MaterialSnapshots);
                 }
 
                 var layer = construction.AddLayerAbovePipe(material, layerDto.Thickness);
@@ -231,7 +246,7 @@ namespace SnowMeltingCalculator.Repositories.Construction
                 var material = _materialRepository.GetMaterialById(layerDto.MaterialId);
                 if (material == null)
                 {
-                    throw new InvalidOperationException($"Материал с идентификатором {layerDto.MaterialId} не найден");
+                    throw CreateMaterialNotFoundException(layerDto.MaterialId, dto.MaterialSnapshots);
                 }
 
                 var layer = construction.AddLayerBelowPipe(material, layerDto.Thickness);
@@ -244,6 +259,20 @@ namespace SnowMeltingCalculator.Repositories.Construction
             construction.ReindexLayers();
 
             return construction;
+        }
+
+        /// <summary>
+        /// Создать исключение об отсутствующем материале, прикрепив снимок если он есть
+        /// </summary>
+        private static MaterialNotFoundException CreateMaterialNotFoundException(int materialId, List<MaterialSnapshot> snapshots)
+        {
+            var snapshot = snapshots.FirstOrDefault(s => s.Id == materialId);
+            if (snapshot != null)
+            {
+                return new MaterialNotFoundException(materialId, snapshot);
+            }
+
+            return new MaterialNotFoundException(materialId);
         }
 
         #endregion
@@ -269,6 +298,9 @@ namespace SnowMeltingCalculator.Repositories.Construction
 
             [JsonPropertyName("layers_below_pipe")]
             public List<LayerDto> LayersBelowPipe { get; set; } = new();
+
+            [JsonPropertyName("material_snapshots")]
+            public List<MaterialSnapshot> MaterialSnapshots { get; set; } = new();
         }
 
         /// <summary>

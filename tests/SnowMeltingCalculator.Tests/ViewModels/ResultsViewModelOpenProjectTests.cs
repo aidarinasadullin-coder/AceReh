@@ -136,7 +136,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
 
         [Test]
-        public void ResultsViewModel_LoadProjectData_SelectsFirstCollectorAndEnablesCommands()
+        public async Task ResultsViewModel_LoadProjectData_SelectsFirstCollectorAndEnablesCommands()
         {
             // Arrange
             var projectData = new ProjectData
@@ -177,7 +177,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var viewModel = CreateViewModel(circuitsVm);
 
             // Act
-            viewModel.LoadProjectData(projectData);
+            await viewModel.LoadProjectDataAsync(projectData);
 
             // Assert
             Assert.That(circuitsVm.SelectedCollectorIndex, Is.EqualTo(0));
@@ -186,7 +186,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
 
         [Test]
-        public void ProjectRoundTrip_PipeSelectionRestored()
+        public async Task ProjectRoundTrip_PipeSelectionRestored()
         {
             // Arrange
             const string pipeName = "RAUTHERM S 25x2,3";
@@ -216,7 +216,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var viewModel = CreateViewModel(climateVm, constructionVm: CreateConstructionViewModel(), thermalVm, circuitsVm);
 
             // Act
-            viewModel.LoadProjectData(projectData);
+            await viewModel.LoadProjectDataAsync(projectData);
 
             // Assert
             Assert.That(thermalVm.SelectedPipe, Is.Not.Null);
@@ -224,7 +224,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
 
         [Test]
-        public void ProjectRoundTrip_DoesNotMarkDirtyOnLoad()
+        public async Task ProjectRoundTrip_DoesNotMarkDirtyOnLoad()
         {
             // Arrange
             var projectData = new ProjectData
@@ -311,14 +311,14 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 calculationStateService);
 
             // Act
-            viewModel.LoadProjectData(projectData);
+            await viewModel.LoadProjectDataAsync(projectData);
 
             // Assert
             Assert.That(_projectStateService.IsDirty, Is.False);
         }
 
         [Test]
-        public void ResultsViewModel_LoadProjectData_RestoresCityAndClimateParameters()
+        public async Task ResultsViewModel_LoadProjectData_RestoresCityAndClimateParameters()
         {
             // Arrange
             const string cityName = "Москва";
@@ -359,7 +359,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var viewModel = CreateViewModel(climateVm, circuitsVm);
 
             // Act
-            viewModel.LoadProjectData(projectData);
+            await viewModel.LoadProjectDataAsync(projectData);
 
             // Assert
             Assert.That(climateVm.SelectedCity, Is.Not.Null);
@@ -373,7 +373,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
 
         [Test]
-        public void ProjectRoundTrip_CitySurvivesRealSaveLoad()
+        public async Task ProjectRoundTrip_CitySurvivesRealSaveLoad()
         {
             // Arrange
             const string cityName = "ТестовыйГород";
@@ -451,7 +451,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 CreateThermalViewModel(),
                 CreateCircuitsViewModel());
 
-            viewModel2.LoadProjectData(loadedData);
+            await viewModel2.LoadProjectDataAsync(loadedData);
 
             // Assert — город и пользовательские климатические параметры восстановлены
             Assert.That(climateVm2.SelectedCity, Is.Not.Null);
@@ -485,6 +485,14 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             ThermalViewModel thermalVm,
             CircuitsViewModel circuitsVm)
         {
+            var materialRepositoryMock = new Mock<IMaterialRepository>();
+            materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(new List<Material>());
+            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(new List<Material>());
+
+            var constructionServiceMock = new Mock<IConstructionService>();
+            constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
+                .Returns(Task.CompletedTask);
+
             return new ResultsViewModel(
                 _projectStateService,
                 _projectStateService,
@@ -493,6 +501,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 _projectFileServiceMock.Object,
                 new Mock<IConstructionVisualizationImageService>().Object,
                 new CalculationStateService(),
+                materialRepositoryMock.Object,
+                constructionServiceMock.Object,
                 climateVm,
                 constructionVm,
                 thermalVm,
@@ -568,6 +578,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var materialRepositoryMock = new Mock<IMaterialRepository>();
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
 
+            var templateRepositoryMock = new Mock<IConstructionTemplateRepository>();
+            templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
+
             return new ConstructionViewModel(
                 new Mock<IConstructionService>().Object,
                 materialRepositoryMock.Object,
@@ -576,7 +589,10 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 new CalculationContext(),
                 new ConstructionValidator(),
                 new ConstructionModel(),
-                new Mock<IMarkDirtyService>().Object);
+                new Mock<IMarkDirtyService>().Object,
+                templateRepositoryMock.Object,
+                new Mock<IDialogService>().Object,
+                new Mock<IEditorDialogService>().Object);
         }
 
         private static ThermalViewModel CreateThermalViewModel()
@@ -634,6 +650,14 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             CircuitsViewModel circuitsVm,
             CalculationStateService calculationStateService)
         {
+            var materialRepositoryMock = new Mock<IMaterialRepository>();
+            materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(new List<Material>());
+            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(new List<Material>());
+
+            var constructionServiceMock = new Mock<IConstructionService>();
+            constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
+                .Returns(Task.CompletedTask);
+
             return new ResultsViewModel(
                 _projectStateService,
                 _projectStateService,
@@ -642,6 +666,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 _projectFileServiceMock.Object,
                 new Mock<IConstructionVisualizationImageService>().Object,
                 calculationStateService,
+                materialRepositoryMock.Object,
+                constructionServiceMock.Object,
                 climateVm,
                 constructionVm,
                 thermalVm,
@@ -686,6 +712,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var materialRepositoryMock = new Mock<IMaterialRepository>();
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
 
+            var templateRepositoryMock = new Mock<IConstructionTemplateRepository>();
+            templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
+
             return new ConstructionViewModel(
                 new Mock<IConstructionService>().Object,
                 materialRepositoryMock.Object,
@@ -694,7 +723,10 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 new CalculationContext(),
                 new ConstructionValidator(),
                 new ConstructionModel(),
-                markDirtyService);
+                markDirtyService,
+                templateRepositoryMock.Object,
+                new Mock<IDialogService>().Object,
+                new Mock<IEditorDialogService>().Object);
         }
 
         private static ThermalViewModel CreateThermalViewModel(

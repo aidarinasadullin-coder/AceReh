@@ -87,6 +87,11 @@ namespace SnowMeltingCalculator.Models.Construction
         public string? Notes { get; set; }
 
         /// <summary>
+        /// Признак встроенного (предустановленного) материала
+        /// </summary>
+        public bool IsBuiltIn { get; set; }
+
+        /// <summary>
         /// Получить предустановленные материалы
         /// </summary>
         /// <returns>Список предустановленных материалов</returns>

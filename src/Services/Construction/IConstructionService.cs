@@ -46,6 +46,28 @@ namespace SnowMeltingCalculator.Services.Construction
         ConstructionModel CreateFromTemplate(ConstructionTemplate template, IEnumerable<Material> materials);
 
         /// <summary>
+        /// Импортировать отсутствующий материал из снимка в справочник материалов
+        /// </summary>
+        /// <param name="snapshot">Снимок материала</param>
+        /// <returns>Добавленный материал с присвоенным идентификатором</returns>
+        Task<Material> ImportMissingMaterialAsync(MaterialSnapshot snapshot);
+
+        /// <summary>
+        /// Импортировать материалы из проекта в справочник материалов.
+        /// Пропускает снимки, у которых Id уже существует или имя (без учёта регистра) уже занято.
+        /// </summary>
+        /// <param name="snapshots">Снимки материалов из проекта</param>
+        Task ImportProjectMaterialsAsync(IEnumerable<MaterialSnapshot> snapshots);
+
+        /// <summary>
+        /// Импортировать пользовательские шаблоны конструкций из проекта в глобальный каталог.
+        /// Пропускает шаблоны с уже существующим именем и шаблоны, материалы которых
+        /// не удалось разрешить по имени через локальный справочник.
+        /// </summary>
+        /// <param name="templates">Шаблоны конструкций из проекта</param>
+        Task ImportProjectTemplatesAsync(IEnumerable<ConstructionTemplate> templates);
+
+        /// <summary>
         /// Получить общую толщину слоёв над трубой
         /// </summary>
         /// <param name="construction">Конструкция</param>

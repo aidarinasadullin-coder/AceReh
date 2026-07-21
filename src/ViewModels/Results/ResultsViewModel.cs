@@ -10,6 +10,8 @@ using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Models.Project;
 using SnowMeltingCalculator.Models.Thermal;
+using SnowMeltingCalculator.Repositories.Construction;
+using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
@@ -33,6 +35,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly IProjectFileService _projectFileService;
         private readonly IConstructionVisualizationImageService _constructionVisualizationImageService;
         private readonly ICalculationStateService _calculationStateService;
+        private readonly IMaterialRepository _materialRepository;
+        private readonly IConstructionService _constructionService;
         private readonly ClimateViewModel _climateViewModel;
         private readonly ConstructionViewModel _constructionViewModel;
         private readonly ThermalViewModel _thermalViewModel;
@@ -436,6 +440,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
             IProjectFileService projectFileService,
             IConstructionVisualizationImageService constructionVisualizationImageService,
             ICalculationStateService calculationStateService,
+            IMaterialRepository materialRepository,
+            IConstructionService constructionService,
             ClimateViewModel climateViewModel,
             ConstructionViewModel constructionViewModel,
             ThermalViewModel thermalViewModel,
@@ -448,6 +454,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _projectFileService = projectFileService ?? throw new ArgumentNullException(nameof(projectFileService));
             _constructionVisualizationImageService = constructionVisualizationImageService ?? throw new ArgumentNullException(nameof(constructionVisualizationImageService));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
+            _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
+            _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
             _climateViewModel = climateViewModel ?? throw new ArgumentNullException(nameof(climateViewModel));
             _constructionViewModel = constructionViewModel ?? throw new ArgumentNullException(nameof(constructionViewModel));
             _thermalViewModel = thermalViewModel ?? throw new ArgumentNullException(nameof(thermalViewModel));
@@ -857,7 +865,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     return;
             }
 
-            LoadProjectData(data);
+            await LoadProjectDataAsync(data);
             _currentFilePath = filePath;
             _projectStateService.CurrentFilePath = filePath;
             _projectStateService.MarkClean();
@@ -1584,7 +1592,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// <summary>
         /// Загрузить данные проекта из модели
         /// </summary>
-        public void LoadProjectData(ProjectData data)
+        public async Task LoadProjectDataAsync(ProjectData data)
         {
             if (data == null) return;
 
@@ -1616,6 +1624,20 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     _climateViewModel.SelectedZone = data.ClimateData.SelectedZone;
                     _climateViewModel.IsHighRequirements = data.ClimateData.IsHighRequirements;
                     _climateViewModel.SelectedCity = city;
+
+                    // Импортируем пользовательские материалы проекта перед загрузкой слоёв
+                    if (data.CustomMaterials.Any())
+                    {
+                        await _constructionService.ImportProjectMaterialsAsync(data.CustomMaterials);
+                        await _constructionViewModel.ReloadMaterialsAsync();
+                    }
+
+                    // Импортируем пользовательские шаблоны конструкций проекта
+                    if (data.CustomTemplates.Any())
+                    {
+                        await _constructionService.ImportProjectTemplatesAsync(data.CustomTemplates);
+                        await _constructionViewModel.ReloadMaterialsAsync();
+                    }
 
                     // Загружаем данные конструкции
                     if (data.ConstructionData.Layers.Any())
@@ -1849,6 +1871,52 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 IsHighRequirements = _climateViewModel.IsHighRequirements
             };
 
+            // Сохраняем пользовательские материалы
+            data.CustomMaterials = _materialRepository.GetAllMaterials()
+                .Where(m => !m.IsBuiltIn)
+                .Select(MaterialSnapshot.FromMaterial)
+                .ToList();
+
+            // Сохраняем пользовательские шаблоны конструкций с полными снимками материалов
+            var allMaterials = _materialRepository.GetAllMaterials().ToList();
+            data.CustomTemplates = _constructionViewModel.Templates
+                .Where(t => !t.IsBuiltIn)
+                .Select(t => new ConstructionTemplate
+                {
+                    Name = t.Name,
+                    Description = t.Description,
+                    HasLoads = t.HasLoads,
+                    DefaultGroundwaterLevel = t.DefaultGroundwaterLevel,
+                    IsBuiltIn = false,
+                    LayersAbovePipe = t.LayersAbovePipe
+                        .Select(l => new LayerTemplate
+                        {
+                            MaterialId = l.MaterialId,
+                            Thickness = l.Thickness,
+                            Position = l.Position,
+                            Order = l.Order
+                        })
+                        .ToList(),
+                    LayersBelowPipe = t.LayersBelowPipe
+                        .Select(l => new LayerTemplate
+                        {
+                            MaterialId = l.MaterialId,
+                            Thickness = l.Thickness,
+                            Position = l.Position,
+                            Order = l.Order
+                        })
+                        .ToList(),
+                    MaterialSnapshots = t.LayersAbovePipe
+                        .Concat(t.LayersBelowPipe)
+                        .Select(l => l.MaterialId)
+                        .Distinct()
+                        .Select(id => allMaterials.FirstOrDefault(m => m.Id == id))
+                        .Where(m => m != null)
+                        .Select(m => MaterialSnapshot.FromMaterial(m!))
+                        .ToList()
+                })
+                .ToList();
+
             // Сохраняем данные конструкции
             data.ConstructionData = new ConstructionProjectData
             {
@@ -2057,9 +2125,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 };
 
                 _constructionViewModel.LayersBelowPipe.Add(layer);
-            }
-
-            _constructionViewModel.UpdateCalculations();
+            }            _constructionViewModel.UpdateCalculations();
         }
 
         #endregion

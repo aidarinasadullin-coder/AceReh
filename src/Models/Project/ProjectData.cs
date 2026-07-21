@@ -55,6 +55,16 @@ namespace SnowMeltingCalculator.Models.Project
         /// </summary>
         public HydraulicsProjectData HydraulicsData { get; set; } = new();
 
+        /// <summary>
+        /// Пользовательские материалы проекта
+        /// </summary>
+        public List<MaterialSnapshot> CustomMaterials { get; set; } = new();
+
+        /// <summary>
+        /// Пользовательские шаблоны конструкций проекта
+        /// </summary>
+        public List<ConstructionTemplate> CustomTemplates { get; set; } = new();
+
         /// <summary>Режим отображения: рабочий (true) / расчётный (false)</summary>
         public bool IsOperatingMode { get; set; } = true;
     }

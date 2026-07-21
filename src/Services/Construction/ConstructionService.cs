@@ -1,5 +1,6 @@
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Construction;
+using SnowMeltingCalculator.Repositories.Construction;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
 
 namespace SnowMeltingCalculator.Services.Construction
@@ -10,14 +11,23 @@ namespace SnowMeltingCalculator.Services.Construction
     public class ConstructionService : IConstructionService
     {
         private readonly IValidator<ConstructionModel> _validator;
+        private readonly IMaterialRepository _materialRepository;
+        private readonly IConstructionTemplateRepository _templateRepository;
 
         /// <summary>
         /// Создать сервис
         /// </summary>
         /// <param name="validator">Валидатор конструкции</param>
-        public ConstructionService(IValidator<ConstructionModel> validator)
+        /// <param name="materialRepository">Репозиторий материалов</param>
+        /// <param name="templateRepository">Репозиторий шаблонов конструкций</param>
+        public ConstructionService(
+            IValidator<ConstructionModel> validator,
+            IMaterialRepository materialRepository,
+            IConstructionTemplateRepository templateRepository)
         {
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
+            _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
+            _templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));
         }
 
         /// <summary>
@@ -125,8 +135,10 @@ namespace SnowMeltingCalculator.Services.Construction
                 var material = materialsList.FirstOrDefault(m => m.Id == layerTemplate.MaterialId);
                 if (material == null)
                 {
-                    throw new InvalidOperationException(
-                        $"Материал с идентификатором {layerTemplate.MaterialId} не найден");
+                    var snapshot = template.MaterialSnapshots.FirstOrDefault(s => s.Id == layerTemplate.MaterialId);
+                    throw snapshot is null
+                        ? new MaterialNotFoundException(layerTemplate.MaterialId)
+                        : new MaterialNotFoundException(layerTemplate.MaterialId, snapshot);
                 }
 
                 construction.AddLayerAbovePipe(material, layerTemplate.Thickness);
@@ -138,8 +150,10 @@ namespace SnowMeltingCalculator.Services.Construction
                 var material = materialsList.FirstOrDefault(m => m.Id == layerTemplate.MaterialId);
                 if (material == null)
                 {
-                    throw new InvalidOperationException(
-                        $"Материал с идентификатором {layerTemplate.MaterialId} не найден");
+                    var snapshot = template.MaterialSnapshots.FirstOrDefault(s => s.Id == layerTemplate.MaterialId);
+                    throw snapshot is null
+                        ? new MaterialNotFoundException(layerTemplate.MaterialId)
+                        : new MaterialNotFoundException(layerTemplate.MaterialId, snapshot);
                 }
 
                 construction.AddLayerBelowPipe(material, layerTemplate.Thickness);
@@ -149,6 +163,201 @@ namespace SnowMeltingCalculator.Services.Construction
             CalculateThermalResistances(construction);
 
             return construction;
+        }
+
+        /// <summary>
+        /// Импортировать отсутствующий материал из снимка в справочник материалов
+        /// </summary>
+        public async Task<Material> ImportMissingMaterialAsync(MaterialSnapshot snapshot)
+        {
+            ArgumentNullException.ThrowIfNull(snapshot, nameof(snapshot));
+
+            await _materialRepository.LoadMaterialsAsync();
+
+            var name = MakeUniqueName(snapshot.Name);
+
+            var material = new Material
+            {
+                Name = name,
+                Category = snapshot.Category,
+                LambdaA = snapshot.LambdaA,
+                LambdaB = snapshot.LambdaB,
+                MaxSupplyTemp = snapshot.MaxSupplyTemp,
+                MinOutdoorTemp = snapshot.MinOutdoorTemp,
+                Notes = snapshot.Notes,
+                IsBuiltIn = false
+            };
+
+            var addedMaterial = await _materialRepository.AddAsync(material);
+            await _materialRepository.SaveMaterialsAsync();
+
+            return addedMaterial;
+        }
+
+        /// <summary>
+        /// Сделать название уникальным, добавляя суффикс " (импортирован)" при конфликте
+        /// </summary>
+        private string MakeUniqueName(string baseName)
+        {
+            var existingNames = _materialRepository.GetAllMaterials()
+                .Select(m => m.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            if (!existingNames.Contains(baseName))
+            {
+                return baseName;
+            }
+
+            var suffix = " (импортирован)";
+            var candidate = baseName + suffix;
+            while (existingNames.Contains(candidate))
+            {
+                candidate += suffix;
+            }
+
+            return candidate;
+        }
+
+        /// <summary>
+        /// Импортировать материалы из проекта в справочник материалов.
+        /// Пропускает снимки, у которых Id уже существует или имя (без учёта регистра) уже занято.
+        /// </summary>
+        public async Task ImportProjectMaterialsAsync(IEnumerable<MaterialSnapshot> snapshots)
+        {
+            ArgumentNullException.ThrowIfNull(snapshots, nameof(snapshots));
+
+            await _materialRepository.LoadMaterialsAsync();
+
+            var existingIds = _materialRepository.GetAllMaterials()
+                .Select(m => m.Id)
+                .ToHashSet();
+            var existingNames = _materialRepository.GetAllMaterials()
+                .Select(m => m.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var snapshot in snapshots)
+            {
+                if (existingIds.Contains(snapshot.Id))
+                {
+                    continue;
+                }
+
+                if (existingNames.Contains(snapshot.Name))
+                {
+                    continue;
+                }
+
+                var material = new Material
+                {
+                    Name = snapshot.Name,
+                    Category = snapshot.Category,
+                    LambdaA = snapshot.LambdaA,
+                    LambdaB = snapshot.LambdaB,
+                    MaxSupplyTemp = snapshot.MaxSupplyTemp,
+                    MinOutdoorTemp = snapshot.MinOutdoorTemp,
+                    Notes = snapshot.Notes,
+                    IsBuiltIn = false
+                };
+
+                var added = await _materialRepository.AddAsync(material);
+                existingIds.Add(added.Id);
+                existingNames.Add(added.Name);
+            }
+
+            await _materialRepository.SaveMaterialsAsync();
+        }
+
+        /// <summary>
+        /// Импортировать пользовательские шаблоны конструкций из проекта в глобальный каталог.
+        /// Пропускает шаблоны с уже существующим именем и шаблоны, материалы которых
+        /// не удалось разрешить по имени через локальный справочник.
+        /// </summary>
+        public async Task ImportProjectTemplatesAsync(IEnumerable<ConstructionTemplate> templates)
+        {
+            ArgumentNullException.ThrowIfNull(templates, nameof(templates));
+
+            var existingTemplates = (await _templateRepository.GetAllAsync()).ToList();
+            var existingNames = existingTemplates
+                .Select(t => t.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            await _materialRepository.LoadMaterialsAsync();
+            var localMaterials = _materialRepository.GetAllMaterials().ToList();
+            var localMaterialByName = localMaterials
+                .ToDictionary(m => m.Name, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var template in templates)
+            {
+                if (existingNames.Contains(template.Name))
+                {
+                    continue;
+                }
+
+                var snapshotById = template.MaterialSnapshots
+                    .ToDictionary(s => s.Id);
+
+                var canRemap = true;
+                var remappedLayers = new List<LayerTemplate>();
+
+                foreach (var layer in template.LayersAbovePipe.Concat(template.LayersBelowPipe))
+                {
+                    if (!snapshotById.TryGetValue(layer.MaterialId, out var snapshot))
+                    {
+                        canRemap = false;
+                        break;
+                    }
+
+                    if (!localMaterialByName.TryGetValue(snapshot.Name, out var localMaterial))
+                    {
+                        canRemap = false;
+                        break;
+                    }
+
+                    remappedLayers.Add(new LayerTemplate
+                    {
+                        MaterialId = localMaterial.Id,
+                        Thickness = layer.Thickness,
+                        Position = layer.Position,
+                        Order = layer.Order
+                    });
+                }
+
+                if (!canRemap)
+                {
+                    continue;
+                }
+
+                var layerCountAbove = template.LayersAbovePipe.Count;
+                var importTemplate = new ConstructionTemplate
+                {
+                    Name = template.Name,
+                    Description = template.Description,
+                    HasLoads = template.HasLoads,
+                    DefaultGroundwaterLevel = template.DefaultGroundwaterLevel,
+                    IsBuiltIn = false,
+                    LayersAbovePipe = remappedLayers.Take(layerCountAbove).ToList(),
+                    LayersBelowPipe = remappedLayers.Skip(layerCountAbove).ToList(),
+                    MaterialSnapshots = template.MaterialSnapshots
+                        .Select(s => new MaterialSnapshot
+                        {
+                            Id = s.Id,
+                            Name = s.Name,
+                            Category = s.Category,
+                            LambdaA = s.LambdaA,
+                            LambdaB = s.LambdaB,
+                            MaxSupplyTemp = s.MaxSupplyTemp,
+                            MinOutdoorTemp = s.MinOutdoorTemp,
+                            Notes = s.Notes,
+                            IsBuiltIn = s.IsBuiltIn
+                        })
+                        .ToList()
+                };
+
+                await _templateRepository.AddAsync(importTemplate);
+                existingNames.Add(importTemplate.Name);
+            }
+
+            await _templateRepository.SaveAsync();
         }
 
         /// <summary>

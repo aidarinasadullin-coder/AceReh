@@ -27,6 +27,9 @@ namespace SnowMeltingCalculator.Tests.Construction
         private MockConstructionRepository _mockConstructionRepository = null!;
         private Mock<ICalculationStateService> _mockCalculationStateService = null!;
         private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
+        private Mock<IConstructionTemplateRepository> _mockTemplateRepository = null!;
+        private Mock<IDialogService> _mockDialogService = null!;
+        private Mock<IEditorDialogService> _mockEditorDialogService = null!;
 
         [SetUp]
         public void Setup()
@@ -36,7 +39,11 @@ namespace SnowMeltingCalculator.Tests.Construction
             _mockConstructionRepository = new MockConstructionRepository();
             _mockCalculationStateService = new Mock<ICalculationStateService>();
             _markDirtyServiceMock = new Mock<IMarkDirtyService>();
+            _mockTemplateRepository = new Mock<IConstructionTemplateRepository>();
+            _mockDialogService = new Mock<IDialogService>();
+            _mockEditorDialogService = new Mock<IEditorDialogService>();
             _mockCalculationStateService.SetupGet(s => s.PipeSpacing).Returns(200);
+            _mockTemplateRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
             var construction = new ConstructionModel();
             _viewModel = new ConstructionViewModel(
                 _mockService,
@@ -46,7 +53,10 @@ namespace SnowMeltingCalculator.Tests.Construction
                 new SnowMeltingCalculator.Core.CalculationContext(),
                 new ConstructionValidator(),
                 construction,
-                _markDirtyServiceMock.Object);
+                _markDirtyServiceMock.Object,
+                _mockTemplateRepository.Object,
+                _mockDialogService.Object,
+                _mockEditorDialogService.Object);
         }
 
         #region Initialize Tests
@@ -258,6 +268,33 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // Assert
             Assert.That(layer.CalculatedLambda, Is.EqualTo(expectedLambda));
+        }
+
+        [Test]
+        public async Task ChangeMaterial_AfterProjectLoad_RecalculatesLambda()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            var sand = _viewModel.AvailableMaterials.First(m => m.Name == "Песок");
+            var reinforcedConcrete = _viewModel.AvailableMaterials.First(m => m.Name == "Железобетон");
+
+            var layer = new Layer
+            {
+                Material = sand,
+                Thickness = 100,
+                CalculatedLambda = sand.LambdaA,
+                IsLambdaOverridden = true, // как после загрузки проекта
+                Position = LayerPosition.AbovePipe,
+                Order = 0
+            };
+            _viewModel.LayersAbovePipe.Add(layer);
+
+            // Act
+            layer.Material = reinforcedConcrete;
+
+            // Assert
+            Assert.That(layer.CalculatedLambda, Is.EqualTo(reinforcedConcrete.LambdaA));
+            Assert.That(layer.IsLambdaOverridden, Is.False);
         }
 
         #endregion
@@ -693,6 +730,21 @@ namespace SnowMeltingCalculator.Tests.Construction
             return construction;
         }
 
+        public System.Threading.Tasks.Task<Material> ImportMissingMaterialAsync(MaterialSnapshot snapshot)
+        {
+            return System.Threading.Tasks.Task.FromResult<Material>(null!);
+        }
+
+        public System.Threading.Tasks.Task ImportProjectMaterialsAsync(System.Collections.Generic.IEnumerable<MaterialSnapshot> snapshots)
+        {
+            return System.Threading.Tasks.Task.CompletedTask;
+        }
+
+        public System.Threading.Tasks.Task ImportProjectTemplatesAsync(System.Collections.Generic.IEnumerable<ConstructionTemplate> templates)
+        {
+            return System.Threading.Tasks.Task.CompletedTask;
+        }
+
         public double GetTotalThicknessAbovePipe(ConstructionModel construction)
         {
             return construction.LayersAbovePipe.Sum(l => l.Thickness);
@@ -733,6 +785,53 @@ namespace SnowMeltingCalculator.Tests.Construction
         public System.Collections.Generic.IEnumerable<Material> GetAllMaterials()
         {
             return _materials ?? Enumerable.Empty<Material>();
+        }
+
+        public Task<Material> AddAsync(Material material)
+        {
+            if (material == null)
+            {
+                throw new ArgumentNullException(nameof(material));
+            }
+
+            _materials ??= new List<Material>();
+            material.Id = _materials.Count > 0 ? _materials.Max(m => m.Id) + 1 : 1;
+            _materials.Add(material);
+            return Task.FromResult(material);
+        }
+
+        public Task<Material> UpdateAsync(Material material)
+        {
+            if (material == null)
+            {
+                throw new ArgumentNullException(nameof(material));
+            }
+
+            var index = _materials?.FindIndex(m => m.Id == material.Id) ?? -1;
+            if (index < 0)
+            {
+                throw new InvalidOperationException($"Материал с id={material.Id} не найден.");
+            }
+
+            _materials![index] = material;
+            return Task.FromResult(material);
+        }
+
+        public Task<bool> DeleteAsync(int id)
+        {
+            var material = _materials?.FirstOrDefault(m => m.Id == id);
+            if (material == null)
+            {
+                return Task.FromResult(false);
+            }
+
+            _materials!.Remove(material);
+            return Task.FromResult(true);
+        }
+
+        public Task SaveMaterialsAsync()
+        {
+            return Task.CompletedTask;
         }
     }
 

@@ -121,6 +121,14 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
             var thermalVm = CreateThermalViewModel(projectStateService);
             var circuitsVm = CreateCircuitsViewModel(projectStateService);
 
+            var materialRepositoryMock = new Mock<IMaterialRepository>();
+            materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(new List<Material>());
+            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(new List<Material>());
+
+            var constructionServiceMock = new Mock<IConstructionService>();
+            constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
+                .Returns(Task.CompletedTask);
+
             return new ResultsViewModel(
                 projectStateService,
                 projectStateService,
@@ -129,6 +137,8 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
                 projectFileService,
                 new Mock<IConstructionVisualizationImageService>().Object,
                 new CalculationStateService(),
+                materialRepositoryMock.Object,
+                constructionServiceMock.Object,
                 climateVm,
                 constructionVm,
                 thermalVm,
@@ -169,6 +179,9 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
             var materialRepositoryMock = new Mock<IMaterialRepository>();
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
 
+            var templateRepositoryMock = new Mock<IConstructionTemplateRepository>();
+            templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
+
             return new ConstructionViewModel(
                 new Mock<IConstructionService>().Object,
                 materialRepositoryMock.Object,
@@ -177,7 +190,10 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
                 new CalculationContext(),
                 new ConstructionValidator(),
                 new ConstructionModel(),
-                projectStateService);
+                projectStateService,
+                templateRepositoryMock.Object,
+                new Mock<IDialogService>().Object,
+                new Mock<IEditorDialogService>().Object);
         }
 
         private static ThermalViewModel CreateThermalViewModel(ProjectStateService projectStateService)
