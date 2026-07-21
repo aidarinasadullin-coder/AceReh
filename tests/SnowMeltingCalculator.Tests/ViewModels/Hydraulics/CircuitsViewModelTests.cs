@@ -1459,6 +1459,26 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                 "ThermalValidationMessage не должен совпадать с текстом ошибки гликоля");
         }
 
+        [Test]
+        public void Calculate_WithNullSelectedCollector_ResetsHydraulicsState()
+        {
+            // Arrange - clear collectors so SelectedCollector becomes null
+            _viewModel.Collectors.Clear();
+
+            // Act
+            _viewModel.CalculateCommand.Execute(null);
+
+            // Assert - hydraulics results are cleared
+            Assert.That(_calculationContext.HydraulicsResults, Is.Null,
+                "При отсутствии коллектора результаты гидравлики должны сбрасываться в null");
+
+            // Assert - state is reset to Actual (not left in Calculating)
+            _calculationStateServiceMock.Verify(
+                s => s.ResetHydraulicsState(),
+                Times.AtLeastOnce,
+                "Calculate() должен сбросить состояние гидравлики даже при раннем выходе");
+        }
+
         #endregion
 
         #region Helper Methods
