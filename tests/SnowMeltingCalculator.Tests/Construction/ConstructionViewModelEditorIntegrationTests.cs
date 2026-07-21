@@ -185,6 +185,134 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
+        public async Task OpenMaterialEditor_AfterAddingUserMaterial_MaterialAppearsInAvailableMaterials()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            var existingMaterial = _viewModel.AvailableMaterials.First(m => m.Id == 5);
+            var layer = new Layer
+            {
+                Material = existingMaterial,
+                Thickness = 100,
+                CalculatedLambda = existingMaterial.LambdaA,
+                Position = LayerPosition.AbovePipe,
+                Order = 0
+            };
+            _viewModel.LayersAbovePipe.Clear();
+            _viewModel.LayersAbovePipe.Add(layer);
+
+            var userMaterial = new Material
+            {
+                Name = "New user material",
+                Category = MaterialCategory.Concrete,
+                LambdaA = 1.2,
+                LambdaB = 1.3
+            };
+            await _materialRepository.AddAsync(userMaterial);
+            _editorDialogServiceMock.Setup(s => s.ShowMaterialEditor()).Returns(true);
+
+            // Act
+            await _viewModel.OpenMaterialEditorCommand.ExecuteAsync(null);
+
+            // Assert
+            Assert.That(_viewModel.AvailableMaterials.Select(m => m.Id), Does.Contain(userMaterial.Id),
+                "User material added through the editor must appear in AvailableMaterials after refresh.");
+            Assert.That(_viewModel.AvailableMaterials.Any(m => m.Name == userMaterial.Name), Is.True);
+            Assert.That(_viewModel.AvailableMaterials.Contains(layer.Material), Is.True,
+                "Existing layer material must remain bound to a current catalog instance after refresh.");
+        }
+
+        [Test]
+        public async Task OpenMaterialEditor_AfterDeletingUserMaterial_LayerMaterialReplaced()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            var userMaterial = new Material
+            {
+                Name = "User material to delete",
+                Category = MaterialCategory.Concrete,
+                LambdaA = 1.2,
+                LambdaB = 1.3
+            };
+            await _materialRepository.AddAsync(userMaterial);
+            await _viewModel.ReloadMaterialsAsync();
+
+            var layer = new Layer
+            {
+                Material = userMaterial,
+                Thickness = 100,
+                CalculatedLambda = userMaterial.LambdaA,
+                Position = LayerPosition.AbovePipe,
+                Order = 0
+            };
+            _viewModel.LayersAbovePipe.Clear();
+            _viewModel.LayersAbovePipe.Add(layer);
+
+            await _materialRepository.DeleteAsync(userMaterial.Id);
+            _editorDialogServiceMock.Setup(s => s.ShowMaterialEditor()).Returns(true);
+
+            // Act
+            await _viewModel.OpenMaterialEditorCommand.ExecuteAsync(null);
+
+            // Assert
+            Assert.That(layer.Material, Is.Not.Null);
+            Assert.That(
+                _viewModel.AvailableMaterials.Contains(layer.Material) ||
+                layer.Material.Id == Material.GetDefaultMaterial().Id,
+                Is.True,
+                "Layer.Material must be rebound to a current catalog instance or the default material after its material was deleted.");
+            Assert.That(layer.IsLambdaOverridden, Is.True,
+                "Calculated lambda should be preserved as an override when falling back to the default material.");
+        }
+
+        [Test]
+        public async Task OpenTemplateEditor_AfterClose_LayerMaterialNamesPreserved()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            _viewModel.LayersAbovePipe.Clear();
+            _viewModel.LayersBelowPipe.Clear();
+
+            var concrete = _viewModel.AvailableMaterials.First(m => m.Id == 5);
+            var sand = _viewModel.AvailableMaterials.First(m => m.Id == 1);
+            var above = new Layer
+            {
+                Material = concrete,
+                Thickness = 100,
+                CalculatedLambda = concrete.LambdaA,
+                Position = LayerPosition.AbovePipe,
+                Order = 0
+            };
+            var below = new Layer
+            {
+                Material = sand,
+                Thickness = 150,
+                CalculatedLambda = sand.LambdaA,
+                Position = LayerPosition.BelowPipe,
+                Order = 0
+            };
+            _viewModel.LayersAbovePipe.Add(above);
+            _viewModel.LayersBelowPipe.Add(below);
+
+            _editorDialogServiceMock.Setup(s => s.ShowTemplateEditor()).Returns(false);
+            _templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
+
+            // Act
+            await _viewModel.OpenTemplateEditorCommand.ExecuteAsync(null);
+
+            // Assert
+            var layers = _viewModel.LayersAbovePipe.Concat(_viewModel.LayersBelowPipe).ToList();
+            foreach (var layer in layers)
+            {
+                Assert.That(layer.Material, Is.Not.Null, "Layer material must not be null after template editor close.");
+                Assert.That(layer.Material.Name, Is.Not.Null.And.Not.Empty,
+                    "Layer material name must be preserved after template editor close.");
+                Assert.That(_viewModel.AvailableMaterials.Contains(layer.Material), Is.True,
+                    "Layer material must be a current instance from AvailableMaterials so ComboBox binding resolves its name.");
+            }
+        }
+
+        [Test]
         public async Task ApplyTemplate_MaterialNotFound_WithSnapshot_ImportsWhenConfirmed()
         {
             // Arrange
