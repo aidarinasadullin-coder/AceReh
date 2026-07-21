@@ -673,5 +673,78 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
         }
 
         #endregion
+
+        #region All Collectors Recalculation Tests (P2-5)
+
+        /// <summary>
+        /// Создаёт два коллектора с контурами и оставляет выбранным первый,
+        /// чтобы второй был невыбранным.
+        /// </summary>
+        private void SetupTwoCollectorsWithCircuits()
+        {
+            // Первый коллектор уже подготовлен в SetupCollectorWithCircuits
+            _viewModel.AddCollectorCommand.Execute(null);
+
+            var secondCollector = _viewModel.Collectors[1];
+            secondCollector.Circuits.Clear();
+            secondCollector.Circuits.Add(new CircuitRow { CircuitNumber = 1, CircuitLength = 60 });
+            secondCollector.Circuits.Add(new CircuitRow { CircuitNumber = 2, CircuitLength = 40 });
+
+            _viewModel.SelectedCollectorIndex = 0;
+        }
+
+        [Test]
+        public void ThermalResultChanged_RecalculatesAllCollectors()
+        {
+            // Arrange - подготавливаем входные данные теплового расчёта и два коллектора
+            var pipe = new PipeType
+            {
+                Name = "RAUTHERM S 20x2,0",
+                OuterDiameter = 20,
+                InnerDiameter = 16,
+                WallThickness = 2.0
+            };
+            var inputs = new ThermalInputs { Pipe = pipe, PipeSpacing = 200 };
+            _calculationContext.UpdateThermalInputs(inputs, "Thermal");
+
+            SetupTwoCollectorsWithCircuits();
+
+            var thermalResult = new ThermalCalculationResult
+            {
+                PowerUp = 300.0,
+                PowerDown = 20.0,
+                SupplyTemperature = 55.0,
+                ReturnTemperature = 40.0,
+                MeanTemperature = 47.5,
+                DeltaT = 15.0,
+                IsValid = true
+            };
+
+            // Act - публикуем валидный тепловой результат через единый контекст
+            _calculationContext.UpdateThermal(thermalResult, "Thermal");
+
+            // Assert - пересчитаны и выбранный, и невыбранный коллекторы
+            Assert.That(_viewModel.SelectedCollectorIndex, Is.EqualTo(0), "Должен быть выбран первый коллектор");
+            Assert.That(_viewModel.Collectors[0].Summary.TotalPower, Is.GreaterThan(0), "Выбранный коллектор должен быть пересчитан");
+            Assert.That(_viewModel.Collectors[1].Summary.TotalPower, Is.GreaterThan(0), "Невыбранный коллектор должен быть пересчитан");
+            Assert.That(_viewModel.Collectors[1].Summary.CircuitCount, Is.EqualTo(2), "Итоги невыбранного коллектора должны учитывать его контуры");
+        }
+
+        [Test]
+        public void ClimateChanged_RecalculatesAllCollectors()
+        {
+            // Arrange - два коллектора, выбран первый
+            SetupTwoCollectorsWithCircuits();
+
+            // Act - изменяем климат через единый контекст
+            _calculationContext.UpdateClimate(_climateData, "Climate");
+
+            // Assert - пересчитаны и выбранный, и невыбранный коллекторы
+            Assert.That(_viewModel.SelectedCollectorIndex, Is.EqualTo(0), "Должен быть выбран первый коллектор");
+            Assert.That(_viewModel.Collectors[0].Summary.TotalPower, Is.GreaterThan(0), "Выбранный коллектор должен быть пересчитан после изменения климата");
+            Assert.That(_viewModel.Collectors[1].Summary.TotalPower, Is.GreaterThan(0), "Невыбранный коллектор должен быть пересчитан после изменения климата");
+        }
+
+        #endregion
     }
 }
