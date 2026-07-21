@@ -568,11 +568,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private async Task RefreshCatalogsAsync()
         {
             var materials = await _materialRepository.LoadMaterialsAsync();
-            AvailableMaterials.Clear();
-            foreach (var material in materials)
-            {
-                AvailableMaterials.Add(material);
-            }
+            SynchronizeAvailableMaterials(materials);
 
             var templates = await _templateRepository.GetAllAsync();
             Templates.Clear();
@@ -581,6 +577,77 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 foreach (var template in templates)
                 {
                     Templates.Add(template);
+                }
+            }
+
+            RebindLayerMaterials();
+            OnPropertyChanged(nameof(AvailableMaterials));
+        }
+
+        /// <summary>
+        /// Синхронизирует коллекцию доступных материалов с данными репозитория
+        /// по идентификатору, сохраняя ссылки на существующие экземпляры.
+        /// </summary>
+        /// <param name="materials">Актуальный список материалов из репозитория.</param>
+        private void SynchronizeAvailableMaterials(IEnumerable<Material> materials)
+        {
+            var updatedMaterials = materials.ToList();
+            var updatedById = updatedMaterials.ToDictionary(m => m.Id);
+
+            // Удаляем материалы, которых больше нет в репозитории.
+            for (int i = AvailableMaterials.Count - 1; i >= 0; i--)
+            {
+                var existing = AvailableMaterials[i];
+                if (!updatedById.ContainsKey(existing.Id))
+                {
+                    AvailableMaterials.RemoveAt(i);
+                }
+            }
+
+            var existingById = AvailableMaterials.ToDictionary(m => m.Id);
+            foreach (var updated in updatedMaterials)
+            {
+                if (existingById.TryGetValue(updated.Id, out var existing))
+                {
+                    // Обновляем существующий экземпляр на месте, чтобы сохранить
+                    // живые ссылки из слоёв и других коллекций.
+                    existing.Name = updated.Name;
+                    existing.Category = updated.Category;
+                    existing.LambdaA = updated.LambdaA;
+                    existing.LambdaB = updated.LambdaB;
+                    existing.MaxSupplyTemp = updated.MaxSupplyTemp;
+                    existing.MinOutdoorTemp = updated.MinOutdoorTemp;
+                    existing.Notes = updated.Notes;
+                    existing.IsBuiltIn = updated.IsBuiltIn;
+                }
+                else
+                {
+                    AvailableMaterials.Add(updated);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Перепривязывает ссылки <see cref="Layer.Material"/> к актуальным
+        /// экземплярам из <see cref="AvailableMaterials"/>.
+        /// </summary>
+        private void RebindLayerMaterials()
+        {
+            foreach (var layer in LayersAbovePipe.Concat(LayersBelowPipe))
+            {
+                var currentMaterial = AvailableMaterials.FirstOrDefault(m => m.Id == layer.Material?.Id);
+                if (currentMaterial != null)
+                {
+                    layer.Material = currentMaterial;
+                }
+                else
+                {
+                    var previousLambda = layer.CalculatedLambda;
+                    var fallback = Material.GetDefaultMaterial();
+                    var catalogFallback = AvailableMaterials.FirstOrDefault(m => m.Id == fallback.Id);
+                    layer.Material = catalogFallback ?? fallback;
+                    layer.CalculatedLambda = previousLambda;
+                    layer.IsLambdaOverridden = true;
                 }
             }
         }
