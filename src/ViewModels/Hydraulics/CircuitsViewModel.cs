@@ -422,20 +422,30 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             _calculationStateService.SetHydraulicsCalculating();
             ValidationMessage = string.Empty;
 
-            if (SelectedCollector == null)
+            try
             {
-                _calculationContext.UpdateHydraulics(((List<CollectorSummary>?)null)!, "CircuitsViewModel");
-                return;
+                if (SelectedCollector == null)
+                {
+                    _calculationContext.UpdateHydraulics(((List<CollectorSummary>?)null)!, "CircuitsViewModel");
+                    return;
+                }
+
+                CalculateCollector(SelectedCollector, autoSelectType: true);
+
+                if (!string.IsNullOrEmpty(ValidationMessage))
+                {
+                    return;
+                }
+
+                PublishHydraulicsSummaries();
             }
-
-            CalculateCollector(SelectedCollector, autoSelectType: true);
-
-            if (!string.IsNullOrEmpty(ValidationMessage))
+            finally
             {
-                return;
+                if (string.IsNullOrEmpty(ValidationMessage))
+                {
+                    _calculationStateService.ResetHydraulicsState();
+                }
             }
-
-            PublishHydraulicsSummaries();
         }
 
         private void CalculateAllCollectors()
@@ -443,181 +453,180 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             _calculationStateService.SetHydraulicsCalculating();
             ValidationMessage = string.Empty;
 
-            foreach (var collector in Collectors)
+            try
             {
-                CalculateCollector(collector, autoSelectType: true);
-            }
+                foreach (var collector in Collectors)
+                {
+                    CalculateCollector(collector, autoSelectType: true);
+                    if (!string.IsNullOrEmpty(ValidationMessage))
+                    {
+                        break;
+                    }
+                }
 
-            if (!string.IsNullOrEmpty(ValidationMessage))
+                if (!string.IsNullOrEmpty(ValidationMessage))
+                {
+                    return;
+                }
+
+                OnPropertyChanged(nameof(Summary));
+                OnPropertyChanged(nameof(CollectorTypeDisplay));
+                OnPropertyChanged(nameof(KvValue));
+
+                PublishHydraulicsSummaries();
+            }
+            finally
             {
-                return;
+                if (string.IsNullOrEmpty(ValidationMessage))
+                {
+                    _calculationStateService.ResetHydraulicsState();
+                }
             }
-
-            OnPropertyChanged(nameof(Summary));
-            OnPropertyChanged(nameof(CollectorTypeDisplay));
-            OnPropertyChanged(nameof(KvValue));
-
-            PublishHydraulicsSummaries();
         }
 
         private void CalculateCollector(CollectorData collector, bool autoSelectType)
         {
             if (collector == null) return;
 
-            bool errorHandled = false;
+            var thermalResult = _calculationContext.ThermalResult;
+            var thermalInputs = _calculationContext.ThermalInputs;
+
+            double supplyTemperature;
+            double returnTemperature;
+            double powerUp;
+            double powerDown;
+
+            if (thermalResult?.IsValid == true)
+            {
+                supplyTemperature = thermalResult.SupplyTemperature;
+                returnTemperature = thermalResult.ReturnTemperature;
+                powerUp = thermalResult.PowerUp;
+                powerDown = thermalResult.PowerDown;
+            }
+            else
+            {
+                supplyTemperature = 35.0;
+                returnTemperature = 30.0;
+                powerUp = DefaultPowerUp;
+                powerDown = DefaultPowerDown;
+            }
+
+            double deltaT = thermalResult?.DeltaT ?? (supplyTemperature - returnTemperature);
+            if (deltaT <= 0)
+            {
+                deltaT = 5.0;
+            }
+
+            double innerDiameter = thermalInputs?.Pipe?.InnerDiameter ?? DefaultInnerDiameter;
+            double pipeSpacing_mm = thermalInputs?.PipeSpacing ?? _calculationStateService.PipeSpacing;
+
+            double operatingTemp = thermalResult?.MeanTemperature ?? 0.0;
+            double designTemp = _calculationContext.AirTemperature;
+
+            GlycolProperties glycolOperating;
+            GlycolProperties glycolDesign;
             try
             {
-                var thermalResult = _calculationContext.ThermalResult;
-                var thermalInputs = _calculationContext.ThermalInputs;
+                glycolOperating = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, operatingTemp);
+                glycolDesign = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, designTemp);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                ValidationMessage = ex.Message;
+                _calculationStateService.SetHydraulicsError(ex.Message);
+                _calculationContext.UpdateHydraulics(((List<CollectorSummary>?)null)!, "CircuitsViewModel");
+                return;
+            }
 
-                double supplyTemperature;
-                double returnTemperature;
-                double powerUp;
-                double powerDown;
+            OperatingGlycolProperties = glycolOperating;
+            DesignGlycolProperties = glycolDesign;
 
-                if (thermalResult?.IsValid == true)
+            double pipeSpacing_cm = pipeSpacing_mm / 10.0;
+
+            if (!_calculationStateService.IsLoadProjectInProgress)
+            {
+                foreach (var col in Collectors)
                 {
-                    supplyTemperature = thermalResult.SupplyTemperature;
-                    returnTemperature = thermalResult.ReturnTemperature;
-                    powerUp = thermalResult.PowerUp;
-                    powerDown = thermalResult.PowerDown;
-                }
-                else
-                {
-                    supplyTemperature = 35.0;
-                    returnTemperature = 30.0;
-                    powerUp = DefaultPowerUp;
-                    powerDown = DefaultPowerDown;
-                }
-
-                double deltaT = thermalResult?.DeltaT ?? (supplyTemperature - returnTemperature);
-                if (deltaT <= 0)
-                {
-                    deltaT = 5.0;
-                }
-
-                double innerDiameter = thermalInputs?.Pipe?.InnerDiameter ?? DefaultInnerDiameter;
-                double pipeSpacing_mm = thermalInputs?.PipeSpacing ?? _calculationStateService.PipeSpacing;
-
-                double operatingTemp = thermalResult?.MeanTemperature ?? 0.0;
-                double designTemp = _calculationContext.AirTemperature;
-
-                GlycolProperties glycolOperating;
-                GlycolProperties glycolDesign;
-                try
-                {
-                    glycolOperating = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, operatingTemp);
-                    glycolDesign = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, designTemp);
-                }
-                catch (ArgumentOutOfRangeException ex)
-                {
-                    ValidationMessage = ex.Message;
-                    errorHandled = true;
-                    _calculationStateService.SetHydraulicsError(ex.Message);
-                    return;
-                }
-
-                OperatingGlycolProperties = glycolOperating;
-                DesignGlycolProperties = glycolDesign;
-
-                double pipeSpacing_cm = pipeSpacing_mm / 10.0;
-
-                if (!_calculationStateService.IsLoadProjectInProgress)
-                {
-                    foreach (var col in Collectors)
+                    foreach (var circuit in col.Circuits)
                     {
-                        foreach (var circuit in col.Circuits)
-                        {
-                            circuit.PipeSpacing_cm = pipeSpacing_cm;
-                        }
+                        circuit.PipeSpacing_cm = pipeSpacing_cm;
                     }
                 }
-
-                foreach (var circuit in collector.Circuits)
-                {
-                    if (circuit.CircuitLength <= 0) continue;
-
-                    var power = _circuitsCalculator.CalculateCircuitPower(circuit, powerUp, powerDown, pipeSpacing_cm);
-                    circuit.Power = power;
-
-                    var flowRate = _circuitsCalculator.CalculateFlowRate(power, deltaT, glycolOperating.Density, glycolOperating.SpecificHeat);
-                    circuit.FlowRate = flowRate;
-                }
-
-                var summary = _circuitsCalculator.CalculateCollectorSummary(
-                    new List<CircuitRow>(collector.Circuits),
-                    collector.CollectorNumber,
-                    collector.ValveType
-                );
-                collector.Summary = summary;
-
-                if (autoSelectType)
-                {
-                    AutoSelectCollectorTypeFor(collector);
-                }
-
-                var kv = collector.ValveType switch
-                {
-                    ValveType.HKV_D => 1.2,
-                    ValveType.IV_1_25 => 1.45,
-                    ValveType.IV_1_5 => 1.5,
-                    _ => 1.2
-                };
-
-                foreach (var circuit in collector.Circuits)
-                {
-                    if (circuit.CircuitLength <= 0) continue;
-
-                    var operatingResult = _circuitsCalculator.CalculateAtTemperature(
-                        circuit,
-                        operatingTemp,
-                        glycolOperating,
-                        innerDiameter,
-                        kv,
-                        collector.ValveType
-                    );
-                    circuit.OperatingResult = operatingResult;
-
-                    var designResult = _circuitsCalculator.CalculateAtTemperature(
-                        circuit,
-                        designTemp,
-                        glycolDesign,
-                        innerDiameter,
-                        kv,
-                        collector.ValveType
-                    );
-                    circuit.DesignResult = designResult;
-
-                    circuit.DisplayMode = CurrentMode;
-                }
-
-                summary = _circuitsCalculator.CalculateCollectorSummary(
-                    new List<CircuitRow>(collector.Circuits),
-                    collector.CollectorNumber,
-                    collector.ValveType
-                );
-                collector.Summary = summary;
-
-                _circuitsCalculator.CalculateBalancing(
-                    new List<CircuitRow>(collector.Circuits),
-                    collector.ValveType
-                );
-
-                foreach (var circuit in collector.Circuits)
-                {
-                    circuit.DisplayMode = CurrentMode;
-                }
             }
-            finally
+
+            foreach (var circuit in collector.Circuits)
             {
-                if (errorHandled)
-                {
-                    _calculationContext.UpdateHydraulics(((List<CollectorSummary>?)null)!, "CircuitsViewModel");
-                }
-                else
-                {
-                    _calculationStateService.ResetHydraulicsState();
-                }
+                if (circuit.CircuitLength <= 0) continue;
+
+                var power = _circuitsCalculator.CalculateCircuitPower(circuit, powerUp, powerDown, pipeSpacing_cm);
+                circuit.Power = power;
+
+                var flowRate = _circuitsCalculator.CalculateFlowRate(power, deltaT, glycolOperating.Density, glycolOperating.SpecificHeat);
+                circuit.FlowRate = flowRate;
+            }
+
+            var summary = _circuitsCalculator.CalculateCollectorSummary(
+                new List<CircuitRow>(collector.Circuits),
+                collector.CollectorNumber,
+                collector.ValveType
+            );
+            collector.Summary = summary;
+
+            if (autoSelectType)
+            {
+                AutoSelectCollectorTypeFor(collector);
+            }
+
+            var kv = collector.ValveType switch
+            {
+                ValveType.HKV_D => 1.2,
+                ValveType.IV_1_25 => 1.45,
+                ValveType.IV_1_5 => 1.5,
+                _ => 1.2
+            };
+
+            foreach (var circuit in collector.Circuits)
+            {
+                if (circuit.CircuitLength <= 0) continue;
+
+                var operatingResult = _circuitsCalculator.CalculateAtTemperature(
+                    circuit,
+                    operatingTemp,
+                    glycolOperating,
+                    innerDiameter,
+                    kv,
+                    collector.ValveType
+                );
+                circuit.OperatingResult = operatingResult;
+
+                var designResult = _circuitsCalculator.CalculateAtTemperature(
+                    circuit,
+                    designTemp,
+                    glycolDesign,
+                    innerDiameter,
+                    kv,
+                    collector.ValveType
+                );
+                circuit.DesignResult = designResult;
+
+                circuit.DisplayMode = CurrentMode;
+            }
+
+            summary = _circuitsCalculator.CalculateCollectorSummary(
+                new List<CircuitRow>(collector.Circuits),
+                collector.CollectorNumber,
+                collector.ValveType
+            );
+            collector.Summary = summary;
+
+            _circuitsCalculator.CalculateBalancing(
+                new List<CircuitRow>(collector.Circuits),
+                collector.ValveType
+            );
+
+            foreach (var circuit in collector.Circuits)
+            {
+                circuit.DisplayMode = CurrentMode;
             }
         }
 
