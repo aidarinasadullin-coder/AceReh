@@ -1640,6 +1640,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     }
 
                     // Загружаем данные конструкции
+                    // Сначала восстанавливаем УГВ и признак нагрузок, чтобы UpdateLambda при загрузке слоёв
+                    // использовал корректный уровень грунтовых вод (λБ при УГВ < 1 м, λА при УГВ >= 1 м).
+                    _constructionViewModel.GroundwaterLevel = data.ConstructionData.GroundwaterLevel;
+                    _constructionViewModel.HasLoads = data.ConstructionData.HasLoads;
                     if (data.ConstructionData.Layers.Any())
                     {
                         LoadLayersFromProjectData(data.ConstructionData.Layers, data.Version);
@@ -1923,6 +1927,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 R1 = _constructionViewModel.R1Total,
                 R2 = _constructionViewModel.R2Total,
                 LambdaE = _constructionViewModel.LambdaE,
+                GroundwaterLevel = _constructionViewModel.GroundwaterLevel,
+                HasLoads = _constructionViewModel.HasLoads,
                 Layers = _constructionViewModel.LayersAbovePipe.Select(l => new LayerProjectData
                 {
                     Position = LayerPosition.AbovePipe,
@@ -1930,6 +1936,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     MaterialLambda = l.Material?.LambdaA ?? 0,
                     Thickness = l.Thickness,
                     CalculatedLambda = l.CalculatedLambda,
+                    IsLambdaOverridden = l.IsLambdaOverridden,
                     Order = l.Order
                 }).Concat(_constructionViewModel.LayersBelowPipe.Select(l => new LayerProjectData
                 {
@@ -1938,6 +1945,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     MaterialLambda = l.Material?.LambdaA ?? 0,
                     Thickness = l.Thickness,
                     CalculatedLambda = l.CalculatedLambda,
+                    IsLambdaOverridden = l.IsLambdaOverridden,
                     Order = l.Order
                 })).ToList()
             };
@@ -2101,7 +2109,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     Material = material,
                     Thickness = layerData.Thickness,
                     CalculatedLambda = layerData.CalculatedLambda,
-                    IsLambdaOverridden = true, // Сохраняем переданное значение
+                    IsLambdaOverridden = layerData.IsLambdaOverridden,
                     Order = layerData.Order
                 };
 
@@ -2120,12 +2128,21 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     Material = material,
                     Thickness = layerData.Thickness,
                     CalculatedLambda = layerData.CalculatedLambda,
-                    IsLambdaOverridden = true, // Сохраняем переданное значение
+                    IsLambdaOverridden = layerData.IsLambdaOverridden,
                     Order = layerData.Order
                 };
 
                 _constructionViewModel.LayersBelowPipe.Add(layer);
-            }            _constructionViewModel.UpdateCalculations();
+            }
+
+            // Обновляем λ для слоёв под трубой в соответствии с восстановленным УГВ.
+            // Метод UpdateLambda учитывает флаг IsLambdaOverridden и оставляет ручные значения нетронутыми.
+            foreach (var layer in _constructionViewModel.LayersBelowPipe)
+            {
+                layer.UpdateLambda(_constructionViewModel.GroundwaterLevel);
+            }
+
+            _constructionViewModel.UpdateCalculations();
         }
 
         #endregion

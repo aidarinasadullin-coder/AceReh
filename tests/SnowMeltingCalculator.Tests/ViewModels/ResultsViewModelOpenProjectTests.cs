@@ -464,6 +464,166 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(climateVm2.SnowfallIntensity, Is.EqualTo(savedSnowfallIntensity));
         }
 
+        [Test]
+        public async Task ProjectRoundTrip_PreservesGroundwaterLevel()
+        {
+            // Arrange
+            var constructionVm = await CreateInitializedConstructionViewModelAsync();
+            constructionVm.GroundwaterLevel = 0.5;
+
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                constructionVm,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+
+            // Act
+            var data = viewModel.SaveCurrentProject();
+
+            var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
+            var viewModel2 = CreateViewModel(
+                CreateClimateViewModel(),
+                constructionVm2,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+            await viewModel2.LoadProjectDataAsync(data);
+
+            // Assert
+            Assert.That(constructionVm2.GroundwaterLevel, Is.EqualTo(0.5).Within(1e-9));
+        }
+
+        [Test]
+        public async Task ProjectRoundTrip_PreservesHasLoads()
+        {
+            // Arrange
+            var constructionVm = await CreateInitializedConstructionViewModelAsync();
+            constructionVm.HasLoads = true;
+
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                constructionVm,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+
+            // Act
+            var data = viewModel.SaveCurrentProject();
+
+            var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
+            var viewModel2 = CreateViewModel(
+                CreateClimateViewModel(),
+                constructionVm2,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+            await viewModel2.LoadProjectDataAsync(data);
+
+            // Assert
+            Assert.That(constructionVm2.HasLoads, Is.True);
+        }
+
+        [Test]
+        public async Task ProjectRoundTrip_PreservesLambdaOverrideFlag()
+        {
+            // Arrange
+            var constructionVm = await CreateInitializedConstructionViewModelAsync();
+            var layer = constructionVm.LayersBelowPipe.First();
+            layer.IsLambdaOverridden = true;
+            layer.CalculatedLambda = 9.999;
+
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                constructionVm,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+
+            // Act
+            var data = viewModel.SaveCurrentProject();
+
+            var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
+            var viewModel2 = CreateViewModel(
+                CreateClimateViewModel(),
+                constructionVm2,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+            await viewModel2.LoadProjectDataAsync(data);
+
+            // Assert
+            var loadedLayer = constructionVm2.LayersBelowPipe.First();
+            Assert.That(loadedLayer.IsLambdaOverridden, Is.True);
+            Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(9.999).Within(1e-9));
+        }
+
+        [Test]
+        public async Task GroundwaterLevelChange_AfterProjectLoad_UpdatesLambdaForBelowPipeLayers()
+        {
+            // Arrange
+            var constructionVm = await CreateInitializedConstructionViewModelAsync();
+            var layer = constructionVm.LayersBelowPipe.First();
+            layer.IsLambdaOverridden = false;
+            // GroundwaterLevel remains 2.0 m (dry conditions)
+
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                constructionVm,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+
+            // Act
+            var data = viewModel.SaveCurrentProject();
+
+            var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
+            var viewModel2 = CreateViewModel(
+                CreateClimateViewModel(),
+                constructionVm2,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+            await viewModel2.LoadProjectDataAsync(data);
+
+            constructionVm2.GroundwaterLevel = 0.5;
+
+            // Assert
+            var loadedLayer = constructionVm2.LayersBelowPipe.First();
+            Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(loadedLayer.Material.LambdaB).Within(1e-9));
+        }
+
+        [Test]
+        public async Task ProjectRoundTrip_LambdaUpdatesWhenGroundwaterLevelChanges()
+        {
+            // Arrange
+            var constructionVm = await CreateInitializedConstructionViewModelAsync();
+            constructionVm.GroundwaterLevel = 0.5;
+            var layer = constructionVm.LayersBelowPipe.First();
+            layer.IsLambdaOverridden = false;
+            layer.CalculatedLambda = layer.Material.LambdaA; // deliberately stale value
+
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                constructionVm,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+
+            // Act
+            var data = viewModel.SaveCurrentProject();
+
+            var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
+            var viewModel2 = CreateViewModel(
+                CreateClimateViewModel(),
+                constructionVm2,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+            await viewModel2.LoadProjectDataAsync(data);
+
+            // Assert
+            var loadedLayer = constructionVm2.LayersBelowPipe.First();
+            Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(loadedLayer.Material.LambdaB).Within(1e-9));
+        }
+
+        private static async Task<ConstructionViewModel> CreateInitializedConstructionViewModelAsync()
+        {
+            var vm = CreateConstructionViewModel();
+            await vm.InitializeCommand.ExecuteAsync(null);
+            return vm;
+        }
+
         private ResultsViewModel CreateViewModel()
         {
             return CreateViewModel(CreateCircuitsViewModel());
