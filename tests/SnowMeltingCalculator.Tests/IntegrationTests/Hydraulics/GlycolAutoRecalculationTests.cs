@@ -522,6 +522,59 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
 
         #endregion
 
+        #region All Collectors Recalculation Tests (P2-4)
+
+        /// <summary>
+        /// Создаёт два коллектора с контурами и оставляет выбранным первый,
+        /// чтобы второй был невыбранным.
+        /// </summary>
+        private void SetupTwoCollectorsWithCircuits()
+        {
+            // Первый коллектор уже подготовлен в SetupCollectorWithCircuits
+            _viewModel.AddCollectorCommand.Execute(null);
+
+            var secondCollector = _viewModel.Collectors[1];
+            secondCollector.Circuits.Clear();
+            secondCollector.Circuits.Add(new CircuitRow { CircuitNumber = 1, CircuitLength = 60 });
+            secondCollector.Circuits.Add(new CircuitRow { CircuitNumber = 2, CircuitLength = 40 });
+
+            _viewModel.SelectedCollectorIndex = 0;
+        }
+
+        [Test]
+        public void ChangeGlycolType_RecalculatesAllCollectors()
+        {
+            // Arrange - два коллектора, выбран первый
+            SetupTwoCollectorsWithCircuits();
+
+            // Act - изменяем тип гликоля
+            _viewModel.InputData.GlycolType = GlycolType.Propylene;
+
+            // Assert - пересчитаны и выбранный, и невыбранный коллекторы
+            Assert.That(_viewModel.SelectedCollectorIndex, Is.EqualTo(0), "Должен быть выбран первый коллектор");
+            Assert.That(_viewModel.Collectors[0].Summary.TotalPower, Is.GreaterThan(0), "Выбранный коллектор должен быть пересчитан");
+            Assert.That(_viewModel.Collectors[1].Summary.TotalPower, Is.GreaterThan(0), "Невыбранный коллектор должен быть пересчитан при изменении типа гликоля");
+            Assert.That(_viewModel.Collectors[1].Summary.CircuitCount, Is.EqualTo(2), "Итоги невыбранного коллектора должны учитывать его контуры");
+        }
+
+        [Test]
+        public void ChangeGlycolConcentration_RecalculatesAllCollectors()
+        {
+            // Arrange - два коллектора, выбран первый
+            SetupTwoCollectorsWithCircuits();
+
+            // Act - изменяем концентрацию гликоля
+            _viewModel.InputData.GlycolConcentration = 40.0;
+
+            // Assert - пересчитаны и выбранный, и невыбранный коллекторы
+            Assert.That(_viewModel.SelectedCollectorIndex, Is.EqualTo(0), "Должен быть выбран первый коллектор");
+            Assert.That(_viewModel.Collectors[0].Summary.TotalPower, Is.GreaterThan(0), "Выбранный коллектор должен быть пересчитан");
+            Assert.That(_viewModel.Collectors[1].Summary.TotalPower, Is.GreaterThan(0), "Невыбранный коллектор должен быть пересчитан при изменении концентрации гликоля");
+            Assert.That(_viewModel.Collectors[1].Summary.CircuitCount, Is.EqualTo(2), "Итоги невыбранного коллектора должны учитывать его контуры");
+        }
+
+        #endregion
+
         #region PropertyChanged Tests
 
         [Test]

@@ -419,18 +419,54 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         [RelayCommand]
         private void Calculate()
         {
-            // Установить флаг выполнения расчёта
             _calculationStateService.SetHydraulicsCalculating();
+            ValidationMessage = string.Empty;
 
-            // Флаг обработки ошибки валидации гликоля — если true,
-            // внешний finally не должен сбрасывать ModuleState.Error обратно в Actual
+            if (SelectedCollector == null)
+            {
+                _calculationContext.UpdateHydraulics(((List<CollectorSummary>?)null)!, "CircuitsViewModel");
+                return;
+            }
+
+            CalculateCollector(SelectedCollector, autoSelectType: true);
+
+            if (!string.IsNullOrEmpty(ValidationMessage))
+            {
+                return;
+            }
+
+            PublishHydraulicsSummaries();
+        }
+
+        private void CalculateAllCollectors()
+        {
+            _calculationStateService.SetHydraulicsCalculating();
+            ValidationMessage = string.Empty;
+
+            foreach (var collector in Collectors)
+            {
+                CalculateCollector(collector, autoSelectType: true);
+            }
+
+            if (!string.IsNullOrEmpty(ValidationMessage))
+            {
+                return;
+            }
+
+            OnPropertyChanged(nameof(Summary));
+            OnPropertyChanged(nameof(CollectorTypeDisplay));
+            OnPropertyChanged(nameof(KvValue));
+
+            PublishHydraulicsSummaries();
+        }
+
+        private void CalculateCollector(CollectorData collector, bool autoSelectType)
+        {
+            if (collector == null) return;
+
             bool errorHandled = false;
-
             try
             {
-                // Очистить предыдущее сообщение об ошибке перед новой попыткой
-                ValidationMessage = string.Empty;
-
                 var thermalResult = _calculationContext.ThermalResult;
                 var thermalInputs = _calculationContext.ThermalInputs;
 
@@ -439,24 +475,21 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 double powerUp;
                 double powerDown;
 
-                if (_calculationContext.IsThermalValid)
+                if (thermalResult?.IsValid == true)
                 {
-                    supplyTemperature = thermalResult!.SupplyTemperature;
+                    supplyTemperature = thermalResult.SupplyTemperature;
                     returnTemperature = thermalResult.ReturnTemperature;
                     powerUp = thermalResult.PowerUp;
                     powerDown = thermalResult.PowerDown;
                 }
                 else
                 {
-                    // Холодный пуск без теплового расчёта — fallback-значения
                     supplyTemperature = 35.0;
                     returnTemperature = 30.0;
                     powerUp = DefaultPowerUp;
                     powerDown = DefaultPowerDown;
                 }
 
-                // DeltaT — выход калькулятора (Supply − Return), не вход. Fallback на 5 К
-                // при холодном пуске без теплового расчёта (supply=35, return=30 по умолчанию).
                 double deltaT = thermalResult?.DeltaT ?? (supplyTemperature - returnTemperature);
                 if (deltaT <= 0)
                 {
@@ -466,21 +499,9 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 double innerDiameter = thermalInputs?.Pipe?.InnerDiameter ?? DefaultInnerDiameter;
                 double pipeSpacing_mm = thermalInputs?.PipeSpacing ?? _calculationStateService.PipeSpacing;
 
-                var collector = SelectedCollector;
-                if (collector == null)
-                {
-                    // Нет коллектора — сбросить результаты гидравлики в контексте (не оставлять stale).
-                    _calculationContext.UpdateHydraulics(((List<CollectorSummary>?)null)!, "CircuitsViewModel");
-                    return;
-                }
-
                 double operatingTemp = thermalResult?.MeanTemperature ?? 0.0;
                 double designTemp = _calculationContext.AirTemperature;
 
-                // Валидация гликоля: локальный перехват ArgumentOutOfRangeException
-                // (концентрация вне диапазона или температура вне допустимого диапазона).
-                // НЕ пробрасываем вверх — иначе ошибка уйдёт в ThermalViewModel.
-                // 0% (вода) остаётся валидным: short-circuit в GlycolDataService.ValidateParameters.
                 GlycolProperties glycolOperating;
                 GlycolProperties glycolDesign;
                 try
@@ -490,8 +511,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 }
                 catch (ArgumentOutOfRangeException ex)
                 {
-                    // Показать ошибку в UI гидравлики и зафиксировать её в ModuleState,
-                    // не давая внешнему finally перевести Error обратно в Actual
                     ValidationMessage = ex.Message;
                     errorHandled = true;
                     _calculationStateService.SetHydraulicsError(ex.Message);
@@ -501,11 +520,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 OperatingGlycolProperties = glycolOperating;
                 DesignGlycolProperties = glycolDesign;
 
-                // Получить шаг укладки из контекста (мм → см)
                 double pipeSpacing_cm = pipeSpacing_mm / 10.0;
 
-                // Синхронизировать шаг укладки во всех контурах перед расчётом
-                // При загрузке проекта сохраняем per-circuit значения из файла.
                 if (!_calculationStateService.IsLoadProjectInProgress)
                 {
                     foreach (var col in Collectors)
@@ -517,7 +533,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     }
                 }
 
-                // === ЭТАП 1: Рассчитать FlowRate для всех контуров (не зависит от kv) ===
                 foreach (var circuit in collector.Circuits)
                 {
                     if (circuit.CircuitLength <= 0) continue;
@@ -529,7 +544,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     circuit.FlowRate = flowRate;
                 }
 
-                // === ЭТАП 2: Вычислить summary для определения типа коллектора ===
                 var summary = _circuitsCalculator.CalculateCollectorSummary(
                     new List<CircuitRow>(collector.Circuits),
                     collector.CollectorNumber,
@@ -537,11 +551,11 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 );
                 collector.Summary = summary;
 
-                // === ЭТАП 3: Автоматический выбор типа коллектора по расходу ===
-                // ВАЖНО: Вызывается ДО вычисления kv, чтобы тип коллектора был правильным
-                AutoSelectCollectorType();
+                if (autoSelectType)
+                {
+                    AutoSelectCollectorTypeFor(collector);
+                }
 
-                // === ЭТАП 4: Вычислить kv для правильного типа коллектора ===
                 var kv = collector.ValveType switch
                 {
                     ValveType.HKV_D => 1.2,
@@ -550,7 +564,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     _ => 1.2
                 };
 
-                // === ЭТАП 5: Рассчитать OperatingResult и DesignResult с правильным kv ===
                 foreach (var circuit in collector.Circuits)
                 {
                     if (circuit.CircuitLength <= 0) continue;
@@ -578,7 +591,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     circuit.DisplayMode = CurrentMode;
                 }
 
-                // === ЭТАП 6: Обновить summary с новыми результатами ===
                 summary = _circuitsCalculator.CalculateCollectorSummary(
                     new List<CircuitRow>(collector.Circuits),
                     collector.CollectorNumber,
@@ -586,7 +598,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 );
                 collector.Summary = summary;
 
-                // === ЭТАП 7: Балансировка ===
                 _circuitsCalculator.CalculateBalancing(
                     new List<CircuitRow>(collector.Circuits),
                     collector.ValveType
@@ -596,23 +607,27 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 {
                     circuit.DisplayMode = CurrentMode;
                 }
-
-                // === ЭТАП 8: Опубликовать результаты гидравлики в общий контекст ===
-                var summaries = Collectors
-                    .Where(c => c.Summary != null)
-                    .Select(c => c.Summary!)
-                    .ToList();
-                _calculationContext.UpdateHydraulics(summaries, "CircuitsViewModel");
             }
             finally
             {
                 if (errorHandled)
                 {
-                    // Сбросить результаты гидравлики в контексте, т.к. они могли стать stale.
                     _calculationContext.UpdateHydraulics(((List<CollectorSummary>?)null)!, "CircuitsViewModel");
                 }
-                if (!errorHandled) _calculationStateService.ResetHydraulicsState();
+                else
+                {
+                    _calculationStateService.ResetHydraulicsState();
+                }
             }
+        }
+
+        private void PublishHydraulicsSummaries()
+        {
+            var summaries = Collectors
+                .Where(c => c.Summary != null)
+                .Select(c => c.Summary!)
+                .ToList();
+            _calculationContext.UpdateHydraulics(summaries, "CircuitsViewModel");
         }
 
         [RelayCommand]
@@ -967,9 +982,22 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             var collector = SelectedCollector;
             if (collector == null) return;
 
+            AutoSelectCollectorTypeFor(collector);
+
+            // Обновить отображение типа коллектора
+            OnPropertyChanged(nameof(CollectorTypeDisplay));
+            OnPropertyChanged(nameof(KvValue));
+        }
+
+        /// <summary>
+        /// Автоматический выбор типа коллектора по расходу для указанного коллектора.
+        /// </summary>
+        private void AutoSelectCollectorTypeFor(CollectorData collector)
+        {
+            if (collector == null) return;
+
             var result = _collectorTypeSelector.SelectCollectorType(collector);
 
-            // Применить результат
             collector.CollectorType = result.CollectorType;
             collector.ValveType = result.ValveType;
 
@@ -977,10 +1005,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             {
                 collector.Summary.Warning = result.Warning;
             }
-
-            // Обновить отображение типа коллектора
-            OnPropertyChanged(nameof(CollectorTypeDisplay));
-            OnPropertyChanged(nameof(KvValue));
         }
 
         /// <summary>
@@ -1015,7 +1039,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     // invalid/null показывает fallback в UI без расчёта по невалидным данным.
                     if (_calculationContext.ThermalResult?.IsValid == true)
                     {
-                        Calculate();
+                        CalculateAllCollectors();
                     }
                     break;
 
@@ -1041,7 +1065,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             }
 
             OnPropertyChanged(nameof(PipeSpacing_cm));
-            Calculate();
+            CalculateAllCollectors();
         }
 
         /// <summary>
@@ -1100,12 +1124,12 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 {
                     _markDirtyService.MarkDirty();
                     OnPropertyChanged(nameof(GlycolTypeName));
-                    Calculate();
+                    CalculateAllCollectors();
                 }
                 else if (e.PropertyName == nameof(HydraulicInputData.GlycolConcentration))
                 {
                     _markDirtyService.MarkDirty();
-                    Calculate();
+                    CalculateAllCollectors();
                 }
             };
 
@@ -1131,7 +1155,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             OnPropertyChanged(nameof(DesignModeButtonText));
 
             // Выполнить расчёт после обновления данных
-            Calculate();
+            CalculateAllCollectors();
         }
 
         /// <summary>
