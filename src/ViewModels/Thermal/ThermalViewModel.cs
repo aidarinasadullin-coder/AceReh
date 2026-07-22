@@ -465,6 +465,10 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 Result = null;
                 _calculationStateService.SetThermalNeedsRecalculation("Данные конструкции изменены. Требуется пересчёт.");
             }
+
+            // Уведомляем UI о сбросе подсказки температуры подачи
+            OnPropertyChanged(nameof(RecommendedSupplyTemperature));
+            OnPropertyChanged(nameof(SupplyTemperatureHint));
         }
 
         /// <summary>
