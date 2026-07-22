@@ -758,7 +758,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// <summary>
         /// Синхронизировать данные с singleton IClimateData
         /// </summary>
-        private void SyncToClimateData()
+        public void SyncToClimateData()
         {
             if (_isLoadingProject) return;
 
