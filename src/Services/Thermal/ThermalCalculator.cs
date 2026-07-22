@@ -553,6 +553,17 @@ namespace SnowMeltingCalculator.Services.Thermal
                     inputs.Pipe.ThermalConductivity);
                 result.PowerDown = powerDown;
 
+                // Проверка на отрицательную мощность вниз
+                if (powerDown < 0)
+                {
+                    result.IsValid = false;
+                    result.ValidationErrors = new[] {
+                        "Мощность вниз (потери) не может быть отрицательной. " +
+                        "Проверьте климатические данные и параметры конструкции."
+                    };
+                    return result;
+                }
+
                 // 9. Суммарная мощность
                 result.PowerTotal = powerUp + powerDown;
 
