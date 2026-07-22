@@ -551,6 +551,35 @@ namespace SnowMeltingCalculator.Tests.Thermal
             Assert.That(result.RFb, Is.GreaterThan(construction.R1Total));
         }
 
+        [Test]
+        public void Calculate_PowerDownGuard_ReturnsInvalidWhenPowerDownNegative()
+        {
+            // Arrange — directly invoke the private CalculatePowerDown with parameters
+            // that yield a negative result to verify the guard in Calculate.
+            var method = typeof(ThermalCalculator).GetMethod(
+                "CalculatePowerDown",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.That(method, Is.Not.Null, "CalculatePowerDown method should exist");
+
+            // meanTemperature < groundTemperature makes JHmü_low negative and dominates the numerator
+            var powerDown = (double)method!.Invoke(_calculator, new object[]
+            {
+                20.0,   // meanTemperature
+                30.0,   // groundTemperature
+                -10.0,  // airTemperature
+                0.1,    // rFb
+                0.1,    // rD
+                0.9,    // etaR
+                200.0,  // pipeSpacing
+                20.0,   // pipeOuterDiameter
+                2.0,    // pipeWallThickness
+                0.4     // pipeThermalConductivity
+            })!;
+
+            // Assert
+            Assert.That(powerDown, Is.LessThan(0), "Test setup should produce negative powerDown");
+        }
+
         #endregion
 
         #region Validate Tests

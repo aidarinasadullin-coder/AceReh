@@ -373,6 +373,62 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
 
         [Test]
+        public async Task ResultsViewModel_LoadProjectData_SyncsClimateToSingletonData()
+        {
+            // Arrange
+            const string cityName = "Москва";
+            const string region = "Московская область";
+            const double savedAirTemperature = -18.0;
+            const double savedWindSpeed = 3.5;
+            const double savedHumidity = 65.0;
+            const double savedSnowfallIntensity = 2.5;
+
+            var projectData = new ProjectData
+            {
+                ProjectNumber = "P-T3",
+                ProjectObject = "Climate Singleton Sync Test",
+                IsOperatingMode = true,
+                ClimateData = new ClimateProjectData
+                {
+                    SelectedCity = cityName,
+                    Region = region,
+                    AirTemperature = savedAirTemperature,
+                    WindSpeed = savedWindSpeed,
+                    Humidity = savedHumidity,
+                    SnowfallIntensity = savedSnowfallIntensity,
+                    SelectedZone = ClimateZone.Zone_M15,
+                    IsHighRequirements = false
+                },
+                ConstructionData = new ConstructionProjectData(),
+                ThermalData = new ThermalProjectData(),
+                HydraulicsData = new HydraulicsProjectData()
+            };
+
+            var climateDataSingleton = new ClimateData();
+            var climateVm = CreateClimateViewModelWithCityAndSingleton(
+                climateDataSingleton,
+                cityName,
+                region,
+                t5Days: -28,
+                windAvg: 4.0,
+                humidity: 70.0);
+            var circuitsVm = CreateCircuitsViewModel();
+            var viewModel = CreateViewModel(climateVm, circuitsVm);
+
+            // Act
+            await viewModel.LoadProjectDataAsync(projectData);
+
+            // Assert — singleton IClimateData must receive the same values as the ViewModel
+            Assert.That(climateDataSingleton.SelectedCity, Is.EqualTo(cityName));
+            Assert.That(climateDataSingleton.SelectedRegion, Is.EqualTo(region));
+            Assert.That(climateDataSingleton.AirTemperature, Is.EqualTo(savedAirTemperature));
+            Assert.That(climateDataSingleton.WindSpeed, Is.EqualTo(savedWindSpeed));
+            Assert.That(climateDataSingleton.Humidity, Is.EqualTo(savedHumidity));
+            Assert.That(climateDataSingleton.SnowfallIntensity, Is.EqualTo(savedSnowfallIntensity));
+            Assert.That(climateDataSingleton.Zone, Is.EqualTo(ClimateZone.Zone_M15));
+        }
+
+        [Test]
         public async Task ProjectRoundTrip_CitySurvivesRealSaveLoad()
         {
             // Arrange
@@ -699,6 +755,23 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             double windAvg,
             double humidity)
         {
+            return CreateClimateViewModelWithCityAndSingleton(
+                new ClimateData(),
+                cityName,
+                region,
+                t5Days,
+                windAvg,
+                humidity);
+        }
+
+        private static ClimateViewModel CreateClimateViewModelWithCityAndSingleton(
+            IClimateData climateData,
+            string cityName,
+            string region,
+            double t5Days,
+            double windAvg,
+            double humidity)
+        {
             var climateServiceMock = new Mock<IClimateDataService>();
             climateServiceMock.Setup(s => s.LoadClimateDataAsync()).Returns(Task.CompletedTask);
             climateServiceMock.Setup(s => s.GetAllCities()).Returns(Enumerable.Empty<CityInfo>());
@@ -721,7 +794,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             return new ClimateViewModel(
                 climateServiceMock.Object,
-                new ClimateData(),
+                climateData,
                 new ClimateValidator(),
                 new Mock<IMarkDirtyService>().Object,
                 new CalculationContext());
