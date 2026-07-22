@@ -493,6 +493,14 @@
     <Style x:Key="RehauPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
     </Style>
 
+    <!-- Стиль для кнопки сохранения (зелёная, на основе Button.Success) -->
+    <Style x:Key="RehauSaveButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Success}">
+    </Style>
+
+    <!-- Стиль для опасной кнопки удаления (красная, на основе Button.Primary) -->
+    <Style x:Key="RehauDangerButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
+    </Style>
+
     <!-- Стиль для вторичной кнопки -->
     <Style x:Key="RehauSecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}">
     </Style>
