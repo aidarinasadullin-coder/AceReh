@@ -202,6 +202,7 @@
                                     </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="Толщина, мм"
                                                         Binding="{Binding Thickness, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
+                                                        CanUserSort="False"
                                                         Width="*"/>
                                     <DataGridTemplateColumn Header="" Width="Auto">
                                         <DataGridTemplateColumn.CellTemplate>
@@ -264,6 +265,7 @@
                                     </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="Толщина, мм"
                                                         Binding="{Binding Thickness, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
+                                                        CanUserSort="False"
                                                         Width="*"/>
                                     <DataGridTemplateColumn Header="" Width="Auto">
                                         <DataGridTemplateColumn.CellTemplate>
