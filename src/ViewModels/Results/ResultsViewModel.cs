@@ -2160,6 +2160,15 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 layer.UpdateLambda(_constructionViewModel.GroundwaterLevel);
             }
 
+            // После загрузки проекта сбрасываем флаг ручного переопределения λ.
+            // Значение λ сохранено из файла, но дальнейшее изменение УГВ должно
+            // пересчитывать λ по каталогу (P0-7).
+            foreach (var layer in _constructionViewModel.LayersAbovePipe
+                .Concat(_constructionViewModel.LayersBelowPipe))
+            {
+                layer.IsLambdaOverridden = false;
+            }
+
             _constructionViewModel.UpdateCalculations();
         }
 
