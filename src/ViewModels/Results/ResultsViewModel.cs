@@ -20,6 +20,7 @@ using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Thermal;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.ViewModels.Results
 {
@@ -37,6 +38,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly ICalculationStateService _calculationStateService;
         private readonly IMaterialRepository _materialRepository;
         private readonly IConstructionService _constructionService;
+        private readonly CalculationContext _calculationContext;
         private readonly ClimateViewModel _climateViewModel;
         private readonly ConstructionViewModel _constructionViewModel;
         private readonly ThermalViewModel _thermalViewModel;
@@ -442,6 +444,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             ICalculationStateService calculationStateService,
             IMaterialRepository materialRepository,
             IConstructionService constructionService,
+            CalculationContext calculationContext,
             ClimateViewModel climateViewModel,
             ConstructionViewModel constructionViewModel,
             ThermalViewModel thermalViewModel,
@@ -456,6 +459,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
+            _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
             _climateViewModel = climateViewModel ?? throw new ArgumentNullException(nameof(climateViewModel));
             _constructionViewModel = constructionViewModel ?? throw new ArgumentNullException(nameof(constructionViewModel));
             _thermalViewModel = thermalViewModel ?? throw new ArgumentNullException(nameof(thermalViewModel));
@@ -861,9 +865,19 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
 
-                if (confirmation != MessageBoxResult.Yes)
-                    return;
+            if (confirmation != MessageBoxResult.Yes)
+                return;
             }
+
+            // Сброс всех модулей перед загрузкой нового проекта,
+            // чтобы избежать "залипания" старых результатов и ошибок.
+            Reset();
+            _calculationContext.Reset();
+            _climateViewModel.Reset();
+            _constructionViewModel.Reset();
+            _thermalViewModel.Reset();
+            _circuitsViewModel.Reset();
+            _projectStateService.MarkClean();
 
             await LoadProjectDataAsync(data);
             _currentFilePath = filePath;
@@ -1731,6 +1745,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 finally
                 {
                     _climateViewModel.EndLoadProject();
+                    // После загрузки проекта явно синхронизируем singleton IClimateData
+                    // с параметрами, восстановленными из файла. Иначе ThermalCalculator
+                    // будет считать по старым/нулевым климатическим данным.
+                    _climateViewModel.SyncToClimateData();
                 }
 
                 // Обновляем все данные
