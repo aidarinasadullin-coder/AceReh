@@ -239,7 +239,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                 HasLoads = false
             };
 
-            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
+            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
             construction.AddLayerAbovePipe(concrete, 50);
 
             // Act
@@ -272,7 +272,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                 HasLoads = false
             };
 
-            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
+            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
             construction.AddLayerAbovePipe(concrete, 30); // Меньше минимума (40 мм)
 
             // Act
@@ -292,7 +292,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                 HasLoads = true
             };
 
-            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
+            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
             construction.AddLayerAbovePipe(concrete, 40); // Меньше минимума при нагрузках (50 мм)
 
             // Act
@@ -670,7 +670,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         {
             // Arrange
             var construction = new SnowMeltingCalculator.Models.Construction.Construction();
-            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
+            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
             construction.AddLayerAbovePipe(concrete, 50);
             construction.AddLayerAbovePipe(concrete, 100);
 
@@ -744,8 +744,8 @@ namespace SnowMeltingCalculator.Tests.Construction
             await constructionVm.InitializeCommand.ExecuteAsync(null);
             constructionVm.LayersAbovePipe.Clear();
             var asphalt = constructionVm.AvailableMaterials.First(m => m.Name == "Асфальт");
-            var asphaltConcrete = constructionVm.AvailableMaterials.First(m => m.Name == "Асфальтобетон");
-            var concrete = constructionVm.AvailableMaterials.First(m => m.Name == "Бетон плотный");
+            var tile = constructionVm.AvailableMaterials.First(m => m.Name == "Тротуарная плитка/брусчатка");
+            var concrete = constructionVm.AvailableMaterials.First(m => m.Name == "Бетон");
 
             constructionVm.LayersAbovePipe.Add(new Layer
             {
@@ -757,9 +757,9 @@ namespace SnowMeltingCalculator.Tests.Construction
             });
             constructionVm.LayersAbovePipe.Add(new Layer
             {
-                Material = asphaltConcrete,
+                Material = tile,
                 Thickness = 50,
-                CalculatedLambda = asphaltConcrete.LambdaA,
+                CalculatedLambda = tile.LambdaA,
                 Position = LayerPosition.AbovePipe,
                 Order = 1
             });
@@ -788,9 +788,9 @@ namespace SnowMeltingCalculator.Tests.Construction
             Assert.That(constructionVm2.LayersAbovePipe[0].Order, Is.EqualTo(0));
             Assert.That(constructionVm2.LayersAbovePipe[1].Order, Is.EqualTo(1));
             Assert.That(constructionVm2.LayersAbovePipe[2].Order, Is.EqualTo(2));
-            Assert.That(constructionVm2.LayersAbovePipe[2].Material?.Name, Is.EqualTo("Бетон плотный"));
+            Assert.That(constructionVm2.LayersAbovePipe[2].Material?.Name, Is.EqualTo("Бетон"));
             Assert.That(constructionVm2.LambdaE, Is.EqualTo(concrete.LambdaA).Within(0.0001));
-            Assert.That(constructionVm2.GetConstruction().MaterialAroundPipe?.Name, Is.EqualTo("Бетон плотный"));
+            Assert.That(constructionVm2.GetConstruction().MaterialAroundPipe?.Name, Is.EqualTo("Бетон"));
         }
 
         [Test]
@@ -801,7 +801,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             await constructionVm.InitializeCommand.ExecuteAsync(null);
             constructionVm.LayersAbovePipe.Clear();
             var asphalt = constructionVm.AvailableMaterials.First(m => m.Name == "Асфальт");
-            var concrete = constructionVm.AvailableMaterials.First(m => m.Name == "Бетон плотный");
+            var concrete = constructionVm.AvailableMaterials.First(m => m.Name == "Бетон");
 
             // Physical top-to-bottom: asphalt surface layer above concrete near pipe
             constructionVm.LayersAbovePipe.Add(new Layer
@@ -825,7 +825,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             // Assert collection order and LambdaE before round-trip
             Assert.That(constructionVm.LayersAbovePipe[0].Material?.Name, Is.EqualTo("Асфальт"));
             Assert.That(constructionVm.LayersAbovePipe[0].Order, Is.EqualTo(0));
-            Assert.That(constructionVm.LayersAbovePipe[1].Material?.Name, Is.EqualTo("Бетон плотный"));
+            Assert.That(constructionVm.LayersAbovePipe[1].Material?.Name, Is.EqualTo("Бетон"));
             Assert.That(constructionVm.LayersAbovePipe[1].Order, Is.EqualTo(1));
             Assert.That(constructionVm.LambdaE, Is.EqualTo(concrete.LambdaA).Within(0.0001));
             Assert.That(constructionVm.GetConstruction().MaterialAroundPipe, Is.EqualTo(concrete));
@@ -845,9 +845,9 @@ namespace SnowMeltingCalculator.Tests.Construction
             Assert.That(constructionVm2.LayersAbovePipe[0].Order, Is.EqualTo(0));
             Assert.That(constructionVm2.LayersAbovePipe[1].Order, Is.EqualTo(1));
             Assert.That(constructionVm2.LayersAbovePipe[0].Material?.Name, Is.EqualTo("Асфальт"));
-            Assert.That(constructionVm2.LayersAbovePipe[1].Material?.Name, Is.EqualTo("Бетон плотный"));
+            Assert.That(constructionVm2.LayersAbovePipe[1].Material?.Name, Is.EqualTo("Бетон"));
             Assert.That(constructionVm2.LambdaE, Is.EqualTo(concrete.LambdaA).Within(0.0001));
-            Assert.That(constructionVm2.GetConstruction().MaterialAroundPipe?.Name, Is.EqualTo("Бетон плотный"));
+            Assert.That(constructionVm2.GetConstruction().MaterialAroundPipe?.Name, Is.EqualTo("Бетон"));
         }
 
         [Test]
@@ -912,7 +912,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var constructionVm = CreateConstructionViewModel();
             await constructionVm.InitializeCommand.ExecuteAsync(null);
             constructionVm.LayersAbovePipe.Clear();
-            var concrete = constructionVm.AvailableMaterials.First(m => m.Name == "Бетон плотный");
+            var concrete = constructionVm.AvailableMaterials.First(m => m.Name == "Бетон");
             constructionVm.LayersAbovePipe.Add(new Layer
             {
                 Material = concrete,
@@ -1214,8 +1214,8 @@ namespace SnowMeltingCalculator.Tests.Construction
             var materials = new List<Material>
             {
                 new Material { Id = 1, Name = "Песок", LambdaA = 0.4, LambdaB = 2.0 },
-                new Material { Id = 5, Name = "Бетон плотный", LambdaA = 1.5, LambdaB = 1.5 },
-                new Material { Id = 7, Name = "Асфальтобетон", LambdaA = 1.5, LambdaB = 1.5 },
+                new Material { Id = 5, Name = "Бетон", LambdaA = 1.74, LambdaB = 1.86 },
+                new Material { Id = 12, Name = "Тротуарная плитка/брусчатка", LambdaA = 1.2, LambdaB = 1.2 },
                 new Material { Id = 11, Name = "Асфальт", LambdaA = 0.75, LambdaB = 0.75 }
             };
 

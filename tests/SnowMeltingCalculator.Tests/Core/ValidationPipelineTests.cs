@@ -38,7 +38,7 @@ namespace SnowMeltingCalculator.Tests.Core
             climate.SnowfallIntensity = 1.0;
 
             var construction = (ConstructionModel)provider.GetRequiredService<IConstructionData>();
-            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон плотный");
+            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
             var sand = Material.GetDefaultMaterials().First(m => m.Name == "Песок");
             construction.AddLayerAbovePipe(concrete, 50);
             construction.AddLayerBelowPipe(sand, 150);

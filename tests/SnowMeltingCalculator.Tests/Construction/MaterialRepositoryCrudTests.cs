@@ -317,13 +317,13 @@ namespace SnowMeltingCalculator.Tests.Construction
                 var materials = (await repo.LoadMaterialsAsync()).ToList();
 
                 // Assert
-                Assert.That(materials.Count, Is.EqualTo(15));
+                Assert.That(materials.Count, Is.EqualTo(9));
                 Assert.That(materials.All(m => m.IsBuiltIn), Is.True);
 
                 var json = await File.ReadAllTextAsync(path);
                 using var doc = JsonDocument.Parse(json);
                 var meta = doc.RootElement.GetProperty("meta");
-                Assert.That(meta.GetProperty("next_material_id").GetInt32(), Is.EqualTo(16));
+                Assert.That(meta.GetProperty("next_material_id").GetInt32(), Is.EqualTo(14));
 
                 var mats = doc.RootElement.GetProperty("materials").EnumerateArray().ToList();
                 Assert.That(mats.All(m => m.GetProperty("is_built_in").GetBoolean()), Is.True);
@@ -415,8 +415,8 @@ namespace SnowMeltingCalculator.Tests.Construction
                 // Act
                 var materials = (await repo.LoadMaterialsAsync()).ToList();
 
-                // Assert: все 15 default Id, включая Id 10 с локальным вариантом имени, распознаны как built-in.
-                Assert.That(materials.Count, Is.EqualTo(15));
+                // Assert: все 9 default Id, включая Id 10 с локальным вариантом имени, распознаны как built-in.
+                Assert.That(materials.Count, Is.EqualTo(9));
                 foreach (var defaultMaterial in defaultMaterials)
                 {
                     var loaded = materials.FirstOrDefault(m => m.Id == defaultMaterial.Id);

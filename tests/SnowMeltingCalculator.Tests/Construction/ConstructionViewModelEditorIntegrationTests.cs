@@ -313,7 +313,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
-        public async Task ApplyTemplate_MaterialNotFound_WithSnapshot_ImportsWhenConfirmed()
+        public async Task ApplyTemplate_MaterialNotFound_WithSnapshot_SetsPreviewErrorAndBlocksApply()
         {
             // Arrange
             await _viewModel.InitializeCommand.ExecuteAsync(null);
@@ -326,24 +326,23 @@ namespace SnowMeltingCalculator.Tests.Construction
                 LambdaB = 1.6
             };
             _constructionService.ThrowMaterialNotFound(snapshot);
-            _dialogServiceMock.Setup(d => d.Show(
-                It.Is<string>(s => s.Contains(snapshot.Name)),
-                It.IsAny<string>(),
-                System.Windows.MessageBoxButton.YesNo,
-                System.Windows.MessageBoxImage.Question)).Returns(System.Windows.MessageBoxResult.Yes);
-
-            _viewModel.SelectedTemplate = _viewModel.Templates.First();
 
             // Act
-            await _viewModel.ApplyTemplateCommand.ExecuteAsync(null);
+            _viewModel.SelectedTemplate = _viewModel.Templates.First();
 
             // Assert
-            _dialogServiceMock.Verify(d => d.Show(It.Is<string>(s => s.Contains(snapshot.Name)), It.IsAny<string>(), It.IsAny<System.Windows.MessageBoxButton>(), It.IsAny<System.Windows.MessageBoxImage>()), Times.Once);
-            Assert.That(_viewModel.ValidationMessage, Is.Not.Empty);
+            Assert.That(_viewModel.CanApplySelectedTemplate, Is.False);
+            Assert.That(_viewModel.TemplatePreviewErrorMessage, Does.Contain(snapshot.Id.ToString()));
+            Assert.That(_viewModel.TemplatePreviewLayersAbovePipe, Is.Empty);
+            Assert.That(_viewModel.TemplatePreviewLayersBelowPipe, Is.Empty);
+
+            // ApplyTemplate must return early because CanApplySelectedTemplate is false
+            await _viewModel.ApplyTemplateCommand.ExecuteAsync(null);
+            _dialogServiceMock.Verify(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Windows.MessageBoxButton>(), It.IsAny<System.Windows.MessageBoxImage>()), Times.Never);
         }
 
         [Test]
-        public async Task ApplyTemplate_MaterialNotFound_WithSnapshot_Declined_ShowsError()
+        public async Task ApplyTemplate_MaterialNotFound_WithSnapshot_Declined_BlocksApply()
         {
             // Arrange
             await _viewModel.InitializeCommand.ExecuteAsync(null);
@@ -356,36 +355,38 @@ namespace SnowMeltingCalculator.Tests.Construction
                 LambdaB = 1.6
             };
             _constructionService.ThrowMaterialNotFound(snapshot);
-            _dialogServiceMock.Setup(d => d.Show(
-                It.Is<string>(s => s.Contains(snapshot.Name)),
-                It.IsAny<string>(),
-                System.Windows.MessageBoxButton.YesNo,
-                System.Windows.MessageBoxImage.Question)).Returns(System.Windows.MessageBoxResult.No);
-
-            _viewModel.SelectedTemplate = _viewModel.Templates.First();
 
             // Act
-            await _viewModel.ApplyTemplateCommand.ExecuteAsync(null);
+            _viewModel.SelectedTemplate = _viewModel.Templates.First();
 
             // Assert
-            _dialogServiceMock.Verify(d => d.ShowError(It.Is<string>(s => s.Contains(snapshot.Name)), It.IsAny<string>()), Times.Once);
-            Assert.That(_viewModel.IsValid, Is.False);
+            Assert.That(_viewModel.CanApplySelectedTemplate, Is.False);
+            Assert.That(_viewModel.TemplatePreviewErrorMessage, Does.Contain(snapshot.Id.ToString()));
+
+            // ApplyTemplate must return early because CanApplySelectedTemplate is false
+            await _viewModel.ApplyTemplateCommand.ExecuteAsync(null);
+            _dialogServiceMock.Verify(d => d.ShowError(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            Assert.That(_viewModel.IsValid, Is.True); // construction unchanged, remains valid
         }
 
         [Test]
-        public async Task ApplyTemplate_MaterialNotFound_WithoutSnapshot_ShowsError()
+        public async Task ApplyTemplate_MaterialNotFound_WithoutSnapshot_BlocksApply()
         {
             // Arrange
             await _viewModel.InitializeCommand.ExecuteAsync(null);
             _constructionService.ThrowMaterialNotFound(materialId: 42);
-            _viewModel.SelectedTemplate = _viewModel.Templates.First();
 
             // Act
-            await _viewModel.ApplyTemplateCommand.ExecuteAsync(null);
+            _viewModel.SelectedTemplate = _viewModel.Templates.First();
 
             // Assert
-            _dialogServiceMock.Verify(d => d.ShowError(It.Is<string>(s => s.Contains("42")), It.IsAny<string>()), Times.Once);
-            Assert.That(_viewModel.IsValid, Is.False);
+            Assert.That(_viewModel.CanApplySelectedTemplate, Is.False);
+            Assert.That(_viewModel.TemplatePreviewErrorMessage, Does.Contain("42"));
+
+            // ApplyTemplate must return early because CanApplySelectedTemplate is false
+            await _viewModel.ApplyTemplateCommand.ExecuteAsync(null);
+            _dialogServiceMock.Verify(d => d.ShowError(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            Assert.That(_viewModel.IsValid, Is.True); // construction unchanged, remains valid
         }
 
         /// <summary>

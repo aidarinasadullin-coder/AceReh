@@ -130,6 +130,36 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private bool _hasUnsavedChanges;
 
         /// <summary>
+        /// Признак развёрнутости аккордеона предпросмотра шаблона
+        /// </summary>
+        [ObservableProperty]
+        private bool _isTemplatePreviewExpanded = false;
+
+        /// <summary>
+        /// Слои над трубой для предпросмотра шаблона
+        /// </summary>
+        [ObservableProperty]
+        private ObservableCollection<Layer> _templatePreviewLayersAbovePipe = new();
+
+        /// <summary>
+        /// Слои под трубой для предпросмотра шаблона
+        /// </summary>
+        [ObservableProperty]
+        private ObservableCollection<Layer> _templatePreviewLayersBelowPipe = new();
+
+        /// <summary>
+        /// Признак возможности применения выбранного шаблона
+        /// </summary>
+        [ObservableProperty]
+        private bool _canApplySelectedTemplate = false;
+
+        /// <summary>
+        /// Сообщение об ошибке предпросмотра шаблона
+        /// </summary>
+        [ObservableProperty]
+        private string _templatePreviewErrorMessage = string.Empty;
+
+        /// <summary>
         /// Шаг укладки труб, мм (получается из ThermalViewModel через сервис)
         /// </summary>
         public int PipeSpacing
@@ -328,6 +358,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         {
             if (_isResetting) return;
             if (SelectedTemplate == null) return;
+            if (!CanApplySelectedTemplate) return;
 
             try
             {
@@ -785,6 +816,15 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             Reset();
         }
 
+        /// <summary>
+        /// Команда переключения развёрнутости аккордеона предпросмотра шаблона
+        /// </summary>
+        [RelayCommand]
+        private void ToggleTemplatePreview()
+        {
+            IsTemplatePreviewExpanded = !IsTemplatePreviewExpanded;
+        }
+
         #endregion
 
         #region Public Methods
@@ -932,6 +972,50 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         partial void OnSelectedLayerChanged(Layer? value)
         {
             // Можно добавить логику при выборе слоя
+        }
+
+        /// <summary>
+        /// Обработчик изменения выбранного шаблона — генерирует предпросмотр слоёв
+        /// </summary>
+        partial void OnSelectedTemplateChanged(ConstructionTemplate? value)
+        {
+            if (value == null)
+            {
+                TemplatePreviewLayersAbovePipe.Clear();
+                TemplatePreviewLayersBelowPipe.Clear();
+                IsTemplatePreviewExpanded = false;
+                CanApplySelectedTemplate = false;
+                TemplatePreviewErrorMessage = string.Empty;
+                return;
+            }
+
+            try
+            {
+                var previewConstruction = _constructionService.CreateFromTemplate(value, AvailableMaterials);
+
+                TemplatePreviewLayersAbovePipe.Clear();
+                foreach (var layer in previewConstruction.LayersAbovePipe)
+                {
+                    TemplatePreviewLayersAbovePipe.Add(layer);
+                }
+
+                TemplatePreviewLayersBelowPipe.Clear();
+                foreach (var layer in previewConstruction.Layers)
+                {
+                    TemplatePreviewLayersBelowPipe.Add(layer);
+                }
+
+                CanApplySelectedTemplate = true;
+                IsTemplatePreviewExpanded = true;
+                TemplatePreviewErrorMessage = string.Empty;
+            }
+            catch (MaterialNotFoundException ex)
+            {
+                CanApplySelectedTemplate = false;
+                TemplatePreviewErrorMessage = $"Материал '{ex.MaterialId}' не найден в справочнике. Применение шаблона невозможно.";
+                TemplatePreviewLayersAbovePipe.Clear();
+                TemplatePreviewLayersBelowPipe.Clear();
+            }
         }
 
         /// <summary>
