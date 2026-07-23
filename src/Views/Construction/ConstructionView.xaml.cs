@@ -88,6 +88,7 @@ namespace SnowMeltingCalculator.Views.Construction
 
             Grid.SetColumn(VisualizationCard, 1);
             Grid.SetRow(VisualizationCard, 0);
+            Grid.SetRowSpan(VisualizationCard, 3);
             VisualizationCard.Margin = new Thickness(12, 0, 0, 0);
 
             Grid.SetColumn(LayersBelowCard, 0);
@@ -125,6 +126,7 @@ namespace SnowMeltingCalculator.Views.Construction
 
             Grid.SetColumn(VisualizationCard, 0);
             Grid.SetRow(VisualizationCard, 3);
+            Grid.SetRowSpan(VisualizationCard, 1);
             VisualizationCard.Margin = new Thickness(0);
         }
     }

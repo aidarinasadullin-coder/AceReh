@@ -1006,7 +1006,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 }
 
                 CanApplySelectedTemplate = true;
-                IsTemplatePreviewExpanded = true;
                 TemplatePreviewErrorMessage = string.Empty;
             }
             catch (MaterialNotFoundException ex)
