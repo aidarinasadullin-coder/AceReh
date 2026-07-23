@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
@@ -17,6 +18,8 @@ namespace SnowMeltingCalculator.Views.Shared
         private ConstructionViewModel? _viewModel;
         private bool _isSubscribed;
         private bool _isDrawing;
+        private ObservableCollection<Layer>? _subscribedAbove;
+        private ObservableCollection<Layer>? _subscribedBelow;
         private readonly ConstructionVisualizationRenderer _renderer = new();
 
         #region CompactMode Dependency Property
@@ -37,6 +40,50 @@ namespace SnowMeltingCalculator.Views.Shared
         private static void OnCompactModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var view = (ConstructionVisualizationView)d;
+            view.DrawConstruction();
+        }
+
+        #endregion
+
+        #region Source Layers Dependency Properties
+
+        /// <summary>
+        /// Явная коллекция слоёв над трубой. Если задана, используется вместо коллекции ViewModel.
+        /// </summary>
+        public ObservableCollection<Layer>? SourceLayersAbovePipe
+        {
+            get => (ObservableCollection<Layer>?)GetValue(SourceLayersAbovePipeProperty);
+            set => SetValue(SourceLayersAbovePipeProperty, value);
+        }
+
+        public static readonly DependencyProperty SourceLayersAbovePipeProperty =
+            DependencyProperty.Register(
+                nameof(SourceLayersAbovePipe),
+                typeof(ObservableCollection<Layer>),
+                typeof(ConstructionVisualizationView),
+                new PropertyMetadata(null, OnSourceLayersChanged));
+
+        /// <summary>
+        /// Явная коллекция слоёв под трубой. Если задана, используется вместо коллекции ViewModel.
+        /// </summary>
+        public ObservableCollection<Layer>? SourceLayersBelowPipe
+        {
+            get => (ObservableCollection<Layer>?)GetValue(SourceLayersBelowPipeProperty);
+            set => SetValue(SourceLayersBelowPipeProperty, value);
+        }
+
+        public static readonly DependencyProperty SourceLayersBelowPipeProperty =
+            DependencyProperty.Register(
+                nameof(SourceLayersBelowPipe),
+                typeof(ObservableCollection<Layer>),
+                typeof(ConstructionVisualizationView),
+                new PropertyMetadata(null, OnSourceLayersChanged));
+
+        private static void OnSourceLayersChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var view = (ConstructionVisualizationView)d;
+            view.UnsubscribeFromViewModelEvents();
+            view.SubscribeToViewModelEvents();
             view.DrawConstruction();
         }
 
@@ -63,20 +110,14 @@ namespace SnowMeltingCalculator.Views.Shared
 
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
-            if (_viewModel != null)
-            {
-                UnsubscribeFromViewModelEvents(_viewModel);
-                _viewModel = null;
-            }
+            UnsubscribeFromViewModelEvents();
+            _viewModel = null;
         }
 
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (_viewModel != null)
-            {
-                UnsubscribeFromViewModelEvents(_viewModel);
-                _viewModel = null;
-            }
+            UnsubscribeFromViewModelEvents();
+            _viewModel = null;
 
             if (e.NewValue is ConstructionViewModel viewModel)
             {
@@ -91,24 +132,48 @@ namespace SnowMeltingCalculator.Views.Shared
             DrawConstruction();
         }
 
+        private ObservableCollection<Layer>? GetLayersAbovePipe() =>
+            SourceLayersAbovePipe ?? _viewModel?.LayersAbovePipe;
+
+        private ObservableCollection<Layer>? GetLayersBelowPipe() =>
+            SourceLayersBelowPipe ?? _viewModel?.LayersBelowPipe;
+
         private void SubscribeToViewModelEvents()
         {
-            if (_viewModel == null || _isSubscribed) return;
-            _isSubscribed = true;
+            if (_isSubscribed) return;
 
-            _viewModel.LayersAbovePipe.CollectionChanged += OnLayersCollectionChanged;
-            _viewModel.LayersBelowPipe.CollectionChanged += OnLayersCollectionChanged;
-            _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            _subscribedAbove = GetLayersAbovePipe();
+            _subscribedBelow = GetLayersBelowPipe();
+            if (_subscribedAbove == null || _subscribedBelow == null) return;
+
+            _isSubscribed = true;
+            _subscribedAbove.CollectionChanged += OnLayersCollectionChanged;
+            _subscribedBelow.CollectionChanged += OnLayersCollectionChanged;
+            if (_viewModel != null)
+            {
+                _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            }
         }
 
-        private void UnsubscribeFromViewModelEvents(ConstructionViewModel viewModel)
+        private void UnsubscribeFromViewModelEvents()
         {
             if (!_isSubscribed) return;
             _isSubscribed = false;
 
-            viewModel.LayersAbovePipe.CollectionChanged -= OnLayersCollectionChanged;
-            viewModel.LayersBelowPipe.CollectionChanged -= OnLayersCollectionChanged;
-            viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            if (_subscribedAbove != null)
+            {
+                _subscribedAbove.CollectionChanged -= OnLayersCollectionChanged;
+            }
+            if (_subscribedBelow != null)
+            {
+                _subscribedBelow.CollectionChanged -= OnLayersCollectionChanged;
+            }
+            _subscribedAbove = null;
+            _subscribedBelow = null;
+            if (_viewModel != null)
+            {
+                _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            }
         }
 
         private void OnLayersCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -134,16 +199,20 @@ namespace SnowMeltingCalculator.Views.Shared
         private void DrawConstruction()
         {
             if (_isDrawing) return;
-            if (_viewModel == null || ConstructionCanvas == null) return;
+            if (ConstructionCanvas == null) return;
+
+            var above = GetLayersAbovePipe();
+            var below = GetLayersBelowPipe();
+            if (above == null || below == null) return;
 
             _isDrawing = true;
             try
             {
                 var parameters = new ConstructionVisualizationParameters
                 {
-                    LayersAbovePipe = _viewModel.LayersAbovePipe,
-                    LayersBelowPipe = _viewModel.LayersBelowPipe,
-                    PipeSpacing = _viewModel.PipeSpacing,
+                    LayersAbovePipe = above,
+                    LayersBelowPipe = below,
+                    PipeSpacing = _viewModel?.PipeSpacing ?? 200,
                     CompactMode = CompactMode,
                     ShowDimensionLine = !CompactMode,
                     CanvasAvailableHeight = ActualHeight > 0 ? ActualHeight : null
