@@ -76,28 +76,22 @@ namespace SnowMeltingCalculator.Views.Construction
             LayoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
             LayoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            LayoutGrid.RowDefinitions.Clear();
-            LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-            Grid.SetColumn(LayersAboveCard, 0);
-            Grid.SetRow(LayersAboveCard, 0);
-            LayersAboveCard.Margin = new Thickness(0, 0, 12, 0);
-            LayersAboveCard.VerticalAlignment = VerticalAlignment.Top;
+            // Перемещаем визуализацию из левого StackPanel в правую колонку Grid
+            if (VisualizationCard.Parent == LeftColumnPanel)
+            {
+                LeftColumnPanel.Children.Remove(VisualizationCard);
+                LayoutGrid.Children.Add(VisualizationCard);
+            }
 
             Grid.SetColumn(VisualizationCard, 1);
             Grid.SetRow(VisualizationCard, 0);
-            Grid.SetRowSpan(VisualizationCard, 3);
             VisualizationCard.Margin = new Thickness(12, 0, 0, 0);
+            VisualizationCard.VerticalAlignment = VerticalAlignment.Top;
 
-            Grid.SetColumn(LayersBelowCard, 0);
-            Grid.SetRow(LayersBelowCard, 1);
-            LayersBelowCard.Margin = new Thickness(0, 12, 12, 0);
-
-            Grid.SetColumn(ResultsCard, 0);
-            Grid.SetRow(ResultsCard, 2);
-            ResultsCard.Margin = new Thickness(0, 12, 12, 0);
+            LeftColumnPanel.Margin = new Thickness(0, 0, 12, 0);
+            LayersAboveCard.Margin = new Thickness(0, 0, 0, 12);
+            LayersBelowCard.Margin = new Thickness(0, 0, 0, 12);
+            ResultsCard.Margin = new Thickness(0);
         }
 
         private void SetStackedLayout()
@@ -105,28 +99,17 @@ namespace SnowMeltingCalculator.Views.Construction
             LayoutGrid.ColumnDefinitions.Clear();
             LayoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            LayoutGrid.RowDefinitions.Clear();
-            LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            // Перемещаем визуализацию в конец левого StackPanel
+            if (VisualizationCard.Parent == LayoutGrid)
+            {
+                LayoutGrid.Children.Remove(VisualizationCard);
+                LeftColumnPanel.Children.Add(VisualizationCard);
+            }
 
-            Grid.SetColumn(LayersAboveCard, 0);
-            Grid.SetRow(LayersAboveCard, 0);
+            LeftColumnPanel.Margin = new Thickness(0);
             LayersAboveCard.Margin = new Thickness(0, 0, 0, 12);
-            LayersAboveCard.VerticalAlignment = VerticalAlignment.Top;
-
-            Grid.SetColumn(LayersBelowCard, 0);
-            Grid.SetRow(LayersBelowCard, 1);
             LayersBelowCard.Margin = new Thickness(0, 0, 0, 12);
-
-            Grid.SetColumn(ResultsCard, 0);
-            Grid.SetRow(ResultsCard, 2);
             ResultsCard.Margin = new Thickness(0, 0, 0, 12);
-
-            Grid.SetColumn(VisualizationCard, 0);
-            Grid.SetRow(VisualizationCard, 3);
-            Grid.SetRowSpan(VisualizationCard, 1);
             VisualizationCard.Margin = new Thickness(0);
         }
     }
