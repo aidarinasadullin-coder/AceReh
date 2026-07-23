@@ -409,7 +409,7 @@
             </Border>
 
             <!-- Визуализация конструкции -->
-            <Border x:Name="VisualizationCard" Grid.Row="0" Grid.Column="1" Margin="12,0,0,0" Style="{StaticResource Card.Default}">
+            <Border x:Name="VisualizationCard" Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Margin="12,0,0,0" Style="{StaticResource Card.Default}">
                 <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
                     <TextBlock Text="Визуализация"
                                Style="{StaticResource Text.H4}"
