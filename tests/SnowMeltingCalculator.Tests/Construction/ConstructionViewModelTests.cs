@@ -322,8 +322,8 @@ namespace SnowMeltingCalculator.Tests.Construction
             _viewModel.UpdateCalculations();
 
             // Assert
-            // R = d / λ / 1000 = 100 / 1.5 / 1000 = 0.0667 м²·К/Вт
-            var expectedR1 = 100.0 / 1.5 / 1000.0;
+            // R = d / λ / 1000 = 100 / 1.74 / 1000 = 0.05747 м²·К/Вт
+            var expectedR1 = 100.0 / 1.74 / 1000.0;
             Assert.That(_viewModel.R1Total, Is.EqualTo(expectedR1).Within(0.0001));
         }
 
@@ -484,19 +484,20 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
-        public async Task ApplyTemplate_SetsGroundwaterLevel()
+        public async Task ApplyTemplate_DoesNotChangeGroundwaterLevel()
         {
             // Arrange
             await _viewModel.InitializeCommand.ExecuteAsync(null);
-            var template = _viewModel.Templates.First(t => t.Id == 3); // Въезд в гараж
+            var template = _viewModel.Templates.First(t => t.Id == 3); // Пешеходная дорожка
+            _viewModel.GroundwaterLevel = 0.5;
             template.DefaultGroundwaterLevel = 1.5;
 
             // Act
             _viewModel.SelectedTemplate = template;
             _viewModel.ApplyTemplateCommand.Execute(null);
 
-            // Assert
-            Assert.That(_viewModel.GroundwaterLevel, Is.EqualTo(1.5));
+            // Assert: УГВ — настройка проекта, шаблон её не меняет
+            Assert.That(_viewModel.GroundwaterLevel, Is.EqualTo(0.5));
         }
 
         [Test]
@@ -532,8 +533,8 @@ namespace SnowMeltingCalculator.Tests.Construction
             // Act
             _viewModel.ResetToDefaultCommand.Execute(null);
 
-            // Assert
-            Assert.That(_viewModel.GroundwaterLevel, Is.EqualTo(2.0));
+            // Assert: сброс не меняет УГВ — это настройка проекта
+            Assert.That(_viewModel.GroundwaterLevel, Is.EqualTo(0.5));
             Assert.That(_viewModel.HasLoads, Is.False);
         }
 

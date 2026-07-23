@@ -182,9 +182,8 @@ namespace SnowMeltingCalculator.Services.Construction
                 return;
             }
 
-            // Проверка максимальной температуры подачи для бетона
-            if (layer.Material.Category == MaterialCategory.Concrete ||
-                layer.Material.Category == MaterialCategory.Screed)
+            // Проверка максимальной температуры подачи для бетона (Screed удалён, материалы стяжки теперь Concrete)
+            if (layer.Material.Category == MaterialCategory.Concrete)
             {
                 if (layer.Material.MaxSupplyTemp.HasValue)
                 {

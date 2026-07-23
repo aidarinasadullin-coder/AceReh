@@ -9,7 +9,7 @@ namespace SnowMeltingCalculator.Models.Construction
     public enum MaterialCategory
     {
         /// <summary>
-        /// Бетон (Бетон на каменном щебне, Бетон на песке, Бетон плотный, Железобетон)
+        /// Бетон (Бетон, Бетон с арматурной сеткой)
         /// </summary>
         Concrete = 0,
 
@@ -24,19 +24,14 @@ namespace SnowMeltingCalculator.Models.Construction
         Insulation = 2,
 
         /// <summary>
-        /// Покрытие (Асфальтобетон, Асфальт)
+        /// Покрытие (Асфальт, Тротуарная плитка)
         /// </summary>
         Coating = 3,
 
         /// <summary>
-        /// Подстилающий слой (Щебень/Гравий)
+        /// Подстилающий слой (Щебень/Гравий, ПГС)
         /// </summary>
-        Subbase = 4,
-
-        /// <summary>
-        /// Стяжка (Цементно-песчаная стяжка)
-        /// </summary>
-        Screed = 5
+        Subbase = 4
     }
 
     /// <summary>
@@ -119,53 +114,23 @@ namespace SnowMeltingCalculator.Models.Construction
                 },
                 new Material
                 {
-                    Id = 3,
-                    Name = "Бетон на каменном щебне",
-                    Category = MaterialCategory.Concrete,
-                    LambdaA = 1.5,
-                    LambdaB = 1.5,
-                    MaxSupplyTemp = 50,
-                    Notes = "Не зависит от влажности"
-                },
-                new Material
-                {
-                    Id = 4,
-                    Name = "Бетон на песке",
-                    Category = MaterialCategory.Concrete,
-                    LambdaA = 0.7,
-                    LambdaB = 0.7,
-                    MaxSupplyTemp = 50,
-                    Notes = "Не зависит от влажности"
-                },
-                new Material
-                {
                     Id = 5,
-                    Name = "Бетон плотный",
+                    Name = "Бетон",
                     Category = MaterialCategory.Concrete,
-                    LambdaA = 1.5,
-                    LambdaB = 1.5,
+                    LambdaA = 1.74,
+                    LambdaB = 1.86,
                     MaxSupplyTemp = 50,
-                    Notes = "Не зависит от влажности"
+                    Notes = "Тяжёлый бетон. λ по СП 50.13330.2023, приложение Т."
                 },
                 new Material
                 {
                     Id = 6,
-                    Name = "Железобетон",
+                    Name = "Бетон с арматурной сеткой",
                     Category = MaterialCategory.Concrete,
-                    LambdaA = 1.7,
-                    LambdaB = 1.7,
+                    LambdaA = 1.69,
+                    LambdaB = 2.04,
                     MaxSupplyTemp = 50,
-                    Notes = "Не зависит от влажности"
-                },
-                new Material
-                {
-                    Id = 7,
-                    Name = "Асфальтобетон",
-                    Category = MaterialCategory.Coating,
-                    LambdaA = 1.5,
-                    LambdaB = 1.5,
-                    MinOutdoorTemp = -15,
-                    Notes = "Не применять при температуре наружного воздуха <= -15°C"
+                    Notes = "Бетон с арматурной сеткой. λ по СП 50.13330.2023 (железобетон)."
                 },
                 new Material
                 {
@@ -176,16 +141,7 @@ namespace SnowMeltingCalculator.Models.Construction
                     LambdaB = 1.8,
                     Notes = "Подстилающий слой"
                 },
-                new Material
-                {
-                    Id = 9,
-                    Name = "Цементно-песчаная стяжка",
-                    Category = MaterialCategory.Screed,
-                    LambdaA = 1.2,
-                    LambdaB = 1.2,
-                    MaxSupplyTemp = 50,
-                    Notes = "Не зависит от влажности"
-                },
+                // Цементно-песчаные стяжки удалены — заменены на Бетон и Бетон с арматурной сеткой
                 new Material
                 {
                     Id = 10,
@@ -204,6 +160,24 @@ namespace SnowMeltingCalculator.Models.Construction
                     LambdaB = 0.75,
                     MinOutdoorTemp = -15,
                     Notes = "Не применять при температуре наружного воздуха <= -15°C"
+                },
+                new Material
+                {
+                    Id = 12,
+                    Name = "Тротуарная плитка/брусчатка",
+                    Category = MaterialCategory.Coating,
+                    LambdaA = 1.2,
+                    LambdaB = 1.2,
+                    Notes = "Укладывается на раствор или клей. Не применять на сухую песчаную подушку."
+                },
+                new Material
+                {
+                    Id = 13,
+                    Name = "ПГС",
+                    Category = MaterialCategory.Subbase,
+                    LambdaA = 1.0,
+                    LambdaB = 1.8,
+                    Notes = "Песчано-гравийная смесь. Подготовка и дренажное основание под утеплитель."
                 }
             };
         }
@@ -217,12 +191,12 @@ namespace SnowMeltingCalculator.Models.Construction
             return new Material
             {
                 Id = 5,
-                Name = "Бетон плотный",
+                Name = "Бетон",
                 Category = MaterialCategory.Concrete,
-                LambdaA = 1.5,
-                LambdaB = 1.5,
+                LambdaA = 1.74,
+                LambdaB = 1.86,
                 MaxSupplyTemp = 50,
-                Notes = "Не зависит от влажности"
+                Notes = "Тяжёлый бетон. λ по СП 50.13330.2023, приложение Т."
             };
         }
 
@@ -239,7 +213,7 @@ namespace SnowMeltingCalculator.Models.Construction
                 MaterialCategory.Insulation => "#FFD700",   // Жёлтый
                 MaterialCategory.Coating => "#000000",      // Чёрный
                 MaterialCategory.Subbase => "#A0A0A0",      // Светло-серый
-                MaterialCategory.Screed => "#C0C0C0",       // Светло-серый
+                // MaterialCategory.Screed удалён
                 _ => "#CCCCCC"
             };
         }

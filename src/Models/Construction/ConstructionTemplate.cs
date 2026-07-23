@@ -88,58 +88,75 @@ namespace SnowMeltingCalculator.Models.Construction
         {
             return new List<ConstructionTemplate>
             {
+                // 1. Парковка / площадка — бетон
+                // Труба в монолитной бетонной плите. Под плитой — бетон, бетон с арматурной сеткой,
+                // утеплитель XPS, песчано-гравийная подготовка и грунт.
                 new ConstructionTemplate
                 {
                     Id = 1,
-                    Name = "Типовая парковка",
-                    Description = "Стандартная конструкция для парковок с асфальтобетонным покрытием",
+                    Name = "Парковка / площадка — бетон",
+                    Description = "Монолитная бетонная площадка или парковка для легковых автомобилей",
                     HasLoads = true,
                     DefaultGroundwaterLevel = 2.0,
                     LayersAbovePipe = new List<LayerTemplate>
                     {
-                        new LayerTemplate { MaterialId = 7, Thickness = 50, Position = LayerPosition.AbovePipe, Order = 0 }, // Асфальтобетон
-                        new LayerTemplate { MaterialId = 5, Thickness = 100, Position = LayerPosition.AbovePipe, Order = 1 } // Бетон плотный
+                        new LayerTemplate { MaterialId = 5, Thickness = 100, Position = LayerPosition.AbovePipe, Order = 0 } // Бетон
                     },
                     LayersBelowPipe = new List<LayerTemplate>
                     {
-                        new LayerTemplate { MaterialId = 1, Thickness = 150, Position = LayerPosition.BelowPipe, Order = 0 }, // Песок
-                        new LayerTemplate { MaterialId = 2, Thickness = 200, Position = LayerPosition.BelowPipe, Order = 1 } // Грунт
+                        new LayerTemplate { MaterialId = 5, Thickness = 10, Position = LayerPosition.BelowPipe, Order = 0 }, // Бетон (у трубы, от оси до нижней образующей)
+                        new LayerTemplate { MaterialId = 6, Thickness = 10, Position = LayerPosition.BelowPipe, Order = 1 }, // Бетон с арматурной сеткой
+                        new LayerTemplate { MaterialId = 10, Thickness = 80, Position = LayerPosition.BelowPipe, Order = 2 }, // ЭППС
+                        new LayerTemplate { MaterialId = 13, Thickness = 200, Position = LayerPosition.BelowPipe, Order = 3 }, // ПГС уплотнённый
+                        new LayerTemplate { MaterialId = 2, Thickness = 1000, Position = LayerPosition.BelowPipe, Order = 4 }, // Грунт основания (верхняя часть)
+                        new LayerTemplate { MaterialId = 2, Thickness = 570, Position = LayerPosition.BelowPipe, Order = 5 }  // Грунт основания (нижняя часть)
                     }
                 },
+                // 3. Пешеходная дорожка — плитка
+                // Труба в бетонном слое, сверху тротуарная плитка. Под бетоном — утеплитель, песок и грунт.
                 new ConstructionTemplate
                 {
-                    Id = 2,
-                    Name = "Пешеходная дорожка",
-                    Description = "Облегчённая конструкция для пешеходных дорожек",
+                    Id = 3,
+                    Name = "Пешеходная дорожка — плитка",
+                    Description = "Тротуарная плитка или брусчатка с трубами в бетонном слое",
                     HasLoads = false,
                     DefaultGroundwaterLevel = 2.0,
                     LayersAbovePipe = new List<LayerTemplate>
                     {
-                        new LayerTemplate { MaterialId = 7, Thickness = 40, Position = LayerPosition.AbovePipe, Order = 0 }, // Асфальтобетон
-                        new LayerTemplate { MaterialId = 9, Thickness = 50, Position = LayerPosition.AbovePipe, Order = 1 } // Цементно-песчаная стяжка
+                        new LayerTemplate { MaterialId = 12, Thickness = 60, Position = LayerPosition.AbovePipe, Order = 0 }, // Тротуарная плитка/брусчатка
+                        new LayerTemplate { MaterialId = 5, Thickness = 60, Position = LayerPosition.AbovePipe, Order = 1 }  // Бетон
                     },
                     LayersBelowPipe = new List<LayerTemplate>
                     {
-                        new LayerTemplate { MaterialId = 1, Thickness = 100, Position = LayerPosition.BelowPipe, Order = 0 }, // Песок
-                        new LayerTemplate { MaterialId = 2, Thickness = 150, Position = LayerPosition.BelowPipe, Order = 1 } // Грунт
+                        new LayerTemplate { MaterialId = 5, Thickness = 10, Position = LayerPosition.BelowPipe, Order = 0 }, // Бетон (у трубы, от оси до нижней образующей)
+                        new LayerTemplate { MaterialId = 6, Thickness = 10, Position = LayerPosition.BelowPipe, Order = 1 }, // Бетон с арматурной сеткой
+                        new LayerTemplate { MaterialId = 10, Thickness = 50, Position = LayerPosition.BelowPipe, Order = 2 }, // ЭППС
+                        new LayerTemplate { MaterialId = 1, Thickness = 150, Position = LayerPosition.BelowPipe, Order = 3 }, // Песок уплотнённый
+                        new LayerTemplate { MaterialId = 2, Thickness = 1000, Position = LayerPosition.BelowPipe, Order = 4 }, // Грунт основания (верхняя часть)
+                        new LayerTemplate { MaterialId = 2, Thickness = 690, Position = LayerPosition.BelowPipe, Order = 5 }  // Грунт основания (нижняя часть)
                     }
                 },
+                // 4. Въезд в гараж / пандус
+                // Усиленная бетонная плита с арматурной сеткой. Под плитой — утеплитель и щебёночная подготовка.
                 new ConstructionTemplate
                 {
-                    Id = 3,
-                    Name = "Въезд в гараж",
-                    Description = "Усиленная конструкция для въездов в гараж с железобетонным покрытием",
+                    Id = 4,
+                    Name = "Въезд в гараж / пандус",
+                    Description = "Армированная бетонная плита для зон с высокими автомобильными нагрузками",
                     HasLoads = true,
-                    DefaultGroundwaterLevel = 1.5,
+                    DefaultGroundwaterLevel = 2.0,
                     LayersAbovePipe = new List<LayerTemplate>
                     {
-                        new LayerTemplate { MaterialId = 7, Thickness = 50, Position = LayerPosition.AbovePipe, Order = 0 }, // Асфальтобетон
-                        new LayerTemplate { MaterialId = 6, Thickness = 150, Position = LayerPosition.AbovePipe, Order = 1 } // Железобетон
+                        new LayerTemplate { MaterialId = 6, Thickness = 120, Position = LayerPosition.AbovePipe, Order = 0 } // Бетон с арматурной сеткой
                     },
                     LayersBelowPipe = new List<LayerTemplate>
                     {
-                        new LayerTemplate { MaterialId = 1, Thickness = 200, Position = LayerPosition.BelowPipe, Order = 0 }, // Песок
-                        new LayerTemplate { MaterialId = 2, Thickness = 200, Position = LayerPosition.BelowPipe, Order = 1 } // Грунт
+                        new LayerTemplate { MaterialId = 6, Thickness = 10, Position = LayerPosition.BelowPipe, Order = 0 }, // Бетон с арматурной сеткой (у трубы, от оси до нижней образующей)
+                        new LayerTemplate { MaterialId = 6, Thickness = 10, Position = LayerPosition.BelowPipe, Order = 1 }, // Бетон с арматурной сеткой
+                        new LayerTemplate { MaterialId = 10, Thickness = 100, Position = LayerPosition.BelowPipe, Order = 2 }, // ЭППС
+                        new LayerTemplate { MaterialId = 8, Thickness = 200, Position = LayerPosition.BelowPipe, Order = 3 }, // Щебень/ПГС уплотнённый
+                        new LayerTemplate { MaterialId = 2, Thickness = 1000, Position = LayerPosition.BelowPipe, Order = 4 }, // Грунт основания (верхняя часть)
+                        new LayerTemplate { MaterialId = 2, Thickness = 538, Position = LayerPosition.BelowPipe, Order = 5 }  // Грунт основания (нижняя часть)
                     }
                 }
             };

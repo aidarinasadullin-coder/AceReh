@@ -35,6 +35,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "..\publish\SnowMeltingCalculator.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; PDB (отладочные символы)
 Source: "..\publish\SnowMeltingCalculator.pdb"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+; Иконка приложения и файлов проекта
+Source: "..\resources\РЕХАУ_logo.ico"; DestDir: "{app}"; Flags: ignoreversion
 ; Данные
 Source: "..\publish\data\climate_db.json"; DestDir: "{app}\data"; Flags: ignoreversion
 Source: "..\publish\data\glycol_data.json"; DestDir: "{app}\data"; Flags: ignoreversion
@@ -47,6 +49,16 @@ Source: "..\publish\LatoFont\*"; DestDir: "{app}\LatoFont"; Flags: ignoreversion
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+
+[Registry]
+; Ассоциация расширения .smc с приложением
+Root: HKA; Subkey: "Software\Classes\.smc"; ValueType: string; ValueName: ""; ValueData: "SnowMeltingCalculator.Project"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\.smc\OpenWithProgids"; ValueType: string; ValueName: "SnowMeltingCalculator.Project"; ValueData: ""; Flags: uninsdeletevalue
+
+; ProgID для файлов проекта
+Root: HKA; Subkey: "Software\Classes\SnowMeltingCalculator.Project"; ValueType: string; ValueName: ""; ValueData: "Проект Калькулятора снеготаяния РЕХАУ"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\SnowMeltingCalculator.Project\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\РЕХАУ_logo.ico"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\SnowMeltingCalculator.Project\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent

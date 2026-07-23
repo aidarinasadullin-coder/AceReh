@@ -36,16 +36,12 @@ namespace SnowMeltingCalculator.Services.Visualization
             {
                 1 => CreateSandTile(),           // Песок
                 2 => CreateSoilTile(),           // Грунт
-                3 => CreateConcreteTile(),       // Бетон на каменном щебне
-                4 => CreateConcreteTile(),       // Бетон на песке
-                5 => CreateConcreteTile(),       // Бетон плотный
-                6 => CreateReinforcedConcreteTile(), // Железобетон
-                7 => CreateAsphaltTile(),        // Асфальтобетон
+                5 => CreateConcreteTile(),       // Бетон
+                6 => CreateReinforcedConcreteTile(), // Бетон с арматурной сеткой
                 8 => CreateGravelTile(),         // Щебень/Гравий
-                9 => CreateScreedTile(),         // Цементно-песчаная стяжка
                 10 => CreateXPSTile(),           // Пенополистирол ЭППС
                 11 => CreateAsphaltTile(),       // Асфальт
-                _ => CreateConcreteTile()       // По умолчанию
+                _ => CreateConcreteTile()       // По умолчанию (плитка, ПГС)
             };
         }
 

@@ -847,6 +847,19 @@ namespace SnowMeltingCalculator.ViewModels.Results
             if (string.IsNullOrEmpty(filePath))
                 return;
 
+            await LoadProjectFromPathAsync(filePath);
+        }
+
+        /// <summary>
+        /// Загрузить проект по указанному пути (используется при открытии файла извне,
+        /// например двойным кликом по файлу .smc в проводнике).
+        /// </summary>
+        /// <param name="filePath">Путь к файлу проекта</param>
+        public async Task LoadProjectFromPathAsync(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+                return;
+
             var result = await _projectFileService.LoadProjectResultAsync(filePath);
             if (!result.IsSuccess || result.Value == null)
             {
@@ -854,8 +867,16 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 return;
             }
 
-            var data = result.Value;
+            await ApplyLoadedProjectAsync(filePath, result.Value);
+        }
 
+        /// <summary>
+        /// Применить загруженные данные проекта ко всем модулям.
+        /// </summary>
+        /// <param name="filePath">Путь к файлу проекта</param>
+        /// <param name="data">Данные проекта</param>
+        private async Task ApplyLoadedProjectAsync(string filePath, ProjectData data)
+        {
             // Подтверждение загрузки, если есть несохранённые данные
             if (_projectStateService.IsDirty)
             {
@@ -865,8 +886,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
 
-            if (confirmation != MessageBoxResult.Yes)
-                return;
+                if (confirmation != MessageBoxResult.Yes)
+                    return;
             }
 
             // Сброс всех модулей перед загрузкой нового проекта,

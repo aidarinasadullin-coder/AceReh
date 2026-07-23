@@ -378,7 +378,7 @@ namespace SnowMeltingCalculator.Repositories.Construction
                 "изоляция" or "insulation" => MaterialCategory.Insulation,
                 "покрытие" or "coating" => MaterialCategory.Coating,
                 "подстилающий" or "subbase" => MaterialCategory.Subbase,
-                "стяжка" or "screed" => MaterialCategory.Screed,
+                // "стяжка" удалена - материалы стяжки заменены на бетон
                 _ => MaterialCategory.Soil
             };
         }
@@ -395,7 +395,7 @@ namespace SnowMeltingCalculator.Repositories.Construction
                 MaterialCategory.Insulation => "изоляция",
                 MaterialCategory.Coating => "покрытие",
                 MaterialCategory.Subbase => "подстилающий",
-                MaterialCategory.Screed => "стяжка",
+                // MaterialCategory.Screed удалён
                 _ => "грунт"
             };
         }
@@ -405,13 +405,14 @@ namespace SnowMeltingCalculator.Repositories.Construction
         /// </summary>
         private static MaterialsMeta CreateDefaultMeta()
         {
+            var defaultMaterials = Material.GetDefaultMaterials();
             return new MaterialsMeta
             {
                 Source = "Material.GetDefaultMaterials()",
                 Version = "1.1",
                 Date = DateTime.UtcNow.ToString("yyyy-MM-dd"),
                 Description = "База материалов для расчёта систем снеготаяния. λА - сухие условия, λБ - влажные условия (УГВ < 1м)",
-                NextMaterialId = 12
+                NextMaterialId = defaultMaterials.Max(m => m.Id) + 1
             };
         }
 

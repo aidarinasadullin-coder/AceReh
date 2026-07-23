@@ -35,6 +35,12 @@ namespace SnowMeltingCalculator
         private IDialogService? _dialogService;
         private bool _isClosingAfterSave;
 
+        /// <summary>
+        /// Путь к файлу проекта, который нужно открыть при запуске приложения
+        /// (например, при двойном клике по файлу .smc в проводнике).
+        /// </summary>
+        public string? InitialProjectPath { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -42,6 +48,36 @@ namespace SnowMeltingCalculator
 
             // Регистрируем обработчик клавиатурных сокращений
             KeyDown += MainWindow_KeyDown;
+
+            // Загружаем проект, переданный через командную строку, после отображения окна
+            Loaded += MainWindow_Loaded;
+        }
+
+        /// <summary>
+        /// Обработчик отображения окна: открывает проект, переданный через командную строку.
+        /// </summary>
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            await LoadInitialProjectAsync();
+        }
+
+        /// <summary>
+        /// Загружает проект по пути из <see cref="InitialProjectPath"/>.
+        /// </summary>
+        private async Task LoadInitialProjectAsync()
+        {
+            if (_viewModel == null || string.IsNullOrEmpty(InitialProjectPath))
+                return;
+
+            try
+            {
+                await _viewModel.ResultsViewModel.LoadProjectFromPathAsync(InitialProjectPath);
+            }
+            finally
+            {
+                // Предотвращаем повторную загрузку при последующих событиях Loaded
+                InitialProjectPath = null;
+            }
         }
 
         private void InitializeViewModel()

@@ -3,6 +3,7 @@ using SnowMeltingCalculator.Configuration;
 using SnowMeltingCalculator.Services.Climate;
 using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.ViewModels.Construction;
+using System.Linq;
 using System.Windows;
 
 namespace SnowMeltingCalculator
@@ -53,8 +54,18 @@ namespace SnowMeltingCalculator
                 var constructionViewModel = _serviceProvider.GetRequiredService<ConstructionViewModel>();
                 await constructionViewModel.InitializeCommand.ExecuteAsync(null);
 
+                // Определяем путь к файлу проекта, переданный через командную строку
+                // (например, при двойном клике по файлу .smc в проводнике Windows)
+                string? startupProjectPath = e.Args
+                    .FirstOrDefault(a => !string.IsNullOrWhiteSpace(a) &&
+                                         a.EndsWith(".smc", StringComparison.OrdinalIgnoreCase));
+
                 // Создание главного окна
                 var mainWindow = new MainWindow();
+                if (!string.IsNullOrEmpty(startupProjectPath))
+                {
+                    mainWindow.InitialProjectPath = startupProjectPath;
+                }
                 mainWindow.Show();
             }
             catch (Exception ex)

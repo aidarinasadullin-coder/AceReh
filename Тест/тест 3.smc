@@ -1,0 +1,612 @@
+{
+  "version": "1.1",
+  "projectNumber": "",
+  "projectObject": "",
+  "createdDate": "2026-07-22T12:15:50.7580233+05:00",
+  "modifiedDate": "2026-07-22T12:15:50.758022+05:00",
+  "climateData": {
+    "selectedCity": "\u0423\u0447\u0430\u043B\u044B",
+    "region": "\u0420\u0435\u0441\u043F\u0443\u0431\u043B\u0438\u043A\u0430 \u0411\u0430\u0448\u043A\u043E\u0440\u0442\u043E\u0441\u0442\u0430\u043D",
+    "airTemperature": -15,
+    "windSpeed": 2.5,
+    "humidity": 74,
+    "snowfallIntensity": 1,
+    "selectedZone": "zone_M15",
+    "isHighRequirements": false
+  },
+  "constructionData": {
+    "r1": 0.09212121212121212,
+    "r2": 4.113809523809524,
+    "lambdaE": 1.5,
+    "layers": [
+      {
+        "position": "abovePipe",
+        "materialName": "\u043C\u0430\u0442\u0435\u0440\u0438\u0430\u043B",
+        "materialLambda": 1.1,
+        "thickness": 50,
+        "calculatedR": 0,
+        "calculatedLambda": 1.1,
+        "isLambdaOverridden": false,
+        "order": 0
+      },
+      {
+        "position": "abovePipe",
+        "materialName": "\u0411\u0435\u0442\u043E\u043D \u043F\u043B\u043E\u0442\u043D\u044B\u0439",
+        "materialLambda": 1.5,
+        "thickness": 70,
+        "calculatedR": 0,
+        "calculatedLambda": 1.5,
+        "isLambdaOverridden": false,
+        "order": 1
+      },
+      {
+        "position": "belowPipe",
+        "materialName": "\u0411\u0435\u0442\u043E\u043D \u043F\u043B\u043E\u0442\u043D\u044B\u0439",
+        "materialLambda": 1.5,
+        "thickness": 10,
+        "calculatedR": 0,
+        "calculatedLambda": 1.5,
+        "isLambdaOverridden": false,
+        "order": 0
+      },
+      {
+        "position": "belowPipe",
+        "materialName": "\u041F\u0435\u043D\u043E\u043F\u043E\u043B\u0438\u0441\u0442\u0438\u0440\u043E\u043B (\u042D\u041F\u041F\u0421)",
+        "materialLambda": 0.035,
+        "thickness": 100,
+        "calculatedR": 0,
+        "calculatedLambda": 0.035,
+        "isLambdaOverridden": false,
+        "order": 1
+      },
+      {
+        "position": "belowPipe",
+        "materialName": "\u041F\u0435\u0441\u043E\u043A",
+        "materialLambda": 0.4,
+        "thickness": 100,
+        "calculatedR": 0,
+        "calculatedLambda": 0.4,
+        "isLambdaOverridden": false,
+        "order": 2
+      },
+      {
+        "position": "belowPipe",
+        "materialName": "\u0413\u0440\u0443\u043D\u0442",
+        "materialLambda": 0.5,
+        "thickness": 500,
+        "calculatedR": 0,
+        "calculatedLambda": 0.5,
+        "isLambdaOverridden": false,
+        "order": 3
+      }
+    ],
+    "groundwaterLevel": 2,
+    "hasLoads": false
+  },
+  "thermalData": {
+    "selectedMode": "melting",
+    "supplyTemperature": 65,
+    "groundTemperature": 10,
+    "selectedPipe": {
+      "name": "RAUTHERM S 25x2,3",
+      "outerDiameter": 25,
+      "innerDiameter": 20.4,
+      "wallThickness": 2.3
+    },
+    "pipeSpacing": 200,
+    "result": {
+      "powerUp": 347.0976017207673,
+      "powerDown": 10.285703969046347,
+      "powerTotal": 357.3833056898136,
+      "supplyTemperature": 65,
+      "returnTemperature": 59.553502104480316,
+      "meanTemperature": 62.27675105224016,
+      "deltaT": 5.446497895519684,
+      "isValid": true
+    }
+  },
+  "hydraulicsData": {
+    "glycolType": "propylene",
+    "glycolConcentration": 40,
+    "supplySpacingCm": 5,
+    "supplyHeatPercent": 10,
+    "collectors": [
+      {
+        "collectorNumber": 1,
+        "collectorType": "IV 1\u00BD\u0022 (2-12 \u043A\u043E\u043D\u0442\u0443\u0440\u043E\u0432)",
+        "valveType": "iV_1_5",
+        "circuits": [
+          {
+            "circuitNumber": 1,
+            "circuitLength": 100,
+            "supplyLength": 10,
+            "supplySpacingCm": 5,
+            "supplyHeatPercent": 10,
+            "pipeSpacingCm": 20,
+            "operatingResult": {
+              "power": 7165.535279080763,
+              "flowRate": 1139.530744424084,
+              "velocity": 0.9684413621912528,
+              "dpRohr": 79380.62285495877,
+              "dpVerteiler": 7176.086333754614,
+              "dpVent": 58877.49272011353,
+              "dpGesamt": 145434.20190882692,
+              "throttling": 76624.86261004875,
+              "valveTurns": 6.5,
+              "flowRegime": "Turbulent",
+              "flowRegimeString": "Turbulent",
+              "density": 1.0201868746242,
+              "kinematicViscosity": 1.820884343056995,
+              "reynoldsNumber": 10849.785086038917,
+              "frictionFactor": 0.03077199042370484,
+              "pressureLossPerMeter": 721.6420259541707
+            },
+            "designResult": {
+              "power": 7165.535279080763,
+              "flowRate": 1139.530744424084,
+              "velocity": 0.9684413621912528,
+              "dpRohr": 575686.2015937372,
+              "dpVerteiler": 7521.552479794849,
+              "dpVent": 61711.931932871346,
+              "dpGesamt": 644919.6860064034,
+              "throttling": 76624.86261004875,
+              "valveTurns": 6.5,
+              "flowRegime": "Laminar",
+              "flowRegimeString": "Laminar",
+              "density": 1.0693,
+              "kinematicViscosity": 65.725,
+              "reynoldsNumber": 300.5888746854554,
+              "frictionFactor": 0.2129153983725159,
+              "pressureLossPerMeter": 5233.51092357943
+            },
+            "power": 7165.535279080763,
+            "flowRate": 1139.530744424084,
+            "velocity": 0.9684413621912528,
+            "flowRegimeDescription": "\u0422\u0443\u0440\u0431\u0443\u043B\u0435\u043D\u0442\u043D\u044B\u0439",
+            "throttling": 76624.86261004875,
+            "valveTurns": 6.5
+          },
+          {
+            "circuitNumber": 2,
+            "circuitLength": 105,
+            "supplyLength": 10,
+            "supplySpacingCm": 5,
+            "supplyHeatPercent": 10,
+            "pipeSpacingCm": 20,
+            "operatingResult": {
+              "power": 7522.918584770577,
+              "flowRate": 1196.3651955175546,
+              "velocity": 1.016742677013759,
+              "dpRohr": 90374.79568986579,
+              "dpVerteiler": 7909.756269432412,
+              "dpVent": 64897.019839463945,
+              "dpGesamt": 163181.57179876213,
+              "throttling": 0,
+              "valveTurns": 8,
+              "flowRegime": "Turbulent",
+              "flowRegimeString": "Turbulent",
+              "density": 1.0201868746242,
+              "kinematicViscosity": 1.820884343056995,
+              "reynoldsNumber": 11390.921499307691,
+              "frictionFactor": 0.030402396119742856,
+              "pressureLossPerMeter": 785.8677886075286
+            },
+            "designResult": {
+              "power": 7522.918584770577,
+              "flowRate": 1196.3651955175546,
+              "velocity": 1.016742677013759,
+              "dpRohr": 631871.3999129627,
+              "dpVerteiler": 8290.542242096248,
+              "dpVent": 68021.24693076567,
+              "dpGesamt": 708183.1890858246,
+              "throttling": 0,
+              "valveTurns": 8,
+              "flowRegime": "Laminar",
+              "flowRegimeString": "Laminar",
+              "density": 1.0693,
+              "kinematicViscosity": 65.725,
+              "reynoldsNumber": 315.5808385101664,
+              "frictionFactor": 0.20280065260660066,
+              "pressureLossPerMeter": 5494.533912286633
+            },
+            "power": 7522.918584770577,
+            "flowRate": 1196.3651955175546,
+            "velocity": 1.016742677013759,
+            "flowRegimeDescription": "\u0422\u0443\u0440\u0431\u0443\u043B\u0435\u043D\u0442\u043D\u044B\u0439",
+            "throttling": 0,
+            "valveTurns": 8
+          },
+          {
+            "circuitNumber": 3,
+            "circuitLength": 90,
+            "supplyLength": 10,
+            "supplySpacingCm": 5,
+            "supplyHeatPercent": 10,
+            "pipeSpacingCm": 20,
+            "operatingResult": {
+              "power": 6450.768667701136,
+              "flowRate": 1025.8618422371433,
+              "velocity": 0.8718387325462402,
+              "dpRohr": 60050.552204070525,
+              "dpVerteiler": 5815.851562497966,
+              "dpVent": 47717.20156452956,
+              "dpGesamt": 113583.60533109805,
+              "throttling": 97315.16803219364,
+              "valveTurns": 5.25,
+              "flowRegime": "Turbulent",
+              "flowRegimeString": "Turbulent",
+              "density": 1.0201868746242,
+              "kinematicViscosity": 1.820884343056995,
+              "reynoldsNumber": 9767.51225950137,
+              "frictionFactor": 0.03159549169537802,
+              "pressureLossPerMeter": 600.5055220407053
+            },
+            "designResult": {
+              "power": 6450.768667701136,
+              "flowRate": 1025.8618422371433,
+              "velocity": 0.8718387325462402,
+              "dpRohr": 471146.4946165023,
+              "dpVerteiler": 6095.834234360141,
+              "dpVent": 50014.369819987005,
+              "dpGesamt": 527256.6986708494,
+              "throttling": 97315.16803219364,
+              "valveTurns": 5.25,
+              "flowRegime": "Laminar",
+              "flowRegimeString": "Laminar",
+              "density": 1.0693,
+              "kinematicViscosity": 65.725,
+              "reynoldsNumber": 270.6049470360335,
+              "frictionFactor": 0.23650713226420736,
+              "pressureLossPerMeter": 4711.464946165023
+            },
+            "power": 6450.768667701136,
+            "flowRate": 1025.8618422371433,
+            "velocity": 0.8718387325462402,
+            "flowRegimeDescription": "\u0422\u0443\u0440\u0431\u0443\u043B\u0435\u043D\u0442\u043D\u044B\u0439",
+            "throttling": 97315.16803219364,
+            "valveTurns": 5.25
+          },
+          {
+            "circuitNumber": 4,
+            "circuitLength": 95,
+            "supplyLength": 10,
+            "supplySpacingCm": 5,
+            "supplyHeatPercent": 10,
+            "pipeSpacingCm": 20,
+            "operatingResult": {
+              "power": 6808.151973390949,
+              "flowRate": 1082.6962933306136,
+              "velocity": 0.9201400473687462,
+              "dpRohr": 69283.96177246801,
+              "dpVerteiler": 6478.118098109795,
+              "dpVent": 53150.88662846874,
+              "dpGesamt": 128912.96649904655,
+              "throttling": 87419.49192818432,
+              "valveTurns": 5.75,
+              "flowRegime": "Turbulent",
+              "flowRegimeString": "Turbulent",
+              "density": 1.0201868746242,
+              "kinematicViscosity": 1.820884343056995,
+              "reynoldsNumber": 10308.648672770141,
+              "frictionFactor": 0.03116850556977896,
+              "pressureLossPerMeter": 659.8472549758859
+            },
+            "designResult": {
+              "power": 6808.151973390949,
+              "flowRate": 1082.6962933306136,
+              "velocity": 0.9201400473687462,
+              "dpRohr": 522111.23316158366,
+              "dpVerteiler": 6789.98314388281,
+              "dpVent": 55709.6395626118,
+              "dpGesamt": 584610.8558680783,
+              "throttling": 87419.49192818432,
+              "valveTurns": 5.75,
+              "flowRegime": "Laminar",
+              "flowRegimeString": "Laminar",
+              "density": 1.0693,
+              "kinematicViscosity": 65.725,
+              "reynoldsNumber": 285.5969108607444,
+              "frictionFactor": 0.22409205970440652,
+              "pressureLossPerMeter": 4972.487934872225
+            },
+            "power": 6808.151973390949,
+            "flowRate": 1082.6962933306136,
+            "velocity": 0.9201400473687462,
+            "flowRegimeDescription": "\u0422\u0443\u0440\u0431\u0443\u043B\u0435\u043D\u0442\u043D\u044B\u0439",
+            "throttling": 87419.49192818432,
+            "valveTurns": 5.75
+          },
+          {
+            "circuitNumber": 5,
+            "circuitLength": 100,
+            "supplyLength": 10,
+            "supplySpacingCm": 5,
+            "supplyHeatPercent": 10,
+            "pipeSpacingCm": 20,
+            "operatingResult": {
+              "power": 7165.535279080763,
+              "flowRate": 1139.530744424084,
+              "velocity": 0.9684413621912528,
+              "dpRohr": 79380.62285495877,
+              "dpVerteiler": 7176.086333754614,
+              "dpVent": 58877.49272011353,
+              "dpGesamt": 145434.20190882692,
+              "throttling": 76624.86261004875,
+              "valveTurns": 6.5,
+              "flowRegime": "Turbulent",
+              "flowRegimeString": "Turbulent",
+              "density": 1.0201868746242,
+              "kinematicViscosity": 1.820884343056995,
+              "reynoldsNumber": 10849.785086038917,
+              "frictionFactor": 0.03077199042370484,
+              "pressureLossPerMeter": 721.6420259541707
+            },
+            "designResult": {
+              "power": 7165.535279080763,
+              "flowRate": 1139.530744424084,
+              "velocity": 0.9684413621912528,
+              "dpRohr": 575686.2015937372,
+              "dpVerteiler": 7521.552479794849,
+              "dpVent": 61711.931932871346,
+              "dpGesamt": 644919.6860064034,
+              "throttling": 76624.86261004875,
+              "valveTurns": 6.5,
+              "flowRegime": "Laminar",
+              "flowRegimeString": "Laminar",
+              "density": 1.0693,
+              "kinematicViscosity": 65.725,
+              "reynoldsNumber": 300.5888746854554,
+              "frictionFactor": 0.2129153983725159,
+              "pressureLossPerMeter": 5233.51092357943
+            },
+            "power": 7165.535279080763,
+            "flowRate": 1139.530744424084,
+            "velocity": 0.9684413621912528,
+            "flowRegimeDescription": "\u0422\u0443\u0440\u0431\u0443\u043B\u0435\u043D\u0442\u043D\u044B\u0439",
+            "throttling": 76624.86261004875,
+            "valveTurns": 6.5
+          }
+        ],
+        "summary": {
+          "circuitCount": 5,
+          "totalPipeLength": 540,
+          "totalPower": 35112.90978402419,
+          "totalFlowRate": 5583.98481993348,
+          "pressureLoss_Operating_Pa": 163181.57179876213,
+          "pressureLoss_Cold_Pa": 708183.1890858246,
+          "kv": 1.5,
+          "collectorType": "HKV-D"
+        }
+      },
+      {
+        "collectorNumber": 2,
+        "collectorType": "IV 1\u00BD\u0022 (2-12 \u043A\u043E\u043D\u0442\u0443\u0440\u043E\u0432)",
+        "valveType": "iV_1_5",
+        "circuits": [
+          {
+            "circuitNumber": 1,
+            "circuitLength": 120,
+            "supplyLength": 10,
+            "supplySpacingCm": 5,
+            "supplyHeatPercent": 10,
+            "pipeSpacingCm": 20,
+            "operatingResult": {
+              "power": 8595.068501840018,
+              "flowRate": 1366.8685487979665,
+              "velocity": 1.1616466214812784,
+              "dpRohr": 129081.19026579223,
+              "dpVerteiler": 10324.976276663712,
+              "dpVent": 84713.12736374892,
+              "dpGesamt": 224119.29390620487,
+              "throttling": 132086.10425274135,
+              "valveTurns": 6,
+              "flowRegime": "Turbulent",
+              "flowRegimeString": "Turbulent",
+              "density": 1.0201868746242,
+              "kinematicViscosity": 1.820884343056995,
+              "reynoldsNumber": 13014.330739114013,
+              "frictionFactor": 0.02942740545832972,
+              "pressureLossPerMeter": 992.9322328137864
+            },
+            "designResult": {
+              "power": 8595.068501840018,
+              "flowRate": 1366.8685487979665,
+              "velocity": 1.1616466214812784,
+              "dpRohr": 816088.3741930719,
+              "dpVerteiler": 10822.034087336624,
+              "dpVent": 88791.32769025723,
+              "dpGesamt": 915701.7359706657,
+              "throttling": 132086.10425274135,
+              "valveTurns": 6,
+              "flowRegime": "Laminar",
+              "flowRegimeString": "Laminar",
+              "density": 1.0693,
+              "kinematicViscosity": 65.725,
+              "reynoldsNumber": 360.5567299842994,
+              "frictionFactor": 0.17750327390307458,
+              "pressureLossPerMeter": 6277.602878408245
+            },
+            "power": 8595.068501840018,
+            "flowRate": 1366.8685487979665,
+            "velocity": 1.1616466214812784,
+            "flowRegimeDescription": "\u0422\u0443\u0440\u0431\u0443\u043B\u0435\u043D\u0442\u043D\u044B\u0439",
+            "throttling": 132086.10425274135,
+            "valveTurns": 6
+          },
+          {
+            "circuitNumber": 2,
+            "circuitLength": 130,
+            "supplyLength": 10,
+            "supplySpacingCm": 5,
+            "supplyHeatPercent": 10,
+            "pipeSpacingCm": 20,
+            "operatingResult": {
+              "power": 9309.835113219644,
+              "flowRate": 1480.5374509849073,
+              "velocity": 1.258249251126291,
+              "dpRohr": 159990.16849508084,
+              "dpVerteiler": 12113.631448316157,
+              "dpVent": 99388.47085180027,
+              "dpGesamt": 271492.2707951973,
+              "throttling": 0,
+              "valveTurns": 8,
+              "flowRegime": "Turbulent",
+              "flowRegimeString": "Turbulent",
+              "density": 1.0201868746242,
+              "kinematicViscosity": 1.820884343056995,
+              "reynoldsNumber": 14096.603565651561,
+              "frictionFactor": 0.028867709765277902,
+              "pressureLossPerMeter": 1142.786917822006
+            },
+            "designResult": {
+              "power": 9309.835113219644,
+              "flowRate": 1480.5374509849073,
+              "velocity": 1.258249251126291,
+              "dpRohr": 951950.839815171,
+              "dpVerteiler": 12696.797449443684,
+              "dpVent": 104173.1613347587,
+              "dpGesamt": 1068820.7985993733,
+              "throttling": 0,
+              "valveTurns": 8,
+              "flowRegime": "Laminar",
+              "flowRegimeString": "Laminar",
+              "density": 1.0693,
+              "kinematicViscosity": 65.725,
+              "reynoldsNumber": 390.54065763372137,
+              "frictionFactor": 0.16387538339228191,
+              "pressureLossPerMeter": 6799.64885582265
+            },
+            "power": 9309.835113219644,
+            "flowRate": 1480.5374509849073,
+            "velocity": 1.258249251126291,
+            "flowRegimeDescription": "\u0422\u0443\u0440\u0431\u0443\u043B\u0435\u043D\u0442\u043D\u044B\u0439",
+            "throttling": 0,
+            "valveTurns": 8
+          }
+        ],
+        "summary": {
+          "circuitCount": 2,
+          "totalPipeLength": 270,
+          "totalPower": 17904.903615059662,
+          "totalFlowRate": 2847.4059997828736,
+          "pressureLoss_Operating_Pa": 271492.2707951973,
+          "pressureLoss_Cold_Pa": 1068820.7985993733,
+          "kv": 1.5,
+          "collectorType": "HKV-D"
+        }
+      }
+    ]
+  },
+  "customMaterials": [
+    {
+      "id": 12,
+      "name": "\u043C\u0430\u0442\u0435\u0440\u0438\u0430\u043B",
+      "category": "concrete",
+      "lambda_a": 1.1,
+      "lambda_b": 1.5001,
+      "max_supply_temp": 45,
+      "notes": "\u044D\u0442\u043E \u043F\u0440\u0438\u043C\u0435\u0447\u0430\u043D\u0438\u0435",
+      "is_built_in": false
+    }
+  ],
+  "customTemplates": [
+    {
+      "id": 0,
+      "name": "\u0422\u0435\u0441\u0442\u043E\u0432\u044B\u0439 \u0448\u0430\u0431\u043B\u043E\u043D",
+      "description": "\u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0448\u0430\u0431\u043B\u043E\u043D\u0430",
+      "layersAbovePipe": [
+        {
+          "materialId": 12,
+          "thickness": 50,
+          "position": "abovePipe",
+          "order": 0
+        },
+        {
+          "materialId": 5,
+          "thickness": 50,
+          "position": "abovePipe",
+          "order": 1
+        }
+      ],
+      "layersBelowPipe": [
+        {
+          "materialId": 5,
+          "thickness": 10,
+          "position": "belowPipe",
+          "order": 0
+        },
+        {
+          "materialId": 10,
+          "thickness": 100,
+          "position": "belowPipe",
+          "order": 1
+        },
+        {
+          "materialId": 1,
+          "thickness": 100,
+          "position": "belowPipe",
+          "order": 2
+        },
+        {
+          "materialId": 2,
+          "thickness": 500,
+          "position": "belowPipe",
+          "order": 3
+        }
+      ],
+      "hasLoads": false,
+      "defaultGroundwaterLevel": 2,
+      "isBuiltIn": false,
+      "materialSnapshots": [
+        {
+          "id": 12,
+          "name": "\u043C\u0430\u0442\u0435\u0440\u0438\u0430\u043B",
+          "category": "concrete",
+          "lambda_a": 1.1,
+          "lambda_b": 1.5001,
+          "max_supply_temp": 45,
+          "notes": "\u044D\u0442\u043E \u043F\u0440\u0438\u043C\u0435\u0447\u0430\u043D\u0438\u0435",
+          "is_built_in": false
+        },
+        {
+          "id": 5,
+          "name": "\u0411\u0435\u0442\u043E\u043D \u043F\u043B\u043E\u0442\u043D\u044B\u0439",
+          "category": "concrete",
+          "lambda_a": 1.5,
+          "lambda_b": 1.5,
+          "max_supply_temp": 50,
+          "notes": "\u041D\u0435 \u0437\u0430\u0432\u0438\u0441\u0438\u0442 \u043E\u0442 \u0432\u043B\u0430\u0436\u043D\u043E\u0441\u0442\u0438",
+          "is_built_in": true
+        },
+        {
+          "id": 10,
+          "name": "\u041F\u0435\u043D\u043E\u043F\u043E\u043B\u0438\u0441\u0442\u0438\u0440\u043E\u043B (\u042D\u041F\u041F\u0421)",
+          "category": "insulation",
+          "lambda_a": 0.035,
+          "lambda_b": 0.035,
+          "notes": "\u042D\u043A\u0441\u0442\u0440\u0443\u0434\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 \u043F\u0435\u043D\u043E\u043F\u043E\u043B\u0438\u0441\u0442\u0438\u0440\u043E\u043B, \u043D\u0435 \u0432\u043F\u0438\u0442\u044B\u0432\u0430\u0435\u0442 \u0432\u043B\u0430\u0433\u0443",
+          "is_built_in": true
+        },
+        {
+          "id": 1,
+          "name": "\u041F\u0435\u0441\u043E\u043A",
+          "category": "soil",
+          "lambda_a": 0.4,
+          "lambda_b": 2,
+          "notes": "\u041F\u0440\u0438 \u0432\u044B\u0441\u043E\u043A\u043E\u043C \u0423\u0413\u0412 \u0442\u0435\u043F\u043B\u043E\u043F\u0440\u043E\u0432\u043E\u0434\u043D\u043E\u0441\u0442\u044C \u0440\u0435\u0437\u043A\u043E \u0432\u043E\u0437\u0440\u0430\u0441\u0442\u0430\u0435\u0442",
+          "is_built_in": true
+        },
+        {
+          "id": 2,
+          "name": "\u0413\u0440\u0443\u043D\u0442",
+          "category": "soil",
+          "lambda_a": 0.5,
+          "lambda_b": 1.5,
+          "notes": "\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0430\u043B\u044C\u043D\u044B\u0439 \u0441\u043B\u043E\u0439 \u043F\u043E\u0434 \u043A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u0435\u0439",
+          "is_built_in": true
+        }
+      ]
+    }
+  ],
+  "isOperatingMode": true
+}
