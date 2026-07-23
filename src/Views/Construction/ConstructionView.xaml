@@ -279,7 +279,7 @@
             </Grid.RowDefinitions>
 
             <!-- Слои над трубой -->
-            <Border Grid.Row="0" Grid.Column="0" x:Name="LayersAboveCard" Margin="0,0,12,0" Style="{StaticResource Card.Default}">
+            <Border Grid.Row="0" Grid.Column="0" x:Name="LayersAboveCard" Margin="0,0,12,0" VerticalAlignment="Top" Style="{StaticResource Card.Default}">
                 <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
                     <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
