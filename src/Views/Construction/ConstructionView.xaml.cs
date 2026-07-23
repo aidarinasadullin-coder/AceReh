@@ -6,8 +6,8 @@ namespace SnowMeltingCalculator.Views.Construction
 {
     /// <summary>
     /// Логика взаимодействия для ConstructionView.xaml.
-    /// Адаптивное переключение раскладки Row 4 (LayoutGrid) между
-    /// двумя колонками (2*/1*) и одной колонкой-стэком по событию SizeChanged.
+    /// Адаптивное переключение раскладки LayoutGrid между двумя колонками
+    /// (2*/1*) и одной колонкой-стэком по событию SizeChanged.
     /// </summary>
     public partial class ConstructionView : UserControl
     {
@@ -78,14 +78,24 @@ namespace SnowMeltingCalculator.Views.Construction
 
             LayoutGrid.RowDefinitions.Clear();
             LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-            Grid.SetColumn(LayersBelowCard, 0);
-            Grid.SetRow(LayersBelowCard, 0);
-            LayersBelowCard.Margin = new Thickness(0, 0, 12, 0);
+            Grid.SetColumn(LayersAboveCard, 0);
+            Grid.SetRow(LayersAboveCard, 0);
+            LayersAboveCard.Margin = new Thickness(0, 0, 12, 0);
 
             Grid.SetColumn(VisualizationCard, 1);
             Grid.SetRow(VisualizationCard, 0);
             VisualizationCard.Margin = new Thickness(12, 0, 0, 0);
+
+            Grid.SetColumn(LayersBelowCard, 0);
+            Grid.SetRow(LayersBelowCard, 1);
+            LayersBelowCard.Margin = new Thickness(0, 12, 12, 0);
+
+            Grid.SetColumn(ResultsCard, 0);
+            Grid.SetRow(ResultsCard, 2);
+            ResultsCard.Margin = new Thickness(0, 12, 12, 0);
         }
 
         private void SetStackedLayout()
@@ -96,14 +106,24 @@ namespace SnowMeltingCalculator.Views.Construction
             LayoutGrid.RowDefinitions.Clear();
             LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            LayoutGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-            Grid.SetColumn(LayersBelowCard, 0);
-            Grid.SetRow(LayersBelowCard, 0);
-            LayersBelowCard.Margin = new Thickness(0, 0, 0, 12);
+            Grid.SetColumn(LayersAboveCard, 0);
+            Grid.SetRow(LayersAboveCard, 0);
+            LayersAboveCard.Margin = new Thickness(0, 0, 0, 12);
 
             Grid.SetColumn(VisualizationCard, 0);
             Grid.SetRow(VisualizationCard, 1);
-            VisualizationCard.Margin = new Thickness(0);
+            VisualizationCard.Margin = new Thickness(0, 0, 0, 12);
+
+            Grid.SetColumn(LayersBelowCard, 0);
+            Grid.SetRow(LayersBelowCard, 2);
+            LayersBelowCard.Margin = new Thickness(0, 0, 0, 12);
+
+            Grid.SetColumn(ResultsCard, 0);
+            Grid.SetRow(ResultsCard, 3);
+            ResultsCard.Margin = new Thickness(0);
         }
     }
 }

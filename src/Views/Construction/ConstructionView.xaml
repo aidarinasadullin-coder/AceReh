@@ -542,7 +542,7 @@
             </Border>
 
             <!-- Результаты расчёта -->
-            <Border Grid.Row="2" Grid.Column="0" Margin="0,12,12,0" Style="{StaticResource Card.Default}">
+            <Border x:Name="ResultsCard" Grid.Row="2" Grid.Column="0" Margin="0,12,12,0" Style="{StaticResource Card.Default}">
                 <Grid Margin="{StaticResource Spacing.LG.Thickness}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
