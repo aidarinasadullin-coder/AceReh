@@ -84,7 +84,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var repository = CreateRepository();
             var templates = (await repository.GetAllAsync()).ToList();
 
-            Assert.That(templates.Count, Is.EqualTo(4));
+            Assert.That(templates.Count, Is.EqualTo(3));
             Assert.That(templates.All(t => t.IsBuiltIn), Is.True);
             Assert.That(File.Exists(_dataPath), Is.True);
 
@@ -260,7 +260,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var roundTrip = CreateRepository();
             var templates = (await roundTrip.GetAllAsync()).ToList();
 
-            Assert.That(templates.Where(t => t.IsBuiltIn).Count(), Is.EqualTo(4));
+            Assert.That(templates.Where(t => t.IsBuiltIn).Count(), Is.EqualTo(3));
             Assert.That(templates.Any(t => t.Name == "UserTemplate" && !t.IsBuiltIn), Is.True);
         }
 
@@ -277,9 +277,9 @@ namespace SnowMeltingCalculator.Tests.Construction
             var afterUpdate = await repository.GetByIdAsync(1);
             Assert.That(afterUpdate!.Name, Is.EqualTo("Типовая парковка (modified)"));
 
-            var deleted = await repository.DeleteAsync(2);
+            var deleted = await repository.DeleteAsync(3);
             Assert.That(deleted, Is.True);
-            Assert.That(await repository.GetByIdAsync(2), Is.Null);
+            Assert.That(await repository.GetByIdAsync(3), Is.Null);
         }
 
         [Test]

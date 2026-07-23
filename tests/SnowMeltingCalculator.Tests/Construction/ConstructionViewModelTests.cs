@@ -276,7 +276,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             // Arrange
             await _viewModel.InitializeCommand.ExecuteAsync(null);
             var sand = _viewModel.AvailableMaterials.First(m => m.Name == "Песок");
-            var reinforcedConcrete = _viewModel.AvailableMaterials.First(m => m.Name == "Железобетон");
+            var reinforcedConcrete = _viewModel.AvailableMaterials.First(m => m.Name == "Бетон с арматурной сеткой");
 
             var layer = new Layer
             {

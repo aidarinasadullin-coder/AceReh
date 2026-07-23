@@ -150,7 +150,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         {
             // Arrange
             var material = CreateValidMaterial();
-            material.Name = "Бетон плотный";
+            material.Name = "Бетон";
 
             // Act
             var result = _validator.Validate(material);
@@ -165,7 +165,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         {
             // Arrange
             var material = CreateValidMaterial();
-            material.Name = "БЕТОН ПЛОТНЫЙ";
+            material.Name = "БЕТОН";
 
             // Act
             var result = _validator.Validate(material);
@@ -179,7 +179,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         public void Validate_SelfUpdateWithSameName_ReturnsValid()
         {
             // Arrange
-            var existing = _repository.GetAllMaterials().First(m => m.Name == "Бетон плотный");
+            var existing = _repository.GetAllMaterials().First(m => m.Name == "Бетон");
             var material = new Material
             {
                 Id = existing.Id,

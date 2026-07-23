@@ -76,7 +76,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             Assert.That(snapshotArray.Count, Is.EqualTo(2));
             Assert.That(snapshotArray.Any(s => s.GetProperty("id").GetInt32() == 5), Is.True);
             Assert.That(snapshotArray.Any(s => s.GetProperty("id").GetInt32() == 1), Is.True);
-            Assert.That(snapshotArray.Any(s => s.GetProperty("name").GetString() == "Бетон плотный"), Is.True);
+            Assert.That(snapshotArray.Any(s => s.GetProperty("name").GetString() == "Бетон"), Is.True);
             Assert.That(snapshotArray.Any(s => s.GetProperty("name").GetString() == "Песок"), Is.True);
         }
 

@@ -22,7 +22,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                 var materials = (await repository.LoadMaterialsAsync()).ToList();
 
                 Assert.That(File.Exists(dataPath), Is.True);
-                Assert.That(materials.Count, Is.EqualTo(15));
+                Assert.That(materials.Count, Is.EqualTo(9));
                 foreach (var m in materials)
                     Assert.That(m.IsBuiltIn, Is.True);
 
@@ -30,10 +30,10 @@ namespace SnowMeltingCalculator.Tests.Construction
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 var meta = root.GetProperty("meta");
-                Assert.That(meta.GetProperty("next_material_id").GetInt32(), Is.EqualTo(16));
+                Assert.That(meta.GetProperty("next_material_id").GetInt32(), Is.EqualTo(14));
 
                 var mats = root.GetProperty("materials").EnumerateArray().ToList();
-                Assert.That(mats.Count, Is.EqualTo(15));
+                Assert.That(mats.Count, Is.EqualTo(9));
                 foreach (var m in mats)
                     Assert.That(m.GetProperty("is_built_in").GetBoolean(), Is.True);
             }

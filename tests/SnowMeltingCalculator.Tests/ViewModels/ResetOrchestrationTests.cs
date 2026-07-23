@@ -206,10 +206,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 new Material { Id = 1, Name = "Sand", LambdaA = 0.8, LambdaB = 0.9 },
                 new Material { Id = 2, Name = "Soil", LambdaA = 1.0, LambdaB = 1.1 },
                 new Material { Id = 5, Name = "Concrete", LambdaA = 1.74, LambdaB = 1.74 },
-                new Material { Id = 9, Name = "CPS", LambdaA = 0.93, LambdaB = 0.93 },
+                new Material { Id = 6, Name = "Concrete with mesh", LambdaA = 1.69, LambdaB = 2.04 },
                 new Material { Id = 10, Name = "XPS", LambdaA = 0.035, LambdaB = 0.035 },
-                new Material { Id = 13, Name = "PGS", LambdaA = 1.0, LambdaB = 1.8 },
-                new Material { Id = 14, Name = "CPS-Reinforced", LambdaA = 1.0, LambdaB = 1.0 }
+                new Material { Id = 13, Name = "PGS", LambdaA = 1.0, LambdaB = 1.8 }
             };
 
             var materialRepositoryMock = new Mock<IMaterialRepository>();
