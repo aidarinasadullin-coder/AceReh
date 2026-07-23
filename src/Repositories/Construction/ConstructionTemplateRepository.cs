@@ -349,13 +349,14 @@ namespace SnowMeltingCalculator.Repositories.Construction
         /// </summary>
         private static ConstructionTemplatesMeta CreateDefaultMeta()
         {
+            var defaultTemplates = ConstructionTemplate.GetDefaultTemplates();
             return new ConstructionTemplatesMeta
             {
                 Source = "ConstructionTemplate.GetDefaultTemplates()",
                 Version = "1.0",
                 Date = DateTime.UtcNow.ToString("yyyy-MM-dd"),
                 Description = "База шаблонов конструкций для расчёта систем снеготаяния",
-                NextTemplateId = 4
+                NextTemplateId = defaultTemplates.Max(t => t.Id) + 1
             };
         }
 

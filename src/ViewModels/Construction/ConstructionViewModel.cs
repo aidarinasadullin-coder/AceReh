@@ -414,7 +414,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             }
 
             // Устанавливаем параметры
-            GroundwaterLevel = template.DefaultGroundwaterLevel;
+            // УГВ не задаётся шаблоном — это настройка проекта на вкладке "Конструкция".
             HasLoads = template.HasLoads;
 
             // Обновляем УГВ опцию
@@ -672,9 +672,13 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 LayersAbovePipe.Clear();
                 LayersBelowPipe.Clear();
 
-                // Добавляем базовые слои
+                // Добавляем базовые слои по шаблону "Парковка / площадка — бетон"
+                // AbovePipe: Order=0 — поверхность
+                // BelowPipe: Order=0 — у трубы, Order=max — грунт
                 var concrete = AvailableMaterials.FirstOrDefault(m => m.Id == 5);
-                var sand = AvailableMaterials.FirstOrDefault(m => m.Id == 1);
+                var concreteMesh = AvailableMaterials.FirstOrDefault(m => m.Id == 6);
+                var xps = AvailableMaterials.FirstOrDefault(m => m.Id == 10);
+                var pgs = AvailableMaterials.FirstOrDefault(m => m.Id == 13);
                 var soil = AvailableMaterials.FirstOrDefault(m => m.Id == 2);
 
                 if (concrete != null)
@@ -689,15 +693,51 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                     });
                 }
 
-                if (sand != null)
+                if (concrete != null)
                 {
                     LayersBelowPipe.Add(new Layer
                     {
-                        Material = sand,
-                        Thickness = 150,
-                        CalculatedLambda = sand.LambdaA,
+                        Material = concrete,
+                        Thickness = 10,
+                        CalculatedLambda = concrete.LambdaA,
                         Position = LayerPosition.BelowPipe,
                         Order = 0
+                    });
+                }
+
+                if (concreteMesh != null)
+                {
+                    LayersBelowPipe.Add(new Layer
+                    {
+                        Material = concreteMesh,
+                        Thickness = 10,
+                        CalculatedLambda = concreteMesh.LambdaA,
+                        Position = LayerPosition.BelowPipe,
+                        Order = 1
+                    });
+                }
+
+                if (xps != null)
+                {
+                    LayersBelowPipe.Add(new Layer
+                    {
+                        Material = xps,
+                        Thickness = 80,
+                        CalculatedLambda = xps.LambdaA,
+                        Position = LayerPosition.BelowPipe,
+                        Order = 2
+                    });
+                }
+
+                if (pgs != null)
+                {
+                    LayersBelowPipe.Add(new Layer
+                    {
+                        Material = pgs,
+                        Thickness = 200,
+                        CalculatedLambda = pgs.LambdaA,
+                        Position = LayerPosition.BelowPipe,
+                        Order = 3
                     });
                 }
 
@@ -706,16 +746,24 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                     LayersBelowPipe.Add(new Layer
                     {
                         Material = soil,
-                        Thickness = 200,
+                        Thickness = 1000,
                         CalculatedLambda = soil.LambdaA,
                         Position = LayerPosition.BelowPipe,
-                        Order = 1
+                        Order = 4
+                    });
+
+                    LayersBelowPipe.Add(new Layer
+                    {
+                        Material = soil,
+                        Thickness = 570,
+                        CalculatedLambda = soil.LambdaA,
+                        Position = LayerPosition.BelowPipe,
+                        Order = 5
                     });
                 }
 
-                GroundwaterLevel = 2.0;
+                // УГВ не меняется при сбросе — это настройка проекта
                 HasLoads = false;
-                SelectedGroundwaterOption = "УГВ >= 1 м (сухие условия)";
                 SelectedTemplate = null;
                 SelectedLayer = null;
 

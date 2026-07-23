@@ -1053,5 +1053,80 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 new CalculationContext(),
                 markDirtyService);
         }
+
+        [Test]
+        public async Task LoadProjectFromPathAsync_WhenNullPath_DoesNothing()
+        {
+            // Arrange
+            _projectFileServiceMock
+                .Setup(p => p.LoadProjectResultAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OperationResult<ProjectData>.Success(new ProjectData()));
+
+            // Act
+            await _viewModel.LoadProjectFromPathAsync(null!);
+
+            // Assert
+            _projectFileServiceMock.Verify(
+                p => p.LoadProjectResultAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Test]
+        public async Task LoadProjectFromPathAsync_WhenEmptyPath_DoesNothing()
+        {
+            // Arrange
+            _projectFileServiceMock
+                .Setup(p => p.LoadProjectResultAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OperationResult<ProjectData>.Success(new ProjectData()));
+
+            // Act
+            await _viewModel.LoadProjectFromPathAsync(string.Empty);
+
+            // Assert
+            _projectFileServiceMock.Verify(
+                p => p.LoadProjectResultAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Test]
+        public async Task LoadProjectFromPathAsync_WhenFileNotFound_ShowsError()
+        {
+            // Arrange
+            const string errorMessage = "Файл не найден";
+            _projectFileServiceMock
+                .Setup(p => p.LoadProjectResultAsync(TestFilePath, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OperationResult<ProjectData>.Failure(errorMessage));
+
+            // Act
+            await _viewModel.LoadProjectFromPathAsync(TestFilePath);
+
+            // Assert
+            _dialogServiceMock.Verify(
+                d => d.ShowError($"Не удалось открыть проект: {errorMessage}", "Ошибка"),
+                Times.Once);
+            _projectFileServiceMock.Verify(
+                p => p.LoadProjectResultAsync(TestFilePath, It.IsAny<CancellationToken>()),
+                Times.Once);
+            Assert.That(_projectStateService.CurrentFilePath, Is.Null);
+        }
+
+        [Test]
+        public async Task LoadProjectFromPathAsync_WhenSuccess_LoadsDataAndSetsCurrentFilePath()
+        {
+            // Arrange
+            _projectFileServiceMock
+                .Setup(p => p.LoadProjectResultAsync(TestFilePath, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OperationResult<ProjectData>.Success(new ProjectData()));
+
+            // Act
+            await _viewModel.LoadProjectFromPathAsync(TestFilePath);
+
+            // Assert
+            _projectFileServiceMock.Verify(
+                p => p.LoadProjectResultAsync(TestFilePath, It.IsAny<CancellationToken>()),
+                Times.Once);
+            Assert.That(_projectStateService.CurrentFilePath, Is.EqualTo(TestFilePath));
+            Assert.That(_projectStateService.IsDirty, Is.False);
+        }
     }
 }

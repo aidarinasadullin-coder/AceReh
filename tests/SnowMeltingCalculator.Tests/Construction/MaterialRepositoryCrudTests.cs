@@ -302,7 +302,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         #region Seeding
 
         [Test]
-        public async Task LoadMaterialsAsync_MissingFile_SeedsDefaultsWithBuiltInTrueAndNextId12()
+        public async Task LoadMaterialsAsync_MissingFile_SeedsDefaultsWithBuiltInTrueAndNextId16()
         {
             // Arrange
             var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -317,13 +317,13 @@ namespace SnowMeltingCalculator.Tests.Construction
                 var materials = (await repo.LoadMaterialsAsync()).ToList();
 
                 // Assert
-                Assert.That(materials.Count, Is.EqualTo(11));
+                Assert.That(materials.Count, Is.EqualTo(15));
                 Assert.That(materials.All(m => m.IsBuiltIn), Is.True);
 
                 var json = await File.ReadAllTextAsync(path);
                 using var doc = JsonDocument.Parse(json);
                 var meta = doc.RootElement.GetProperty("meta");
-                Assert.That(meta.GetProperty("next_material_id").GetInt32(), Is.EqualTo(12));
+                Assert.That(meta.GetProperty("next_material_id").GetInt32(), Is.EqualTo(16));
 
                 var mats = doc.RootElement.GetProperty("materials").EnumerateArray().ToList();
                 Assert.That(mats.All(m => m.GetProperty("is_built_in").GetBoolean()), Is.True);
@@ -415,8 +415,8 @@ namespace SnowMeltingCalculator.Tests.Construction
                 // Act
                 var materials = (await repo.LoadMaterialsAsync()).ToList();
 
-                // Assert: все 11 default Id, включая Id 10 с локальным вариантом имени, распознаны как built-in.
-                Assert.That(materials.Count, Is.EqualTo(11));
+                // Assert: все 15 default Id, включая Id 10 с локальным вариантом имени, распознаны как built-in.
+                Assert.That(materials.Count, Is.EqualTo(15));
                 foreach (var defaultMaterial in defaultMaterials)
                 {
                     var loaded = materials.FirstOrDefault(m => m.Id == defaultMaterial.Id);
@@ -450,7 +450,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             MaterialCategory.Insulation => "изоляция",
             MaterialCategory.Coating => "покрытие",
             MaterialCategory.Subbase => "подстилающий",
-            MaterialCategory.Screed => "стяжка",
+            // MaterialCategory.Screed удалён
             _ => "грунт"
         };
 

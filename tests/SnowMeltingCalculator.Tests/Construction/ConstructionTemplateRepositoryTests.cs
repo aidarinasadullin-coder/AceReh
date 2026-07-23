@@ -84,7 +84,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var repository = CreateRepository();
             var templates = (await repository.GetAllAsync()).ToList();
 
-            Assert.That(templates.Count, Is.EqualTo(3));
+            Assert.That(templates.Count, Is.EqualTo(4));
             Assert.That(templates.All(t => t.IsBuiltIn), Is.True);
             Assert.That(File.Exists(_dataPath), Is.True);
 
@@ -92,7 +92,7 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             var savedJson = await File.ReadAllTextAsync(_dataPath);
             using var doc = JsonDocument.Parse(savedJson);
-            Assert.That(doc.RootElement.GetProperty("meta").GetProperty("next_template_id").GetInt32(), Is.EqualTo(4));
+            Assert.That(doc.RootElement.GetProperty("meta").GetProperty("next_template_id").GetInt32(), Is.EqualTo(5));
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var template = await repository.GetByIdAsync(1);
 
             Assert.That(template, Is.Not.Null);
-            Assert.That(template!.Name, Is.EqualTo("Типовая парковка"));
+            Assert.That(template!.Name, Is.EqualTo("Парковка / площадка — бетон"));
         }
 
         [Test]
@@ -122,14 +122,14 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             var added = await repository.AddAsync(template);
 
-            Assert.That(added.Id, Is.EqualTo(4));
+            Assert.That(added.Id, Is.EqualTo(5));
             Assert.That(added.IsBuiltIn, Is.False);
 
             await repository.SaveAsync();
 
             var savedJson = await File.ReadAllTextAsync(_dataPath);
             using var doc = JsonDocument.Parse(savedJson);
-            Assert.That(doc.RootElement.GetProperty("meta").GetProperty("next_template_id").GetInt32(), Is.EqualTo(5));
+            Assert.That(doc.RootElement.GetProperty("meta").GetProperty("next_template_id").GetInt32(), Is.EqualTo(6));
         }
 
         [Test]
@@ -260,7 +260,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var roundTrip = CreateRepository();
             var templates = (await roundTrip.GetAllAsync()).ToList();
 
-            Assert.That(templates.Where(t => t.IsBuiltIn).Count(), Is.EqualTo(3));
+            Assert.That(templates.Where(t => t.IsBuiltIn).Count(), Is.EqualTo(4));
             Assert.That(templates.Any(t => t.Name == "UserTemplate" && !t.IsBuiltIn), Is.True);
         }
 
@@ -290,7 +290,7 @@ namespace SnowMeltingCalculator.Tests.Construction
   ""templates"": [
     {
       ""id"": 1,
-      ""name"": ""Типовая парковка"",
+      ""name"": ""Парковка / площадка — бетон"",
       ""description"": ""Стандартная конструкция для парковок"",
       ""has_loads"": true,
       ""default_groundwater_level"": 2.0,
