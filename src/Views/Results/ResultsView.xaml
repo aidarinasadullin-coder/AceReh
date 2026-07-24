@@ -720,7 +720,8 @@
                                 <shared:ConstructionVisualizationView DataContext="{Binding ConstructionViewModel}"
                                                                       CompactMode="True"
                                                                       ShowDimensionLine="True"
-                                                                      FixedScaleFactor="0.25"
+                                                                      MaxVisualizationHeight="190"
+                                                                      OverflowMode="CompressLowerLayers"
                                                                       HorizontalAlignment="Stretch"
                                                                       VerticalAlignment="Stretch"/>
                             </Border>
