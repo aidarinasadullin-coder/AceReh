@@ -69,6 +69,38 @@ namespace SnowMeltingCalculator.Views.Shared
                 typeof(ConstructionVisualizationView),
                 new PropertyMetadata(null, OnVisualizationOverrideChanged));
 
+        /// <summary>
+        /// Максимальная высота визуализации в пикселях. NaN (по умолчанию) — без явной границы.
+        /// </summary>
+        public double MaxVisualizationHeight
+        {
+            get => (double)GetValue(MaxVisualizationHeightProperty);
+            set => SetValue(MaxVisualizationHeightProperty, value);
+        }
+
+        public static readonly DependencyProperty MaxVisualizationHeightProperty =
+            DependencyProperty.Register(
+                nameof(MaxVisualizationHeight),
+                typeof(double),
+                typeof(ConstructionVisualizationView),
+                new PropertyMetadata(double.NaN, OnVisualizationOverrideChanged));
+
+        /// <summary>
+        /// Режим обработки переполнения по высоте. По умолчанию None — без сжатия.
+        /// </summary>
+        public ScaleOverflowMode OverflowMode
+        {
+            get => (ScaleOverflowMode)GetValue(OverflowModeProperty);
+            set => SetValue(OverflowModeProperty, value);
+        }
+
+        public static readonly DependencyProperty OverflowModeProperty =
+            DependencyProperty.Register(
+                nameof(OverflowMode),
+                typeof(ScaleOverflowMode),
+                typeof(ConstructionVisualizationView),
+                new PropertyMetadata(ScaleOverflowMode.None, OnVisualizationOverrideChanged));
+
         private static void OnVisualizationOverrideChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var view = (ConstructionVisualizationView)d;
@@ -226,6 +258,28 @@ namespace SnowMeltingCalculator.Views.Shared
         }
 
         /// <summary>
+        /// Валидация FixedScaleFactor: NaN/Infinity/<=0 → null (no-op).
+        /// </summary>
+        private static double? SanitizeNullableDouble(double? value)
+        {
+            if (!value.HasValue)
+                return null;
+            if (double.IsNaN(value.Value) || double.IsInfinity(value.Value) || value.Value <= 0)
+                return null;
+            return value;
+        }
+
+        /// <summary>
+        /// Валидация MaxVisualizationHeight: NaN/Infinity/<=0 → null (без ограничения).
+        /// </summary>
+        private static double? SanitizeMaxVisualizationHeight(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value) || value <= 0)
+                return null;
+            return value;
+        }
+
+        /// <summary>
         /// Отрисовка визуализации "Пирога" конструкции
         /// </summary>
         private void DrawConstruction()
@@ -247,7 +301,9 @@ namespace SnowMeltingCalculator.Views.Shared
                     PipeSpacing = _viewModel?.PipeSpacing ?? 200,
                     CompactMode = CompactMode,
                     ShowDimensionLine = ShowDimensionLine ?? !CompactMode,
-                    FixedScaleFactor = FixedScaleFactor,
+                    FixedScaleFactor = SanitizeNullableDouble(FixedScaleFactor),
+                    MaxVisualizationHeight = SanitizeMaxVisualizationHeight(MaxVisualizationHeight),
+                    OverflowMode = OverflowMode,
                     CanvasAvailableHeight = ActualHeight > 0 ? ActualHeight : null
                 };
 

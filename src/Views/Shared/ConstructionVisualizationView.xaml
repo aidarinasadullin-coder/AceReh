@@ -7,7 +7,8 @@
              d:DesignHeight="180" d:DesignWidth="600">
     <Canvas x:Name="ConstructionCanvas"
             Background="Transparent"
-            HorizontalAlignment="Stretch">
+            HorizontalAlignment="Stretch"
+            ClipToBounds="True">
         <!-- Визуализация отрисовывается в code-behind -->
     </Canvas>
 </UserControl>
