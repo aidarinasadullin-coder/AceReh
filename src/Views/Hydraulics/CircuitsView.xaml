@@ -179,6 +179,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -657,8 +658,8 @@
             </Border>
         </Grid>
 
-        <!-- Grid.Row="5" — Кнопки управления (над TabControl) -->
-        <Grid Grid.Row="5" Margin="0,0,0,8">
+        <!-- Grid.Row="6" — Кнопки управления (над TabControl) -->
+        <Grid Grid.Row="6" Margin="0,0,0,8">
             <StackPanel Orientation="Horizontal">
                 <Button Content="+ Добавить коллектор"
                         Command="{Binding AddCollectorCommand}"
@@ -684,8 +685,8 @@
             </StackPanel>
         </Grid>
 
-        <!-- Grid.Row="6" — TabControl для коллекторов в общей рамке с таблицей -->
-        <Border Grid.Row="6"
+        <!-- Grid.Row="7" — TabControl для коллекторов в общей рамке с таблицей -->
+        <Border Grid.Row="7"
                 Background="White"
                 BorderBrush="{DynamicResource RehauRedBrush}"
                 BorderThickness="1"
