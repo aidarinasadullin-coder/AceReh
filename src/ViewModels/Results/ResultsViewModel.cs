@@ -365,6 +365,16 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private ObservableCollection<CollectorSpecification> _collectorSpecifications = new();
 
         /// <summary>
+        /// Карточки итогов коллекторов (для отображения в Results)
+        /// </summary>
+        /// <remarks>
+        /// Заполняется через RebuildHydraulicSummaryCards() из _circuitsViewModel.Collectors.
+        /// Каждая карточка — снимок CollectorData.Summary + CollectorNumber + CollectorTypeDisplayWithCount.
+        /// </remarks>
+        [ObservableProperty]
+        private ObservableCollection<CollectorHydraulicSummaryCard> _hydraulicSummaryCards = new();
+
+        /// <summary>
         /// Общая длина труб, м
         /// </summary>
         [ObservableProperty]
@@ -513,6 +523,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
             // Обновляем гидравлические данные
             LoadHydraulicsData();
             RecalculateKpi();
+
+            // Перестраиваем канонический read-model карточек итогов по коллекторам
+            RebuildHydraulicSummaryCards();
 
             // Проверяем готовность данных после загрузки всех модулей
             CheckDataReadiness();
@@ -673,6 +686,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 LambdaE = LambdaE,
                 PowerUp = PowerUp,
                 PowerDown = PowerDown,
+                TotalPowerDensity = TotalPowerDensity,
 
                 // Оборудование
                 TotalPipeLength = TotalPipeLength,
@@ -762,7 +776,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                                 DpVent = (result?.DpVent ?? 0) / 1000.0,          // кПа
                                 DpGesamt = (result?.DpGesamt ?? 0) / 1000.0,      // кПа
                                 Throttling = circuit.Throttling / 1000.0,         // кПа
-                                ZuDrosseln = (circuit.OperatingResult?.ZuDrosseln ?? 0) / 1000.0, // кПа
+                                ZuDrosseln = circuit.Throttling / 1000.0, // кПа
                                 ValveTurns = circuit.ValveTurns
                             });
                         }
@@ -1217,19 +1231,21 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         private void CalculateTotalPower()
         {
-            // Если нет коллекторов, оставляем текущее значение (заглушка)
-            if (_circuitsViewModel.Collectors == null || _circuitsViewModel.Collectors.Count == 0)
-            {
-                return;
-            }
-
+            // Суммируем мощности коллекторов; при пустом списке (или null)
+            // итерация просто не выполняется, и итог корректно обнуляется.
+            // Ранний return «оставляем текущее значение» убираем: иначе после
+            // RefreshAll() с пустыми коллекторами остаётся stale-значение
+            // из предыдущего проекта, а должно быть 0.
             double totalPower_W = 0;
 
-            foreach (var collector in _circuitsViewModel.Collectors)
+            if (_circuitsViewModel.Collectors != null)
             {
-                if (collector?.Summary != null)
+                foreach (var collector in _circuitsViewModel.Collectors)
                 {
-                    totalPower_W += collector.Summary.TotalPower;
+                    if (collector?.Summary != null)
+                    {
+                        totalPower_W += collector.Summary.TotalPower;
+                    }
                 }
             }
 
@@ -1495,6 +1511,22 @@ namespace SnowMeltingCalculator.ViewModels.Results
         }
 
         /// <summary>
+        /// Перестроить канонический read-model карточек итогов гидравлики по всем коллекторам.
+        /// </summary>
+        private void RebuildHydraulicSummaryCards()
+        {
+            HydraulicSummaryCards.Clear();
+
+            if (_circuitsViewModel.Collectors == null) return;
+
+            foreach (var collector in _circuitsViewModel.Collectors)
+            {
+                if (collector == null) continue;
+                HydraulicSummaryCards.Add(new CollectorHydraulicSummaryCard(collector));
+            }
+        }
+
+        /// <summary>
         /// Проверить готовность данных всех модулей
         /// </summary>
         private void CheckDataReadiness()
@@ -1565,6 +1597,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             LoadHydraulicsData();
             CheckDataReadiness();
             RecalculateKpi();
+            RebuildHydraulicSummaryCards();
         }
 
         /// <summary>
@@ -1611,6 +1644,12 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 Collectors.Clear();
                 Circuits.Clear();
                 CollectorSpecifications.Clear();
+                // Очищаем карточки, а не перестраиваем: в момент Reset() _circuitsViewModel.Collectors
+                // ещё не сброшен (в PerformNewCalculationReset и ApplyLoadedProjectAsync
+                // CircuitsViewModel.Reset() вызывается позже), иначе RebuildHydraulicSummaryCards()
+                // оставит stale-снимки из предыдущего проекта. Карточки пересоберутся при следующем
+                // LoadHydraulicsDataOnNavigate() / RefreshAll().
+                HydraulicSummaryCards.Clear();
                 SelectedCollectorIndex = 0;
                 CollectorSummary = null;
                 MissingModules.Clear();
@@ -1810,16 +1849,24 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 var collectorData = collectorsData[i];
                 var collector = _circuitsViewModel.Collectors[i];
 
-                // Восстанавливаем Summary
-                if (collectorData.Summary != null && collector.Summary != null)
+                // Восстанавливаем Summary.
+                // Создаём новый экземпляр, чтобы избежать shared-reference/last-write overwrite
+                // между коллекторами, если Summary ранее была перезаписана одним и тем же объектом.
+                if (collectorData.Summary != null)
                 {
-                    collector.Summary.TotalPower = collectorData.Summary.TotalPower;
-                    collector.Summary.TotalFlowRate = collectorData.Summary.TotalFlowRate;
-                    collector.Summary.TotalPipeLength = collectorData.Summary.TotalPipeLength;
-                    collector.Summary.PressureLoss_Operating_Pa = collectorData.Summary.PressureLoss_Operating_Pa;
-                    collector.Summary.PressureLoss_Cold_Pa = collectorData.Summary.PressureLoss_Cold_Pa;
-                    collector.Summary.Kv = collectorData.Summary.Kv;
-                    collector.Summary.CollectorType = collectorData.Summary.CollectorType;
+                    collector.Summary = new CollectorSummary
+                    {
+                        CollectorNumber = collector.CollectorNumber,
+                        CollectorType = collectorData.Summary.CollectorType,
+                        CircuitCount = collectorData.Summary.CircuitCount,
+                        TotalPower = collectorData.Summary.TotalPower,
+                        TotalFlowRate = collectorData.Summary.TotalFlowRate,
+                        TotalPipeLength = collectorData.Summary.TotalPipeLength,
+                        PressureLoss_Operating_Pa = collectorData.Summary.PressureLoss_Operating_Pa,
+                        PressureLoss_Cold_Pa = collectorData.Summary.PressureLoss_Cold_Pa,
+                        Kv = collectorData.Summary.Kv,
+                        ValveType = collector.ValveType
+                    };
                 }
 
                 // Восстанавливаем результаты контуров

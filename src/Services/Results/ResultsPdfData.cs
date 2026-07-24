@@ -283,6 +283,9 @@ namespace SnowMeltingCalculator.Services.Results
         /// <summary>Удельная мощность вниз, Вт/м²</summary>
         public double PowerDown { get; set; }
 
+        /// <summary>Суммарная удельная мощность, Вт/м²</summary>
+        public double TotalPowerDensity { get; set; }
+
         /// <summary>Слои конструкции</summary>
         public List<LayerPdfData> Layers { get; set; } = new();
 
