@@ -1826,6 +1826,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 // Восстанавливаем результаты контуров из сохранённых данных
                 RestoreCircuitsResults(data.HydraulicsData.Collectors);
 
+                // После полного восстановления проекта запускаем тепловой расчёт,
+                // чтобы пользователю не пришлось нажимать "Расчёт" вручную.
+                await _thermalViewModel.CalculateCommand.ExecuteAsync(null);
+
                 // Уведомляем об изменении проекта
                 ProjectChanged?.Invoke(this, data);
 
