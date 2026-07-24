@@ -21,7 +21,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
 <!-- Заголовок страницы -->
@@ -34,9 +33,9 @@
         <!-- Параметры -->
         <Border Grid.Row="1" Style="{StaticResource Card.Default}">
             <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
-                <TextBlock Text="Параметры"
-                          Style="{StaticResource Text.H4}"
-                          Foreground="{DynamicResource RehauBlackBrush}"/>
+<TextBlock Text="Параметры"
+                           Style="{StaticResource Text.H3}"
+                           Foreground="{DynamicResource RehauBlackBrush}"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -69,13 +68,27 @@
             </StackPanel>
         </Border>
 
+        <!-- Валидация -->
+        <Border Grid.Row="2"
+                Style="{StaticResource RehauWarningCardStyle}"
+                Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+                <Path Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"
+                      Style="{StaticResource RehauWarningIconStyle}"/>
+                <TextBlock Text="{Binding ValidationMessage}"
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap"
+                           Foreground="{Binding IsValid, Converter={StaticResource BoolToValidationColorConverter}}"/>
+            </StackPanel>
+        </Border>
+
 <!-- Шаблоны конструкций (accordion preview) -->
-        <Border Grid.Row="2" Style="{StaticResource Card.Default}">
+        <Border Grid.Row="3" Style="{StaticResource Card.Default}">
             <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
-                <TextBlock Text="Шаблоны конструкций"
-                           Style="{StaticResource Text.H4}"
-                           Foreground="{DynamicResource RehauBlackBrush}"
-                           Margin="0,0,0,12"/>
+<TextBlock Text="Шаблоны конструкций"
+                            Style="{StaticResource Text.H3}"
+                            Foreground="{DynamicResource RehauBlackBrush}"
+                            Margin="0,0,0,12"/>
 
                 <!-- Выбор шаблона -->
                 <ComboBox ItemsSource="{Binding Templates}"
@@ -117,36 +130,52 @@
                                Visibility="{Binding TemplatePreviewErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
                 </StackPanel>
 
-                <!-- Кнопки действий -->
-                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                    <Button Command="{Binding ToggleTemplatePreviewCommand}"
-                            ToolTip="Показать/скрыть состав шаблона"
-                            IsEnabled="{Binding SelectedTemplate, Converter={StaticResource NullToBoolConverter}}">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource RehauSecondaryButtonStyle}">
-                                <Setter Property="Content" Value="Развернуть состав ▼"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsTemplatePreviewExpanded}" Value="True">
-                                        <Setter Property="Content" Value="Свернуть ▲"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <Button Content="Применить"
-                            Command="{Binding ApplyTemplateCommand}"
-                            Style="{StaticResource RehauPrimaryButtonStyle}"
-                            IsEnabled="{Binding SelectedTemplate, Converter={StaticResource NullToBoolConverter}}"
-                            Margin="8,0,0,0"/>
-                    <Button Content="Материалы"
-                            Command="{Binding OpenMaterialEditorCommand}"
-                            Style="{StaticResource RehauSecondaryButtonStyle}"
-                            Margin="8,0,0,0"/>
-                    <Button Content="Шаблоны"
-                            Command="{Binding OpenTemplateEditorCommand}"
-                            Style="{StaticResource RehauSecondaryButtonStyle}"
-                            Margin="8,0,0,0"/>
-                </StackPanel>
+                <!-- Кнопки действий: основные (слева) и администрирование (справа) -->
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Основной рабочий процесс: развернуть/свернуть + применить -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Button Command="{Binding ToggleTemplatePreviewCommand}"
+                                ToolTip="Показать/скрыть состав шаблона"
+                                IsEnabled="{Binding SelectedTemplate, Converter={StaticResource NullToBoolConverter}}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource RehauSecondaryButtonStyle}">
+                                    <Setter Property="Content" Value="Развернуть состав ▼"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsTemplatePreviewExpanded}" Value="True">
+                                            <Setter Property="Content" Value="Свернуть ▲"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Применить"
+                                Command="{Binding ApplyTemplateCommand}"
+                                Style="{StaticResource RehauPrimaryButtonStyle}"
+                                IsEnabled="{Binding SelectedTemplate, Converter={StaticResource NullToBoolConverter}}"
+                                Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Администрирование справочников (вторичная группа) -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBlock Text="Управление справочниками"
+                                   Style="{StaticResource Text.CaptionBold}"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+                        <Button Content="Материалы"
+                                Command="{Binding OpenMaterialEditorCommand}"
+                                Style="{StaticResource RehauSecondaryButtonStyle}"/>
+                        <Button Content="Шаблоны"
+                                Command="{Binding OpenTemplateEditorCommand}"
+                                Style="{StaticResource RehauSecondaryButtonStyle}"
+                                Margin="8,0,0,0"/>
+                    </StackPanel>
+                </Grid>
 
                 <!-- Сворачиваемая область предпросмотра -->
                 <Border Background="{DynamicResource RehauBackgroundGrayBrush}"
@@ -154,122 +183,104 @@
                         Padding="12"
                         Margin="0,12,0,0"
                         Visibility="{Binding IsTemplatePreviewExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Grid>
+<Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
                         <!-- Слои шаблона -->
-                        <Border Grid.Column="0" Margin="0,0,12,0" Style="{StaticResource Card.Default}">
-                            <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
-                                <Grid Margin="0,0,0,12">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                            <TextBlock Text="Слои шаблона"
+                                       Style="{StaticResource Text.BodyBold}"
+                                       Foreground="{DynamicResource RehauBlackBrush}"
+                                       Margin="0,0,0,8"/>
 
-                                    <TextBlock Grid.Column="0"
-                                               Text="Слои шаблона"
-                                               Style="{StaticResource Text.H4}"
-                                               Foreground="{DynamicResource RehauBlackBrush}"
-                                               VerticalAlignment="Center"/>
+                            <!-- Слои над трубой -->
+                            <TextBlock Text="Слои над трубой"
+                                       FontWeight="SemiBold"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource RehauTealBrush}"
+                                       Margin="0,0,0,4"/>
+                            <ItemsControl ItemsSource="{Binding TemplatePreviewLayersAbovePipe}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,2,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding Material.Name}"
+                                                       Foreground="{DynamicResource RehauBlackBrush}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Thickness, StringFormat={}{0:F0} мм}"
+                                                       Foreground="{DynamicResource RehauBlackBrush}"
+                                                       Margin="16,0,0,0"/>
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding CalculatedLambda, StringFormat={}{0:F3}}"
+                                                       Foreground="{DynamicResource RehauGrayBrush}"
+                                                       Margin="16,0,0,0"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
 
-                                    <Button Grid.Column="1"
-                                            Command="{Binding ToggleTemplatePreviewCommand}"
-                                            Content="Свернуть ▲"
-                                            Style="{StaticResource RehauSecondaryButtonStyle}"
-                                            ToolTip="Свернуть предпросмотр"/>
-                                </Grid>
-
-                                <!-- Слои над трубой -->
-                                <TextBlock Text="Слои над трубой"
-                                           FontWeight="SemiBold"
-                                           FontSize="13"
-                                           Foreground="{DynamicResource RehauTealBrush}"
-                                           Margin="0,0,0,4"/>
-                                <ItemsControl ItemsSource="{Binding TemplatePreviewLayersAbovePipe}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="0,2,0,0">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0"
-                                                           Text="{Binding Material.Name}"
-                                                           Foreground="{DynamicResource RehauBlackBrush}"
-                                                           TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Grid.Column="1"
-                                                           Text="{Binding Thickness, StringFormat={}{0:F0} мм}"
-                                                           Foreground="{DynamicResource RehauBlackBrush}"
-                                                           Margin="16,0,0,0"/>
-                                                <TextBlock Grid.Column="2"
-                                                           Text="{Binding CalculatedLambda, StringFormat={}{0:F3}}"
-                                                           Foreground="{DynamicResource RehauGrayBrush}"
-                                                           Margin="16,0,0,0"/>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-                                <!-- Слои под трубой -->
-                                <TextBlock Text="Слои под трубой"
-                                           FontWeight="SemiBold"
-                                           FontSize="13"
-                                           Foreground="{DynamicResource RehauTealBrush}"
-                                           Margin="0,12,0,4"/>
-                                <ItemsControl ItemsSource="{Binding TemplatePreviewLayersBelowPipe}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="0,2,0,0">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0"
-                                                           Text="{Binding Material.Name}"
-                                                           Foreground="{DynamicResource RehauBlackBrush}"
-                                                           TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Grid.Column="1"
-                                                           Text="{Binding Thickness, StringFormat={}{0:F0} мм}"
-                                                           Foreground="{DynamicResource RehauBlackBrush}"
-                                                           Margin="16,0,0,0"/>
-                                                <TextBlock Grid.Column="2"
-                                                           Text="{Binding CalculatedLambda, StringFormat={}{0:F3}}"
-                                                           Foreground="{DynamicResource RehauGrayBrush}"
-                                                           Margin="16,0,0,0"/>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </Border>
+                            <!-- Слои под трубой -->
+                            <TextBlock Text="Слои под трубой"
+                                       FontWeight="SemiBold"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource RehauTealBrush}"
+                                       Margin="0,12,0,4"/>
+                            <ItemsControl ItemsSource="{Binding TemplatePreviewLayersBelowPipe}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,2,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding Material.Name}"
+                                                       Foreground="{DynamicResource RehauBlackBrush}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Thickness, StringFormat={}{0:F0} мм}"
+                                                       Foreground="{DynamicResource RehauBlackBrush}"
+                                                       Margin="16,0,0,0"/>
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding CalculatedLambda, StringFormat={}{0:F3}}"
+                                                       Foreground="{DynamicResource RehauGrayBrush}"
+                                                       Margin="16,0,0,0"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
 
                         <!-- Визуализация шаблона -->
-                        <Border Grid.Column="1" Margin="12,0,0,0" Style="{StaticResource Card.Default}">
-                            <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
-                                <TextBlock Text="Визуализация шаблона"
-                                           Style="{StaticResource Text.H4}"
-                                           Foreground="{DynamicResource RehauBlackBrush}"
-                                           Margin="0,0,0,8"/>
-                                <shared:ConstructionVisualizationView
-                                    SourceLayersAbovePipe="{Binding TemplatePreviewLayersAbovePipe}"
-                                    SourceLayersBelowPipe="{Binding TemplatePreviewLayersBelowPipe}"
-                                    CompactMode="True"
-                                    MaxVisualizationHeight="180"
-                                    OverflowMode="CompressLowerLayers"/>
-                            </StackPanel>
-                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                            <TextBlock Text="Визуализация шаблона"
+                                       Style="{StaticResource Text.BodyBold}"
+                                       Foreground="{DynamicResource RehauBlackBrush}"
+                                       Margin="0,0,0,8"/>
+                            <shared:ConstructionVisualizationView
+                                SourceLayersAbovePipe="{Binding TemplatePreviewLayersAbovePipe}"
+                                SourceLayersBelowPipe="{Binding TemplatePreviewLayersBelowPipe}"
+                                CompactMode="True"
+                                MaxVisualizationHeight="180"
+                                OverflowMode="CompressLowerLayers"/>
+                        </StackPanel>
                     </Grid>
                 </Border>
             </StackPanel>
         </Border>
 
         <!-- Слои над трубой, под трубой, визуализация и результаты -->
-        <Grid Grid.Row="3" x:Name="LayoutGrid">
+        <Grid Grid.Row="4" x:Name="LayoutGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
@@ -287,10 +298,10 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0"
-                                   Text="Слои над трубой"
-                                   Style="{StaticResource Text.H4}"
-                                   Foreground="{DynamicResource RehauBlackBrush}"/>
+<TextBlock Grid.Column="0"
+                                    Text="Слои над трубой"
+                                    Style="{StaticResource Text.H3}"
+                                    Foreground="{DynamicResource RehauBlackBrush}"/>
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <TextBlock Text="{Binding TotalThicknessAbovePipe, StringFormat='Общая толщина: {0:F0} мм'}"
@@ -430,10 +441,10 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0"
-                                   Text="Слои под трубой"
-                                   Style="{StaticResource Text.H4}"
-                                   Foreground="{DynamicResource RehauBlackBrush}"/>
+<TextBlock Grid.Column="0"
+                                    Text="Слои под трубой"
+                                    Style="{StaticResource Text.H3}"
+                                    Foreground="{DynamicResource RehauBlackBrush}"/>
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <TextBlock Text="{Binding TotalThicknessBelowPipe, StringFormat='Общая толщина: {0:F0} мм'}"
@@ -481,9 +492,17 @@
                                     <DataTemplate>
                                         <ComboBox ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                   SelectedItem="{Binding Material, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                  DisplayMemberPath="Name"
                                                   MinWidth="150"
-                                                  BorderThickness="0"/>
+                                                  BorderThickness="0">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Foreground="{DynamicResource RehauBlackBrush}">
+                                                        <Run Text="{Binding Name}"/>
+                                                        <Run Text="{Binding Category, StringFormat='({0})'}" Foreground="{DynamicResource RehauGrayBrush}"/>
+                                                    </TextBlock>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -551,59 +570,62 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Результаты расчёта"
-                                   Style="{StaticResource Text.H4}"
-                                   Foreground="{DynamicResource RehauBlackBrush}"/>
+<TextBlock Text="Результаты расчёта"
+                                    Style="{StaticResource Text.H3}"
+                                    Foreground="{DynamicResource RehauBlackBrush}"/>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <!-- R1 -->
-                            <Border Grid.Column="0" Margin="0,0,24,0"
-                                    Background="{DynamicResource RehauResultCardBrush}"
-                                    Padding="16,12"
-                                    CornerRadius="6">
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource RehauResultCardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="R₁ (над трубой):" Foreground="{DynamicResource RehauGrayBrush}" FontSize="12"/>
-                                    <TextBlock Text="{Binding R1Total, StringFormat='{}{0:F4} м²·К/Вт'}"
+                                    <TextBlock Text="R₁ (над трубой)"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource RehauGrayBrush}"/>
+                                    <TextBlock Text="{Binding R1Total, StringFormat={}{0:F4}}"
+                                               FontSize="24"
                                                FontWeight="Bold"
-                                               FontSize="18"
-                                               Foreground="{DynamicResource RehauRedBrush}"
+                                               Foreground="{DynamicResource RehauBlackBrush}"
                                                FontFamily="{StaticResource FontFamily.Main}"/>
+                                    <TextBlock Text="м²·К/Вт"
+                                               Style="{StaticResource RehauUnitStyle}"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- R2 -->
-                            <Border Grid.Column="1" Margin="0,0,24,0"
-                                    Background="{DynamicResource RehauResultCardBrush}"
-                                    Padding="16,12"
-                                    CornerRadius="6">
+                            <Border Grid.Column="1"
+                                    Style="{StaticResource RehauResultCardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="R₂ (под трубой):" Foreground="{DynamicResource RehauGrayBrush}" FontSize="12"/>
-                                    <TextBlock Text="{Binding R2Total, StringFormat='{}{0:F4} м²·К/Вт'}"
+                                    <TextBlock Text="R₂ (под трубой)"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource RehauGrayBrush}"/>
+                                    <TextBlock Text="{Binding R2Total, StringFormat={}{0:F4}}"
+                                               FontSize="24"
                                                FontWeight="Bold"
-                                               FontSize="18"
-                                               Foreground="{DynamicResource RehauRedBrush}"
+                                               Foreground="{DynamicResource RehauBlackBrush}"
                                                FontFamily="{StaticResource FontFamily.Main}"/>
+                                    <TextBlock Text="м²·К/Вт"
+                                               Style="{StaticResource RehauUnitStyle}"/>
                                 </StackPanel>
                             </Border>
 
-                            <!-- LambdaE -->
+                            <!-- LambdaE (основной результат) -->
                             <Border Grid.Column="2"
-                                    Background="{DynamicResource RehauResultCardBrush}"
-                                    Padding="16,12"
-                                    CornerRadius="6">
+                                    Style="{StaticResource RehauAccentResultCardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="λE (вокруг трубы):" Foreground="{DynamicResource RehauGrayBrush}" FontSize="12"/>
-                                    <TextBlock Text="{Binding LambdaE, StringFormat='{}{0:F3} Вт/м·К'}"
-                                               FontWeight="Bold"
-                                               FontSize="18"
-                                               Foreground="{DynamicResource RehauTealBrush}"
-                                               FontFamily="{StaticResource FontFamily.Main}"/>
+                                    <TextBlock Text="λE (вокруг трубы)"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource RehauGrayBrush}"/>
+                                    <TextBlock Text="{Binding LambdaE, StringFormat={}{0:F3}}"
+                                               Style="{StaticResource RehauResultValueStyle}"/>
+                                    <TextBlock Text="Вт/м·К"
+                                               Style="{StaticResource RehauUnitStyle}"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -613,26 +635,6 @@
             </StackPanel>
         </Grid>
 
-        <!-- Валидация -->
-        <Border Grid.Row="4" Margin="0,16,0,0"
-                Style="{StaticResource Card.Default}"
-                Background="#FFF8E8"
-                BorderBrush="#FFB300"
-                BorderThickness="1"
-                Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
-            <StackPanel Orientation="Horizontal" Margin="16">
-                <Path Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"
-                      Width="20" Height="20"
-                      Fill="#FF9800"
-                      Margin="0,0,8,0"
-                      VerticalAlignment="Center"
-                      Stretch="Uniform"/>
-                <TextBlock Text="{Binding ValidationMessage}"
-                          VerticalAlignment="Center"
-                          TextWrapping="Wrap"
-                          Foreground="{Binding IsValid, Converter={StaticResource BoolToValidationColorConverter}}"/>
-            </StackPanel>
-        </Border>
-    </Grid>
+        </Grid>
     </ScrollViewer>
 </UserControl>

@@ -99,11 +99,14 @@ namespace SnowMeltingCalculator.Views.Construction
             LayoutGrid.ColumnDefinitions.Clear();
             LayoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Перемещаем визуализацию в конец левого StackPanel
+            // Перемещаем визуализацию в левый StackPanel так, чтобы она
+            // оказалась сразу перед ResultsCard: порядок
+            // LayersAbove → LayersBelow → Visualization → Results.
             if (VisualizationCard.Parent == LayoutGrid)
             {
                 LayoutGrid.Children.Remove(VisualizationCard);
-                LeftColumnPanel.Children.Add(VisualizationCard);
+                int resultsIndex = LeftColumnPanel.Children.IndexOf(ResultsCard);
+                LeftColumnPanel.Children.Insert(resultsIndex, VisualizationCard);
             }
 
             LeftColumnPanel.Margin = new Thickness(0);

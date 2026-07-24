@@ -1,39 +1,221 @@
 {
   "schema_version": 2,
-  "active_work_id": "wave3-hydraulics-all-collectors-recalculation-ee7c9e5b",
+  "active_work_id": "construction-tab-ui-ux-audit-81396cd3",
   "works": {
-    "wave3-hydraulics-all-collectors-recalculation-ee7c9e5b": {
-      "work_id": "wave3-hydraulics-all-collectors-recalculation-ee7c9e5b",
-      "active_plan": "D:\\IA\\ace\\.omo\\plans\\wave3-hydraulics-all-collectors-recalculation.md",
-      "plan_name": "wave3-hydraulics-all-collectors-recalculation",
+    "construction-tab-ui-ux-audit-81396cd3": {
+      "work_id": "construction-tab-ui-ux-audit-81396cd3",
+      "active_plan": "D:\\IA\\ace\\.omo\\plans\\construction-tab-ui-ux-audit.md",
+      "plan_name": "construction-tab-ui-ux-audit",
       "status": "completed",
-      "started_at": "2026-07-21T17:59:19.854Z",
-      "updated_at": "2026-07-21T18:40:00.962Z",
-      "ended_at": "2026-07-21T18:40:00.962Z",
+      "started_at": "2026-07-24T19:35:17.981Z",
+      "ended_at": "2026-07-24T19:58:00.000Z",
+      "updated_at": "2026-07-24T19:58:00.000Z",
       "session_ids": [
-        "opencode:ses_07a853640ffeyYtrMsza6SuguE"
+        "opencode:ses_06a8cb0a5ffezJXOzzJ8nxZQbA"
       ],
       "session_origins": {
-        "opencode:ses_07a853640ffeyYtrMsza6SuguE": "direct"
+        "opencode:ses_06a8cb0a5ffezJXOzzJ8nxZQbA": "direct"
       },
       "agent": "atlas",
-      "task_sessions": {},
-      "elapsed_ms": 2441108
+      "task_sessions": {
+        "todo:1": {
+          "task_key": "todo:1",
+          "task_label": "1",
+          "task_title": "Fix stacked visualization order before results",
+          "session_id": "opencode:ses_06a5d99a4ffeqq83qFzlvmLsT0",
+          "agent": "Sisyphus-Junior",
+          "category": "visual-engineering",
+          "updated_at": "2026-07-24T19:40:42.221Z",
+          "started_at": "2026-07-24T19:38:59.315Z",
+          "status": "completed",
+          "ended_at": "2026-07-24T19:40:42.221Z",
+          "elapsed_ms": 102906
+        },
+        "todo:2": {
+          "task_key": "todo:2",
+          "task_label": "2",
+          "task_title": "Rebalance heading hierarchy using existing typography styles",
+          "session_id": "opencode:ses_06a5a610affen5pElcxXjZQqof",
+          "agent": "Sisyphus-Junior",
+          "category": "visual-engineering",
+          "updated_at": "2026-07-24T19:43:36.001Z",
+          "started_at": "2026-07-24T19:42:46.196Z",
+          "status": "completed",
+          "ended_at": "2026-07-24T19:43:36.001Z",
+          "elapsed_ms": 49805
+        },
+        "todo:3": {
+          "task_key": "todo:3",
+          "task_label": "3",
+          "task_title": "Unify Material ComboBox item presentation in both layer grids",
+          "session_id": "opencode:ses_06a581711ffeUV4ria0u6IaBWj",
+          "agent": "Sisyphus-Junior",
+          "category": "visual-engineering",
+          "updated_at": "2026-07-24T19:45:12.509Z",
+          "started_at": "2026-07-24T19:44:30.699Z",
+          "status": "completed",
+          "ended_at": "2026-07-24T19:45:12.509Z",
+          "elapsed_ms": 41810
+        },
+        "todo:4": {
+          "task_key": "todo:4",
+          "task_label": "4",
+          "task_title": "Tokenize and reposition validation warning for visibility",
+          "session_id": "opencode:ses_06a56a2c5ffejzZsugY0G0QE1q",
+          "agent": "Sisyphus-Junior",
+          "category": "visual-engineering",
+          "updated_at": "2026-07-24T19:47:12.589Z",
+          "started_at": "2026-07-24T19:46:53.041Z",
+          "status": "completed",
+          "ended_at": "2026-07-24T19:47:12.589Z",
+          "elapsed_ms": 19548
+        },
+        "todo:5": {
+          "task_key": "todo:5",
+          "task_label": "5",
+          "task_title": "Declutter template section actions and preview nesting",
+          "session_id": "opencode:ses_06a54c405ffefQ2iwIpGagt499",
+          "agent": "Sisyphus-Junior",
+          "category": "visual-engineering",
+          "updated_at": "2026-07-24T19:49:26.500Z",
+          "started_at": "2026-07-24T19:48:51.055Z",
+          "status": "completed",
+          "ended_at": "2026-07-24T19:49:26.500Z",
+          "elapsed_ms": 35445
+        },
+        "todo:6": {
+          "task_key": "todo:6",
+          "task_label": "6",
+          "task_title": "Align Construction results cards with Thermal result style pattern",
+          "session_id": "opencode:ses_06a52c792ffeSOlXYQUrVSjI0h",
+          "agent": "Sisyphus-Junior",
+          "category": "visual-engineering",
+          "updated_at": "2026-07-24T19:52:15.123Z",
+          "started_at": "2026-07-24T19:51:36.713Z",
+          "status": "completed",
+          "ended_at": "2026-07-24T19:52:15.123Z",
+          "elapsed_ms": 38410
+        },
+        "todo:7": {
+          "task_key": "todo:7",
+          "task_label": "7",
+          "task_title": "Improve delete layer button affordance without changing behavior",
+          "session_id": "opencode:ses_06a5015b0ffeuXP0v3v33ulJZM",
+          "agent": "Sisyphus-Junior",
+          "category": "visual-engineering",
+          "updated_at": "2026-07-24T19:54:28.459Z",
+          "started_at": "2026-07-24T19:54:04.836Z",
+          "status": "completed",
+          "ended_at": "2026-07-24T19:54:28.459Z",
+          "elapsed_ms": 23623
+        }
+      }
     }
   },
-  "active_plan": "D:\\IA\\ace\\.omo\\plans\\wave3-hydraulics-all-collectors-recalculation.md",
-  "started_at": "2026-07-21T17:59:19.854Z",
+  "active_plan": "D:\\IA\\ace\\.omo\\plans\\construction-tab-ui-ux-audit.md",
+  "started_at": "2026-07-24T19:35:17.981Z",
   "status": "completed",
-  "updated_at": "2026-07-21T18:40:00.962Z",
-  "ended_at": "2026-07-21T18:40:00.962Z",
+  "ended_at": "2026-07-24T19:58:00.000Z",
+  "updated_at": "2026-07-24T19:58:00.000Z",
   "session_ids": [
-    "opencode:ses_07a853640ffeyYtrMsza6SuguE"
+    "opencode:ses_06a8cb0a5ffezJXOzzJ8nxZQbA"
   ],
   "session_origins": {
-    "opencode:ses_07a853640ffeyYtrMsza6SuguE": "direct"
+    "opencode:ses_06a8cb0a5ffezJXOzzJ8nxZQbA": "direct"
   },
-  "plan_name": "wave3-hydraulics-all-collectors-recalculation",
-  "task_sessions": {},
-  "agent": "atlas",
-  "elapsed_ms": 2441108
+  "plan_name": "construction-tab-ui-ux-audit",
+  "task_sessions": {
+    "todo:1": {
+      "task_key": "todo:1",
+      "task_label": "1",
+      "task_title": "Fix stacked visualization order before results",
+      "session_id": "opencode:ses_06a5d99a4ffeqq83qFzlvmLsT0",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-07-24T19:40:42.221Z",
+      "started_at": "2026-07-24T19:38:59.315Z",
+      "status": "completed",
+      "ended_at": "2026-07-24T19:40:42.221Z",
+      "elapsed_ms": 102906
+    },
+    "todo:2": {
+      "task_key": "todo:2",
+      "task_label": "2",
+      "task_title": "Rebalance heading hierarchy using existing typography styles",
+      "session_id": "opencode:ses_06a5a610affen5pElcxXjZQqof",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-07-24T19:43:36.001Z",
+      "started_at": "2026-07-24T19:42:46.196Z",
+      "status": "completed",
+      "ended_at": "2026-07-24T19:43:36.001Z",
+      "elapsed_ms": 49805
+    },
+    "todo:3": {
+      "task_key": "todo:3",
+      "task_label": "3",
+      "task_title": "Unify Material ComboBox item presentation in both layer grids",
+      "session_id": "opencode:ses_06a581711ffeUV4ria0u6IaBWj",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-07-24T19:45:12.509Z",
+      "started_at": "2026-07-24T19:44:30.699Z",
+      "status": "completed",
+      "ended_at": "2026-07-24T19:45:12.509Z",
+      "elapsed_ms": 41810
+    },
+    "todo:4": {
+      "task_key": "todo:4",
+      "task_label": "4",
+      "task_title": "Tokenize and reposition validation warning for visibility",
+      "session_id": "opencode:ses_06a56a2c5ffejzZsugY0G0QE1q",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-07-24T19:47:12.589Z",
+      "started_at": "2026-07-24T19:46:53.041Z",
+      "status": "completed",
+      "ended_at": "2026-07-24T19:47:12.589Z",
+      "elapsed_ms": 19548
+    },
+    "todo:5": {
+      "task_key": "todo:5",
+      "task_label": "5",
+      "task_title": "Declutter template section actions and preview nesting",
+      "session_id": "opencode:ses_06a54c405ffefQ2iwIpGagt499",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-07-24T19:49:26.500Z",
+      "started_at": "2026-07-24T19:48:51.055Z",
+      "status": "completed",
+      "ended_at": "2026-07-24T19:49:26.500Z",
+      "elapsed_ms": 35445
+    },
+    "todo:6": {
+      "task_key": "todo:6",
+      "task_label": "6",
+      "task_title": "Align Construction results cards with Thermal result style pattern",
+      "session_id": "opencode:ses_06a52c792ffeSOlXYQUrVSjI0h",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-07-24T19:52:15.123Z",
+      "started_at": "2026-07-24T19:51:36.713Z",
+      "status": "completed",
+      "ended_at": "2026-07-24T19:52:15.123Z",
+      "elapsed_ms": 38410
+    },
+    "todo:7": {
+      "task_key": "todo:7",
+      "task_label": "7",
+      "task_title": "Improve delete layer button affordance without changing behavior",
+      "session_id": "opencode:ses_06a5015b0ffeuXP0v3v33ulJZM",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-07-24T19:54:28.459Z",
+      "started_at": "2026-07-24T19:54:04.836Z",
+      "status": "completed",
+      "ended_at": "2026-07-24T19:54:28.459Z",
+      "elapsed_ms": 23623
+    }
+  },
+  "agent": "atlas"
 }
