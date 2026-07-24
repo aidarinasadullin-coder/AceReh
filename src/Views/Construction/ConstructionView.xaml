@@ -258,7 +258,9 @@
                                 <shared:ConstructionVisualizationView
                                     SourceLayersAbovePipe="{Binding TemplatePreviewLayersAbovePipe}"
                                     SourceLayersBelowPipe="{Binding TemplatePreviewLayersBelowPipe}"
-                                    CompactMode="True"/>
+                                    CompactMode="True"
+                                    MaxVisualizationHeight="180"
+                                    OverflowMode="CompressLowerLayers"/>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -413,7 +415,9 @@
                                Style="{StaticResource Text.H4}"
                                Foreground="{DynamicResource RehauBlackBrush}"
                                Margin="0,0,0,8"/>
-                    <shared:ConstructionVisualizationView DataContext="{Binding}"/>
+                    <shared:ConstructionVisualizationView DataContext="{Binding}"
+                                                           MaxVisualizationHeight="300"
+                                                           OverflowMode="CompressLowerLayers"/>
                 </StackPanel>
             </Border>
 
