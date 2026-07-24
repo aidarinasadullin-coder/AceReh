@@ -10,6 +10,22 @@ using SnowMeltingCalculator.Models.Construction;
 namespace SnowMeltingCalculator.Services.Visualization
 {
     /// <summary>
+    /// Режим обработки переполнения высоты визуализации
+    /// </summary>
+    public enum ScaleOverflowMode
+    {
+        /// <summary>
+        /// Без ограничения — поведение как раньше (неограниченная высота canvas)
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Сжимать нижние слои при превышении MaxVisualizationHeight
+        /// </summary>
+        CompressLowerLayers
+    }
+
+    /// <summary>
     /// Параметры визуализации конструкции
     /// </summary>
     public class ConstructionVisualizationParameters
@@ -58,6 +74,17 @@ namespace SnowMeltingCalculator.Services.Visualization
         /// Доступная высота для автомасштабирования. Используется, если FixedScaleFactor не задан.
         /// </summary>
         public double? CanvasAvailableHeight { get; set; }
+
+        /// <summary>
+        /// Максимальная высота визуализации в пикселях. Если задана и OverflowMode = CompressLowerLayers,
+        /// нижние слои сжимаются чтобы уложиться в лимит. Верхние слои и зона трубы не сжимаются.
+        /// </summary>
+        public double? MaxVisualizationHeight { get; set; }
+
+        /// <summary>
+        /// Режим обработки переполнения высоты. По умолчанию None — поведение как раньше.
+        /// </summary>
+        public ScaleOverflowMode OverflowMode { get; set; } = ScaleOverflowMode.None;
     }
 
     /// <summary>
@@ -101,6 +128,17 @@ namespace SnowMeltingCalculator.Services.Visualization
         private double LabelsHeight(bool compact) => compact ? CompactLabelsHeight : NormalLabelsHeight;
 
         /// <summary>
+        /// Информация о распределении высоты для одного слоя при bounded-режиме
+        /// </summary>
+        private struct LayerRenderInfo
+        {
+            public Layer Layer;
+            public double RenderedHeight;
+            public double Thickness;
+            public bool IsCompressed;
+        }
+
+        /// <summary>
         /// Отрисовать конструкцию на Canvas
         /// </summary>
         /// <param name="canvas">Целевой Canvas</param>
@@ -120,7 +158,6 @@ namespace SnowMeltingCalculator.Services.Visualization
                 return;
 
             var compact = parameters.CompactMode;
-            var pipeRadius = PipeRadius(compact);
             var minLayerHeight = MinLayerHeight(compact);
             var margin = CanvasMargin(compact);
             var labelsHeight = LabelsHeight(compact);
@@ -128,11 +165,65 @@ namespace SnowMeltingCalculator.Services.Visualization
             var layersAbove = parameters.LayersAbovePipe.OrderByDescending(l => l.Order).ToList();
             var layersBelow = parameters.LayersBelowPipe.OrderBy(l => l.Order).ToList();
 
-            var scaleFactor = parameters.FixedScaleFactor
+            // Defensive: reject non-finite or non-positive FixedScaleFactor — treat as null (no-op)
+            var fixedScale = parameters.FixedScaleFactor;
+            if (fixedScale.HasValue &&
+                (double.IsNaN(fixedScale.Value) || double.IsInfinity(fixedScale.Value) || fixedScale.Value <= 0))
+            {
+                fixedScale = null;
+            }
+
+            // Preferred base scale — FixedScaleFactor is only a starting point;
+            // bounded height policy can still override it (task 4).
+            var baseScale = fixedScale
                 ?? CalculateScaleFactor(layersAbove, layersBelow, parameters.CanvasAvailableHeight, margin, labelsHeight, compact);
 
-            var totalAbove = layersAbove.Sum(l => Math.Max(l.Thickness * scaleFactor, minLayerHeight));
-            var totalBelow = layersBelow.Sum(l => Math.Max(l.Thickness * scaleFactor, minLayerHeight));
+            // Defensive: reject non-finite or non-positive MaxVisualizationHeight — treat as null (no-op)
+            var maxVisHeight = parameters.MaxVisualizationHeight;
+            if (maxVisHeight.HasValue &&
+                (double.IsNaN(maxVisHeight.Value) || double.IsInfinity(maxVisHeight.Value) || maxVisHeight.Value <= 0))
+            {
+                maxVisHeight = null;
+            }
+
+            // Determine if bounded mode is active
+            var boundedMode = maxVisHeight is not null
+                              && parameters.OverflowMode == ScaleOverflowMode.CompressLowerLayers;
+
+            // Allocate layer heights
+            List<LayerRenderInfo> aboveInfos;
+            List<LayerRenderInfo> belowInfos;
+            double totalAbove;
+            double totalBelow;
+            bool anyCompressed;
+
+            if (maxVisHeight is not null && boundedMode)
+            {
+                AllocateBoundedHeights(layersAbove, layersBelow, baseScale, minLayerHeight,
+                    margin, labelsHeight, maxVisHeight.Value,
+                    out aboveInfos, out belowInfos, out totalAbove, out totalBelow, out anyCompressed);
+            }
+            else
+            {
+                aboveInfos = layersAbove.Select(l => new LayerRenderInfo
+                {
+                    Layer = l,
+                    RenderedHeight = Math.Max(l.Thickness * baseScale, minLayerHeight),
+                    Thickness = l.Thickness,
+                    IsCompressed = false
+                }).ToList();
+                belowInfos = layersBelow.Select(l => new LayerRenderInfo
+                {
+                    Layer = l,
+                    RenderedHeight = Math.Max(l.Thickness * baseScale, minLayerHeight),
+                    Thickness = l.Thickness,
+                    IsCompressed = false
+                }).ToList();
+                totalAbove = aboveInfos.Sum(i => i.RenderedHeight);
+                totalBelow = belowInfos.Sum(i => i.RenderedHeight);
+                anyCompressed = false;
+            }
+
             var totalHeight = totalAbove + totalBelow + 2 * margin + labelsHeight;
 
             canvas.Height = totalHeight;
@@ -151,13 +242,13 @@ namespace SnowMeltingCalculator.Services.Visualization
 
             var baseY = totalAbove + margin; // Позиция y=0 (ось труб) в координатах Canvas
 
-            // === Фаза 1: Слои над трубой ===
+            // === Фаза 1: Слои над трубой (всегда нормальный масштаб) ===
             var currentY = baseY;
-            foreach (var layer in layersAbove)
+            foreach (var info in aboveInfos)
             {
-                var layerHeight = Math.Max(layer.Thickness * scaleFactor, minLayerHeight);
-                DrawLayer(canvas, width, currentY - layerHeight, layerHeight, layer.Material, layer.Thickness, compact);
-                currentY -= layerHeight;
+                DrawLayer(canvas, width, currentY - info.RenderedHeight, info.RenderedHeight,
+                    info.Layer.Material, info.Layer.Thickness, compact);
+                currentY -= info.RenderedHeight;
             }
 
             // Подпись "Поверхность"
@@ -175,13 +266,24 @@ namespace SnowMeltingCalculator.Services.Visualization
                 canvas.Children.Add(surfaceLabel);
             }
 
-            // === Фаза 2: Слои под трубой ===
+            // === Фаза 2: Слои под трубой (возможно сжатие нижних) ===
             currentY = baseY;
-            foreach (var layer in layersBelow)
+            var firstCompressedY = -1.0;
+            foreach (var info in belowInfos)
             {
-                var layerHeight = Math.Max(layer.Thickness * scaleFactor, minLayerHeight);
-                DrawLayer(canvas, width, currentY, layerHeight, layer.Material, layer.Thickness, compact);
-                currentY += layerHeight;
+                if (info.IsCompressed && firstCompressedY < 0)
+                {
+                    firstCompressedY = currentY;
+                }
+                DrawLayer(canvas, width, currentY, info.RenderedHeight,
+                    info.Layer.Material, info.Layer.Thickness, compact);
+                currentY += info.RenderedHeight;
+            }
+
+            // Маркер сжатия "не в масштабе"
+            if (anyCompressed && firstCompressedY >= 0)
+            {
+                DrawCompressionMarker(canvas, width, firstCompressedY, compact);
             }
 
             // Подпись "Грунт"
@@ -199,8 +301,8 @@ namespace SnowMeltingCalculator.Services.Visualization
                 canvas.Children.Add(groundLabel);
             }
 
-            // === Фаза 3: Трубы и размерная линия ===
-            DrawPipesAndDimension(canvas, width, centerX, baseY, parameters.PipeSpacing, scaleFactor, compact, parameters.ShowDimensionLine);
+            // === Фаза 3: Трубы и размерная линия (нормальный масштаб) ===
+            DrawPipesAndDimension(canvas, width, centerX, baseY, parameters.PipeSpacing, baseScale, compact, parameters.ShowDimensionLine);
         }
 
         private double CalculateScaleFactor(
@@ -224,6 +326,120 @@ namespace SnowMeltingCalculator.Services.Visualization
                 return maxScale;
 
             return maxScale * (availableHeight.Value / desiredHeight);
+        }
+
+        /// <summary>
+        /// Детерминированное распределение высот слоёв при ограниченной высоте canvas.
+        /// Верхние слои — всегда нормальный масштаб. Нижние слои — нормальный масштаб
+        /// пока хватает бюджета, затем сжатие до MinLayerHeight.
+        /// </summary>
+        private void AllocateBoundedHeights(
+            List<Layer> layersAbove, List<Layer> layersBelow,
+            double baseScale, double minLayerHeight,
+            double margin, double labelsHeight, double maxHeight,
+            out List<LayerRenderInfo> aboveInfos, out List<LayerRenderInfo> belowInfos,
+            out double totalAbove, out double totalBelow, out bool anyCompressed)
+        {
+            // Верхние слои — всегда нормальный масштаб
+            aboveInfos = layersAbove.Select(l => new LayerRenderInfo
+            {
+                Layer = l,
+                RenderedHeight = Math.Max(l.Thickness * baseScale, minLayerHeight),
+                Thickness = l.Thickness,
+                IsCompressed = false
+            }).ToList();
+            totalAbove = aboveInfos.Sum(i => i.RenderedHeight);
+
+            // Нормальные высоты нижних слоёв
+            var normalBelow = layersBelow.Select(l => Math.Max(l.Thickness * baseScale, minLayerHeight)).ToList();
+            var normalTotalBelow = normalBelow.Sum();
+            var normalTotalHeight = totalAbove + normalTotalBelow + 2 * margin + labelsHeight;
+
+            if (normalTotalHeight <= maxHeight)
+            {
+                // Сжатие не требуется
+                belowInfos = layersBelow.Select((l, i) => new LayerRenderInfo
+                {
+                    Layer = l,
+                    RenderedHeight = normalBelow[i],
+                    Thickness = l.Thickness,
+                    IsCompressed = false
+                }).ToList();
+                totalBelow = normalTotalBelow;
+                anyCompressed = false;
+                return;
+            }
+
+            // Сжатие требуется — найти точку раздела k:
+            // слои 0..k-1 нормальный масштаб, слои k..n-1 сжатые (MinLayerHeight)
+            var compressedHeight = minLayerHeight;
+            var lowerBudget = maxHeight - totalAbove - 2 * margin - labelsHeight;
+            var n = normalBelow.Count;
+
+            // Найти наибольшее k, где sum(normalBelow[0..k-1]) + (n-k)*compressedHeight <= lowerBudget
+            int bestK = 0;
+            double prefixSum = 0;
+            for (int k = 0; k <= n; k++)
+            {
+                var total = prefixSum + (n - k) * compressedHeight;
+                if (total <= lowerBudget)
+                    bestK = k;
+                if (k < n)
+                    prefixSum += normalBelow[k];
+            }
+
+            // Построить belowInfos: первые bestK слоёв нормальные, остальные сжатые
+            belowInfos = new List<LayerRenderInfo>();
+            for (int i = 0; i < n; i++)
+            {
+                var isCompressed = i >= bestK;
+                belowInfos.Add(new LayerRenderInfo
+                {
+                    Layer = layersBelow[i],
+                    RenderedHeight = isCompressed ? compressedHeight : normalBelow[i],
+                    Thickness = layersBelow[i].Thickness,
+                    IsCompressed = isCompressed
+                });
+            }
+            totalBelow = belowInfos.Sum(i => i.RenderedHeight);
+            anyCompressed = bestK < n;
+        }
+
+        /// <summary>
+        /// Нарисовать маркер "не в масштабе" на границе первого сжатого нижнего слоя
+        /// </summary>
+        private void DrawCompressionMarker(Canvas canvas, double canvasWidth, double y, bool compact)
+        {
+            var margin = CanvasMargin(compact);
+            var fontSize = compact ? 7 : 9;
+
+            // Пунктирная линия разрыва на границе сжатия
+            var breakLine = new Line
+            {
+                X1 = margin,
+                Y1 = y,
+                X2 = canvasWidth - margin,
+                Y2 = y,
+                Stroke = Brushes.DarkRed,
+                StrokeThickness = 1.5,
+                StrokeDashArray = new DoubleCollection { 3, 2 }
+            };
+            canvas.Children.Add(breakLine);
+
+            // Подпись "не в масштабе"
+            var markerText = new TextBlock
+            {
+                Text = "не в масштабе",
+                FontSize = fontSize,
+                Foreground = Brushes.DarkRed,
+                FontWeight = FontWeights.Bold,
+                Background = new SolidColorBrush(Color.FromArgb(200, 255, 255, 255)),
+                Padding = new Thickness(3, 1, 3, 1)
+            };
+
+            Canvas.SetLeft(markerText, margin + 2);
+            Canvas.SetTop(markerText, y + 1);
+            canvas.Children.Add(markerText);
         }
 
         private void DrawLayer(Canvas canvas, double canvasWidth, double y, double layerHeight,
@@ -308,6 +524,14 @@ namespace SnowMeltingCalculator.Services.Visualization
 
             double textWidth = formattedText.Width + (compact ? 12 : 16);
             double textHeight = formattedText.Height + (compact ? 4 : 4);
+
+            // Suppress label if the layer is too short to host it without overlap.
+            // This happens for compressed layers (MinLayerHeight) where the two-line
+            // label would be taller than the layer itself.
+            const double labelPadding = 2.0;
+            if (layerHeight < textHeight + labelPadding)
+                return;
+
             double textY = y + layerHeight / 2 - textHeight / 2;
 
             var labelBackground = new Rectangle
