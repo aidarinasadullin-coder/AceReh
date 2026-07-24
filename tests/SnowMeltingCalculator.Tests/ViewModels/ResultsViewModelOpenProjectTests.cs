@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -707,6 +708,608 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             // Assert
             var loadedLayer = constructionVm2.LayersBelowPipe.First();
             Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(loadedLayer.Material.LambdaB).Within(1e-9));
+        }
+
+        [Test]
+        public async Task ResultsViewModel_LoadProject_TwoCollectors_RestoresIndependentSummaryCards()
+        {
+            // Arrange: проект с двумя коллекторами с различными гидравлическими итогами.
+            // Маркеры A/B подобраны так, чтобы TotalPower различался и можно было
+            // однозначно сопоставить карточку с исходным коллектором после загрузки.
+            const double collectorAPower = 22700.0;
+            const double collectorBPower = 20700.0;
+            const double collectorAFlowRate = 1187.93;
+            const double collectorBFlowRate = 1082.93;
+
+            var projectData = new ProjectData
+            {
+                ProjectNumber = "P-TwoCollectorsCards",
+                ProjectObject = "Two Collectors Cards Test",
+                IsOperatingMode = true,
+                ClimateData = new ClimateProjectData(),
+                ConstructionData = new ConstructionProjectData(),
+                ThermalData = new ThermalProjectData(),
+                HydraulicsData = new HydraulicsProjectData
+                {
+                    Collectors = new List<CollectorProjectData>
+                    {
+                        new CollectorProjectData
+                        {
+                            CollectorNumber = 1,
+                            CollectorType = "HKV-D (2-12 контуров)",
+                            ValveType = ValveType.HKV_D,
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
+                                new CircuitProjectData { CircuitNumber = 2, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
+                                new CircuitProjectData { CircuitNumber = 3, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
+                                new CircuitProjectData { CircuitNumber = 4, CircuitLength = 105, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
+                            },
+                            Summary = new CollectorSummaryProjectData
+                            {
+                                CircuitCount = 4,
+                                TotalPipeLength = 435,
+                                TotalPower = collectorAPower,
+                                TotalFlowRate = collectorAFlowRate,
+                                PressureLoss_Operating_Pa = 36914.65,
+                                PressureLoss_Cold_Pa = 125000,
+                                Kv = 1.2,
+                                CollectorType = "HKV-D"
+                            }
+                        },
+                        new CollectorProjectData
+                        {
+                            CollectorNumber = 2,
+                            CollectorType = "HKV-D (2-12 контуров)",
+                            ValveType = ValveType.HKV_D,
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 100, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
+                                new CircuitProjectData { CircuitNumber = 2, CircuitLength = 100, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
+                                new CircuitProjectData { CircuitNumber = 3, CircuitLength = 100, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
+                                new CircuitProjectData { CircuitNumber = 4, CircuitLength = 100, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
+                            },
+                            Summary = new CollectorSummaryProjectData
+                            {
+                                CircuitCount = 4,
+                                TotalPipeLength = 400,
+                                TotalPower = collectorBPower,
+                                TotalFlowRate = collectorBFlowRate,
+                                PressureLoss_Operating_Pa = 29159.16,
+                                PressureLoss_Cold_Pa = 104100,
+                                Kv = 1.2,
+                                CollectorType = "HKV-D"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                CreateConstructionViewModel(),
+                CreateThermalViewModel(),
+                circuitsVm);
+
+            // Act
+            await viewModel.LoadProjectDataAsync(projectData);
+            viewModel.LoadHydraulicsDataOnNavigate();
+
+            // Assert: ResultsViewModel должен экспонировать публичную коллекцию
+            // HydraulicSummaryCards, содержащую по одной карточке на коллектор.
+            // Используем reflection, чтобы тест был валиден (компилируемым) до
+            // появления самого свойства в src/.
+            var prop = typeof(ResultsViewModel).GetProperty(
+                "HydraulicSummaryCards",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            Assert.That(prop, Is.Not.Null,
+                "ResultsViewModel должен экспонировать публичное свойство 'HydraulicSummaryCards'.");
+
+            var value = prop!.GetValue(viewModel);
+            Assert.That(value, Is.Not.Null,
+                "'HydraulicSummaryCards' должен быть инициализирован после LoadHydraulicsDataOnNavigate().");
+
+            var cards = ((System.Collections.IEnumerable)value!).Cast<object>().ToList();
+            Assert.That(cards.Count, Is.EqualTo(2),
+                "HydraulicSummaryCards должен содержать по одной карточке на коллектор.");
+
+            // Сопоставляем карточки с исходными коллекторами по уникальному TotalPower.
+            var byPower = new Dictionary<double, object>();
+            foreach (var card in cards)
+            {
+                var power = GetDoubleProperty(card, "TotalPower");
+                Assert.That(power, Is.Not.Null,
+                    "Каждая карточка должна предоставлять свойство 'TotalPower'.");
+                byPower[power!.Value] = card;
+            }
+
+            Assert.That(byPower.ContainsKey(collectorAPower), Is.True,
+                "HydraulicSummaryCards должен содержать карточку первого коллектора.");
+            Assert.That(byPower.ContainsKey(collectorBPower), Is.True,
+                "HydraulicSummaryCards должен содержать карточку второго коллектора.");
+
+            // Независимость: значения карточки A не должны смешиваться с B и наоборот.
+            AssertCardValues(
+                byPower[collectorAPower],
+                expectedCircuitCount: 4,
+                expectedPipeLength: 435,
+                expectedFlowRate: collectorAFlowRate,
+                expectedOpPressurePa: 36914.65,
+                expectedColdPressurePa: 125000,
+                expectedKv: 1.2);
+            AssertCardValues(
+                byPower[collectorBPower],
+                expectedCircuitCount: 4,
+                expectedPipeLength: 400,
+                expectedFlowRate: collectorBFlowRate,
+                expectedOpPressurePa: 29159.16,
+                expectedColdPressurePa: 104100,
+                expectedKv: 1.2);
+        }
+
+        [Test]
+        public void ResultsPdfData_UsesCircuitRowThrottling_ForZuDrosseln()
+        {
+            // Arrange: один коллектор с контуром, у которого CircuitRow.Throttling
+            // и OperatingResult.ZuDrosseln намеренно различаются. PDF должен
+            // использовать каноническое CircuitRow.Throttling (Па -> кПа).
+            const double circuitThrottlingPa = 12345.0;
+            const double operatingZuDrosselnPa = 99999.0;
+
+            var circuitsVm = CreateCircuitsViewModel();
+            circuitsVm.Collectors.Clear();
+
+            var collector = new CollectorData(1);
+            var circuit = new CircuitRow
+            {
+                CircuitNumber = 1,
+                CircuitLength = 50,
+                Throttling = circuitThrottlingPa
+            };
+            circuit.OperatingResult.ZuDrosseln = operatingZuDrosselnPa;
+            collector.Circuits.Add(circuit);
+            circuitsVm.Collectors.Add(collector);
+
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                CreateConstructionViewModel(),
+                CreateThermalViewModel(),
+                circuitsVm);
+
+            // Act: вызываем private BuildResultsPdfData через reflection.
+            var method = typeof(ResultsViewModel).GetMethod(
+                "BuildResultsPdfData",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.That(method, Is.Not.Null,
+                "BuildResultsPdfData должен существовать как private instance метод.");
+            var pdfData = (ResultsPdfData)method!.Invoke(viewModel, null)!;
+
+            // Assert
+            Assert.That(pdfData.Collectors, Has.Count.EqualTo(1));
+            Assert.That(pdfData.Collectors[0].Circuits, Has.Count.EqualTo(1));
+
+            var circuitPdf = pdfData.Collectors[0].Circuits[0];
+            Assert.That(circuitPdf.ZuDrosseln, Is.EqualTo(circuitThrottlingPa / 1000.0).Within(0.001),
+                "PDF ZuDrosseln должен браться из CircuitRow.Throttling (Па -> кПа), а не из OperatingResult.ZuDrosseln.");
+        }
+
+        [Test]
+        public async Task ResultsViewModel_Reset_ClearsHydraulicSummaryCards()
+        {
+            // Arrange: проект с двумя коллекторами, который заведомо оставляет
+            // HydraulicSummaryCards непустыми и проставляет ненулевые legacy-скаляры
+            // (TotalCircuits / TotalFlowRate / MaxPressureLoss) после LoadHydraulicsDataOnNavigate.
+            var projectData = new ProjectData
+            {
+                ProjectNumber = "P-ResetClear",
+                ProjectObject = "Reset Clear Test",
+                IsOperatingMode = true,
+                ClimateData = new ClimateProjectData(),
+                ConstructionData = new ConstructionProjectData(),
+                ThermalData = new ThermalProjectData(),
+                HydraulicsData = new HydraulicsProjectData
+                {
+                    Collectors = new List<CollectorProjectData>
+                    {
+                        new CollectorProjectData
+                        {
+                            CollectorNumber = 1,
+                            CollectorType = "HKV-D (2-12 контуров)",
+                            ValveType = ValveType.HKV_D,
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
+                                new CircuitProjectData { CircuitNumber = 2, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
+                            },
+                            Summary = new CollectorSummaryProjectData
+                            {
+                                CircuitCount = 2,
+                                TotalPipeLength = 220,
+                                TotalPower = 12000,
+                                TotalFlowRate = 600.5,
+                                PressureLoss_Operating_Pa = 18000,
+                                PressureLoss_Cold_Pa = 60000,
+                                Kv = 1.2,
+                                CollectorType = "HKV-D"
+                            }
+                        },
+                        new CollectorProjectData
+                        {
+                            CollectorNumber = 2,
+                            CollectorType = "HKV-D (2-12 контуров)",
+                            ValveType = ValveType.HKV_D,
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 100, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
+                            },
+                            Summary = new CollectorSummaryProjectData
+                            {
+                                CircuitCount = 1,
+                                TotalPipeLength = 100,
+                                TotalPower = 5000,
+                                TotalFlowRate = 250.25,
+                                PressureLoss_Operating_Pa = 9000,
+                                PressureLoss_Cold_Pa = 30000,
+                                Kv = 1.2,
+                                CollectorType = "HKV-D"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                CreateConstructionViewModel(),
+                CreateThermalViewModel(),
+                circuitsVm);
+
+            // Используем reflection для доступа к HydraulicSummaryCards,
+            // чтобы тест был compile-clean, даже если сигнатура read-model изменится.
+            var cardsProperty = typeof(ResultsViewModel).GetProperty(
+                "HydraulicSummaryCards",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            Assert.That(cardsProperty, Is.Not.Null,
+                "ResultsViewModel должен экспонировать публичное свойство 'HydraulicSummaryCards'.");
+
+            // Act 1: загружаем проект и обновляем гидравлические данные,
+            // как это делает UI при переходе на вкладку Results.
+            await viewModel.LoadProjectDataAsync(projectData);
+            viewModel.LoadHydraulicsDataOnNavigate();
+
+            // Assert 1: после загрузки коллекция карточек непустая и legacy-скаляры
+            // отражают данные выбранного коллектора. Это sanity-проверка, что мы
+            // действительно «зашли» в состояние с заполненной read-model.
+            var cardsBefore = ((System.Collections.IEnumerable)cardsProperty!.GetValue(viewModel)!)
+                .Cast<object>().ToList();
+            Assert.That(cardsBefore.Count, Is.EqualTo(2),
+                "Sanity: после загрузки проекта HydraulicSummaryCards должен содержать 2 карточки.");
+            Assert.That(viewModel.TotalCircuits, Is.GreaterThan(0),
+                "Sanity: TotalCircuits должен быть > 0 после загрузки.");
+            Assert.That(viewModel.TotalFlowRate, Is.GreaterThan(0.0),
+                "Sanity: TotalFlowRate должен быть > 0 после загрузки.");
+            Assert.That(viewModel.MaxPressureLoss, Is.GreaterThan(0.0),
+                "Sanity: MaxPressureLoss должен быть > 0 после загрузки.");
+
+            // Act 2: сбрасываем ViewModel в начальное состояние.
+            // Это та же операция, что вызывается из MainWindow.PerformNewCalculationReset
+            // и из ApplyLoadedProjectAsync перед загрузкой нового проекта.
+            viewModel.Reset();
+
+            // Assert 2: после Reset() коллекция карточек должна быть пустой,
+            // и все legacy-скаляры (TotalCircuits / TotalFlowRate / MaxPressureLoss)
+            // должны быть равны нулю, потому что CollectorSummary сбрасывается в null.
+            var cardsAfter = ((System.Collections.IEnumerable)cardsProperty.GetValue(viewModel)!)
+                .Cast<object>().ToList();
+            Assert.That(cardsAfter, Is.Empty,
+                "HydraulicSummaryCards должен быть пустым после Reset().");
+            Assert.That(viewModel.TotalCircuits, Is.EqualTo(0),
+                "TotalCircuits должен быть 0 после Reset().");
+            Assert.That(viewModel.TotalFlowRate, Is.EqualTo(0.0),
+                "TotalFlowRate должен быть 0 после Reset().");
+            Assert.That(viewModel.MaxPressureLoss, Is.EqualTo(0.0),
+                "MaxPressureLoss должен быть 0 после Reset().");
+        }
+
+        [Test]
+        public async Task ResultsViewModel_EmptyHydraulics_ZeroesKpisAndCards()
+        {
+            // Arrange 1: проект с одним коллектором и ненулевыми гидравлическими итогами,
+            // который заведомо оставляет HydraulicSummaryCards непустыми и проставляет
+            // ненулевые legacy-скаляры (TotalThermalPower_kW / TotalFlowRate /
+            // MaxPressureLoss) после LoadProjectDataAsync.
+            var populated = new ProjectData
+            {
+                ProjectNumber = "P-Populated",
+                ProjectObject = "Populated Hydraulics",
+                IsOperatingMode = true,
+                ClimateData = new ClimateProjectData(),
+                ConstructionData = new ConstructionProjectData(),
+                ThermalData = new ThermalProjectData(),
+                HydraulicsData = new HydraulicsProjectData
+                {
+                    Collectors = new List<CollectorProjectData>
+                    {
+                        new CollectorProjectData
+                        {
+                            CollectorNumber = 1,
+                            CollectorType = "HKV-D (2-12 контуров)",
+                            ValveType = ValveType.HKV_D,
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
+                            },
+                            Summary = new CollectorSummaryProjectData
+                            {
+                                CircuitCount = 1,
+                                TotalPipeLength = 110,
+                                TotalPower = 12000,
+                                TotalFlowRate = 600.5,
+                                PressureLoss_Operating_Pa = 18000,
+                                PressureLoss_Cold_Pa = 60000,
+                                Kv = 1.2,
+                                CollectorType = "HKV-D"
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Arrange 2: проект с пустой HydraulicsData.Collectors — именно он
+            // должен оставить HydraulicSummaryCards пустыми и обнулить все
+            // гидравлические KPI после полного цикла RefreshAll().
+            var empty = new ProjectData
+            {
+                ProjectNumber = "P-Empty",
+                ProjectObject = "Empty Hydraulics",
+                IsOperatingMode = true,
+                ClimateData = new ClimateProjectData(),
+                ConstructionData = new ConstructionProjectData(),
+                ThermalData = new ThermalProjectData(),
+                HydraulicsData = new HydraulicsProjectData() // Collectors = new List<>()
+            };
+
+            var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                CreateConstructionViewModel(),
+                CreateThermalViewModel(),
+                circuitsVm);
+
+            var cardsProperty = typeof(ResultsViewModel).GetProperty(
+                "HydraulicSummaryCards",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            Assert.That(cardsProperty, Is.Not.Null,
+                "ResultsViewModel должен экспонировать публичное свойство 'HydraulicSummaryCards'.");
+
+            // Act 1: загружаем заполненный проект и обновляем гидравлику
+            // тем же путём, что и UI при открытии вкладки Results.
+            await viewModel.LoadProjectDataAsync(populated);
+            viewModel.LoadHydraulicsDataOnNavigate();
+
+            // Assert 1 (sanity): после заполненного проекта KPI и карточки не пусты.
+            // Это гарантирует, что последующие нулевые проверки действительно
+            // измеряют «обнуление stale-состояния», а не «исходно нулевое состояние».
+            var cardsBefore = ((System.Collections.IEnumerable)cardsProperty!.GetValue(viewModel)!)
+                .Cast<object>().ToList();
+            Assert.That(cardsBefore, Is.Not.Empty,
+                "Sanity: HydraulicSummaryCards должен быть непустым после загрузки заполненного проекта.");
+            Assert.That(viewModel.TotalThermalPower_kW, Is.GreaterThan(0.0),
+                "Sanity: TotalThermalPower_kW должен быть > 0 после загрузки заполненного проекта.");
+            Assert.That(viewModel.TotalFlowRate, Is.GreaterThan(0.0),
+                "Sanity: TotalFlowRate должен быть > 0 после загрузки заполненного проекта.");
+            Assert.That(viewModel.MaxPressureLoss, Is.GreaterThan(0.0),
+                "Sanity: MaxPressureLoss должен быть > 0 после загрузки заполненного проекта.");
+
+            // Act 2: загружаем проект с пустыми HydraulicsData.Collectors.
+            // Это НЕ вызывает Reset() (Reset() вызывается в ApplyLoadedProjectAsync,
+            // а мы идём через публичный LoadProjectDataAsync, чтобы протестировать
+            // именно путь RefreshAll() — production-поверхность, которая также
+            // достигается при навигации на вкладку Results после ApplyLoadedProjectAsync).
+            await viewModel.LoadProjectDataAsync(empty);
+            viewModel.LoadHydraulicsDataOnNavigate();
+
+            // Assert 2: после загрузки проекта с пустыми коллекторами
+            // HydraulicSummaryCards и все гидравлические KPI должны быть обнулены.
+            // Без минимального фикса CalculateTotalPower() возвращает ранее
+            // досчитанное значение при `_circuitsViewModel.Collectors.Count == 0`,
+            // поэтому проверка TotalThermalPower_kW ловит regression.
+            var cardsAfter = ((System.Collections.IEnumerable)cardsProperty.GetValue(viewModel)!)
+                .Cast<object>().ToList();
+            Assert.That(cardsAfter, Is.Empty,
+                "HydraulicSummaryCards должен быть пустым после загрузки проекта без коллекторов.");
+            Assert.That(viewModel.TotalThermalPower_kW, Is.EqualTo(0.0),
+                "TotalThermalPower_kW должен быть 0 после загрузки проекта без коллекторов.");
+            Assert.That(viewModel.TotalFlowRate, Is.EqualTo(0.0),
+                "TotalFlowRate должен быть 0 после загрузки проекта без коллекторов.");
+            Assert.That(viewModel.MaxPressureLoss, Is.EqualTo(0.0),
+                "MaxPressureLoss должен быть 0 после загрузки проекта без коллекторов.");
+        }
+
+        /// <summary>
+        /// F5 smoke test (plan «results-hydraulic-card-stale-state.md»,
+        /// final verification wave): грузит реальный файл проекта
+        /// «тест 40.smc» через настоящий <see cref="ProjectFileService"/>
+        /// (без моков) и проверяет, что <c>ResultsViewModel.HydraulicSummaryCards</c>
+        /// содержит две карточки с реальными итогами по коллекторам.
+        /// Тест НЕ требует selector/mode switching: оба коллектора видны
+        /// сразу после LoadProjectDataAsync + LoadHydraulicsDataOnNavigate.
+        /// </summary>
+        [Test]
+        public async Task ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile()
+        {
+            // Arrange: путь к реальному файлу проекта (F5 fixture).
+            const string RealProjectPath = @"D:\IA\ace\Тест\тест 40.smc";
+
+            // Если fixture-файл ещё не подготовлен, тест корректно skip-ается
+            // (а не падает), чтобы F5-проверка оставалась compileable и discoverable
+            // в любом состоянии репозитория. Когда файл появится в «Тест/»,
+            // тест автоматически начнёт валидировать реальные значения.
+            // Создавать файл в «Тест/» запрещено (MUST NOT из задачи).
+            if (!System.IO.File.Exists(RealProjectPath))
+            {
+                Assert.Ignore($"F5 smoke fixture не найден: {RealProjectPath}. " +
+                              "Положите файл «тест 40.smc» в «D:\\IA\\ace\\Тест\\», " +
+                              "и тест начнёт проверять реальные значения.");
+                return;
+            }
+
+            // Act 1: грузим JSON через настоящий ProjectFileService.LoadProjectResultAsync.
+            // Это та же production-поверхность, что использует ResultsViewModel.LoadProjectFromPathAsync.
+            var projectFileService = new ProjectFileService();
+            var loadResult = await projectFileService.LoadProjectResultAsync(RealProjectPath);
+            Assert.That(loadResult.IsSuccess, Is.True,
+                $"ProjectFileService.LoadProjectResultAsync должен успешно прочитать {RealProjectPath}. " +
+                $"Ошибка: {loadResult.Error}");
+            Assert.That(loadResult.Value, Is.Not.Null,
+                "ProjectFileService.LoadProjectResultAsync должен вернуть ненулевой ProjectData.");
+            var projectData = loadResult.Value!;
+
+            // Sanity: fixture должен содержать ровно два коллектора, как указано в задаче.
+            Assert.That(projectData.HydraulicsData, Is.Not.Null,
+                "HydraulicsData должен присутствовать в fixture-файле.");
+            Assert.That(projectData.HydraulicsData.Collectors, Is.Not.Null,
+                "HydraulicsData.Collectors должен быть инициализирован.");
+            Assert.That(projectData.HydraulicsData.Collectors.Count, Is.EqualTo(2),
+                "Fixture «тест 40.smc» должен содержать ровно два коллектора (A и B) с разными итогами.");
+
+            // Act 2: создаём ResultsViewModel тем же fixture-helper, что и остальные тесты,
+            // и загружаем проект через публичный production-путь:
+            // LoadProjectDataAsync (через него же ходит LoadProjectFromPathAsync → ApplyLoadedProjectAsync).
+            // Сразу после — LoadHydraulicsDataOnNavigate(), который перестраивает
+            // HydraulicSummaryCards из _circuitsViewModel.Collectors.
+            var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                CreateConstructionViewModel(),
+                CreateThermalViewModel(),
+                circuitsVm);
+
+            await viewModel.LoadProjectDataAsync(projectData);
+            viewModel.LoadHydraulicsDataOnNavigate();
+
+            // Assert 1: HydraulicSummaryCards должен быть инициализирован и непуст.
+            var cardsProperty = typeof(ResultsViewModel).GetProperty(
+                "HydraulicSummaryCards",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            Assert.That(cardsProperty, Is.Not.Null,
+                "ResultsViewModel должен экспонировать публичное свойство 'HydraulicSummaryCards'.");
+            var cardsEnumerable = (System.Collections.IEnumerable)cardsProperty!.GetValue(viewModel)!;
+            var cards = cardsEnumerable.Cast<object>().ToList();
+
+            Assert.That(cards, Is.Not.Empty,
+                "HydraulicSummaryCards должен содержать карточки после LoadHydraulicsDataOnNavigate.");
+            Assert.That(cards.Count, Is.EqualTo(2),
+                "HydraulicSummaryCards должен содержать ровно 2 карточки — по одной на коллектор (A и B).");
+
+            // Assert 2: каждая карточка должна однозначно идентифицироваться по
+            // TotalPower, как и в regression-тесте плана #1.
+            // В fixture (по спецификации задачи) ожидаются TotalPower = 22700 / 20700.
+            // Если в будущем fixture изменится — собираем словарь, и в конце
+            // проверяем, что обе ожидаемые power-метки присутствуют.
+            const double collectorAPower = 22700.0;
+            const double collectorBPower = 20700.0;
+            const double expectedCollectorALength = 435.0;
+            const double expectedCollectorBLength = 400.0;
+            const double expectedCollectorAFlow = 1187.93;
+            const double expectedCollectorBFlow = 1082.93;
+            const double expectedCollectorAOpPa = 36914.65;
+            const double expectedCollectorBOpPa = 29159.16;
+
+            var byPower = new Dictionary<double, object>();
+            foreach (var card in cards)
+            {
+                var power = GetDoubleProperty(card, "TotalPower");
+                Assert.That(power, Is.Not.Null,
+                    "Каждая HydraulicSummaryCard должна предоставлять свойство 'TotalPower' для идентификации.");
+                byPower[power!.Value] = card;
+            }
+
+            Assert.That(byPower.ContainsKey(collectorAPower), Is.True,
+                $"HydraulicSummaryCards должен содержать карточку коллектора A (TotalPower={collectorAPower}). " +
+                "Если fixture-файл изменился, обновите expected-значения в этом тесте.");
+            Assert.That(byPower.ContainsKey(collectorBPower), Is.True,
+                $"HydraulicSummaryCards должен содержать карточку коллектора B (TotalPower={collectorBPower}). " +
+                "Если fixture-файл изменился, обновите expected-значения в этом тесте.");
+
+            // Assert 3: значения карточек коллекторов A и B должны соответствовать
+            // ожидаемым реальным значениям. Толерантности подобраны по задаче:
+            // length ±0.1 м, flow ±0.01 л/ч, pressure ±0.1 Па. Они достаточно
+            // свободны, чтобы выдержать возможное округление при JSON round-trip,
+            // и при этом достаточно плотные, чтобы поймать подмену карточек.
+            var cardA = byPower[collectorAPower];
+            Assert.That(GetIntProperty(cardA, "CircuitCount"), Is.EqualTo(4),
+                "Card A: CircuitCount должен быть 4 (по fixture «тест 40.smc»).");
+            Assert.That(GetDoubleProperty(cardA, "TotalPipeLength"), Is.EqualTo(expectedCollectorALength).Within(0.1),
+                $"Card A: TotalPipeLength должен быть ≈{expectedCollectorALength} м (по fixture).");
+            Assert.That(GetDoubleProperty(cardA, "TotalFlowRate"), Is.EqualTo(expectedCollectorAFlow).Within(0.01),
+                $"Card A: TotalFlowRate должен быть ≈{expectedCollectorAFlow} л/ч (по fixture).");
+            Assert.That(GetDoubleProperty(cardA, "PressureLoss_Operating_Pa"), Is.EqualTo(expectedCollectorAOpPa).Within(0.1),
+                $"Card A: OperatingPressureLossPa должен быть ≈{expectedCollectorAOpPa} Па (по fixture).");
+
+            var cardB = byPower[collectorBPower];
+            Assert.That(GetIntProperty(cardB, "CircuitCount"), Is.EqualTo(4),
+                "Card B: CircuitCount должен быть 4 (по fixture «тест 40.smc»).");
+            Assert.That(GetDoubleProperty(cardB, "TotalPipeLength"), Is.EqualTo(expectedCollectorBLength).Within(0.1),
+                $"Card B: TotalPipeLength должен быть ≈{expectedCollectorBLength} м (по fixture).");
+            Assert.That(GetDoubleProperty(cardB, "TotalFlowRate"), Is.EqualTo(expectedCollectorBFlow).Within(0.01),
+                $"Card B: TotalFlowRate должен быть ≈{expectedCollectorBFlow} л/ч (по fixture).");
+            Assert.That(GetDoubleProperty(cardB, "PressureLoss_Operating_Pa"), Is.EqualTo(expectedCollectorBOpPa).Within(0.1),
+                $"Card B: OperatingPressureLossPa должен быть ≈{expectedCollectorBOpPa} Па (по fixture).");
+
+            // Assert 4 (smoke-инвариант плана F5): карточки НЕ должны требовать
+            // selector/mode switching — оба коллектора должны быть видны сразу
+            // после LoadProjectDataAsync + LoadHydraulicsDataOnNavigate без
+            // какого-либо выбора/переключения. Это покрывается выше через
+            // Assert.That(cards.Count, Is.EqualTo(2)) без обращения к
+            // SelectedCollectorIndex / IsOperatingMode.
+        }
+
+        private static void AssertCardValues(
+            object card,
+            int expectedCircuitCount,
+            double expectedPipeLength,
+            double expectedFlowRate,
+            double expectedOpPressurePa,
+            double expectedColdPressurePa,
+            double expectedKv)
+        {
+            Assert.That(GetIntProperty(card, "CircuitCount"), Is.EqualTo(expectedCircuitCount),
+                "CircuitCount на HydraulicSummaryCard должен соответствовать коллектору.");
+            Assert.That(GetDoubleProperty(card, "TotalPipeLength"), Is.EqualTo(expectedPipeLength).Within(0.001),
+                "TotalPipeLength на HydraulicSummaryCard должен соответствовать коллектору.");
+            Assert.That(GetDoubleProperty(card, "TotalFlowRate"), Is.EqualTo(expectedFlowRate).Within(0.001),
+                "TotalFlowRate на HydraulicSummaryCard должен соответствовать коллектору.");
+            Assert.That(GetDoubleProperty(card, "PressureLoss_Operating_Pa"), Is.EqualTo(expectedOpPressurePa).Within(0.01),
+                "PressureLoss_Operating_Pa на HydraulicSummaryCard должен соответствовать коллектору.");
+            Assert.That(GetDoubleProperty(card, "PressureLoss_Cold_Pa"), Is.EqualTo(expectedColdPressurePa).Within(0.01),
+                "PressureLoss_Cold_Pa на HydraulicSummaryCard должен соответствовать коллектору.");
+            Assert.That(GetDoubleProperty(card, "Kv"), Is.EqualTo(expectedKv).Within(0.001),
+                "Kv на HydraulicSummaryCard должен соответствовать коллектору.");
+        }
+
+        private static double? GetDoubleProperty(object obj, string name)
+        {
+            var p = obj.GetType().GetProperty(
+                name,
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            if (p == null) return null;
+            var v = p.GetValue(obj);
+            if (v == null) return null;
+            return Convert.ToDouble(v, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        private static int? GetIntProperty(object obj, string name)
+        {
+            var p = obj.GetType().GetProperty(
+                name,
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            if (p == null) return null;
+            var v = p.GetValue(obj);
+            if (v == null) return null;
+            return Convert.ToInt32(v, System.Globalization.CultureInfo.InvariantCulture);
         }
 
 

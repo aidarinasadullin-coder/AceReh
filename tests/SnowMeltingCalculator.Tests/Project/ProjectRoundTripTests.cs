@@ -382,6 +382,120 @@ namespace SnowMeltingCalculator.Tests.Project
             }
         }
 
+        [Test]
+        public async Task ProjectRoundTrip_TwoCollectors_PreservesPerCollectorSummaries()
+        {
+            // Two collectors share the common summary fields (CircuitCount, Kv, CollectorType, ValveType)
+            // but differ in numeric summary values (length/power/flow/pressure). If the save/load pipeline
+            // collapses summaries to a single shared instance, swaps the two collectors, or drops the
+            // per-collector Summary, the assertions below will fail.
+            var data = new ProjectData
+            {
+                Version = "1.0",
+                HydraulicsData = new HydraulicsProjectData
+                {
+                    Collectors = new List<CollectorProjectData>
+                    {
+                        new CollectorProjectData
+                        {
+                            CollectorNumber = 1,
+                            CollectorType = "HKV-D",
+                            ValveType = ValveType.HKV_D,
+                            Summary = new CollectorSummaryProjectData
+                            {
+                                CircuitCount = 4,
+                                TotalPipeLength = 435,
+                                TotalPower = 22700,
+                                TotalFlowRate = 1187.93,
+                                PressureLoss_Operating_Pa = 36914.65,
+                                PressureLoss_Cold_Pa = 125000,
+                                Kv = 1.2,
+                                CollectorType = "HKV-D"
+                            }
+                        },
+                        new CollectorProjectData
+                        {
+                            CollectorNumber = 2,
+                            CollectorType = "HKV-D",
+                            ValveType = ValveType.HKV_D,
+                            Summary = new CollectorSummaryProjectData
+                            {
+                                CircuitCount = 4,
+                                TotalPipeLength = 400,
+                                TotalPower = 20700,
+                                TotalFlowRate = 1082.93,
+                                PressureLoss_Operating_Pa = 29159.16,
+                                PressureLoss_Cold_Pa = 104100,
+                                Kv = 1.2,
+                                CollectorType = "HKV-D"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"t10-twocollectors-{Guid.NewGuid()}.smc");
+            try
+            {
+                var saved = await _service.SaveProjectAsync(tempPath, data);
+                Assert.That(saved, Is.True);
+
+                var loaded = await _service.LoadProjectAsync(tempPath);
+                Assert.That(loaded, Is.Not.Null);
+
+                var collectors = loaded!.HydraulicsData.Collectors;
+                Assert.That(collectors, Has.Count.EqualTo(2),
+                    "Both collectors must round-trip through save/load");
+
+                // Key collectors by TotalPower so the test catches both
+                // "summaries collapsed onto one collector" and "summaries swapped between collectors".
+                var collectorA = collectors.FirstOrDefault(c => c.Summary?.TotalPower == 22700);
+                var collectorB = collectors.FirstOrDefault(c => c.Summary?.TotalPower == 20700);
+
+                Assert.That(collectorA, Is.Not.Null,
+                    "Collector A (TotalPower=22700) must be present in the loaded project");
+                Assert.That(collectorB, Is.Not.Null,
+                    "Collector B (TotalPower=20700) must be present in the loaded project");
+
+                Assert.That(collectorA!.Summary, Is.Not.Null,
+                    "Collector A summary must be preserved (not collapsed to null)");
+                Assert.That(collectorB!.Summary, Is.Not.Null,
+                    "Collector B summary must be preserved (not collapsed to null)");
+
+                // Collector-level fields
+                Assert.That(collectorA.CollectorNumber, Is.EqualTo(1));
+                Assert.That(collectorA.CollectorType, Is.EqualTo("HKV-D"));
+                Assert.That(collectorA.ValveType, Is.EqualTo(ValveType.HKV_D));
+                Assert.That(collectorB.CollectorNumber, Is.EqualTo(2));
+                Assert.That(collectorB.CollectorType, Is.EqualTo("HKV-D"));
+                Assert.That(collectorB.ValveType, Is.EqualTo(ValveType.HKV_D));
+
+                // Collector A summary: full field check
+                Assert.That(collectorA.Summary!.CircuitCount, Is.EqualTo(4));
+                Assert.That(collectorA.Summary.TotalPipeLength, Is.EqualTo(435));
+                Assert.That(collectorA.Summary.TotalPower, Is.EqualTo(22700));
+                Assert.That(collectorA.Summary.TotalFlowRate, Is.EqualTo(1187.93).Within(0.001));
+                Assert.That(collectorA.Summary.PressureLoss_Operating_Pa, Is.EqualTo(36914.65).Within(0.01));
+                Assert.That(collectorA.Summary.PressureLoss_Cold_Pa, Is.EqualTo(125000).Within(0.01));
+                Assert.That(collectorA.Summary.Kv, Is.EqualTo(1.2).Within(0.001));
+                Assert.That(collectorA.Summary.CollectorType, Is.EqualTo("HKV-D"));
+
+                // Collector B summary: full field check
+                Assert.That(collectorB.Summary!.CircuitCount, Is.EqualTo(4));
+                Assert.That(collectorB.Summary.TotalPipeLength, Is.EqualTo(400));
+                Assert.That(collectorB.Summary.TotalPower, Is.EqualTo(20700));
+                Assert.That(collectorB.Summary.TotalFlowRate, Is.EqualTo(1082.93).Within(0.001));
+                Assert.That(collectorB.Summary.PressureLoss_Operating_Pa, Is.EqualTo(29159.16).Within(0.01));
+                Assert.That(collectorB.Summary.PressureLoss_Cold_Pa, Is.EqualTo(104100).Within(0.01));
+                Assert.That(collectorB.Summary.Kv, Is.EqualTo(1.2).Within(0.001));
+                Assert.That(collectorB.Summary.CollectorType, Is.EqualTo("HKV-D"));
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
+        }
+
         private static void AssertDetailFieldsEqual(CircuitResultProjectData expected, CircuitResultProjectData actual)
         {
             Assert.That(actual.FlowRegimeString, Is.EqualTo(expected.FlowRegimeString));

@@ -173,6 +173,126 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(_calculationContext.Climate, Is.Not.Null);
         }
 
+        [Test]
+        public async Task NewCalculation_AfterLoadedHydraulics_ClearsResultsHydraulicSummaryCards()
+        {
+            // Arrange: загружаем в ResultsViewModel проект с двумя коллекторами,
+            // который заполняет HydraulicSummaryCards и проставляет ненулевые
+            // legacy-скаляры (TotalCircuits / TotalFlowRate / MaxPressureLoss).
+            // LoadProjectDataAsync вызывает MarkClean в конце, поэтому NewCalculation
+            // пойдёт по «clean»-ветке без диалога и сразу выполнит PerformNewCalculationReset.
+            var projectData = new ProjectData
+            {
+                ProjectNumber = "P-NewCalcClear",
+                ProjectObject = "New Calc Clear Test",
+                IsOperatingMode = true,
+                ClimateData = new ClimateProjectData(),
+                ConstructionData = new ConstructionProjectData(),
+                ThermalData = new ThermalProjectData(),
+                HydraulicsData = new HydraulicsProjectData
+                {
+                    Collectors = new List<CollectorProjectData>
+                    {
+                        new CollectorProjectData
+                        {
+                            CollectorNumber = 1,
+                            CollectorType = "HKV-D (2-12 контуров)",
+                            ValveType = ValveType.HKV_D,
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
+                                new CircuitProjectData { CircuitNumber = 2, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
+                            },
+                            Summary = new CollectorSummaryProjectData
+                            {
+                                CircuitCount = 2,
+                                TotalPipeLength = 220,
+                                TotalPower = 12000,
+                                TotalFlowRate = 600.5,
+                                PressureLoss_Operating_Pa = 18000,
+                                PressureLoss_Cold_Pa = 60000,
+                                Kv = 1.2,
+                                CollectorType = "HKV-D"
+                            }
+                        },
+                        new CollectorProjectData
+                        {
+                            CollectorNumber = 2,
+                            CollectorType = "HKV-D (2-12 контуров)",
+                            ValveType = ValveType.HKV_D,
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 100, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
+                            },
+                            Summary = new CollectorSummaryProjectData
+                            {
+                                CircuitCount = 1,
+                                TotalPipeLength = 100,
+                                TotalPower = 5000,
+                                TotalFlowRate = 250.25,
+                                PressureLoss_Operating_Pa = 9000,
+                                PressureLoss_Cold_Pa = 30000,
+                                Kv = 1.2,
+                                CollectorType = "HKV-D"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var resultsVm = _viewModel.ResultsViewModel;
+
+            // Reflection-доступ к HydraulicSummaryCards, чтобы тест оставался
+            // compile-clean независимо от точной сигнатуры read-model.
+            var cardsProperty = typeof(ResultsViewModel).GetProperty(
+                "HydraulicSummaryCards",
+                BindingFlags.Public | BindingFlags.Instance);
+            Assert.That(cardsProperty, Is.Not.Null,
+                "ResultsViewModel должен экспонировать публичное свойство 'HydraulicSummaryCards'.");
+
+            // Act 1: загружаем проект и обновляем гидравлические данные,
+            // как это делает UI при переходе на вкладку Results.
+            await resultsVm.LoadProjectDataAsync(projectData);
+            resultsVm.LoadHydraulicsDataOnNavigate();
+
+            // Assert 1: после загрузки коллекция карточек непустая и legacy-скаляры
+            // отражают данные выбранного коллектора. Sanity-проверка, что мы
+            // действительно «зашли» в состояние с заполненной read-model.
+            var cardsBefore = ((System.Collections.IEnumerable)cardsProperty!.GetValue(resultsVm)!)
+                .Cast<object>().ToList();
+            Assert.That(cardsBefore.Count, Is.EqualTo(2),
+                "Sanity: после загрузки проекта HydraulicSummaryCards должен содержать 2 карточки.");
+            Assert.That(resultsVm.TotalCircuits, Is.GreaterThan(0),
+                "Sanity: TotalCircuits должен быть > 0 после загрузки.");
+            Assert.That(resultsVm.TotalFlowRate, Is.GreaterThan(0.0),
+                "Sanity: TotalFlowRate должен быть > 0 после загрузки.");
+            Assert.That(resultsVm.MaxPressureLoss, Is.GreaterThan(0.0),
+                "Sanity: MaxPressureLoss должен быть > 0 после загрузки.");
+
+            // Sanity: после LoadProjectDataAsync проект помечается Clean,
+            // иначе NewCalculation пошёл бы по dialog-ветке и тест потерял бы детерминированность.
+            Assert.That(_projectStateService.IsDirty, Is.False,
+                "Sanity: после LoadProjectDataAsync проект должен быть Clean.");
+
+            // Act 2: NewCalculation (clean-ветка → без диалога → PerformNewCalculationReset).
+            await _viewModel.NewCalculationCommand.ExecuteAsync(null);
+
+            // Assert 2: после NewCalculation коллекция карточек должна быть пустой,
+            // и все legacy-скаляры должны быть нулевыми. Если хоть один из этих
+            // инвариантов нарушен — значит PerformNewCalculationReset оставил
+            // в ResultsViewModel «залипшее» состояние из предыдущего расчёта.
+            var cardsAfter = ((System.Collections.IEnumerable)cardsProperty.GetValue(resultsVm)!)
+                .Cast<object>().ToList();
+            Assert.That(cardsAfter, Is.Empty,
+                "HydraulicSummaryCards должен быть пустым после NewCalculation.");
+            Assert.That(resultsVm.TotalCircuits, Is.EqualTo(0),
+                "TotalCircuits должен быть 0 после NewCalculation.");
+            Assert.That(resultsVm.TotalFlowRate, Is.EqualTo(0.0),
+                "TotalFlowRate должен быть 0 после NewCalculation.");
+            Assert.That(resultsVm.MaxPressureLoss, Is.EqualTo(0.0),
+                "MaxPressureLoss должен быть 0 после NewCalculation.");
+        }
+
         #endregion
 
         #region WindowTitle
