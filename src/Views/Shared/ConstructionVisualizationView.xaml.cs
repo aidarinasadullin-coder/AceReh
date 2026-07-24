@@ -43,6 +43,38 @@ namespace SnowMeltingCalculator.Views.Shared
             view.DrawConstruction();
         }
 
+        public bool? ShowDimensionLine
+        {
+            get => (bool?)GetValue(ShowDimensionLineProperty);
+            set => SetValue(ShowDimensionLineProperty, value);
+        }
+
+        public static readonly DependencyProperty ShowDimensionLineProperty =
+            DependencyProperty.Register(
+                nameof(ShowDimensionLine),
+                typeof(bool?),
+                typeof(ConstructionVisualizationView),
+                new PropertyMetadata(null, OnVisualizationOverrideChanged));
+
+        public double? FixedScaleFactor
+        {
+            get => (double?)GetValue(FixedScaleFactorProperty);
+            set => SetValue(FixedScaleFactorProperty, value);
+        }
+
+        public static readonly DependencyProperty FixedScaleFactorProperty =
+            DependencyProperty.Register(
+                nameof(FixedScaleFactor),
+                typeof(double?),
+                typeof(ConstructionVisualizationView),
+                new PropertyMetadata(null, OnVisualizationOverrideChanged));
+
+        private static void OnVisualizationOverrideChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var view = (ConstructionVisualizationView)d;
+            view.DrawConstruction();
+        }
+
         #endregion
 
         #region Source Layers Dependency Properties
@@ -214,7 +246,8 @@ namespace SnowMeltingCalculator.Views.Shared
                     LayersBelowPipe = below,
                     PipeSpacing = _viewModel?.PipeSpacing ?? 200,
                     CompactMode = CompactMode,
-                    ShowDimensionLine = !CompactMode,
+                    ShowDimensionLine = ShowDimensionLine ?? !CompactMode,
+                    FixedScaleFactor = FixedScaleFactor,
                     CanvasAvailableHeight = ActualHeight > 0 ? ActualHeight : null
                 };
 
