@@ -57,6 +57,16 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         [ObservableProperty]
         private ObservableCollection<CollectorData> _collectors = new();
 
+        /// <summary>
+        /// Карточки итогов гидравлики по всем коллекторам (для отображения в Hydraulics).
+        /// </summary>
+        /// <remarks>
+        /// Заполняется через RebuildHydraulicSummaryCards() из Collectors.
+        /// Каждая карточка — снимок CollectorData.Summary + CollectorNumber + CollectorTypeDisplayWithCount.
+        /// </remarks>
+        [ObservableProperty]
+        private ObservableCollection<CollectorHydraulicSummaryCard> _hydraulicSummaryCards = new();
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(SelectedCollector))]
         [NotifyPropertyChangedFor(nameof(Summary))]
@@ -438,6 +448,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 }
 
                 PublishHydraulicsSummaries();
+                RebuildHydraulicSummaryCards();
             }
             finally
             {
@@ -474,6 +485,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 OnPropertyChanged(nameof(KvValue));
 
                 PublishHydraulicsSummaries();
+                RebuildHydraulicSummaryCards();
             }
             finally
             {
@@ -639,6 +651,20 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             _calculationContext.UpdateHydraulics(summaries, "CircuitsViewModel");
         }
 
+        /// <summary>
+        /// Перестроить канонический read-model карточек итогов гидравлики по всем коллекторам.
+        /// </summary>
+        private void RebuildHydraulicSummaryCards()
+        {
+            HydraulicSummaryCards.Clear();
+
+            foreach (var collector in Collectors)
+            {
+                if (collector == null) continue;
+                HydraulicSummaryCards.Add(new CollectorHydraulicSummaryCard(collector));
+            }
+        }
+
         [RelayCommand]
         private void SwitchMode()
         {
@@ -663,6 +689,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 SetInputData(new HydraulicInputData());
                 AddCollector();
                 CurrentMode = HydraulicMode.OperatingTemperature;
+                RebuildHydraulicSummaryCards();
             }
             finally
             {
@@ -797,6 +824,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             {
                 _markDirtyService.MarkDirty();
             }
+
+            RebuildHydraulicSummaryCards();
         }
 
         /// <summary>

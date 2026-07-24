@@ -62,47 +62,55 @@ namespace SnowMeltingCalculator.Services.Results
                 container.Page(page =>
                 {
                     page.Size(PageSizes.A4.Landscape());
-                    page.Margin(40, Unit.Point);
-                    page.DefaultTextStyle(x => x.FontSize(9).FontFamily("Arial"));
-
-                    // Header на каждой странице
+                    page.Margin(30, Unit.Point);
+                    page.DefaultTextStyle(x => x.FontSize(8).FontFamily("Arial"));
                     page.Header().Element(e => BuildPageHeader(e, data));
-
-                    // Основной контент
-                    page.Content().Column(column =>
-                    {
-                        // Project Info (под шапкой)
-                        column.Item().Element(e => BuildProjectInfoSection(e, data));
-
-                        column.Item().PaddingVertical(8);
-
-                        // KPI блок
-                        column.Item().Element(e => BuildKpiSection(e, data));
-
-                        column.Item().PaddingVertical(8);
-
-                        // Исходные данные + Конструкция (две колонки)
-                        column.Item().Row(row =>
-                        {
-                            row.RelativeItem().Element(e => BuildClimateSection(e, data));
-                            row.ConstantItem(15);
-                            row.RelativeItem().Element(e => BuildConstructionSection(e, data));
-                        });
-
-                        column.Item().PaddingVertical(8);
-
-                        // Гидравлический расчёт
-                        column.Item().Element(e => BuildHydraulicsSection(e, data));
-
-                        column.Item().PaddingVertical(8);
-
-                        // Оборудование
-                        column.Item().Element(e => BuildEquipmentSection(e, data));
-                    });
-
-                    // Footer
+                    page.Content().Element(e => BuildDashboardPage(e, data));
                     page.Footer().Element(e => BuildFooter(e));
                 });
+
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4.Landscape());
+                    page.Margin(30, Unit.Point);
+                    page.DefaultTextStyle(x => x.FontSize(8).FontFamily("Arial"));
+                    page.Header().Element(e => BuildPageHeader(e, data));
+                    page.Content().Element(e => BuildHydraulicAppendixPage(e, data));
+                    page.Footer().Element(e => BuildFooter(e));
+                });
+            });
+        }
+
+        private void BuildDashboardPage(IContainer container, ResultsPdfData data)
+        {
+            container.Column(column =>
+            {
+                column.Spacing(6);
+                column.Item().Element(e => BuildProjectInfoSection(e, data));
+                column.Item().Element(e => BuildKpiSection(e, data));
+                column.Item().Row(row =>
+                {
+                    row.RelativeItem(2).Element(e => BuildHydraulicSummarySection(e, data));
+                    row.ConstantItem(10);
+                    row.RelativeItem().Element(e => BuildEquipmentSection(e, data));
+                });
+                column.Item().Row(row =>
+                {
+                    row.RelativeItem(3).Element(e => BuildConstructionSection(e, data));
+                    row.ConstantItem(10);
+                    row.RelativeItem(2).Element(e => BuildClimateSection(e, data));
+                });
+            });
+        }
+
+        private void BuildHydraulicAppendixPage(IContainer container, ResultsPdfData data)
+        {
+            container.Column(column =>
+            {
+                column.Spacing(6);
+                column.Item().Text("Приложение: подробный гидравлический расчёт")
+                    .FontSize(12).Bold().FontColor(HexColor(RehauBlack));
+                column.Item().Element(e => BuildHydraulicsSection(e, data));
             });
         }
 
@@ -159,37 +167,29 @@ namespace SnowMeltingCalculator.Services.Results
 
         private void BuildKpiSection(IContainer container, ResultsPdfData data)
         {
-            container.Column(col =>
+            container.Border(1).BorderColor(HexColor(Gray300)).Background(HexColor(RehauWhite))
+                .Padding(6).Column(col =>
             {
-                // Заголовок
-                col.Item().PaddingBottom(5).Text("КПИ ПОКАЗАТЕЛИ")
-                    .FontSize(12).Bold().FontColor(HexColor(RehauBlack));
+                col.Item().PaddingBottom(4).Text("КПИ ПОКАЗАТЕЛИ")
+                    .FontSize(10).Bold().FontColor(HexColor(RehauBlack));
 
-                // Сетка 2×4 карточек
                 col.Item().Row(row =>
                 {
-                    // Первая строка KPI
                     row.RelativeItem().Element(e => BuildKpiCard(e, $"{data.TotalThermalPower_kW:F2}", "Мощность, кВт"));
-                    row.ConstantItem(10);
+                    row.ConstantItem(5);
                     row.RelativeItem().Element(e => BuildKpiCard(e, $"{data.SystemVolume_L:F1}", "Объём, л"));
-                    row.ConstantItem(10);
+                    row.ConstantItem(5);
                     row.RelativeItem().Element(e => BuildKpiCard(e, $"{data.PumpFlowRate_m3h:F2}", "Расход насоса, м³/ч"));
-                    row.ConstantItem(10);
+                    row.ConstantItem(5);
                     row.RelativeItem().Element(e => BuildKpiCard(e, $"{data.PumpHead_kPa:F1}", "Напор, кПа"));
-                });
-
-                col.Item().PaddingVertical(5);
-
-                col.Item().Row(row =>
-                {
-                    // Вторая строка KPI
-                    row.RelativeItem().Element(e => BuildKpiCard(e, $"{data.SupplyTemperature:F1}", "Температура подачи, °C"));
-                    row.ConstantItem(10);
+                    row.ConstantItem(5);
+                    row.RelativeItem().Element(e => BuildKpiCard(e, $"{data.SupplyTemperature:F1}", "Подача, °C"));
+                    row.ConstantItem(5);
                     row.RelativeItem().Element(e => BuildKpiCard(e, $"{data.ReturnTemperature:F1}", "Обратки, °C"));
-                    row.ConstantItem(10);
+                    row.ConstantItem(5);
                     row.RelativeItem().Element(e => BuildKpiCard(e, $"{data.OperatingTemperature:F1}", "Рабочая, °C"));
-                    row.ConstantItem(10);
-                    row.RelativeItem().Element(e => BuildKpiCard(e, $"{data.ExpansionTankVolume_L:F1}", "Расширительный бак, л"));
+                    row.ConstantItem(5);
+                    row.RelativeItem().Element(e => BuildKpiCard(e, $"{data.ExpansionTankVolume_L:F1}", "Бак, л"));
                 });
             });
         }
@@ -197,10 +197,10 @@ namespace SnowMeltingCalculator.Services.Results
         private void BuildKpiCard(IContainer container, string value, string label)
         {
             container.Border(1).BorderColor(HexColor(Gray300)).Background(HexColor(RehauWhite))
-                .Padding(8).AlignCenter().Column(col =>
+                .Padding(5).AlignCenter().Column(col =>
             {
-                col.Item().Text(value).FontSize(16).Bold().FontColor(HexColor(RehauTeal));
-                col.Item().Text(label).FontSize(8).FontColor(HexColor(Gray600));
+                col.Item().Text(value).FontSize(12).Bold().FontColor(HexColor(RehauTeal));
+                col.Item().Text(label).FontSize(6).FontColor(HexColor(Gray600));
             });
         }
 
@@ -211,11 +211,43 @@ namespace SnowMeltingCalculator.Services.Results
         private void BuildClimateSection(IContainer container, ResultsPdfData data)
         {
             container.Border(1).BorderColor(HexColor(Gray300)).Background(HexColor(RehauWhite))
-                .Padding(8).Column(col =>
+                .Padding(6).Column(col =>
             {
-                col.Item().Text("Исходные данные").FontSize(11).Bold().FontColor(HexColor(RehauBlack));
-                col.Item().PaddingVertical(5);
+                col.Spacing(3);
+                col.Item().Text("Исходные данные").FontSize(10).Bold().FontColor(HexColor(RehauBlack));
+                col.Item().Element(e => BuildInputSubsection(e, "Климат", new[]
+                {
+                    ("Город", data.City),
+                    ("Расчётная t", $"{data.DesignTemperature:F1} °C"),
+                    ("Ветер", $"{data.WindSpeed:F1} м/с"),
+                    ("Снегопад", $"{data.SnowfallIntensity:F1} мм/ч"),
+                    ("Зона", data.ClimateZone.ToString()),
+                    ("Холодный период", $"{data.ColdPeriodDays} дн.")
+                }));
+                col.Item().Element(e => BuildInputSubsection(e, "Труба и раскладка", new[]
+                {
+                    ("Тип трубы", data.PipeType),
+                    ("Шаг укладки", $"{data.PipeSpacing} мм"),
+                    ("Темп. грунта", $"{data.GroundTemperature:F1} °C")
+                }));
+                col.Item().Element(e => BuildInputSubsection(e, "Режим работы", new[]
+                {
+                    ("Режим", data.OperatingMode.ToString()),
+                    ("Поверхность", $"{data.SurfaceTemperature} °C")
+                }));
+                col.Item().Element(e => BuildInputSubsection(e, "Теплоноситель", new[]
+                {
+                    ("Тип", data.GlycolTypeDisplayName),
+                    ("Концентрация", $"{data.GlycolConcentration:F0} %")
+                }));
+            });
+        }
 
+        private void BuildInputSubsection(IContainer container, string title, IReadOnlyList<(string Label, string Value)> rows)
+        {
+            container.Background(HexColor(Gray50)).Padding(4).Column(col =>
+            {
+                col.Item().Text(title).FontSize(8).SemiBold().FontColor(HexColor(RehauBlack));
                 col.Item().Table(table =>
                 {
                     table.ColumnsDefinition(columns =>
@@ -224,23 +256,11 @@ namespace SnowMeltingCalculator.Services.Results
                         columns.RelativeColumn();
                     });
 
-                    table.Cell().Element(CellStyleLeft).Text("Город:").SemiBold().FontSize(9);
-                    table.Cell().Element(CellStyleRight).Text(data.City).FontSize(9);
-
-                    table.Cell().Element(CellStyleLeft).Text("Расчётная температура:").SemiBold().FontSize(9);
-                    table.Cell().Element(CellStyleRight).Text($"{data.DesignTemperature:F1} °C").FontSize(9);
-
-                    table.Cell().Element(CellStyleLeft).Text("Скорость ветра:").SemiBold().FontSize(9);
-                    table.Cell().Element(CellStyleRight).Text($"{data.WindSpeed:F1} м/с").FontSize(9);
-
-                    table.Cell().Element(CellStyleLeft).Text("Интенсивность снегопада:").SemiBold().FontSize(9);
-                    table.Cell().Element(CellStyleRight).Text($"{data.SnowfallIntensity:F1} мм/ч").FontSize(9);
-
-                    table.Cell().Element(CellStyleLeft).Text("Тип трубы:").SemiBold().FontSize(9);
-                    table.Cell().Element(CellStyleRight).Text(data.PipeType).FontSize(9);
-
-                    table.Cell().Element(CellStyleLeft).Text("Шаг укладки:").SemiBold().FontSize(9);
-                    table.Cell().Element(CellStyleRight).Text($"{data.PipeSpacing} мм").FontSize(9);
+                    foreach (var row in rows)
+                    {
+                        table.Cell().Element(CellStyleLeft).Text($"{row.Label}:").SemiBold().FontSize(7);
+                        table.Cell().Element(CellStyleRight).Text(row.Value).FontSize(7);
+                    }
                 });
             });
         }
@@ -252,16 +272,16 @@ namespace SnowMeltingCalculator.Services.Results
         private void BuildConstructionSection(IContainer container, ResultsPdfData data)
         {
             container.Border(1).BorderColor(HexColor(Gray300)).Background(HexColor(RehauWhite))
-                .Padding(8).Column(col =>
+                .Padding(6).Column(col =>
             {
-                col.Item().Text("Конструкция").FontSize(11).Bold().FontColor(HexColor(RehauBlack));
-                col.Item().PaddingVertical(5);
+                col.Item().Text("Конструкция").FontSize(10).Bold().FontColor(HexColor(RehauBlack));
+                col.Item().PaddingVertical(3);
 
                 col.Item().Row(row =>
                 {
-                    // Левая колонка: параметры и таблица слоёв
                     row.RelativeItem().Column(leftCol =>
                     {
+                        leftCol.Spacing(3);
                         leftCol.Item().Table(table =>
                         {
                             table.ColumnsDefinition(columns =>
@@ -270,27 +290,28 @@ namespace SnowMeltingCalculator.Services.Results
                                 columns.RelativeColumn();
                             });
 
-                            table.Cell().Element(CellStyleLeft).Text("R1 (над трубой):").SemiBold().FontSize(9);
-                            table.Cell().Element(CellStyleRight).Text($"{data.R1:F4} м²·К/Вт").FontSize(9);
+                            table.Cell().Element(CellStyleLeft).Text("R1 над трубой:").SemiBold().FontSize(7);
+                            table.Cell().Element(CellStyleRight).Text($"{data.R1:F4} м²·К/Вт").FontSize(7);
 
-                            table.Cell().Element(CellStyleLeft).Text("R2 (под трубой):").SemiBold().FontSize(9);
-                            table.Cell().Element(CellStyleRight).Text($"{data.R2:F4} м²·К/Вт").FontSize(9);
+                            table.Cell().Element(CellStyleLeft).Text("R2 под трубой:").SemiBold().FontSize(7);
+                            table.Cell().Element(CellStyleRight).Text($"{data.R2:F4} м²·К/Вт").FontSize(7);
 
-                            table.Cell().Element(CellStyleLeft).Text("LambdaE:").SemiBold().FontSize(9);
-                            table.Cell().Element(CellStyleRight).Text($"{data.LambdaE:F3} Вт/м·К").FontSize(9);
+                            table.Cell().Element(CellStyleLeft).Text("LambdaE:").SemiBold().FontSize(7);
+                            table.Cell().Element(CellStyleRight).Text($"{data.LambdaE:F3} Вт/м·К").FontSize(7);
 
-                            table.Cell().Element(CellStyleLeft).Text("Мощность вверх:").SemiBold().FontSize(9);
-                            table.Cell().Element(CellStyleRight).Text($"{data.PowerUp:F1} Вт/м²").FontSize(9);
+                            table.Cell().Element(CellStyleLeft).Text("q↑ вверх:").SemiBold().FontSize(7);
+                            table.Cell().Element(CellStyleRight).Text($"{data.PowerUp:F1} Вт/м²").FontSize(7).FontColor(HexColor(RehauRed));
 
-                            table.Cell().Element(CellStyleLeft).Text("Мощность вниз:").SemiBold().FontSize(9);
-                            table.Cell().Element(CellStyleRight).Text($"{data.PowerDown:F1} Вт/м²").FontSize(9);
+                            table.Cell().Element(CellStyleLeft).Text("q↓ вниз:").SemiBold().FontSize(7);
+                            table.Cell().Element(CellStyleRight).Text($"{data.PowerDown:F1} Вт/м²").FontSize(7).FontColor(HexColor(RehauTeal));
+
+                            table.Cell().Element(CellStyleLeft).Text("q суммарная:").SemiBold().FontSize(7);
+                            table.Cell().Element(CellStyleRight).Text($"{data.TotalPowerDensity:F1} Вт/м²").FontSize(7).FontColor(HexColor(RehauRed));
                         });
 
                         if (data.Layers.Count > 0)
                         {
-                            leftCol.Item().PaddingVertical(5);
-                            leftCol.Item().Text("Слои конструкции").FontSize(10).SemiBold();
-                            leftCol.Item().PaddingVertical(3);
+                            leftCol.Item().Text("Слои конструкции").FontSize(8).SemiBold();
 
                             leftCol.Item().Table(table =>
                             {
@@ -305,27 +326,26 @@ namespace SnowMeltingCalculator.Services.Results
                                 // Заголовок
                                 table.Header(header =>
                                 {
-                                    header.Cell().Element(HeaderCellStyleSmall).Text("Материал").FontSize(8).Bold();
-                                    header.Cell().Element(HeaderCellStyleSmall).Text("Толщина").FontSize(8).Bold();
-                                    header.Cell().Element(HeaderCellStyleSmall).Text("λ").FontSize(8).Bold();
-                                    header.Cell().Element(HeaderCellStyleSmall).Text("R").FontSize(8).Bold();
+                                    header.Cell().Element(HeaderCellStyleSmall).Text("Материал").FontSize(6).Bold();
+                                    header.Cell().Element(HeaderCellStyleSmall).Text("Толщ.").FontSize(6).Bold();
+                                    header.Cell().Element(HeaderCellStyleSmall).Text("λ").FontSize(6).Bold();
+                                    header.Cell().Element(HeaderCellStyleSmall).Text("R").FontSize(6).Bold();
                                 });
 
                                 foreach (var layer in data.Layers)
                                 {
-                                    table.Cell().Element(CellStyleSmall).Text(layer.MaterialName).FontSize(8);
-                                    table.Cell().Element(CellStyleSmall).Text($"{layer.Thickness:F0}").FontSize(8);
-                                    table.Cell().Element(CellStyleSmall).Text($"{layer.Lambda:F3}").FontSize(8);
-                                    table.Cell().Element(CellStyleSmall).Text($"{layer.R:F4}").FontSize(8);
+                                    table.Cell().Element(CellStyleSmall).Text(layer.MaterialName).FontSize(6);
+                                    table.Cell().Element(CellStyleSmall).Text($"{layer.Thickness:F0}").FontSize(6);
+                                    table.Cell().Element(CellStyleSmall).Text($"{layer.Lambda:F3}").FontSize(6);
+                                    table.Cell().Element(CellStyleSmall).Text($"{layer.R:F4}").FontSize(6);
                                 }
                             });
                         }
                     });
 
-                    // Правая колонка: схема конструкции
                     if (data.ConstructionImageBytes != null)
                     {
-                        row.ConstantItem(220).PaddingLeft(10).AlignCenter().AlignMiddle()
+                        row.ConstantItem(180).PaddingLeft(8).AlignCenter().AlignMiddle()
                             .Image(data.ConstructionImageBytes)
                             .FitArea();
                     }
@@ -336,6 +356,50 @@ namespace SnowMeltingCalculator.Services.Results
         #endregion
 
         #region Hydraulics Section
+
+        private void BuildHydraulicSummarySection(IContainer container, ResultsPdfData data)
+        {
+            container.Border(1).BorderColor(HexColor(Gray300)).Background(HexColor(RehauWhite))
+                .Padding(6).Column(col =>
+            {
+                col.Spacing(4);
+                col.Item().Text("Гидравлический расчёт")
+                    .FontSize(10).Bold().FontColor(HexColor(RehauBlack));
+
+                foreach (var collector in data.Collectors)
+                {
+                    col.Item().Element(e => BuildCollectorSummaryCard(e, collector));
+                }
+            });
+        }
+
+        private void BuildCollectorSummaryCard(IContainer container, CollectorPdfData collector)
+        {
+            var summary = collector.Summary;
+            container.Border(1).BorderColor(HexColor(Gray300)).Background(HexColor(Gray50))
+                .Padding(5).Column(col =>
+            {
+                col.Item().Text($"Коллектор {collector.Number}: {collector.Type}")
+                    .FontSize(8).SemiBold().FontColor(HexColor(RehauBlack));
+                col.Item().PaddingTop(2).Row(row =>
+                {
+                    row.RelativeItem().Column(left =>
+                    {
+                        left.Item().Text($"Контуров: {summary.CircuitCount}").FontSize(7);
+                        left.Item().Text($"Длина: {summary.TotalPipeLength:F1} м").FontSize(7);
+                        left.Item().Text($"Мощность: {summary.TotalPower / 1000:F2} кВт").FontSize(7);
+                        left.Item().Text($"Kv: {summary.Kv:F2}").FontSize(7);
+                    });
+                    row.RelativeItem().Column(right =>
+                    {
+                        right.Item().Text($"Расход: {summary.TotalFlowRate / 1000:F2} м³/ч").FontSize(7);
+                        right.Item().Text($"ΔP рабочая: {summary.PressureLoss_Operating_kPa:F2} кПа").FontSize(7);
+                        right.Item().Text($"ΔP холодная: {summary.PressureLoss_Cold_kPa:F2} кПа").FontSize(7);
+                        right.Item().Text($"Тип: {summary.CollectorType}").FontSize(7);
+                    });
+                });
+            });
+        }
 
         private void BuildHydraulicsSection(IContainer container, ResultsPdfData data)
         {
@@ -438,61 +502,49 @@ namespace SnowMeltingCalculator.Services.Results
         private void BuildEquipmentSection(IContainer container, ResultsPdfData data)
         {
             container.Border(1).BorderColor(HexColor(Gray300)).Background(HexColor(RehauWhite))
-                .Padding(8).Column(col =>
+                .Padding(6).Column(col =>
             {
+                col.Spacing(4);
                 col.Item().Text("ОБОРУДОВАНИЕ")
-                    .FontSize(12).Bold().FontColor(HexColor(RehauBlack));
+                    .FontSize(10).Bold().FontColor(HexColor(RehauBlack));
 
-                col.Item().PaddingVertical(5);
-
-                // Таблица коллекторов
                 col.Item().Table(table =>
                 {
                     table.ColumnsDefinition(columns =>
                     {
-                        columns.ConstantColumn(40);
+                        columns.ConstantColumn(24);
                         columns.RelativeColumn(2);
-                        columns.ConstantColumn(60);
-                        columns.ConstantColumn(80);
-                        columns.ConstantColumn(90);
-                        columns.ConstantColumn(80);
-                        columns.ConstantColumn(60);
+                        columns.ConstantColumn(34);
+                        columns.ConstantColumn(42);
+                        columns.ConstantColumn(42);
                     });
 
-                    // Заголовок
                     table.Header(header =>
                     {
-                        header.Cell().Element(HeaderCellStyle).Text("№").FontSize(9).Bold();
-                        header.Cell().Element(HeaderCellStyle).Text("Тип коллектора").FontSize(9).Bold();
-                        header.Cell().Element(HeaderCellStyle).Text("Контуров").FontSize(9).Bold();
-                        header.Cell().Element(HeaderCellStyle).Text("Мощность, кВт").FontSize(9).Bold();
-                        header.Cell().Element(HeaderCellStyle).Text("Расход, м³/ч").FontSize(9).Bold();
-                        header.Cell().Element(HeaderCellStyle).Text("ΔP, мбар").FontSize(9).Bold();
-                        header.Cell().Element(HeaderCellStyle).Text("Kv").FontSize(9).Bold();
+                        header.Cell().Element(HeaderCellStyleSmall).Text("№").FontSize(6).Bold();
+                        header.Cell().Element(HeaderCellStyleSmall).Text("Тип").FontSize(6).Bold();
+                        header.Cell().Element(HeaderCellStyleSmall).Text("Конт.").FontSize(6).Bold();
+                        header.Cell().Element(HeaderCellStyleSmall).Text("кВт").FontSize(6).Bold();
+                        header.Cell().Element(HeaderCellStyleSmall).Text("м³/ч").FontSize(6).Bold();
                     });
 
                     foreach (var spec in data.CollectorSpecifications)
                     {
-                        table.Cell().Element(CellStyle).Text(spec.Number.ToString()).FontSize(9);
-                        table.Cell().Element(CellStyle).Text(spec.Type).FontSize(9);
-                        table.Cell().Element(CellStyle).Text(spec.CircuitCount.ToString()).FontSize(9);
-                        table.Cell().Element(CellStyle).Text(spec.TotalPower_kW.ToString("F2")).FontSize(9);
-                        table.Cell().Element(CellStyle).Text(spec.TotalFlowRate_m3h.ToString("F2")).FontSize(9);
-                        table.Cell().Element(CellStyle).Text(spec.PressureLoss_mbar.ToString("F1")).FontSize(9);
-                        table.Cell().Element(CellStyle).Text(spec.Kv.ToString("F2")).FontSize(9);
+                        table.Cell().Element(CellStyleSmall).Text(spec.Number.ToString()).FontSize(6);
+                        table.Cell().Element(CellStyleSmall).Text(spec.Type).FontSize(6);
+                        table.Cell().Element(CellStyleSmall).Text(spec.CircuitCount.ToString()).FontSize(6);
+                        table.Cell().Element(CellStyleSmall).Text(spec.TotalPower_kW.ToString("F2")).FontSize(6);
+                        table.Cell().Element(CellStyleSmall).Text(spec.TotalFlowRate_m3h.ToString("F2")).FontSize(6);
                     }
                 });
 
-                col.Item().PaddingVertical(5);
-
-                // Общие итоги
-                col.Item().Background(HexColor(Gray100)).Padding(8).Column(c =>
+                col.Item().Background(HexColor(Gray100)).Padding(5).Column(c =>
                 {
-                    c.Item().Text($"Общая длина труб: {data.TotalPipeLength:F1} м").SemiBold().FontSize(9);
-                    c.Item().Text($"Количество РЗС (коллекторов): {data.RzsCount}").SemiBold().FontSize(9);
-                    c.Item().Text($"Расход насоса: {data.PumpFlowRate_m3h:F2} м³/ч").SemiBold().FontSize(9);
-                    c.Item().Text($"Напор насоса: {data.PumpHead_kPa:F1} кПа").SemiBold().FontSize(9);
-                    c.Item().Text($"Расширительный бак: {data.ExpansionTankVolume_L:F1} л").SemiBold().FontSize(9);
+                    c.Item().Text($"Коллекторы РЗС: {data.RzsCount}").SemiBold().FontSize(7);
+                    c.Item().Text($"Труба: {data.PipeType}").SemiBold().FontSize(7);
+                    c.Item().Text($"Общая длина: {data.TotalPipeLength:F1} м").SemiBold().FontSize(7);
+                    c.Item().Text($"Расширительный бак: {data.ExpansionTankVolume_L:F1} л").SemiBold().FontSize(7);
+                    c.Item().Text($"Насос: Q={data.PumpFlowRate_m3h:F2} м³/ч, H={data.PumpHead_kPa:F1} кПа").SemiBold().FontSize(7);
                 });
             });
         }
