@@ -205,7 +205,7 @@ namespace SnowMeltingCalculator.Tests.Construction
         #region Validate - Material Tests
 
         [Test]
-        public void Validate_ConcreteMaterial_AddsMaxTempWarning()
+        public void Validate_ConcreteMaterial_DoesNotAddMaxTempWarning()
         {
             // Arrange
             var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
@@ -216,11 +216,11 @@ namespace SnowMeltingCalculator.Tests.Construction
             var result = _validator.Validate(construction);
 
             // Assert
-            Assert.That(result.Warnings.Any(w => w.Contains("50") && w.Contains("температура")), Is.True);
+            Assert.That(result.Warnings.Any(w => w.Contains("максимальная температура подачи")), Is.False);
         }
 
         [Test]
-        public void Validate_AsphaltMaterial_AddsMinTempWarning()
+        public void Validate_AsphaltMaterial_DoesNotAddMinTempWarning()
         {
             // Arrange
             var construction = new SnowMeltingCalculator.Models.Construction.Construction { GroundwaterLevel = 2.0 };
@@ -231,7 +231,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var result = _validator.Validate(construction);
 
             // Assert
-            Assert.That(result.Warnings.Any(w => w.Contains("-15") && w.Contains("температур")), Is.True);
+            Assert.That(result.Warnings.Any(w => w.Contains("температур")), Is.False);
         }
 
         #endregion
@@ -301,6 +301,7 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // Assert
             Assert.That(result.Warnings.Any(w => w.Contains("превышает")), Is.True);
+            Assert.That(result.Warnings.Any(w => w.Contains("60") && w.Contains("°C")), Is.True);
         }
 
         [Test]
@@ -316,6 +317,8 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // Assert
             Assert.That(result.IsValid, Is.True);
+            Assert.That(result.Warnings.Any(w => w.Contains("максимальная температура подачи")), Is.False);
+            Assert.That(result.Warnings.Any(w => w.Contains("превышает")), Is.False);
         }
 
         #endregion

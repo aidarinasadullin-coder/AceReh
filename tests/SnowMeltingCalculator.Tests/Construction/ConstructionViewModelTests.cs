@@ -463,6 +463,33 @@ namespace SnowMeltingCalculator.Tests.Construction
             Assert.That(_viewModel.IsValid, Is.True);
         }
 
+        [Test]
+        public async Task Validate_ConcreteLayer_DoesNotShowSupplyTemperatureInfo()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            _viewModel.LayersAbovePipe.Clear();
+            _viewModel.LayersBelowPipe.Clear();
+
+            var concrete = _viewModel.AvailableMaterials.First(m => m.Id == 5);
+            _viewModel.LayersAbovePipe.Add(new Layer
+            {
+                Material = concrete,
+                Thickness = 50,
+                CalculatedLambda = concrete.LambdaA,
+                Position = LayerPosition.AbovePipe,
+                Order = 0
+            });
+
+            // Act
+            _viewModel.Validate();
+
+            // Assert
+            Assert.That(_viewModel.IsValid, Is.True);
+            Assert.That(_viewModel.ValidationMessage, Does.Not.Contain("максимальная температура подачи"));
+            Assert.That(_viewModel.ValidationMessage, Does.Not.Contain("50°C"));
+        }
+
         #endregion
 
         #region Template Tests

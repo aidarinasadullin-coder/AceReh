@@ -182,27 +182,8 @@ namespace SnowMeltingCalculator.Services.Construction
                 return;
             }
 
-            // Проверка максимальной температуры подачи для бетона (Screed удалён, материалы стяжки теперь Concrete)
-            if (layer.Material.Category == MaterialCategory.Concrete)
-            {
-                if (layer.Material.MaxSupplyTemp.HasValue)
-                {
-                    result.AddWarning(
-                        $"Материал '{layer.Material.Name}': максимальная температура подачи " +
-                        $"{layer.Material.MaxSupplyTemp.Value}°C");
-                }
-            }
-
-            // Проверка асфальта
-            if (layer.Material.Category == MaterialCategory.Coating)
-            {
-                if (layer.Material.MinOutdoorTemp.HasValue)
-                {
-                    result.AddWarning(
-                        $"Материал '{layer.Material.Name}': не применять при температуре " +
-                        $"наружного воздуха <= {layer.Material.MinOutdoorTemp.Value}°C");
-                }
-            }
+            // Температурные ограничения материалов проверяются только в контекстных
+            // методах, когда известна фактическая температура подачи или наружного воздуха.
         }
 
         /// <summary>
