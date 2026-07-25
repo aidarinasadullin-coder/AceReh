@@ -29,6 +29,7 @@ using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Results;
+using SnowMeltingCalculator.ViewModels.Shell;
 using SnowMeltingCalculator.ViewModels.Thermal;
 
 namespace SnowMeltingCalculator.Tests.ViewModels
@@ -94,7 +95,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             await _viewModel.NewCalculationCommand.ExecuteAsync(null);
 
             _dialogServiceMock.Verify(
-                d => d.Show(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<MessageBoxButton>(), It.IsAny<MessageBoxImage>()),
+                d => d.Show(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DialogButtons>(), It.IsAny<DialogIcon>()),
                 Times.Never);
             Assert.That(_calculationContext.Climate, Is.Null);
             Assert.That(_projectStateService.IsDirty, Is.False);
@@ -106,13 +107,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             _projectStateService.MarkDirty();
             _calculationContext.UpdateClimate(new ClimateData { AirTemperature = -20 });
             _dialogServiceMock
-                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question))
-                .Returns(MessageBoxResult.Cancel);
+                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question))
+                .Returns(DialogResult.Cancel);
 
             await _viewModel.NewCalculationCommand.ExecuteAsync(null);
 
             _dialogServiceMock.Verify(
-                d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question),
+                d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question),
                 Times.Once);
             Assert.That(_projectStateService.IsDirty, Is.True);
             Assert.That(_calculationContext.Climate, Is.Not.Null);
@@ -124,13 +125,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             _projectStateService.MarkDirty();
             _calculationContext.UpdateClimate(new ClimateData { AirTemperature = -20 });
             _dialogServiceMock
-                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question))
-                .Returns(MessageBoxResult.No);
+                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question))
+                .Returns(DialogResult.No);
 
             await _viewModel.NewCalculationCommand.ExecuteAsync(null);
 
             _dialogServiceMock.Verify(
-                d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question),
+                d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question),
                 Times.Once);
             Assert.That(_calculationContext.Climate, Is.Null);
             Assert.That(_projectStateService.IsDirty, Is.False);
@@ -142,10 +143,10 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             _projectStateService.MarkDirty();
             _calculationContext.UpdateClimate(new ClimateData { AirTemperature = -20 });
             _dialogServiceMock
-                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question))
-                .Returns(MessageBoxResult.Yes);
+                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question))
+                .Returns(DialogResult.Yes);
             _dialogServiceMock
-                .Setup(d => d.ShowSaveFileDialog(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(d => d.ShowSaveFileDialog(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
                 .Returns(@"C:\temp\project.smc");
             _projectFileServiceMock
                 .Setup(p => p.SaveProjectResultAsync(It.IsAny<string>(), It.IsAny<ProjectData>(), It.IsAny<CancellationToken>()))
@@ -164,8 +165,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             _projectStateService.MarkDirty();
             _calculationContext.UpdateClimate(new ClimateData { AirTemperature = -20 });
             _dialogServiceMock
-                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question))
-                .Returns(MessageBoxResult.Yes);
+                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question))
+                .Returns(DialogResult.Yes);
             await _viewModel.NewCalculationCommand.ExecuteAsync(null);
 
             _projectFileServiceMock.Verify(p => p.SaveProjectResultAsync(It.IsAny<string>(), It.IsAny<ProjectData>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -342,13 +343,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         {
             _projectStateService.MarkDirty();
             _dialogServiceMock
-                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question))
-                .Returns(MessageBoxResult.Cancel);
+                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question))
+                .Returns(DialogResult.Cancel);
 
             var args = await InvokeClosingAsync(_dialogServiceMock.Object, _projectStateService, _viewModel);
 
             _dialogServiceMock.Verify(
-                d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question),
+                d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question),
                 Times.Once);
             Assert.That(args.Cancel, Is.True);
         }
@@ -358,8 +359,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         {
             _projectStateService.MarkDirty();
             _dialogServiceMock
-                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question))
-                .Returns(MessageBoxResult.No);
+                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question))
+                .Returns(DialogResult.No);
 
             var args = await InvokeClosingAsync(_dialogServiceMock.Object, _projectStateService, _viewModel);
 
@@ -371,10 +372,10 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         {
             _projectStateService.MarkDirty();
             _dialogServiceMock
-                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNoCancel, MessageBoxImage.Question))
-                .Returns(MessageBoxResult.Yes);
+                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question))
+                .Returns(DialogResult.Yes);
             _dialogServiceMock
-                .Setup(d => d.ShowSaveFileDialog(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(d => d.ShowSaveFileDialog(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
                 .Returns(@"C:\temp\project.smc");
             _projectFileServiceMock
                 .Setup(p => p.SaveProjectResultAsync(It.IsAny<string>(), It.IsAny<ProjectData>(), It.IsAny<CancellationToken>()))

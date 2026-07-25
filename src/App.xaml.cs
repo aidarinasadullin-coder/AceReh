@@ -46,10 +46,6 @@ namespace SnowMeltingCalculator
                 var materialRepository = _serviceProvider.GetRequiredService<IMaterialRepository>();
                 await materialRepository.LoadMaterialsAsync();
 
-                // Установка провайдера в ViewModelLocator
-                var viewModelLocator = Current.Resources["ViewModelLocator"] as ViewModelLocator;
-                viewModelLocator?.SetServiceProvider(_serviceProvider);
-
                 // Инициализация ConstructionViewModel
                 var constructionViewModel = _serviceProvider.GetRequiredService<ConstructionViewModel>();
                 await constructionViewModel.InitializeCommand.ExecuteAsync(null);
@@ -87,6 +83,23 @@ namespace SnowMeltingCalculator
 
                 Shutdown();
             }
+        }
+
+        /// <summary>
+        /// При завершении приложения освобождаем корневой ServiceProvider
+        /// (все singleton-сервисы, реализующие IDisposable).
+        /// </summary>
+        protected override void OnExit(ExitEventArgs e)
+        {
+            if (_serviceProvider is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
+            Services = null;
+            _serviceProvider = null;
+
+            base.OnExit(e);
         }
     }
 }

@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnowMeltingCalculator.Models.Construction;
@@ -385,10 +384,10 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 var result = _dialogService.Show(
                     $"Материал '{ex.Snapshot.Name}' (ID {ex.MaterialId}) отсутствует в справочнике. Импортировать из снимка?",
                     "Импорт материала",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
+                    DialogButtons.YesNo,
+                    DialogIcon.Question);
 
-                if (result == MessageBoxResult.Yes)
+                if (result == DialogResult.Yes)
                 {
                     try
                     {
@@ -510,10 +509,10 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 var result = _dialogService.Show(
                     $"Материал '{ex.Snapshot.Name}' (ID {ex.MaterialId}) отсутствует в справочнике. Импортировать из снимка?",
                     "Импорт материала",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
+                    DialogButtons.YesNo,
+                    DialogIcon.Question);
 
-                if (result == MessageBoxResult.Yes)
+                if (result == DialogResult.Yes)
                 {
                     try
                     {

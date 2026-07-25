@@ -1,10 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Windows;
-using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Win32;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Hydraulics;
@@ -365,6 +362,15 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private ObservableCollection<CollectorSpecification> _collectorSpecifications = new();
 
         /// <summary>
+        /// Сгруппированные элементы оборудования коллекторов для карточки Оборудование → Коллекторы
+        /// </summary>
+        /// <remarks>
+        /// Группировка по (ValveType, CircuitCount) с явным количеством коллекторов в группе.
+        /// </remarks>
+        [ObservableProperty]
+        private ObservableCollection<CollectorEquipmentItem> _collectorEquipmentItems = new();
+
+        /// <summary>
         /// Карточки итогов коллекторов (для отображения в Results)
         /// </summary>
         /// <remarks>
@@ -529,6 +535,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
             // Проверяем готовность данных после загрузки всех модулей
             CheckDataReadiness();
+
+            // Финальная синхронизация grouped read-model с учётом актуальной готовности данных
+            UpdateCollectorEquipmentItems();
         }
 
         #endregion
@@ -601,25 +610,24 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 return;
             }
 
-            var saveFileDialog = new SaveFileDialog
-            {
-                Filter = "PDF файлы (*.pdf)|*.pdf",
-                DefaultExt = "pdf",
-                FileName = $"Результаты_{ProjectNumber}_{DateTime.Now:yyyyMMdd}.pdf"
-            };
+            var fileName = _dialogService.ShowSaveFileDialog(
+                $"Результаты_{ProjectNumber}_{DateTime.Now:yyyyMMdd}.pdf",
+                "PDF файлы (*.pdf)|*.pdf",
+                title: "Экспорт результатов в PDF",
+                defaultExt: "pdf");
 
-            if (saveFileDialog.ShowDialog() != true)
+            if (fileName == null)
                 return;
 
             try
             {
                 StatusMessage = "Экспорт в PDF...";
                 var pdfData = BuildResultsPdfData();
-                var success = await _pdfExportService.ExportResultsToPdfAsync(saveFileDialog.FileName, pdfData);
+                var success = await _pdfExportService.ExportResultsToPdfAsync(fileName, pdfData);
 
                 if (success)
                 {
-                    StatusMessage = $"PDF сохранён: {Path.GetFileName(saveFileDialog.FileName)}";
+                    StatusMessage = $"PDF сохранён: {Path.GetFileName(fileName)}";
                 }
                 else
                 {
@@ -897,10 +905,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 var confirmation = _dialogService.Show(
                     "Текущий проект будет заменён. Продолжить?",
                     "Открытие проекта",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
+                    DialogButtons.YesNo,
+                    DialogIcon.Question);
 
-                if (confirmation != MessageBoxResult.Yes)
+                if (confirmation != DialogResult.Yes)
                     return;
             }
 
@@ -996,9 +1004,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
                 if (success)
                 {
-                    // Используем диалог печати Windows
-                    var printDialog = new PrintDialog();
-                    if (printDialog.ShowDialog() == true)
+                    // Системный диалог печати — через тестовый шов IDialogService
+                    if (_dialogService.ShowPrintDialog())
                     {
                         // Печать через Process с verb "print"
                         var process = new System.Diagnostics.Process
@@ -1179,6 +1186,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
             // Обновляем спецификации
             UpdateCollectorSpecifications();
+
+            // Обновляем сгруппированное оборудование коллекторов
+            UpdateCollectorEquipmentItems();
         }
 
         /// <summary>
@@ -1224,6 +1234,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             CalculatePumpParameters();
             CalculateExpansionTank();
             UpdateCollectorSpecifications();
+            UpdateCollectorEquipmentItems();
         }
 
         /// <summary>
@@ -1511,6 +1522,57 @@ namespace SnowMeltingCalculator.ViewModels.Results
         }
 
         /// <summary>
+        /// Обновить сгруппированный read-model оборудования коллекторов
+        /// </summary>
+        /// <remarks>
+        /// Группирует коллекторы по (ValveType, CircuitCount), сохраняя порядок первого появления.
+        /// При потере готовности данных, пустом или null-списке коллекторов коллекция очищается.
+        /// </remarks>
+        private void UpdateCollectorEquipmentItems()
+        {
+            CollectorEquipmentItems.Clear();
+
+            if (!IsDataReady) return;
+
+            var collectors = _circuitsViewModel.Collectors;
+            if (collectors == null || collectors.Count == 0) return;
+
+            var groupMap = new Dictionary<(ValveType ValveType, int CircuitCount), CollectorEquipmentItem>();
+            var orderedGroups = new List<CollectorEquipmentItem>();
+
+            foreach (var collector in collectors)
+            {
+                if (collector == null) continue;
+
+                int circuitCount = collector.Circuits?.Count ?? 0;
+                var key = (collector.ValveType, circuitCount);
+
+                if (groupMap.TryGetValue(key, out var existingItem))
+                {
+                    existingItem.CollectorQuantity++;
+                }
+                else
+                {
+                    var newItem = new CollectorEquipmentItem
+                    {
+                        ValveType = collector.ValveType,
+                        CircuitCount = circuitCount,
+                        Type = collector.CollectorTypeDisplayWithCount,
+                        CollectorQuantity = 1
+                    };
+
+                    groupMap[key] = newItem;
+                    orderedGroups.Add(newItem);
+                }
+            }
+
+            foreach (var item in orderedGroups)
+            {
+                CollectorEquipmentItems.Add(item);
+            }
+        }
+
+        /// <summary>
         /// Перестроить канонический read-model карточек итогов гидравлики по всем коллекторам.
         /// </summary>
         private void RebuildHydraulicSummaryCards()
@@ -1598,6 +1660,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
             CheckDataReadiness();
             RecalculateKpi();
             RebuildHydraulicSummaryCards();
+
+            // Финальная синхронизация grouped read-model с учётом актуальной готовности данных
+            UpdateCollectorEquipmentItems();
         }
 
         /// <summary>
@@ -1644,6 +1709,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 Collectors.Clear();
                 Circuits.Clear();
                 CollectorSpecifications.Clear();
+                CollectorEquipmentItems.Clear();
                 // Очищаем карточки, а не перестраиваем: в момент Reset() _circuitsViewModel.Collectors
                 // ещё не сброшен (в PerformNewCalculationReset и ApplyLoadedProjectAsync
                 // CircuitsViewModel.Reset() вызывается позже), иначе RebuildHydraulicSummaryCards()
@@ -1811,24 +1877,37 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     _climateViewModel.SyncToClimateData();
                 }
 
-                // Обновляем все данные
-                RefreshAll();
-
-                // Canonical writer thermal: ThermalViewModel публикует в контекст.
-                // CircuitsViewModel — чистый потребитель; Calculate срабатывает через OnCalculationContextChanged.
-                if (_thermalViewModel.Result != null)
+                // === Детерминированная финализация загрузки проекта ===
+                // Файл — источник истины. Порядок:
+                // restore inputs (выше) -> sync climate (в finally выше) ->
+                // ensure thermal result -> restore circuit results -> ОДИН refresh KPI.
+                //
+                // 1. Тепловой результат: если сохранённый результат валиден —
+                //    публикуем его через canonical writer (ThermalViewModel.LoadResult),
+                //    иначе выполняем полный расчёт из восстановленных входных данных.
+                //    CircuitsViewModel — чистый потребитель контекста: пересчёт
+                //    гидравлики срабатывает через OnCalculationContextChanged.
+                if (_thermalViewModel.Result != null && _thermalViewModel.Result.IsValid)
                 {
                     _thermalViewModel.LoadResult(_thermalViewModel.Result);
-                    // Если invalid, OnCalculationContextChanged сделает Notify-only без Calculate.
-                    // Если валидный, Calculate сработает автоматически — ручной вызов ниже не нужен.
+                }
+                else
+                {
+                    // Сохранённого валидного результата нет — считаем из входных данных,
+                    // чтобы пользователю не пришлось нажимать "Расчёт" вручную.
+                    await _thermalViewModel.CalculateCommand.ExecuteAsync(null);
                 }
 
-                // Восстанавливаем результаты контуров из сохранённых данных
+                // 2. Восстанавливаем результаты контуров из сохранённых данных
                 RestoreCircuitsResults(data.HydraulicsData.Collectors);
 
-                // После полного восстановления проекта запускаем тепловой расчёт,
-                // чтобы пользователю не пришлось нажимать "Расчёт" вручную.
-                await _thermalViewModel.CalculateCommand.ExecuteAsync(null);
+                // 3. Климат восстановлен из файла, а не изменён пользователем —
+                //    сбрасываем признак ручных правок, выставленный сеттерами при загрузке.
+                _climateViewModel.HasUserModifications = false;
+
+                // 4. Единственное обновление снимка Results — ПОСЛЕ финального теплового
+                //    результата, чтобы KPI не оставались снимком, снятым до расчёта.
+                RefreshAll();
 
                 // Уведомляем об изменении проекта
                 ProjectChanged?.Invoke(this, data);
@@ -2328,5 +2407,31 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// Kv клапана
         /// </summary>
         public double Kv { get; set; }
+    }
+
+    /// <summary>
+    /// Группированная строка оборудования коллектора для UI карточки Оборудование → Коллекторы
+    /// </summary>
+    public class CollectorEquipmentItem
+    {
+        /// <summary>
+        /// Тип коллектора с количеством контуров (например "HKV-D (6 контуров)")
+        /// </summary>
+        public string Type { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Тип балансировочного клапана, используемый как часть ключа группировки
+        /// </summary>
+        public ValveType ValveType { get; set; }
+
+        /// <summary>
+        /// Количество контуров в одном коллекторе группы (не количество коллекторов)
+        /// </summary>
+        public int CircuitCount { get; set; }
+
+        /// <summary>
+        /// Количество коллекторов в группе, шт
+        /// </summary>
+        public int CollectorQuantity { get; set; }
     }
 }
