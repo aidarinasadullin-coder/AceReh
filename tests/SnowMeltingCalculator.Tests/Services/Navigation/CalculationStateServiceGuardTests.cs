@@ -51,7 +51,7 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
         }
 
         [Test]
-        public void ResultsViewModelLoadProjectSource_RequiresFlag()
+        public void ProjectLoadOrchestratorSource_RequiresFlag()
         {
             // Arrange
             var eventFired = false;
@@ -59,13 +59,13 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
 
             // Act & Assert - without flag throws
             var ex = Assert.Throws<InvalidOperationException>(() =>
-                _service.SetPipeSpacing(42, "ResultsViewModel.LoadProject"));
-            Assert.That(ex!.Message, Is.EqualTo("SetPipeSpacing called from non-canonical source: ResultsViewModel.LoadProject"));
+                _service.SetPipeSpacing(42, "ProjectLoadOrchestrator.RestoreModules"));
+            Assert.That(ex!.Message, Is.EqualTo("SetPipeSpacing called from non-canonical source: ProjectLoadOrchestrator.RestoreModules"));
             Assert.That(_service.PipeSpacing, Is.Not.EqualTo(42));
 
             // Act - with flag succeeds
             _service.IsLoadProjectInProgress = true;
-            _service.SetPipeSpacing(42, "ResultsViewModel.LoadProject");
+            _service.SetPipeSpacing(42, "ProjectLoadOrchestrator.RestoreModules");
 
             // Assert
             Assert.That(_service.PipeSpacing, Is.EqualTo(42));
