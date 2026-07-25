@@ -123,11 +123,12 @@ namespace SnowMeltingCalculator.Configuration
             // Services - Калькулятор контуров (без состояния)
             services.AddSingleton<ICircuitsCalculator, CircuitsCalculator>();
 
-            // Services - Валидатор контуров и коллекторов
-            services.AddScoped<ICircuitsValidator, CircuitsValidator>();
+            // Services - Валидатор контуров и коллекторов (без состояния)
+            // Singleton: в WPF нет request-scope, scoped-регистрация жила бы в root scope.
+            services.AddSingleton<ICircuitsValidator, CircuitsValidator>();
 
             // Services - Селектор типа коллектора (без состояния)
-            services.AddScoped<ICollectorTypeSelector, CollectorTypeSelector>();
+            services.AddSingleton<ICollectorTypeSelector, CollectorTypeSelector>();
 
             // ViewModels - Singleton для модуля "Контура" (сохранение состояния между навигациями)
             services.AddSingleton<CircuitsViewModel>();
@@ -154,6 +155,9 @@ namespace SnowMeltingCalculator.Configuration
 
             // Сервис редакторских диалогов (шов для редакторов материалов и шаблонов)
             services.AddSingleton<IEditorDialogService, EditorDialogService>();
+
+            // ViewModel главного окна (shell)
+            services.AddSingleton<ViewModels.Shell.MainViewModel>();
 
             return services;
         }

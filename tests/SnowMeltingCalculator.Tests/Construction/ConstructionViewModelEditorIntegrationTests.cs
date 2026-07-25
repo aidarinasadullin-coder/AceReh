@@ -338,7 +338,7 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // ApplyTemplate must return early because CanApplySelectedTemplate is false
             await _viewModel.ApplyTemplateCommand.ExecuteAsync(null);
-            _dialogServiceMock.Verify(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Windows.MessageBoxButton>(), It.IsAny<System.Windows.MessageBoxImage>()), Times.Never);
+            _dialogServiceMock.Verify(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DialogButtons>(), It.IsAny<DialogIcon>()), Times.Never);
         }
 
         [Test]

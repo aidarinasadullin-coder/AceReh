@@ -82,7 +82,7 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
             var projectFileServiceMock = new Mock<IProjectFileService>();
 
             dialogServiceMock
-                .Setup(d => d.ShowSaveFileDialog(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(d => d.ShowSaveFileDialog(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
                 .Returns(TestFilePath);
 
             projectFileServiceMock
@@ -101,7 +101,7 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
 
             // Assert
             dialogServiceMock.Verify(
-                d => d.ShowSaveFileDialog(It.IsRegex(@"^PRJ-001_\d{8}$"), It.IsAny<string>()),
+                d => d.ShowSaveFileDialog(It.IsRegex(@"^PRJ-001_\d{8}$"), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()),
                 Times.Once);
 
             projectFileServiceMock.Verify(

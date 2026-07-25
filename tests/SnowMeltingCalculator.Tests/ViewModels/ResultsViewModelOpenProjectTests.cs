@@ -69,15 +69,15 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 .Setup(p => p.LoadProjectResultAsync(TestFilePath, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(OperationResult<ProjectData>.Success(new ProjectData()));
             _dialogServiceMock
-                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNo, MessageBoxImage.Question))
-                .Returns(MessageBoxResult.Yes);
+                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNo, DialogIcon.Question))
+                .Returns(DialogResult.Yes);
 
             // Act
             await _viewModel.OpenProjectCommand.ExecuteAsync(null);
 
             // Assert
             _dialogServiceMock.Verify(
-                d => d.Show("Текущий проект будет заменён. Продолжить?", "Открытие проекта", MessageBoxButton.YesNo, MessageBoxImage.Question),
+                d => d.Show("Текущий проект будет заменён. Продолжить?", "Открытие проекта", DialogButtons.YesNo, DialogIcon.Question),
                 Times.Once);
             _projectFileServiceMock.Verify(p => p.LoadProjectResultAsync(TestFilePath, It.IsAny<CancellationToken>()), Times.Once);
             Assert.That(_projectStateService.CurrentFilePath, Is.EqualTo(TestFilePath));
@@ -101,7 +101,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             // Assert
             _dialogServiceMock.Verify(
-                d => d.Show(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<MessageBoxButton>(), It.IsAny<MessageBoxImage>()),
+                d => d.Show(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DialogButtons>(), It.IsAny<DialogIcon>()),
                 Times.Never);
             _projectFileServiceMock.Verify(p => p.LoadProjectResultAsync(TestFilePath, It.IsAny<CancellationToken>()), Times.Once);
             Assert.That(_projectStateService.CurrentFilePath, Is.EqualTo(TestFilePath));
@@ -121,15 +121,15 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 .Setup(p => p.LoadProjectResultAsync(TestFilePath, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(OperationResult<ProjectData>.Success(new ProjectData()));
             _dialogServiceMock
-                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), MessageBoxButton.YesNo, MessageBoxImage.Question))
-                .Returns(MessageBoxResult.No);
+                .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNo, DialogIcon.Question))
+                .Returns(DialogResult.No);
 
             // Act
             await _viewModel.OpenProjectCommand.ExecuteAsync(null);
 
             // Assert
             _dialogServiceMock.Verify(
-                d => d.Show("Текущий проект будет заменён. Продолжить?", "Открытие проекта", MessageBoxButton.YesNo, MessageBoxImage.Question),
+                d => d.Show("Текущий проект будет заменён. Продолжить?", "Открытие проекта", DialogButtons.YesNo, DialogIcon.Question),
                 Times.Once);
             Assert.That(_viewModel.ProjectNumber, Is.EqualTo("PRJ-001"));
             Assert.That(_projectStateService.CurrentFilePath, Is.Null);
@@ -1730,6 +1730,114 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 Times.Once);
             Assert.That(_projectStateService.CurrentFilePath, Is.EqualTo(TestFilePath));
             Assert.That(_projectStateService.IsDirty, Is.False);
+        }
+
+        /// <summary>
+        /// Регрессионный тест (драфт fix-load-project-climate-kpi-temperatures):
+        /// KPI температур должны отражать финальный тепловой результат сразу после
+        /// LoadProjectDataAsync — без ручного повторного выбора города на вкладке «Климат».
+        /// Раньше RefreshAll() вызывался ДО финального расчёта, и на вкладке «Результаты»
+        /// оставался снимок, снятый до него.
+        /// </summary>
+        [Test]
+        public async Task LoadProjectData_KpiReflectSavedThermalResult_WithoutCityReselection()
+        {
+            // Arrange — проект с валидным сохранённым тепловым результатом (как в перм.smc)
+            var projectData = new ProjectData
+            {
+                ProjectNumber = "P-KPI",
+                ProjectObject = "KPI After Load Test",
+                IsOperatingMode = true,
+                ClimateData = new ClimateProjectData
+                {
+                    SelectedCity = "Москва",
+                    AirTemperature = -15.0,
+                    WindSpeed = 2.7,
+                    Humidity = 77.0,
+                    SnowfallIntensity = 1.0,
+                    SelectedZone = ClimateZone.Zone_M15,
+                    IsHighRequirements = false
+                },
+                ConstructionData = new ConstructionProjectData(),
+                ThermalData = new ThermalProjectData
+                {
+                    SelectedMode = OperatingMode.Melting,
+                    SupplyTemperature = 60.0,
+                    GroundTemperature = 10.0,
+                    PipeSpacing = 200,
+                    Result = new ThermalResultProjectData
+                    {
+                        PowerUp = 357.5,
+                        PowerDown = 5.8,
+                        PowerTotal = 363.3,
+                        SupplyTemperature = 60.0,
+                        ReturnTemperature = 44.31,
+                        MeanTemperature = 52.16,
+                        DeltaT = 15.69,
+                        IsValid = true
+                    }
+                },
+                HydraulicsData = new HydraulicsProjectData()
+            };
+
+            var climateVm = CreateClimateViewModel();
+            var circuitsVm = CreateCircuitsViewModel();
+            var viewModel = CreateViewModel(
+                climateVm,
+                CreateConstructionViewModel(),
+                CreateThermalViewModel(),
+                circuitsVm);
+
+            // Act — только загрузка проекта, БЕЗ повторного выбора города
+            await viewModel.LoadProjectDataAsync(projectData);
+
+            // Assert — KPI вкладки «Результаты» соответствуют сохранённому результату
+            Assert.That(viewModel.SupplyTemperature, Is.EqualTo(60.0).Within(0.01),
+                "KPI температуры подачи должен быть из финального результата, а не нулевой снимок");
+            Assert.That(viewModel.ReturnTemperature, Is.EqualTo(44.31).Within(0.01));
+            Assert.That(viewModel.OperatingTemperature, Is.EqualTo(52.16).Within(0.01));
+            Assert.That(viewModel.TotalPowerDensity, Is.EqualTo(363.3).Within(0.01));
+        }
+
+        /// <summary>
+        /// Регрессионный тест: загрузка проекта не должна помечать климат как
+        /// «изменённый пользователем» — параметры восстановлены из файла.
+        /// </summary>
+        [Test]
+        public async Task LoadProjectData_ClimateIsNotMarkedAsUserModified()
+        {
+            // Arrange
+            var projectData = new ProjectData
+            {
+                ProjectNumber = "P-CLIM",
+                IsOperatingMode = true,
+                ClimateData = new ClimateProjectData
+                {
+                    SelectedCity = "Москва",
+                    AirTemperature = -15.0,
+                    WindSpeed = 2.7,
+                    Humidity = 77.0,
+                    SnowfallIntensity = 1.0,
+                    SelectedZone = ClimateZone.Zone_M15,
+                    IsHighRequirements = false
+                },
+                ConstructionData = new ConstructionProjectData(),
+                ThermalData = new ThermalProjectData(),
+                HydraulicsData = new HydraulicsProjectData()
+            };
+
+            var climateVm = CreateClimateViewModel();
+            var circuitsVm = CreateCircuitsViewModel();
+            var viewModel = CreateViewModel(climateVm, circuitsVm);
+
+            // Act
+            await viewModel.LoadProjectDataAsync(projectData);
+
+            // Assert
+            Assert.That(climateVm.HasUserModifications, Is.False,
+                "Восстановление климата из файла не должно выглядеть как ручная правка");
+            Assert.That(_projectStateService.IsDirty, Is.False,
+                "После загрузки проекта состояние должно быть чистым");
         }
     }
 }

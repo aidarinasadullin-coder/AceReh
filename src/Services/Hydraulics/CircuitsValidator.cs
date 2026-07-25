@@ -1,5 +1,5 @@
-using System.Windows;
 using SnowMeltingCalculator.Models.Hydraulics;
+using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
@@ -10,9 +10,18 @@ namespace SnowMeltingCalculator.Services.Hydraulics
     /// <remarks>
     /// Содержит логику проверки возможности удаления
     /// и подтверждения удаления через диалоговые окна.
+    /// Диалоги вызываются через тестовый шов <see cref="IDialogService"/>,
+    /// поэтому валидатор не зависит от WPF и unit-тестируется без UI-потока.
     /// </remarks>
     public class CircuitsValidator : ICircuitsValidator
     {
+        private readonly IDialogService _dialogService;
+
+        public CircuitsValidator(IDialogService dialogService)
+        {
+            _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+        }
+
         /// <summary>
         /// Проверить возможность удаления контура
         /// </summary>
@@ -54,13 +63,13 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// </summary>
         public bool ConfirmDeleteCircuit(int circuitNumber)
         {
-            var result = MessageBox.Show(
+            var result = _dialogService.Show(
                 $"Вы уверены, что хотите удалить контур №{circuitNumber}?",
                 "Удаление контура",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning
-            );
-            return result == MessageBoxResult.Yes;
+                DialogButtons.YesNo,
+                DialogIcon.Warning);
+
+            return result == DialogResult.Yes;
         }
 
         /// <summary>
@@ -68,13 +77,13 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// </summary>
         public bool ConfirmDeleteCollector(int collectorNumber)
         {
-            var result = MessageBox.Show(
+            var result = _dialogService.Show(
                 $"Вы уверены, что хотите удалить коллектор №{collectorNumber}?\nВсе контуры этого коллектора будут удалены.",
                 "Удаление коллектора",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning
-            );
-            return result == MessageBoxResult.Yes;
+                DialogButtons.YesNo,
+                DialogIcon.Warning);
+
+            return result == DialogResult.Yes;
         }
     }
 }

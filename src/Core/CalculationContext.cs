@@ -306,6 +306,12 @@ namespace SnowMeltingCalculator.Core
             var oldValue = ThermalInputs;
             ThermalInputs = inputs;
 
+            // Изменение входных параметров теплового расчёта инвалидирует
+            // гидравлические результаты: они рассчитаны от прежних тепловых данных.
+            // Тот же принцип, что в UpdateClimate/UpdateConstruction/UpdateThermal.
+            // Пересчёт выполняется потребителем через UpdateThermal -> гидравлику.
+            HydraulicsResults = null;
+
             OnContextChanged(nameof(ThermalInputs), oldValue, inputs, source);
         }
 

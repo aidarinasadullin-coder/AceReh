@@ -213,15 +213,15 @@ namespace SnowMeltingCalculator.Tests.Construction
                 .ReturnsAsync(importedMaterial);
 
             _dialogServiceMock
-                .Setup(d => d.Show(It.Is<string>(s => s.Contains(snapshot.Name)), It.IsAny<string>(), MessageBoxButton.YesNo, MessageBoxImage.Question))
-                .Returns(MessageBoxResult.Yes);
+                .Setup(d => d.Show(It.Is<string>(s => s.Contains(snapshot.Name)), It.IsAny<string>(), DialogButtons.YesNo, DialogIcon.Question))
+                .Returns(DialogResult.Yes);
 
             // Act
             await _viewModel.LoadConstructionCommand.ExecuteAsync(null);
 
             // Assert
             _constructionServiceMock.Verify(s => s.ImportMissingMaterialAsync(It.Is<MaterialSnapshot>(s => s.Id == 999)), Times.Once);
-            _dialogServiceMock.Verify(d => d.Show(It.Is<string>(s => s.Contains(snapshot.Name)), It.IsAny<string>(), MessageBoxButton.YesNo, MessageBoxImage.Question), Times.Once);
+            _dialogServiceMock.Verify(d => d.Show(It.Is<string>(s => s.Contains(snapshot.Name)), It.IsAny<string>(), DialogButtons.YesNo, DialogIcon.Question), Times.Once);
             Assert.That(_viewModel.IsValid, Is.True);
             Assert.That(_viewModel.ValidationMessage, Does.Contain("успешно"));
         }
@@ -246,8 +246,8 @@ namespace SnowMeltingCalculator.Tests.Construction
                 .Throws(new MaterialNotFoundException(999, snapshot));
 
             _dialogServiceMock
-                .Setup(d => d.Show(It.Is<string>(s => s.Contains(snapshot.Name)), It.IsAny<string>(), MessageBoxButton.YesNo, MessageBoxImage.Question))
-                .Returns(MessageBoxResult.No);
+                .Setup(d => d.Show(It.Is<string>(s => s.Contains(snapshot.Name)), It.IsAny<string>(), DialogButtons.YesNo, DialogIcon.Question))
+                .Returns(DialogResult.No);
 
             // Act
             await _viewModel.LoadConstructionCommand.ExecuteAsync(null);
