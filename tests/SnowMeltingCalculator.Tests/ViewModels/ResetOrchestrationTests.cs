@@ -286,6 +286,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
                 .Returns(Task.CompletedTask);
 
+            var calculationStateService = new CalculationStateService();
+            var calculationContext = new CalculationContext();
+
             return new ResultsViewModel(
                 projectStateService,
                 markDirtyService,
@@ -293,14 +296,22 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 new Mock<IPdfExportService>().Object,
                 new Mock<IProjectFileService>().Object,
                 new Mock<IConstructionVisualizationImageService>().Object,
-                new CalculationStateService(),
+                calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
-                new CalculationContext(),
+                calculationContext,
                 climateVm,
                 constructionVm,
                 thermalVm,
-                circuitsVm);
+                circuitsVm,
+                new ProjectLoadOrchestrator(
+                    climateVm,
+                    constructionVm,
+                    thermalVm,
+                    circuitsVm,
+                    calculationStateService,
+                    constructionServiceMock.Object,
+                    calculationContext));
         }
 
         private static string? GetCurrentFilePath(ResultsViewModel vm)

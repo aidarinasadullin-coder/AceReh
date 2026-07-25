@@ -126,7 +126,7 @@ namespace SnowMeltingCalculator.Services.Navigation
         public void SetPipeSpacing(int spacing, string source)
         {
             if (source != "ThermalViewModel" &&
-                !(source == "ResultsViewModel.LoadProject" && IsLoadProjectInProgress))
+                !(source == "ProjectLoadOrchestrator.RestoreModules" && IsLoadProjectInProgress))
             {
                 throw new InvalidOperationException($"SetPipeSpacing called from non-canonical source: {source}");
             }

@@ -1144,6 +1144,12 @@ namespace SnowMeltingCalculator.Tests.Construction
 
         private ResultsViewModel CreateResultsViewModel(ConstructionViewModel constructionVm, IConstructionService service, IMaterialRepository repo)
         {
+            var calculationStateService = new CalculationStateService();
+            var calculationContext = new CalculationContext();
+            var climateVm = CreateClimateViewModel();
+            var thermalVm = CreateThermalViewModel();
+            var circuitsVm = CreateCircuitsViewModel();
+
             return new ResultsViewModel(
                 _projectStateService,
                 _projectStateService,
@@ -1151,14 +1157,22 @@ namespace SnowMeltingCalculator.Tests.Construction
                 new Mock<IPdfExportService>().Object,
                 new Mock<IProjectFileService>().Object,
                 new Mock<IConstructionVisualizationImageService>().Object,
-                new CalculationStateService(),
+                calculationStateService,
                 repo,
                 service,
-                new CalculationContext(),
-                CreateClimateViewModel(),
+                calculationContext,
+                climateVm,
                 constructionVm,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
+                thermalVm,
+                circuitsVm,
+                new ProjectLoadOrchestrator(
+                    climateVm,
+                    constructionVm,
+                    thermalVm,
+                    circuitsVm,
+                    calculationStateService,
+                    service,
+                    calculationContext));
         }
 
         private static ConstructionViewModel CreateConstructionViewModel(IMaterialRepository repo)
@@ -1192,6 +1206,12 @@ namespace SnowMeltingCalculator.Tests.Construction
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(Material.GetDefaultMaterials());
             materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(Material.GetDefaultMaterials());
 
+            var calculationStateService = new CalculationStateService();
+            var calculationContext = new CalculationContext();
+            var climateVm = CreateClimateViewModel();
+            var thermalVm = CreateThermalViewModel();
+            var circuitsVm = CreateCircuitsViewModel();
+
             return new ResultsViewModel(
                 _projectStateService,
                 _projectStateService,
@@ -1199,14 +1219,22 @@ namespace SnowMeltingCalculator.Tests.Construction
                 new Mock<IPdfExportService>().Object,
                 new Mock<IProjectFileService>().Object,
                 new Mock<IConstructionVisualizationImageService>().Object,
-                new CalculationStateService(),
+                calculationStateService,
                 materialRepositoryMock.Object,
                 _service,
-                new CalculationContext(),
-                CreateClimateViewModel(),
+                calculationContext,
+                climateVm,
                 constructionVm,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
+                thermalVm,
+                circuitsVm,
+                new ProjectLoadOrchestrator(
+                    climateVm,
+                    constructionVm,
+                    thermalVm,
+                    circuitsVm,
+                    calculationStateService,
+                    _service,
+                    calculationContext));
         }
 
         private static ConstructionViewModel CreateConstructionViewModel()
