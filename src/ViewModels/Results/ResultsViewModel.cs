@@ -40,6 +40,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly CircuitsViewModel _circuitsViewModel;
         private readonly ProjectLoadOrchestrator _projectLoadOrchestrator;
         private readonly ResultsPdfDataBuilder _resultsPdfDataBuilder;
+        private readonly HydraulicSummaryBuilder _hydraulicSummaryBuilder;
 
         /// <summary>
         /// Текущий путь к файлу проекта
@@ -465,7 +466,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
             ThermalViewModel thermalViewModel,
             CircuitsViewModel circuitsViewModel,
             ProjectLoadOrchestrator projectLoadOrchestrator,
-            ResultsPdfDataBuilder resultsPdfDataBuilder)
+            ResultsPdfDataBuilder resultsPdfDataBuilder,
+            HydraulicSummaryBuilder hydraulicSummaryBuilder)
         {
             _projectStateService = projectStateService ?? throw new ArgumentNullException(nameof(projectStateService));
             _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
@@ -482,6 +484,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _circuitsViewModel = circuitsViewModel ?? throw new ArgumentNullException(nameof(circuitsViewModel));
             _projectLoadOrchestrator = projectLoadOrchestrator ?? throw new ArgumentNullException(nameof(projectLoadOrchestrator));
             _resultsPdfDataBuilder = resultsPdfDataBuilder ?? throw new ArgumentNullException(nameof(resultsPdfDataBuilder));
+            _hydraulicSummaryBuilder = hydraulicSummaryBuilder ?? throw new ArgumentNullException(nameof(hydraulicSummaryBuilder));
 
             // Загружаем начальные данные
             LoadProjectInfo();
@@ -1331,24 +1334,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
         {
             CollectorSpecifications.Clear();
 
-            if (_circuitsViewModel.Collectors == null) return;
-
-            foreach (var collector in _circuitsViewModel.Collectors)
+            foreach (var spec in _hydraulicSummaryBuilder.BuildSpecifications(
+                _circuitsViewModel.Collectors, IsOperatingMode))
             {
-                if (collector?.Summary == null) continue;
-
-                CollectorSpecifications.Add(new CollectorSpecification
-                {
-                    Number = collector.CollectorNumber,
-                    Type = collector.CollectorTypeDisplayWithCount,
-                    CircuitCount = collector.Circuits?.Count ?? 0,
-                    TotalPower_kW = collector.Summary.TotalPower / 1000.0,
-                    TotalFlowRate_m3h = collector.Summary.TotalFlowRate_m3h,
-                    PressureLoss_mbar = IsOperatingMode
-                        ? collector.Summary.PressureLoss_Operating_mbar
-                        : collector.Summary.PressureLoss_Cold_mbar,
-                    Kv = collector.Summary.Kv
-                });
+                CollectorSpecifications.Add(spec);
             }
         }
 
@@ -1356,7 +1345,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// Обновить сгруппированный read-model оборудования коллекторов
         /// </summary>
         /// <remarks>
-        /// Группирует коллекторы по (ValveType, CircuitCount), сохраняя порядок первого появления.
         /// При потере готовности данных, пустом или null-списке коллекторов коллекция очищается.
         /// </remarks>
         private void UpdateCollectorEquipmentItems()
@@ -1365,39 +1353,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
             if (!IsDataReady) return;
 
-            var collectors = _circuitsViewModel.Collectors;
-            if (collectors == null || collectors.Count == 0) return;
-
-            var groupMap = new Dictionary<(ValveType ValveType, int CircuitCount), CollectorEquipmentItem>();
-            var orderedGroups = new List<CollectorEquipmentItem>();
-
-            foreach (var collector in collectors)
-            {
-                if (collector == null) continue;
-
-                int circuitCount = collector.Circuits?.Count ?? 0;
-                var key = (collector.ValveType, circuitCount);
-
-                if (groupMap.TryGetValue(key, out var existingItem))
-                {
-                    existingItem.CollectorQuantity++;
-                }
-                else
-                {
-                    var newItem = new CollectorEquipmentItem
-                    {
-                        ValveType = collector.ValveType,
-                        CircuitCount = circuitCount,
-                        Type = collector.CollectorTypeDisplayWithCount,
-                        CollectorQuantity = 1
-                    };
-
-                    groupMap[key] = newItem;
-                    orderedGroups.Add(newItem);
-                }
-            }
-
-            foreach (var item in orderedGroups)
+            foreach (var item in _hydraulicSummaryBuilder.BuildEquipmentItems(
+                _circuitsViewModel.Collectors))
             {
                 CollectorEquipmentItems.Add(item);
             }
@@ -1410,12 +1367,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
         {
             HydraulicSummaryCards.Clear();
 
-            if (_circuitsViewModel.Collectors == null) return;
-
-            foreach (var collector in _circuitsViewModel.Collectors)
+            foreach (var card in _hydraulicSummaryBuilder.BuildSummaryCards(
+                _circuitsViewModel.Collectors))
             {
-                if (collector == null) continue;
-                HydraulicSummaryCards.Add(new CollectorHydraulicSummaryCard(collector));
+                HydraulicSummaryCards.Add(card);
             }
         }
 

@@ -1380,7 +1380,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,
                     constructionVm,
-                    circuitsVm));
+                    circuitsVm),
+                new HydraulicSummaryBuilder());
         }
 
         private static ClimateViewModel CreateClimateViewModel()
@@ -1577,7 +1578,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,
                     constructionVm,
-                    circuitsVm));
+                    circuitsVm),
+                new HydraulicSummaryBuilder());
         }
 
         private static ClimateViewModel CreateClimateViewModel(

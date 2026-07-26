@@ -1176,7 +1176,8 @@ namespace SnowMeltingCalculator.Tests.Construction
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,
                     constructionVm,
-                    circuitsVm));
+                    circuitsVm),
+                new HydraulicSummaryBuilder());
         }
 
         private static ConstructionViewModel CreateConstructionViewModel(IMaterialRepository repo)
@@ -1242,7 +1243,8 @@ namespace SnowMeltingCalculator.Tests.Construction
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,
                     constructionVm,
-                    circuitsVm));
+                    circuitsVm),
+                new HydraulicSummaryBuilder());
         }
 
         private static ConstructionViewModel CreateConstructionViewModel()

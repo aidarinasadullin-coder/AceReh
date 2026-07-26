@@ -574,7 +574,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,
                     constructionVm,
-                    circuitsVm));
+                    circuitsVm),
+                new HydraulicSummaryBuilder());
         }
 
         #endregion
