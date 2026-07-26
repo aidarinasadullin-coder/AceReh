@@ -158,7 +158,8 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,
                     constructionVm,
-                    circuitsVm));
+                    circuitsVm),
+                new HydraulicSummaryBuilder());
         }
 
         private static ClimateViewModel CreateClimateViewModel(ProjectStateService projectStateService)

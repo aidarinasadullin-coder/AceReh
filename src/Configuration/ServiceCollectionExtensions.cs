@@ -177,6 +177,7 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<IConstructionVisualizationImageService, ConstructionVisualizationImageService>();
             services.AddSingleton<ProjectLoadOrchestrator>();
             services.AddSingleton<ResultsPdfDataBuilder>();
+            services.AddSingleton<HydraulicSummaryBuilder>();
 
             // ViewModels
             services.AddSingleton<ResultsViewModel>();
