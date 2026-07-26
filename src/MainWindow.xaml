@@ -516,7 +516,8 @@
 
             <!-- Область контента -->
             <ContentControl Grid.Column="1" 
-                            Content="{Binding CurrentView}" 
+                            x:Name="ModuleContentControl"
+                            Content="{Binding CurrentModuleView, RelativeSource={RelativeSource AncestorType=Window}}" 
                             Margin="0"
                             Background="{DynamicResource RehauBackgroundBrush}"/>
         </Grid>

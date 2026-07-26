@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -13,10 +14,12 @@ using SnowMeltingCalculator.Core.Results;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Hydraulics;
+using SnowMeltingCalculator.Models.Navigation;
 using SnowMeltingCalculator.Models.Project;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Repositories.Construction;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
+using SnowMeltingCalculator.Services;
 using SnowMeltingCalculator.Services.Climate;
 using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Hydraulics;
@@ -60,6 +63,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
+            ResetAppSettingsSingleton();
+
             _projectStateService = new ProjectStateService();
             _dialogServiceMock = new Mock<IDialogService>();
             _calculationStateServiceMock = new Mock<ICalculationStateService>();
@@ -82,6 +87,32 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 _projectStateService,
                 _dialogServiceMock.Object,
                 _calculationContext);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            ResetAppSettingsSingleton();
+        }
+
+        /// <summary>
+        /// Сбрасывает статический singleton <see cref="AppSettings"/> и удаляет файл настроек,
+        /// чтобы тесты были детерминированы относительно состояния свёрнутой боковой панели.
+        /// </summary>
+        private static void ResetAppSettingsSingleton()
+        {
+            var settingsPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "SnowMeltingCalculator",
+                "settings.json");
+            if (File.Exists(settingsPath))
+            {
+                File.Delete(settingsPath);
+            }
+
+            var field = typeof(AppSettings).GetField("_instance",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            field?.SetValue(null, null);
         }
 
         #region NewCalculationCommand
@@ -296,6 +327,70 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
         #endregion
 
+        #region Navigation
+
+        [Test]
+        public void CurrentNavigationTarget_DefaultsToClimate()
+        {
+            Assert.That(_viewModel.CurrentNavigationTarget, Is.EqualTo(NavigationTarget.Climate));
+        }
+
+        [Test]
+        public void SelectedMenuItem_WhenSetToEachItem_UpdatesCurrentNavigationTarget()
+        {
+            foreach (var menuItem in _viewModel.MenuItems)
+            {
+                _viewModel.SelectedMenuItem = menuItem;
+
+                Assert.That(_viewModel.CurrentNavigationTarget, Is.EqualTo(menuItem.Target));
+            }
+        }
+
+        [TestCase(NavigationTarget.Climate, "Климатические данные")]
+        [TestCase(NavigationTarget.Construction, "Конструкция")]
+        [TestCase(NavigationTarget.Thermal, "Тепловой расчёт")]
+        [TestCase(NavigationTarget.Hydraulics, "Гидравлический расчёт")]
+        [TestCase(NavigationTarget.Results, "Результаты расчёта")]
+        public void SelectedMenuItem_WhenSetToEachTarget_UpdatesCurrentTitle(NavigationTarget target, string expectedTitle)
+        {
+            var menuItem = _viewModel.MenuItems.Single(item => item.Target == target);
+
+            _viewModel.SelectedMenuItem = menuItem;
+
+            Assert.That(_viewModel.CurrentTitle, Is.EqualTo(expectedTitle));
+        }
+
+        [Test]
+        public void SelectedMenuItem_WhenSetToResults_DoesNotLoadHydraulicsDataOnNavigate()
+        {
+            var resultsMenuItem = _viewModel.MenuItems.Single(item => item.Target == NavigationTarget.Results);
+
+            _viewModel.SelectedMenuItem = resultsMenuItem;
+
+            var cardsProperty = typeof(ResultsViewModel).GetProperty(
+                "HydraulicSummaryCards",
+                BindingFlags.Public | BindingFlags.Instance);
+            Assert.That(cardsProperty, Is.Not.Null,
+                "ResultsViewModel должен экспонировать публичное свойство 'HydraulicSummaryCards'.");
+            var cards = ((System.Collections.IEnumerable)cardsProperty!.GetValue(_viewModel.ResultsViewModel)!)
+                .Cast<object>()
+                .ToList();
+
+            Assert.That(cards, Is.Empty);
+        }
+
+        [Test]
+        public void MainViewModel_DoesNotExposeCurrentViewProperty()
+        {
+            var currentViewProperty = typeof(MainViewModel).GetProperty(
+                "CurrentView",
+                BindingFlags.Public | BindingFlags.Instance);
+
+            Assert.That(currentViewProperty, Is.Null);
+        }
+
+        #endregion
+
         #region WindowTitle
 
         [Test]
@@ -393,6 +488,106 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var args2 = await InvokeClosingAsync(window);
             Assert.That(args2.Cancel, Is.False);
             Assert.That(GetField<bool>(window, "_isClosingAfterSave"), Is.False);
+        }
+
+        #endregion
+
+        #region Sidebar
+
+        [Test]
+        public void IsSidebarCollapsed_DefaultsToFalse_OnFreshAppSettings()
+        {
+            // Sanity: после SetUp singleton AppSettings сброшен, MainViewModel создан заново
+            // и должен подхватить значение по умолчанию (false) из настроек.
+            Assert.That(_viewModel.IsSidebarCollapsed, Is.False);
+            Assert.That(_viewModel.IsSidebarExpanded, Is.True);
+        }
+
+        [Test]
+        public void IsSidebarCollapsed_WhenSetToTrue_ChangesValue_AndMarksSidebarCollapsed()
+        {
+            _viewModel.IsSidebarCollapsed = true;
+
+            Assert.That(_viewModel.IsSidebarCollapsed, Is.True);
+            Assert.That(_viewModel.IsSidebarExpanded, Is.False,
+                "IsSidebarExpanded — обратное свойство, должно стать false при свёрнутой панели.");
+        }
+
+        [Test]
+        public void IsSidebarCollapsed_WhenSetToTrue_PersistsToAppSettings()
+        {
+            // Capture текущее состояние singleton, чтобы не оставлять side-effect на другие тесты
+            var capturedInitial = AppSettings.Instance.IsSidebarCollapsed;
+
+            try
+            {
+                _viewModel.IsSidebarCollapsed = true;
+
+                Assert.That(AppSettings.Instance.IsSidebarCollapsed, Is.True,
+                    "Свёрнутое состояние боковой панели должно сохраняться в AppSettings.Instance.");
+            }
+            finally
+            {
+                AppSettings.Instance.IsSidebarCollapsed = capturedInitial;
+            }
+        }
+
+        [Test]
+        public void IsSidebarCollapsed_WhenToggled_NotifiesIsSidebarExpanded()
+        {
+            var expandedNotifications = new List<string?>();
+            _viewModel.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(MainViewModel.IsSidebarExpanded))
+                {
+                    expandedNotifications.Add(args.PropertyName);
+                }
+            };
+
+            _viewModel.IsSidebarCollapsed = !_viewModel.IsSidebarCollapsed;
+
+            Assert.That(expandedNotifications, Is.Not.Empty,
+                "Сеттер IsSidebarCollapsed должен уведомлять об изменении IsSidebarExpanded для XAML-триггеров.");
+        }
+
+        [Test]
+        public void ToggleSidebarCommand_FlipsIsSidebarCollapsed()
+        {
+            var initial = _viewModel.IsSidebarCollapsed;
+
+            _viewModel.ToggleSidebarCommand.Execute(null);
+
+            Assert.That(_viewModel.IsSidebarCollapsed, Is.EqualTo(!initial));
+        }
+
+        [Test]
+        public void MainViewModel_Constructor_ReadsInitialCollapseStateFromAppSettings()
+        {
+            // Arrange: подготовим AppSettings со свёрнутым состоянием
+            AppSettings.Instance.IsSidebarCollapsed = true;
+
+            try
+            {
+                var viewModel = new MainViewModel(
+                    CreateClimateViewModel(_projectStateService),
+                    CreateThermalViewModel(_projectStateService),
+                    CreateConstructionViewModel(_projectStateService),
+                    CreateCircuitsViewModel(_projectStateService),
+                    CreateResultsViewModel(_projectStateService, _projectFileServiceMock.Object, _dialogServiceMock.Object),
+                    _calculationStateServiceMock.Object,
+                    _projectStateService,
+                    _dialogServiceMock.Object,
+                    _calculationContext);
+
+                Assert.That(viewModel.IsSidebarCollapsed, Is.True,
+                    "MainViewModel должен подхватывать сохранённое состояние свёрнутой панели при конструировании.");
+                Assert.That(viewModel.IsSidebarExpanded, Is.False);
+            }
+            finally
+            {
+                // TearDown повторно сбросит singleton, но на всякий случай вернём исходное значение
+                AppSettings.Instance.IsSidebarCollapsed = false;
+            }
         }
 
         #endregion
