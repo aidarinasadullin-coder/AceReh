@@ -42,10 +42,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly ResultsPdfDataBuilder _resultsPdfDataBuilder;
         private readonly HydraulicSummaryBuilder _hydraulicSummaryBuilder;
 
-        /// <summary>
-        /// Текущий путь к файлу проекта
-        /// </summary>
-        private string? _currentFilePath;
         private bool _isResetting;
 
         #region Observable Properties
@@ -57,14 +53,42 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// <summary>
         /// Номер проекта
         /// </summary>
-        [ObservableProperty]
-        private string _projectNumber = string.Empty;
+        /// <remarks>
+        /// Источник истины — <see cref="IProjectStateService"/>; свойство VM — pass-through
+        /// с уведомлением UI и пометкой dirty при изменении вне сброса/загрузки проекта.
+        /// </remarks>
+        public string ProjectNumber
+        {
+            get => _projectStateService.ProjectNumber;
+            set
+            {
+                if (_projectStateService.ProjectNumber == value) return;
+                _projectStateService.ProjectNumber = value;
+                OnPropertyChanged();
+                if (_isResetting || _calculationStateService.IsLoadProjectInProgress) return;
+                _markDirtyService.MarkDirty();
+            }
+        }
 
         /// <summary>
         /// Наименование объекта
         /// </summary>
-        [ObservableProperty]
-        private string _projectObject = string.Empty;
+        /// <remarks>
+        /// Источник истины — <see cref="IProjectStateService"/>; свойство VM — pass-through
+        /// с уведомлением UI и пометкой dirty при изменении вне сброса/загрузки проекта.
+        /// </remarks>
+        public string ProjectObject
+        {
+            get => _projectStateService.ProjectObject;
+            set
+            {
+                if (_projectStateService.ProjectObject == value) return;
+                _projectStateService.ProjectObject = value;
+                OnPropertyChanged();
+                if (_isResetting || _calculationStateService.IsLoadProjectInProgress) return;
+                _markDirtyService.MarkDirty();
+            }
+        }
 
         // ============================================
         // Блок 1 - KPI (вычисляемые показатели)
@@ -487,36 +511,12 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _hydraulicSummaryBuilder = hydraulicSummaryBuilder ?? throw new ArgumentNullException(nameof(hydraulicSummaryBuilder));
 
             // Загружаем начальные данные
-            LoadProjectInfo();
             LoadClimateData();
             LoadConstructionData();
             LoadThermalData();
 
             // Проверяем готовность данных
             CheckDataReadiness();
-
-            // Подписываемся на изменения свойств проекта
-            PropertyChanged += OnProjectPropertyChanged;
-        }
-
-        /// <summary>
-        /// Обработчик изменения свойств проекта для сохранения номера и объекта
-        /// </summary>
-        private void OnProjectPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (_isResetting) return;
-            if (_calculationStateService.IsLoadProjectInProgress) return;
-
-            if (e.PropertyName == nameof(ProjectNumber))
-            {
-                _projectStateService.ProjectNumber = ProjectNumber;
-                _markDirtyService.MarkDirty();
-            }
-            else if (e.PropertyName == nameof(ProjectObject))
-            {
-                _projectStateService.ProjectObject = ProjectObject;
-                _markDirtyService.MarkDirty();
-            }
         }
 
         /// <summary>
@@ -668,13 +668,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
         [RelayCommand]
         private async Task SaveProject()
         {
-            if (string.IsNullOrEmpty(_currentFilePath))
+            if (string.IsNullOrEmpty(_projectStateService.CurrentFilePath))
             {
                 await SaveProjectAs();
                 return;
             }
 
-            await SaveToFile(_currentFilePath);
+            await SaveToFile(_projectStateService.CurrentFilePath);
         }
 
         /// <summary>
@@ -691,7 +691,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
             if (await SaveToFile(filePath))
             {
-                _currentFilePath = filePath;
                 _projectStateService.CurrentFilePath = filePath;
             }
         }
@@ -757,7 +756,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _projectStateService.MarkClean();
 
             await LoadProjectDataAsync(data);
-            _currentFilePath = filePath;
             _projectStateService.CurrentFilePath = filePath;
             _projectStateService.MarkClean();
 
@@ -916,15 +914,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
         #endregion
 
         #region Data Loading Methods
-
-        /// <summary>
-        /// Загрузить информацию о проекте из сервиса
-        /// </summary>
-        private void LoadProjectInfo()
-        {
-            ProjectNumber = _projectStateService.ProjectNumber;
-            ProjectObject = _projectStateService.ProjectObject;
-        }
 
         /// <summary>
         /// Загрузить климатические данные
@@ -1438,7 +1427,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         public void RefreshAll()
         {
-            LoadProjectInfo();
             LoadClimateData();
             LoadConstructionData();
             LoadThermalData();
@@ -1461,7 +1449,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
             {
                 ProjectNumber = string.Empty;
                 ProjectObject = string.Empty;
-                _currentFilePath = null;
                 _projectStateService.CurrentFilePath = null;
                 StatusMessage = string.Empty;
                 IsOperatingMode = true;
@@ -1529,11 +1516,11 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 // Восстанавливаем режим отображения
                 IsOperatingMode = data.IsOperatingMode;
 
-                // Загружаем информацию о проекте
+                // Загружаем информацию о проекте.
+                // Свойства VM — pass-through к IProjectStateService (этап C4):
+                // присвоение обновляет и сервис; dirty не ставится — активен guard загрузки.
                 ProjectNumber = data.ProjectNumber;
                 ProjectObject = data.ProjectObject;
-                _projectStateService.ProjectNumber = data.ProjectNumber;
-                _projectStateService.ProjectObject = data.ProjectObject;
 
                 // Восстанавливаем состояние модулей (климат, конструкция,
                 // тепловой расчёт, гидравлика) — оркестрация вынесена в
