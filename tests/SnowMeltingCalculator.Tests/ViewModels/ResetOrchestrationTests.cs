@@ -321,14 +321,17 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
         private static string? GetCurrentFilePath(ResultsViewModel vm)
         {
-            var field = typeof(ResultsViewModel).GetField("_currentFilePath", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (string?)field?.GetValue(vm);
+            var field = typeof(ResultsViewModel).GetField("_projectStateService", BindingFlags.NonPublic | BindingFlags.Instance);
+            return ((IProjectStateService?)field?.GetValue(vm))?.CurrentFilePath;
         }
 
         private static void SetCurrentFilePath(ResultsViewModel vm, string? value)
         {
-            var field = typeof(ResultsViewModel).GetField("_currentFilePath", BindingFlags.NonPublic | BindingFlags.Instance);
-            field?.SetValue(vm, value);
+            var field = typeof(ResultsViewModel).GetField("_projectStateService", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (field?.GetValue(vm) is IProjectStateService service)
+            {
+                service.CurrentFilePath = value;
+            }
         }
 
         #endregion
