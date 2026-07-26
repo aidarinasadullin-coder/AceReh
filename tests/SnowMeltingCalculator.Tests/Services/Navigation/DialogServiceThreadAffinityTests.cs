@@ -141,7 +141,6 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
-                calculationContext,
                 climateVm,
                 constructionVm,
                 thermalVm,

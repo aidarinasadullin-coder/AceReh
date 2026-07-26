@@ -557,7 +557,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
-                calculationContext,
                 climateVm,
                 constructionVm,
                 thermalVm,
