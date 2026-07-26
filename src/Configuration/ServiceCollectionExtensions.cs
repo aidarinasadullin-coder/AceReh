@@ -197,6 +197,7 @@ namespace SnowMeltingCalculator.Configuration
                 .AddConstructionModule()
                 .AddHydraulicsModule()
                 .AddResultsModule()
+                .AddSingleton<MainWindow>()
                 .AddValidators();
         }
 

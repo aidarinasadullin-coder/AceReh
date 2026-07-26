@@ -57,7 +57,7 @@ namespace SnowMeltingCalculator
                                          a.EndsWith(".smc", StringComparison.OrdinalIgnoreCase));
 
                 // Создание главного окна
-                var mainWindow = new MainWindow();
+                var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
                 if (!string.IsNullOrEmpty(startupProjectPath))
                 {
                     mainWindow.InitialProjectPath = startupProjectPath;

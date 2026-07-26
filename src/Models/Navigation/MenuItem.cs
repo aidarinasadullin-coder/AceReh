@@ -25,6 +25,9 @@ namespace SnowMeltingCalculator.Models.Navigation
         [ObservableProperty]
         private string _badgeColor = string.Empty;
 
+        [ObservableProperty]
+        private NavigationTarget _target;
+
         /// <summary>
         /// SVG path data для иконки (вычисляется на основе Icon)
         /// </summary>

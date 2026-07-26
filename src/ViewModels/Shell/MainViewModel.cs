@@ -11,11 +11,6 @@ using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Results;
 using SnowMeltingCalculator.ViewModels.Thermal;
-using SnowMeltingCalculator.Views.Climate;
-using SnowMeltingCalculator.Views.Construction;
-using SnowMeltingCalculator.Views.Hydraulics;
-using SnowMeltingCalculator.Views.Results;
-using SnowMeltingCalculator.Views.Thermal;
 
 namespace SnowMeltingCalculator.ViewModels.Shell
 {
@@ -35,13 +30,10 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         private readonly CalculationContext _calculationContext;
 
         public ResultsViewModel ResultsViewModel => _resultsViewModel;
-
-        // Кэшированные View (создаются только один раз)
-        private ClimateView? _climateView;
-        private ThermalView? _thermalView;
-        private ConstructionView? _constructionView;
-        private CircuitsView? _circuitsView;
-        private ResultsView? _resultsView;
+        public ClimateViewModel ClimateViewModel => _climateViewModel;
+        public ThermalViewModel ThermalViewModel => _thermalViewModel;
+        public ConstructionViewModel ConstructionViewModel => _constructionViewModel;
+        public CircuitsViewModel CircuitsViewModel => _circuitsViewModel;
 
         public MainViewModel(
             ClimateViewModel climateViewModel,
@@ -70,7 +62,6 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             // Подписка на изменения состояния проекта для обновления заголовка окна
             _projectStateService.PropertyChanged += OnProjectStateChanged;
 
-            // Начальное представление создаётся лениво при первом обращении (см. CurrentView)
             _selectedMenuItem = MenuItems[0];
 
             // Загрузка состояния боковой панели из настроек
@@ -80,21 +71,21 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             UpdateWindowTitle();
         }
 
-        private object? _currentView;
-        public object CurrentView
-        {
-            get => _currentView ??= (_climateView ??= new ClimateView { DataContext = _climateViewModel });
-            private set => SetProperty(ref _currentView, value);
-        }
-
         public MenuItem[] MenuItems { get; } = new[]
         {
-            new MenuItem { Title = "Климат", Icon = "WeatherCloudy" },
-            new MenuItem { Title = "Конструкция", Icon = "Layers" },
-            new MenuItem { Title = "Тепловой расчёт", Icon = "Fire" },
-            new MenuItem { Title = "Гидравлический расчёт", Icon = "Pipe" },
-            new MenuItem { Title = "Результаты", Icon = "ChartBar" }
+            new MenuItem { Title = "Климат", Icon = "WeatherCloudy", Target = NavigationTarget.Climate },
+            new MenuItem { Title = "Конструкция", Icon = "Layers", Target = NavigationTarget.Construction },
+            new MenuItem { Title = "Тепловой расчёт", Icon = "Fire", Target = NavigationTarget.Thermal },
+            new MenuItem { Title = "Гидравлический расчёт", Icon = "Pipe", Target = NavigationTarget.Hydraulics },
+            new MenuItem { Title = "Результаты", Icon = "ChartBar", Target = NavigationTarget.Results }
         };
+
+        private NavigationTarget _currentNavigationTarget = NavigationTarget.Climate;
+        public NavigationTarget CurrentNavigationTarget
+        {
+            get => _currentNavigationTarget;
+            private set => SetProperty(ref _currentNavigationTarget, value);
+        }
 
         private MenuItem? _selectedMenuItem;
         public MenuItem? SelectedMenuItem
@@ -104,7 +95,8 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             {
                 if (SetProperty(ref _selectedMenuItem, value) && value != null)
                 {
-                    NavigateToView(value);
+                    CurrentNavigationTarget = value.Target;
+                    UpdateCurrentTitle();
                 }
             }
         }
@@ -244,58 +236,15 @@ namespace SnowMeltingCalculator.ViewModels.Shell
 
         private void UpdateCurrentTitle()
         {
-            CurrentTitle = SelectedMenuItem?.Title switch
+            CurrentTitle = CurrentNavigationTarget switch
             {
-                "Климат" => "Климатические данные",
-                "Конструкция" => "Конструкция",
-                "Тепловой расчёт" => "Тепловой расчёт",
-                "Гидравлический расчёт" => "Гидравлический расчёт",
-                "Результаты" => "Результаты расчёта",
+                NavigationTarget.Climate => "Климатические данные",
+                NavigationTarget.Construction => "Конструкция",
+                NavigationTarget.Thermal => "Тепловой расчёт",
+                NavigationTarget.Hydraulics => "Гидравлический расчёт",
+                NavigationTarget.Results => "Результаты расчёта",
                 _ => "Калькулятор снеготаяния РЕХАУ"
             };
-        }
-
-        /// <summary>
-        /// Переключение между представлениями
-        /// </summary>
-        private void NavigateToView(MenuItem menuItem)
-        {
-            try
-            {
-                CurrentView = menuItem.Title switch
-                {
-                    "Климат" => _climateView ??= new ClimateView { DataContext = _climateViewModel },
-                    "Тепловой расчёт" => _thermalView ??= new ThermalView { DataContext = _thermalViewModel },
-                    "Конструкция" => _constructionView ??= new ConstructionView { DataContext = _constructionViewModel },
-                    "Гидравлический расчёт" => _circuitsView ??= new CircuitsView { DataContext = _circuitsViewModel },
-                    "Результаты" => GetResultsView(),
-                    _ => _climateView ??= new ClimateView { DataContext = _climateViewModel }
-                };
-
-                UpdateCurrentTitle();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Ошибка при создании представления '{menuItem.Title}': {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
-
-                // Показываем сообщение об ошибке через тестовый шов
-                _dialogService.ShowError(
-                    $"Ошибка при открытии вкладки '{menuItem.Title}':\n{ex.Message}",
-                    "Ошибка");
-
-                // Возвращаемся к климату (используем кэшированный View)
-                CurrentView = _climateView ??= new ClimateView { DataContext = _climateViewModel };
-            }
-        }
-
-        /// <summary>
-        /// Получить представление результатов (с загрузкой данных гидравлики)
-        /// </summary>
-        private object GetResultsView()
-        {
-            _resultsViewModel.LoadHydraulicsDataOnNavigate();
-            return _resultsView ??= new ResultsView { DataContext = _resultsViewModel };
         }
 
         #region Обработка событий состояния расчёта

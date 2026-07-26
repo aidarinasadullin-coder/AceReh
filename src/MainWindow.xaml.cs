@@ -5,7 +5,6 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Services;
 using SnowMeltingCalculator.ViewModels.Climate;
@@ -29,12 +28,20 @@ namespace SnowMeltingCalculator
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, System.ComponentModel.INotifyPropertyChanged
     {
-        private MainViewModel? _viewModel;
-        private IProjectStateService? _projectStateService;
-        private IDialogService? _dialogService;
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+        private readonly MainViewModel _viewModel;
+        private readonly IProjectStateService _projectStateService;
+        private readonly IDialogService _dialogService;
         private bool _isClosingAfterSave;
+
+        private readonly Dictionary<NavigationTarget, object> _moduleViewCache = new();
+
+        /// <summary>
+        /// Текущий материализованный модульный View, управляемый оболочкой.
+        /// </summary>
+        public object? CurrentModuleView { get; private set; }
 
         /// <summary>
         /// Путь к файлу проекта, который нужно открыть при запуске приложения
@@ -42,10 +49,19 @@ namespace SnowMeltingCalculator
         /// </summary>
         public string? InitialProjectPath { get; set; }
 
-        public MainWindow()
+        public MainWindow(
+            MainViewModel viewModel,
+            IProjectStateService projectStateService,
+            IDialogService dialogService)
         {
+            _viewModel = viewModel;
+            _projectStateService = projectStateService;
+            _dialogService = dialogService;
+
             InitializeComponent();
-            InitializeViewModel();
+            DataContext = viewModel;
+
+            WireViewModel();
 
             // Регистрируем обработчик клавиатурных сокращений
             KeyDown += MainWindow_KeyDown;
@@ -67,7 +83,7 @@ namespace SnowMeltingCalculator
         /// </summary>
         private async Task LoadInitialProjectAsync()
         {
-            if (_viewModel == null || string.IsNullOrEmpty(InitialProjectPath))
+            if (string.IsNullOrEmpty(InitialProjectPath))
                 return;
 
             try
@@ -78,7 +94,7 @@ namespace SnowMeltingCalculator
             {
                 // Стартовая загрузка проекта не должна ронять приложение из async void-обработчика
                 System.Diagnostics.Debug.WriteLine($"Ошибка загрузки проекта при запуске: {ex.Message}");
-                _dialogService?.ShowError(
+                _dialogService.ShowError(
                     $"Не удалось открыть проект:\n{ex.Message}",
                     "Ошибка загрузки проекта");
             }
@@ -89,18 +105,14 @@ namespace SnowMeltingCalculator
             }
         }
 
-        private void InitializeViewModel()
+        private void WireViewModel()
         {
-            var services = App.Services;
-            if (services == null) return;
-
-            _projectStateService = services.GetRequiredService<IProjectStateService>();
-            _dialogService = services.GetRequiredService<IDialogService>();
-            _viewModel = services.GetRequiredService<MainViewModel>();
-            DataContext = _viewModel;
-
             // Подписываемся на изменение состояния боковой панели для анимации
+            // и на изменение текущей навигационной цели для материализации View.
             _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+
+            // Материализуем начальный Climate view лениво при первом обращении к навигации.
+            UpdateModuleView(_viewModel.CurrentNavigationTarget);
         }
 
         /// <summary>
@@ -111,55 +123,40 @@ namespace SnowMeltingCalculator
             // Ctrl+B для переключения боковой панели
             if (e.Key == Key.B && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
-                if (_viewModel != null)
-                {
-                    _viewModel.ToggleSidebarCommand.Execute(null);
-                    e.Handled = true;
-                }
+                _viewModel.ToggleSidebarCommand.Execute(null);
+                e.Handled = true;
                 return;
             }
 
             // Ctrl+S для сохранения
             if (e.Key == Key.S && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
-                if (_viewModel?.ResultsViewModel != null)
-                {
-                    _viewModel.ResultsViewModel.SaveProjectCommand.Execute(null);
-                    e.Handled = true;
-                }
+                _viewModel.ResultsViewModel.SaveProjectCommand.Execute(null);
+                e.Handled = true;
                 return;
             }
 
             // Ctrl+Shift+S для сохранения как
             if (e.Key == Key.S && (Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) == (ModifierKeys.Control | ModifierKeys.Shift))
             {
-                if (_viewModel?.ResultsViewModel != null)
-                {
-                    _viewModel.ResultsViewModel.SaveProjectAsCommand.Execute(null);
-                    e.Handled = true;
-                }
+                _viewModel.ResultsViewModel.SaveProjectAsCommand.Execute(null);
+                e.Handled = true;
                 return;
             }
 
             // Ctrl+O для открытия
             if (e.Key == Key.O && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
-                if (_viewModel?.ResultsViewModel != null)
-                {
-                    _viewModel.ResultsViewModel.OpenProjectCommand.Execute(null);
-                    e.Handled = true;
-                }
+                _viewModel.ResultsViewModel.OpenProjectCommand.Execute(null);
+                e.Handled = true;
                 return;
             }
 
             // Ctrl+N для создания нового расчёта
             if (e.Key == Key.N && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
-                if (_viewModel?.NewCalculationCommand != null)
-                {
-                    _viewModel.NewCalculationCommand.ExecuteAsync(null);
-                    e.Handled = true;
-                }
+                _viewModel.NewCalculationCommand.ExecuteAsync(null);
+                e.Handled = true;
                 return;
             }
         }
@@ -180,12 +177,12 @@ namespace SnowMeltingCalculator
                 return;
             }
 
-            if (_projectStateService == null || !_projectStateService.IsDirty)
+            if (!_projectStateService.IsDirty)
             {
                 return;
             }
 
-            var result = _dialogService?.Show(
+            var result = _dialogService.Show(
                 "Текущий проект имеет несохранённые изменения. Сохранить перед закрытием?",
                 "Закрытие приложения",
                 DialogButtons.YesNoCancel,
@@ -202,27 +199,81 @@ namespace SnowMeltingCalculator
 
                 case SnowMeltingCalculator.Services.Navigation.DialogResult.Yes:
                     e.Cancel = true;
-                    if (_viewModel?.ResultsViewModel.SaveProjectCommand != null)
+                    await _viewModel.ResultsViewModel.SaveProjectCommand.ExecuteAsync(null);
+                    if (!_projectStateService.IsDirty)
                     {
-                        await _viewModel.ResultsViewModel.SaveProjectCommand.ExecuteAsync(null);
-                        if (!_projectStateService.IsDirty)
-                        {
-                            _isClosingAfterSave = true;
-                            Close();
-                        }
+                        _isClosingAfterSave = true;
+                        Close();
                     }
                     break;
             }
         }
 
         /// <summary>
-        /// Обработчик изменения свойств ViewModel для анимации
+        /// Обработчик изменения свойств ViewModel для анимации и навигации
         /// </summary>
         private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(MainViewModel.IsSidebarCollapsed) && _viewModel != null)
+            if (e.PropertyName == nameof(MainViewModel.IsSidebarCollapsed))
             {
                 AnimateSidebar(_viewModel.IsSidebarCollapsed);
+            }
+
+            if (e.PropertyName == nameof(MainViewModel.CurrentNavigationTarget))
+            {
+                UpdateModuleView(_viewModel.CurrentNavigationTarget);
+            }
+        }
+
+        /// <summary>
+        /// Материализует и кэширует View для указанной навигационной цели,
+        /// обновляя <see cref="CurrentModuleView"/>.
+        /// </summary>
+        private void UpdateModuleView(NavigationTarget target)
+        {
+            CurrentModuleView = ResolveView(target);
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(CurrentModuleView)));
+        }
+
+        /// <summary>
+        /// Возвращает закэшированный View для цели навигации или создаёт его.
+        /// Для Results предварительно гидратирует данные гидравлики.
+        /// При ошибке конструирования показывает диалог и возвращает ClimateView.
+        /// </summary>
+        private object ResolveView(NavigationTarget target)
+        {
+            if (_moduleViewCache.TryGetValue(target, out var cached))
+                return cached;
+
+            try
+            {
+                if (target == NavigationTarget.Results)
+                {
+                    _viewModel.ResultsViewModel.LoadHydraulicsDataOnNavigate();
+                }
+
+                object view = target switch
+                {
+                    NavigationTarget.Climate => new ClimateView { DataContext = _viewModel.ClimateViewModel },
+                    NavigationTarget.Construction => new ConstructionView { DataContext = _viewModel.ConstructionViewModel },
+                    NavigationTarget.Thermal => new ThermalView { DataContext = _viewModel.ThermalViewModel },
+                    NavigationTarget.Hydraulics => new CircuitsView { DataContext = _viewModel.CircuitsViewModel },
+                    NavigationTarget.Results => new ResultsView { DataContext = _viewModel.ResultsViewModel },
+                    _ => new ClimateView { DataContext = _viewModel.ClimateViewModel }
+                };
+
+                _moduleViewCache[target] = view;
+                return view;
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError(
+                    $"Ошибка при открытии раздела:\n{ex.Message}",
+                    "Ошибка навигации");
+
+                return _moduleViewCache.TryGetValue(NavigationTarget.Climate, out var fallback)
+                    ? fallback
+                    : new ClimateView { DataContext = _viewModel.ClimateViewModel };
             }
         }
 
