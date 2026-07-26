@@ -554,7 +554,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 dialogService,
                 new Mock<IPdfExportService>().Object,
                 projectFileService,
-                new Mock<IConstructionVisualizationImageService>().Object,
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
@@ -570,7 +569,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     circuitsVm,
                     calculationStateService,
                     constructionServiceMock.Object,
-                    calculationContext));
+                    calculationContext),
+                new ResultsPdfDataBuilder(
+                    new Mock<IConstructionVisualizationImageService>().Object,
+                    calculationStateService,
+                    constructionVm,
+                    circuitsVm));
         }
 
         #endregion

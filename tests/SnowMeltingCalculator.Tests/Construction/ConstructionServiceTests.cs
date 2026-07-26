@@ -1156,7 +1156,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
                 new Mock<IProjectFileService>().Object,
-                new Mock<IConstructionVisualizationImageService>().Object,
                 calculationStateService,
                 repo,
                 service,
@@ -1172,7 +1171,12 @@ namespace SnowMeltingCalculator.Tests.Construction
                     circuitsVm,
                     calculationStateService,
                     service,
-                    calculationContext));
+                    calculationContext),
+                new ResultsPdfDataBuilder(
+                    new Mock<IConstructionVisualizationImageService>().Object,
+                    calculationStateService,
+                    constructionVm,
+                    circuitsVm));
         }
 
         private static ConstructionViewModel CreateConstructionViewModel(IMaterialRepository repo)
@@ -1218,7 +1222,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
                 new Mock<IProjectFileService>().Object,
-                new Mock<IConstructionVisualizationImageService>().Object,
                 calculationStateService,
                 materialRepositoryMock.Object,
                 _service,
@@ -1234,7 +1237,12 @@ namespace SnowMeltingCalculator.Tests.Construction
                     circuitsVm,
                     calculationStateService,
                     _service,
-                    calculationContext));
+                    calculationContext),
+                new ResultsPdfDataBuilder(
+                    new Mock<IConstructionVisualizationImageService>().Object,
+                    calculationStateService,
+                    constructionVm,
+                    circuitsVm));
         }
 
         private static ConstructionViewModel CreateConstructionViewModel()

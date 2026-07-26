@@ -138,7 +138,6 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
                 dialogService,
                 new Mock<IPdfExportService>().Object,
                 projectFileService,
-                new Mock<IConstructionVisualizationImageService>().Object,
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
@@ -154,7 +153,12 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
                     circuitsVm,
                     calculationStateService,
                     constructionServiceMock.Object,
-                    calculationContext));
+                    calculationContext),
+                new ResultsPdfDataBuilder(
+                    new Mock<IConstructionVisualizationImageService>().Object,
+                    calculationStateService,
+                    constructionVm,
+                    circuitsVm));
         }
 
         private static ClimateViewModel CreateClimateViewModel(ProjectStateService projectStateService)
