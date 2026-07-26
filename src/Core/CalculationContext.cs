@@ -10,42 +10,6 @@ using SnowMeltingCalculator.Models.Hydraulics;
 namespace SnowMeltingCalculator.Core
 {
     /// <summary>
-    /// Состояние расчёта
-    /// </summary>
-    public enum CalculationState
-    {
-        /// <summary>
-        /// Начальное состояние, данные не загружены
-        /// </summary>
-        NotInitialized,
-
-        /// <summary>
-        /// Климатические данные загружены
-        /// </summary>
-        ClimateLoaded,
-
-        /// <summary>
-        /// Конструкция задана
-        /// </summary>
-        ConstructionReady,
-
-        /// <summary>
-        /// Тепловой расчёт выполнен
-        /// </summary>
-        ThermalCalculated,
-
-        /// <summary>
-        /// Гидравлический расчёт выполнен
-        /// </summary>
-        HydraulicsCalculated,
-
-        /// <summary>
-        /// Ошибка в данных
-        /// </summary>
-        Error
-    }
-
-    /// <summary>
     /// Аргументы события изменения контекста
     /// </summary>
     public class ContextChangedEventArgs : EventArgs
@@ -75,28 +39,17 @@ namespace SnowMeltingCalculator.Core
     /// Единый контекст расчёта для синхронизации между модулями
     /// </summary>
     /// <remarks>
-    /// Паттерн: Singleton с DI
-    /// Назначение: Централизованное хранение всех расчётных параметров и результатов,
-    /// обеспечение синхронизации между модулями без событийной модели.
+    /// Паттерн: Singleton с DI.
+    /// Контракт сужен до реально используемой поверхности (этап D2):
+    /// публикаторы — ClimateViewModel (климат), ConstructionViewModel (конструкция),
+    /// ThermalViewModel (тепловые входы и результат), CircuitsViewModel (итоги гидравлики);
+    /// потребитель — CircuitsViewModel (геттеры + событие ContextChanged);
+    /// сброс — MainViewModel и ProjectLoadOrchestrator.
+    /// Правило инвалидации: изменение любых входных данных сбрасывает downstream-результаты,
+    /// чтобы потребители не показывали stale-данные.
     /// </remarks>
     public partial class CalculationContext : ObservableObject
     {
-        #region Observable Properties
-
-        /// <summary>
-        /// Текущее состояние расчёта
-        /// </summary>
-        [ObservableProperty]
-        private CalculationState _state = CalculationState.NotInitialized;
-
-        /// <summary>
-        /// Сообщение об ошибке (если State == Error)
-        /// </summary>
-        [ObservableProperty]
-        private string _errorMessage = string.Empty;
-
-        #endregion
-
         #region Climate Data
 
         /// <summary>
@@ -105,24 +58,9 @@ namespace SnowMeltingCalculator.Core
         public IClimateData? Climate { get; private set; }
 
         /// <summary>
-        /// Выбранный город
-        /// </summary>
-        public string? SelectedCity => Climate?.SelectedCity;
-
-        /// <summary>
         /// Температура наружного воздуха, °C
         /// </summary>
         public double AirTemperature => Climate?.AirTemperature ?? 0;
-
-        /// <summary>
-        /// Скорость ветра, м/с
-        /// </summary>
-        public double WindSpeed => Climate?.WindSpeed ?? 0;
-
-        /// <summary>
-        /// Интенсивность снегопада, мм/ч
-        /// </summary>
-        public double SnowfallIntensity => Climate?.SnowfallIntensity ?? 0;
 
         #endregion
 
@@ -132,21 +70,6 @@ namespace SnowMeltingCalculator.Core
         /// Данные конструкции (только для чтения)
         /// </summary>
         public IConstructionData? Construction { get; private set; }
-
-        /// <summary>
-        /// Сопротивление слоёв над трубой, м²·К/Вт
-        /// </summary>
-        public double R1Total => Construction?.R1Total ?? 0;
-
-        /// <summary>
-        /// Сопротивление слоёв под трубой, м²·К/Вт
-        /// </summary>
-        public double R2Total => Construction?.R2Total ?? 0;
-
-        /// <summary>
-        /// Теплопроводность стяжки, Вт/м·К
-        /// </summary>
-        public double LambdaE => Construction?.LambdaE ?? 0;
 
         #endregion
 
@@ -174,11 +97,6 @@ namespace SnowMeltingCalculator.Core
         public double PowerDown => ThermalResult?.PowerDown ?? 0;
 
         /// <summary>
-        /// Суммарная мощность, Вт/м²
-        /// </summary>
-        public double PowerTotal => ThermalResult?.PowerTotal ?? 0;
-
-        /// <summary>
         /// Температура подачи, °C
         /// </summary>
         public double SupplyTemperature => ThermalResult?.SupplyTemperature ?? 0;
@@ -187,11 +105,6 @@ namespace SnowMeltingCalculator.Core
         /// Температура обратки, °C
         /// </summary>
         public double ReturnTemperature => ThermalResult?.ReturnTemperature ?? 0;
-
-        /// <summary>
-        /// Температурный перепад, К
-        /// </summary>
-        public double DeltaT => ThermalResult?.DeltaT ?? 0;
 
         /// <summary>
         /// Входные параметры теплового расчёта (включая выбранную трубу)
@@ -207,16 +120,6 @@ namespace SnowMeltingCalculator.Core
         /// </summary>
         [ObservableProperty]
         private List<CollectorSummary>? _hydraulicsResults;
-
-        /// <summary>
-        /// Признак того, что гидравлический расчёт выполнен
-        /// </summary>
-        public bool IsHydraulicsValid => HydraulicsResults != null && HydraulicsResults.Count > 0;
-
-        /// <summary>
-        /// Входные данные гидравлического расчёта
-        /// </summary>
-        public HydraulicInputData? Hydraulics { get; private set; }
 
         #endregion
 
@@ -245,8 +148,6 @@ namespace SnowMeltingCalculator.Core
             ThermalResult = null;
             HydraulicsResults = null;
 
-            State = CalculationState.ClimateLoaded;
-
             OnContextChanged(nameof(Climate), oldValue, climate, source);
         }
 
@@ -264,8 +165,6 @@ namespace SnowMeltingCalculator.Core
             ThermalResult = null;
             HydraulicsResults = null;
 
-            State = CalculationState.ConstructionReady;
-
             OnContextChanged(nameof(Construction), oldValue, construction, source);
         }
 
@@ -278,17 +177,6 @@ namespace SnowMeltingCalculator.Core
         {
             var oldValue = ThermalResult;
             ThermalResult = result;
-
-            if (result.IsValid)
-            {
-                State = CalculationState.ThermalCalculated;
-                ErrorMessage = string.Empty;
-            }
-            else
-            {
-                State = CalculationState.Error;
-                ErrorMessage = string.Join("; ", result.ValidationErrors ?? Array.Empty<string>());
-            }
 
             // Сброс гидравлических результатов при изменении теплового расчёта
             HydraulicsResults = null;
@@ -316,44 +204,14 @@ namespace SnowMeltingCalculator.Core
         }
 
         /// <summary>
-        /// Обновить входные данные гидравлического расчёта
-        /// </summary>
-        /// <param name="inputs">Входные данные гидравлического расчёта</param>
-        /// <param name="source">Источник изменения (имя модуля)</param>
-        public void UpdateHydraulics(HydraulicInputData inputs, string source = "Hydraulics")
-        {
-            var oldValue = Hydraulics;
-            Hydraulics = inputs;
-
-            OnContextChanged(nameof(Hydraulics), oldValue, inputs, source);
-        }
-
-        /// <summary>
         /// Обновить результаты гидравлического расчёта
         /// </summary>
         /// <param name="results">Результаты расчёта по коллекторам</param>
         /// <param name="source">Источник изменения (имя модуля)</param>
-        public void UpdateHydraulics(List<CollectorSummary> results, string source = "Hydraulics")
+        public void UpdateHydraulics(List<CollectorSummary>? results, string source = "Hydraulics")
         {
             var oldValue = HydraulicsResults;
             HydraulicsResults = results;
-
-            if (results != null && results.Count > 0)
-            {
-                var hasErrors = results.Any(r => !r.IsValid);
-                if (hasErrors)
-                {
-                    State = CalculationState.Error;
-                    ErrorMessage = string.Join("; ", results
-                        .Where(r => r.Warnings != null && r.Warnings.Length > 0)
-                        .SelectMany(r => r.Warnings));
-                }
-                else
-                {
-                    State = CalculationState.HydraulicsCalculated;
-                    ErrorMessage = string.Empty;
-                }
-            }
 
             OnContextChanged(nameof(HydraulicsResults), oldValue, results, source);
         }
@@ -367,83 +225,8 @@ namespace SnowMeltingCalculator.Core
             Construction = null;
             ThermalResult = null;
             HydraulicsResults = null;
-            Hydraulics = null;
-            State = CalculationState.NotInitialized;
-            ErrorMessage = string.Empty;
 
             OnContextChanged(nameof(Reset), null, null, "System");
-        }
-
-        #endregion
-
-        #region Validation
-
-        /// <summary>
-        /// Проверить валидность всех данных
-        /// </summary>
-        /// <returns>true если все данные валидны</returns>
-        public bool Validate()
-        {
-            return GetValidationErrors().Count == 0;
-        }
-
-        /// <summary>
-        /// Получить список ошибок валидации
-        /// </summary>
-        /// <returns>Список ошибок</returns>
-        public List<string> GetValidationErrors()
-        {
-            var errors = new List<string>();
-
-            // Проверка климатических данных
-            if (Climate == null)
-            {
-                errors.Add("Климатические данные не заданы");
-            }
-            else if (string.IsNullOrEmpty(Climate.SelectedCity))
-            {
-                errors.Add("Город не выбран");
-            }
-
-            // Проверка конструкции
-            if (Construction == null)
-            {
-                errors.Add("Конструкция не задана");
-            }
-
-            // Проверка теплового расчёта
-            if (ThermalResult == null)
-            {
-                errors.Add("Тепловой расчёт не выполнен");
-            }
-            else if (!ThermalResult.IsValid)
-            {
-                errors.AddRange(ThermalResult.ValidationErrors ?? Array.Empty<string>());
-            }
-
-            return errors;
-        }
-
-        /// <summary>
-        /// Проверить готовность к тепловому расчёту
-        /// </summary>
-        /// <returns>true если можно выполнять тепловой расчёт</returns>
-        public bool IsReadyForThermalCalculation()
-        {
-            return Climate != null &&
-                   !string.IsNullOrEmpty(Climate.SelectedCity) &&
-                   Construction != null;
-        }
-
-        /// <summary>
-        /// Проверить готовность к гидравлическому расчёту
-        /// </summary>
-        /// <returns>true если можно выполнять гидравлический расчёт</returns>
-        public bool IsReadyForHydraulicsCalculation()
-        {
-            return IsReadyForThermalCalculation() &&
-                   ThermalResult != null &&
-                   ThermalResult.IsValid;
         }
 
         #endregion

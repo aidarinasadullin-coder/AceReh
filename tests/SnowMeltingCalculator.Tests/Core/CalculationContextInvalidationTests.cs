@@ -62,7 +62,6 @@ namespace SnowMeltingCalculator.Tests.Core
 
             Assert.That(_context.ThermalResult, Is.Null, "Смена климата должна сбрасывать тепловой результат");
             Assert.That(_context.HydraulicsResults, Is.Null, "Смена климата должна сбрасывать гидравлические результаты");
-            Assert.That(_context.IsHydraulicsValid, Is.False);
         }
 
         [Test]
@@ -74,7 +73,6 @@ namespace SnowMeltingCalculator.Tests.Core
 
             Assert.That(_context.ThermalResult, Is.Null, "Смена конструкции должна сбрасывать тепловой результат");
             Assert.That(_context.HydraulicsResults, Is.Null, "Смена конструкции должна сбрасывать гидравлические результаты");
-            Assert.That(_context.IsHydraulicsValid, Is.False);
         }
 
         [Test]
@@ -86,7 +84,6 @@ namespace SnowMeltingCalculator.Tests.Core
 
             Assert.That(_context.ThermalResult, Is.Not.Null);
             Assert.That(_context.HydraulicsResults, Is.Null, "Новый тепловой расчёт должен инвалидировать гидравлику");
-            Assert.That(_context.IsHydraulicsValid, Is.False);
         }
 
         [Test]
@@ -101,7 +98,6 @@ namespace SnowMeltingCalculator.Tests.Core
 
             Assert.That(_context.HydraulicsResults, Is.Null,
                 "Изменение ThermalInputs не должно оставлять stale HydraulicsResults");
-            Assert.That(_context.IsHydraulicsValid, Is.False);
         }
 
         [Test]
@@ -115,9 +111,6 @@ namespace SnowMeltingCalculator.Tests.Core
             Assert.That(_context.Construction, Is.Null);
             Assert.That(_context.ThermalResult, Is.Null);
             Assert.That(_context.HydraulicsResults, Is.Null);
-            Assert.That(_context.Hydraulics, Is.Null);
-            Assert.That(_context.State, Is.EqualTo(CalculationState.NotInitialized));
-            Assert.That(_context.ErrorMessage, Is.Empty);
         }
 
         [Test]
