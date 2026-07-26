@@ -197,8 +197,7 @@ namespace SnowMeltingCalculator.Configuration
                 .AddConstructionModule()
                 .AddHydraulicsModule()
                 .AddResultsModule()
-                .AddValidators()
-                .AddValidationPipeline();
+                .AddValidators();
         }
 
         /// <summary>
@@ -217,15 +216,6 @@ namespace SnowMeltingCalculator.Configuration
             services.AddTransient<IValidator<ConstructionTemplate>, ConstructionTemplateValidator>();
             services.AddTransient<ConstructionTemplateValidator>();
 
-            return services;
-        }
-
-        /// <summary>
-        /// Добавить конвейер валидации
-        /// </summary>
-        public static IServiceCollection AddValidationPipeline(this IServiceCollection services)
-        {
-            services.AddTransient<IValidationPipeline, ValidationPipeline>();
             return services;
         }
     }

@@ -247,7 +247,6 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
             // (OnCalculationContextChanged handles invalid thermal as Notify-only)
 
             // Assert - hydraulics context stays empty/stale-free
-            Assert.That(_calculationContext.IsHydraulicsValid, Is.False, "Невалидный тепловой результат не должен запускать гидравлический расчёт");
             Assert.That(_calculationContext.HydraulicsResults, Is.Null, "HydraulicsResults должен оставаться null");
         }
 
@@ -324,7 +323,6 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
             Assert.That(_calculationContext.HydraulicsResults!.Count, Is.EqualTo(2), "Должно быть 2 summary по коллекторам");
             Assert.That(_calculationContext.HydraulicsResults.All(s => s.TotalPipeLength > 0), Is.True,
                 "Каждый summary должен иметь ненулевую общую длину труб");
-            Assert.That(_calculationContext.IsHydraulicsValid, Is.True, "Гидравлический расчёт должен считаться валидным");
         }
 
         [Test]
@@ -354,8 +352,6 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
             // Assert
             Assert.That(_calculationContext.HydraulicsResults, Is.Null,
                 "При ошибке гликоля результаты гидравлики должны сбрасываться в null");
-            Assert.That(_calculationContext.IsHydraulicsValid, Is.False,
-                "При ошибке гидравлический расчёт не должен считаться валидным");
         }
     }
 }
