@@ -295,7 +295,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
                 new Mock<IProjectFileService>().Object,
-                new Mock<IConstructionVisualizationImageService>().Object,
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
@@ -311,7 +310,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     circuitsVm,
                     calculationStateService,
                     constructionServiceMock.Object,
-                    calculationContext));
+                    calculationContext),
+                new ResultsPdfDataBuilder(
+                    new Mock<IConstructionVisualizationImageService>().Object,
+                    calculationStateService,
+                    constructionVm,
+                    circuitsVm));
         }
 
         private static string? GetCurrentFilePath(ResultsViewModel vm)

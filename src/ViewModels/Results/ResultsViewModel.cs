@@ -12,7 +12,6 @@ using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
-using SnowMeltingCalculator.Services.Visualization;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
@@ -31,7 +30,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly IDialogService _dialogService;
         private readonly IPdfExportService _pdfExportService;
         private readonly IProjectFileService _projectFileService;
-        private readonly IConstructionVisualizationImageService _constructionVisualizationImageService;
         private readonly ICalculationStateService _calculationStateService;
         private readonly IMaterialRepository _materialRepository;
         private readonly IConstructionService _constructionService;
@@ -41,6 +39,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly ThermalViewModel _thermalViewModel;
         private readonly CircuitsViewModel _circuitsViewModel;
         private readonly ProjectLoadOrchestrator _projectLoadOrchestrator;
+        private readonly ResultsPdfDataBuilder _resultsPdfDataBuilder;
 
         /// <summary>
         /// Текущий путь к файлу проекта
@@ -457,7 +456,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
             IDialogService dialogService,
             IPdfExportService pdfExportService,
             IProjectFileService projectFileService,
-            IConstructionVisualizationImageService constructionVisualizationImageService,
             ICalculationStateService calculationStateService,
             IMaterialRepository materialRepository,
             IConstructionService constructionService,
@@ -466,14 +464,14 @@ namespace SnowMeltingCalculator.ViewModels.Results
             ConstructionViewModel constructionViewModel,
             ThermalViewModel thermalViewModel,
             CircuitsViewModel circuitsViewModel,
-            ProjectLoadOrchestrator projectLoadOrchestrator)
+            ProjectLoadOrchestrator projectLoadOrchestrator,
+            ResultsPdfDataBuilder resultsPdfDataBuilder)
         {
             _projectStateService = projectStateService ?? throw new ArgumentNullException(nameof(projectStateService));
             _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _pdfExportService = pdfExportService ?? throw new ArgumentNullException(nameof(pdfExportService));
             _projectFileService = projectFileService ?? throw new ArgumentNullException(nameof(projectFileService));
-            _constructionVisualizationImageService = constructionVisualizationImageService ?? throw new ArgumentNullException(nameof(constructionVisualizationImageService));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
@@ -483,6 +481,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _thermalViewModel = thermalViewModel ?? throw new ArgumentNullException(nameof(thermalViewModel));
             _circuitsViewModel = circuitsViewModel ?? throw new ArgumentNullException(nameof(circuitsViewModel));
             _projectLoadOrchestrator = projectLoadOrchestrator ?? throw new ArgumentNullException(nameof(projectLoadOrchestrator));
+            _resultsPdfDataBuilder = resultsPdfDataBuilder ?? throw new ArgumentNullException(nameof(resultsPdfDataBuilder));
 
             // Загружаем начальные данные
             LoadProjectInfo();
@@ -625,7 +624,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             try
             {
                 StatusMessage = "Экспорт в PDF...";
-                var pdfData = BuildResultsPdfData();
+                var pdfData = _resultsPdfDataBuilder.Build(this);
                 var success = await _pdfExportService.ExportResultsToPdfAsync(fileName, pdfData);
 
                 if (success)
@@ -646,173 +645,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 await Task.Delay(5000);
                 StatusMessage = string.Empty;
             }
-        }
-
-        /// <summary>
-        /// Собрать данные для PDF экспорта
-        /// </summary>
-        private ResultsPdfData BuildResultsPdfData()
-        {
-            var pdfData = new ResultsPdfData
-            {
-                // Информация о проекте
-                ProjectNumber = ProjectNumber,
-                ProjectObject = ProjectObject,
-                ReportDate = DateTime.Now,
-
-                // KPI
-                TotalThermalPower_kW = TotalThermalPower_kW,
-                SystemVolume_L = SystemVolume_L,
-                PumpFlowRate_m3h = PumpFlowRate_m3h,
-                PumpHead_kPa = PumpHead_kPa,
-                ExpansionTankVolume_L = ExpansionTankVolume_L,
-
-                // Температуры
-                SupplyTemperature = SupplyTemperature,
-                ReturnTemperature = ReturnTemperature,
-                OperatingTemperature = OperatingTemperature,
-                GroundTemperature = GroundTemperature,
-                SurfaceTemperature = SurfaceTemperature,
-
-                // Климат
-                City = SelectedCity,
-                DesignTemperature = DesignTemperature,
-                WindSpeed = WindSpeed,
-                SnowfallIntensity = SnowfallIntensity,
-                ClimateZone = ClimateZone,
-                ColdPeriodDays = ColdPeriodDays,
-
-                // Труба
-                PipeType = PipeType,
-                PipeSpacing = PipeSpacing,
-
-                // Режим и теплоноситель
-                OperatingMode = OperatingMode,
-                GlycolType = GlycolType,
-                GlycolConcentration = GlycolConcentration,
-
-                // Конструкция
-                R1 = R1,
-                R2 = R2,
-                LambdaE = LambdaE,
-                PowerUp = PowerUp,
-                PowerDown = PowerDown,
-                TotalPowerDensity = TotalPowerDensity,
-
-                // Оборудование
-                TotalPipeLength = TotalPipeLength,
-                RzsCount = RzsCount
-            };
-
-            // Слои конструкции
-            foreach (var layer in Layers)
-            {
-                pdfData.Layers.Add(new LayerPdfData
-                {
-                    MaterialName = layer.Material?.Name ?? "Не указан",
-                    Thickness = layer.Thickness,
-                    Lambda = layer.CalculatedLambda,
-                    R = layer.CalculatedR,
-                    Position = layer.Position == LayerPosition.AbovePipe ? "Над трубой" : "Под трубой"
-                });
-            }
-
-            // Изображение схемы конструкции для PDF
-            pdfData.ConstructionImageBytes = _constructionVisualizationImageService.GenerateImage(
-                new ConstructionVisualizationParameters
-                {
-                    LayersAbovePipe = _constructionViewModel.LayersAbovePipe,
-                    LayersBelowPipe = _constructionViewModel.LayersBelowPipe,
-                    PipeSpacing = _calculationStateService.PipeSpacing,
-                    CompactMode = true,
-                    ShowDimensionLine = true,
-                    FixedScaleFactor = 0.25
-                },
-                width: 400,
-                height: 300);
-
-            // Коллекторы и контуры
-            if (_circuitsViewModel.Collectors != null)
-            {
-                foreach (var collector in _circuitsViewModel.Collectors)
-                {
-                    if (collector == null) continue;
-
-                    var collectorPdf = new CollectorPdfData
-                    {
-                        Number = collector.CollectorNumber,
-                        Type = collector.CollectorTypeDisplayWithCount,
-                        Summary = new CollectorSummaryPdfData
-                        {
-                            CircuitCount = collector.Circuits?.Count ?? 0,
-                            TotalPipeLength = collector.Summary?.TotalPipeLength ?? 0,
-                            TotalPower = collector.Summary?.TotalPower ?? 0,
-                            TotalFlowRate = collector.Summary?.TotalFlowRate ?? 0,
-                            PressureLoss_Operating_kPa = (collector.Summary?.PressureLoss_Operating_Pa ?? 0) / 1000.0,
-                            PressureLoss_Cold_kPa = (collector.Summary?.PressureLoss_Cold_Pa ?? 0) / 1000.0,
-                            Kv = collector.Summary?.Kv ?? 1.2,
-                            CollectorType = collector.Summary?.CollectorType ?? "HKV-D"
-                        }
-                    };
-
-                    // Контуры коллектора
-                    if (collector.Circuits != null)
-                    {
-                        foreach (var circuit in collector.Circuits)
-                        {
-                            if (circuit == null) continue;
-
-                            // Используем данные для рабочего режима
-                            var result = circuit.OperatingResult;
-
-                            // Расчёт удельных потерь (Па/м)
-                            double pressureLossPerMeter = 0;
-                            if (result?.DpRohr > 0 && circuit.TotalLength > 0)
-                            {
-                                pressureLossPerMeter = result.DpRohr / circuit.TotalLength;
-                            }
-
-                            collectorPdf.Circuits.Add(new CircuitPdfData
-                            {
-                                CircuitNumber = circuit.CircuitNumber,
-                                Length = circuit.TotalLength,
-                                Area = circuit.CircuitArea,
-                                Power = circuit.Power,
-                                FlowRate = circuit.FlowRate,
-                                Velocity = circuit.Velocity,
-                                FlowRegime = circuit.FlowRegimeDescription,
-                                PressureLossPerMeter = pressureLossPerMeter,
-                                DpRohr = (result?.DpRohr ?? 0) / 1000.0,        // кПа
-                                DpVerteiler = (result?.DpVerteiler ?? 0) / 1000.0, // кПа
-                                DpVent = (result?.DpVent ?? 0) / 1000.0,          // кПа
-                                DpGesamt = (result?.DpGesamt ?? 0) / 1000.0,      // кПа
-                                Throttling = circuit.Throttling / 1000.0,         // кПа
-                                ZuDrosseln = circuit.Throttling / 1000.0, // кПа
-                                ValveTurns = circuit.ValveTurns
-                            });
-                        }
-                    }
-
-                    pdfData.Collectors.Add(collectorPdf);
-                }
-            }
-
-            // Спецификации коллекторов
-            foreach (var spec in CollectorSpecifications)
-            {
-                pdfData.CollectorSpecifications.Add(new CollectorSpecPdfData
-                {
-                    Number = spec.Number,
-                    Type = spec.Type,
-                    CircuitCount = spec.CircuitCount,
-                    TotalPower_kW = spec.TotalPower_kW,
-                    TotalFlowRate_m3h = spec.TotalFlowRate_m3h,
-                    PressureLoss_mbar = spec.PressureLoss_mbar,
-                    Kv = spec.Kv
-                });
-            }
-
-            return pdfData;
         }
 
         /// <summary>
@@ -948,7 +780,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             try
             {
                 StatusMessage = "Создание предпросмотра...";
-                var pdfData = BuildResultsPdfData();
+                var pdfData = _resultsPdfDataBuilder.Build(this);
                 var tempPath = _projectFileService.GetPreviewPdfPath();
 
                 var success = await _pdfExportService.ExportResultsToPdfAsync(tempPath, pdfData);
@@ -996,7 +828,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             try
             {
                 StatusMessage = "Подготовка к печати...";
-                var pdfData = BuildResultsPdfData();
+                var pdfData = _resultsPdfDataBuilder.Build(this);
                 var tempPath = _projectFileService.GetPreviewPdfPath();
 
                 var success = await _pdfExportService.ExportResultsToPdfAsync(tempPath, pdfData);

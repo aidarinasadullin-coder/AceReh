@@ -871,19 +871,21 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             collector.Circuits.Add(circuit);
             circuitsVm.Collectors.Add(collector);
 
+            var constructionVm = CreateConstructionViewModel();
             var viewModel = CreateViewModel(
                 CreateClimateViewModel(),
-                CreateConstructionViewModel(),
+                constructionVm,
                 CreateThermalViewModel(),
                 circuitsVm);
 
-            // Act: вызываем private BuildResultsPdfData через reflection.
-            var method = typeof(ResultsViewModel).GetMethod(
-                "BuildResultsPdfData",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.That(method, Is.Not.Null,
-                "BuildResultsPdfData должен существовать как private instance метод.");
-            var pdfData = (ResultsPdfData)method!.Invoke(viewModel, null)!;
+            // Act: построение PDF-модели вынесено из ResultsViewModel
+            // в ResultsPdfDataBuilder (этап C2) — вызываем его напрямую.
+            var builder = new ResultsPdfDataBuilder(
+                new Mock<IConstructionVisualizationImageService>().Object,
+                new CalculationStateService(),
+                constructionVm,
+                circuitsVm);
+            var pdfData = builder.Build(viewModel);
 
             // Assert
             Assert.That(pdfData.Collectors, Has.Count.EqualTo(1));
@@ -1358,7 +1360,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 _dialogServiceMock.Object,
                 new Mock<IPdfExportService>().Object,
                 _projectFileServiceMock.Object,
-                new Mock<IConstructionVisualizationImageService>().Object,
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
@@ -1374,7 +1375,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     circuitsVm,
                     calculationStateService,
                     constructionServiceMock.Object,
-                    calculationContext));
+                    calculationContext),
+                new ResultsPdfDataBuilder(
+                    new Mock<IConstructionVisualizationImageService>().Object,
+                    calculationStateService,
+                    constructionVm,
+                    circuitsVm));
         }
 
         private static ClimateViewModel CreateClimateViewModel()
@@ -1551,7 +1557,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 _dialogServiceMock.Object,
                 new Mock<IPdfExportService>().Object,
                 _projectFileServiceMock.Object,
-                new Mock<IConstructionVisualizationImageService>().Object,
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
@@ -1567,7 +1572,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     circuitsVm,
                     calculationStateService,
                     constructionServiceMock.Object,
-                    calculationContext));
+                    calculationContext),
+                new ResultsPdfDataBuilder(
+                    new Mock<IConstructionVisualizationImageService>().Object,
+                    calculationStateService,
+                    constructionVm,
+                    circuitsVm));
         }
 
         private static ClimateViewModel CreateClimateViewModel(
