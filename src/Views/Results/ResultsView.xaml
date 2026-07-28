@@ -259,6 +259,38 @@
                                 <TextBlock Text="Сохранить" VerticalAlignment="Center" FontSize="12"/>
                             </StackPanel>
                         </Button>
+
+                        <!-- Детальный отчёт в Markdown: рабочий режим -->
+                        <Button Style="{StaticResource DashboardCompactButtonStyle}"
+                                Command="{Binding ExportOperatingMarkdownReportCommand}"
+                                IsEnabled="{Binding IsDataReady}"
+                                Margin="8,0,0,0"
+                                ToolTip="Детальный отчёт в Markdown — рабочий режим">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M6,2A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6M6,4H13V9H18V20H6V4Z"
+                                      Width="14" Height="14"
+                                      Fill="{DynamicResource RehauGrayBrush}"
+                                      Margin="0,0,4,0"
+                                      Stretch="Uniform"/>
+                                <TextBlock Text="Рабочий .md" VerticalAlignment="Center" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Детальный отчёт в Markdown: расчётный/холодный режим -->
+                        <Button Style="{StaticResource DashboardCompactButtonStyle}"
+                                Command="{Binding ExportDesignColdMarkdownReportCommand}"
+                                IsEnabled="{Binding IsDataReady}"
+                                Margin="8,0,0,0"
+                                ToolTip="Детальный отчёт в Markdown — расчётный/холодный режим">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M6,2A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6M6,4H13V9H18V20H6V4Z"
+                                      Width="14" Height="14"
+                                      Fill="{DynamicResource RehauGrayBrush}"
+                                      Margin="0,0,4,0"
+                                      Stretch="Uniform"/>
+                                <TextBlock Text="Холодный .md" VerticalAlignment="Center" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
 
                     <!-- Статус -->
@@ -630,14 +662,14 @@
                                           Margin="0,0,6,0"/>
                                     <TextBlock Text="Коллекторы" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <ItemsControl ItemsSource="{Binding CollectorSpecifications}" Margin="0,4,0,0">
+                                <ItemsControl ItemsSource="{Binding CollectorEquipmentItems}" Margin="0,4,0,0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
                                                 <TextBlock Text="•" Margin="0,0,3,0" FontSize="11" Foreground="{DynamicResource RehauBlackBrush}"/>
                                                 <TextBlock Text="{Binding Type}" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource RehauBlackBrush}"/>
                                                 <TextBlock Text=": " FontSize="11" Foreground="{DynamicResource RehauBlackBrush}"/>
-                                                <TextBlock Text="{Binding CircuitCount}" FontSize="11" Foreground="{DynamicResource RehauBlackBrush}"/>
+                                                <TextBlock Text="{Binding CollectorQuantity}" FontSize="11" Foreground="{DynamicResource RehauBlackBrush}"/>
                                                 <TextBlock Text=" шт" FontSize="11" Foreground="{DynamicResource RehauBlackBrush}"/>
                                             </StackPanel>
                                         </DataTemplate>
