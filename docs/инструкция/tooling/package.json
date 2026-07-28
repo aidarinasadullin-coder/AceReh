@@ -1,0 +1,17 @@
+{
+  "name": "ace-docs-tooling",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local Markdown to HTML/PDF pipeline for README v.2.2 via installed Chrome",
+  "scripts": {
+    "render": "node render.mjs",
+    "validate": "node validate.mjs",
+    "build": "node render.mjs && node validate.mjs"
+  },
+  "dependencies": {
+    "marked": "^15.0.0",
+    "marked-gfm-heading-id": "^4.0.0",
+    "puppeteer-core": "^23.0.0"
+  }
+}

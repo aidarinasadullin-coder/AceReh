@@ -1,0 +1,191 @@
+/* A4 print stylesheet for engineering documentation: Cyrillic, repeating table headers, no image/row breaks, clickable links. */
+
+@page {
+  size: A4;
+  margin: 18mm 16mm 20mm 16mm;
+}
+
+html {
+  font-size: 11pt;
+}
+
+body {
+  font-family: "Segoe UI", "PT Sans", "DejaVu Sans", "Liberation Sans", "Arial", sans-serif;
+  color: #1a1a1a;
+  line-height: 1.5;
+  margin: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Segoe UI", "PT Sans", "DejaVu Sans", "Liberation Sans", "Arial", sans-serif;
+  color: #0d2a4a;
+  line-height: 1.25;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+h1 {
+  font-size: 1.6rem;
+  border-bottom: 2px solid #0d2a4a;
+  padding-bottom: 0.3em;
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 1.3rem;
+  border-bottom: 1px solid #b0bcc8;
+  padding-bottom: 0.2em;
+  margin-top: 1.6em;
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin-top: 1.2em;
+}
+
+h4 {
+  font-size: 1.0rem;
+  margin-top: 1.0em;
+}
+
+p {
+  margin: 0.5em 0;
+}
+
+a {
+  color: #1a5fb4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* TOC */
+nav {
+  background: #f4f7fa;
+  border: 1px solid #d0dae5;
+  border-radius: 4px;
+  padding: 0.8em 1.2em;
+  margin: 1em 0 1.5em 0;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+nav ol {
+  margin: 0;
+  padding-left: 1.4em;
+}
+
+nav li {
+  margin: 0.2em 0;
+}
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.8em 0;
+  font-size: 0.92rem;
+}
+
+thead {
+  display: table-header-group;
+}
+
+th, td {
+  border: 1px solid #b0bcc8;
+  padding: 0.35em 0.5em;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #e8eef5;
+  color: #0d2a4a;
+  font-weight: 600;
+}
+
+tr {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+tbody tr:nth-child(even) {
+  background: #f7f9fb;
+}
+
+/* Images: never break, fit width */
+img {
+  max-width: 100%;
+  height: auto;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  border: 1px solid #d0dae5;
+  border-radius: 3px;
+  padding: 4px;
+  background: #fff;
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 3px solid #1a5fb4;
+  margin: 0.8em 0;
+  padding: 0.4em 0.9em;
+  background: #f4f7fa;
+  color: #333;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+blockquote p {
+  margin: 0.3em 0;
+}
+
+/* Code */
+code {
+  font-family: "Consolas", "DejaVu Sans Mono", "Liberation Mono", monospace;
+  background: #eef2f6;
+  padding: 0.1em 0.3em;
+  border-radius: 2px;
+  font-size: 0.9em;
+}
+
+pre {
+  background: #eef2f6;
+  border: 1px solid #d0dae5;
+  border-radius: 3px;
+  padding: 0.6em;
+  overflow-x: auto;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Horizontal rule */
+hr {
+  border: none;
+  border-top: 1px solid #b0bcc8;
+  margin: 1.5em 0;
+}
+
+/* Checklist */
+input[type="checkbox"] {
+  margin-right: 0.4em;
+}
+
+/* Strong emphasis */
+strong {
+  color: #0d2a4a;
+}
+
+/* Final version line */
+body > p:last-child em {
+  color: #555;
+}
