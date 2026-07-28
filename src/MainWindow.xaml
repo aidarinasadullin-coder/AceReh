@@ -6,6 +6,7 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:views="clr-namespace:SnowMeltingCalculator.Views.Climate"
         xmlns:viewsThermal="clr-namespace:SnowMeltingCalculator.Views.Thermal"
+        xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
         Height="700" Width="900"
@@ -35,58 +36,20 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Visibility" Value="Collapsed"/>
         </Style>
-        
-        <!-- Логотип REHAU в виде DrawingImage -->
-        <DrawingImage x:Key="RehauLogoDrawing">
-            <DrawingImage.Drawing>
-                <DrawingGroup>
-                    <!-- Графический символ REHAU (абстрактные квадраты) -->
-                    <GeometryDrawing Brush="#E50040">
-                        <GeometryDrawing.Geometry>
-                            <PathGeometry Figures="M286.55 344.1h-42.16v-42.15h42.16zm-57.97 0h-42.15v-42.16h42.15zm115.94-57.97h-42.16v-42.16h42.16z"/>
-                        </GeometryDrawing.Geometry>
-                    </GeometryDrawing>
-                    <GeometryDrawing Brush="#E50040">
-                        <GeometryDrawing.Geometry>
-                            <PathGeometry Figures="M286.55 243.98h-42.16v42.16h42.16zm-57.97 0h-42.15v42.16h42.15zm-57.97 0h-42.15v42.15h42.15z"/>
-                        </GeometryDrawing.Geometry>
-                    </GeometryDrawing>
-                    <GeometryDrawing Brush="#575756">
-                        <GeometryDrawing.Geometry>
-                            <PathGeometry Figures="M344.52 186.01h-42.16v42.16h42.16zm-57.97 0h-42.16v42.16h42.16z"/>
-                        </GeometryDrawing.Geometry>
-                    </GeometryDrawing>
-                    <GeometryDrawing Brush="#4FC7B5">
-                        <GeometryDrawing.Geometry>
-                            <PathGeometry Figures="M228.58 228.17h-42.15v-42.16h42.15zm-57.97 0h-42.15v-42.16h42.15zm-57.96 0h-42.16v-42.15h42.16z"/>
-                        </GeometryDrawing.Geometry>
-                    </GeometryDrawing>
-                    <GeometryDrawing Brush="#575756">
-                        <GeometryDrawing.Geometry>
-                            <PathGeometry Figures="M344.52 170.2h-42.16v-42.16h42.16zm-57.97 0h-42.16v-42.15h42.16z"/>
-                        </GeometryDrawing.Geometry>
-                    </GeometryDrawing>
-                    <GeometryDrawing Brush="#4FC7B5">
-                        <GeometryDrawing.Geometry>
-                            <PathGeometry Figures="M228.58 170.2h-42.15v-42.16h42.15zm-57.97 0h-42.15v-42.15h42.15zm-57.96 0h-42.16v-42.16h42.16z"/>
-                        </GeometryDrawing.Geometry>
-                    </GeometryDrawing>
-                    <GeometryDrawing Brush="#575756">
-                        <GeometryDrawing.Geometry>
-                            <PathGeometry Figures="M286.55 112.23h-42.16v-42.15h42.16z"/>
-                        </GeometryDrawing.Geometry>
-                    </GeometryDrawing>
-                    <GeometryDrawing Brush="#4FC7B5">
-                        <GeometryDrawing.Geometry>
-                            <PathGeometry Figures="M228.58 70.08h-42.15v42.15h42.15zm-57.97 0h-42.15v42.16h42.15z"/>
-                        </GeometryDrawing.Geometry>
-                    </GeometryDrawing>
-                </DrawingGroup>
-            </DrawingImage.Drawing>
-        </DrawingImage>
     </Window.Resources>
 
     <Grid>
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Setter Property="Margin" Value="0"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=WindowState}" Value="Maximized">
+                        <Setter Property="Margin" Value="{x:Static SystemParameters.WindowResizeBorderThickness}"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -111,11 +74,11 @@
                     <Border Width="52" Height="52" Margin="0,0,12,0"
                            Background="White" CornerRadius="4"
                            Padding="4">
-                        <Image Source="{StaticResource RehauLogoDrawing}"
-                               Width="44" Height="44"
-                               Stretch="Uniform"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                        <svgc:SvgViewbox Source="pack://application:,,,/Assets/Brand/logo_icon_color.svg"
+                                         Width="44" Height="44"
+                                         Stretch="Uniform"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"/>
                     </Border>
 
                     <!-- Название -->

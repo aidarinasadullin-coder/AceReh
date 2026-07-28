@@ -52,9 +52,7 @@ namespace SnowMeltingCalculator
 
                 // Определяем путь к файлу проекта, переданный через командную строку
                 // (например, при двойном клике по файлу .smc в проводнике Windows)
-                string? startupProjectPath = e.Args
-                    .FirstOrDefault(a => !string.IsNullOrWhiteSpace(a) &&
-                                         a.EndsWith(".smc", StringComparison.OrdinalIgnoreCase));
+                string? startupProjectPath = SelectStartupProjectPath(e.Args);
 
                 // Создание главного окна
                 var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
@@ -83,6 +81,13 @@ namespace SnowMeltingCalculator
 
                 Shutdown();
             }
+        }
+
+        internal static string? SelectStartupProjectPath(IEnumerable<string> arguments)
+        {
+            return arguments.FirstOrDefault(argument =>
+                !string.IsNullOrWhiteSpace(argument) &&
+                argument.EndsWith(".smc", StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
