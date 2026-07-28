@@ -17,6 +17,7 @@ using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Results;
 using SnowMeltingCalculator.Services.Results;
+using SnowMeltingCalculator.Services.Reports.Calculation;
 using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Visualization;
 using SnowMeltingCalculator.Core;
@@ -173,6 +174,9 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<IProjectStateService>(sp => sp.GetRequiredService<ProjectStateService>());
             services.AddSingleton<IMarkDirtyService>(sp => sp.GetRequiredService<ProjectStateService>());
             services.AddSingleton<IPdfExportService, PdfExportService>();
+            services.AddSingleton<ICalculationReportDataBuilder, CalculationReportDataBuilder>();
+            services.AddSingleton<ICalculationReportMarkdownRenderer, CalculationReportMarkdownRenderer>();
+            services.AddSingleton<ICalculationReportExportService, CalculationReportExportService>();
             services.AddSingleton<IProjectFileService, ProjectFileService>();
             services.AddSingleton<IConstructionVisualizationImageService, ConstructionVisualizationImageService>();
             services.AddSingleton<ProjectLoadOrchestrator>();
