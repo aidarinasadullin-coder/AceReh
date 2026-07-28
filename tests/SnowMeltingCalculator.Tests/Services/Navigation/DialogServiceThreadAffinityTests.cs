@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Moq;
+using SnowMeltingCalculator.Services.Reports.Calculation;
 using NUnit.Framework;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Core.Results;
@@ -137,6 +138,7 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
                 projectStateService,
                 dialogService,
                 new Mock<IPdfExportService>().Object,
+                new Mock<ICalculationReportExportService>().Object,
                 projectFileService,
                 calculationStateService,
                 materialRepositoryMock.Object,
