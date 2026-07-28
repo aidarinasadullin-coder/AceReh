@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>README v.2.2 — Екатеринбург, система снеготаяния</title>
+<style>
+/* A4 print stylesheet for engineering documentation: Cyrillic, repeating table headers, no image/row breaks, clickable links. */
+
+@page {
+  size: A4;
+  margin: 18mm 16mm 20mm 16mm;
+}
+
+html {
+  font-size: 11pt;
+}
+
+body {
+  font-family: "Segoe UI", "PT Sans", "DejaVu Sans", "Liberation Sans", "Arial", sans-serif;
+  color: #1a1a1a;
+  line-height: 1.5;
+  margin: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Segoe UI", "PT Sans", "DejaVu Sans", "Liberation Sans", "Arial", sans-serif;
+  color: #0d2a4a;
+  line-height: 1.25;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+h1 {
+  font-size: 1.6rem;
+  border-bottom: 2px solid #0d2a4a;
+  padding-bottom: 0.3em;
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 1.3rem;
+  border-bottom: 1px solid #b0bcc8;
+  padding-bottom: 0.2em;
+  margin-top: 1.6em;
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin-top: 1.2em;
+}
+
+h4 {
+  font-size: 1.0rem;
+  margin-top: 1.0em;
+}
+
+p {
+  margin: 0.5em 0;
+}
+
+a {
+  color: #1a5fb4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* TOC */
+nav {
+  background: #f4f7fa;
+  border: 1px solid #d0dae5;
+  border-radius: 4px;
+  padding: 0.8em 1.2em;
+  margin: 1em 0 1.5em 0;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+nav ol {
+  margin: 0;
+  padding-left: 1.4em;
+}
+
+nav li {
+  margin: 0.2em 0;
+}
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.8em 0;
+  font-size: 0.92rem;
+}
+
+thead {
+  display: table-header-group;
+}
+
+th, td {
+  border: 1px solid #b0bcc8;
+  padding: 0.35em 0.5em;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #e8eef5;
+  color: #0d2a4a;
+  font-weight: 600;
+}
+
+tr {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+tbody tr:nth-child(even) {
+  background: #f7f9fb;
+}
+
+/* Images: never break, fit width */
+img {
+  max-width: 100%;
+  height: auto;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  border: 1px solid #d0dae5;
+  border-radius: 3px;
+  padding: 4px;
+  background: #fff;
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 3px solid #1a5fb4;
+  margin: 0.8em 0;
+  padding: 0.4em 0.9em;
+  background: #f4f7fa;
+  color: #333;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+blockquote p {
+  margin: 0.3em 0;
+}
+
+/* Code */
+code {
+  font-family: "Consolas", "DejaVu Sans Mono", "Liberation Mono", monospace;
+  background: #eef2f6;
+  padding: 0.1em 0.3em;
+  border-radius: 2px;
+  font-size: 0.9em;
+}
+
+pre {
+  background: #eef2f6;
+  border: 1px solid #d0dae5;
+  border-radius: 3px;
+  padding: 0.6em;
+  overflow-x: auto;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Horizontal rule */
+hr {
+  border: none;
+  border-top: 1px solid #b0bcc8;
+  margin: 1.5em 0;
+}
+
+/* Checklist */
+input[type="checkbox"] {
+  margin-right: 0.4em;
+}
+
+/* Strong emphasis */
+strong {
+  color: #0d2a4a;
+}
+
+/* Final version line */
+body > p:last-child em {
+  color: #555;
+}
+</style>
+</head>
+<body>
+<h1 id="проект-9-100000-екатеринбург-система-снеготаяния-наружных-поверхностей">Проект 9-100000. Екатеринбург: система снеготаяния наружных поверхностей</h1>
+<p><strong>Объект:</strong> Екатеринбург, Свердловская область, обогрев наружных поверхностей
+<strong>Номер проекта:</strong> 9-100000
+<strong>Дата расчёта:</strong> 28.07.2026
+<strong>Цель:</strong> снеготаяние поверхности</p>
+<hr>
+<h2 id="содержание">Содержание</h2>
+<ol>
+<li><a href="#%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%BD%D0%B0%D1%8F-%D0%BA%D0%B0%D1%80%D1%82%D0%BE%D1%87%D0%BA%D0%B0">Проектная карточка</a></li>
+<li><a href="#%D0%B1%D1%8B%D1%81%D1%82%D1%80%D1%8B%D0%B9-%D0%B8%D1%82%D0%BE%D0%B3">Быстрый итог</a></li>
+<li><a href="#%D0%B8%D1%81%D1%85%D0%BE%D0%B4%D0%BD%D1%8B%D0%B5-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5">Исходные данные</a></li>
+<li><a href="#%D0%BF%D0%BE%D1%80%D1%8F%D0%B4%D0%BE%D0%BA-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%8B">Порядок работы</a></li>
+<li><a href="#%D1%88%D0%B0%D0%B3-1-%D0%BA%D0%BB%D0%B8%D0%BC%D0%B0%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B5-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5">Шаг 1. Климатические данные</a></li>
+<li><a href="#%D1%88%D0%B0%D0%B3-2-%D0%BA%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%86%D0%B8%D1%8F">Шаг 2. Конструкция</a></li>
+<li><a href="#%D1%88%D0%B0%D0%B3-3-%D1%82%D0%B5%D0%BF%D0%BB%D0%BE%D0%B2%D0%BE%D0%B9-%D1%80%D0%B0%D1%81%D1%87%D1%91%D1%82">Шаг 3. Тепловой расчёт</a></li>
+<li><a href="#%D1%88%D0%B0%D0%B3-4-%D0%B3%D0%B8%D0%B4%D1%80%D0%B0%D0%B2%D0%BB%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9-%D1%80%D0%B0%D1%81%D1%87%D1%91%D1%82">Шаг 4. Гидравлический расчёт</a></li>
+<li><a href="#%D1%88%D0%B0%D0%B3-5-%D1%80%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82%D1%8B">Шаг 5. Результаты</a></li>
+<li><a href="#%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%BE%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5-%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B8">Контрольные проверки</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#%D1%84%D0%B8%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9-%D1%87%D0%B5%D0%BA-%D0%BB%D0%B8%D1%81%D1%82">Финальный чек-лист</a></li>
+<li><a href="#%D0%B8%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%B8%D0%BA%D0%B8-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85">Источники данных</a></li>
+</ol>
+<hr>
+<h2 id="проектная-карточка">Проектная карточка</h2>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Город, регион</td>
+<td>Екатеринбург, Свердловская область</td>
+</tr>
+<tr>
+<td>Климатическая зона</td>
+<td>zone_M15</td>
+</tr>
+<tr>
+<td>Расчётная температура воздуха</td>
+<td>−15 °C</td>
+</tr>
+<tr>
+<td>Скорость ветра</td>
+<td>3,1 м/с</td>
+</tr>
+<tr>
+<td>Относительная влажность</td>
+<td>72 %</td>
+</tr>
+<tr>
+<td>Интенсивность снегопада</td>
+<td>0,5 мм/ч</td>
+</tr>
+<tr>
+<td>Повышенные требования</td>
+<td>нет</td>
+</tr>
+<tr>
+<td>Уровень грунтовых вод</td>
+<td>2 м</td>
+</tr>
+<tr>
+<td>Нагрузки на покрытие</td>
+<td>да (hasLoads = true)</td>
+</tr>
+<tr>
+<td>Труба</td>
+<td>RAUTHERM S 20×2,0</td>
+</tr>
+<tr>
+<td>Шаг укладки</td>
+<td>200 мм</td>
+</tr>
+<tr>
+<td>Теплоноситель</td>
+<td>этиленгликоль 40 %</td>
+</tr>
+<tr>
+<td>Температура подачи / обратки</td>
+<td>53,0 / 37,36 °C</td>
+</tr>
+<tr>
+<td>Средняя температура / ΔT</td>
+<td>45,18 °C / 15,64 К</td>
+</tr>
+<tr>
+<td>q_up / q_down / q_total</td>
+<td>330,49 / 4,88 / 335,36 Вт/м²</td>
+</tr>
+<tr>
+<td>Подводка к коллектору</td>
+<td>10 м на контур</td>
+</tr>
+<tr>
+<td>Шаг подводки</td>
+<td>5 см</td>
+</tr>
+<tr>
+<td>Полезное тепло подводки</td>
+<td>10 %</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="быстрый-итог">Быстрый итог</h2>
+<ul>
+<li>Расчёт в файле <code>Тест/Екат.smc</code> содержит <strong>4 сохранённых коллектора</strong> с <strong>19 рассчитанными контурами</strong>.</li>
+<li>Общая длина трубы по всем коллекторам: <strong>2040 м</strong>, из них <strong>1850 м петель</strong> и <strong>190 м подводок</strong> (19 × 10 м).</li>
+<li>Суммарная тепловая мощность: <strong>124,403 кВт</strong>.</li>
+<li>Суммарный объёмный расход: <strong>5,924 м³/ч</strong>.</li>
+<li>Гидравлически определяющий контур: <strong>контур 4 коллектора 4</strong> (рабочие потери <strong>46,226 кПа</strong>, холодные <strong>154,667 кПа</strong>).</li>
+<li>Все четыре коллектора рассчитаны полностью; нерассчитанных контуров в файле нет.</li>
+</ul>
+<hr>
+<h2 id="исходные-данные">Исходные данные</h2>
+<h3 id="климатические-параметры">Климатические параметры</h3>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Значение</th>
+<th>Источник</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Город</td>
+<td>Екатеринбург</td>
+<td><code>data/climate_db.json</code></td>
+</tr>
+<tr>
+<td>Температура воздуха</td>
+<td>−15 °C</td>
+<td>zone_M15</td>
+</tr>
+<tr>
+<td>Скорость ветра</td>
+<td>3,1 м/с</td>
+<td><code>wind_avg_t_le_8</code></td>
+</tr>
+<tr>
+<td>Влажность</td>
+<td>72 %</td>
+<td><code>humidity_15h_cold</code></td>
+</tr>
+<tr>
+<td>Интенсивность снегопада</td>
+<td>0,5 мм/ч</td>
+<td>задана вручную</td>
+</tr>
+<tr>
+<td>Климатическая зона</td>
+<td>zone_M15</td>
+<td>автоматический выбор</td>
+</tr>
+</tbody></table>
+<h3 id="конструкция-пирог-покрытия">Конструкция (пирог покрытия)</h3>
+<p><strong>Слои над трубой:</strong></p>
+<table>
+<thead>
+<tr>
+<th>№</th>
+<th>Материал</th>
+<th>Толщина, мм</th>
+<th>λ, Вт/(м·К)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Бетон</td>
+<td>100</td>
+<td>1,74</td>
+</tr>
+</tbody></table>
+<p><strong>Слои под трубой:</strong></p>
+<table>
+<thead>
+<tr>
+<th>№</th>
+<th>Материал</th>
+<th>Толщина, мм</th>
+<th>λ, Вт/(м·К)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Бетон</td>
+<td>10</td>
+<td>1,74</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Бетон с арматурной сеткой</td>
+<td>10</td>
+<td>1,69</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Пенополистирол (ЭППС)</td>
+<td>80</td>
+<td>0,035</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Песчано-гравийная смесь (ПГС)</td>
+<td>200</td>
+<td>1,00</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Грунт</td>
+<td>1000</td>
+<td>0,50</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Грунт</td>
+<td>570</td>
+<td>0,50</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Результат конструкции</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>R1 (сопротивление над трубой)</td>
+<td>0,057 м²·К/Вт</td>
+</tr>
+<tr>
+<td>R2 (сопротивление под трубой)</td>
+<td>5,637 м²·К/Вт</td>
+</tr>
+<tr>
+<td>λE</td>
+<td>1,74 Вт/(м·К)</td>
+</tr>
+<tr>
+<td>УГВ</td>
+<td>2 м (сухие условия)</td>
+</tr>
+<tr>
+<td>Нагрузки</td>
+<td>да</td>
+</tr>
+</tbody></table>
+<h3 id="тепловые-и-гидравлические-параметры">Тепловые и гидравлические параметры</h3>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Режим работы</td>
+<td>Таяние</td>
+</tr>
+<tr>
+<td>Температура грунта</td>
+<td>10 °C</td>
+</tr>
+<tr>
+<td>Температура подачи</td>
+<td>53,0 °C</td>
+</tr>
+<tr>
+<td>Температура обратки</td>
+<td>37,36 °C</td>
+</tr>
+<tr>
+<td>Средняя температура</td>
+<td>45,18 °C</td>
+</tr>
+<tr>
+<td>ΔT</td>
+<td>15,64 К</td>
+</tr>
+<tr>
+<td>q_up</td>
+<td>330,49 Вт/м²</td>
+</tr>
+<tr>
+<td>q_down</td>
+<td>4,88 Вт/м²</td>
+</tr>
+<tr>
+<td>q_total</td>
+<td>335,36 Вт/м²</td>
+</tr>
+<tr>
+<td>Тип трубы</td>
+<td>RAUTHERM S 20×2,0</td>
+</tr>
+<tr>
+<td>Шаг укладки</td>
+<td>200 мм</td>
+</tr>
+<tr>
+<td>Теплоноситель</td>
+<td>этиленгликоль 40 %</td>
+</tr>
+<tr>
+<td>Длина подводки</td>
+<td>10 м на контур</td>
+</tr>
+<tr>
+<td>Шаг подводки</td>
+<td>5 см</td>
+</tr>
+<tr>
+<td>Полезное тепло подводки</td>
+<td>10 %</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="порядок-работы">Порядок работы</h2>
+<ol>
+<li><strong>Климат.</strong> Выбрать город, проверить температуру, ветер, влажность, снегопад.</li>
+<li><strong>Конструкция.</strong> Собрать пирог покрытия, задать УГВ и признак нагрузок.</li>
+<li><strong>Тепловой расчёт.</strong> Выбрать режим, трубу, шаг, температуру подачи и нажать «Рассчитать».</li>
+<li><strong>Гидравлика.</strong> Задать теплоноситель, подводки, длины контуров, рассчитать и увязать потери.</li>
+<li><strong>Результаты.</strong> Проверить сводку, сравнить с <code>.smc</code>, экспортировать отчёт.</li>
+</ol>
+<hr>
+<h2 id="шаг-1-климатические-данные">Шаг 1. Климатические данные</h2>
+<h3 id="что-видит-пользователь">Что видит пользователь</h3>
+<p>Поле поиска города, поля температуры, скорости ветра, влажности, интенсивности снегопада, флаг «Повышенные требования» и кнопка «Сбросить к данным города».</p>
+<p><img src="images/v2.2/01-climate.png" alt="Интерфейс ввода климатических параметров"></p>
+<h3 id="действия">Действия</h3>
+<ol>
+<li>Введите <strong>Екатеринбург</strong>.</li>
+<li>Выберите пункт из списка.</li>
+<li>Проверьте, что все параметры совпадают с таблицей выше.</li>
+<li>Нажмите <strong>«Далее»</strong>.</li>
+</ol>
+<h3 id="автозаполнение">Автозаполнение</h3>
+<p>После выбора города программа подставляет:</p>
+<ul>
+<li>температуру −15 °C;</li>
+<li>скорость ветра 3,1 м/с;</li>
+<li>влажность 72 %;</li>
+<li>зону zone_M15.</li>
+</ul>
+<p>Интенсивность снегопада 0,5 мм/ч задаётся вручную.</p>
+<h3 id="валидация">Валидация</h3>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Допустимый диапазон</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Температура воздуха</td>
+<td>от −50 до +10 °C</td>
+</tr>
+<tr>
+<td>Скорость ветра</td>
+<td>от 0,1 до 30 м/с</td>
+</tr>
+<tr>
+<td>Влажность</td>
+<td>от 20 до 100 %</td>
+</tr>
+<tr>
+<td>Интенсивность снегопада</td>
+<td>от 0 до 20 мм/ч</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="шаг-2-конструкция">Шаг 2. Конструкция</h2>
+<h3 id="что-видит-пользователь-1">Что видит пользователь</h3>
+<p>Конструктор слоёв: две колонки «Над трубой» и «Под трубой», список материалов, поля толщины и λ, поле «Уровень грунтовых вод».</p>
+<p><img src="images/v2.2/02-construction.png" alt="Интерфейс конструктора слоёв"></p>
+<h3 id="действия-1">Действия</h3>
+<ol>
+<li>Добавьте слой над трубой: <strong>Бетон 100 мм</strong>.</li>
+<li>Добавьте слои под трубой в порядке, указанном в таблице «Конструкция».</li>
+<li>Установите <strong>УГВ = 2 м</strong>.</li>
+<li>Установите признак <strong>нагрузки на покрытие</strong>.</li>
+<li>Нажмите <strong>«Далее»</strong>.</li>
+</ol>
+<h3 id="результаты-расчёта-конструкции">Результаты расчёта конструкции</h3>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>R1</td>
+<td>0,057 м²·К/Вт</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>5,637 м²·К/Вт</td>
+</tr>
+<tr>
+<td>λE</td>
+<td>1,74 Вт/(м·К)</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="шаг-3-тепловой-расчёт">Шаг 3. Тепловой расчёт</h2>
+<h3 id="что-видит-пользователь-2">Что видит пользователь</h3>
+<p>Выпадающие списки «Режим работы» и «Тип трубы», поля температуры подачи, температуры грунта, шага укладки и кнопка «Рассчитать».</p>
+<p><img src="images/v2.2/03-thermal.png" alt="Интерфейс теплового расчёта"></p>
+<h3 id="действия-2">Действия</h3>
+<ol>
+<li>Режим работы: <strong>Таяние</strong> (+5 °C).</li>
+<li>Тип трубы: <strong>RAUTHERM S 20×2,0</strong>.</li>
+<li>Шаг укладки: <strong>200 мм</strong>.</li>
+<li>Температура грунта: <strong>10 °C</strong>.</li>
+<li>Температура подачи: <strong>53 °C</strong>.</li>
+<li>Нажмите <strong>«Рассчитать»</strong>, затем <strong>«Далее»</strong>.</li>
+</ol>
+<h3 id="результаты">Результаты</h3>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Температура подачи</td>
+<td>53,0 °C</td>
+</tr>
+<tr>
+<td>Температура обратки</td>
+<td>37,36 °C</td>
+</tr>
+<tr>
+<td>Средняя температура</td>
+<td>45,18 °C</td>
+</tr>
+<tr>
+<td>ΔT</td>
+<td>15,64 К</td>
+</tr>
+<tr>
+<td>q_up</td>
+<td>330,49 Вт/м²</td>
+</tr>
+<tr>
+<td>q_down</td>
+<td>4,88 Вт/м²</td>
+</tr>
+<tr>
+<td>q_total</td>
+<td>335,36 Вт/м²</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="шаг-4-гидравлический-расчёт">Шаг 4. Гидравлический расчёт</h2>
+<h3 id="что-видит-пользователь-3">Что видит пользователь</h3>
+<p>Таблица контуров, свойства теплоносителя, параметры коллектора, переключатель «Рабочая температура / Расчётная температура» и кнопка «Рассчитать».</p>
+<p><img src="images/v2.2/04-hydraulics.png" alt="Интерфейс гидравлического расчёта"></p>
+<h3 id="действия-3">Действия</h3>
+<ol>
+<li>Тип теплоносителя: <strong>этиленгликоль 40 %</strong>.</li>
+<li>Режим температуры: <strong>Рабочая температура</strong>.</li>
+<li>Длина подводки: <strong>10 м</strong> на каждый контур.</li>
+<li>Шаг подводки: <strong>5 см</strong>.</li>
+<li>Полезное тепло подводки: <strong>10 %</strong>.</li>
+<li>Заполните количество контуров и длины петель по таблицам ниже.</li>
+<li>Нажмите <strong>«Рассчитать»</strong>.</li>
+</ol>
+<blockquote>
+<p><strong>Примечание о длине.</strong> Длина контура в <code>.smc</code> (<code>circuitLength</code>) не включает 10 м подводки. Поле <code>summary.totalPipeLength</code> включает подводки для рассчитанных контуров. Поэтому сумма длин петель по таблицам меньше сводного значения ровно на суммарную длину подводок.</p>
+</blockquote>
+<h3 id="сводка-по-коллекторам">Сводка по коллекторам</h3>
+<blockquote>
+<p>Тип коллектора принят по верхнему полю <code>collectorType</code> в <code>.smc</code>, а не по вложенному <code>summary.collectorType</code>. Для коллекторов № 1, № 3 и № 4 верхнее поле содержит IV 1¼″, а вложенное <code>summary.collectorType</code> — HKV-D. В инструкции используется верхнее поле и соответствующее значение Kv.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Коллектор</th>
+<th>Тип</th>
+<th>Kv</th>
+<th>Контуров</th>
+<th>Длина, м</th>
+<th>Мощность, кВт</th>
+<th>Расход, м³/ч</th>
+<th>ΣΔP раб, кПа</th>
+<th>ΣΔP хол, кПа</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>IV 1¼″</td>
+<td>1,45</td>
+<td>5</td>
+<td>535</td>
+<td>32,614</td>
+<td>1,553</td>
+<td>29,199</td>
+<td>109,002</td>
+</tr>
+<tr>
+<td>2</td>
+<td>HKV-D</td>
+<td>1,20</td>
+<td>4</td>
+<td>385</td>
+<td>23,207</td>
+<td>1,105</td>
+<td>27,856</td>
+<td>101,030</td>
+</tr>
+<tr>
+<td>3</td>
+<td>IV 1¼″</td>
+<td>1,45</td>
+<td>5</td>
+<td>560</td>
+<td>34,291</td>
+<td>1,633</td>
+<td>37,099</td>
+<td>130,840</td>
+</tr>
+<tr>
+<td>4</td>
+<td>IV 1¼″</td>
+<td>1,45</td>
+<td>5</td>
+<td>560</td>
+<td>34,291</td>
+<td>1,633</td>
+<td>46,226</td>
+<td>154,667</td>
+</tr>
+<tr>
+<td><strong>Итого</strong></td>
+<td></td>
+<td></td>
+<td><strong>19</strong></td>
+<td><strong>2040</strong></td>
+<td><strong>124,403</strong></td>
+<td><strong>5,924</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h3 id="таблицы-контуров">Таблицы контуров</h3>
+<p>Единицы: петля и подводка — м; Q — кВт; G — л/ч; v — м/с; ΔP — кПа.</p>
+<h4 id="коллектор-1-5-контуров">Коллектор 1. 5 контуров</h4>
+<table>
+<thead>
+<tr>
+<th>Контур</th>
+<th align="right">Петля</th>
+<th align="right">Подв.</th>
+<th align="right">Q</th>
+<th align="right">G</th>
+<th align="right">v</th>
+<th align="right">ΔP раб.</th>
+<th align="right">ΔP хол.</th>
+<th align="right">Обороты</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td align="right">100</td>
+<td align="right">10</td>
+<td align="right">6,724</td>
+<td align="right">320,183</td>
+<td align="right">0,442</td>
+<td align="right">29,199</td>
+<td align="right">109,002</td>
+<td align="right">8,00</td>
+</tr>
+<tr>
+<td>2</td>
+<td align="right">95</td>
+<td align="right">10</td>
+<td align="right">6,389</td>
+<td align="right">304,213</td>
+<td align="right">0,420</td>
+<td align="right">25,686</td>
+<td align="right">98,829</td>
+<td align="right">5,50</td>
+</tr>
+<tr>
+<td>3</td>
+<td align="right">90</td>
+<td align="right">10</td>
+<td align="right">6,053</td>
+<td align="right">288,244</td>
+<td align="right">0,398</td>
+<td align="right">22,452</td>
+<td align="right">89,154</td>
+<td align="right">4,50</td>
+</tr>
+<tr>
+<td>4</td>
+<td align="right">100</td>
+<td align="right">10</td>
+<td align="right">6,724</td>
+<td align="right">320,183</td>
+<td align="right">0,442</td>
+<td align="right">29,199</td>
+<td align="right">109,002</td>
+<td align="right">8,00</td>
+</tr>
+<tr>
+<td>5</td>
+<td align="right">100</td>
+<td align="right">10</td>
+<td align="right">6,724</td>
+<td align="right">320,183</td>
+<td align="right">0,442</td>
+<td align="right">29,199</td>
+<td align="right">109,002</td>
+<td align="right">8,00</td>
+</tr>
+</tbody></table>
+<h4 id="коллектор-2-4-контура">Коллектор 2. 4 контура</h4>
+<table>
+<thead>
+<tr>
+<th>Контур</th>
+<th align="right">Петля</th>
+<th align="right">Подв.</th>
+<th align="right">Q</th>
+<th align="right">G</th>
+<th align="right">v</th>
+<th align="right">ΔP раб.</th>
+<th align="right">ΔP хол.</th>
+<th align="right">Обороты</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td align="right">80</td>
+<td align="right">10</td>
+<td align="right">5,383</td>
+<td align="right">256,306</td>
+<td align="right">0,354</td>
+<td align="right">18,317</td>
+<td align="right">72,856</td>
+<td align="right">0,75</td>
+</tr>
+<tr>
+<td>2</td>
+<td align="right">80</td>
+<td align="right">10</td>
+<td align="right">5,383</td>
+<td align="right">256,306</td>
+<td align="right">0,354</td>
+<td align="right">18,317</td>
+<td align="right">72,856</td>
+<td align="right">0,75</td>
+</tr>
+<tr>
+<td>3</td>
+<td align="right">90</td>
+<td align="right">10</td>
+<td align="right">6,053</td>
+<td align="right">288,244</td>
+<td align="right">0,398</td>
+<td align="right">24,400</td>
+<td align="right">91,129</td>
+<td align="right">1,25</td>
+</tr>
+<tr>
+<td>4</td>
+<td align="right">95</td>
+<td align="right">10</td>
+<td align="right">6,389</td>
+<td align="right">304,213</td>
+<td align="right">0,420</td>
+<td align="right">27,856</td>
+<td align="right">101,030</td>
+<td align="right">2,50</td>
+</tr>
+</tbody></table>
+<h4 id="коллектор-3-5-контуров">Коллектор 3. 5 контуров</h4>
+<table>
+<thead>
+<tr>
+<th>Контур</th>
+<th align="right">Петля</th>
+<th align="right">Подв.</th>
+<th align="right">Q</th>
+<th align="right">G</th>
+<th align="right">v</th>
+<th align="right">ΔP раб.</th>
+<th align="right">ΔP хол.</th>
+<th align="right">Обороты</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td align="right">100</td>
+<td align="right">10</td>
+<td align="right">6,724</td>
+<td align="right">320,183</td>
+<td align="right">0,442</td>
+<td align="right">29,199</td>
+<td align="right">109,002</td>
+<td align="right">4,50</td>
+</tr>
+<tr>
+<td>2</td>
+<td align="right">110</td>
+<td align="right">10</td>
+<td align="right">7,395</td>
+<td align="right">352,121</td>
+<td align="right">0,486</td>
+<td align="right">37,099</td>
+<td align="right">130,840</td>
+<td align="right">8,00</td>
+</tr>
+<tr>
+<td>3</td>
+<td align="right">100</td>
+<td align="right">10</td>
+<td align="right">6,724</td>
+<td align="right">320,183</td>
+<td align="right">0,442</td>
+<td align="right">29,199</td>
+<td align="right">109,002</td>
+<td align="right">4,50</td>
+</tr>
+<tr>
+<td>4</td>
+<td align="right">100</td>
+<td align="right">10</td>
+<td align="right">6,724</td>
+<td align="right">320,183</td>
+<td align="right">0,442</td>
+<td align="right">29,199</td>
+<td align="right">109,002</td>
+<td align="right">4,50</td>
+</tr>
+<tr>
+<td>5</td>
+<td align="right">100</td>
+<td align="right">10</td>
+<td align="right">6,724</td>
+<td align="right">320,183</td>
+<td align="right">0,442</td>
+<td align="right">29,199</td>
+<td align="right">109,002</td>
+<td align="right">4,50</td>
+</tr>
+</tbody></table>
+<h4 id="коллектор-4-5-контуров">Коллектор 4. 5 контуров</h4>
+<table>
+<thead>
+<tr>
+<th>Контур</th>
+<th align="right">Петля</th>
+<th align="right">Подв.</th>
+<th align="right">Q</th>
+<th align="right">G</th>
+<th align="right">v</th>
+<th align="right">ΔP раб.</th>
+<th align="right">ΔP хол.</th>
+<th align="right">Обороты</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td align="right">90</td>
+<td align="right">10</td>
+<td align="right">6,053</td>
+<td align="right">288,244</td>
+<td align="right">0,398</td>
+<td align="right">22,452</td>
+<td align="right">89,154</td>
+<td align="right">2,75</td>
+</tr>
+<tr>
+<td>2</td>
+<td align="right">100</td>
+<td align="right">10</td>
+<td align="right">6,724</td>
+<td align="right">320,183</td>
+<td align="right">0,442</td>
+<td align="right">29,199</td>
+<td align="right">109,002</td>
+<td align="right">3,50</td>
+</tr>
+<tr>
+<td>3</td>
+<td align="right">100</td>
+<td align="right">10</td>
+<td align="right">6,724</td>
+<td align="right">320,183</td>
+<td align="right">0,442</td>
+<td align="right">29,199</td>
+<td align="right">109,002</td>
+<td align="right">3,50</td>
+</tr>
+<tr>
+<td>4</td>
+<td align="right">120</td>
+<td align="right">10</td>
+<td align="right">8,066</td>
+<td align="right">384,059</td>
+<td align="right">0,531</td>
+<td align="right">46,226</td>
+<td align="right">154,667</td>
+<td align="right">8,00</td>
+</tr>
+<tr>
+<td>5</td>
+<td align="right">100</td>
+<td align="right">10</td>
+<td align="right">6,724</td>
+<td align="right">320,183</td>
+<td align="right">0,442</td>
+<td align="right">29,199</td>
+<td align="right">109,002</td>
+<td align="right">3,50</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="шаг-5-результаты">Шаг 5. Результаты</h2>
+<h3 id="что-видит-пользователь-4">Что видит пользователь</h3>
+<p>Финальная сводка, схема конструкции, таблица контуров, параметры теплоносителя и кнопка экспорта PDF.</p>
+<p><img src="images/v2.2/05-results.png" alt="Итоговая сводка и параметры экспорта"></p>
+<h3 id="итоговая-сводка-по-файлу-smc">Итоговая сводка по файлу <code>.smc</code></h3>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Общее число рассчитанных контуров</td>
+<td>19</td>
+</tr>
+<tr>
+<td>Общая длина петель (без подводок)</td>
+<td>1850 м</td>
+</tr>
+<tr>
+<td>Общая длина подводок</td>
+<td>190 м</td>
+</tr>
+<tr>
+<td>Общая длина трубы (с подводками)</td>
+<td>2040 м</td>
+</tr>
+<tr>
+<td>Суммарная мощность</td>
+<td>124,403 кВт</td>
+</tr>
+<tr>
+<td>Суммарный расход</td>
+<td>5,924 м³/ч</td>
+</tr>
+<tr>
+<td>Максимальные рабочие потери</td>
+<td>46,226 кПа (контур 4 коллектора 4)</td>
+</tr>
+<tr>
+<td>Максимальные холодные потери</td>
+<td>154,667 кПа (контур 4 коллектора 4)</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>Объём системы и расширительный бак не представлены непосредственно в <code>.smc</code> и не входят в числовой источник данной инструкции. Эти параметры при необходимости определяются отдельным проектным расчётом.</p>
+</blockquote>
+<h3 id="экспорт-отчёта">Экспорт отчёта</h3>
+<ol>
+<li>Перейдите на вкладку <strong>«Результаты»</strong>.</li>
+<li>Нажмите <strong>«Предпросмотр»</strong>.</li>
+<li>Проверьте все страницы, затем используйте <strong>«Сохранить»</strong> или <strong>«Печать»</strong>.</li>
+</ol>
+<p><img src="images/v2.2/06-export-preview.png" alt="Предпросмотр экспорта PDF"></p>
+<hr>
+<h2 id="контрольные-проверки">Контрольные проверки</h2>
+<table>
+<thead>
+<tr>
+<th>Проверка</th>
+<th>Лимит</th>
+<th>Факт</th>
+<th>Статус</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Минимальная скорость</td>
+<td>≥ 0,1 м/с</td>
+<td>0,354 м/с</td>
+<td>пройдено</td>
+</tr>
+<tr>
+<td>Максимальная скорость</td>
+<td>≤ 2,0 м/с</td>
+<td>0,531 м/с</td>
+<td>пройдено</td>
+</tr>
+<tr>
+<td>Удельные потери на метр</td>
+<td>≤ 300 Па/м</td>
+<td>280 Па/м</td>
+<td>пройдено</td>
+</tr>
+<tr>
+<td>Рабочие потери по определяющему контуру</td>
+<td>проверить по паспорту коллектора</td>
+<td>46,226 кПа</td>
+<td>требует проверки</td>
+</tr>
+<tr>
+<td>Холодные потери</td>
+<td>проверить по насосу</td>
+<td>154,667 кПа</td>
+<td>требует насоса с запасом напора</td>
+</tr>
+<tr>
+<td>Температура подачи</td>
+<td>≤ 50 °C для бетона</td>
+<td>53 °C</td>
+<td>программа покажет предупреждение</td>
+</tr>
+<tr>
+<td>Сумма длины по коллекторам</td>
+<td>2040 м</td>
+<td>535 + 385 + 560 + 560 = 2040 м</td>
+<td>совпадает</td>
+</tr>
+<tr>
+<td>Сумма мощности</td>
+<td>124,403 кВт</td>
+<td>32,614 + 23,207 + 34,291 + 34,291 = 124,403 кВт</td>
+<td>совпадает</td>
+</tr>
+<tr>
+<td>Сумма расхода</td>
+<td>5,924 м³/ч</td>
+<td>1,553 + 1,105 + 1,633 + 1,633 = 5,924 м³/ч</td>
+<td>совпадает</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Проблема</th>
+<th>Причина</th>
+<th>Решение</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Рабочие потери требуют проверки</td>
+<td>Контур 4 коллектора 4: петля 120 м и максимальные потери</td>
+<td>Сверить допустимые потери и насос с паспортами оборудования; при необходимости скорректировать контур</td>
+</tr>
+<tr>
+<td>Холодные потери &gt; 100 кПа</td>
+<td>Высокая вязкость при −15 °C</td>
+<td>Предусмотреть насос с запасом по напору и частотным регулированием</td>
+</tr>
+<tr>
+<td>Предупреждение по температуре подачи</td>
+<td>53 °C выше max_supply_temp бетона (50 °C)</td>
+<td>Согласовать в проекте или снизить подачу до 50 °C с уточнением расхода</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="финальный-чек-лист">Финальный чек-лист</h2>
+<ul>
+<li><input disabled="" type="checkbox"> Город и климатические параметры совпадают с zone_M15.</li>
+<li><input disabled="" type="checkbox"> Пирог покрытия соответствует слоям из <code>.smc</code>.</li>
+<li><input disabled="" type="checkbox"> Тепловой расчёт: 53 / 37,36 / 45,18 °C, ΔT 15,64 К, q_total 335,36 Вт/м².</li>
+<li><input disabled="" type="checkbox"> Гидравлика: этиленгликоль 40 %, подводка 10 м, шаг 5 см, 10 % полезного тепла.</li>
+<li><input disabled="" type="checkbox"> Все таблицы контуров сходятся с <code>.smc</code>.</li>
+<li><input disabled="" type="checkbox"> Контрольные суммы: 19 контуров, 2040 м, 124,403 кВт, 5,924 м³/ч.</li>
+<li><input disabled="" type="checkbox"> Предупреждения по температуре подачи и давлению учтены в проекте.</li>
+<li><input disabled="" type="checkbox"> Предпросмотр PDF проверен.</li>
+<li><input disabled="" type="checkbox"> Отчёт готов к выпуску.</li>
+</ul>
+<hr>
+<h2 id="источники-данных">Источники данных</h2>
+<ul>
+<li><code>Тест/Екат.smc</code> — главный числовой источник проекта.</li>
+<li><code>data/climate_db.json</code> — климатические параметры Екатеринбурга.</li>
+<li><code>data/materials_db.json</code> — материалы пирога покрытия.</li>
+<li><code>data/rehau_products.json</code> — трубы и коллекторы RAUTHERM S / HKV-D.</li>
+<li><code>data/glycol_data.json</code> — свойства теплоносителя.</li>
+<li><code>docs/инструкция/README v.2.1.md</code> — структурный образец документа.</li>
+<li><code>Презентация/*.PNG</code> — скриншоты интерфейса для иллюстрации.</li>
+</ul>
+<hr>
+<p><em>Версия инструкции: 2.2 · Расчёт выполнен в калькуляторе снеготаяния</em></p>
+
+</body>
+</html>
