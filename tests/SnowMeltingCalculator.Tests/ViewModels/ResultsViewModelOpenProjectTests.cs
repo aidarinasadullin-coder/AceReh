@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Moq;
+using SnowMeltingCalculator.Services.Reports.Calculation;
 using NUnit.Framework;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Core.Results;
@@ -519,6 +520,185 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(climateVm2.WindSpeed, Is.EqualTo(savedWindSpeed));
             Assert.That(climateVm2.Humidity, Is.EqualTo(savedHumidity));
             Assert.That(climateVm2.SnowfallIntensity, Is.EqualTo(savedSnowfallIntensity));
+        }
+
+        [Test]
+        public async Task ProjectFileService_RoundTripPreservesSchemaVersionAndJsonShape()
+        {
+            var projectFileService = new ProjectFileService();
+            var projectData = ResultsViewModelTestHelpers.CreateReadyProjectData();
+            projectData.Version = "1.1";
+            projectData.ProjectNumber = "SCHEMA-T6";
+            var path = System.IO.Path.Combine(
+                TestContext.CurrentContext.WorkDirectory,
+                $"schema-t6-{System.Guid.NewGuid():N}.smc");
+
+            try
+            {
+                var saveResult = await projectFileService.SaveProjectResultAsync(path, projectData);
+                var json = await System.IO.File.ReadAllTextAsync(path);
+                var loadResult = await projectFileService.LoadProjectResultAsync(path);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(saveResult.IsSuccess, Is.True, saveResult.Error);
+                    Assert.That(loadResult.IsSuccess, Is.True, loadResult.Error);
+                    Assert.That(loadResult.Value!.Version, Is.EqualTo("1.1"));
+                    Assert.That(loadResult.Value.ProjectNumber, Is.EqualTo("SCHEMA-T6"));
+                    Assert.That(json, Does.Contain("\"version\": \"1.1\""));
+                    Assert.That(json, Does.Contain("\"climateData\""));
+                    Assert.That(json, Does.Contain("\"thermalData\""));
+                    Assert.That(json, Does.Contain("\"hydraulicsData\""));
+                    Assert.That(json, Does.Not.Contain("ResultsSnapshot"));
+                    Assert.That(json, Does.Not.Contain("resultsSnapshot"));
+                });
+            }
+            finally
+            {
+                if (System.IO.File.Exists(path))
+                {
+                    System.IO.File.Delete(path);
+                }
+            }
+        }
+
+        [Test]
+        public async Task ProjectRoundTrip_LiveMutationsAreSavedLoadedAndExportedWithoutResultsCalculation()
+        {
+            var calculationStateService = new CalculationStateService();
+            var climateVm = CreateClimateViewModelWithCity("Текущий город", "Текущий регион", -29, 4.5, 72);
+            climateVm.SelectedCity = new CityInfo { Name = "Исходный город", Region = "Исходный регион" };
+
+            var constructionVm = await CreateInitializedConstructionViewModelAsync();
+            var liveLayer = new Layer
+            {
+                Material = new Material { Name = "Live construction material", LambdaA = 1.7, LambdaB = 1.9 },
+                Thickness = 85,
+                Position = LayerPosition.AbovePipe
+            };
+            constructionVm.LayersAbovePipe.Add(liveLayer);
+
+            var thermalCalculatorMock = new Mock<IThermalCalculator>();
+            var thermalVm = CreateThermalViewModel(calculationStateService, _projectStateService, thermalCalculatorMock.Object);
+            thermalVm.SelectedPipe = PipeType.StandardPipes.First(pipe => pipe.Name == "RAUTHERM S 25x2,3");
+            thermalVm.PipeSpacing = 300;
+            thermalVm.Result = new ThermalCalculationResult
+            {
+                PowerUp = 50,
+                PowerDown = 50,
+                PowerTotal = 100,
+                SupplyTemperature = 45,
+                ReturnTemperature = 35,
+                MeanTemperature = 40,
+                DeltaT = 10,
+                IsValid = true
+            };
+
+            var circuitsVm = CreateCircuitsViewModel(calculationStateService, _projectStateService);
+            circuitsVm.InputData.GlycolType = GlycolType.Propylene;
+            circuitsVm.InputData.GlycolConcentration = 42;
+            circuitsVm.Collectors.Clear();
+            var removedCollector = CreateCollectorForLifecycle(1, ValveType.HKV_D, 2, totalPower: 4000, totalLength: 80);
+            var keptCollector = CreateCollectorForLifecycle(2, ValveType.IV_1_25, 3, totalPower: 9000, totalLength: 150);
+            keptCollector.Circuits[0].CircuitLength = 61;
+            keptCollector.Circuits[1].CircuitLength = 62;
+            keptCollector.Circuits[2].CircuitLength = 63;
+            circuitsVm.Collectors.Add(removedCollector);
+            circuitsVm.Collectors.Add(keptCollector);
+            circuitsVm.Collectors.Remove(removedCollector);
+            keptCollector.CollectorNumber = 7;
+            keptCollector.Circuits.RemoveAt(0);
+            keptCollector.Circuits.Add(new CircuitRow
+            {
+                CircuitNumber = 3,
+                CircuitLength = 77,
+                SupplyLength = 11,
+                SupplySpacing_cm = 6,
+                SupplyHeatPercent = 12,
+                PipeSpacing_cm = 30,
+                Power = 3333
+            });
+            keptCollector.Summary = new CollectorSummary
+            {
+                CollectorNumber = 7,
+                CircuitCount = keptCollector.Circuits.Count,
+                TotalPipeLength = keptCollector.Circuits.Sum(circuit => circuit.CircuitLength),
+                TotalPower = 9000,
+                TotalFlowRate = 450,
+                PressureLoss_Operating_Pa = 21000,
+                PressureLoss_Cold_Pa = 42000,
+                Kv = 1.3,
+                CollectorType = "IV"
+            };
+
+            var viewModel = CreateViewModel(climateVm, constructionVm, thermalVm, circuitsVm, calculationStateService);
+            viewModel.RefreshAll();
+            Assert.That(viewModel.SelectedCity, Is.EqualTo("Исходный город"),
+                "Sanity: Results cache starts stale before live module mutations are projected.");
+
+            climateVm.SelectedCity = new CityInfo { Name = "Текущий город", Region = "Текущий регион" };
+            climateVm.AirTemperature = -32;
+            climateVm.WindSpeed = 8.5;
+            climateVm.SnowfallIntensity = 2.25;
+            liveLayer.Thickness = 95;
+            thermalVm.SelectedPipe = PipeType.StandardPipes.First(pipe => pipe.Name == "RAUTHERM S 20x2,0");
+            thermalVm.PipeSpacing = 250;
+            circuitsVm.InputData.GlycolConcentration = 47;
+
+            var saved = viewModel.SaveCurrentProject();
+            viewModel.RefreshAll();
+            var pdfData = GetField<ResultsPdfDataBuilder>(viewModel, "_resultsPdfDataBuilder").Build(viewModel);
+
+            var reopenedCalculationStateService = new CalculationStateService();
+            var reopenedViewModel = CreateViewModel(
+                CreateClimateViewModelWithCity("Текущий город", "Текущий регион", -29, 4.5, 72),
+                await CreateInitializedConstructionViewModelAsync(),
+                CreateThermalViewModel(reopenedCalculationStateService, _projectStateService, new Mock<IThermalCalculator>().Object),
+                CreateCircuitsViewModel(reopenedCalculationStateService, _projectStateService),
+                reopenedCalculationStateService);
+
+            await reopenedViewModel.LoadProjectDataAsync(saved);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(saved.Version, Is.EqualTo("1.1"));
+                Assert.That(saved.ClimateData.SelectedCity, Is.EqualTo("Текущий город"));
+                Assert.That(saved.ClimateData.AirTemperature, Is.EqualTo(-32));
+                Assert.That(saved.ClimateData.WindSpeed, Is.EqualTo(8.5));
+                Assert.That(saved.ConstructionData.Layers.Select(layer => layer.MaterialName), Does.Contain("Live construction material"));
+                Assert.That(saved.ThermalData.SelectedPipe!.Name, Is.EqualTo("RAUTHERM S 20x2,0"));
+                Assert.That(saved.ThermalData.PipeSpacing, Is.EqualTo(250));
+                Assert.That(saved.HydraulicsData.GlycolType, Is.EqualTo(GlycolType.Propylene));
+                Assert.That(saved.HydraulicsData.GlycolConcentration, Is.EqualTo(47));
+                Assert.That(saved.HydraulicsData.Collectors.Select(collector => collector.CollectorNumber), Is.EqualTo(new[] { 7 }));
+                Assert.That(saved.HydraulicsData.Collectors[0].Circuits.Select(circuit => circuit.CircuitLength), Does.Contain(77));
+                Assert.That(saved.HydraulicsData.Collectors[0].Circuits.Select(circuit => circuit.CircuitLength), Does.Not.Contain(61));
+                Assert.That(viewModel.SelectedCity, Is.EqualTo("Текущий город"));
+                Assert.That(viewModel.DesignTemperature, Is.EqualTo(-32));
+                Assert.That(viewModel.PipeType, Is.EqualTo("RAUTHERM S 20x2,0"));
+                Assert.That(viewModel.PipeSpacing, Is.EqualTo(250));
+                Assert.That(viewModel.GlycolConcentration, Is.EqualTo(47));
+                Assert.That(viewModel.Collectors.Select(collector => collector.Number), Is.EqualTo(new[] { 7 }));
+                Assert.That(viewModel.Circuits.Select(circuit => circuit.CircuitLength), Does.Contain(77));
+                Assert.That(viewModel.CollectorEquipmentItems.Single().CircuitCount, Is.EqualTo(3));
+                Assert.That(pdfData.City, Is.EqualTo("Текущий город"));
+                Assert.That(pdfData.PipeType, Is.EqualTo("RAUTHERM S 20x2,0"));
+                Assert.That(pdfData.PipeSpacing, Is.EqualTo(250));
+                Assert.That(pdfData.GlycolConcentration, Is.EqualTo(47));
+                Assert.That(pdfData.Collectors.Select(collector => collector.Number), Is.EqualTo(new[] { 7 }));
+                Assert.That(pdfData.CollectorSpecifications.Select(spec => spec.Number), Is.EqualTo(new[] { 7 }));
+                Assert.That(pdfData.Layers.Select(layer => layer.MaterialName), Does.Contain("Live construction material"));
+                Assert.That(reopenedViewModel.SelectedCity, Is.EqualTo("Текущий город"));
+                Assert.That(reopenedViewModel.PipeSpacing, Is.EqualTo(250));
+                Assert.That(reopenedViewModel.Collectors.Select(collector => collector.Number), Is.EqualTo(new[] { 7 }));
+                Assert.That(_projectStateService.IsDirty, Is.False);
+            });
+            thermalCalculatorMock.Verify(
+                calculator => calculator.Calculate(
+                    It.IsAny<ThermalInputs>(),
+                    It.IsAny<IClimateData>(),
+                    It.IsAny<IConstructionData>()),
+                Times.Never);
         }
 
         [Test]
@@ -1359,6 +1539,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 _projectStateService,
                 _dialogServiceMock.Object,
                 new Mock<IPdfExportService>().Object,
+                new Mock<ICalculationReportExportService>().Object,
                 _projectFileServiceMock.Object,
                 calculationStateService,
                 materialRepositoryMock.Object,
@@ -1556,6 +1737,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 _projectStateService,
                 _dialogServiceMock.Object,
                 new Mock<IPdfExportService>().Object,
+                new Mock<ICalculationReportExportService>().Object,
                 _projectFileServiceMock.Object,
                 calculationStateService,
                 materialRepositoryMock.Object,
@@ -1639,15 +1821,30 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             CalculationStateService calculationStateService,
             IMarkDirtyService markDirtyService)
         {
+            return CreateThermalViewModel(
+                calculationStateService,
+                markDirtyService,
+                new Mock<IThermalCalculator>().Object);
+        }
+
+        private static ThermalViewModel CreateThermalViewModel(
+            CalculationStateService calculationStateService,
+            IMarkDirtyService markDirtyService,
+            IThermalCalculator thermalCalculator)
+        {
             var climateData = new ClimateData();
             var constructionData = new ConstructionData();
+            var thermalValidatorMock = new Mock<IValidator<ThermalInputs>>();
+            thermalValidatorMock
+                .Setup(validator => validator.Validate(It.IsAny<ThermalInputs>()))
+                .Returns(ValidationResult.Success());
             return new ThermalViewModel(
-                new Mock<IThermalCalculator>().Object,
+                thermalCalculator,
                 climateData,
                 constructionData,
                 calculationStateService,
                 new CalculationContext(),
-                new ThermalValidator(new ThermalCalculator(), climateData, constructionData),
+                thermalValidatorMock.Object,
                 new ThermalResultValidator(),
                 markDirtyService);
         }
@@ -1686,6 +1883,36 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 selectorMock.Object,
                 new CalculationContext(),
                 markDirtyService);
+        }
+
+        private static CollectorData CreateCollectorForLifecycle(
+            int collectorNumber,
+            ValveType valveType,
+            int circuitCount,
+            double totalPower,
+            double totalLength)
+        {
+            var collector = ResultsViewModelTestHelpers.CreateCollector(collectorNumber, valveType, circuitCount);
+            collector.Summary = new CollectorSummary
+            {
+                CollectorNumber = collectorNumber,
+                CircuitCount = circuitCount,
+                TotalPipeLength = totalLength,
+                TotalPower = totalPower,
+                TotalFlowRate = totalPower / 20,
+                PressureLoss_Operating_Pa = totalPower * 2,
+                PressureLoss_Cold_Pa = totalPower * 4,
+                Kv = 1.2,
+                CollectorType = valveType == ValveType.HKV_D ? "HKV-D" : "IV"
+            };
+            return collector;
+        }
+
+        private static T GetField<T>(object instance, string fieldName) where T : class
+        {
+            return (T)instance.GetType()
+                .GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(instance)!;
         }
 
         [Test]
@@ -1761,6 +1988,78 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 Times.Once);
             Assert.That(_projectStateService.CurrentFilePath, Is.EqualTo(TestFilePath));
             Assert.That(_projectStateService.IsDirty, Is.False);
+        }
+
+        [Test]
+        public async Task LoadProjectData_MissingOrInvalidThermalResult_UsesLoadOnlyFallbackAndRefreshDoesNotRecalculate()
+        {
+            foreach (var savedResult in new ThermalResultProjectData?[]
+            {
+                null,
+                new ThermalResultProjectData { PowerTotal = 999, IsValid = false }
+            })
+            {
+                var calculationStateService = new CalculationStateService();
+                var thermalCalculatorMock = new Mock<IThermalCalculator>();
+                thermalCalculatorMock
+                    .Setup(calculator => calculator.Calculate(
+                        It.IsAny<ThermalInputs>(),
+                        It.IsAny<IClimateData>(),
+                        It.IsAny<IConstructionData>()))
+                    .Returns(new ThermalCalculationResult
+                    {
+                        PowerUp = 111,
+                        PowerDown = 222,
+                        PowerTotal = 333,
+                        SupplyTemperature = 55,
+                        ReturnTemperature = 44,
+                        MeanTemperature = 49.5,
+                        DeltaT = 11,
+                        IsValid = true
+                    });
+                var thermalVm = CreateThermalViewModel(calculationStateService, _projectStateService, thermalCalculatorMock.Object);
+                var viewModel = CreateViewModel(
+                    CreateClimateViewModelWithCity("Тестовый город", "Тестовый регион", -25, 3, 70),
+                    CreateConstructionViewModel(),
+                    thermalVm,
+                    CreateCircuitsViewModel(calculationStateService, _projectStateService),
+                    calculationStateService);
+                var projectData = ResultsViewModelTestHelpers.CreateReadyProjectData();
+                projectData.ThermalData.Result = savedResult;
+                projectData.ThermalData.SelectedPipe = new PipeTypeProjectData
+                {
+                    Name = "RAUTHERM S 20x2,0",
+                    OuterDiameter = 20,
+                    InnerDiameter = 16,
+                    WallThickness = 2
+                };
+
+                await viewModel.LoadProjectDataAsync(projectData);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(viewModel.TotalPowerDensity, Is.EqualTo(333));
+                    Assert.That(viewModel.SupplyTemperature, Is.EqualTo(55));
+                    Assert.That(_projectStateService.IsDirty, Is.False);
+                });
+                thermalCalculatorMock.Verify(
+                    calculator => calculator.Calculate(
+                        It.IsAny<ThermalInputs>(),
+                        It.IsAny<IClimateData>(),
+                        It.IsAny<IConstructionData>()),
+                    Times.Once);
+
+                viewModel.RefreshAll();
+
+                Assert.That(viewModel.TotalPowerDensity, Is.EqualTo(333));
+                thermalCalculatorMock.Verify(
+                    calculator => calculator.Calculate(
+                        It.IsAny<ThermalInputs>(),
+                        It.IsAny<IClimateData>(),
+                        It.IsAny<IConstructionData>()),
+                    Times.Once,
+                    "Results refresh must remain non-calculating after load-only fallback.");
+            }
         }
 
         /// <summary>
