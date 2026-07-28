@@ -26,11 +26,24 @@ namespace SnowMeltingCalculator.Repositories.Construction
         /// </summary>
         /// <param name="dataPath">Путь к файлу construction_templates.json (опционально)</param>
         public ConstructionTemplateRepository(string? dataPath = null)
+            : this(dataPath, Environment.GetFolderPath)
+        {
+        }
+
+        internal ConstructionTemplateRepository(
+            string? dataPath,
+            Func<Environment.SpecialFolder, Environment.SpecialFolderOption, string> folderResolver)
         {
             if (dataPath == null)
             {
-                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                _dataPath = Path.Combine(baseDir, "data", "construction_templates.json");
+                var localApplicationData = folderResolver(
+                    Environment.SpecialFolder.LocalApplicationData,
+                    Environment.SpecialFolderOption.Create);
+                var dataDirectory = Path.Combine(localApplicationData, "SnowMeltingCalculator", "data");
+                Directory.CreateDirectory(dataDirectory);
+                _dataPath = Path.Combine(
+                    dataDirectory,
+                    "construction_templates.json");
             }
             else
             {

@@ -79,6 +79,55 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
+        public async Task GetAllAsync_DefaultPath_UsesLocalApplicationDataAndSeedsDefaultsWithMetadata()
+        {
+            var resolverCalls = new List<(Environment.SpecialFolder Folder, Environment.SpecialFolderOption Option)>();
+            string ResolveFolder(Environment.SpecialFolder folder, Environment.SpecialFolderOption option)
+            {
+                resolverCalls.Add((folder, option));
+                return _tempDir;
+            }
+
+            var repository = new ConstructionTemplateRepository(dataPath: null, ResolveFolder);
+
+            var templates = (await repository.GetAllAsync()).ToList();
+
+            var expectedPath = Path.Combine(_tempDir, "SnowMeltingCalculator", "data", "construction_templates.json");
+            Assert.That(resolverCalls, Is.EqualTo(new[]
+            {
+                (Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create)
+            }));
+            Assert.That(File.Exists(expectedPath), Is.True);
+            Assert.That(templates.Count, Is.EqualTo(3));
+            Assert.That(templates.All(template => template.IsBuiltIn), Is.True);
+
+            var savedJson = await File.ReadAllTextAsync(expectedPath);
+            using var document = JsonDocument.Parse(savedJson);
+            var metadata = document.RootElement.GetProperty("meta");
+            Assert.That(metadata.GetProperty("source").GetString(), Is.EqualTo("ConstructionTemplate.GetDefaultTemplates()"));
+            Assert.That(metadata.GetProperty("version").GetString(), Is.EqualTo("1.0"));
+            Assert.That(metadata.GetProperty("next_template_id").GetInt32(), Is.EqualTo(5));
+        }
+
+        [Test]
+        public async Task GetAllAsync_ExplicitPath_BypassesLocalApplicationDataResolver()
+        {
+            var resolverWasCalled = false;
+            string ResolveFolder(Environment.SpecialFolder folder, Environment.SpecialFolderOption option)
+            {
+                resolverWasCalled = true;
+                return _tempDir;
+            }
+
+            var repository = new ConstructionTemplateRepository(_dataPath, ResolveFolder);
+
+            await repository.GetAllAsync();
+
+            Assert.That(resolverWasCalled, Is.False);
+            Assert.That(File.Exists(_dataPath), Is.True);
+        }
+
+        [Test]
         public async Task GetAllAsync_MissingFile_SeedsDefaultsWithIsBuiltInTrue()
         {
             var repository = CreateRepository();

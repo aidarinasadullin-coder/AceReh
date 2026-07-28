@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
+using SnowMeltingCalculator.Services.Reports.Calculation;
 using NUnit.Framework;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Climate;
@@ -1155,6 +1156,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                 _projectStateService,
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
+                new Mock<ICalculationReportExportService>().Object,
                 new Mock<IProjectFileService>().Object,
                 calculationStateService,
                 repo,
@@ -1221,6 +1223,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                 _projectStateService,
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
+                new Mock<ICalculationReportExportService>().Object,
                 new Mock<IProjectFileService>().Object,
                 calculationStateService,
                 materialRepositoryMock.Object,
