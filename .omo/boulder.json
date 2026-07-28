@@ -1,221 +1,219 @@
 {
   "schema_version": 2,
-  "active_work_id": "construction-tab-ui-ux-audit-81396cd3",
+  "active_work_id": "results-stabilization-phase-1-20260728",
   "works": {
-    "construction-tab-ui-ux-audit-81396cd3": {
-      "work_id": "construction-tab-ui-ux-audit-81396cd3",
-      "active_plan": "D:\\IA\\ace\\.omo\\plans\\construction-tab-ui-ux-audit.md",
-      "plan_name": "construction-tab-ui-ux-audit",
-      "status": "completed",
-      "started_at": "2026-07-24T19:35:17.981Z",
-      "ended_at": "2026-07-24T19:58:00.000Z",
-      "updated_at": "2026-07-24T19:58:00.000Z",
+    "results-stabilization-phase-1-20260728": {
+      "work_id": "results-stabilization-phase-1-20260728",
+      "active_plan": "D:\\IA\\ace\\.omo\\plans\\results-stabilization-phase-1.md",
+      "plan_name": "results-stabilization-phase-1",
       "session_ids": [
-        "opencode:ses_06a8cb0a5ffezJXOzzJ8nxZQbA"
+        "opencode:ses_05846daacffeBq5ZQmmBReKDri"
       ],
       "session_origins": {
-        "opencode:ses_06a8cb0a5ffezJXOzzJ8nxZQbA": "direct"
+        "opencode:ses_05846daacffeBq5ZQmmBReKDri": "direct"
       },
+      "status": "completed",
+      "started_at": "2026-07-28T09:56:15.924Z",
+      "updated_at": "2026-07-28T15:00:18.566Z",
+      "worktree_path": null,
       "agent": "atlas",
       "task_sessions": {
         "todo:1": {
           "task_key": "todo:1",
           "task_label": "1",
-          "task_title": "Fix stacked visualization order before results",
-          "session_id": "opencode:ses_06a5d99a4ffeqq83qFzlvmLsT0",
+          "task_title": "Tests: add failing navigation/export/source-consistency contracts to prove current input freshness and stale output separation - expect red tests before production edits",
+          "session_id": "opencode:ses_057d34091ffesjrbF9EpaqMKFs",
           "agent": "Sisyphus-Junior",
-          "category": "visual-engineering",
-          "updated_at": "2026-07-24T19:40:42.221Z",
-          "started_at": "2026-07-24T19:38:59.315Z",
-          "status": "completed",
-          "ended_at": "2026-07-24T19:40:42.221Z",
-          "elapsed_ms": 102906
+          "category": "deep",
+          "started_at": "2026-07-28T10:14:42.864Z",
+          "status": "running",
+          "updated_at": "2026-07-28T11:19:24.997Z"
         },
         "todo:2": {
           "task_key": "todo:2",
           "task_label": "2",
-          "task_title": "Rebalance heading hierarchy using existing typography styles",
-          "session_id": "opencode:ses_06a5a610affen5pElcxXjZQqof",
+          "task_title": "MainWindow: refresh Results before cached-view return without recreating the View - expect every Results entry to show current projection",
+          "session_id": "opencode:ses_05784c2f1ffecdTsQuAOptdx77",
           "agent": "Sisyphus-Junior",
-          "category": "visual-engineering",
-          "updated_at": "2026-07-24T19:43:36.001Z",
-          "started_at": "2026-07-24T19:42:46.196Z",
-          "status": "completed",
-          "ended_at": "2026-07-24T19:43:36.001Z",
-          "elapsed_ms": 49805
+          "category": "deep",
+          "updated_at": "2026-07-28T11:39:12.327Z",
+          "started_at": "2026-07-28T11:39:12.327Z",
+          "status": "running"
         },
         "todo:3": {
           "task_key": "todo:3",
           "task_label": "3",
-          "task_title": "Unify Material ComboBox item presentation in both layer grids",
-          "session_id": "opencode:ses_06a581711ffeUV4ria0u6IaBWj",
+          "task_title": "ResultsViewModel: make RefreshAll the one idempotent synchronization boundary for navigation, export and post-load - expect one coherent read-model refresh without calculation",
+          "session_id": "opencode:ses_05775d342ffe8kzbffInVH5TS9",
           "agent": "Sisyphus-Junior",
-          "category": "visual-engineering",
-          "updated_at": "2026-07-24T19:45:12.509Z",
-          "started_at": "2026-07-24T19:44:30.699Z",
-          "status": "completed",
-          "ended_at": "2026-07-24T19:45:12.509Z",
-          "elapsed_ms": 41810
+          "category": "deep",
+          "updated_at": "2026-07-28T11:57:06.589Z",
+          "started_at": "2026-07-28T11:57:06.589Z",
+          "status": "running"
         },
         "todo:4": {
           "task_key": "todo:4",
           "task_label": "4",
-          "task_title": "Tokenize and reposition validation warning for visibility",
-          "session_id": "opencode:ses_06a56a2c5ffejzZsugY0G0QE1q",
+          "task_title": "ResultsViewModel: route every existing export/preparation command through the canonical refresh before consuming data - expect no stale export after navigation is skipped",
+          "session_id": "opencode:ses_05765e278ffeBadWYp5fmdVMpk",
           "agent": "Sisyphus-Junior",
-          "category": "visual-engineering",
-          "updated_at": "2026-07-24T19:47:12.589Z",
-          "started_at": "2026-07-24T19:46:53.041Z",
-          "status": "completed",
-          "ended_at": "2026-07-24T19:47:12.589Z",
-          "elapsed_ms": 19548
+          "category": "deep",
+          "updated_at": "2026-07-28T12:09:28.971Z",
+          "started_at": "2026-07-28T12:09:28.971Z",
+          "status": "running"
         },
         "todo:5": {
           "task_key": "todo:5",
           "task_label": "5",
-          "task_title": "Declutter template section actions and preview nesting",
-          "session_id": "opencode:ses_06a54c405ffefQ2iwIpGagt499",
+          "task_title": "ResultsPdfDataBuilder: minimally align DTO inputs after refresh without introducing a snapshot architecture - expect collectors, specifications, inputs and calculated fields to represent one synchronized generation",
+          "session_id": "opencode:ses_057573438ffeufkQMxOpPz94zr",
           "agent": "Sisyphus-Junior",
-          "category": "visual-engineering",
-          "updated_at": "2026-07-24T19:49:26.500Z",
-          "started_at": "2026-07-24T19:48:51.055Z",
-          "status": "completed",
-          "ended_at": "2026-07-24T19:49:26.500Z",
-          "elapsed_ms": 35445
+          "category": "deep",
+          "updated_at": "2026-07-28T12:31:09.705Z",
+          "started_at": "2026-07-28T12:31:09.705Z",
+          "status": "running"
         },
         "todo:6": {
           "task_key": "todo:6",
           "task_label": "6",
-          "task_title": "Align Construction results cards with Thermal result style pattern",
-          "session_id": "opencode:ses_06a52c792ffeSOlXYQUrVSjI0h",
+          "task_title": "Lifecycle tests: verify reset, live-state save, load/reopen and all requested input/collector mutations after stabilization - expect no stale cached Results and unchanged .smc semantics",
+          "session_id": "opencode:ses_05744477effehq799JU7y6dKjO",
           "agent": "Sisyphus-Junior",
-          "category": "visual-engineering",
-          "updated_at": "2026-07-24T19:52:15.123Z",
-          "started_at": "2026-07-24T19:51:36.713Z",
-          "status": "completed",
-          "ended_at": "2026-07-24T19:52:15.123Z",
-          "elapsed_ms": 38410
+          "category": "deep",
+          "updated_at": "2026-07-28T13:17:39.194Z",
+          "started_at": "2026-07-28T13:17:39.194Z",
+          "status": "running"
         },
         "todo:7": {
           "task_key": "todo:7",
           "task_label": "7",
-          "task_title": "Improve delete layer button affordance without changing behavior",
-          "session_id": "opencode:ses_06a5015b0ffeuXP0v3v33ulJZM",
+          "task_title": "Phase 1 QA: run full build/tests and agent-executed desktop manual flows with scope audit - expect all approved behavior verified and no Phase 2 code",
+          "session_id": "opencode:ses_05718d102ffeaFGb0nWwg9u2jM",
           "agent": "Sisyphus-Junior",
-          "category": "visual-engineering",
-          "updated_at": "2026-07-24T19:54:28.459Z",
-          "started_at": "2026-07-24T19:54:04.836Z",
-          "status": "completed",
-          "ended_at": "2026-07-24T19:54:28.459Z",
-          "elapsed_ms": 23623
+          "category": "unspecified-high",
+          "started_at": "2026-07-28T13:50:17.760Z",
+          "status": "running",
+          "updated_at": "2026-07-28T14:16:40.724Z"
+        },
+        "final-wave:f1": {
+          "task_key": "final-wave:f1",
+          "task_label": "F1",
+          "task_title": "Plan compliance audit: verify every Phase 1 todo has exact references, acceptance criteria, happy/failure QA, commit guard, and no forbidden scope - expect APPROVE with zero missing fields or scope violations",
+          "session_id": "opencode:ses_056e5593bffeqwa6HQ45LxWKnV",
+          "agent": "Sisyphus-Junior",
+          "category": "",
+          "started_at": "2026-07-28T14:31:33.833Z",
+          "status": "running",
+          "updated_at": "2026-07-28T14:53:51.425Z"
         }
-      }
+      },
+      "ended_at": "2026-07-28T15:00:18.566Z",
+      "elapsed_ms": 18242642
     }
   },
-  "active_plan": "D:\\IA\\ace\\.omo\\plans\\construction-tab-ui-ux-audit.md",
-  "started_at": "2026-07-24T19:35:17.981Z",
+  "active_plan": "D:\\IA\\ace\\.omo\\plans\\results-stabilization-phase-1.md",
+  "started_at": "2026-07-28T09:56:15.924Z",
+  "updated_at": "2026-07-28T15:00:18.566Z",
   "status": "completed",
-  "ended_at": "2026-07-24T19:58:00.000Z",
-  "updated_at": "2026-07-24T19:58:00.000Z",
   "session_ids": [
-    "opencode:ses_06a8cb0a5ffezJXOzzJ8nxZQbA"
+    "opencode:ses_05846daacffeBq5ZQmmBReKDri"
   ],
   "session_origins": {
-    "opencode:ses_06a8cb0a5ffezJXOzzJ8nxZQbA": "direct"
+    "opencode:ses_05846daacffeBq5ZQmmBReKDri": "direct"
   },
-  "plan_name": "construction-tab-ui-ux-audit",
+  "plan_name": "results-stabilization-phase-1",
+  "worktree_path": null,
   "task_sessions": {
     "todo:1": {
       "task_key": "todo:1",
       "task_label": "1",
-      "task_title": "Fix stacked visualization order before results",
-      "session_id": "opencode:ses_06a5d99a4ffeqq83qFzlvmLsT0",
+      "task_title": "Tests: add failing navigation/export/source-consistency contracts to prove current input freshness and stale output separation - expect red tests before production edits",
+      "session_id": "opencode:ses_057d34091ffesjrbF9EpaqMKFs",
       "agent": "Sisyphus-Junior",
-      "category": "visual-engineering",
-      "updated_at": "2026-07-24T19:40:42.221Z",
-      "started_at": "2026-07-24T19:38:59.315Z",
-      "status": "completed",
-      "ended_at": "2026-07-24T19:40:42.221Z",
-      "elapsed_ms": 102906
+      "category": "deep",
+      "started_at": "2026-07-28T10:14:42.864Z",
+      "status": "running",
+      "updated_at": "2026-07-28T11:19:24.997Z"
     },
     "todo:2": {
       "task_key": "todo:2",
       "task_label": "2",
-      "task_title": "Rebalance heading hierarchy using existing typography styles",
-      "session_id": "opencode:ses_06a5a610affen5pElcxXjZQqof",
+      "task_title": "MainWindow: refresh Results before cached-view return without recreating the View - expect every Results entry to show current projection",
+      "session_id": "opencode:ses_05784c2f1ffecdTsQuAOptdx77",
       "agent": "Sisyphus-Junior",
-      "category": "visual-engineering",
-      "updated_at": "2026-07-24T19:43:36.001Z",
-      "started_at": "2026-07-24T19:42:46.196Z",
-      "status": "completed",
-      "ended_at": "2026-07-24T19:43:36.001Z",
-      "elapsed_ms": 49805
+      "category": "deep",
+      "updated_at": "2026-07-28T11:39:12.327Z",
+      "started_at": "2026-07-28T11:39:12.327Z",
+      "status": "running"
     },
     "todo:3": {
       "task_key": "todo:3",
       "task_label": "3",
-      "task_title": "Unify Material ComboBox item presentation in both layer grids",
-      "session_id": "opencode:ses_06a581711ffeUV4ria0u6IaBWj",
+      "task_title": "ResultsViewModel: make RefreshAll the one idempotent synchronization boundary for navigation, export and post-load - expect one coherent read-model refresh without calculation",
+      "session_id": "opencode:ses_05775d342ffe8kzbffInVH5TS9",
       "agent": "Sisyphus-Junior",
-      "category": "visual-engineering",
-      "updated_at": "2026-07-24T19:45:12.509Z",
-      "started_at": "2026-07-24T19:44:30.699Z",
-      "status": "completed",
-      "ended_at": "2026-07-24T19:45:12.509Z",
-      "elapsed_ms": 41810
+      "category": "deep",
+      "updated_at": "2026-07-28T11:57:06.589Z",
+      "started_at": "2026-07-28T11:57:06.589Z",
+      "status": "running"
     },
     "todo:4": {
       "task_key": "todo:4",
       "task_label": "4",
-      "task_title": "Tokenize and reposition validation warning for visibility",
-      "session_id": "opencode:ses_06a56a2c5ffejzZsugY0G0QE1q",
+      "task_title": "ResultsViewModel: route every existing export/preparation command through the canonical refresh before consuming data - expect no stale export after navigation is skipped",
+      "session_id": "opencode:ses_05765e278ffeBadWYp5fmdVMpk",
       "agent": "Sisyphus-Junior",
-      "category": "visual-engineering",
-      "updated_at": "2026-07-24T19:47:12.589Z",
-      "started_at": "2026-07-24T19:46:53.041Z",
-      "status": "completed",
-      "ended_at": "2026-07-24T19:47:12.589Z",
-      "elapsed_ms": 19548
+      "category": "deep",
+      "updated_at": "2026-07-28T12:09:28.971Z",
+      "started_at": "2026-07-28T12:09:28.971Z",
+      "status": "running"
     },
     "todo:5": {
       "task_key": "todo:5",
       "task_label": "5",
-      "task_title": "Declutter template section actions and preview nesting",
-      "session_id": "opencode:ses_06a54c405ffefQ2iwIpGagt499",
+      "task_title": "ResultsPdfDataBuilder: minimally align DTO inputs after refresh without introducing a snapshot architecture - expect collectors, specifications, inputs and calculated fields to represent one synchronized generation",
+      "session_id": "opencode:ses_057573438ffeufkQMxOpPz94zr",
       "agent": "Sisyphus-Junior",
-      "category": "visual-engineering",
-      "updated_at": "2026-07-24T19:49:26.500Z",
-      "started_at": "2026-07-24T19:48:51.055Z",
-      "status": "completed",
-      "ended_at": "2026-07-24T19:49:26.500Z",
-      "elapsed_ms": 35445
+      "category": "deep",
+      "updated_at": "2026-07-28T12:31:09.705Z",
+      "started_at": "2026-07-28T12:31:09.705Z",
+      "status": "running"
     },
     "todo:6": {
       "task_key": "todo:6",
       "task_label": "6",
-      "task_title": "Align Construction results cards with Thermal result style pattern",
-      "session_id": "opencode:ses_06a52c792ffeSOlXYQUrVSjI0h",
+      "task_title": "Lifecycle tests: verify reset, live-state save, load/reopen and all requested input/collector mutations after stabilization - expect no stale cached Results and unchanged .smc semantics",
+      "session_id": "opencode:ses_05744477effehq799JU7y6dKjO",
       "agent": "Sisyphus-Junior",
-      "category": "visual-engineering",
-      "updated_at": "2026-07-24T19:52:15.123Z",
-      "started_at": "2026-07-24T19:51:36.713Z",
-      "status": "completed",
-      "ended_at": "2026-07-24T19:52:15.123Z",
-      "elapsed_ms": 38410
+      "category": "deep",
+      "updated_at": "2026-07-28T13:17:39.194Z",
+      "started_at": "2026-07-28T13:17:39.194Z",
+      "status": "running"
     },
     "todo:7": {
       "task_key": "todo:7",
       "task_label": "7",
-      "task_title": "Improve delete layer button affordance without changing behavior",
-      "session_id": "opencode:ses_06a5015b0ffeuXP0v3v33ulJZM",
+      "task_title": "Phase 1 QA: run full build/tests and agent-executed desktop manual flows with scope audit - expect all approved behavior verified and no Phase 2 code",
+      "session_id": "opencode:ses_05718d102ffeaFGb0nWwg9u2jM",
       "agent": "Sisyphus-Junior",
-      "category": "visual-engineering",
-      "updated_at": "2026-07-24T19:54:28.459Z",
-      "started_at": "2026-07-24T19:54:04.836Z",
-      "status": "completed",
-      "ended_at": "2026-07-24T19:54:28.459Z",
-      "elapsed_ms": 23623
+      "category": "unspecified-high",
+      "started_at": "2026-07-28T13:50:17.760Z",
+      "status": "running",
+      "updated_at": "2026-07-28T14:16:40.724Z"
+    },
+    "final-wave:f1": {
+      "task_key": "final-wave:f1",
+      "task_label": "F1",
+      "task_title": "Plan compliance audit: verify every Phase 1 todo has exact references, acceptance criteria, happy/failure QA, commit guard, and no forbidden scope - expect APPROVE with zero missing fields or scope violations",
+      "session_id": "opencode:ses_056e5593bffeqwa6HQ45LxWKnV",
+      "agent": "Sisyphus-Junior",
+      "category": "",
+      "started_at": "2026-07-28T14:31:33.833Z",
+      "status": "running",
+      "updated_at": "2026-07-28T14:53:51.425Z"
     }
   },
-  "agent": "atlas"
+  "agent": "atlas",
+  "ended_at": "2026-07-28T15:00:18.566Z",
+  "elapsed_ms": 18242642
 }
