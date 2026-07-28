@@ -13,6 +13,12 @@ namespace SnowMeltingCalculator.Tests.Services.Results
     [TestFixture]
     public class PdfExportServiceTests
     {
+        // PDF magic header per ISO 32000-1: every conforming PDF file starts with "%PDF".
+        // Locked here so that any future refactor of the short-PDF export path
+        // (e.g. the upcoming detailed report work) cannot silently break the
+        // file signature and start producing non-PDF output.
+        private static readonly byte[] PdfMagicHeader = { 0x25, 0x50, 0x44, 0x46 };
+
         [Test]
         public async Task ExportResultsToPdfAsync_GeneratesPdf_whenDataContainsDashboardAndHydraulicDetails()
         {
@@ -31,7 +37,50 @@ namespace SnowMeltingCalculator.Tests.Services.Results
                 Assert.That(File.Exists(filePath), Is.True);
                 var bytes = await File.ReadAllBytesAsync(filePath);
                 Assert.That(bytes.Length, Is.GreaterThan(0));
-                Assert.That(bytes[..4], Is.EqualTo(new byte[] { 0x25, 0x50, 0x44, 0x46 }));
+                Assert.That(bytes[..4], Is.EqualTo(PdfMagicHeader));
+            }
+            finally
+            {
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+        }
+
+        [Test]
+        public async Task ExportResultsToPdfAsync_OutputBytesStartWithPdfMagicHeader()
+        {
+            // Regression lock for the short-PDF export path: the file written by
+            // ExportResultsToPdfAsync MUST start with the %PDF magic bytes
+            // (0x25 0x50 0x44 0x46). This is a structural canary, independent of
+            // the visual contents of the report.
+            var service = new PdfExportService();
+            var filePath = Path.Combine(TestContext.CurrentContext.WorkDirectory, $"results-magic-{Guid.NewGuid():N}.pdf");
+            var data = CreateResultsPdfData();
+
+            try
+            {
+                var exported = await service.ExportResultsToPdfAsync(filePath, data);
+
+                Assert.That(exported, Is.True, "ExportResultsToPdfAsync should report success");
+                Assert.That(File.Exists(filePath), Is.True, "PDF file should exist on disk");
+
+                byte[] fileBytes = await File.ReadAllBytesAsync(filePath);
+                Assert.That(fileBytes.Length, Is.GreaterThanOrEqualTo(4),
+                    "PDF file must contain at least the 4-byte magic header");
+
+                byte[] actualHeader = new byte[4];
+                Array.Copy(fileBytes, 0, actualHeader, 0, 4);
+
+                Assert.That(actualHeader, Is.EqualTo(PdfMagicHeader),
+                    $"PDF must start with %PDF magic bytes (0x25 0x50 0x44 0x46); " +
+                    $"actual header was 0x{actualHeader[0]:X2} 0x{actualHeader[1]:X2} 0x{actualHeader[2]:X2} 0x{actualHeader[3]:X2}");
+
+                // Cross-check the ASCII representation for human-readable failure messages.
+                string actualAscii = System.Text.Encoding.ASCII.GetString(actualHeader);
+                Assert.That(actualAscii, Is.EqualTo("%PDF"),
+                    "PDF header must decode to the literal \"%PDF\" ASCII string");
             }
             finally
             {

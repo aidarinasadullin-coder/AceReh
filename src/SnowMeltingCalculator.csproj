@@ -8,17 +8,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>SnowMeltingCalculator</AssemblyName>
     <RootNamespace>SnowMeltingCalculator</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.1.1</Version>
+    <ApplicationIcon>Assets\app_icon.ico</ApplicationIcon>
     <Authors>REHAU</Authors>
     <Product>Калькулятор снеготаяния РЕХАУ</Product>
     <Description>Расчёт систем снеготаяния открытых площадок</Description>
     
     <!-- Настройки публикации -->
-    <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +25,11 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
     <PackageReference Include="QuestPDF" Version="2024.12.3" />
+    <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SnowMeltingCalculator.Tests" />
   </ItemGroup>
 
   <!-- Базы данных -->
@@ -39,6 +43,11 @@
   <!-- Шрифты Inter -->
   <ItemGroup>
     <Resource Include="Assets\Fonts\*.ttf" />
+  </ItemGroup>
+
+  <!-- Фирменные SVG-ассеты -->
+  <ItemGroup>
+    <Resource Include="Assets\Brand\*.svg" />
   </ItemGroup>
 
 </Project>

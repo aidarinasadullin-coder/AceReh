@@ -11,6 +11,7 @@ using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Project;
+using SnowMeltingCalculator.Services.Reports.Calculation;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Construction;
@@ -28,6 +29,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly IMarkDirtyService _markDirtyService;
         private readonly IDialogService _dialogService;
         private readonly IPdfExportService _pdfExportService;
+        private readonly ICalculationReportExportService _calculationReportExportService;
         private readonly IProjectFileService _projectFileService;
         private readonly ICalculationStateService _calculationStateService;
         private readonly IMaterialRepository _materialRepository;
@@ -478,6 +480,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             IMarkDirtyService markDirtyService,
             IDialogService dialogService,
             IPdfExportService pdfExportService,
+            ICalculationReportExportService calculationReportExportService,
             IProjectFileService projectFileService,
             ICalculationStateService calculationStateService,
             IMaterialRepository materialRepository,
@@ -494,6 +497,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _pdfExportService = pdfExportService ?? throw new ArgumentNullException(nameof(pdfExportService));
+            _calculationReportExportService = calculationReportExportService ?? throw new ArgumentNullException(nameof(calculationReportExportService));
             _projectFileService = projectFileService ?? throw new ArgumentNullException(nameof(projectFileService));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
@@ -520,25 +524,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         public void LoadHydraulicsDataOnNavigate()
         {
-            // Обновляем климатические данные (могли измениться)
-            LoadClimateData();
-
-            // Обновляем данные конструкции и теплового расчёта
-            LoadConstructionData();
-            LoadThermalData();
-
-            // Обновляем гидравлические данные
-            LoadHydraulicsData();
-            RecalculateKpi();
-
-            // Перестраиваем канонический read-model карточек итогов по коллекторам
-            RebuildHydraulicSummaryCards();
-
-            // Проверяем готовность данных после загрузки всех модулей
-            CheckDataReadiness();
-
-            // Финальная синхронизация grouped read-model с учётом актуальной готовности данных
-            UpdateCollectorEquipmentItems();
+            RefreshAll();
         }
 
         #endregion
@@ -603,6 +589,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
         [RelayCommand]
         private async Task ExportPdf()
         {
+            RefreshAll();
+
             if (!IsDataReady)
             {
                 StatusMessage = "Невозможно экспортировать: не все данные готовы";
@@ -647,11 +635,88 @@ namespace SnowMeltingCalculator.ViewModels.Results
         }
 
         /// <summary>
+        /// Команда экспорта детального отчёта в Markdown для рабочего режима
+        /// </summary>
+        [RelayCommand]
+        private async Task ExportOperatingMarkdownReport()
+        {
+            RefreshAll();
+
+            await ExportMarkdownReportAsync(
+                CalculationReportMode.Operating,
+                $"Детальный_отчёт_рабочий_{ProjectNumber}_{DateTime.Now:yyyyMMdd}.md",
+                "Экспорт детального отчёта рабочего режима в Markdown");
+        }
+
+        /// <summary>
+        /// Команда экспорта детального отчёта в Markdown для расчётного холодного режима
+        /// </summary>
+        [RelayCommand]
+        private async Task ExportDesignColdMarkdownReport()
+        {
+            RefreshAll();
+
+            await ExportMarkdownReportAsync(
+                CalculationReportMode.DesignCold,
+                $"Детальный_отчёт_расчётный_холодный_{ProjectNumber}_{DateTime.Now:yyyyMMdd}.md",
+                "Экспорт детального отчёта расчётного холодного режима в Markdown");
+        }
+
+        private async Task ExportMarkdownReportAsync(
+            CalculationReportMode mode,
+            string defaultFileName,
+            string title)
+        {
+            if (!IsDataReady)
+            {
+                StatusMessage = "Невозможно экспортировать: не все данные готовы";
+                await Task.Delay(3000);
+                StatusMessage = string.Empty;
+                return;
+            }
+
+            var fileName = _dialogService.ShowSaveFileDialog(
+                defaultFileName,
+                "Markdown файлы (*.md)|*.md",
+                title: title,
+                defaultExt: "md");
+
+            if (fileName == null)
+                return;
+
+            try
+            {
+                StatusMessage = "Экспорт детального отчёта...";
+                var success = await _calculationReportExportService.ExportReportAsync(fileName, SaveCurrentProject(), mode);
+
+                if (success)
+                {
+                    StatusMessage = $"Отчёт сохранён: {Path.GetFileName(fileName)}";
+                }
+                else
+                {
+                    StatusMessage = "Ошибка при экспорте отчёта";
+                }
+
+                await Task.Delay(3000);
+                StatusMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Ошибка экспорта: {ex.Message}";
+                await Task.Delay(5000);
+                StatusMessage = string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Команда экспорта в Excel (заглушка)
         /// </summary>
         [RelayCommand]
         private async Task ExportExcel()
         {
+            RefreshAll();
+
             // TODO: Реализовать экспорт в Excel
             StatusMessage = "Экспорт в Excel будет реализован в следующей версии";
             await Task.Delay(2000);
@@ -766,6 +831,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
         [RelayCommand]
         private async Task PreviewPdf()
         {
+            RefreshAll();
+
             if (!IsDataReady)
             {
                 StatusMessage = "Невозможно создать предпросмотр: не все данные готовы";
@@ -814,6 +881,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
         [RelayCommand]
         private async Task PrintPdf()
         {
+            RefreshAll();
+
             if (!IsDataReady)
             {
                 StatusMessage = "Невозможно напечатать: не все данные готовы";
