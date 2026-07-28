@@ -40,6 +40,8 @@ namespace SnowMeltingCalculator.Services.Results
         /// </summary>
         public ResultsPdfData Build(ResultsViewModel results)
         {
+            results.RefreshAll();
+
             var pdfData = new ResultsPdfData
             {
                 // Информация о проекте
