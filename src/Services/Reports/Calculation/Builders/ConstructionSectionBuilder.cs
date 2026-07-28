@@ -1,0 +1,157 @@
+using System.Collections.Generic;
+using System.Linq;
+using SnowMeltingCalculator.Models.Construction;
+using SnowMeltingCalculator.Models.Project;
+
+namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
+{
+    /// <summary>
+    /// Строитель раздела конструкции.
+    /// </summary>
+    public sealed class ConstructionSectionBuilder : IReportSectionBuilder<ConstructionSection>
+    {
+        public SectionBuildResult<ConstructionSection> Build(ProjectData project, CalculationReportMode mode)
+        {
+            var construction = project.ConstructionData ?? new ConstructionProjectData();
+
+            var groundwaterLevel = ReportValueFactory.Create(construction.GroundwaterLevel, "м", ReportValueSource.UserInput, "ProjectData.ConstructionData.GroundwaterLevel");
+            var r1 = ReportValueFactory.Create(construction.R1, "м²·К/Вт", ReportValueSource.Calculated, "ProjectData.ConstructionData.R1", formula: "sum(R_i) above pipe");
+            var r2 = ReportValueFactory.Create(construction.R2, "м²·К/Вт", ReportValueSource.Calculated, "ProjectData.ConstructionData.R2", formula: "sum(R_i) below pipe");
+            var lambdaE = ReportValueFactory.Create(construction.LambdaE, "Вт/(м·К)", ReportValueSource.UserInput, "ProjectData.ConstructionData.LambdaE");
+
+            var layers = (construction.Layers ?? new List<LayerProjectData>())
+                .Select(layer => new ReportConstructionLayer
+                {
+                    Position = layer.Position.ToString(),
+                    MaterialName = ReportValueFactory.Create(layer.MaterialName ?? string.Empty, "-", ReportValueSource.Project, "LayerProjectData.MaterialName"),
+                    Thickness = ReportValueFactory.Create(layer.Thickness, "мм", ReportValueSource.UserInput, "LayerProjectData.Thickness"),
+                    Lambda = ReportValueFactory.Create(layer.CalculatedLambda, "Вт/(м·К)", ReportValueSource.Project, "LayerProjectData.CalculatedLambda", formula: layer.IsLambdaOverridden ? "ручное переопределение" : "материал БД"),
+                    ThermalResistance = ReportValueFactory.Create(layer.CalculatedR, "м²·К/Вт", ReportValueSource.Calculated, "LayerProjectData.CalculatedR", formula: "(d / 1000) / lambda")
+                })
+                .ToList();
+
+            var section = new ConstructionSection
+            {
+                GroundwaterLevel = groundwaterLevel,
+                R1 = r1,
+                R2 = r2,
+                LambdaE = lambdaE,
+                HasLoads = construction.HasLoads,
+                Layers = layers
+            };
+
+            var metadata = new List<ReportParameterMetadata>
+            {
+                Meta("Уровень грунтовых вод", "УГВ", "Уровень грунтовых вод", groundwaterLevel),
+                Meta("Сопротивление над трубой", "R1", "Суммарное термическое сопротивление слоёв над трубой", r1),
+                Meta("Сопротивление под трубой", "R2", "Суммарное термическое сопротивление слоёв под трубой", r2),
+                Meta("Эквивалентная теплопроводность", "lambdaE", "Эквивалентная теплопроводность материала вокруг трубы", lambdaE),
+                Meta("Выбор сухой/влажной lambda", "lambdaA / lambdaB", "Логика выбора теплопроводности в зависимости от УГВ", "-", ReportValueSource.ProgramDatabase, "LayerProjectData.CalculatedLambda", "УГВ < 1 м -> lambdaB, иначе lambdaA", "ConstructionViewModel", "ConstructionSection.Layers")
+            };
+
+            foreach (var layer in layers)
+            {
+                metadata.Add(Meta("Материал слоя", "-", "Материал слоя конструкции", layer.MaterialName, "ConstructionSection.Layers"));
+                metadata.Add(Meta("Толщина слоя", "d_i", "Толщина слоя", layer.Thickness, "ConstructionSection.Layers"));
+                metadata.Add(Meta("Теплопроводность слоя", "lambda_i", "Коэффициент теплопроводности слоя", layer.Lambda, "ConstructionSection.Layers"));
+                metadata.Add(Meta("Термическое сопротивление слоя", "R_i", "Термическое сопротивление слоя", layer.ThermalResistance, "ConstructionSection.Layers"));
+            }
+
+            var formulas = new List<ReportFormula>
+            {
+                Formula("R_i", "(d_i / 1000) / lambda_i", "ThermalCalculator.CalculateThermalResistance / ProjectData", "Construction"),
+                Formula("R1", "sum(R_i) above pipe", "ProjectData.ConstructionData.R1", "Construction"),
+                Formula("R2", "sum(R_i) below pipe", "ProjectData.ConstructionData.R2", "Construction"),
+                Formula("lambdaA/lambdaB", "УГВ < 1 м -> lambdaB, иначе lambdaA", "ConstructionViewModel / docs/Formulas_Snegotayanie.md", "Construction")
+            };
+
+            return new SectionBuildResult<ConstructionSection>
+            {
+                Section = section,
+                ParameterMetadata = metadata,
+                Formulas = formulas
+            };
+        }
+
+        private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<double> value)
+        {
+            return Meta(name, symbol, physicalMeaning, value, "ConstructionSection");
+        }
+
+        private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<double> value, string whereUsed)
+        {
+            return new ReportParameterMetadata
+            {
+                Name = name,
+                Symbol = symbol,
+                PhysicalMeaning = physicalMeaning,
+                Unit = value.Unit,
+                Source = value.Source,
+                SourceDetail = value.SourceDetail,
+                Formula = value.Formula ?? value.FormulaStatus,
+                FormulaSource = "ConstructionSectionBuilder",
+                WhereCalculated = value.SourceDetail,
+                WhereUsed = whereUsed
+            };
+        }
+
+        private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<string> value)
+        {
+            return Meta(name, symbol, physicalMeaning, value, "ConstructionSection");
+        }
+
+        private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<string> value, string whereUsed)
+        {
+            return new ReportParameterMetadata
+            {
+                Name = name,
+                Symbol = symbol,
+                PhysicalMeaning = physicalMeaning,
+                Unit = value.Unit,
+                Source = value.Source,
+                SourceDetail = value.SourceDetail,
+                Formula = value.Formula ?? value.FormulaStatus,
+                FormulaSource = "ConstructionSectionBuilder",
+                WhereCalculated = value.SourceDetail,
+                WhereUsed = whereUsed
+            };
+        }
+
+        private static ReportParameterMetadata Meta(
+            string name,
+            string symbol,
+            string physicalMeaning,
+            string unit,
+            ReportValueSource source,
+            string sourceDetail,
+            string? formula,
+            string whereCalculated,
+            string whereUsed)
+        {
+            return new ReportParameterMetadata
+            {
+                Name = name,
+                Symbol = symbol,
+                PhysicalMeaning = physicalMeaning,
+                Unit = unit,
+                Source = source,
+                SourceDetail = sourceDetail,
+                Formula = formula,
+                FormulaSource = formula == null ? string.Empty : "ConstructionSectionBuilder",
+                WhereCalculated = whereCalculated,
+                WhereUsed = whereUsed
+            };
+        }
+
+        private static ReportFormula Formula(string symbol, string expression, string sourcePath, string section)
+        {
+            return new ReportFormula
+            {
+                Symbol = symbol,
+                Expression = expression,
+                SourcePath = sourcePath,
+                Section = section
+            };
+        }
+    }
+}
