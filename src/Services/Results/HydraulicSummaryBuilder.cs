@@ -88,7 +88,12 @@ namespace SnowMeltingCalculator.Services.Results
                     {
                         ValveType = collector.ValveType,
                         CircuitCount = circuitCount,
-                        Type = collector.CollectorTypeDisplayWithCount,
+                        Type = collector.ValveType switch
+                        {
+                            ValveType.HKV_D => $"HKV-D ({FormatCircuitCount(circuitCount)})",
+                            ValveType.IV_1_25 or ValveType.IV_1_5 => $"IV ({FormatCircuitCount(circuitCount)})",
+                            _ => collector.CollectorTypeDisplayWithCount
+                        },
                         CollectorQuantity = 1
                     };
 
@@ -100,5 +105,12 @@ namespace SnowMeltingCalculator.Services.Results
             items.AddRange(orderedGroups);
             return items;
         }
+
+        private static string FormatCircuitCount(int count) => count switch
+        {
+            1 => "1 контур",
+            2 or 3 or 4 => $"{count} контура",
+            _ => $"{count} контуров"
+        };
     }
 }
