@@ -1,0 +1,55 @@
+{
+  "brand": "REHAU (гайдлайн 2023)",
+  "colors": {
+    "white": {
+      "name_ru": "Белый",
+      "hex": "#FFFFFF",
+      "cmyk": "0/0/0/0",
+      "ral": "9003",
+      "pantone": null
+    },
+    "active_red": {
+      "name_ru": "Активный Красный",
+      "hex": "#E50040",
+      "cmyk": "0/100/65/0",
+      "ral": "3028",
+      "pantone": "199 PC"
+    },
+    "smart_green": {
+      "name_ru": "Умный Зелёный",
+      "hex": "#4FC7B5",
+      "cmyk": "60/0/30/0",
+      "ral": "6033",
+      "pantone": "3258 C"
+    },
+    "black": {
+      "name_ru": "Чёрный",
+      "hex": "#000000",
+      "cmyk": "0/0/0/100",
+      "ral": "8022",
+      "pantone": "Black 6"
+    },
+    "gray_20": {
+      "name_ru": "Оттенок Чёрный 20",
+      "hex": "#D9D9D9",
+      "cmyk": "0/0/0/20"
+    },
+    "gray_40": {
+      "name_ru": "Оттенок Чёрный 40",
+      "hex": "#B0B0B0",
+      "cmyk": "0/0/0/40"
+    },
+    "gray_60": {
+      "name_ru": "Оттенок Чёрный 60",
+      "hex": "#818181",
+      "cmyk": "0/0/0/60"
+    },
+    "gray_80": {
+      "name_ru": "Оттенок Чёрный 80",
+      "hex": "#4E4E4E",
+      "cmyk": "0/0/0/80",
+      "ral": "7043",
+      "pantone": "Cool Gray 11"
+    }
+  }
+}
