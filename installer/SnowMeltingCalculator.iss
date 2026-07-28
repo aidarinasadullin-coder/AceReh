@@ -1,7 +1,7 @@
-; Inno Setup Script — Калькулятор снеготаяния РЕХАУ v1.0.0
+; Inno Setup Script — Калькулятор снеготаяния РЕХАУ v1.1.1
 
 #define MyAppName "Калькулятор снеготаяния РЕХАУ"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.1.1"
 #define MyAppPublisher "REHAU"
 #define MyAppExeName "SnowMeltingCalculator.exe"
 
@@ -15,8 +15,8 @@ DefaultGroupName=REHAU\Калькулятор снеготаяния
 DisableProgramGroupPage=yes
 LicenseFile=..\docs\license.rtf
 OutputDir=..\output
-OutputBaseFilename=SnowMeltingCalculator-v1.0-Setup
-SetupIconFile=..\resources\РЕХАУ_logo.ico
+OutputBaseFilename=SnowMeltingCalculator-v1.1.1-Setup
+SetupIconFile=..\src\Assets\app_icon.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -31,19 +31,8 @@ Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-; Основной EXE (self-contained, ~200 MB)
-Source: "..\publish\SnowMeltingCalculator.exe"; DestDir: "{app}"; Flags: ignoreversion
-; PDB (отладочные символы)
-Source: "..\publish\SnowMeltingCalculator.pdb"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-; Иконка приложения и файлов проекта
-Source: "..\resources\РЕХАУ_logo.ico"; DestDir: "{app}"; Flags: ignoreversion
-; Данные
-Source: "..\publish\data\climate_db.json"; DestDir: "{app}\data"; Flags: ignoreversion
-Source: "..\publish\data\glycol_data.json"; DestDir: "{app}\data"; Flags: ignoreversion
-Source: "..\publish\data\materials_db.json"; DestDir: "{app}\data"; Flags: ignoreversion
-Source: "..\publish\data\rehau_products.json"; DestDir: "{app}\data"; Flags: ignoreversion
-; Шрифты Lato
-Source: "..\publish\LatoFont\*"; DestDir: "{app}\LatoFont"; Flags: ignoreversion recursesubdirs
+; Полный self-contained publish, включая runtime и все вложенные ресурсы
+Source: "..\publish\*"; DestDir: "{app}"; Excludes: "*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -57,38 +46,13 @@ Root: HKA; Subkey: "Software\Classes\.smc\OpenWithProgids"; ValueType: string; V
 
 ; ProgID для файлов проекта
 Root: HKA; Subkey: "Software\Classes\SnowMeltingCalculator.Project"; ValueType: string; ValueName: ""; ValueData: "Проект Калькулятора снеготаяния РЕХАУ"; Flags: uninsdeletekey
-Root: HKA; Subkey: "Software\Classes\SnowMeltingCalculator.Project\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\РЕХАУ_logo.ico"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\SnowMeltingCalculator.Project\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\SnowMeltingCalculator.Project\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
-[Code]
-// Удаление пустых папок при деинсталляции
-procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
-var
-  DataDir: string;
-begin
-  if CurUninstallStep = usPostUninstall then
-  begin
-    // Удалить папку data если пустая
-    DataDir := ExpandConstant('{app}\data');
-    if DirExists(DataDir) and (Length(RemoveDir(DataDir)) > 0) then
-      RemoveDir(DataDir);
-    
-    // Удалить папку LatoFont если пустая
-    DataDir := ExpandConstant('{app}\LatoFont');
-    if DirExists(DataDir) then
-      RemoveDir(DataDir);
-    
-    // Удалить папку приложения если пустая
-    DataDir := ExpandConstant('{app}');
-    if DirExists(DataDir) then
-      RemoveDir(DataDir);
-    
-    // Удалить папку REHAU если пустая
-    DataDir := ExpandConstant('{autopf}\REHAU');
-    if DirExists(DataDir) then
-      RemoveDir(DataDir);
-  end;
-end;
+[UninstallDelete]
+; Удалять каталоги только если в них не осталось пользовательских файлов
+Type: dirifempty; Name: "{app}"
+Type: dirifempty; Name: "{autopf}\REHAU"
