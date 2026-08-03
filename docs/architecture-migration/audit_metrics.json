@@ -1,0 +1,2844 @@
+{
+ "classes": [
+  {
+   "file": "ResultsViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Results\\ResultsViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Results",
+   "name": "ResultsViewModel",
+   "loc": 1946,
+   "kind": "class"
+  },
+  {
+   "file": "ResultsViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Results\\ResultsViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Results",
+   "name": "CollectorInfo",
+   "loc": 1946,
+   "kind": "class"
+  },
+  {
+   "file": "ResultsViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Results\\ResultsViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Results",
+   "name": "CollectorSpecification",
+   "loc": 1946,
+   "kind": "class"
+  },
+  {
+   "file": "ResultsViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Results\\ResultsViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Results",
+   "name": "CollectorEquipmentItem",
+   "loc": 1946,
+   "kind": "class"
+  },
+  {
+   "file": "CircuitsViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Hydraulics\\CircuitsViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Hydraulics",
+   "name": "CircuitsViewModel",
+   "loc": 1257,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Construction\\ConstructionViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Construction",
+   "name": "ConstructionViewModel",
+   "loc": 1211,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolDataService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\GlycolDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "GlycolDataService",
+   "loc": 1108,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolDataService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\GlycolDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "GlycolRawContainer",
+   "loc": 1108,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolDataService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\GlycolDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "GlycolTypeRawData",
+   "loc": 1108,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolDataService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\GlycolDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "PropertyDataWithConcentrations",
+   "loc": 1108,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolDataService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\GlycolDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "TemperatureDataRow",
+   "loc": 1108,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolDataService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\GlycolDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "GlycolJsonData",
+   "loc": 1108,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolDataService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\GlycolDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "GlycolTypeData",
+   "loc": 1108,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolDataService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\GlycolDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "InterpolationTable",
+   "loc": 1108,
+   "kind": "class"
+  },
+  {
+   "file": "ClimateViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Climate\\ClimateViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Climate",
+   "name": "ClimateViewModel",
+   "loc": 784,
+   "kind": "class"
+  },
+  {
+   "file": "ThermalCalculator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Thermal\\ThermalCalculator.cs",
+   "ns": "SnowMeltingCalculator.Services.Thermal",
+   "name": "ThermalCalculator",
+   "loc": 734,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionVisualizationRenderer.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Visualization\\ConstructionVisualizationRenderer.cs",
+   "ns": "SnowMeltingCalculator.Services.Visualization",
+   "name": "ScaleOverflowMode",
+   "loc": 698,
+   "kind": "enum"
+  },
+  {
+   "file": "ConstructionVisualizationRenderer.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Visualization\\ConstructionVisualizationRenderer.cs",
+   "ns": "SnowMeltingCalculator.Services.Visualization",
+   "name": "ConstructionVisualizationParameters",
+   "loc": 698,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionVisualizationRenderer.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Visualization\\ConstructionVisualizationRenderer.cs",
+   "ns": "SnowMeltingCalculator.Services.Visualization",
+   "name": "ConstructionVisualizationRenderer",
+   "loc": 698,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionVisualizationRenderer.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Visualization\\ConstructionVisualizationRenderer.cs",
+   "ns": "SnowMeltingCalculator.Services.Visualization",
+   "name": "LayerRenderInfo",
+   "loc": 698,
+   "kind": "struct"
+  },
+  {
+   "file": "PdfExportService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\PdfExportService.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "PdfExportService",
+   "loc": 619,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ReportConstructionLayer",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ProjectSection",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ClimateSection",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ConstructionSection",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ThermalSection",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ReportCircuit",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ReportCollectorSummary",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ReportCollector",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "HydraulicsSection",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ReportCollectorSpecification",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "EquipmentSection",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "SourcesAppendix",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "ReportSections.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportSections.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "FormulasAppendix",
+   "loc": 598,
+   "kind": "class"
+  },
+  {
+   "file": "CollectorRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Hydraulics\\CollectorRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Hydraulics",
+   "name": "CollectorRepository",
+   "loc": 540,
+   "kind": "class"
+  },
+  {
+   "file": "CollectorRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Hydraulics\\CollectorRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Hydraulics",
+   "name": "RehauProductsContainer",
+   "loc": 540,
+   "kind": "class"
+  },
+  {
+   "file": "CollectorRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Hydraulics\\CollectorRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Hydraulics",
+   "name": "CollectorHkvJson",
+   "loc": 540,
+   "kind": "class"
+  },
+  {
+   "file": "CollectorRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Hydraulics\\CollectorRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Hydraulics",
+   "name": "CollectorIndustrialJson",
+   "loc": 540,
+   "kind": "class"
+  },
+  {
+   "file": "TemplateEditorViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Construction\\TemplateEditorViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Construction",
+   "name": "TemplateEditorViewModel",
+   "loc": 530,
+   "kind": "class"
+  },
+  {
+   "file": "TemplateEditorViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Construction\\TemplateEditorViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Construction",
+   "name": "EditableLayer",
+   "loc": 530,
+   "kind": "class"
+  },
+  {
+   "file": "MaterialRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\MaterialRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "MaterialRepository",
+   "loc": 499,
+   "kind": "class"
+  },
+  {
+   "file": "MaterialRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\MaterialRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "MaterialsDbModel",
+   "loc": 499,
+   "kind": "class"
+  },
+  {
+   "file": "MaterialRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\MaterialRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "MaterialsMeta",
+   "loc": 499,
+   "kind": "class"
+  },
+  {
+   "file": "MaterialRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\MaterialRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "MaterialJsonModel",
+   "loc": 499,
+   "kind": "class"
+  },
+  {
+   "file": "CircuitRow.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\CircuitRow.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "CircuitTemperatureResult",
+   "loc": 497,
+   "kind": "class"
+  },
+  {
+   "file": "CircuitRow.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\CircuitRow.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "CircuitRow",
+   "loc": 497,
+   "kind": "class"
+  },
+  {
+   "file": "ThermalViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Thermal\\ThermalViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Thermal",
+   "name": "ThermalViewModel",
+   "loc": 495,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "ProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "ClimateProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "ConstructionProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "LayerProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "ThermalProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "PipeTypeProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "ThermalResultProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "HydraulicsProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "CircuitResultProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "CollectorSummaryProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "CollectorProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Project\\ProjectData.cs",
+   "ns": "SnowMeltingCalculator.Models.Project",
+   "name": "CircuitProjectData",
+   "loc": 489,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionTemplateRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\ConstructionTemplateRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "ConstructionTemplateRepository",
+   "loc": 481,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionTemplateRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\ConstructionTemplateRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "ConstructionTemplatesDbModel",
+   "loc": 481,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionTemplateRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\ConstructionTemplateRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "ConstructionTemplatesMeta",
+   "loc": 481,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionTemplateRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\ConstructionTemplateRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "ConstructionTemplateJsonModel",
+   "loc": 481,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionTemplateRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\ConstructionTemplateRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "LayerTemplateJsonModel",
+   "loc": 481,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "NullToVisibilityConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "StringToVisibilityConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "BoolToVisibilityConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "InverseBoolToVisibilityConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "InverseBooleanConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "через",
+   "loc": 466,
+   "kind": "enum"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "EnumDescriptionConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "OperatingModeDescriptionConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "NullToBoolConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "BoolToAlertIconConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "BoolToValidationColorConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "MaterialToColorConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "HydraulicModeToVisibilityConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "SidebarTooltipConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "PressureColorConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "EmptyValueConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "ModeToBackgroundConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "ModeToBorderConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "PressureToStringConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "Converters.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\Converters.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "OrderToNumberConverter",
+   "loc": 466,
+   "kind": "class"
+  },
+  {
+   "file": "CityAutoCompleteBox.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Controls\\Climate\\CityAutoCompleteBox.xaml.cs",
+   "ns": "SnowMeltingCalculator.Controls.Climate",
+   "name": "CityAutoCompleteBox",
+   "loc": 440,
+   "kind": "class"
+  },
+  {
+   "file": "CityAutoCompleteBox.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Controls\\Climate\\CityAutoCompleteBox.xaml.cs",
+   "ns": "SnowMeltingCalculator.Controls.Climate",
+   "name": "CitySelectedEventArgs",
+   "loc": 440,
+   "kind": "class"
+  },
+  {
+   "file": "TextBoxBehavior.cs",
+   "path": "D:\\IA\\ace\\src\\Behaviors\\TextBoxBehavior.cs",
+   "ns": "SnowMeltingCalculator.Behaviors",
+   "name": "TextBoxBehavior",
+   "loc": 425,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectLoadOrchestrator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Project\\ProjectLoadOrchestrator.cs",
+   "ns": "SnowMeltingCalculator.Services.Project",
+   "name": "ProjectLoadOrchestrator",
+   "loc": 414,
+   "kind": "class"
+  },
+  {
+   "file": "MaterialTextureProvider.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Visualization\\MaterialTextureProvider.cs",
+   "ns": "SnowMeltingCalculator.Services.Visualization",
+   "name": "MaterialTextureProvider",
+   "loc": 410,
+   "kind": "class"
+  },
+  {
+   "file": "MainWindow.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\MainWindow.xaml.cs",
+   "ns": "SnowMeltingCalculator",
+   "name": "MainWindow",
+   "loc": 405,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Construction\\ConstructionService.cs",
+   "ns": "SnowMeltingCalculator.Services.Construction",
+   "name": "ConstructionService",
+   "loc": 385,
+   "kind": "class"
+  },
+  {
+   "file": "CollectorViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Hydraulics\\CollectorViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Hydraulics",
+   "name": "CollectorViewModel",
+   "loc": 368,
+   "kind": "class"
+  },
+  {
+   "file": "MaterialEditorViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Construction\\MaterialEditorViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Construction",
+   "name": "MaterialEditorViewModel",
+   "loc": 363,
+   "kind": "class"
+  },
+  {
+   "file": "ValidationExtensions.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\Extensions\\ValidationExtensions.cs",
+   "ns": "SnowMeltingCalculator.Core.Extensions",
+   "name": "ValidationExtensions",
+   "loc": 362,
+   "kind": "class"
+  },
+  {
+   "file": "MainViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Shell\\MainViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Shell",
+   "name": "MainViewModel",
+   "loc": 333,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\ConstructionRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "ConstructionRepository",
+   "loc": 332,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\ConstructionRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "ConstructionDto",
+   "loc": 332,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\ConstructionRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "LayerDto",
+   "loc": 332,
+   "kind": "class"
+  },
+  {
+   "file": "Construction.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Construction\\Construction.cs",
+   "ns": "SnowMeltingCalculator.Models.Construction",
+   "name": "Construction",
+   "loc": 330,
+   "kind": "class"
+  },
+  {
+   "file": "ValveTurnsCalculator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\ValveTurnsCalculator.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "ValveTurnsCalculator",
+   "loc": 328,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionVisualizationView.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Views\\Shared\\ConstructionVisualizationView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Shared",
+   "name": "ConstructionVisualizationView",
+   "loc": 319,
+   "kind": "class"
+  },
+  {
+   "file": "ResultsPdfData.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\ResultsPdfData.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "CircuitPdfData",
+   "loc": 318,
+   "kind": "class"
+  },
+  {
+   "file": "ResultsPdfData.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\ResultsPdfData.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "CollectorSummaryPdfData",
+   "loc": 318,
+   "kind": "class"
+  },
+  {
+   "file": "ResultsPdfData.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\ResultsPdfData.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "CollectorPdfData",
+   "loc": 318,
+   "kind": "class"
+  },
+  {
+   "file": "ResultsPdfData.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\ResultsPdfData.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "LayerPdfData",
+   "loc": 318,
+   "kind": "class"
+  },
+  {
+   "file": "ResultsPdfData.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\ResultsPdfData.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "CollectorSpecPdfData",
+   "loc": 318,
+   "kind": "class"
+  },
+  {
+   "file": "ResultsPdfData.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\ResultsPdfData.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "ResultsPdfData",
+   "loc": 318,
+   "kind": "class"
+  },
+  {
+   "file": "ClimateDataService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Climate\\ClimateDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Climate",
+   "name": "ClimateDataService",
+   "loc": 313,
+   "kind": "class"
+  },
+  {
+   "file": "CircuitsCalculator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\CircuitsCalculator.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "CircuitsCalculator",
+   "loc": 301,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionValidator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Construction\\ConstructionValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Construction",
+   "name": "ConstructionValidator",
+   "loc": 284,
+   "kind": "class"
+  },
+  {
+   "file": "ValidationConstants.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\Constants\\ValidationConstants.cs",
+   "ns": "SnowMeltingCalculator.Core.Constants",
+   "name": "ValidationConstants",
+   "loc": 272,
+   "kind": "class"
+  },
+  {
+   "file": "DoubleExtensions.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\Extensions\\DoubleExtensions.cs",
+   "ns": "SnowMeltingCalculator.Core.Extensions",
+   "name": "DoubleExtensions",
+   "loc": 256,
+   "kind": "class"
+  },
+  {
+   "file": "CalculationContext.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\CalculationContext.cs",
+   "ns": "SnowMeltingCalculator.Core",
+   "name": "ContextChangedEventArgs",
+   "loc": 253,
+   "kind": "class"
+  },
+  {
+   "file": "CalculationContext.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\CalculationContext.cs",
+   "ns": "SnowMeltingCalculator.Core",
+   "name": "CalculationContext",
+   "loc": 253,
+   "kind": "class"
+  },
+  {
+   "file": "SearchHistoryRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\SearchHistoryRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories",
+   "name": "SearchHistoryRepository",
+   "loc": 252,
+   "kind": "class"
+  },
+  {
+   "file": "HydraulicsConstants.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\Constants\\HydraulicsConstants.cs",
+   "ns": "SnowMeltingCalculator.Core.Constants",
+   "name": "HydraulicsConstants",
+   "loc": 245,
+   "kind": "class"
+  },
+  {
+   "file": "CalculationReportDataBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\CalculationReportDataBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "CalculationReportDataBuilder",
+   "loc": 244,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectFileService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Project\\ProjectFileService.cs",
+   "ns": "SnowMeltingCalculator.Services.Project",
+   "name": "ProjectFileService",
+   "loc": 240,
+   "kind": "class"
+  },
+  {
+   "file": "CalculationReportMarkdownSectionRenderer.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\CalculationReportMarkdownSectionRenderer.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "CalculationReportMarkdownSectionRenderer",
+   "loc": 237,
+   "kind": "class"
+  },
+  {
+   "file": "ServiceCollectionExtensions.cs",
+   "path": "D:\\IA\\ace\\src\\Configuration\\ServiceCollectionExtensions.cs",
+   "ns": "SnowMeltingCalculator.Configuration",
+   "name": "ServiceCollectionExtensions",
+   "loc": 228,
+   "kind": "class"
+  },
+  {
+   "file": "Material.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Construction\\Material.cs",
+   "ns": "SnowMeltingCalculator.Models.Construction",
+   "name": "MaterialCategory",
+   "loc": 226,
+   "kind": "enum"
+  },
+  {
+   "file": "Material.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Construction\\Material.cs",
+   "ns": "SnowMeltingCalculator.Models.Construction",
+   "name": "Material",
+   "loc": 226,
+   "kind": "class"
+  },
+  {
+   "file": "FlowRegimeCalculator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\FlowRegimeCalculator.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "FlowRegimeCalculator",
+   "loc": 226,
+   "kind": "class"
+  },
+  {
+   "file": "ThermalCalculationResult.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Thermal\\ThermalCalculationResult.cs",
+   "ns": "SnowMeltingCalculator.Models.Thermal",
+   "name": "IThermalCalculationResult",
+   "loc": 223,
+   "kind": "interface"
+  },
+  {
+   "file": "ThermalCalculationResult.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Thermal\\ThermalCalculationResult.cs",
+   "ns": "SnowMeltingCalculator.Models.Thermal",
+   "name": "ThermalCalculationResult",
+   "loc": 223,
+   "kind": "class"
+  },
+  {
+   "file": "ThermalCalculationResult.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Thermal\\ThermalCalculationResult.cs",
+   "ns": "SnowMeltingCalculator.Models.Thermal",
+   "name": "ThermalResultChangedEventArgs",
+   "loc": 223,
+   "kind": "class"
+  },
+  {
+   "file": "ClimateDataRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\ClimateDataRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories",
+   "name": "ClimateDataRepository",
+   "loc": 217,
+   "kind": "class"
+  },
+  {
+   "file": "ClimateDataRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\ClimateDataRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories",
+   "name": "ClimateDbModel",
+   "loc": 217,
+   "kind": "class"
+  },
+  {
+   "file": "ClimateDataRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\ClimateDataRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories",
+   "name": "ClimateMeta",
+   "loc": 217,
+   "kind": "class"
+  },
+  {
+   "file": "ClimateDataRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\ClimateDataRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories",
+   "name": "CityJsonModel",
+   "loc": 217,
+   "kind": "class"
+  },
+  {
+   "file": "HydraulicsReportMetadataBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\Builders\\HydraulicsReportMetadataBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation.Builders",
+   "name": "HydraulicsReportMetadataBuilder",
+   "loc": 209,
+   "kind": "class"
+  },
+  {
+   "file": "ResultsPdfDataBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\ResultsPdfDataBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "ResultsPdfDataBuilder",
+   "loc": 208,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolProperties.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\GlycolProperties.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "GlycolProperties",
+   "loc": 205,
+   "kind": "class"
+  },
+  {
+   "file": "ThermalConstants.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\Constants\\ThermalConstants.cs",
+   "ns": "SnowMeltingCalculator.Core.Constants",
+   "name": "ThermalConstants",
+   "loc": 203,
+   "kind": "class"
+  },
+  {
+   "file": "ICircuitsCalculator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\ICircuitsCalculator.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "ICircuitsCalculator",
+   "loc": 197,
+   "kind": "interface"
+  },
+  {
+   "file": "ValidationResult.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\ValidationResult.cs",
+   "ns": "SnowMeltingCalculator.Core",
+   "name": "ValidationResult",
+   "loc": 180,
+   "kind": "class"
+  },
+  {
+   "file": "Layer.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Construction\\Layer.cs",
+   "ns": "SnowMeltingCalculator.Models.Construction",
+   "name": "Layer",
+   "loc": 180,
+   "kind": "class"
+  },
+  {
+   "file": "ThermalSectionBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\Builders\\ThermalSectionBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation.Builders",
+   "name": "ThermalSectionBuilder",
+   "loc": 176,
+   "kind": "class"
+  },
+  {
+   "file": "EquipmentSectionBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\Builders\\EquipmentSectionBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation.Builders",
+   "name": "EquipmentSectionBuilder",
+   "loc": 175,
+   "kind": "class"
+  },
+  {
+   "file": "Collector.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\Collector.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "Collector",
+   "loc": 173,
+   "kind": "class"
+  },
+  {
+   "file": "IGlycolDataService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\IGlycolDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "IGlycolDataService",
+   "loc": 173,
+   "kind": "interface"
+  },
+  {
+   "file": "CalculationStateService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Navigation\\CalculationStateService.cs",
+   "ns": "SnowMeltingCalculator.Services.Navigation",
+   "name": "CalculationStateService",
+   "loc": 172,
+   "kind": "class"
+  },
+  {
+   "file": "RecalcIndicatorViewModel.cs",
+   "path": "D:\\IA\\ace\\src\\ViewModels\\Shared\\RecalcIndicatorViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Shared",
+   "name": "RecalcIndicatorViewModel",
+   "loc": 171,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionTemplate.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Construction\\ConstructionTemplate.cs",
+   "ns": "SnowMeltingCalculator.Models.Construction",
+   "name": "LayerTemplate",
+   "loc": 170,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionTemplate.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Construction\\ConstructionTemplate.cs",
+   "ns": "SnowMeltingCalculator.Models.Construction",
+   "name": "ConstructionTemplate",
+   "loc": 170,
+   "kind": "class"
+  },
+  {
+   "file": "CollectorSummary.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\CollectorSummary.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "CollectorSummary",
+   "loc": 158,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionSectionBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\Builders\\ConstructionSectionBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation.Builders",
+   "name": "ConstructionSectionBuilder",
+   "loc": 158,
+   "kind": "class"
+  },
+  {
+   "file": "MaterialCrudValidator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Construction\\MaterialCrudValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Construction",
+   "name": "MaterialCrudValidator",
+   "loc": 153,
+   "kind": "class"
+  },
+  {
+   "file": "CityMatchToHighlightConverter.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\CityMatchToHighlightConverter.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "CityMatchToHighlightConverter",
+   "loc": 138,
+   "kind": "class"
+  },
+  {
+   "file": "ICollectorRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Hydraulics\\ICollectorRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Hydraulics",
+   "name": "ICollectorRepository",
+   "loc": 132,
+   "kind": "interface"
+  },
+  {
+   "file": "ClimateSectionBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\Builders\\ClimateSectionBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation.Builders",
+   "name": "ClimateSectionBuilder",
+   "loc": 132,
+   "kind": "class"
+  },
+  {
+   "file": "DataGridBehavior.cs",
+   "path": "D:\\IA\\ace\\src\\Behaviors\\DataGridBehavior.cs",
+   "ns": "SnowMeltingCalculator.Behaviors",
+   "name": "DataGridBehavior",
+   "loc": 128,
+   "kind": "class"
+  },
+  {
+   "file": "ICalculationStateService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Navigation\\ICalculationStateService.cs",
+   "ns": "SnowMeltingCalculator.Services.Navigation",
+   "name": "ICalculationStateService",
+   "loc": 126,
+   "kind": "interface"
+  },
+  {
+   "file": "ConstructionTemplateValidator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Construction\\ConstructionTemplateValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Construction",
+   "name": "ConstructionTemplateValidator",
+   "loc": 124,
+   "kind": "class"
+  },
+  {
+   "file": "RecalcIndicator.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Controls\\RecalcIndicator.xaml.cs",
+   "ns": "SnowMeltingCalculator.Controls",
+   "name": "RecalcIndicator",
+   "loc": 121,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionView.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Views\\Construction\\ConstructionView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Construction",
+   "name": "ConstructionView",
+   "loc": 119,
+   "kind": "class"
+  },
+  {
+   "file": "HydraulicSummaryBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\HydraulicSummaryBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "HydraulicSummaryBuilder",
+   "loc": 117,
+   "kind": "class"
+  },
+  {
+   "file": "IThermalCalculator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Thermal\\IThermalCalculator.cs",
+   "ns": "SnowMeltingCalculator.Services.Thermal",
+   "name": "IThermalCalculator",
+   "loc": 115,
+   "kind": "interface"
+  },
+  {
+   "file": "App.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\App.xaml.cs",
+   "ns": "SnowMeltingCalculator",
+   "name": "App",
+   "loc": 111,
+   "kind": "class"
+  },
+  {
+   "file": "CalculationReportMarkdownAppendixRenderer.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\CalculationReportMarkdownAppendixRenderer.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "CalculationReportMarkdownAppendixRenderer",
+   "loc": 108,
+   "kind": "class"
+  },
+  {
+   "file": "HydraulicsSectionBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\Builders\\HydraulicsSectionBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation.Builders",
+   "name": "HydraulicsSectionBuilder",
+   "loc": 105,
+   "kind": "class"
+  },
+  {
+   "file": "ClimateData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Climate\\ClimateData.cs",
+   "ns": "SnowMeltingCalculator.Models.Climate",
+   "name": "IClimateData",
+   "loc": 102,
+   "kind": "interface"
+  },
+  {
+   "file": "ClimateData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Climate\\ClimateData.cs",
+   "ns": "SnowMeltingCalculator.Models.Climate",
+   "name": "ClimateData",
+   "loc": 102,
+   "kind": "class"
+  },
+  {
+   "file": "PipeType.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Thermal\\PipeType.cs",
+   "ns": "SnowMeltingCalculator.Models.Thermal",
+   "name": "PipeType",
+   "loc": 99,
+   "kind": "class"
+  },
+  {
+   "file": "CollectorData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\CollectorData.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "CollectorData",
+   "loc": 98,
+   "kind": "class"
+  },
+  {
+   "file": "MessageBoxService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Navigation\\MessageBoxService.cs",
+   "ns": "SnowMeltingCalculator.Services.Navigation",
+   "name": "MessageBoxService",
+   "loc": 97,
+   "kind": "class"
+  },
+  {
+   "file": "CollectorHydraulicSummaryCard.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\CollectorHydraulicSummaryCard.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "CollectorHydraulicSummaryCard",
+   "loc": 96,
+   "kind": "class"
+  },
+  {
+   "file": "CollectorTypeSelector.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\CollectorTypeSelector.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "CollectorTypeSelector",
+   "loc": 94,
+   "kind": "class"
+  },
+  {
+   "file": "MaterialSnapshot.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Construction\\MaterialSnapshot.cs",
+   "ns": "SnowMeltingCalculator.Models.Construction",
+   "name": "MaterialSnapshot",
+   "loc": 90,
+   "kind": "class"
+  },
+  {
+   "file": "CircuitsValidator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\CircuitsValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "CircuitsValidator",
+   "loc": 90,
+   "kind": "class"
+  },
+  {
+   "file": "CalculationReportMarkdownRenderHelper.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\CalculationReportMarkdownRenderHelper.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "CalculationReportMarkdownRenderHelper",
+   "loc": 90,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolDataModels.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\GlycolDataModels.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "GlycolDataContainer",
+   "loc": 89,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolDataModels.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\GlycolDataModels.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "GlycolData",
+   "loc": 89,
+   "kind": "class"
+  },
+  {
+   "file": "GlycolDataModels.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\GlycolDataModels.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "GlycolDataTable",
+   "loc": 89,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectStateService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\ProjectStateService.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "ProjectStateService",
+   "loc": 89,
+   "kind": "class"
+  },
+  {
+   "file": "SearchHistoryService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Climate\\SearchHistoryService.cs",
+   "ns": "SnowMeltingCalculator.Services.Climate",
+   "name": "SearchHistoryService",
+   "loc": 84,
+   "kind": "class"
+  },
+  {
+   "file": "IConstructionService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Construction\\IConstructionService.cs",
+   "ns": "SnowMeltingCalculator.Services.Construction",
+   "name": "IConstructionService",
+   "loc": 84,
+   "kind": "interface"
+  },
+  {
+   "file": "ClimateParameters.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Climate\\ClimateParameters.cs",
+   "ns": "SnowMeltingCalculator.Models.Climate",
+   "name": "ClimateParameters",
+   "loc": 82,
+   "kind": "class"
+  },
+  {
+   "file": "IClimateDataService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Climate\\IClimateDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Climate",
+   "name": "IClimateDataService",
+   "loc": 81,
+   "kind": "interface"
+  },
+  {
+   "file": "CalculationReportExportService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\CalculationReportExportService.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "CalculationReportExportService",
+   "loc": 80,
+   "kind": "class"
+  },
+  {
+   "file": "AppSettings.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\AppSettings.cs",
+   "ns": "SnowMeltingCalculator.Services",
+   "name": "AppSettings",
+   "loc": 75,
+   "kind": "class"
+  },
+  {
+   "file": "ClimateValidator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Climate\\ClimateValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Climate",
+   "name": "ClimateValidator",
+   "loc": 75,
+   "kind": "class"
+  },
+  {
+   "file": "EditorDialogService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Navigation\\EditorDialogService.cs",
+   "ns": "SnowMeltingCalculator.Services.Navigation",
+   "name": "EditorDialogService",
+   "loc": 75,
+   "kind": "class"
+  },
+  {
+   "file": "CalculationReportData.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\CalculationReportData.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "CalculationReportData",
+   "loc": 75,
+   "kind": "class"
+  },
+  {
+   "file": "ConstructionVisualizationImageService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Visualization\\ConstructionVisualizationImageService.cs",
+   "ns": "SnowMeltingCalculator.Services.Visualization",
+   "name": "ConstructionVisualizationImageService",
+   "loc": 74,
+   "kind": "class"
+  },
+  {
+   "file": "IMaterialRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\IMaterialRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "IMaterialRepository",
+   "loc": 72,
+   "kind": "interface"
+  },
+  {
+   "file": "IConstructionData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Thermal\\IConstructionData.cs",
+   "ns": "SnowMeltingCalculator.Models.Thermal",
+   "name": "IConstructionData",
+   "loc": 70,
+   "kind": "interface"
+  },
+  {
+   "file": "IConstructionData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Thermal\\IConstructionData.cs",
+   "ns": "SnowMeltingCalculator.Models.Thermal",
+   "name": "ConstructionData",
+   "loc": 70,
+   "kind": "class"
+  },
+  {
+   "file": "IConstructionData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Thermal\\IConstructionData.cs",
+   "ns": "SnowMeltingCalculator.Models.Thermal",
+   "name": "ConstructionDataChangedEventArgs",
+   "loc": 70,
+   "kind": "class"
+  },
+  {
+   "file": "ValveTurnsToFractionConverter.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\ValveTurnsToFractionConverter.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "ValveTurnsToFractionConverter",
+   "loc": 69,
+   "kind": "class"
+  },
+  {
+   "file": "CityInfo.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Climate\\CityInfo.cs",
+   "ns": "SnowMeltingCalculator.Models.Climate",
+   "name": "CityInfo",
+   "loc": 69,
+   "kind": "class"
+  },
+  {
+   "file": "HydraulicInputData.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\HydraulicInputData.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "HydraulicInputData",
+   "loc": 66,
+   "kind": "class"
+  },
+  {
+   "file": "IProjectFileService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Project\\IProjectFileService.cs",
+   "ns": "SnowMeltingCalculator.Services.Project",
+   "name": "IProjectFileService",
+   "loc": 65,
+   "kind": "interface"
+  },
+  {
+   "file": "DialogContracts.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Navigation\\DialogContracts.cs",
+   "ns": "SnowMeltingCalculator.Services.Navigation",
+   "name": "DialogResult",
+   "loc": 63,
+   "kind": "enum"
+  },
+  {
+   "file": "DialogContracts.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Navigation\\DialogContracts.cs",
+   "ns": "SnowMeltingCalculator.Services.Navigation",
+   "name": "DialogButtons",
+   "loc": 63,
+   "kind": "enum"
+  },
+  {
+   "file": "DialogContracts.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Navigation\\DialogContracts.cs",
+   "ns": "SnowMeltingCalculator.Services.Navigation",
+   "name": "DialogIcon",
+   "loc": 63,
+   "kind": "enum"
+  },
+  {
+   "file": "InlinesProperty.cs",
+   "path": "D:\\IA\\ace\\src\\AttachedProperties\\InlinesProperty.cs",
+   "ns": "SnowMeltingCalculator.AttachedProperties",
+   "name": "InlinesProperty",
+   "loc": 61,
+   "kind": "class"
+  },
+  {
+   "file": "ProjectSectionBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\Builders\\ProjectSectionBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation.Builders",
+   "name": "ProjectSectionBuilder",
+   "loc": 60,
+   "kind": "class"
+  },
+  {
+   "file": "ReportParameterMetadata.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportParameterMetadata.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ReportParameterMetadata",
+   "loc": 59,
+   "kind": "class"
+  },
+  {
+   "file": "ThermalResultValidator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Thermal\\ThermalResultValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Thermal",
+   "name": "ThermalResultValidator",
+   "loc": 59,
+   "kind": "class"
+  },
+  {
+   "file": "ThermalInputs.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Thermal\\ThermalInputs.cs",
+   "ns": "SnowMeltingCalculator.Models.Thermal",
+   "name": "ThermalInputs",
+   "loc": 56,
+   "kind": "record"
+  },
+  {
+   "file": "ThermalValidator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Thermal\\ThermalValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Thermal",
+   "name": "ThermalValidator",
+   "loc": 53,
+   "kind": "class"
+  },
+  {
+   "file": "CityMatchResult.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Climate\\CityMatchResult.cs",
+   "ns": "SnowMeltingCalculator.Models.Climate",
+   "name": "CityMatchResult",
+   "loc": 50,
+   "kind": "class"
+  },
+  {
+   "file": "ISearchHistoryRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\ISearchHistoryRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories",
+   "name": "ISearchHistoryRepository",
+   "loc": 50,
+   "kind": "interface"
+  },
+  {
+   "file": "IConstructionTemplateRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\IConstructionTemplateRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "IConstructionTemplateRepository",
+   "loc": 50,
+   "kind": "interface"
+  },
+  {
+   "file": "IDialogService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Navigation\\IDialogService.cs",
+   "ns": "SnowMeltingCalculator.Services.Navigation",
+   "name": "IDialogService",
+   "loc": 50,
+   "kind": "interface"
+  },
+  {
+   "file": "ClimateDataChangedEventArgs.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Climate\\ClimateDataChangedEventArgs.cs",
+   "ns": "SnowMeltingCalculator.Models.Climate",
+   "name": "ClimateDataChangedEventArgs",
+   "loc": 49,
+   "kind": "class"
+  },
+  {
+   "file": "ClimateDataChangedEventArgs.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Climate\\ClimateDataChangedEventArgs.cs",
+   "ns": "SnowMeltingCalculator.Models.Climate",
+   "name": "ValidationEventArgs",
+   "loc": 49,
+   "kind": "class"
+  },
+  {
+   "file": "CircuitValidator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\CircuitValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "CircuitValidator",
+   "loc": 49,
+   "kind": "class"
+  },
+  {
+   "file": "ValveType.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\ValveType.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "ValveType",
+   "loc": 47,
+   "kind": "enum"
+  },
+  {
+   "file": "ValidationError.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\ValidationError.cs",
+   "ns": "SnowMeltingCalculator.Core",
+   "name": "ValidationError",
+   "loc": 45,
+   "kind": "class"
+  },
+  {
+   "file": "MenuItem.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Navigation\\MenuItem.cs",
+   "ns": "SnowMeltingCalculator.Models.Navigation",
+   "name": "MenuItem",
+   "loc": 45,
+   "kind": "class"
+  },
+  {
+   "file": "IConstructionRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\Construction\\IConstructionRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "name": "IConstructionRepository",
+   "loc": 45,
+   "kind": "interface"
+  },
+  {
+   "file": "MaterialNotFoundException.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Construction\\MaterialNotFoundException.cs",
+   "ns": "SnowMeltingCalculator.Services.Construction",
+   "name": "MaterialNotFoundException",
+   "loc": 44,
+   "kind": "class"
+  },
+  {
+   "file": "TemplateEditorView.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Views\\Construction\\TemplateEditorView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Construction",
+   "name": "TemplateEditorView",
+   "loc": 44,
+   "kind": "class"
+  },
+  {
+   "file": "HydraulicValidator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\HydraulicValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "HydraulicValidator",
+   "loc": 43,
+   "kind": "class"
+  },
+  {
+   "file": "ReportValue.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportValue.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ReportValue",
+   "loc": 43,
+   "kind": "class"
+  },
+  {
+   "file": "MaterialEditorView.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Views\\Construction\\MaterialEditorView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Construction",
+   "name": "MaterialEditorView",
+   "loc": 43,
+   "kind": "class"
+  },
+  {
+   "file": "CalculationReportMarkdownRenderer.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\CalculationReportMarkdownRenderer.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "CalculationReportMarkdownRenderer",
+   "loc": 42,
+   "kind": "class"
+  },
+  {
+   "file": "DivisionConverter.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\DivisionConverter.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "DivisionConverter",
+   "loc": 41,
+   "kind": "class"
+  },
+  {
+   "file": "FlowRegime.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\FlowRegime.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "FlowRegime",
+   "loc": 41,
+   "kind": "enum"
+  },
+  {
+   "file": "ICircuitsValidator.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\ICircuitsValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "ICircuitsValidator",
+   "loc": 41,
+   "kind": "interface"
+  },
+  {
+   "file": "CircuitsView.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Views\\Hydraulics\\CircuitsView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Hydraulics",
+   "name": "CircuitsView",
+   "loc": 40,
+   "kind": "class"
+  },
+  {
+   "file": "FlowRegimeToColorConverter.cs",
+   "path": "D:\\IA\\ace\\src\\Converters\\FlowRegimeToColorConverter.cs",
+   "ns": "SnowMeltingCalculator.Converters",
+   "name": "FlowRegimeToColorConverter",
+   "loc": 39,
+   "kind": "class"
+  },
+  {
+   "file": "ICollectorTypeSelector.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\ICollectorTypeSelector.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "ICollectorTypeSelector",
+   "loc": 39,
+   "kind": "interface"
+  },
+  {
+   "file": "ICollectorTypeSelector.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Hydraulics\\ICollectorTypeSelector.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "name": "CollectorSelectionResult",
+   "loc": 39,
+   "kind": "class"
+  },
+  {
+   "file": "RecalcState.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Enums\\RecalcState.cs",
+   "ns": "SnowMeltingCalculator.Models.Enums",
+   "name": "RecalcState",
+   "loc": 38,
+   "kind": "enum"
+  },
+  {
+   "file": "UnitsConversionExtensions.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\Extensions\\UnitsConversionExtensions.cs",
+   "ns": "SnowMeltingCalculator.Core.Extensions",
+   "name": "UnitsConversionExtensions",
+   "loc": 37,
+   "kind": "class"
+  },
+  {
+   "file": "ModuleState.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Enums\\ModuleState.cs",
+   "ns": "SnowMeltingCalculator.Models.Enums",
+   "name": "ModuleState",
+   "loc": 37,
+   "kind": "enum"
+  },
+  {
+   "file": "GlycolType.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\GlycolType.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "GlycolType",
+   "loc": 37,
+   "kind": "enum"
+  },
+  {
+   "file": "CalculationReportWarning.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\CalculationReportWarning.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "CalculationReportWarning",
+   "loc": 36,
+   "kind": "class"
+  },
+  {
+   "file": "CollectorType.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\CollectorType.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "CollectorType",
+   "loc": 34,
+   "kind": "enum"
+  },
+  {
+   "file": "ModuleStateChangedEventArgs.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Navigation\\ModuleStateChangedEventArgs.cs",
+   "ns": "SnowMeltingCalculator.Models.Navigation",
+   "name": "ModuleStateChangedEventArgs",
+   "loc": 34,
+   "kind": "class"
+  },
+  {
+   "file": "ReportFormula.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportFormula.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ReportFormula",
+   "loc": 34,
+   "kind": "class"
+  },
+  {
+   "file": "CircuitInputView.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Views\\Hydraulics\\CircuitInputView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Hydraulics",
+   "name": "CircuitInputView",
+   "loc": 34,
+   "kind": "class"
+  },
+  {
+   "file": "ClimateZone.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Climate\\ClimateZone.cs",
+   "ns": "SnowMeltingCalculator.Models.Climate",
+   "name": "ClimateZone",
+   "loc": 33,
+   "kind": "enum"
+  },
+  {
+   "file": "SearchHistoryEntry.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Climate\\SearchHistoryEntry.cs",
+   "ns": "SnowMeltingCalculator.Models.Climate",
+   "name": "SearchHistoryEntry",
+   "loc": 33,
+   "kind": "class"
+  },
+  {
+   "file": "OperatingMode.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Thermal\\OperatingMode.cs",
+   "ns": "SnowMeltingCalculator.Models.Thermal",
+   "name": "OperatingMode",
+   "loc": 31,
+   "kind": "enum"
+  },
+  {
+   "file": "ISearchHistoryService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Climate\\ISearchHistoryService.cs",
+   "ns": "SnowMeltingCalculator.Services.Climate",
+   "name": "ISearchHistoryService",
+   "loc": 31,
+   "kind": "interface"
+  },
+  {
+   "file": "ReportValueFactory.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportValueFactory.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ReportValueFactory",
+   "loc": 31,
+   "kind": "class"
+  },
+  {
+   "file": "IProjectStateService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\IProjectStateService.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "IProjectStateService",
+   "loc": 31,
+   "kind": "interface"
+  },
+  {
+   "file": "ICalculationReportDataBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ICalculationReportDataBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ICalculationReportDataBuilder",
+   "loc": 30,
+   "kind": "interface"
+  },
+  {
+   "file": "CircuitsResultsView.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Views\\Hydraulics\\CircuitsResultsView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Hydraulics",
+   "name": "CircuitsResultsView",
+   "loc": 27,
+   "kind": "class"
+  },
+  {
+   "file": "MatchType.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Climate\\MatchType.cs",
+   "ns": "SnowMeltingCalculator.Models.Climate",
+   "name": "MatchType",
+   "loc": 26,
+   "kind": "enum"
+  },
+  {
+   "file": "SectionBuildResult.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\Builders\\SectionBuildResult.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation.Builders",
+   "name": "SectionBuildResult",
+   "loc": 26,
+   "kind": "class"
+  },
+  {
+   "file": "IClimateDataRepository.cs",
+   "path": "D:\\IA\\ace\\src\\Repositories\\IClimateDataRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories",
+   "name": "IClimateDataRepository",
+   "loc": 25,
+   "kind": "interface"
+  },
+  {
+   "file": "OperationResult.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\Results\\OperationResult.cs",
+   "ns": "SnowMeltingCalculator.Core.Results",
+   "name": "OperationResult",
+   "loc": 23,
+   "kind": "class"
+  },
+  {
+   "file": "ICalculationReportExportService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ICalculationReportExportService.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ICalculationReportExportService",
+   "loc": 23,
+   "kind": "interface"
+  },
+  {
+   "file": "IEditorDialogService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Navigation\\IEditorDialogService.cs",
+   "ns": "SnowMeltingCalculator.Services.Navigation",
+   "name": "IEditorDialogService",
+   "loc": 21,
+   "kind": "interface"
+  },
+  {
+   "file": "HydraulicMode.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Hydraulics\\HydraulicMode.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "name": "HydraulicMode",
+   "loc": 20,
+   "kind": "enum"
+  },
+  {
+   "file": "CalculationReportMode.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\CalculationReportMode.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "CalculationReportMode",
+   "loc": 19,
+   "kind": "enum"
+  },
+  {
+   "file": "IProjectInfoService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\IProjectInfoService.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "IProjectInfoService",
+   "loc": 19,
+   "kind": "interface"
+  },
+  {
+   "file": "LayerPosition.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Construction\\LayerPosition.cs",
+   "ns": "SnowMeltingCalculator.Models.Construction",
+   "name": "LayerPosition",
+   "loc": 18,
+   "kind": "enum"
+  },
+  {
+   "file": "ICalculationReportMarkdownRenderer.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ICalculationReportMarkdownRenderer.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ICalculationReportMarkdownRenderer",
+   "loc": 18,
+   "kind": "interface"
+  },
+  {
+   "file": "IConstructionVisualizationImageService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Visualization\\IConstructionVisualizationImageService.cs",
+   "ns": "SnowMeltingCalculator.Services.Visualization",
+   "name": "IConstructionVisualizationImageService",
+   "loc": 18,
+   "kind": "interface"
+  },
+  {
+   "file": "IValidator.cs",
+   "path": "D:\\IA\\ace\\src\\Core\\IValidator.cs",
+   "ns": "SnowMeltingCalculator.Core",
+   "name": "IValidator",
+   "loc": 17,
+   "kind": "interface"
+  },
+  {
+   "file": "IReportSectionBuilder.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\Builders\\IReportSectionBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation.Builders",
+   "name": "IReportSectionBuilder",
+   "loc": 16,
+   "kind": "interface"
+  },
+  {
+   "file": "ResultsView.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Views\\Results\\ResultsView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Results",
+   "name": "ResultsView",
+   "loc": 16,
+   "kind": "class"
+  },
+  {
+   "file": "NavigationTarget.cs",
+   "path": "D:\\IA\\ace\\src\\Models\\Navigation\\NavigationTarget.cs",
+   "ns": "SnowMeltingCalculator.Models.Navigation",
+   "name": "NavigationTarget",
+   "loc": 15,
+   "kind": "enum"
+  },
+  {
+   "file": "ReportValueSource.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\ReportValueSource.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "ReportValueSource",
+   "loc": 15,
+   "kind": "enum"
+  },
+  {
+   "file": "ClimateView.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Views\\Climate\\ClimateView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Climate",
+   "name": "ClimateView",
+   "loc": 15,
+   "kind": "class"
+  },
+  {
+   "file": "ThermalView.xaml.cs",
+   "path": "D:\\IA\\ace\\src\\Views\\Thermal\\ThermalView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Thermal",
+   "name": "ThermalView",
+   "loc": 15,
+   "kind": "class"
+  },
+  {
+   "file": "IMarkDirtyService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\IMarkDirtyService.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "IMarkDirtyService",
+   "loc": 14,
+   "kind": "interface"
+  },
+  {
+   "file": "CalculationReportMarkdownRendererConstants.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Reports\\Calculation\\CalculationReportMarkdownRendererConstants.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "name": "CalculationReportMarkdownRendererConstants",
+   "loc": 13,
+   "kind": "class"
+  },
+  {
+   "file": "IPdfExportService.cs",
+   "path": "D:\\IA\\ace\\src\\Services\\Results\\IPdfExportService.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "name": "IPdfExportService",
+   "loc": 11,
+   "kind": "interface"
+  }
+ ],
+ "injections": {
+  "MainWindow": {
+   "file": "MainWindow.xaml.cs",
+   "ns": "SnowMeltingCalculator",
+   "loc": 405,
+   "ctor_params": 3,
+   "iface_deps": 2,
+   "deps": [
+    "IProjectStateService",
+    "IDialogService"
+   ]
+  },
+  "RecalcIndicator": {
+   "file": "RecalcIndicator.xaml.cs",
+   "ns": "SnowMeltingCalculator.Controls",
+   "loc": 121,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "CityAutoCompleteBox": {
+   "file": "CityAutoCompleteBox.xaml.cs",
+   "ns": "SnowMeltingCalculator.Controls.Climate",
+   "loc": 440,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "ValidationError": {
+   "file": "ValidationError.cs",
+   "ns": "SnowMeltingCalculator.Core",
+   "loc": 45,
+   "ctor_params": 1,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "Construction": {
+   "file": "Construction.cs",
+   "ns": "SnowMeltingCalculator.Models.Construction",
+   "loc": 330,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "CollectorData": {
+   "file": "CollectorData.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "loc": 98,
+   "ctor_params": 1,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "CollectorHydraulicSummaryCard": {
+   "file": "CollectorHydraulicSummaryCard.cs",
+   "ns": "SnowMeltingCalculator.Models.Hydraulics",
+   "loc": 96,
+   "ctor_params": 1,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "ClimateDataRepository": {
+   "file": "ClimateDataRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories",
+   "loc": 217,
+   "ctor_params": 1,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "SearchHistoryRepository": {
+   "file": "SearchHistoryRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories",
+   "loc": 252,
+   "ctor_params": 1,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "ConstructionRepository": {
+   "file": "ConstructionRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "loc": 332,
+   "ctor_params": 1,
+   "iface_deps": 1,
+   "deps": [
+    "IMaterialRepository"
+   ]
+  },
+  "ConstructionTemplateRepository": {
+   "file": "ConstructionTemplateRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "loc": 481,
+   "ctor_params": 1,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "MaterialRepository": {
+   "file": "MaterialRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Construction",
+   "loc": 499,
+   "ctor_params": 1,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "CollectorRepository": {
+   "file": "CollectorRepository.cs",
+   "ns": "SnowMeltingCalculator.Repositories.Hydraulics",
+   "loc": 540,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "ClimateDataService": {
+   "file": "ClimateDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Climate",
+   "loc": 313,
+   "ctor_params": 2,
+   "iface_deps": 1,
+   "deps": [
+    "IClimateDataRepository"
+   ]
+  },
+  "SearchHistoryService": {
+   "file": "SearchHistoryService.cs",
+   "ns": "SnowMeltingCalculator.Services.Climate",
+   "loc": 84,
+   "ctor_params": 2,
+   "iface_deps": 2,
+   "deps": [
+    "ISearchHistoryRepository",
+    "IClimateDataService"
+   ]
+  },
+  "ConstructionService": {
+   "file": "ConstructionService.cs",
+   "ns": "SnowMeltingCalculator.Services.Construction",
+   "loc": 385,
+   "ctor_params": 3,
+   "iface_deps": 2,
+   "deps": [
+    "IMaterialRepository",
+    "IConstructionTemplateRepository"
+   ]
+  },
+  "ConstructionTemplateValidator": {
+   "file": "ConstructionTemplateValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Construction",
+   "loc": 124,
+   "ctor_params": 1,
+   "iface_deps": 1,
+   "deps": [
+    "IMaterialRepository"
+   ]
+  },
+  "MaterialCrudValidator": {
+   "file": "MaterialCrudValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Construction",
+   "loc": 153,
+   "ctor_params": 1,
+   "iface_deps": 1,
+   "deps": [
+    "IMaterialRepository"
+   ]
+  },
+  "MaterialNotFoundException": {
+   "file": "MaterialNotFoundException.cs",
+   "ns": "SnowMeltingCalculator.Services.Construction",
+   "loc": 44,
+   "ctor_params": 1,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "CircuitsCalculator": {
+   "file": "CircuitsCalculator.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "loc": 301,
+   "ctor_params": 1,
+   "iface_deps": 1,
+   "deps": [
+    "IGlycolDataService"
+   ]
+  },
+  "CircuitsValidator": {
+   "file": "CircuitsValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "loc": 90,
+   "ctor_params": 1,
+   "iface_deps": 1,
+   "deps": [
+    "IDialogService"
+   ]
+  },
+  "GlycolDataService": {
+   "file": "GlycolDataService.cs",
+   "ns": "SnowMeltingCalculator.Services.Hydraulics",
+   "loc": 1108,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "EditorDialogService": {
+   "file": "EditorDialogService.cs",
+   "ns": "SnowMeltingCalculator.Services.Navigation",
+   "loc": 75,
+   "ctor_params": 1,
+   "iface_deps": 1,
+   "deps": [
+    "IServiceProvider"
+   ]
+  },
+  "ProjectFileService": {
+   "file": "ProjectFileService.cs",
+   "ns": "SnowMeltingCalculator.Services.Project",
+   "loc": 240,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "ProjectLoadOrchestrator": {
+   "file": "ProjectLoadOrchestrator.cs",
+   "ns": "SnowMeltingCalculator.Services.Project",
+   "loc": 414,
+   "ctor_params": 7,
+   "iface_deps": 2,
+   "deps": [
+    "ICalculationStateService",
+    "IConstructionService"
+   ]
+  },
+  "CalculationReportDataBuilder": {
+   "file": "CalculationReportDataBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "loc": 244,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "CalculationReportExportService": {
+   "file": "CalculationReportExportService.cs",
+   "ns": "SnowMeltingCalculator.Services.Reports.Calculation",
+   "loc": 80,
+   "ctor_params": 2,
+   "iface_deps": 2,
+   "deps": [
+    "ICalculationReportDataBuilder",
+    "ICalculationReportMarkdownRenderer"
+   ]
+  },
+  "PdfExportService": {
+   "file": "PdfExportService.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "loc": 619,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "ResultsPdfDataBuilder": {
+   "file": "ResultsPdfDataBuilder.cs",
+   "ns": "SnowMeltingCalculator.Services.Results",
+   "loc": 208,
+   "ctor_params": 4,
+   "iface_deps": 2,
+   "deps": [
+    "IConstructionVisualizationImageService",
+    "ICalculationStateService"
+   ]
+  },
+  "ThermalValidator": {
+   "file": "ThermalValidator.cs",
+   "ns": "SnowMeltingCalculator.Services.Thermal",
+   "loc": 53,
+   "ctor_params": 3,
+   "iface_deps": 3,
+   "deps": [
+    "IThermalCalculator",
+    "IClimateData",
+    "IConstructionData"
+   ]
+  },
+  "ClimateViewModel": {
+   "file": "ClimateViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Climate",
+   "loc": 784,
+   "ctor_params": 6,
+   "iface_deps": 3,
+   "deps": [
+    "IClimateDataService",
+    "IClimateData",
+    "IMarkDirtyService"
+   ]
+  },
+  "ConstructionViewModel": {
+   "file": "ConstructionViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Construction",
+   "loc": 1211,
+   "ctor_params": 11,
+   "iface_deps": 8,
+   "deps": [
+    "IConstructionService",
+    "IMaterialRepository",
+    "IConstructionRepository",
+    "ICalculationStateService",
+    "IMarkDirtyService",
+    "IConstructionTemplateRepository",
+    "IDialogService",
+    "IEditorDialogService"
+   ]
+  },
+  "MaterialEditorViewModel": {
+   "file": "MaterialEditorViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Construction",
+   "loc": 363,
+   "ctor_params": 5,
+   "iface_deps": 3,
+   "deps": [
+    "IMaterialRepository",
+    "IConstructionTemplateRepository",
+    "IDialogService"
+   ]
+  },
+  "TemplateEditorViewModel": {
+   "file": "TemplateEditorViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Construction",
+   "loc": 530,
+   "ctor_params": 4,
+   "iface_deps": 3,
+   "deps": [
+    "IMaterialRepository",
+    "IConstructionTemplateRepository",
+    "IDialogService"
+   ]
+  },
+  "CircuitsViewModel": {
+   "file": "CircuitsViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Hydraulics",
+   "loc": 1257,
+   "ctor_params": 7,
+   "iface_deps": 6,
+   "deps": [
+    "ICircuitsCalculator",
+    "IGlycolDataService",
+    "ICalculationStateService",
+    "ICircuitsValidator",
+    "ICollectorTypeSelector",
+    "IMarkDirtyService"
+   ]
+  },
+  "CollectorViewModel": {
+   "file": "CollectorViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Hydraulics",
+   "loc": 368,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "ResultsViewModel": {
+   "file": "ResultsViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Results",
+   "loc": 1946,
+   "ctor_params": 16,
+   "iface_deps": 9,
+   "deps": [
+    "IProjectStateService",
+    "IMarkDirtyService",
+    "IDialogService",
+    "IPdfExportService",
+    "ICalculationReportExportService",
+    "IProjectFileService",
+    "ICalculationStateService",
+    "IMaterialRepository",
+    "IConstructionService"
+   ]
+  },
+  "RecalcIndicatorViewModel": {
+   "file": "RecalcIndicatorViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Shared",
+   "loc": 171,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "MainViewModel": {
+   "file": "MainViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Shell",
+   "loc": 333,
+   "ctor_params": 9,
+   "iface_deps": 3,
+   "deps": [
+    "ICalculationStateService",
+    "IProjectStateService",
+    "IDialogService"
+   ]
+  },
+  "ThermalViewModel": {
+   "file": "ThermalViewModel.cs",
+   "ns": "SnowMeltingCalculator.ViewModels.Thermal",
+   "loc": 495,
+   "ctor_params": 8,
+   "iface_deps": 5,
+   "deps": [
+    "IThermalCalculator",
+    "IClimateData",
+    "IConstructionData",
+    "ICalculationStateService",
+    "IMarkDirtyService"
+   ]
+  },
+  "ClimateView": {
+   "file": "ClimateView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Climate",
+   "loc": 15,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "ConstructionView": {
+   "file": "ConstructionView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Construction",
+   "loc": 119,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "MaterialEditorView": {
+   "file": "MaterialEditorView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Construction",
+   "loc": 43,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "TemplateEditorView": {
+   "file": "TemplateEditorView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Construction",
+   "loc": 44,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "CircuitInputView": {
+   "file": "CircuitInputView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Hydraulics",
+   "loc": 34,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "CircuitsResultsView": {
+   "file": "CircuitsResultsView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Hydraulics",
+   "loc": 27,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "CircuitsView": {
+   "file": "CircuitsView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Hydraulics",
+   "loc": 40,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "ResultsView": {
+   "file": "ResultsView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Results",
+   "loc": 16,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "ConstructionVisualizationView": {
+   "file": "ConstructionVisualizationView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Shared",
+   "loc": 319,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  },
+  "ThermalView": {
+   "file": "ThermalView.xaml.cs",
+   "ns": "SnowMeltingCalculator.Views.Thermal",
+   "loc": 15,
+   "ctor_params": 0,
+   "iface_deps": 0,
+   "deps": []
+  }
+ },
+ "graph": {
+  "SnowMeltingCalculator": [
+   "Models.Enums",
+   "Models.Navigation",
+   "Repositories.Construction",
+   "Services.Climate",
+   "Services.Navigation",
+   "Services.Results",
+   "SnowMeltingCalculator.Configuration",
+   "SnowMeltingCalculator.Core",
+   "SnowMeltingCalculator.Services",
+   "ViewModels.Climate",
+   "ViewModels.Construction",
+   "ViewModels.Hydraulics",
+   "ViewModels.Results",
+   "ViewModels.Shell",
+   "ViewModels.Thermal",
+   "Views.Climate",
+   "Views.Construction",
+   "Views.Hydraulics",
+   "Views.Results",
+   "Views.Thermal"
+  ],
+  "SnowMeltingCalculator.Configuration": [
+   "Models.Climate",
+   "Models.Construction",
+   "Models.Hydraulics",
+   "Models.Thermal",
+   "Repositories.Construction",
+   "Repositories.Hydraulics",
+   "Services.Climate",
+   "Services.Construction",
+   "Services.Hydraulics",
+   "Services.Navigation",
+   "Services.Project",
+   "Services.Reports",
+   "Services.Results",
+   "Services.Thermal",
+   "Services.Visualization",
+   "SnowMeltingCalculator.Core",
+   "SnowMeltingCalculator.Repositories",
+   "ViewModels.Climate",
+   "ViewModels.Construction",
+   "ViewModels.Hydraulics",
+   "ViewModels.Results",
+   "ViewModels.Thermal"
+  ],
+  "SnowMeltingCalculator.Controls": [
+   "Models.Enums"
+  ],
+  "Controls.Climate": [
+   "Models.Climate"
+  ],
+  "SnowMeltingCalculator.Converters": [
+   "Models.Hydraulics"
+  ],
+  "SnowMeltingCalculator.Core": [
+   "Models.Climate",
+   "Models.Construction",
+   "Models.Hydraulics",
+   "Models.Thermal"
+  ],
+  "Core.Extensions": [
+   "Core.Constants"
+  ],
+  "Models.Construction": [
+   "Models.Thermal"
+  ],
+  "Models.Navigation": [
+   "Models.Enums"
+  ],
+  "Models.Project": [
+   "Models.Climate",
+   "Models.Construction",
+   "Models.Hydraulics",
+   "Models.Thermal"
+  ],
+  "SnowMeltingCalculator.Repositories": [
+   "Models.Climate"
+  ],
+  "Repositories.Construction": [
+   "Models.Construction",
+   "Services.Construction"
+  ],
+  "Repositories.Hydraulics": [
+   "Models.Hydraulics"
+  ],
+  "Services.Climate": [
+   "Core.Constants",
+   "Models.Climate",
+   "SnowMeltingCalculator.Core",
+   "SnowMeltingCalculator.Repositories"
+  ],
+  "Services.Construction": [
+   "Models.Construction",
+   "Repositories.Construction",
+   "SnowMeltingCalculator.Core"
+  ],
+  "Services.Hydraulics": [
+   "Core.Constants",
+   "Core.Extensions",
+   "Models.Hydraulics",
+   "Services.Navigation",
+   "SnowMeltingCalculator.Core",
+   "ViewModels.Hydraulics"
+  ],
+  "Services.Navigation": [
+   "Models.Enums",
+   "Models.Navigation"
+  ],
+  "Services.Project": [
+   "Core.Results",
+   "Models.Construction",
+   "Models.Hydraulics",
+   "Models.Project",
+   "Models.Thermal",
+   "Services.Construction",
+   "Services.Navigation",
+   "SnowMeltingCalculator.Core",
+   "ViewModels.Climate",
+   "ViewModels.Construction",
+   "ViewModels.Hydraulics",
+   "ViewModels.Thermal"
+  ],
+  "Services.Reports": [
+   "Core.Constants",
+   "Models.Climate",
+   "Models.Construction",
+   "Models.Hydraulics",
+   "Models.Project",
+   "Models.Thermal",
+   "Services.Hydraulics"
+  ],
+  "Services.Results": [
+   "Models.Climate",
+   "Models.Construction",
+   "Models.Hydraulics",
+   "Models.Thermal",
+   "Services.Navigation",
+   "Services.Visualization",
+   "ViewModels.Construction",
+   "ViewModels.Hydraulics",
+   "ViewModels.Results"
+  ],
+  "Services.Thermal": [
+   "Core.Constants",
+   "Models.Climate",
+   "Models.Thermal",
+   "SnowMeltingCalculator.Core"
+  ],
+  "Services.Visualization": [
+   "Models.Construction"
+  ],
+  "ViewModels.Climate": [
+   "Models.Climate",
+   "Services.Climate",
+   "Services.Results",
+   "SnowMeltingCalculator.Core"
+  ],
+  "ViewModels.Construction": [
+   "Models.Construction",
+   "Models.Thermal",
+   "Repositories.Construction",
+   "Services.Construction",
+   "Services.Navigation",
+   "Services.Results",
+   "SnowMeltingCalculator.Core"
+  ],
+  "ViewModels.Hydraulics": [
+   "Models.Hydraulics",
+   "Models.Navigation",
+   "Models.Thermal",
+   "Repositories.Hydraulics",
+   "Services.Hydraulics",
+   "Services.Navigation",
+   "Services.Results",
+   "SnowMeltingCalculator.Core"
+  ],
+  "ViewModels.Results": [
+   "Models.Climate",
+   "Models.Construction",
+   "Models.Hydraulics",
+   "Models.Project",
+   "Models.Thermal",
+   "Repositories.Construction",
+   "Services.Construction",
+   "Services.Navigation",
+   "Services.Project",
+   "Services.Reports",
+   "Services.Results",
+   "ViewModels.Climate",
+   "ViewModels.Construction",
+   "ViewModels.Hydraulics",
+   "ViewModels.Thermal"
+  ],
+  "ViewModels.Shared": [
+   "Models.Enums"
+  ],
+  "ViewModels.Shell": [
+   "Models.Enums",
+   "Models.Navigation",
+   "Services.Navigation",
+   "Services.Results",
+   "SnowMeltingCalculator.Core",
+   "SnowMeltingCalculator.Services",
+   "ViewModels.Climate",
+   "ViewModels.Construction",
+   "ViewModels.Hydraulics",
+   "ViewModels.Results",
+   "ViewModels.Thermal"
+  ],
+  "ViewModels.Thermal": [
+   "Models.Climate",
+   "Models.Construction",
+   "Models.Navigation",
+   "Models.Thermal",
+   "Services.Navigation",
+   "Services.Results",
+   "Services.Thermal",
+   "SnowMeltingCalculator.Core"
+  ],
+  "Views.Construction": [
+   "ViewModels.Construction"
+  ],
+  "Views.Hydraulics": [
+   "Models.Hydraulics",
+   "ViewModels.Hydraulics"
+  ],
+  "Views.Shared": [
+   "Models.Construction",
+   "Services.Visualization",
+   "ViewModels.Construction"
+  ]
+ }
+}

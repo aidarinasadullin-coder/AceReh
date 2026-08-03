@@ -1,0 +1,101 @@
+{
+  "receipt_id": "phase0.metrics-baseline.working-tree.f0d19c34",
+  "phase": "phase-0-baseline",
+  "snapshot_sha": "f0d19c34ac03075d64548f1059e9c6626d3596b5",
+  "source_basis": "working-tree",
+  "working_directory": "D:/IA/ace v.2",
+  "generated_at_utc": "2026-07-30T16:56:14.0128795Z",
+  "snapshot_binding": {
+    "root_verification": "git rev-parse --show-toplevel returned D:/IA/ace v.2",
+    "head_verification": "git rev-parse HEAD returned f0d19c34ac03075d64548f1059e9c6626d3596b5",
+    "historical_root_not_used_as_current_source": true,
+    "historical_root": "D:/IA/ace",
+    "limitation": "The historical root is retained only as a provenance exclusion; no metric value was copied from historical audit artifacts."
+  },
+  "tools": {
+    "powershell": "5.1.19041.6456",
+    "git": "git version 2.53.0.windows.1",
+    "dotnet": "8.0.418",
+    "codegraph": {
+      "query": "current working-tree structural provenance: C# declared types, project references, namespace references, type references, dependency graph and SCC/cycles. Provide index status/staleness and what complete graph/SCC computation is or is not exposed.",
+      "result": "Returned current verbatim source for a limited set of symbols/files and blast-radius information; it did not expose a complete graph or a sound SCC computation.",
+      "use": "Structural provenance only; no Codegraph aggregate count is represented as a complete compiler-semantic fact."
+    }
+  },
+  "scopes": {
+    "tracked": {
+      "definition": "Paths reported by git ls-files -- '*.cs'; this is a Git-index scope, not an on-disk filtered-source scope.",
+      "cs_file_count_metric_id": "METRIC-CS-TRACKED-FILES",
+      "value": 276
+    },
+    "raw": {
+      "definition": "Every present on-disk *.cs file recursively enumerated beneath D:/IA/ace v.2 before segment filtering, including generated and orchestration evidence files.",
+      "cs_file_count_metric_id": "METRIC-CS-RAW-FILES",
+      "value": 360
+    },
+    "filtered": {
+      "definition": "Present on-disk *.cs files under the working tree whose normalized relative path contains none of the excluded segments. Production and test source are both included; this receipt does not assert a production-only count.",
+      "cs_file_count_metric_id": "METRIC-CS-FILTERED-FILES",
+      "value": 275
+    }
+  },
+  "exclusions": {
+    "path_match_rule": "Split each normalized relative path on '/'; exclude when any segment equals one of excluded_segments. This prevents substring false positives such as an ordinary filename containing 'obj'.",
+    "excluded_segments": [
+      ".git",
+      ".codegraph",
+      ".omo",
+      "bin",
+      "obj",
+      "publish",
+      "installer",
+      "runtimes",
+      "runtime",
+      "generated"
+    ],
+    "generated_csharp_rule": "Any *.cs below an excluded generated-output segment is excluded; additionally, generated C# is not claimed as source when it is materialized under bin, obj, runtime/runtimes, or generated.",
+    "phase0_dossier_rule": "docs/architecture-migration is Phase 0 evidence/dossier content, not application source; it contained no *.cs file in this capture and therefore did not change the filtered count.",
+    "installer_output_rule": "installer is excluded as an installer-output segment; publish is excluded as publish output.",
+    "excluded_raw_cs_file_count_metric_id": "METRIC-CS-EXCLUDED-FILES",
+    "excluded_raw_cs_file_count": 85
+  },
+  "methodology": {
+    "enumeration_and_text_metrics_powershell": "$root=(git rev-parse --show-toplevel).Replace('\\','/'); $excludedSegments=@('.git','.codegraph','.omo','bin','obj','publish','installer','runtimes','runtime','generated'); function Test-Excluded([string]$relativePath) { $segments=$relativePath.Replace('\\','/').Split('/'); return @($segments | Where-Object { $excludedSegments -contains $_ }).Count -gt 0 }; $allCs=@(Get-ChildItem -LiteralPath $root -Recurse -File -Filter *.cs -Force | ForEach-Object { $_.FullName.Substring($root.Length).TrimStart([char[]]@('\\','/')).Replace('\\','/') }); $filteredCs=@($allCs | Where-Object { -not (Test-Excluded $_) }); $trackedCs=@(git ls-files -- '*.cs'); $physicalLoc=($filteredCs | ForEach-Object { [System.IO.File]::ReadLines((Join-Path $root $_)).Count } | Measure-Object -Sum).Sum; $nonblankLoc=($filteredCs | ForEach-Object { @([System.IO.File]::ReadLines((Join-Path $root $_)) | Where-Object { $_.Trim().Length -gt 0 }).Count } | Measure-Object -Sum).Sum; $joined=[string]::Join([Environment]::NewLine,@($filteredCs | ForEach-Object { Get-Content -LiteralPath (Join-Path $root $_) -Raw })); $projectFiles=@(Get-ChildItem -LiteralPath $root -Recurse -File -Filter *.csproj -Force | Where-Object { -not (Test-Excluded $_.FullName.Substring($root.Length).TrimStart([char[]]@('\\','/')).Replace('\\','/')) }); [pscustomobject]@{raw_cs_files=$allCs.Count;filtered_cs_files=$filteredCs.Count;tracked_cs_files=$trackedCs.Count;physical_loc=$physicalLoc;nonblank_loc=$nonblankLoc;declared_type_matches=[regex]::Matches($joined,'(?m)^\\s*(?:\\[[^\\]]+\\]\\s*)*(?:(?:public|internal|protected|private)\\s+)?(?:(?:abstract|sealed|static|partial|readonly|ref)\\s+)*(?:class|interface|struct|record(?:\\s+(?:class|struct))?|enum|delegate)\\s+[@A-Za-z_][A-Za-z0-9_]*').Count;project_reference_matches=[regex]::Matches([string]::Join([Environment]::NewLine,@($projectFiles | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw })),'<ProjectReference\\b').Count;namespace_declaration_matches=[regex]::Matches($joined,'(?m)^\\s*namespace\\s+[A-Za-z_][A-Za-z0-9_.]*').Count;using_namespace_directive_matches=[regex]::Matches($joined,'(?m)^\\s*(?:global\\s+)?using\\s+(?:static\\s+)?[A-Za-z_][A-Za-z0-9_.]*\\s*;').Count;type_reference_token_matches=[regex]::Matches($joined,'\\b[A-Z][A-Za-z0-9_]*\\b').Count} | ConvertTo-Json -Depth 3",
+    "project_provenance": "Read-only inspection of SnowMeltingCalculator.sln identifies two solution projects. The ProjectReference metric is a textual scan of filtered .csproj files, not a resolved MSBuild graph.",
+    "scc_provenance": "Codegraph query above was the available indexed structural method. It did not return a complete directed dependency graph or SCC result; no substitute SCC algorithm was run against lexical using/type matches."
+  },
+  "metrics": [
+    { "id": "METRIC-CS-TRACKED-FILES", "value": 276, "status": "derived", "scope": "tracked", "method": "git ls-files -- '*.cs'", "limitations": "Includes tracked generated files if any and can include a path absent from the current working tree; do not compare directly to filtered on-disk scope as an equivalence claim." },
+    { "id": "METRIC-CS-RAW-FILES", "value": 360, "status": "verified", "scope": "raw", "method": "PowerShell recursive on-disk *.cs enumeration before exclusions", "limitations": "Includes .omo evidence and generated obj files; it is intentionally unfiltered." },
+    { "id": "METRIC-CS-EXCLUDED-FILES", "value": 85, "status": "verified", "scope": "raw minus filtered", "method": "Same segment predicate as METRIC-CS-FILTERED-FILES", "limitations": "This is a file-path classification, not a compiler assessment of generated provenance." },
+    { "id": "METRIC-CS-FILTERED-FILES", "value": 275, "status": "verified", "scope": "filtered", "method": "PowerShell recursive enumeration plus exact segment predicate", "limitations": "Includes both src and tests; excludes all matching segments regardless of Git tracking state." },
+    { "id": "METRIC-CS-PHYSICAL-LOC", "value": 70635, "status": "verified", "scope": "filtered", "method": "System.IO.File.ReadLines(...).Count summed per filtered file", "limitations": "Physical lines include comments, directives, braces, and blank lines." },
+    { "id": "METRIC-CS-NONBLANK-LOC", "value": 60559, "status": "verified", "scope": "filtered", "method": "ReadLines filtered by $_.Trim().Length -gt 0 and summed", "limitations": "Nonblank is textual and does not distinguish comments from executable code." },
+    { "id": "METRIC-CS-DECLARED-TYPE-LEXICAL", "value": 395, "status": "derived", "scope": "filtered", "method": "Regex match of leading class/interface/struct/record/enum/delegate declarations", "limitations": "Lexical approximation only: may miss unusual declaration forms and is not a Roslyn/compiler-semantic declared-type count." },
+    { "id": "METRIC-PROJECT-REFERENCE-LEXICAL", "value": 1, "status": "derived", "scope": "filtered .csproj files", "method": "Regex count of <ProjectReference\\b in filtered project files", "limitations": "Textual MSBuild-item count, not evaluated project graph or transitive-reference count." },
+    { "id": "METRIC-NAMESPACE-DECLARATION-LEXICAL", "value": 275, "status": "derived", "scope": "filtered", "method": "Regex count of namespace declarations", "limitations": "Textual declaration occurrences, not distinct namespaces and not compiler-bound symbols." },
+    { "id": "METRIC-NAMESPACE-USING-LEXICAL", "value": 1387, "status": "derived", "scope": "filtered", "method": "Regex count of ordinary/global/static using namespace directives", "limitations": "Textual directives, not resolved namespace-reference edges; aliases and unresolved directives do not prove dependencies." },
+    { "id": "METRIC-TYPE-TOKEN-LEXICAL", "value": 79775, "status": "derived", "scope": "filtered", "method": "Regex count of PascalCase-like identifier tokens", "limitations": "Lexical token approximation, not a distinct or resolved type-reference count; it includes declarations, member names, framework identifiers, and text-like identifiers." },
+    { "id": "METRIC-SCC-COUNT", "value": null, "status": "degraded", "scope": "complete current working-tree directed dependency graph", "method": "No sound complete SCC method available from the queried Codegraph surface", "limitations": "Codegraph returned limited source and blast radius but no complete graph/SCC result. SCCs were not inferred from using counts or lexical type tokens." },
+    { "id": "METRIC-CYCLE-COUNT", "value": null, "status": "not-reproducible", "scope": "complete current working-tree directed dependency graph", "method": "Not computed", "limitations": "A cycle count requires an explicitly defined complete graph and sound SCC algorithm; neither was available without fabricating a graph from lexical references." }
+  ],
+  "qa": {
+    "required_independent_filter_probe": {
+      "method": "In memory only: Test-Excluded 'obj/Injected.cs' using the same exact segment predicate; no file was created.",
+      "input": "obj/Injected.cs",
+      "result": "excluded",
+      "passed": true
+    },
+    "required_follow_up_commands": [
+      "Get-Content -Raw -LiteralPath 'docs/architecture-migration/evidence/metrics-baseline.json' | ConvertFrom-Json | Out-Null",
+      "Re-run the exact enumeration_and_text_metrics_powershell methodology and assert filtered_cs_files -eq 275",
+      "Assert that every independently filtered .cs path has no segment in excluded_segments and that Test-Excluded 'obj/Injected.cs' is true",
+      "Scan serialized JSON for current absolute paths rooted at historical D:/IA/ace; allow the historical-root provenance exclusion only"
+    ]
+  },
+  "limitations": [
+    "Metrics are a point-in-time working-tree receipt bound to the stated HEAD, not a clean-tree or release-build measurement.",
+    "Textual and regex-derived metrics are explicitly not compiler-semantic facts.",
+    "No complete dependency graph or SCC output was available, so cycle values are null rather than inferred."
+  ]
+}
