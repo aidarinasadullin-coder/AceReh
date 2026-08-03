@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ace.local/contracts/architecture-model.widget.schema.json",
+  "title": "Canonical architecture widget model v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "metadata",
+    "contract_version",
+    "snapshots",
+    "views",
+    "canonical_diff_fields",
+    "records",
+    "evidence",
+    "limitations",
+    "invariants",
+    "deferred_decisions"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object"
+    },
+    "contract_version": {
+      "const": "2.0.0"
+    },
+    "snapshots": {
+      "type": "object"
+    },
+    "views": {
+      "type": "array"
+    },
+    "canonical_diff_fields": {
+      "type": "object"
+    },
+    "records": {
+      "type": "array"
+    },
+    "evidence": {
+      "type": "array"
+    },
+    "limitations": {
+      "type": "array"
+    },
+    "invariants": {
+      "type": "array"
+    },
+    "deferred_decisions": {
+      "type": "array"
+    }
+  },
+  "$defs": {
+    "schema_matrix": {
+      "description": "Canonical values: string/integer/array/object; required fields are enforced by model-contract.mjs; absent optional fields use a sentinel distinct from JSON null; references are ID strings."
+    }
+  }
+}

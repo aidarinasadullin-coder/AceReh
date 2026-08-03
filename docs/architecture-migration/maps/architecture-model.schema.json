@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "architecture-model.schema.json",
+  "title": "Phase 0 canonical architecture model",
+  "type": "object",
+  "required": ["meta", "views", "snapshots", "evidence", "nodes", "edges", "edge_semantics", "state", "flows", "coverage"],
+  "additionalProperties": false,
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" },
+    "confidence": { "enum": ["verified", "derived", "degraded"] },
+    "view": { "enum": ["compile-time", "di-runtime", "state-ownership", "reactive", "persistence", "user-flow"] },
+    "snapshot": { "enum": ["baseline", "current", "target"] },
+    "sourceKind": { "enum": ["compose-call", "constructor-dependency", "constructor-type-reference", "create-path", "di-factory-resolution", "di-registration", "event-subscription", "input-collection-edit", "layer-model-edit", "load-reset-orchestration", "namespace-declaration", "new-calculation-reset-command", "persistence-read", "persistence-restore", "persistence-transform", "persistence-write", "project-reference", "provider-resolution-test", "recalculation", "reset-before-restore", "restore-finalization-sequence", "results-export-preview-print-commands", "results-load-apply-sequence", "save-command-sequence", "solution-project-reference", "used-type-reference", "user-action/load-boundary", "user-action/save-entry"] },
+    "evidenceRef": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/id" } },
+    "views": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/view" } },
+    "snapshots": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/snapshot" } },
+    "record": {
+      "type": "object",
+      "required": ["id", "evidence", "confidence", "views", "snapshots"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "evidence": { "$ref": "#/$defs/evidenceRef" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "views": { "$ref": "#/$defs/views" },
+        "snapshots": { "$ref": "#/$defs/snapshots" }
+      }
+    }
+  },
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["model_id", "phase", "snapshot_sha", "source_basis", "status", "limitations"],
+      "additionalProperties": false,
+      "properties": {
+        "model_id": { "$ref": "#/$defs/id" },
+        "phase": { "const": "phase-0-baseline" },
+        "snapshot_sha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "source_basis": { "const": "working-tree" },
+        "status": { "enum": ["pass", "degraded", "fail"] },
+        "limitations": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "views": { "type": "array", "minItems": 6, "maxItems": 6, "uniqueItems": true, "items": { "$ref": "#/$defs/view" } },
+    "snapshots": { "type": "object", "required": ["baseline", "current", "target"], "additionalProperties": false, "properties": { "baseline": { "const": "observed" }, "current": { "const": "observed" }, "target": { "const": "unimplemented" } } },
+    "evidence": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["id", "path", "locator", "confidence"], "additionalProperties": false, "properties": { "id": { "$ref": "#/$defs/id" }, "path": { "type": "string", "pattern": "^(docs|src|tests)/" }, "locator": { "type": "string", "minLength": 1 }, "confidence": { "$ref": "#/$defs/confidence" } } } },
+    "nodes": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/record" }, { "type": "object", "required": ["kind", "name"], "additionalProperties": false, "properties": { "id": { "$ref": "#/$defs/id" }, "kind": { "type": "string", "minLength": 1 }, "name": { "type": "string", "minLength": 1 }, "aliases": { "type": "array", "items": { "type": "string", "minLength": 1 } }, "evidence": { "$ref": "#/$defs/evidenceRef" }, "confidence": { "$ref": "#/$defs/confidence" }, "views": { "$ref": "#/$defs/views" }, "snapshots": { "$ref": "#/$defs/snapshots" } } }] } },
+    "edges": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/record" }, { "type": "object", "required": ["kind", "from", "to"], "additionalProperties": false, "properties": { "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["compile-reference", "di-registration", "di-resolution", "state-read", "state-write", "event-publish", "event-subscribe", "event-unsubscribe", "invalidation", "recalculation", "persistence-read", "persistence-write", "persistence-transform", "persistence-validate", "persistence-backup", "persistence-restore", "user-action", "navigation", "derived-projection"] }, "from": { "$ref": "#/$defs/id" }, "to": { "$ref": "#/$defs/id" }, "evidence": { "$ref": "#/$defs/evidenceRef" }, "confidence": { "$ref": "#/$defs/confidence" }, "views": { "$ref": "#/$defs/views" }, "snapshots": { "$ref": "#/$defs/snapshots" } } }] } },
+    "edge_semantics": { "type": "array", "items": { "type": "object", "required": ["edge_id", "source_kind"], "additionalProperties": false, "properties": { "edge_id": { "$ref": "#/$defs/id" }, "source_kind": { "$ref": "#/$defs/sourceKind" }, "state_refs": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^ST-[0-9]{3}$" } }, "trigger": { "type": "string", "minLength": 1 }, "effect": { "type": "string", "minLength": 1 }, "participants": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } } } } },
+    "state": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/record" }, { "type": "object", "required": ["name", "current_owner", "target_owner", "migration_status", "coverage_status"], "additionalProperties": false, "properties": { "id": { "$ref": "#/$defs/id" }, "name": { "type": "string", "minLength": 1 }, "current_owner": { "type": "string", "minLength": 1 }, "target_owner": { "type": "string", "minLength": 1 }, "migration_status": { "enum": ["legacy", "seam", "migrated", "legacy removed", "verified"] }, "coverage_status": { "enum": ["covered", "partial", "missing", "blocked"] }, "evidence": { "$ref": "#/$defs/evidenceRef" }, "confidence": { "$ref": "#/$defs/confidence" }, "views": { "$ref": "#/$defs/views" }, "snapshots": { "$ref": "#/$defs/snapshots" } } }] } },
+    "flows": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/record" }, { "type": "object", "required": ["position", "name", "status"], "additionalProperties": false, "properties": { "id": { "$ref": "#/$defs/id" }, "position": { "type": "integer", "minimum": 1 }, "name": { "type": "string", "minLength": 1 }, "status": { "enum": ["covered", "partial", "missing", "blocked"] }, "evidence": { "$ref": "#/$defs/evidenceRef" }, "confidence": { "$ref": "#/$defs/confidence" }, "views": { "$ref": "#/$defs/views" }, "snapshots": { "$ref": "#/$defs/snapshots" } } }] } },
+    "coverage": { "type": "array", "items": { "type": "object", "required": ["id", "kind", "authority", "evidence", "confidence", "views"], "additionalProperties": false, "properties": { "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["characterization-matrix", "persistence-property-matrix", "persistence-fixture-ledger", "persistence-compatibility-matrix", "gap"] }, "authority": { "type": "string", "minLength": 1 }, "evidence": { "$ref": "#/$defs/evidenceRef" }, "confidence": { "$ref": "#/$defs/confidence" }, "views": { "$ref": "#/$defs/views" } } } }
+  }
+}

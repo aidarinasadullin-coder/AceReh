@@ -1,0 +1,239 @@
+{
+  "artifact": "phase-0.5-v1-to-v2-mapping",
+  "artifact_version": "1.0.0",
+  "status": "immutable-after-independent-task-2-acceptance",
+  "purpose": "Pre-implementation, lossless migration specification from the accepted v1 widget contract to the owner-authorized v2 contract direction.",
+  "authority": {
+    "task_1_retry_receipt": {
+      "path": "docs/architecture-migration/evidence/phase-0.5-v2-amendment-repository-snapshot-retry-1.md",
+      "terminal_status": "PASS",
+      "independent_verifier_session": "ses_04371f0b0ffeGcDIR4Hbf2edMM",
+      "porcelain_v1_bytes": 4830,
+      "porcelain_v1_sha256": "2C23AEA259D3233DD9FD8B959C29951EB259E795CD81A3B34BDAADD3DC6FDC96",
+      "active_plan_sha256": "B6DF07E7B150F6830A3EE3A4CDBA9B441D05E5C4F475A594DC1C83208D5F3536"
+    },
+    "source_precedence": [
+      {
+        "ordinal": 1,
+        "path": "docs/architecture-migration/maps/architecture-model.json",
+        "role": "accepted-v1-model",
+        "sha256": "EE9E0069D71F3ABFFA5FA1E9B698A97507694597FBE85B84C272C30D3F55EFBD"
+      },
+      {
+        "ordinal": 2,
+        "path": "docs/architecture-migration/maps/architecture-model.widget.schema.json",
+        "role": "accepted-v1-schema",
+        "sha256": "7AFBCE3CFADC8B77443462E52D0BB15C7BDD31569DE41FADCAAE941791B07194"
+      },
+      {
+        "ordinal": 3,
+        "path": "docs/architecture-migration/evidence/phase-0.5-model-validation.md",
+        "role": "accepted-v1-validation-receipt",
+        "sha256": "0DDE16C9EA219857729D14E55ACB6E1DC4217ECCD78EB3D2DD07B2294F9FCB71"
+      }
+    ],
+    "cross_check_only": [
+      "docs/architecture-migration/maps/compile-time.md",
+      "docs/architecture-migration/maps/di-runtime.md",
+      "docs/architecture-migration/maps/persistence.md",
+      "docs/architecture-migration/maps/reactive.md",
+      "docs/architecture-migration/maps/state-ownership.md",
+      "docs/architecture-migration/maps/user-flow.md",
+      "docs/architecture-migration/maps/state-inventory.md"
+    ],
+    "excluded_migration_inputs": [
+      "docs/architecture-migration/architecture_widget.html",
+      "docs/architecture-migration/archive/architecture_widget.phase-0-historical.html",
+      "docs/architecture-migration/architecture_audit.md",
+      "docs/architecture-migration/widget/architecture-widget.mjs",
+      "docs/architecture-migration/evidence/phase-0.5-acceptance.json",
+      "docs/architecture-migration/evidence/phase-0.5-v2-amendment-repository-snapshot.md"
+    ]
+  },
+  "v2_contract_direction": {
+    "contract_version": "2.0.0",
+    "single_document": true,
+    "one_unique_stable_id_per_record": true,
+    "record_array": "records",
+    "record_kind_values": ["node", "edge", "state_record", "flow", "coverage"],
+    "snapshot_authority": "records[].snapshot_states",
+    "legacy_snapshots_authority": "forbidden",
+    "target_policy": "Target is not populated by this mapping. A target snapshot state may be created only by accepted design evidence in Task 3; no v1 current or baseline value, provenance, status, confidence, evidence reference, limitation reference, invariant reference, or decision reference is copied to Target."
+  },
+  "source_inventory": {
+    "top_level_fields": [
+      "contract_version",
+      "metadata",
+      "snapshots",
+      "views",
+      "nodes",
+      "edges",
+      "edge_semantics",
+      "state_records",
+      "flows",
+      "coverage",
+      "evidence",
+      "invariants",
+      "deferred_decisions",
+      "limitations",
+      "provenance",
+      "canonical_diff_fields"
+    ],
+    "groups": {
+      "nodes": { "count": 79, "record_kind": "node", "id_ranges": ["CTN-001..CTN-031", "DRN-001..DRN-039", "PN-01..PN-09"] },
+      "edges": { "count": 112, "record_kind": "edge", "id_ranges": ["CTE-001..CTE-033", "DRE-001..DRE-057", "RE-001..RE-014", "PE-01..PE-08"] },
+      "state_records": { "count": 27, "record_kind": "state_record", "id_ranges": ["ST-001..ST-027"] },
+      "flows": { "count": 22, "record_kind": "flow", "id_ranges": ["CF-001..CF-022"] },
+      "coverage": { "count": 5, "record_kind": "coverage", "ids": ["COV-CF", "COV-PP", "COV-SMC", "COV-PC", "GAP-CYCLE"] }
+    },
+    "group_record_fields": {
+      "nodes": ["id", "kind", "name", "views", "snapshots", "evidence", "confidence", "status"],
+      "edges": ["id", "kind", "from", "to", "views", "snapshots", "evidence", "confidence", "status"],
+      "state_records": ["id", "name", "current_owner", "target_owner", "migration_status", "coverage_status", "views", "snapshots", "evidence", "confidence", "status"],
+      "flows": ["id", "name", "position", "views", "snapshots", "evidence", "confidence", "status"],
+      "coverage": ["id", "kind", "name", "views", "snapshots", "evidence", "confidence", "status", "limitation_refs"]
+    },
+    "auxiliary_collections": {
+      "edge_semantics": { "count": 112, "fields": ["edge_id", "source_kind", "state_refs", "trigger", "effect", "participants"] },
+      "evidence": { "count": 11, "ids": ["EV-CT", "EV-DR", "EV-ST", "EV-RE", "EV-CF", "EV-UF", "EV-UFR", "EV-PN", "EV-PP", "EV-SMC", "EV-CG"], "fields": ["id", "path", "locator", "confidence", "freshness"] },
+      "invariants": { "count": 15, "id_ranges": ["INV-001..INV-015"], "fields": ["id", "statement", "views", "status", "evidence", "target_status"] },
+      "deferred_decisions": { "count": 6, "id_ranges": ["DEC-001..DEC-006"], "fields": ["id", "decision", "classification", "owner", "blocker", "status"] },
+      "limitations": { "count": 3, "id_ranges": ["LIM-001..LIM-003"], "fields": ["id", "statement", "status"] }
+    },
+    "snapshot_membership": {
+      "baseline": { "nodes": 79, "edges": 112, "state_records": 27, "flows": 22, "coverage": 5, "total": 245 },
+      "current": { "nodes": 79, "edges": 112, "state_records": 27, "flows": 22, "coverage": 5, "total": 245 },
+      "target": { "nodes": 0, "edges": 0, "state_records": 0, "flows": 0, "coverage": 0, "total": 0 }
+    }
+  },
+  "top_level_mapping": [
+    { "source": "contract_version", "destination": "contract_version", "source_semantics": "v1 fixed contract marker", "destination_semantics": "v2 major contract marker", "snapshot_derivation": "document-level", "conversion": "set to owner-authorized 2.0.0; do not retain 1.0.0", "loss_class": "normalized" },
+    { "source": "metadata", "destination": "metadata", "source_semantics": "document identity and v1 capture basis", "destination_semantics": "document identity and v2 capture basis", "snapshot_derivation": "document-level", "conversion": "preserve fields subject to v2 schema validation; bind source hashes in this evidence", "loss_class": "preserved" },
+    { "source": "snapshots", "destination": "snapshots", "source_semantics": "v1 status vocabulary and parallel record-membership authority", "destination_semantics": "fixed document-level status vocabulary only", "snapshot_derivation": "membership authority moves exclusively to records[].snapshot_states keys", "conversion": "retain status vocabulary; remove membership meaning", "loss_class": "split" },
+    { "source": "views", "destination": "views", "source_semantics": "six document views", "destination_semantics": "six document views", "snapshot_derivation": "document-level", "conversion": "preserve exact six values", "loss_class": "preserved" },
+    { "source": "nodes", "destination": "records", "source_semantics": "v1 node group", "destination_semantics": "records with immutable record_kind=node", "snapshot_derivation": "split each member into baseline and current snapshot_states", "conversion": "merge group array into records", "loss_class": "merged" },
+    { "source": "edges", "destination": "records", "source_semantics": "v1 edge group", "destination_semantics": "records with immutable record_kind=edge", "snapshot_derivation": "split each member into baseline and current snapshot_states", "conversion": "merge group array into records and fold matching edge_semantics", "loss_class": "merged" },
+    { "source": "edge_semantics", "destination": "records[record_kind=edge].snapshot_states", "source_semantics": "parallel semantic payload keyed by edge_id", "destination_semantics": "canonical edge state payload", "snapshot_derivation": "copy to every state named by the matched edge's v1 snapshots", "conversion": "fold by exact edge_id", "loss_class": "merged" },
+    { "source": "state_records", "destination": "records", "source_semantics": "v1 state group", "destination_semantics": "records with immutable record_kind=state_record", "snapshot_derivation": "split each member into baseline and current snapshot_states", "conversion": "merge group array into records", "loss_class": "merged" },
+    { "source": "flows", "destination": "records", "source_semantics": "v1 flow group", "destination_semantics": "records with immutable record_kind=flow", "snapshot_derivation": "split each member into baseline and current snapshot_states", "conversion": "merge group array into records", "loss_class": "merged" },
+    { "source": "coverage", "destination": "records", "source_semantics": "v1 coverage group", "destination_semantics": "records with immutable record_kind=coverage", "snapshot_derivation": "split each member into baseline and current snapshot_states", "conversion": "merge group array into records", "loss_class": "merged" },
+    { "source": "evidence", "destination": "evidence", "source_semantics": "global evidence definitions", "destination_semantics": "global evidence definitions", "snapshot_derivation": "referenced by snapshot-local evidence_refs", "conversion": "preserve definitions and IDs", "loss_class": "preserved" },
+    { "source": "invariants", "destination": "invariants", "source_semantics": "global invariant definitions", "destination_semantics": "global invariant definitions", "snapshot_derivation": "referenced by snapshot-local invariant_refs", "conversion": "preserve definitions and IDs", "loss_class": "preserved" },
+    { "source": "deferred_decisions", "destination": "deferred_decisions", "source_semantics": "global deferred-decision definitions", "destination_semantics": "global deferred-decision definitions", "snapshot_derivation": "referenced by snapshot-local decision_refs", "conversion": "preserve definitions and IDs", "loss_class": "preserved" },
+    { "source": "limitations", "destination": "limitations", "source_semantics": "global limitation definitions", "destination_semantics": "global limitation definitions", "snapshot_derivation": "referenced by snapshot-local limitation_refs", "conversion": "preserve definitions and IDs", "loss_class": "preserved" },
+    { "source": "provenance", "destination": "metadata.provenance", "source_semantics": "v1 dossier source declaration", "destination_semantics": "v2 provenance declaration", "snapshot_derivation": "document-level", "conversion": "preserve source declarations; historical HTML/audit exclusion remains true", "loss_class": "normalized" },
+    { "source": "canonical_diff_fields", "destination": "canonical_diff_fields", "source_semantics": "v1 group-based field policy", "destination_semantics": "v2 per-record_kind direct field-name policy", "snapshot_derivation": "compare canonical values only within matching snapshot_states", "conversion": "replace legacy snapshots and provenance presentation paths with v2 canonical per-kind policy; this mapping defines destination policy without claiming an implementation", "loss_class": "normalized" }
+  ],
+  "record_field_mapping": [
+    { "source": "*.id", "destination": "records[].id", "source_semantics": "stable record identity", "destination_semantics": "globally unique stable record identity", "snapshot_derivation": "identity-level", "conversion": "preserve exactly once", "loss_class": "preserved" },
+    { "source": "nodes.kind", "destination": "records[record_kind=node].snapshot_states.{baseline,current}.canonical.kind", "source_semantics": "node classification", "destination_semantics": "snapshot-local canonical node kind", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "nodes.name", "destination": "records[record_kind=node].snapshot_states.{baseline,current}.canonical.name", "source_semantics": "node display/name value", "destination_semantics": "snapshot-local canonical node name", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "edges.kind", "destination": "records[record_kind=edge].snapshot_states.{baseline,current}.canonical.kind", "source_semantics": "edge classification", "destination_semantics": "snapshot-local canonical edge kind", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "edges.from", "destination": "records[record_kind=edge].snapshot_states.{baseline,current}.canonical.from", "source_semantics": "v1 edge source ID", "destination_semantics": "same-snapshot node endpoint ID", "snapshot_derivation": "copy to each named membership state", "conversion": "split and validate snapshot-local endpoint", "loss_class": "split" },
+    { "source": "edges.to", "destination": "records[record_kind=edge].snapshot_states.{baseline,current}.canonical.to", "source_semantics": "v1 edge destination ID", "destination_semantics": "same-snapshot node endpoint ID", "snapshot_derivation": "copy to each named membership state", "conversion": "split and validate snapshot-local endpoint", "loss_class": "split" },
+    { "source": "state_records.name", "destination": "records[record_kind=state_record].snapshot_states.{baseline,current}.canonical.name", "source_semantics": "state name", "destination_semantics": "snapshot-local canonical state name", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "state_records.current_owner", "destination": "records[record_kind=state_record].snapshot_states.{baseline,current}.canonical.current_owner", "source_semantics": "v1 current canonical owner", "destination_semantics": "snapshot-local observed current owner", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "state_records.target_owner", "destination": "records[record_kind=state_record].snapshot_states.{baseline,current}.canonical.target_owner", "source_semantics": "v1 planned owner", "destination_semantics": "snapshot-local recorded target-owner intent, not a Target state", "snapshot_derivation": "copy to baseline/current only", "conversion": "split without fabricating Target", "loss_class": "split" },
+    { "source": "state_records.migration_status", "destination": "records[record_kind=state_record].snapshot_states.{baseline,current}.canonical.migration_status", "source_semantics": "migration progress", "destination_semantics": "snapshot-local canonical migration status", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "state_records.coverage_status", "destination": "records[record_kind=state_record].snapshot_states.{baseline,current}.canonical.coverage_status", "source_semantics": "state coverage classification", "destination_semantics": "snapshot-local canonical coverage status", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "flows.name", "destination": "records[record_kind=flow].snapshot_states.{baseline,current}.canonical.name", "source_semantics": "flow step name", "destination_semantics": "snapshot-local canonical flow name", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "flows.position", "destination": "records[record_kind=flow].snapshot_states.{baseline,current}.canonical.position", "source_semantics": "v1 flow ordering position", "destination_semantics": "snapshot-local flow position", "snapshot_derivation": "copy to each named membership state", "conversion": "split and validate contiguous ordering per snapshot", "loss_class": "split" },
+    { "source": "coverage.kind", "destination": "records[record_kind=coverage].snapshot_states.{baseline,current}.canonical.kind", "source_semantics": "coverage classification", "destination_semantics": "snapshot-local canonical coverage kind", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "coverage.name", "destination": "records[record_kind=coverage].snapshot_states.{baseline,current}.canonical.name", "source_semantics": "coverage name", "destination_semantics": "snapshot-local canonical coverage name", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "*.views", "destination": "records[].snapshot_states.{baseline,current}.canonical.views", "source_semantics": "record view membership", "destination_semantics": "snapshot-local canonical views", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "*.snapshots", "destination": "records[].snapshot_states", "source_semantics": "parallel v1 presence membership", "destination_semantics": "the only v2 record presence and value authority", "snapshot_derivation": "create exactly one state key for each v1 member; baseline/current for all 245 accepted records; no target key", "conversion": "split values and provenance by membership then discard legacy field", "loss_class": "split" },
+    { "source": "*.evidence", "destination": "records[].snapshot_states.{baseline,current}.evidence_refs", "source_semantics": "record evidence references", "destination_semantics": "snapshot-local provenance references", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "*.confidence", "destination": "records[].snapshot_states.{baseline,current}.confidence", "source_semantics": "record confidence", "destination_semantics": "snapshot-local confidence", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "*.status", "destination": "records[].snapshot_states.{baseline,current}.status", "source_semantics": "record status", "destination_semantics": "snapshot-local status and comparison basis", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" },
+    { "source": "coverage.limitation_refs", "destination": "records[record_kind=coverage].snapshot_states.{baseline,current}.limitation_refs", "source_semantics": "coverage limitation references", "destination_semantics": "snapshot-local limitation provenance", "snapshot_derivation": "copy to each named membership state", "conversion": "split", "loss_class": "split" }
+  ],
+  "edge_semantics_mapping": {
+    "match_key": "edge_semantics.edge_id = edges.id",
+    "cardinality": "112 v1 edges to 112 v1 edge_semantics; exactly one semantic payload for every edge and no orphan semantic payload",
+    "snapshot_provenance": "For each edge, fold each semantic field into every snapshot_states key produced from that edge's v1 snapshots. No semantic payload is created for Target.",
+    "fields": [
+      { "source": "edge_semantics.edge_id", "destination": "records[record_kind=edge].id", "conversion": "join key only; preserve no second ID", "loss_class": "merged" },
+      { "source": "edge_semantics.source_kind", "destination": "records[record_kind=edge].snapshot_states.{baseline,current}.canonical.source_kind", "conversion": "fold by exact edge_id", "loss_class": "merged" },
+      { "source": "edge_semantics.state_refs", "destination": "records[record_kind=edge].snapshot_states.{baseline,current}.canonical.state_refs", "conversion": "fold by exact edge_id and validate referenced state record in the same snapshot", "loss_class": "merged" },
+      { "source": "edge_semantics.trigger", "destination": "records[record_kind=edge].snapshot_states.{baseline,current}.canonical.trigger", "conversion": "fold by exact edge_id", "loss_class": "merged" },
+      { "source": "edge_semantics.effect", "destination": "records[record_kind=edge].snapshot_states.{baseline,current}.canonical.effect", "conversion": "fold by exact edge_id", "loss_class": "merged" },
+      { "source": "edge_semantics.participants", "destination": "records[record_kind=edge].snapshot_states.{baseline,current}.canonical.participants", "conversion": "fold by exact edge_id", "loss_class": "merged" }
+    ]
+  },
+  "reference_reconciliation": {
+    "rule": "Every source reference occurrence remains one reference occurrence in each derived baseline/current snapshot state; no reference is copied to Target by this mapping.",
+    "inventories": [
+      { "source": "nodes|edges|state_records|flows|coverage[].evidence", "occurrences": 269, "destination": "records[].snapshot_states.{baseline,current}.evidence_refs", "definition_destination": "evidence[].id", "loss_class": "split" },
+      { "source": "coverage[].limitation_refs", "occurrences": 1, "destination": "records[].snapshot_states.{baseline,current}.limitation_refs", "definition_destination": "limitations[].id", "loss_class": "split" },
+      { "source": "edge_semantics[].state_refs", "occurrences": 53, "destination": "records[record_kind=edge].snapshot_states.{baseline,current}.canonical.state_refs", "definition_destination": "records[record_kind=state_record].id in same snapshot", "loss_class": "merged" },
+      { "source": "invariants[].evidence", "occurrences": 32, "destination": "invariants[].evidence", "definition_destination": "evidence[].id", "loss_class": "preserved" }
+    ],
+    "reference_occurrences_total": 355,
+    "unexplained_reference_occurrences": 0,
+    "future_v2_only_reference_slots": ["snapshot_states[].invariant_refs", "snapshot_states[].decision_refs"],
+    "future_v2_only_reference_rule": "These slots have no populated accepted v1 source occurrence and must remain empty unless an accepted Task 3 v2 evidence basis independently supplies them."
+  },
+  "canonical_diff_fields_destination_policy": {
+    "source": "canonical_diff_fields",
+    "destination": "canonical_diff_fields",
+    "implementation_status": "not implemented by this mapping",
+    "rules": {
+      "node": ["kind", "name", "views"],
+      "edge": ["kind", "name", "from", "to", "views", "source_kind", "state_refs", "trigger", "effect", "participants"],
+      "state_record": ["name", "current_owner", "target_owner", "writers", "readers", "copies", "reactive_effects", "persistence", "migration_status", "coverage_status", "views"],
+      "flow": ["sequence_id", "name", "position", "views"],
+      "coverage": ["kind", "name", "coverage_status", "views"]
+    },
+    "excluded_from_canonical_comparison": ["id", "record_kind", "snapshot_states", "status", "confidence", "evidence_refs", "limitation_refs", "invariant_refs", "decision_refs", "comparison"],
+    "unrepresented_v1_fields": ["writers", "readers", "copies", "reactive_effects", "persistence", "sequence_id"],
+    "unrepresented_v1_rule": "These are v2 policy fields but have no accepted v1 source field. They are not synthesized, defaulted, or treated as Target facts by this mapping."
+  },
+  "reconciliation_rules": {
+    "same_id_disjoint_representation": "Merge only v1 same-ID representations that are disjoint by snapshots and only when every state can retain all canonical values and provenance losslessly. This accepted v1 model has one representation per record ID, so no live same-ID merge is performed.",
+    "conflict": "If same-ID values or provenance overlap incompatibly, if an edge semantic payload is missing/duplicate/orphan, or if a source field cannot be assigned by an owner-authorized transformation, Task 2 is BLOCKED and no unsupported transformation is invented.",
+    "duplicate_destination": "Within an individual record state, each canonical destination field has exactly one contributing v1 source, except permitted edge folding where the source group field and semantic field are distinct destinations.",
+    "target": "Target absence is intentional and lossless: v1 contains no Target record membership and no accepted target-state evidence."
+  },
+  "coverage": {
+    "source_top_level_fields": 16,
+    "mapped_top_level_fields": 16,
+    "unexplained_top_level_fields": 0,
+    "source_group_records": 245,
+    "mapped_records": 245,
+    "unexplained_records": 0,
+    "source_edge_semantics": 112,
+    "mapped_edge_semantics": 112,
+    "unexplained_edge_semantics": 0,
+    "source_global_ids": 280,
+    "mapped_global_ids": 280,
+    "unexplained_global_ids": 0,
+    "source_reference_occurrences": 355,
+    "mapped_reference_occurrences": 355,
+    "unexplained_reference_occurrences": 0,
+    "source_record_field_sets": 45,
+    "mapped_record_field_rules": 21,
+    "unexplained_record_field_sets": 0,
+    "legacy_snapshots_retained_as_authority": false,
+    "fabricated_target": false,
+    "unknown_edge_semantics": 0
+  },
+  "validation_contract": {
+    "positive_checks": [
+      "JSON parses as one object.",
+      "Live v1 model and schema SHA-256 equal the Task 1 accepted protected hashes before generation.",
+      "All 16 v1 top-level fields, five groups, 245 records, 112 edge semantics, 280 global IDs, and 355 reference occurrences reconcile with zero unexplained entries.",
+      "Each v1 group maps to exactly one immutable record_kind.",
+      "Each edge_semantics field has one declared destination and baseline/current snapshot provenance.",
+      "Target is absent from derived record states and no v1 value or provenance is copied into it."
+    ],
+    "negative_checks": [
+      "Reject an unmapped source field.",
+      "Reject two source fields claiming the same canonical destination in one record state.",
+      "Reject source-hash drift.",
+      "Reject retained legacy snapshots membership authority.",
+      "Reject a copied or fabricated Target state.",
+      "Reject unknown, missing, duplicate, or orphan edge semantics.",
+      "Reject any lost source reference occurrence."
+    ]
+  }
+}
