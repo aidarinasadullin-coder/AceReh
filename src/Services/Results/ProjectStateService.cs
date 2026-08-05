@@ -1,88 +1,75 @@
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using SnowMeltingCalculator.Services.Project;
 
 namespace SnowMeltingCalculator.Services.Results
 {
     /// <summary>
-    /// Сервис состояния проекта
+    /// Forwarding-only compatibility adapter over <see cref="IProjectSession"/>.
+    /// Holds no lifecycle state of its own; all reads and writes are delegated to
+    /// the canonical session instance.
     /// </summary>
-    public class ProjectStateService : IProjectStateService, IMarkDirtyService, INotifyPropertyChanged
+    public class ProjectStateService : IProjectStateService, IMarkDirtyService
     {
-        private string? _currentFilePath;
-        private bool _isDirty;
+        private readonly IProjectSession _session;
 
         /// <summary>
-        /// Номер проекта
+        /// Creates a new adapter backed by its own <see cref="ProjectSession"/>.
         /// </summary>
-        public string ProjectNumber { get; set; } = string.Empty;
+        public ProjectStateService()
+            : this(new ProjectSession())
+        {
+        }
 
         /// <summary>
-        /// Наименование объекта
+        /// Creates an adapter that forwards to the specified canonical session.
         /// </summary>
-        public string ProjectObject { get; set; } = string.Empty;
+        public ProjectStateService(IProjectSession session)
+        {
+            _session = session;
+            _session.PropertyChanged += OnSessionPropertyChanged;
+        }
 
         /// <summary>
-        /// Текущий путь к файлу проекта
+        /// Каноническая сессия проекта, к которой делегируется состояние.
         /// </summary>
+        public IProjectSession Session => _session;
+
+        /// <inheritdoc />
+        public string ProjectNumber
+        {
+            get => _session.ProjectNumber;
+            set => _session.ProjectNumber = value;
+        }
+
+        /// <inheritdoc />
+        public string ProjectObject
+        {
+            get => _session.ProjectObject;
+            set => _session.ProjectObject = value;
+        }
+
+        /// <inheritdoc />
         public string? CurrentFilePath
         {
-            get => _currentFilePath;
-            set
-            {
-                if (_currentFilePath == value)
-                {
-                    return;
-                }
-
-                _currentFilePath = value;
-                OnPropertyChanged();
-            }
+            get => _session.CurrentFilePath;
+            set => _session.CurrentFilePath = value;
         }
 
-        /// <summary>
-        /// Признак наличия несохранённых изменений
-        /// </summary>
-        public bool IsDirty => _isDirty;
+        /// <inheritdoc />
+        public bool IsDirty => _session.IsDirty;
 
-        /// <summary>
-        /// Пометить проект как содержащий несохранённые изменения
-        /// </summary>
-        public void MarkDirty()
-        {
-            if (_isDirty)
-            {
-                return;
-            }
+        /// <inheritdoc />
+        public void MarkDirty() => _session.MarkDirty();
 
-            _isDirty = true;
-            OnPropertyChanged(nameof(IsDirty));
-        }
+        /// <inheritdoc />
+        public void MarkClean() => _session.MarkClean();
 
-        /// <summary>
-        /// Пометить проект как сохранённый
-        /// </summary>
-        public void MarkClean()
-        {
-            if (!_isDirty)
-            {
-                return;
-            }
-
-            _isDirty = false;
-            OnPropertyChanged(nameof(IsDirty));
-        }
-
-        /// <summary>
-        /// Событие изменения свойства
-        /// </summary>
+        /// <inheritdoc />
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        /// <summary>
-        /// Вызвать событие изменения свойства
-        /// </summary>
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        private void OnSessionPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, e);
         }
     }
 }
