@@ -304,7 +304,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 }
             };
 
-            var calculationStateService = new CalculationStateService();
+            var calculationStateService = new CalculationStateService(_projectStateService.Session);
             var viewModel = CreateViewModel(
                 CreateClimateViewModel(calculationStateService, _projectStateService),
                 CreateConstructionViewModel(calculationStateService, _projectStateService),
@@ -565,7 +565,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         [Test]
         public async Task ProjectRoundTrip_LiveMutationsAreSavedLoadedAndExportedWithoutResultsCalculation()
         {
-            var calculationStateService = new CalculationStateService();
+            var calculationStateService = new CalculationStateService(_projectStateService.Session);
             var climateVm = CreateClimateViewModelWithCity("Текущий город", "Текущий регион", -29, 4.5, 72);
             climateVm.SelectedCity = new CityInfo { Name = "Исходный город", Region = "Исходный регион" };
 
@@ -649,7 +649,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             viewModel.RefreshAll();
             var pdfData = GetField<ResultsPdfDataBuilder>(viewModel, "_resultsPdfDataBuilder").Build(viewModel);
 
-            var reopenedCalculationStateService = new CalculationStateService();
+            var reopenedCalculationStateService = new CalculationStateService(_projectStateService.Session);
             var reopenedViewModel = CreateViewModel(
                 CreateClimateViewModelWithCity("Текущий город", "Текущий регион", -29, 4.5, 72),
                 await CreateInitializedConstructionViewModelAsync(),
@@ -1531,11 +1531,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
                 .Returns(Task.CompletedTask);
 
-            var calculationStateService = new CalculationStateService();
+            var calculationStateService = new CalculationStateService(_projectStateService.Session);
             var calculationContext = new CalculationContext();
 
             return new ResultsViewModel(
                 _projectStateService,
+                _projectStateService.Session,
                 _projectStateService,
                 _dialogServiceMock.Object,
                 new Mock<IPdfExportService>().Object,
@@ -1734,6 +1735,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             return new ResultsViewModel(
                 _projectStateService,
+                _projectStateService.Session,
                 _projectStateService,
                 _dialogServiceMock.Object,
                 new Mock<IPdfExportService>().Object,
@@ -1999,7 +2001,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 new ThermalResultProjectData { PowerTotal = 999, IsValid = false }
             })
             {
-                var calculationStateService = new CalculationStateService();
+                var calculationStateService = new CalculationStateService(_projectStateService.Session);
                 var thermalCalculatorMock = new Mock<IThermalCalculator>();
                 thermalCalculatorMock
                     .Setup(calculator => calculator.Calculate(

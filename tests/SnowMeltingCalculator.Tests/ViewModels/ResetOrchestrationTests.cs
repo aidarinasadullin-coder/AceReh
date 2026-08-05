@@ -272,7 +272,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 markDirtyService);
         }
 
-        private static ResultsViewModel CreateResultsViewModel(IProjectStateService projectStateService, IMarkDirtyService markDirtyService)
+        private static ResultsViewModel CreateResultsViewModel(ProjectStateService projectStateService, IMarkDirtyService markDirtyService)
         {
             var climateVm = CreateClimateViewModel(new Mock<IMarkDirtyService>().Object);
             var constructionVm = CreateConstructionViewModel(new Mock<IMarkDirtyService>().Object);
@@ -287,11 +287,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
                 .Returns(Task.CompletedTask);
 
-            var calculationStateService = new CalculationStateService();
+            var calculationStateService = new CalculationStateService(projectStateService.Session);
             var calculationContext = new CalculationContext();
 
             return new ResultsViewModel(
                 projectStateService,
+                projectStateService.Session,
                 markDirtyService,
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
