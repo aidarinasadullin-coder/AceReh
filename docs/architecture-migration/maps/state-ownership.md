@@ -1,25 +1,25 @@
 ---
-phase: phase-0-baseline
-snapshot_sha: f0d19c34ac03075d64548f1059e9c6626d3596b5
-source_basis: working-tree
-generated_at_utc: 2026-07-30T18:38:01.5504380Z
+phase: phase-1-project-session-shell
+snapshot_sha: 021d4abd159aa71c4a19c7a6536851264e5a58ca
+source_basis: accepted-phase-1-project-session-shell
+generated_at_utc: 2026-08-04T00:00:00.0000000Z
 working_directory: D:/IA/ace v.2
-commands: [codegraph_codegraph_explore lifecycle state flows, PowerShell structural QA in reactive.md]
+commands: [node docs/architecture-migration/widget/verify-widget.mjs --suite model-v2, node docs/architecture-migration/widget/generate-widget.mjs --check]
 exit_code: 0
 status: pass
-raw_output: Ownership filter over the state inventory.
-limitations: [Current ambiguity is retained; ProjectSession is target-only.]
+raw_output: Ownership filter updated for Phase 1 lifecycle shell.
+limitations: [Climate/Construction/Thermal/Hydraulics slices remain target-only; ST-003 DisplayMode was not migrated in Phase 1.]
 ---
 
 # State Ownership View
 
 | State ID | Current writable authority | Multiple writable authorities / copies | Future owner | Dual-write or ambiguity risk | Evidence | Coverage |
 | --- | --- | --- | --- | --- | --- | --- |
-| `ST-001` | ProjectStateService/Results pass-through | DTO copy | ProjectSession.Lifecycle.Identity | direct service setters possible | ProjectStateService.cs:17-22; Results :1515-1621 | partial |
-| `ST-002` | ProjectStateService | Results/Main title copy | Lifecycle.FilePath | several Results paths write it | ProjectStateService.cs:27-39; Results :753-821 | partial |
+| `ST-001` | ProjectSession | ProjectStateService/IProjectStateService/IProjectInfoService/IMarkDirtyService forwarding aliases | ProjectSession.Lifecycle.Identity | none after Phase 1; legacy interfaces are read-through | ProjectSession.cs; ProjectStateService.cs (forwarder); ProjectSessionTests.cs; final-gates.md | covered |
+| `ST-002` | ProjectSession | ProjectStateService/IProjectStateService forwarding aliases; Main title reads | Lifecycle.FilePath | none after Phase 1 | ProjectSession.cs; ProjectStateService.cs (forwarder); final-gates.md | covered |
 | `ST-003` | ResultsViewModel | DTO copy | Lifecycle.DisplayMode | load/reset writers | Results :1519-1621 | partial |
-| `ST-004` | ProjectStateService | Main title projection | Lifecycle.IsDirty | transition count unknown | ProjectStateService.cs:45-72 | partial |
-| `ST-005` | CalculationStateService | reader guards | Lifecycle.RestoreGuard | public setter protocol incomplete | Results :1577-1607 | partial |
+| `ST-004` | ProjectSession | ProjectStateService/IMarkDirtyService forwarding aliases; MainWindow dirty prompt reads | Lifecycle.IsDirty | none after Phase 1 | ProjectSession.cs; ProjectStateService.cs (forwarder); ProjectLifecycleFlowCharacterizationTests.cs; final-gates.md | covered |
+| `ST-005` | ProjectSession | CalculationStateService compatibility lease (one lease, no local bool/depth) | Lifecycle.RestoreGuard | none after Phase 1; compatibility setter is temporary | ProjectSession.cs; CalculationStateService.cs; restore-guard.md; final-gates.md | covered |
 | `ST-006` | Climate VM/IClimateData seam | context/Results | ClimateState | source/context copy | Climate :389-409 | partial |
 | `ST-007` | ClimateViewModel | UI search | ClimateState/UI decision | nonpersisted members | Climate :75-92,389-409 | partial |
 | `ST-008` | model/VM ambiguous | context/Results | ConstructionState | model/VM split | Construction :694-856 | partial |

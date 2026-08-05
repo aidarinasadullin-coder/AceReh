@@ -1,16 +1,17 @@
 {
   "metadata": {
     "model_id": "AM-WIDGET-001",
-    "phase": "phase-0.5-model-driven-architecture-widget",
-    "snapshot_sha": "f0d19c34ac03075d64548f1059e9c6626d3596b5",
-    "source_basis": "accepted-phase-0-dossier",
-    "status": "degraded",
+    "phase": "phase-1-project-session-shell",
+    "snapshot_sha": "021d4abd159aa71c4a19c7a6536851264e5a58ca",
+    "source_basis": "accepted-phase-1-project-session-shell",
+    "status": "pass",
     "provenance": {
       "phase_0_model": "docs/architecture-migration/maps/architecture-model.baseline.json",
       "phase_0_schema": "docs/architecture-migration/maps/architecture-model.schema.json",
       "target_invariants": "docs/architecture-migration/maps/target-invariants.md",
       "widget_spec": "docs/architecture-migration/widget-spec.md",
-      "historical_sources_excluded": true
+      "historical_sources_excluded": true,
+      "phase_1_plan": "docs/architecture-migration/plans/phase-1-project-session-shell.md"
     },
     "v1_source_sha256": "EE9E0069D71F3ABFFA5FA1E9B698A97507694597FBE85B84C272C30D3F55EFBD"
   },
@@ -10180,10 +10181,10 @@
         "baseline": {
           "canonical": {
             "name": "Lifecycle identity",
-            "current_owner": "ProjectStateService",
+            "current_owner": "ProjectSession",
             "target_owner": "ProjectSession.Lifecycle.Identity",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10191,7 +10192,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P1-CONTRACT",
+            "EV-P1-ADAPT",
+            "EV-P1-FINAL"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10204,10 +10208,10 @@
         "current": {
           "canonical": {
             "name": "Lifecycle identity",
-            "current_owner": "ProjectStateService",
+            "current_owner": "ProjectSession",
             "target_owner": "ProjectSession.Lifecycle.Identity",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10215,7 +10219,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P1-CONTRACT",
+            "EV-P1-ADAPT",
+            "EV-P1-FINAL"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10234,10 +10241,10 @@
         "baseline": {
           "canonical": {
             "name": "Current file path",
-            "current_owner": "ProjectStateService",
+            "current_owner": "ProjectSession",
             "target_owner": "ProjectSession.Lifecycle.FilePath",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10245,7 +10252,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P1-CONTRACT",
+            "EV-P1-ADAPT",
+            "EV-P1-FINAL"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10258,10 +10268,10 @@
         "current": {
           "canonical": {
             "name": "Current file path",
-            "current_owner": "ProjectStateService",
+            "current_owner": "ProjectSession",
             "target_owner": "ProjectSession.Lifecycle.FilePath",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10269,7 +10279,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P1-CONTRACT",
+            "EV-P1-ADAPT",
+            "EV-P1-FINAL"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10342,10 +10355,10 @@
         "baseline": {
           "canonical": {
             "name": "Dirty state",
-            "current_owner": "ProjectStateService",
+            "current_owner": "ProjectSession",
             "target_owner": "ProjectSession.Lifecycle.IsDirty",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10353,7 +10366,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P1-CONTRACT",
+            "EV-P1-ADAPT",
+            "EV-P1-FINAL"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10366,10 +10382,10 @@
         "current": {
           "canonical": {
             "name": "Dirty state",
-            "current_owner": "ProjectStateService",
+            "current_owner": "ProjectSession",
             "target_owner": "ProjectSession.Lifecycle.IsDirty",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10377,7 +10393,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P1-CONTRACT",
+            "EV-P1-ADAPT",
+            "EV-P1-FINAL"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10396,10 +10415,10 @@
         "baseline": {
           "canonical": {
             "name": "Restore guard",
-            "current_owner": "CalculationStateService",
+            "current_owner": "ProjectSession",
             "target_owner": "ProjectSession.Lifecycle.RestoreGuard",
-            "migration_status": "seam",
-            "coverage_status": "partial",
+            "migration_status": "migrated",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10407,7 +10426,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P1-CONTRACT",
+            "EV-P1-GUARD",
+            "EV-P1-FINAL"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10420,10 +10442,10 @@
         "current": {
           "canonical": {
             "name": "Restore guard",
-            "current_owner": "CalculationStateService",
+            "current_owner": "ProjectSession",
             "target_owner": "ProjectSession.Lifecycle.RestoreGuard",
-            "migration_status": "seam",
-            "coverage_status": "partial",
+            "migration_status": "migrated",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10431,7 +10453,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P1-CONTRACT",
+            "EV-P1-GUARD",
+            "EV-P1-FINAL"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -12990,6 +13015,802 @@
           }
         }
       }
+    },
+    {
+      "id": "DRN-PS",
+      "record_kind": "node",
+      "snapshot_states": {
+        "baseline": {
+          "canonical": {
+            "kind": "implementation",
+            "name": "ProjectSession",
+            "views": [
+              "di-runtime",
+              "state-ownership"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-CONTRACT",
+            "EV-P1-DI",
+            "EV-P1-FINAL"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "implementation",
+            "name": "ProjectSession",
+            "views": [
+              "di-runtime",
+              "state-ownership"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-CONTRACT",
+            "EV-P1-DI",
+            "EV-P1-FINAL"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
+      }
+    },
+    {
+      "id": "DRN-IPS",
+      "record_kind": "node",
+      "snapshot_states": {
+        "baseline": {
+          "canonical": {
+            "kind": "interface",
+            "name": "IProjectSession",
+            "views": [
+              "di-runtime",
+              "state-ownership"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-CONTRACT",
+            "EV-P1-DI"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "interface",
+            "name": "IProjectSession",
+            "views": [
+              "di-runtime",
+              "state-ownership"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-CONTRACT",
+            "EV-P1-DI"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
+      }
+    },
+    {
+      "id": "DRE-P1-001",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {
+          "canonical": {
+            "kind": "di-registration",
+            "from": "DRN-006",
+            "to": "DRN-IPS",
+            "views": [
+              "di-runtime"
+            ],
+            "source_kind": "di-registration",
+            "state_refs": [],
+            "trigger": "AddNavigationServices registers IProjectSession",
+            "effect": "Singleton IProjectSession interface registered",
+            "participants": [
+              "AddNavigationServices",
+              "IProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-DI"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "di-registration",
+            "from": "DRN-006",
+            "to": "DRN-IPS",
+            "views": [
+              "di-runtime"
+            ],
+            "source_kind": "di-registration",
+            "state_refs": [],
+            "trigger": "AddNavigationServices registers IProjectSession",
+            "effect": "Singleton IProjectSession interface registered",
+            "participants": [
+              "AddNavigationServices",
+              "IProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-DI"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
+      }
+    },
+    {
+      "id": "DRE-P1-002",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {
+          "canonical": {
+            "kind": "di-registration",
+            "from": "DRN-006",
+            "to": "DRN-PS",
+            "views": [
+              "di-runtime"
+            ],
+            "source_kind": "di-registration",
+            "state_refs": [],
+            "trigger": "AddNavigationServices registers ProjectSession",
+            "effect": "Singleton ProjectSession implementation registered",
+            "participants": [
+              "AddNavigationServices",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-DI"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "di-registration",
+            "from": "DRN-006",
+            "to": "DRN-PS",
+            "views": [
+              "di-runtime"
+            ],
+            "source_kind": "di-registration",
+            "state_refs": [],
+            "trigger": "AddNavigationServices registers ProjectSession",
+            "effect": "Singleton ProjectSession implementation registered",
+            "participants": [
+              "AddNavigationServices",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-DI"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
+      }
+    },
+    {
+      "id": "DRE-P1-003",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {
+          "canonical": {
+            "kind": "di-resolution",
+            "from": "DRN-011",
+            "to": "DRN-PS",
+            "views": [
+              "di-runtime"
+            ],
+            "source_kind": "di-factory-resolution",
+            "state_refs": [],
+            "trigger": "IProjectStateService resolves to ProjectSession",
+            "effect": "Legacy interface aliases canonical instance",
+            "participants": [
+              "IProjectStateService",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-DI",
+            "EV-P1-ADAPT"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "di-resolution",
+            "from": "DRN-011",
+            "to": "DRN-PS",
+            "views": [
+              "di-runtime"
+            ],
+            "source_kind": "di-factory-resolution",
+            "state_refs": [],
+            "trigger": "IProjectStateService resolves to ProjectSession",
+            "effect": "Legacy interface aliases canonical instance",
+            "participants": [
+              "IProjectStateService",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-DI",
+            "EV-P1-ADAPT"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
+      }
+    },
+    {
+      "id": "DRE-P1-004",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {
+          "canonical": {
+            "kind": "di-resolution",
+            "from": "DRN-013",
+            "to": "DRN-PS",
+            "views": [
+              "di-runtime"
+            ],
+            "source_kind": "di-factory-resolution",
+            "state_refs": [],
+            "trigger": "IMarkDirtyService resolves to ProjectSession",
+            "effect": "Legacy interface aliases canonical instance",
+            "participants": [
+              "IMarkDirtyService",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-DI",
+            "EV-P1-ADAPT"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "di-resolution",
+            "from": "DRN-013",
+            "to": "DRN-PS",
+            "views": [
+              "di-runtime"
+            ],
+            "source_kind": "di-factory-resolution",
+            "state_refs": [],
+            "trigger": "IMarkDirtyService resolves to ProjectSession",
+            "effect": "Legacy interface aliases canonical instance",
+            "participants": [
+              "IMarkDirtyService",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-DI",
+            "EV-P1-ADAPT"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
+      }
+    },
+    {
+      "id": "DRE-P1-005",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {
+          "canonical": {
+            "kind": "di-resolution",
+            "from": "DRN-008",
+            "to": "DRN-PS",
+            "views": [
+              "di-runtime"
+            ],
+            "source_kind": "di-factory-resolution",
+            "state_refs": [],
+            "trigger": "ICalculationStateService reads guard from ProjectSession",
+            "effect": "Compatibility adapter delegates guard read",
+            "participants": [
+              "ICalculationStateService",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-GUARD",
+            "EV-P1-DI"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "di-resolution",
+            "from": "DRN-008",
+            "to": "DRN-PS",
+            "views": [
+              "di-runtime"
+            ],
+            "source_kind": "di-factory-resolution",
+            "state_refs": [],
+            "trigger": "ICalculationStateService reads guard from ProjectSession",
+            "effect": "Compatibility adapter delegates guard read",
+            "participants": [
+              "ICalculationStateService",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-GUARD",
+            "EV-P1-DI"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
+      }
+    },
+    {
+      "id": "DRE-P1-006",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {
+          "canonical": {
+            "kind": "state-write",
+            "from": "DRN-021",
+            "to": "DRN-PS",
+            "views": [
+              "state-ownership",
+              "di-runtime"
+            ],
+            "source_kind": "layer-model-edit",
+            "state_refs": [
+              "ST-001",
+              "ST-002",
+              "ST-004"
+            ],
+            "trigger": "ResultsViewModel lifecycle mutation",
+            "effect": "Writes project identity/path/dirty through canonical session",
+            "participants": [
+              "ResultsViewModel",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-LIFECYCLE",
+            "EV-P1-FINAL"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "state-write",
+            "from": "DRN-021",
+            "to": "DRN-PS",
+            "views": [
+              "state-ownership",
+              "di-runtime"
+            ],
+            "source_kind": "layer-model-edit",
+            "state_refs": [
+              "ST-001",
+              "ST-002",
+              "ST-004"
+            ],
+            "trigger": "ResultsViewModel lifecycle mutation",
+            "effect": "Writes project identity/path/dirty through canonical session",
+            "participants": [
+              "ResultsViewModel",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-LIFECYCLE",
+            "EV-P1-FINAL"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
+      }
+    },
+    {
+      "id": "DRE-P1-007",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {
+          "canonical": {
+            "kind": "state-read",
+            "from": "DRN-012",
+            "to": "DRN-PS",
+            "views": [
+              "state-ownership",
+              "di-runtime"
+            ],
+            "source_kind": "used-type-reference",
+            "state_refs": [
+              "ST-001",
+              "ST-002",
+              "ST-004"
+            ],
+            "trigger": "ProjectStateService forwards reads",
+            "effect": "Legacy adapter forwards to canonical session",
+            "participants": [
+              "ProjectStateService",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-ADAPT",
+            "EV-P1-FINAL"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "state-read",
+            "from": "DRN-012",
+            "to": "DRN-PS",
+            "views": [
+              "state-ownership",
+              "di-runtime"
+            ],
+            "source_kind": "used-type-reference",
+            "state_refs": [
+              "ST-001",
+              "ST-002",
+              "ST-004"
+            ],
+            "trigger": "ProjectStateService forwards reads",
+            "effect": "Legacy adapter forwards to canonical session",
+            "participants": [
+              "ProjectStateService",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-ADAPT",
+            "EV-P1-FINAL"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
+      }
+    },
+    {
+      "id": "DRE-P1-008",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {
+          "canonical": {
+            "kind": "state-read",
+            "from": "DRN-009",
+            "to": "DRN-PS",
+            "views": [
+              "state-ownership",
+              "di-runtime"
+            ],
+            "source_kind": "used-type-reference",
+            "state_refs": [
+              "ST-005"
+            ],
+            "trigger": "CalculationStateService forwards guard read",
+            "effect": "Compatibility adapter delegates to canonical session",
+            "participants": [
+              "CalculationStateService",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-GUARD",
+            "EV-P1-FINAL"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "state-read",
+            "from": "DRN-009",
+            "to": "DRN-PS",
+            "views": [
+              "state-ownership",
+              "di-runtime"
+            ],
+            "source_kind": "used-type-reference",
+            "state_refs": [
+              "ST-005"
+            ],
+            "trigger": "CalculationStateService forwards guard read",
+            "effect": "Compatibility adapter delegates to canonical session",
+            "participants": [
+              "CalculationStateService",
+              "ProjectSession"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-GUARD",
+            "EV-P1-FINAL"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
+      }
+    },
+    {
+      "id": "DRE-P1-009",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {
+          "canonical": {
+            "kind": "event-publish",
+            "from": "DRN-PS",
+            "to": "DRN-021",
+            "views": [
+              "reactive",
+              "state-ownership"
+            ],
+            "source_kind": "event-subscription",
+            "state_refs": [
+              "ST-001",
+              "ST-002",
+              "ST-004",
+              "ST-005"
+            ],
+            "trigger": "ProjectSession.PropertyChanged",
+            "effect": "Consumers react to lifecycle changes",
+            "participants": [
+              "ProjectSession",
+              "ResultsViewModel"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-CONTRACT",
+            "EV-P1-LIFECYCLE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "event-publish",
+            "from": "DRN-PS",
+            "to": "DRN-021",
+            "views": [
+              "reactive",
+              "state-ownership"
+            ],
+            "source_kind": "event-subscription",
+            "state_refs": [
+              "ST-001",
+              "ST-002",
+              "ST-004",
+              "ST-005"
+            ],
+            "trigger": "ProjectSession.PropertyChanged",
+            "effect": "Consumers react to lifecycle changes",
+            "participants": [
+              "ProjectSession",
+              "ResultsViewModel"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P1-CONTRACT",
+            "EV-P1-LIFECYCLE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P1-001"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
+      }
     }
   ],
   "evidence": [
@@ -13069,6 +13890,76 @@
       "locator": "CG-01..CG-05 current source coverage",
       "confidence": "verified",
       "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P1-BASE",
+      "path": "docs/architecture-migration/evidence/phase-1-project-session-shell/baseline.md",
+      "locator": "Task 1 baseline snapshot and protected manifest",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P1-OWNER",
+      "path": "docs/architecture-migration/evidence/phase-1-project-session-shell/tdd-owner-red.md",
+      "locator": "Task 2 RED owner/contract tests",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P1-FLOW",
+      "path": "docs/architecture-migration/evidence/phase-1-project-session-shell/tdd-flows-red.md",
+      "locator": "Task 3 RED lifecycle flow characterization",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P1-CONTRACT",
+      "path": "docs/architecture-migration/evidence/phase-1-project-session-shell/project-session-contract.md",
+      "locator": "Task 4 ProjectSession contract and implementation",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P1-ADAPT",
+      "path": "docs/architecture-migration/evidence/phase-1-project-session-shell/compatibility-adapters.md",
+      "locator": "Task 5 forwarding-only legacy adapters",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P1-GUARD",
+      "path": "docs/architecture-migration/evidence/phase-1-project-session-shell/restore-guard.md",
+      "locator": "Task 6 restore guard centralization",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P1-DI",
+      "path": "docs/architecture-migration/evidence/phase-1-project-session-shell/di-runtime.md",
+      "locator": "Task 7 singleton DI lifecycle graph",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P1-LIFECYCLE",
+      "path": "docs/architecture-migration/evidence/phase-1-project-session-shell/lifecycle-user-flows.md",
+      "locator": "Task 8 lifecycle flow preservation",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P1-FINAL",
+      "path": "docs/architecture-migration/evidence/phase-1-project-session-shell/final-gates.md",
+      "locator": "Task 9 full gates and single-owner audit",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P1-DOSSIER",
+      "path": "docs/architecture-migration/evidence/phase-1-project-session-shell/dossier-update.md",
+      "locator": "Task 10 dossier/widget update",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
     }
   ],
   "limitations": [
@@ -13084,7 +13975,7 @@
     },
     {
       "id": "LIM-003",
-      "statement": "ProjectSession and its target slices are unimplemented; target facts are not current observations.",
+      "statement": "ProjectSession lifecycle shell is implemented; Climate/Construction/Thermal/Hydraulics state slices remain target-only and are not yet owned by ProjectSession.",
       "status": "degraded"
     }
   ],
@@ -13098,7 +13989,11 @@
       ],
       "status": "unverified",
       "evidence": [
-        "EV-ST"
+        "EV-ST",
+        "EV-P1-CONTRACT",
+        "EV-P1-ADAPT",
+        "EV-P1-GUARD",
+        "EV-P1-FINAL"
       ],
       "target_status": "unimplemented"
     },
@@ -13313,6 +14208,22 @@
         "EV-CT"
       ],
       "target_status": "unimplemented"
+    },
+    {
+      "id": "INV-P1-001",
+      "statement": "ProjectSession lifecycle shell (identity, path, dirty, restore guard) SHALL be the sole writable canonical owner and SHALL NOT contain module slices.",
+      "views": [
+        "state-ownership",
+        "di-runtime"
+      ],
+      "status": "verified",
+      "evidence": [
+        "EV-P1-CONTRACT",
+        "EV-P1-ADAPT",
+        "EV-P1-GUARD",
+        "EV-P1-FINAL"
+      ],
+      "target_status": "partial"
     }
   ],
   "deferred_decisions": [

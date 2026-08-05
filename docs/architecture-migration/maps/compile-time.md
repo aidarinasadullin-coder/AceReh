@@ -1,8 +1,8 @@
 ---
-phase: phase-0-baseline
-snapshot_sha: f0d19c34ac03075d64548f1059e9c6626d3596b5
-source_basis: working-tree
-generated_at_utc: 2026-07-30T18:16:03.9823979Z
+phase: phase-1-project-session-shell
+snapshot_sha: 021d4abd159aa71c4a19c7a6536851264e5a58ca
+source_basis: accepted-phase-1-project-session-shell
+generated_at_utc: 2026-08-04T00:00:00.0000000Z
 working_directory: D:/IA/ace v.2
 commands:
   - codegraph_codegraph_explore "Phase 0 Todo 6 compile-time DI runtime mapping: ProjectLoadOrchestrator ClimateViewModel ConstructionViewModel ThermalViewModel CircuitsViewModel ConstructionRepository MaterialNotFoundException ResultsViewModel DiRegistrationTests module ViewModel service registrations constructor dependencies compose resolve create paths"
@@ -13,14 +13,17 @@ commands:
   - Read tests/SnowMeltingCalculator.Tests/Configuration/DiRegistrationTests.cs
   - codegraph_codegraph_explore "ProjectLoadOrchestrator ResultsViewModel constructors full direct dependencies; ServiceCollectionExtensions DI registrations IMaterialRepository MaterialRepository IConstructionService ConstructionService IDialogService MessageBoxService exact AddSingleton lifetimes"
   - PowerShell read-only structural assertions across maps/compile-time.md and maps/di-runtime.md
+  - node docs/architecture-migration/widget/verify-widget.mjs --suite model-v2
+  - node docs/architecture-migration/widget/verify-widget.mjs --suite runtime-v2
+  - node docs/architecture-migration/widget/generate-widget.mjs --check
 exit_code: 0
 status: pass
-raw_output: Current indexed source plus targeted project/config/test reads; the source selection and the executed structural-QA output are recorded below.
+raw_output: Current indexed source plus targeted project/config/test reads; the source selection and the executed structural-QA output are recorded below. Phase 1 lifecycle shell nodes added.
 limitations:
   - This is a selected, provisional compile-time filter, not a complete compiler semantic graph or repository-wide namespace/type census.
   - SCCs and cycles are unavailable: evidence/metrics-baseline.json reports SCC null/degraded and cycle count null/not-reproducible; no cycle claim is made here.
   - A compile-time type reference does not prove DI resolution, runtime invocation, user flow, or ownership.
-  - The shared canonical schema/model is deliberately deferred to Todo 10; identifiers in this receipt are stable only within the Phase 0 provisional research set.
+  - Phase 1 added only `ProjectSession`/`IProjectSession` under `src/Services/Project`; module slices and their compile-time graph remain unchanged.
 ---
 
 # Compile-Time Research View
@@ -131,3 +134,17 @@ The provisional node/edge set is intentionally selected to satisfy Todo 6 requir
 ## QA Record
 
 The read-only PowerShell structural QA and synthetic bare-`using` probe are recorded in full in `di-runtime.md` because the validation spans both receipts. The corrected QA additionally asserts all 7 `ProjectLoadOrchestrator` and all 16 `ResultsViewModel` selected constructor parameters have DI/runtime rows. Result: `pass`; this map contributes 31 declared nodes and 33 typed edges. The final full-file read-back occurred after QA.
+
+## Phase 1 ProjectSession lifecycle shell overlay
+
+Added two new compile-time nodes under `src/Services/Project`:
+
+| Node ID | Kind | Display name | Source evidence |
+| --- | --- | --- | --- |
+| `CTN-PS` | implementation | `ProjectSession` | `src/Services/Project/ProjectSession.cs` |
+| `CTN-IPS` | interface | `IProjectSession` | `src/Services/Project/IProjectSession.cs` |
+
+No new compile-time edges from application services to concrete ViewModels were
+introduced. `ProjectSession` references only `System` and `System.ComponentModel`;
+module slices (Climate, Construction, Thermal, Hydraulics) and `CalculationContext`
+remain untouched. See `docs/architecture-migration/evidence/phase-1-project-session-shell/final-gates.md`.
