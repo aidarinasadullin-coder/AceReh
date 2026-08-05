@@ -1,14 +1,22 @@
 ---
-phase: phase-0-baseline
-snapshot_sha: f0d19c34ac03075d64548f1059e9c6626d3596b5
-source_basis: working-tree
-generated_at_utc: 2026-07-30T18:38:01.5504380Z
+phase: phase-1-project-session-shell
+snapshot_sha: 021d4abd159aa71c4a19c7a6536851264e5a58ca
+source_basis: accepted-phase-1-project-session-shell
+generated_at_utc: 2026-08-04T00:00:00.0000000Z
 working_directory: D:/IA/ace v.2
-commands: [codegraph_codegraph_explore flows, targeted Read, PowerShell QA below]
+commands:
+  - codegraph_codegraph_explore flows
+  - targeted Read
+  - PowerShell QA below
+  - node docs/architecture-migration/widget/verify-widget.mjs --suite model-v2
+  - node docs/architecture-migration/widget/verify-widget.mjs --suite runtime-v2
+  - node docs/architecture-migration/widget/generate-widget.mjs --check
 exit_code: 0
 status: pass
-raw_output: Reactive/action inventory with independent unknown counters.
-limitations: [Source registration is not runtime multiplicity proof; exact counters unknown.]
+raw_output: Reactive/action inventory updated for Phase 1 lifecycle shell. Exact module counters remain unknown.
+limitations:
+  - Source registration is not runtime multiplicity proof; exact module counters remain unknown.
+  - Phase 1 verified only ProjectSession lifecycle events and restore guard semantics.
 ---
 
 # Reactive Behavior View
@@ -47,3 +55,16 @@ negative_missing_field : failed as expected
 unproven_counters : unknown
 result : pass
 ```
+
+## Phase 1 ProjectSession lifecycle shell overlay
+
+Lifecycle events now originate from `ProjectSession` (`INotifyPropertyChanged`):
+
+| Edge ID | State IDs | Publisher | Subscriber | Subscription | Trigger | Effect | Evidence | Confidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `RE-P1-001` | `ST-001`,`ST-002`,`ST-004` | `ProjectSession.PropertyChanged` | `ResultsViewModel` / `MainWindow` | constructor subscription | `ProjectNumber`, `ProjectObject`, `CurrentFilePath`, `IsDirty` mutations | UI title/status update; dirty prompt decisions | `ProjectSession.cs`; `ProjectLifecycleFlowCharacterizationTests.cs`; `lifecycle-user-flows.md` | verified |
+| `RE-P1-002` | `ST-005` | `ProjectSession.BeginProjectRestore` / lease disposal | `ICalculationStateService.StateChanged` | compatibility delegate | `IsLoadProjectInProgress` true/false | guards recalculation during restore | `ProjectSession.cs`; `CalculationStateService.cs`; `restore-guard.md` | verified |
+
+`PropertyChanged` is raised exactly once per real lifecycle mutation and never for
+idempotent assignments, equal values, or nested restore scopes. Module-level
+reactive edges (`RE-001` through `RE-014`) are unchanged by Phase 1.

@@ -41,3 +41,19 @@ Shared capability IDs are `CF-001` through `CF-022`; the decision-complete futur
 | `CF-022` | navigation | `tests/.../ViewModels/ResultsViewModelOpenProjectTests.cs`; `OpenProject_WhenClean_DoesNotShowPrompt`; dialog/file mocks | prompt never; load once; path set; clean | ContextChanged=unknown; StateChanged=unknown; calculator=0; Results=unknown; dirty=1 clean | partial | `FG-020` |
 
 `unknown` is never zero. `CF-005`, `CF-008`, and `CF-010` are labeled bounded source-backed inferences, not direct calculator invocation observations. Real persistence requires a real `ProjectFileService` and filesystem path.
+
+## Phase 1 ProjectSession Shell Coverage Overlay
+
+The Phase 0 matrix remains historical baseline. Phase 1 adds characterization
+coverage without claiming a migration of module state ownership:
+
+| Coverage | Current Phase 1 result | Evidence |
+| --- | --- | --- |
+| lifecycle owner and alias identity | `ProjectSessionTests` and `ProjectSessionLegacyStoreGuardTests`: 40 passed in the owner/guard lane | `tdd-owner-red.md`, `project-session-contract.md`, `compatibility-adapters.md`, `restore-guard.md` |
+| new/load/second-load/edit/repeated reset-load/failure flow | 83 passed, 1 skipped in the flow lane; expected partial restore remains without rollback and the guard clears on every exit | `tdd-flows-red.md`, `lifecycle-user-flows.md` |
+| persistence compatibility | 18 passed in the persistence lane; v1.0 and catalogued v1.1 fixture behavior remains accepted | `persistence-compatibility.md`, `lifecycle-user-flows.md`, `final-gates.md` |
+| DI lifecycle graph | 8 passed in the DI lane; aliases and lifecycle consumers resolve the canonical session | `di-runtime.md` |
+
+Parent Phase 1 QA also recorded the full Release suite as 1565 passed and 1
+skipped. These receipts prove the Phase 1 shell boundary only; they do not turn
+unknown Phase 0 module counters into measured facts.

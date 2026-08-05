@@ -171,3 +171,20 @@ Observed output (exit `0`): `PASS property-rows=122; ids=122; dto-types=15; fixt
 ## DoneClaim
 
 **DoneClaim PERSIST-COMPAT-02:** the compatibility baseline contains 15 DTO types and 122 independently documented physical property rows, including recursive v1 fixture presence, null/missing distinctions, save/restore semantics, state classification, and source/test evidence per property. It contains 9 current/legacy/corrupt/tested/deferred classifications. Byte identity, compatibility duration, whole-schema semantic round trip, atomic/crash safety, and transactional in-memory restore remain not established.
+
+## Phase 1 ProjectSession Shell Overlay
+
+Phase 1 changes the in-memory lifecycle owner only. It adds no `.smc` field,
+serializer, DTO, version dispatch, rollback, `.bak` behavior, or wire-format
+policy. `ProjectNumber` and `ProjectObject` continue to cross `ProjectData`; the
+canonical in-memory receiver is now `ProjectSession` through the existing
+Results/project-load path. `CurrentFilePath`, dirty state, and the restore guard
+remain non-persisted lifecycle values.
+
+Accepted behavior is recorded by the 18-passing persistence lane and the
+v1.0/v1.1 fixture scenarios in
+`docs/architecture-migration/evidence/phase-1-project-session-shell/lifecycle-user-flows.md`.
+Current ordered module restore remains forward-only: an injected module failure
+may leave the characterized partial in-memory state, but the outer
+`ProjectSession` restore lease clears its guard. Transactional in-memory restore,
+compatibility duration, and crash/atomicity policy remain deferred.

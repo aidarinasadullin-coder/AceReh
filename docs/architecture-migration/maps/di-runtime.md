@@ -1,8 +1,8 @@
 ---
-phase: phase-0-baseline
-snapshot_sha: f0d19c34ac03075d64548f1059e9c6626d3596b5
-source_basis: working-tree
-generated_at_utc: 2026-07-30T18:16:03.9823979Z
+phase: phase-1-project-session-shell
+snapshot_sha: 021d4abd159aa71c4a19c7a6536851264e5a58ca
+source_basis: accepted-phase-1-project-session-shell
+generated_at_utc: 2026-08-04T00:00:00.0000000Z
 working_directory: D:/IA/ace v.2
 commands:
   - codegraph_codegraph_explore "Phase 0 Todo 6 compile-time DI runtime mapping: ProjectLoadOrchestrator ClimateViewModel ConstructionViewModel ThermalViewModel CircuitsViewModel ConstructionRepository MaterialNotFoundException ResultsViewModel DiRegistrationTests module ViewModel service registrations constructor dependencies compose resolve create paths"
@@ -10,14 +10,18 @@ commands:
   - Read tests/SnowMeltingCalculator.Tests/Configuration/DiRegistrationTests.cs
   - codegraph_codegraph_explore "ProjectLoadOrchestrator ResultsViewModel constructors full direct dependencies; ServiceCollectionExtensions DI registrations IMaterialRepository MaterialRepository IConstructionService ConstructionService IDialogService MessageBoxService exact AddSingleton lifetimes"
   - PowerShell read-only structural assertions across maps/compile-time.md and maps/di-runtime.md
+  - node docs/architecture-migration/widget/verify-widget.mjs --suite model-v2
+  - node docs/architecture-migration/widget/verify-widget.mjs --suite runtime-v2
+  - node docs/architecture-migration/widget/generate-widget.mjs --check
 exit_code: 0
 status: pass
-raw_output: Current registration and constructor source, selected Codegraph paths, DiRegistrationTests setup/resolution assertions, and post-write structural QA output recorded below.
+raw_output: Current registration and constructor source, selected Codegraph paths, DiRegistrationTests setup/resolution assertions, post-write structural QA output, and Phase 1 lifecycle DI overlay recorded below.
 limitations:
   - Registration records constructibility rules, not proof that an application runtime invocation or user flow occurred.
   - DiRegistrationTests directly resolves only the named editor services/ViewModels/views and ConstructionViewModel; it is not an exhaustive runtime-resolvability test of every registration in this map.
   - Constructor selection, factory delegates, WPF composition, lazy materialization, reflection, and unobserved dynamic paths are not fully traced.
   - This is a selected provisional runtime/DI filter, not a complete object graph, lifecycle trace, SCC/cycle proof, or canonical model.
+  - Phase 1 added only the lifecycle shell; module state slices remain in their existing owners.
 ---
 
 # DI/Runtime Research View
@@ -223,3 +227,41 @@ result                         : pass
 ```
 
 The QA record is a structural validation of these two provisional receipts. It does not claim build/test execution, full graph completeness, or runtime/user-flow behavior.
+
+## Phase 1 ProjectSession lifecycle shell overlay
+
+Added after the `phase-1-project-session-shell` implementation. The six core
+module slices remain untouched; only the project lifecycle/identity/dirty/restore
+guard ownership moved to a new canonical aggregate.
+
+### Phase 1 nodes
+
+| Node ID | Kind | Display name | Source evidence |
+| --- | --- | --- | --- |
+| `DRN-PS` | implementation | `ProjectSession` | `src/Services/Project/ProjectSession.cs` |
+| `DRN-IPS` | interface | `IProjectSession` | `src/Services/Project/IProjectSession.cs` |
+
+### Phase 1 edges
+
+| Edge ID | Kind | From | To | Lifetime / path | Source evidence | Confidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `DRE-P1-001` | di-registration | `DRN-006` | `DRN-IPS` | singleton | `services.AddSingleton<IProjectSession, ProjectSession>()` in `AddNavigationServices` | verified |
+| `DRE-P1-002` | di-registration | `DRN-006` | `DRN-PS` | singleton implementation | same registration | verified |
+| `DRE-P1-003` | di-resolution | `DRN-011` | `DRN-PS` | singleton factory alias | `services.AddSingleton<IProjectStateService>(sp => sp.GetRequiredService<IProjectSession>())` | verified |
+| `DRE-P1-004` | di-resolution | `DRN-013` | `DRN-PS` | singleton factory alias | `services.AddSingleton<IMarkDirtyService>(sp => sp.GetRequiredService<IProjectSession>())` | verified |
+| `DRE-P1-005` | di-resolution | `DRN-008` | `DRN-PS` | read-through compatibility | `CalculationStateService` holds `IProjectSession` lease and delegates `IsLoadProjectInProgress` | verified |
+| `DRE-P1-006` | state-write | `DRN-021` | `DRN-PS` | lifecycle mutation | `ResultsViewModel` writes `ProjectNumber`, `ProjectObject`, `CurrentFilePath`, `IsDirty` via `IProjectSession` | verified |
+| `DRE-P1-007` | state-read | `DRN-012` | `DRN-PS` | forwarding adapter | `ProjectStateService` forwards all reads to `IProjectSession` | verified |
+| `DRE-P1-008` | state-read | `DRN-009` | `DRN-PS` | compatibility guard read | `CalculationStateService` delegates `IsLoadProjectInProgress` to `IProjectSession` | verified |
+| `DRE-P1-009` | event-publish | `DRN-PS` | `DRN-021` | `PropertyChanged` | `ResultsViewModel` subscribes to `ProjectSession.PropertyChanged` | verified |
+
+### Phase 1 DI verification
+
+- `DependencyInjection_LifecycleConsumersShareCanonicalSession` proves that
+  `IProjectSession`, `IProjectStateService`, `IMarkDirtyService`,
+  `ICalculationStateService`, `ResultsViewModel`, and `ProjectStateService`
+  resolve to a single canonical `ProjectSession` instance.
+- `ProjectSessionLegacyStoreGuardTests` proves that `ProjectStateService` and
+  `CalculationStateService` contain no mutable lifecycle backing fields.
+- See `docs/architecture-migration/evidence/phase-1-project-session-shell/di-runtime.md`
+  and `final-gates.md` for full test output.

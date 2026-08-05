@@ -55,3 +55,30 @@ limitations:
 - `ST-014`/`ST-022` retain thermal-result/context dual paths; `ST-020`/`ST-021` are explicit context seams.
 - `ST-009`/`ST-010`, `ST-017`/`ST-018`, and `ST-023` retain multi-writer or restore ambiguity.
 - File replacement mechanics do not prove atomic persistence or crash recovery.
+
+## Phase 1 ProjectSession Shell Overlay
+
+This append-only overlay supersedes only the Phase 0 lifecycle observations. The
+shared `architecture-model.json` is the canonical source for the current
+`ST-001`, `ST-002`, `ST-004`, and `ST-005` records.
+
+| State IDs | Current canonical owner | Compatibility/projection boundary | Status and evidence |
+| --- | --- | --- | --- |
+| `ST-001` | `ProjectSession`: `ProjectNumber`, `ProjectObject` | `IProjectInfoService`, `IProjectStateService`, `IMarkDirtyService`, and `ProjectStateService` are aliases or a forwarding-only adapter over the same session. | migrated/covered; `project-session-contract.md`, `compatibility-adapters.md`, `final-gates.md` |
+| `ST-002` | `ProjectSession`: `CurrentFilePath` | `ProjectStateService` forwards path reads/writes; UI title remains a projection. | migrated/covered; `compatibility-adapters.md`, `lifecycle-user-flows.md`, `final-gates.md` |
+| `ST-004` | `ProjectSession`: `IsDirty` | Legacy dirty aliases forward to the canonical session; the MainWindow dirty prompt remains a reader. | migrated/covered; `project-session-contract.md`, `lifecycle-user-flows.md`, `final-gates.md` |
+| `ST-005` | `ProjectSession`: restore depth and `IsLoadProjectInProgress` | `CalculationStateService` reads the session guard and retains only one temporary compatibility lease, not a bool/depth store. | migrated/covered; `restore-guard.md`, `lifecycle-user-flows.md`, `final-gates.md` |
+
+`ST-003` remains owned by `ResultsViewModel`; `ST-006..ST-019` retain their
+Climate, Construction, Thermal, and Hydraulics owners. `ST-020..ST-022` remain
+`CalculationContext` seams, and `ST-024..ST-027` remain Results projections.
+Phase 1 does not move module state, persistence schema, formulas, or UI design.
+
+### ST-021 correction
+
+The Phase 0 wording is retained above as history. The current source fact is:
+`CalculationContext.Reset()` does **not** assign `ThermalInputs`; it clears the
+documented result-side context values and raises the reset notification. This is
+a documentation correction only, not a runtime behavior change. Evidence:
+`CalculationContext.cs`, `CalculationContextInvalidationTests`, and
+`final-gates.md`.

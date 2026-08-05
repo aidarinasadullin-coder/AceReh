@@ -119,3 +119,19 @@ dependency boundaries, Results projection, reactive lifetime, stale-state and
 subscription multiplicity, persistence compatibility, ordered restore, and
 sequential migration. Six owner-deferred decisions remain explicitly
 classified. No target design is presented as current implementation.
+
+## Phase 1 Status Overlay
+
+`INV-001` and the lifecycle portion of `INV-006` are now verified for the narrow
+shell: `ProjectSession` is the sole writable owner of `ProjectNumber`,
+`ProjectObject`, `CurrentFilePath`, `IsDirty`, and restore depth/guard. Legacy
+interfaces are aliases or forwarding-only surfaces. The shell has no Climate,
+Construction, Thermal, Hydraulics, Results, persistence, command, dialog, or
+orchestration slice.
+
+All remaining module-slice invariants remain target-only. In particular,
+`CalculationContext` is unchanged and `DEC-001` remains open; `DEC-002` remains
+open for compatibility duration; `DEC-003` remains open because Phase 1 preserves
+partial restore instead of adding transactional rollback. Evidence:
+`project-session-contract.md`, `compatibility-adapters.md`, `restore-guard.md`,
+`di-runtime.md`, `lifecycle-user-flows.md`, and `final-gates.md`.
