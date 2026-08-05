@@ -438,6 +438,60 @@ Production-срезы выполняются последовательно од
   `docs/architecture-migration/evidence/phase-0.5-architecture-explorer-mvp-acceptance.md`.
   Это завершает только `phase-0.5-architecture-explorer-mvp`; Phase 1 не начата
   и не авторизована.
+- Planning-only Metis pre-analysis для `phase-1-project-session-shell` завершён
+  в session `ses_037db6f56ffe7zEyJPEiRLvk4t`; metadata подтверждает identity
+  `Metis - Plan Consultant`. Анализ подтвердил текущие lifecycle/state seams,
+  риск двух writable owners, необходимость live reinspection dirty relevant
+  files, characterization для new/load/second-load/reset/dirty/failure flows и
+  узкую границу Phase 1 без migration Climate, Construction, Thermal или
+  Hydraulics ownership. Production code, tests, maps и widget не изменялись.
+- Separate primary Prometheus session `ses_037ba1831ffep3dtJaDlFJeHVR`
+  подготовила decision-complete Phase 1 plan. После Sisyphus finding о неверном
+  `$start-work` handoff и первого Momus `REJECT` из-за отсутствующего decision
+  ledger та же primary session встроила exact `IProjectSession` API/restore
+  lease semantics и обязательные `/architecture-approve` затем
+  `/architecture-start` gates. Исправленный source byte-identically импортирован
+  в `docs/architecture-migration/plans/phase-1-project-session-shell.md`,
+  SHA-256 `011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948`.
+  Continued Momus session `ses_0379213acffeHdyOTC2EpH6I3K` вернула `[OKAY]`.
+- Владелец 2026-08-04 явно утвердил reviewed Phase 1 plan SHA-256
+  `011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948`.
+  Workflow переведён только в `approved`; execution authorization остаётся
+  `pending`, и Phase 1 может быть запущена только отдельной командой
+  `/architecture-start phase-1-project-session-shell`.
+- Владелец 2026-08-04 отдельной явной командой
+  `/architecture-start phase-1-project-session-shell` авторизовал исполнение
+  reviewed Phase 1 plan. Authorization gate повторно подтвердил current phase,
+  `Stage = approved`, owner plan approval, exact active plan SHA-256, terminal
+  Momus `[OKAY]`, реальные Metis/Prometheus/Momus identities, Git root и
+  защищённый dirty worktree. Workflow переведён в `executing`; до завершения
+  Task 1 разрешён только read-only baseline capture и новые Phase 1 evidence.
+- Phase 1 Task 1 baseline artifacts существуют в
+  `docs/architecture-migration/evidence/phase-1-project-session-shell/`:
+  `baseline.md`, `baseline-git-status.bin`, build/test logs и post/final status
+  binaries. `baseline.md` заявляет `status: PASS`, Debug/Release build exit `0`,
+  filtered lifecycle tests `78/77/1`, full Release tests `1538/1537/1` и final
+  symmetric protected-drift comparison `protected_removed=0` /
+  `protected_added=0`. Узкая read-only финализация владельцем ограниченного
+  вопроса `247 vs 248` подтвердила factual off-by-one в исходном receipt:
+  `baseline-git-status.bin` имеет 247 NUL bytes, 248 split parts из-за trailing
+  empty part, 247 non-empty status records, 0 rename/copy companion path records,
+  статусы `216` modified, `2` deleted, `29` untracked, из них 1 Phase 1 evidence
+  record и 246 pre-existing protected records. `baseline.md` исправлен только в
+  этих factual count строках; production code и tests в Phase 1 всё ещё не
+  изменялись этой execution lane.
+- Phase 1 execution is BLOCKED as of 2026-08-05. A read-only audit found a
+  blocking defect in `ProjectSession.BeginProjectRestore()`: nested calls return
+  the same `_currentLease`, so disposing the inner and outer scopes can leave
+  restore depth at `1` and `IsLoadProjectInProgress == true`. This invalidates
+  prior GREEN/accepted claims for Tasks 4, 6, 8 and 9 despite green suites; Task
+  10 dossier/widget updates are stopped and must not be treated as accepted.
+  Current status is explicitly desynchronized: previous `TASK_CONTEXT.md` entries
+  claimed Task 9/Task 10 GREEN and pointed to F1-F4, while the active plan must be
+  returned to a blocked/re-evaluation state before any final wave. No F1-F4 final
+  verification is authorized until a regression test proves the nested restore
+  bug, the lease implementation is minimally fixed, targeted/affected/
+  persistence/build gates pass again, and Tasks 4-9 are re-evaluated.
 
 ## Workflow State
 
@@ -447,26 +501,26 @@ OpenCode обязаны обновлять его после каждого за
 
 | Поле | Значение |
 |---|---|
-| Current phase | `phase-0.5-architecture-explorer-mvp` |
-| Stage | `completed` |
-| Active plan | `docs/architecture-migration/plans/phase-0.5-architecture-explorer-mvp.md` |
-| Active plan SHA-256 | `9C23655B3786C26AFD715FF8441E2215FEDF0D42DE6A12720BF5E94D3AF59BF1` |
-| Parent phase | `phase-0.5-model-driven-architecture-widget` |
-| Parent plan | `docs/architecture-migration/plans/phase-0.5-model-driven-architecture-widget.md` |
-| Parent plan SHA-256 | `2C056AAFCE062E3E749EC9961E0B55237C4667D8CFFEF5F438CE7F108C2E452E` |
-| Parent execution state | `paused by owner after accepted amendment Task 5 scope gate and before original Task 5; accepted model v2/runtime artifacts are preserved; original Task 5 remains unstarted` |
-| Metis analysis | `completed; identity validated as Metis - Plan Consultant; single-payload, provenance, deterministic generation, stable-ID diff, accessibility, offline and scope gates analyzed` |
-| Metis session ID | `ses_048ca80c5ffe570LjBtr5wPu7o` |
-| Planning draft | `complete corrected Markdown imported; 10 implementation tasks, F1-F5, exact scope, rollback and owner gates present` |
-| Primary planning session ID | `ses_0489e3f28ffeRPe76tcgM123AS` |
-| Primary planning receipt | `valid: metadata reports Prometheus - Plan Builder and the primary session final response contains the complete corrected Markdown plan` |
-| Child planning discovery | `ses_048ba005dffetexUzoA49BmBJI` |
-| Child planning receipt | `agent=plan; complete draft produced; parent/wrapper topology invalid for the required primary Prometheus receipt; draft not imported` |
-| Sisyphus review | `PASS; corrected revision is scoped, decision-complete, preserves both owner gates and keeps Phase 1 blocked` |
-| Momus review | `OKAY; Task 5 QA, Task 6 pre-generation boundary, Tasks 7-9 artifact flow and F5 aggregation are executable and internally consistent` |
-| Momus session ID | `ses_048675c40ffebL4qrkfNTFdZBL` |
-| Owner plan approval | `approved by owner 2026-07-31 for plan SHA-256 2C056AAFCE062E3E749EC9961E0B55237C4667D8CFFEF5F438CE7F108C2E452E` |
-| Execution authorization | `approved by owner 2026-07-31 via explicit /architecture-start phase-0.5-model-driven-architecture-widget invocation` |
+| Current phase | `phase-1-project-session-shell` |
+| Stage | `awaiting-owner-acceptance` |
+| Active plan | `docs/architecture-migration/plans/phase-1-project-session-shell.md` |
+| Active plan SHA-256 | `011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948` |
+| Parent phase | `phase-0.5-architecture-explorer-mvp` |
+| Parent plan | `docs/architecture-migration/plans/phase-0.5-architecture-explorer-mvp.md` |
+| Parent plan SHA-256 | `9C23655B3786C26AFD715FF8441E2215FEDF0D42DE6A12720BF5E94D3AF59BF1` |
+| Parent execution state | `completed and explicitly accepted by owner 2026-08-03; acceptance does not carry plan approval or execution authorization into Phase 1` |
+| Metis analysis | `completed; identity validated as Metis - Plan Consultant; source-backed lifecycle seams, single-writer risk, dirty-file protections, characterization gates, narrow shell boundary and five owner decisions analyzed` |
+| Metis session ID | `ses_037db6f56ffe7zEyJPEiRLvk4t` |
+| Planning draft | `complete corrected Markdown imported byte-identically; exact IProjectSession API, compatibility/restore semantics, 10 tasks, F1-F4, scope, rollback and owner gates present` |
+| Primary planning session ID | `ses_037ba1831ffep3dtJaDlFJeHVR` |
+| Primary planning receipt | `valid: metadata reports Prometheus - Plan Builder in a separate primary session; final artifact corrected in the same session and imported with identical SHA-256` |
+| Child planning discovery | `none for Phase 1; child task plans are not valid primary receipts` |
+| Child planning receipt | `not applicable` |
+| Sisyphus review | `PASS after correction; scope, single-owner decision, self-contained API contract, non-migration boundaries, dirty protection and both owner gates are consistent` |
+| Momus review | `OKAY after one correction loop; exact API/restore lease contract, references, fixtures and executable QA are decision-complete` |
+| Momus session ID | `ses_0379213acffeHdyOTC2EpH6I3K; identity validated as Momus - Plan Critic` |
+| Owner plan approval | `approved by owner 2026-08-04 for reviewed Phase 1 plan SHA-256 011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948` |
+| Execution authorization | `approved by owner 2026-08-04 via explicit /architecture-start phase-1-project-session-shell after live authorization-gate revalidation` |
 | V2 amendment Metis analysis | `completed; identity validated as Metis - Plan Consultant; major v2, one stable ID, one snapshot_states source, per-kind identity/snapshot fields, snapshot-local edge/flow validity, honest Target, executable canonical_diff_fields, provenance and reopening gates analyzed` |
 | V2 amendment Metis session ID | `ses_046bb4fecffeqVxPgX7SXpsiF9` |
 | V2 amendment plan | `docs/architecture-migration/plans/phase-0.5-model-driven-architecture-widget-v2-amendment.md` |
@@ -509,8 +563,8 @@ OpenCode обязаны обновлять его после каждого за
 | Architecture Explorer MVP Task 4 | `technically and visually complete; canonical HTML 14279246 bytes SHA-256 11E7BDC33E5BC03AA09553844234263FC311EADD29D3CD9ECB0F1D711C6B6ACF; 14/14 checks, four isolated negative probes, exact-width 375/768/1280 browser QA and fresh image-capable visual inspection passed; source/functional Oracle PASS/HIGH in ses_038d77042ffePHmGYUUrqGbLIV; all eight owner answers are YES and the phase result is explicitly accepted` |
 | Architecture Explorer MVP owner answers | `8 of 8 YES, recorded 2026-08-03 in docs/architecture-migration/evidence/phase-0.5-architecture-explorer-mvp-acceptance.md` |
 | Phase result acceptance | `accepted by owner 2026-08-03 via exact statements YES по всем 8 вопросам. Результат Phase 0.5 Architecture Explorer MVP принимаю. and Phase 0.5 принята.` |
-| Last completed action | `2026-08-03 owner answered all eight questions YES, explicitly accepted the Architecture Explorer MVP result, and workflow transitioned to completed` |
-| Next action | `Phase 1 remains not started and unauthorized; any Phase 1 work requires a separate plan, review, owner plan approval, and execution authorization; correction, amendment F1-F5, and original parent Task 5 remain deferred or blocked` |
+| Last completed action | `2026-08-05 Phase 1 final verification wave completed: F1 plan compliance APPROVE, F2 code quality/architecture APPROVE, F3 real lifecycle QA APPROVE, F4 scope fidelity/dirty-worktree APPROVE. Active plan Tasks 1-10 and F1-F4 are checked. Phase 1 is ready for owner acceptance, not self-accepted.` |
+| Next action | `owner acceptance checkpoint for Phase 1 result; do not start Phase 2 planning or implementation until the owner explicitly accepts Phase 1 and separately authorizes the next phase workflow` |
 
 Допустимые стадии:
 
@@ -545,6 +599,36 @@ Approval gates:
 
 ## Принятые решения
 
+- Reviewed Phase 1 plan SHA-256
+  `011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948`
+  фиксирует `ProjectSession` как единственного writable owner для project
+  identity, current path, dirty state и restore guard. Legacy interfaces
+  остаются forwarding-only compatibility surfaces; `CalculationContext` и
+  четыре module owners не мигрируют. Current partial restore semantics и
+  accepted `.smc` corpus сохраняются без transactional rollback или schema
+  policy change. План прошёл Sisyphus PASS и Momus `[OKAY]` и явно утверждён
+  владельцем 2026-08-04; это approval плана, но не execution authorization.
+- Phase 1 planning-only workflow открыт после принятия Phase 0.5. Metis receipt
+  `ses_037db6f56ffe7zEyJPEiRLvk4t` валиден; workflow остановлен на
+  `Stage = awaiting-primary-plan`. Это не owner plan approval и не execution
+  authorization. Phase 1 production code, tests, maps и widget остаются
+  read-only до отдельного reviewed plan, owner approval и `/architecture-start`.
+- Phase 1 ограничена минимальным `ProjectSession` shell и узкими lifecycle/state
+  contracts. Climate, Construction, Thermal и Hydraulics ownership, formulas,
+  UI, `.smc` wire format, packages, installer, releases, deferred correction,
+  amendment F1-F5 и original parent Task 5 не входят в scope.
+- `ProjectSession` реализован как единственный writable owner идентификации
+  проекта, пути, dirty-флага и restore-guard. Legacy-интерфейсы
+  `IProjectInfoService`, `IProjectStateService` и `IMarkDirtyService` теперь
+  разрешаются в DI в один и тот же экземпляр `ProjectSession`.
+- Phase 1 implementation executed 2026-08-04: `ProjectStateService` and
+  `CalculationStateService` were converted to forwarding-only compatibility
+  surfaces with no mutable lifecycle backing fields; `ProjectSessionTests`,
+  `ProjectSessionLegacyStoreGuardTests`, and
+  `ProjectLifecycleFlowCharacterizationTests` are green; full Release suite is
+  `1565/1566` (1 pre-existing skip); architecture model and widget were updated
+  and verified. `CalculationContext` and module ownership slices were not
+  migrated.
 - Владелец 2026-08-03 exact statements `YES по всем 8 вопросам. Результат Phase
   0.5 Architecture Explorer MVP принимаю.` и `Phase 0.5 принята.` ответил `YES`
   на все восемь owner questions и явно принял результат
@@ -689,23 +773,37 @@ Approval gates:
 
 ## Открытые вопросы
 
+- Решено: единственным writable owner project lifecycle identity, current path,
+  dirty state и restore guard в Phase 1 является `ProjectSession`.
+  `ProjectStateService` и `CalculationStateService` теперь forwarding-only
+  compatibility surfaces.
 - Должен ли будущий OpenCode skill храниться внутри репозитория или в
   пользовательской конфигурации OpenCode?
 - Каков обязательный срок read-совместимости старых `.smc`?
 - Нужно ли гарантировать transactional in-memory restore при ошибке одного из
-  модулей или на первом этапе сохранить текущее поведение?
+  модулей или на следующем этапе сохранить текущее поведение?
 - Как именно существующий `CalculationContext` должен соотноситься с будущим
   `ProjectSession`: остаться отдельным seam, стать facade или быть заменённым?
-- Task 6 остаётся обязательным browser gate; Task 1 absence baseline и Task 2
-  generated-path absence не заменяют browser harness verification.
+  Phase 1 оставила `CalculationContext` без изменений.
+- Какой модуль-срез (Climate, Construction, Thermal, Hydraulics) мигрировать
+  следующим после Phase 1, и какой будет контракт доступа через `ProjectSession`?
+- Task 6 (browser/runtime QA harness) остаётся обязательным для Phase 2+;
+  Phase 1 relied on test-harness characterization tests.
 
 ## Следующее действие
 
-Текущий authoritative next action: Phase 0.5 Architecture Explorer MVP завершена
-и принята. Phase 1 не начата и не авторизована; любая работа Phase 1 требует
-отдельного плана, review, owner plan approval и execution authorization.
-Deferred correction, amendment F1-F5 и original parent Task 5 остаются
-deferred/blocked до отдельной авторизации.
+Текущий authoritative next action:
+do not continue Task 10 and do not run Phase 1 final verification wave F1-F4.
+Phase 1 implementation Tasks 1-10 and Final Verification Wave F1-F4 are accepted
+by the execution workflow after the nested restore lease correction, Task 10
+re-check, and independent final reviews. The correction is verified: regression
+disposal, repeated disposal, and final-exit subscriber exception semantics;
+`ProjectSession` no longer stores `_currentLease` and returns a fresh lease per
+successful `BeginProjectRestore()` call. Targeted/affected/persistence/build/full
+Release gates are green. Task 10 model/runtime/widget re-checks are green without
+rewriting the model/maps/widget. F1-F4 all returned `VERDICT: APPROVE`. Phase 1 is
+ready for owner acceptance, but Phase 2 planning/implementation remains blocked
+until the owner explicitly accepts the result and authorizes the next workflow.
 
 Нижеследующие записи в этом разделе сохранены как исторические next-action
 checkpoints. Они superseded authoritative инструкцией выше и не разрешают
@@ -812,6 +910,251 @@ on 2026-08-01. Failed receipt
 
 ## Журнал решений
 
+- 2026-08-04: Phase 1 Task 8 GREEN implementation completed.
+  - No production code changes were required; the implementation from Tasks 4-7
+    already preserves lifecycle orchestration, partial-failure semantics, and
+    `.smc` compatibility.
+  - `ProjectLifecycleFlowCharacterizationTests` pass 6/6, proving successful load,
+    second-load identity replacement, post-load edit dirtiness, repeated
+    reset/load cycle event hygiene, and injected early/late restore failures that
+    leave partial state and clear the guard without rollback.
+  - Full Release test suite passes 1565/1566 with one pre-existing skip
+    (`ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile`).
+  - Targeted owner/guard/flow lane: 46/46; affected lifecycle lane: 100/101 (1
+    skipped); persistence lane: 18/18; Debug/Release production builds: 0 errors.
+- 2026-08-04: Phase 1 Task 10 GREEN — shared architecture dossier and widget updated.
+  - Updated `docs/architecture-migration/maps/architecture-model.json` to record
+    `ProjectSession` lifecycle ownership, 10 Phase 1 evidence entries, migrated
+    `ST-001`/`ST-002`/`ST-004`/`ST-005`, new `DRN-PS`/`DRN-IPS` nodes, and 9 Phase 1
+    DI/runtime/state/reactive edges.
+  - Refreshed all six filtered views (`compile-time.md`, `di-runtime.md`,
+    `state-ownership.md`, `reactive.md`, `persistence.md`, `user-flow.md`) with
+    Phase 1 overlay sections and updated frontmatter.
+  - Regenerated `docs/architecture-migration/architecture-widget.html`
+    (15,100,929 bytes, SHA-256 `A9505F6B5957FCCCA40E6FB6F9141E4CA65CF0E98985E1A0DD854A1DEDE27893`);
+    `generate-widget.mjs --check` passes 14/14.
+  - `verify-widget.mjs` model-v2 (33 assertions, 21 mutations) and runtime-v2
+    (47 assertions, 20 mutations) both PASS.
+  - Added evidence receipt `dossier-update.md` and updated `TASK_CONTEXT.md`
+    workflow state, decisions, open questions, next action, and this journal.
+  - No production code, test code, `.smc` schema, packages, UI, or installer
+    changes occurred in Task 10.
+  - SUPERSEDED 2026-08-05: this Task 10 GREEN claim is invalid. A read-only audit
+    found the nested restore lease defect in `ProjectSession.BeginProjectRestore()`;
+    Task 10 was stopped and F1-F4 must not run until regression, fix, gates and
+    Tasks 4-9 re-evaluation complete.
+  
+- 2026-08-05: BLOCKED — Phase 1 Task 10/F-wave stopped because
+  `ProjectSession.BeginProjectRestore()` has a nested lease correctness defect.
+  Nested calls return the same `_currentLease`; disposing inner and outer scopes
+  can leave `_restoreDepth == 1` and `IsLoadProjectInProgress == true`. This
+  invalidates prior accepted/GREEN status for Tasks 4, 6, 8 and 9 despite green
+  suites, and makes Task 10 dossier/widget updates non-authoritative. Active plan
+  checkboxes were returned to re-evaluation state for Tasks 4-10. Required next
+  action: add the nested restore regression, minimally fix lease creation/disposal
+  semantics, rerun targeted/affected/persistence/build gates, then re-evaluate
+  Tasks 4-9 and only then reconsider Task 10/F1-F4.
+
+- 2026-08-05: nested restore lease correction completed and independently
+  verified by Atlas after the single owner-authorized narrow executor. Added
+  regression coverage in `ProjectSessionTests.cs` for distinct nested leases,
+  inner-then-outer disposal, outer-then-inner disposal, repeated disposal no-op,
+  and final-exit subscriber exception semantics. Minimal production fix in
+  `ProjectSession.cs`: removed shared `_currentLease`, returns a new
+  `ProjectRestoreLease(this)` for every successful `BeginProjectRestore()`, and
+  keeps only canonical `_restoreDepth`. LSP diagnostics still fail because the
+  harness rejects the workspace path, matching the known tooling issue. Gates:
+  targeted owner/guard 43/43, affected lifecycle 83/84 with one existing skipped
+  real-project test, persistence 18/18, Debug build 0 warnings/0 errors, Release
+  build 0 warnings/0 errors, full Release suite 1568/1569 with one existing skip.
+  Tasks 4, 6, 8 and 9 are re-evaluated as accepted; Task 5 and Task 7 remain
+  accepted because forwarding/DI invariants still pass through the same gates.
+  Task 10 remains pending re-QA/update because its dossier/widget outputs were
+  generated before this correction; F1-F4 remain blocked.
+
+- 2026-08-05: Task 10 re-accepted after nested restore lease correction. Atlas
+  re-ran model/widget checks without launching additional subagents: model-v2
+  PASS with 33 assertions and 21 mutations, runtime-v2 PASS with 47 assertions
+  and 20 mutations, and `generate-widget.mjs --check` PASS with 14/14 checks.
+  The generated widget remained byte-stable with SHA-256
+  `9C5188BAC257D9CAC51045C0D2186D03A4A2E6B92AFFBF0519B3B3737BBCED9F`; no model,
+  maps or widget rewrite was necessary. `dossier-update.md` was updated with the
+  post-correction re-check and correction gate counts. Active plan checkbox Task
+  10 marked completed again. F1-F4 were not run.
+
+- 2026-08-05: Phase 1 Final Verification Wave completed and approved.
+  - F1 plan compliance audit: `VERDICT: APPROVE` in
+    `docs/architecture-migration/evidence/phase-1-project-session-shell/f1-plan-compliance.md`.
+  - F2 code quality and architecture review: `VERDICT: APPROVE` in
+    `docs/architecture-migration/evidence/phase-1-project-session-shell/f2-code-quality-architecture.md`.
+  - F3 real lifecycle QA: `VERDICT: APPROVE` in
+    `docs/architecture-migration/evidence/phase-1-project-session-shell/f3-real-lifecycle-qa.md`.
+  - F4 scope fidelity and dirty-worktree audit: `VERDICT: APPROVE` in
+    `docs/architecture-migration/evidence/phase-1-project-session-shell/f4-scope-fidelity-dirty-worktree.md`.
+  - Active plan checkboxes Tasks 1-10 and F1-F4 are all marked completed.
+  - Workflow stage moved to `awaiting-owner-acceptance`; Phase 1 is ready for
+    owner acceptance, not self-accepted. Phase 2 remains blocked until explicit
+    owner acceptance and separate authorization.
+  - Evidence: `docs/architecture-migration/evidence/phase-1-project-session-shell/lifecycle-user-flows.md`.
+  - Active plan checkbox Task 8 marked completed.
+  - Next: Task 9 — full gates and scope/single-owner invariant audit.
+
+- 2026-08-04: Phase 1 Task 7 GREEN implementation completed.
+  - `ProjectSession` is registered once as a singleton and mapped to
+    `IProjectSession`, `IProjectInfoService`, `IProjectStateService`, and
+    `IMarkDirtyService` in `AddApplicationServices`.
+  - `ResultsViewModel` and `CalculationStateService` constructors consume the
+    canonical `IProjectSession` through DI.
+  - Added `DependencyInjection_LifecycleConsumersShareCanonicalSession` to
+    `ProjectSessionTests`; it proves `ResultsViewModel` and
+    `CalculationStateService` receive the same `IProjectSession` instance.
+  - `DiRegistrationTests` pass 8/8; no circular dependencies or transient
+    adapters introduced.
+  - Targeted owner/guard lane: 40/40; affected lifecycle lane: 100/101 (1
+    skipped); persistence lane: 18/18; Debug/Release production builds: 0 errors.
+  - Evidence: `docs/architecture-migration/evidence/phase-1-project-session-shell/di-runtime.md`.
+  - Active plan checkbox Task 7 marked completed.
+  - Next: Task 8 — preserve lifecycle orchestration, partial-failure semantics,
+    and `.smc` compatibility through the new owner.
+
+- 2026-08-04: Phase 1 Task 6 GREEN implementation completed.
+  - Moved restore-guard ownership to `ProjectSession`.
+  - `CalculationStateService` now injects `IProjectSession`, delegates
+    `IsLoadProjectInProgress` reads to it, and implements the compatibility
+    lease setter rule with one `_restoreLease` field and no local bool/depth
+    store.
+  - `ResultsViewModel` now accepts `IProjectSession` and uses
+    `using var restoreScope = _projectSession.BeginProjectRestore()` in
+    `LoadProjectDataAsync`; `ProjectNumber`/`ProjectObject` dirty checks use the
+    canonical session guard directly.
+  - Added `ProjectStateService.Session` exposure so test adapters can share the
+    canonical session during the transition; updated test helpers to construct
+    `CalculationStateService` with the same session as `ResultsViewModel`.
+  - `SetPipeSpacing` source validation preserved; legacy guard tests pass.
+  - Targeted owner/guard lane: 39/39; affected lifecycle lane: 100/101 (1
+    skipped); persistence lane: 18/18; Debug/Release production builds: 0 errors.
+  - Evidence: `docs/architecture-migration/evidence/phase-1-project-session-shell/restore-guard.md`.
+  - Active plan checkbox Task 6 marked completed.
+  - Next: Task 7 — DI singleton lifecycle graph registration and consumer rewire.
+
+- 2026-08-04: Phase 1 Task 5 GREEN implementation completed.
+  - Converted `src/Services/Results/ProjectStateService.cs` into a forwarding-only
+    compatibility adapter backed by a single `IProjectSession` reference.
+  - Removed all mutable lifecycle fields from `ProjectStateService`; identity,
+    path, dirty and guard state now live only in `ProjectSession`.
+  - `ProjectStateServiceTests` continue to pass; the class is retained as a
+    compatibility surface rather than deleted.
+  - Targeted adapter/guard lane: 35/36 passed; the single remaining failure is
+    `CalculationStateService_HasNoLocalRestoreGuardBackingField`, which belongs to
+    Task 6.
+  - Affected lifecycle lane (100/101) and persistence lane (18/18) remain green.
+  - Evidence: `docs/architecture-migration/evidence/phase-1-project-session-shell/compatibility-adapters.md`.
+  - Active plan checkbox Task 5 marked completed.
+  - Next: Task 6 — centralize restore guard in `ProjectSession`.
+
+- 2026-08-04: Phase 1 Task 4 GREEN implementation completed.
+  - Created `src/Services/Project/IProjectSession.cs` and `src/Services/Project/ProjectSession.cs`
+    with the exact lifecycle-only contract: initial values, ordinal equality/idempotency,
+    `ArgumentNullException` for null identity setters, single event per real mutation,
+    and nested exception-safe `BeginProjectRestore()` leases.
+  - Registered `ProjectSession` as singleton and mapped `IProjectSession`,
+    `IProjectInfoService`, `IProjectStateService`, and `IMarkDirtyService` to the same
+    instance in `src/Configuration/ServiceCollectionExtensions.cs`.
+  - `ProjectStateService` and `CalculationStateService` remain untouched; their duplicate
+    lifecycle stores will be removed in Tasks 5 and 6.
+  - Fixed `ProjectLifecycleFlowCharacterizationTests.cs` test helper signature
+    (`IProjectStateService` -> `ProjectStateService`) to satisfy both
+    `IProjectStateService` and `IMarkDirtyService` consumers during the transitional
+    contract surface.
+  - Evidence: `docs/architecture-migration/evidence/phase-1-project-session-shell/project-session-contract.md`.
+  - Active plan checkboxes Tasks 3 and 4 marked completed.
+  - Next: Task 5 (legacy contract forwarding-only surfaces and removing duplicate
+    lifecycle stores).
+
+- 2026-08-04: Phase 1 Task 2 lifecycle-owner and compatibility RED tests завершены
+  sequentially after Task 1 acceptance. Added tests are limited to
+  `tests/SnowMeltingCalculator.Tests/Services/Project/ProjectSessionTests.cs` and
+  `ProjectSessionLegacyStoreGuardTests.cs`; evidence is
+  `docs/architecture-migration/evidence/phase-1-project-session-shell/tdd-owner-red.md`.
+  Atlas re-ran the targeted command and confirmed expected RED compile failure
+  `CS0246` for missing future `IProjectSession`; no production files under `src/`
+  were edited. Active plan checkbox Task 2 marked completed. Next sequential
+  task is Task 3 RED lifecycle-flow/failure characterization; Task 4 GREEN
+  implementation remains forbidden until Task 3 is complete.
+- 2026-08-04: владелец принял Phase 1 Task 1 baseline checkpoint сообщением
+  `если да - то принимаю` после узкой read-only финализации count mismatch.
+  Разрешённый вопрос `247 vs 248` решён: `baseline-git-status.bin` содержит 247
+  non-empty status records, trailing NUL создаёт 248 split parts, rename/copy
+  companion records отсутствуют, исходная формулировка `248` была factual receipt
+  error. `baseline.md` исправлен только в factual count строках, checkbox Task 1
+  в active plan отмечен completed. Production code/tests не изменялись; Task 2 и
+  Task 3 не начаты.
+- 2026-08-04: владелец отдельной явной командой
+  `/architecture-start phase-1-project-session-shell` авторизовал исполнение
+  reviewed canonical plan SHA-256
+  `011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948`.
+  Перед переходом повторно прочитаны repository/dossier instructions, context и
+  active plan; подтверждены requested/current phase equality, `Stage =
+  approved`, owner approval, terminal Momus `[OKAY]`, identities `Metis - Plan
+  Consultant`, `Prometheus - Plan Builder`, `Momus - Plan Critic`, Git root
+  `D:/IA/ace v.2` и существующий большой dirty worktree. Workflow переведён в
+  `executing`, execution authorization записана. Первый и единственный
+  разрешённый шаг — Task 1 read-only baseline capture; production code и tests
+  до его независимой приёмки не изменяются.
+- 2026-08-04: по owner stop-request после текущего verifier-вызова новые agents
+  не запускались и следующий пункт плана не начинался. Фактически в
+  `docs/architecture-migration/evidence/phase-1-project-session-shell/` уже
+  существуют Task 1 baseline artifacts, включая `baseline.md`,
+  `baseline-git-status.bin`, build/test logs и post/final status binaries.
+  Однако independent verifier session `ses_032cb3c54ffehlXmlNcDW7yXjN` не дошла
+  до terminal verdict: её результат содержит только частичную проверку
+  root/HEAD/branch/upstream/ahead-behind и намерение выполнить binary/log
+  verification. Поэтому Task 1 остаётся unaccepted/in progress; Task 2, Task 3 и
+  любые production/test edits остаются запрещены до завершения независимой
+  проверки Task 1.
+- 2026-08-04: владелец явно утвердил reviewed canonical Phase 1 plan
+  `docs/architecture-migration/plans/phase-1-project-session-shell.md` с
+  SHA-256 `011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948`.
+  Перед записью подтверждены `Current phase = phase-1-project-session-shell`,
+  `Stage = awaiting-owner-approval`, exact plan hash, Sisyphus PASS, terminal
+  Momus `[OKAY]` и реальные identities `Metis - Plan Consultant`, `Prometheus -
+  Plan Builder` и `Momus - Plan Critic`; Git root и защищённый dirty worktree
+  также повторно проверены. Workflow переведён только в `approved`, `Execution
+  authorization` оставлена `pending`; production code, tests, maps, model и
+  widget не изменялись. Следующий отдельный gate:
+  `/architecture-start phase-1-project-session-shell`.
+- 2026-08-03: owner передал separate primary Plan Mode session
+  `ses_037ba1831ffep3dtJaDlFJeHVR`; metadata подтверждает
+  `Prometheus - Plan Builder`, а final artifact находился в
+  `.omo/plans/phase-1-project-session-shell.md`. Первый Sisyphus review нашёл
+  неверный `$start-work` execution handoff. Первый Momus review в session
+  `ses_0379213acffeHdyOTC2EpH6I3K` вернул `[REJECT]`, потому что Task 4 ссылалась
+  на отсутствующий `.omo/drafts/phase-1-project-session-shell.md`. Та же primary
+  Prometheus session встроила exact public `IProjectSession` API, null/event/
+  idempotency и nested exception-safe restore lease semantics, убрала missing
+  ledger dependency и закрепила обязательные `/architecture-approve` затем
+  `/architecture-start` gates без `$start-work`/PR/ship bypass. Corrected source
+  и repository import byte-identical, SHA-256
+  `011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948`.
+  Sisyphus review после correction дал PASS; continued Momus session identity
+  подтверждена как `Momus - Plan Critic` и вернула terminal `[OKAY]`. Workflow
+  переведён только в `Stage = awaiting-owner-approval`; production code, tests,
+  maps, model и widget не изменялись. Следующий отдельный gate:
+  `/architecture-approve phase-1-project-session-shell`.
+- 2026-08-03: после явного запроса продолжить planning workflow завершён
+  Phase 1 Metis pre-analysis в существующей session
+  `ses_037db6f56ffe7zEyJPEiRLvk4t`; metadata подтверждает agent
+  `Metis - Plan Consultant`. Metis зафиксировала source-backed current seams,
+  single-writer и restore/reactive risks, обязательную characterization сетку,
+  dirty-worktree protections, narrow shell-only scope и пять owner decisions.
+  Git root повторно подтверждён как `D:/IA/ace v.2`; branch `master` опережает
+  `origin/master` на пять commits, существующий dirty worktree сохранён без
+  staging/revert/overwrite. Phase 1 plan artifact отсутствует. Workflow
+  planning-only переведён с завершённой parent Phase 0.5 на
+  `Current phase = phase-1-project-session-shell`,
+  `Stage = awaiting-primary-plan`. Следующий gate - отдельная primary Plan Mode
+  session с `/architecture-draft phase-1-project-session-shell`; implementation,
+  owner plan approval и execution authorization не подразумеваются.
 - 2026-08-03: владелец exact statements `YES по всем 8 вопросам. Результат Phase
   0.5 Architecture Explorer MVP принимаю.` и `Phase 0.5 принята.` ответил `YES`
   на все восемь owner questions и явно принял результат Architecture Explorer
@@ -1537,4 +1880,32 @@ on 2026-08-01. Failed receipt
   вернуть workflow только к original Task 5. Предыдущий failed start не стал
   authorization: `V2 amendment execution authorization` остаётся `pending`, ни
   один implementation task не запускался. Требуется новый явный
-  `/architecture-start phase-0.5-model-driven-architecture-widget-v2-amendment`.
+   `/architecture-start phase-0.5-model-driven-architecture-widget-v2-amendment`.
+
+- 2026-08-05: Phase 1 Task 10 dossier/widget implementation completed; Final
+  Verification Wave F1-F4 was not started and the plan checkbox was not changed.
+  - Canonical `maps/architecture-model.json` validates with `model-v2` (33
+    assertions, 21 mutations) and `runtime-v2` (47 assertions, 20 mutations).
+    It records `ProjectSession` as current owner of lifecycle `ST-001`, `ST-002`,
+    `ST-004`, and `ST-005`; legacy interfaces are aliases/forwarders over the
+    same owner, while `CalculationContext`, Climate, Construction, Thermal,
+    Hydraulics, Results projection, persistence schema, formulas, UI, packages,
+    installers, and release artifacts remain unchanged by this phase.
+  - All six filtered views now carry the Phase 1 lifecycle overlay. Coverage,
+    persistence compatibility, target invariants, and state inventory retain
+    prior history and record accepted v1.0/v1.1 fixture behavior, current
+    partial restore semantics, and deferred transactional restore. `ST-021` is
+    corrected factually: `CalculationContext.Reset()` does not assign
+    `ThermalInputs`; no runtime behavior changed.
+  - `widget/generate-widget.mjs` now labels the ProjectSession lifecycle shell
+    implemented while leaving module slices target-only. The canonical
+    `architecture-widget.html` was regenerated only through the generator.
+    Generator `--check` passed 14/14 deterministic/reference checks with
+    SHA-256 `9C5188BAC257D9CAC51045C0D2186D03A4A2E6B92AFFBF0519B3B3737BBCED9F`.
+  - Final Task 10 local gate: `dotnet build src/SnowMeltingCalculator.csproj -c
+    Debug` exit 0, `0 warnings, 0 errors`. Parent QA results are recorded without
+    re-running final waves: owner/guard 40 passed; flow 83 passed, 1 skipped;
+    persistence 18 passed; DI 8 passed; full Release 1565 passed, 1 skipped.
+  - Evidence: `docs/architecture-migration/evidence/phase-1-project-session-shell/dossier-update.md`.
+  - Next: independent Task 10 QA by the parent orchestrator; only after its
+    acceptance may it dispatch F1-F4.
