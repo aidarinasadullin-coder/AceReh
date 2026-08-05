@@ -10,6 +10,7 @@
 using System;
 using SnowMeltingCalculator.Models.Enums;
 using SnowMeltingCalculator.Models.Navigation;
+using SnowMeltingCalculator.Services.Project;
 
 namespace SnowMeltingCalculator.Services.Navigation
 {
@@ -28,6 +29,29 @@ namespace SnowMeltingCalculator.Services.Navigation
         private string _hydraulicsValidationMessage = string.Empty;
 
         private int _pipeSpacing = 200; // Шаг укладки по умолчанию
+
+        private readonly IProjectSession _projectSession;
+        private IDisposable? _restoreLease;
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Создаёт сервис состояния расчёта с собственным экземпляром сессии проекта.
+        /// </summary>
+        public CalculationStateService()
+            : this(new ProjectSession())
+        {
+        }
+
+        /// <summary>
+        /// Создаёт сервис состояния расчёта, делегирующий guard загрузки указанной сессии.
+        /// </summary>
+        public CalculationStateService(IProjectSession projectSession)
+        {
+            _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
+        }
 
         #endregion
 
@@ -114,7 +138,28 @@ namespace SnowMeltingCalculator.Services.Navigation
         public event EventHandler<int>? PipeSpacingChanged;
 
         /// <inheritdoc/>
-        public bool IsLoadProjectInProgress { get; set; }
+        public bool IsLoadProjectInProgress
+        {
+            get => _projectSession.IsLoadProjectInProgress;
+            set
+            {
+                if (value)
+                {
+                    if (_restoreLease != null)
+                    {
+                        return;
+                    }
+
+                    _restoreLease = _projectSession.BeginProjectRestore();
+                }
+                else
+                {
+                    var lease = _restoreLease;
+                    _restoreLease = null;
+                    lease?.Dispose();
+                }
+            }
+        }
 
         /// <inheritdoc/>
         public void SetPipeSpacing(int spacing)
