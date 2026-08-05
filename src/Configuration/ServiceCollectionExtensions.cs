@@ -168,11 +168,12 @@ namespace SnowMeltingCalculator.Configuration
         /// </summary>
         public static IServiceCollection AddResultsModule(this IServiceCollection services)
         {
-            // Services
-            services.AddSingleton<ProjectStateService>();
-            services.AddSingleton<IProjectInfoService>(sp => sp.GetRequiredService<ProjectStateService>());
-            services.AddSingleton<IProjectStateService>(sp => sp.GetRequiredService<ProjectStateService>());
-            services.AddSingleton<IMarkDirtyService>(sp => sp.GetRequiredService<ProjectStateService>());
+            // Services - Project lifecycle aggregate root and legacy compatibility views
+            services.AddSingleton<ProjectSession>();
+            services.AddSingleton<IProjectSession>(sp => sp.GetRequiredService<ProjectSession>());
+            services.AddSingleton<IProjectInfoService>(sp => sp.GetRequiredService<ProjectSession>());
+            services.AddSingleton<IProjectStateService>(sp => sp.GetRequiredService<ProjectSession>());
+            services.AddSingleton<IMarkDirtyService>(sp => sp.GetRequiredService<ProjectSession>());
             services.AddSingleton<IPdfExportService, PdfExportService>();
             services.AddSingleton<ICalculationReportDataBuilder, CalculationReportDataBuilder>();
             services.AddSingleton<ICalculationReportMarkdownRenderer, CalculationReportMarkdownRenderer>();
