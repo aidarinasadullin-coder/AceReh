@@ -741,11 +741,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
                 .Returns(Task.CompletedTask);
 
-            var calculationStateService = new CalculationStateService();
+            var calculationStateService = new CalculationStateService(projectStateService.Session);
             var calculationContext = new CalculationContext();
 
             return new ResultsViewModel(
                 projectStateService,
+                projectStateService.Session,
                 projectStateService,
                 dialogService,
                 new Mock<IPdfExportService>().Object,
