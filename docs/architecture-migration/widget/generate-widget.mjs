@@ -1054,9 +1054,9 @@ const buildProjectSession = (baseState) => {
   if (!targetLimitation) throw new Error("project-session missing LIM-003 target limitation");
 
   return Object.freeze({
-    status: "unimplemented",
-    status_label: "Target / не реализовано",
-    status_copy: `${targetLimitation.statement} Целевые владельцы ниже являются принятыми намерениями, а не наблюдаемой реализацией.`,
+    status: "implemented",
+    status_label: "Реализовано: lifecycle shell",
+    status_copy: `${targetLimitation.statement} Реализованы только lifecycle values ProjectSession; целевые module slices ниже остаются принятыми намерениями, а не наблюдаемой реализацией.`,
     lifecycle: Object.freeze(PROJECT_SESSION_IDS.lifecycle.map(stateRecord)),
     slices: Object.freeze(PROJECT_SESSION_IDS.slices.map((slice) => Object.freeze({ name: slice.name, records: Object.freeze(slice.ids.map(stateRecord)) }))),
     outside_root: Object.freeze(PROJECT_SESSION_IDS.outside_root.map(stateRecord)),
@@ -1318,7 +1318,7 @@ const check = async () => {
     requireCheck("current-target-diff", payload.metadata.accepted_modes.join("|") === ACCEPTED_MODE_ORDER.join("|")),
     requireCheck("six-accepted-views", payload.metadata.accepted_views.length === 6 && payload.metadata.accepted_views.join("|") === VIEWS.join("|")),
     requireCheck("diff-stable-id-and-direction", diffRows.every((row) => typeof row.id === "string" && row.id.length > 0 && directions.has(row.direction))),
-    requireCheck("projectsession-target-unimplemented", payload.presentation.project_session.status === "unimplemented"),
+    requireCheck("projectsession-lifecycle-implemented", payload.presentation.project_session.status === "implemented"),
     requireCheck("lifecycle-and-four-slices", payload.presentation.project_session.lifecycle.length > 0 && payload.presentation.project_session.slices.length === 4),
     requireCheck("eight-core-flow-groups", payload.presentation.project_session.flow_groups.length === 8),
     requireCheck("displayed-references-resolve", allReferencesResolve(payload)),
