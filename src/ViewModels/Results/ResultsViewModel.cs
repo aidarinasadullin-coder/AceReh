@@ -26,6 +26,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
     public partial class ResultsViewModel : ObservableObject
     {
         private readonly IProjectStateService _projectStateService;
+        private readonly IProjectSession _projectSession;
         private readonly IMarkDirtyService _markDirtyService;
         private readonly IDialogService _dialogService;
         private readonly IPdfExportService _pdfExportService;
@@ -65,7 +66,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 if (_projectStateService.ProjectNumber == value) return;
                 _projectStateService.ProjectNumber = value;
                 OnPropertyChanged();
-                if (_isResetting || _calculationStateService.IsLoadProjectInProgress) return;
+                if (_isResetting || _projectSession.IsLoadProjectInProgress) return;
                 _markDirtyService.MarkDirty();
             }
         }
@@ -85,7 +86,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 if (_projectStateService.ProjectObject == value) return;
                 _projectStateService.ProjectObject = value;
                 OnPropertyChanged();
-                if (_isResetting || _calculationStateService.IsLoadProjectInProgress) return;
+                if (_isResetting || _projectSession.IsLoadProjectInProgress) return;
                 _markDirtyService.MarkDirty();
             }
         }
@@ -477,6 +478,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         public ResultsViewModel(
             IProjectStateService projectStateService,
+            IProjectSession projectSession,
             IMarkDirtyService markDirtyService,
             IDialogService dialogService,
             IPdfExportService pdfExportService,
@@ -494,6 +496,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             HydraulicSummaryBuilder hydraulicSummaryBuilder)
         {
             _projectStateService = projectStateService ?? throw new ArgumentNullException(nameof(projectStateService));
+            _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _pdfExportService = pdfExportService ?? throw new ArgumentNullException(nameof(pdfExportService));
@@ -1574,7 +1577,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         {
             if (data == null) return;
 
-            _calculationStateService.IsLoadProjectInProgress = true;
+            using var restoreScope = _projectSession.BeginProjectRestore();
 
             try
             {
@@ -1603,7 +1606,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             }
             finally
             {
-                _calculationStateService.IsLoadProjectInProgress = false;
+                // restoreScope.Dispose() clears the canonical guard even on exception.
             }
         }
 
