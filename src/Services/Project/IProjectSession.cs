@@ -4,11 +4,16 @@ using System.ComponentModel;
 namespace SnowMeltingCalculator.Services.Project
 {
     /// <summary>
-    /// Aggregate root of the current project. Owns only lifecycle state:
-    /// identity, current file path, dirty flag, and the restore-in-progress guard.
+    /// Aggregate root of the current project. Owns lifecycle state:
+    /// identity, current file path, dirty flag, restore-in-progress guard,
+    /// and the canonical Climate state slice.
     /// </summary>
     public interface IProjectSession : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Канонический срез климатического состояния текущего проекта.
+        /// </summary>
+        IProjectSessionClimateState ClimateState { get; }
         /// <summary>
         /// Номер проекта.
         /// </summary>

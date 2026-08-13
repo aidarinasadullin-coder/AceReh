@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using SnowMeltingCalculator.Core;
+using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Services.Results;
 
 namespace SnowMeltingCalculator.Services.Project
@@ -19,6 +21,15 @@ namespace SnowMeltingCalculator.Services.Project
         private bool _isDirty;
         private bool _isLoadProjectInProgress;
         private int _restoreDepth;
+        private readonly ProjectSessionClimateState _climateState;
+
+        /// <inheritdoc />
+        public IProjectSessionClimateState ClimateState => _climateState;
+
+        public ProjectSession(IClimateData? climateData = null, CalculationContext? calculationContext = null)
+        {
+            _climateState = new ProjectSessionClimateState(this, climateData, calculationContext);
+        }
 
         /// <inheritdoc />
         public string ProjectNumber
