@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using SnowMeltingCalculator.Configuration;
+using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
@@ -33,6 +34,21 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             Assert.That(_session.CurrentFilePath, Is.Null);
             Assert.That(_session.IsDirty, Is.False);
             Assert.That(_session.IsLoadProjectInProgress, Is.False);
+        }
+
+        [Test]
+        public void ProjectSession_ClimateState_ReturnsStableCanonicalOwner()
+        {
+            var first = _session.ClimateState;
+            var second = _session.ClimateState;
+
+            Assert.That(first, Is.SameAs(second));
+
+            first.ApplyIndividualEdit(
+                new ClimateEdit(ClimateEditField.AirTemperature, -12.5),
+                ClimateMutationOrigin.User);
+
+            Assert.That(second.Snapshot.AirTemperature, Is.EqualTo(-12.5));
         }
 
         #endregion
