@@ -1,3 +1,8 @@
+using System;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("SnowMeltingCalculator.Tests")]
+
 namespace SnowMeltingCalculator.Models.Climate
 {
     /// <summary>
@@ -56,19 +61,20 @@ namespace SnowMeltingCalculator.Models.Climate
     /// </summary>
     public class ClimateData : IClimateData
     {
-        public string SelectedCity { get; set; } = string.Empty;
-        public string SelectedRegion { get; set; } = string.Empty;
-        public double AirTemperature { get; set; }
-        public double ColdFiveDayTemperature { get; set; }
-        public double WindSpeed { get; set; }
-        public double Humidity { get; set; }
-        public double SnowfallIntensity { get; set; }
-        public ClimateZone Zone { get; set; }
+        public string SelectedCity { get; internal set; } = string.Empty;
+        public string SelectedRegion { get; internal set; } = string.Empty;
+        public double AirTemperature { get; internal set; }
+        public double ColdFiveDayTemperature { get; internal set; }
+        public double WindSpeed { get; internal set; }
+        public double Humidity { get; internal set; }
+        public double SnowfallIntensity { get; internal set; }
+        public ClimateZone Zone { get; internal set; }
 
         public event EventHandler<ClimateDataChangedEventArgs>? DataChanged;
 
         /// <summary>
-        /// Вызвать событие изменения данных
+        /// Вызвать событие изменения данных. Остаётся public для совместимости;
+        /// в production должен вызываться только через утверждённый projection updater.
         /// </summary>
         public void RaiseDataChanged(string propertyName, object? oldValue, object? newValue, bool isValid = true)
         {
@@ -79,6 +85,31 @@ namespace SnowMeltingCalculator.Models.Climate
                 NewValue = newValue,
                 IsValid = isValid
             });
+        }
+
+        /// <summary>
+        /// Утверждённый projection updater: обновляет совместимую проекцию из источника
+        /// и один раз поднимает <see cref="DataChanged"/>. Не является вторым canonical owner.
+        /// </summary>
+        /// <param name="source">Источник климатических значений (read-only DTO/projection).</param>
+        /// <param name="isValid">Признак валидности для аргументов события.</param>
+        internal void ApplyProjection(IClimateData source, bool isValid = true)
+        {
+            if (source is null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            SelectedCity = source.SelectedCity;
+            SelectedRegion = source.SelectedRegion;
+            AirTemperature = source.AirTemperature;
+            ColdFiveDayTemperature = source.ColdFiveDayTemperature;
+            WindSpeed = source.WindSpeed;
+            Humidity = source.Humidity;
+            SnowfallIntensity = source.SnowfallIntensity;
+            Zone = source.Zone;
+
+            RaiseDataChanged("Sync", null, null, isValid);
         }
 
         /// <summary>
