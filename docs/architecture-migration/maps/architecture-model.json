@@ -8808,9 +8808,11 @@
               "ST-006",
               "ST-018"
             ],
-            "trigger": "Climate",
-            "effect": "Circuits handler updates then calls CalculateAllCollectors",
+            "trigger": "changed canonical ClimateState completion publishes CalculationContext.Climate once",
+            "effect": "ClimateData projection updates once, CalculationContext publishes once, Circuits consumes one authoritative invalidation path without duplicate recalculation",
             "participants": [
+              "ProjectSessionClimateState.CompleteMutation",
+              "ClimateData.ApplyProjection",
               "CalculationContext.ContextChanged",
               "Circuits handler",
               "CalculateAllCollectors"
@@ -8819,7 +8821,9 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-RE"
+            "EV-RE",
+            "EV-P2-CLIMATE-REACTIVE",
+            "EV-P2-CLIMATE-GATES"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -8843,9 +8847,11 @@
               "ST-006",
               "ST-018"
             ],
-            "trigger": "Climate",
-            "effect": "Circuits handler updates then calls CalculateAllCollectors",
+            "trigger": "changed canonical ClimateState completion publishes CalculationContext.Climate once",
+            "effect": "ClimateData projection updates once, CalculationContext publishes once, Circuits consumes one authoritative invalidation path without duplicate recalculation",
             "participants": [
+              "ProjectSessionClimateState.CompleteMutation",
+              "ClimateData.ApplyProjection",
               "CalculationContext.ContextChanged",
               "Circuits handler",
               "CalculateAllCollectors"
@@ -8854,7 +8860,9 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-RE"
+            "EV-RE",
+            "EV-P2-CLIMATE-REACTIVE",
+            "EV-P2-CLIMATE-GATES"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10475,10 +10483,10 @@
         "baseline": {
           "canonical": {
             "name": "Climate inputs",
-            "current_owner": "ClimateViewModel/IClimateData seam",
+            "current_owner": "ProjectSession.ClimateState (ProjectSessionClimateState)",
             "target_owner": "ProjectSession.ClimateState",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10486,7 +10494,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P2-CLIMATE-STATE",
+            "EV-P2-CLIMATE-PERSISTENCE",
+            "EV-P2-CLIMATE-GATES"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10499,10 +10510,10 @@
         "current": {
           "canonical": {
             "name": "Climate inputs",
-            "current_owner": "ClimateViewModel/IClimateData seam",
+            "current_owner": "ProjectSession.ClimateState (ProjectSessionClimateState)",
             "target_owner": "ProjectSession.ClimateState",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10510,7 +10521,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P2-CLIMATE-STATE",
+            "EV-P2-CLIMATE-PERSISTENCE",
+            "EV-P2-CLIMATE-GATES"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10529,10 +10543,10 @@
         "baseline": {
           "canonical": {
             "name": "Climate UI state",
-            "current_owner": "ClimateViewModel",
-            "target_owner": "ProjectSession.ClimateState or UI adapter",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "current_owner": "ProjectSession.ClimateState for project Climate values; ClimateViewModel for UI-only search state",
+            "target_owner": "ProjectSession.ClimateState plus WPF adapter-only search state",
+            "migration_status": "migrated/verified for project Climate values",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10540,7 +10554,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P2-CLIMATE-ADAPTER",
+            "EV-P2-CLIMATE-RESTORE",
+            "EV-P2-CLIMATE-GATES"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10553,10 +10570,10 @@
         "current": {
           "canonical": {
             "name": "Climate UI state",
-            "current_owner": "ClimateViewModel",
-            "target_owner": "ProjectSession.ClimateState or UI adapter",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "current_owner": "ProjectSession.ClimateState for project Climate values; ClimateViewModel for UI-only search state",
+            "target_owner": "ProjectSession.ClimateState plus WPF adapter-only search state",
+            "migration_status": "migrated/verified for project Climate values",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10564,7 +10581,10 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P2-CLIMATE-ADAPTER",
+            "EV-P2-CLIMATE-RESTORE",
+            "EV-P2-CLIMATE-GATES"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -11672,11 +11692,14 @@
               "user-flow"
             ]
           },
-          "status": "partial",
+          "status": "verified",
           "confidence": "verified",
           "evidence_refs": [
             "EV-CF",
-            "EV-UF"
+            "EV-UF",
+            "EV-P2-CLIMATE-REACTIVE",
+            "EV-P2-CLIMATE-PERSISTENCE",
+            "EV-P2-CLIMATE-GATES"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -13960,6 +13983,48 @@
       "locator": "Task 10 dossier/widget update",
       "confidence": "verified",
       "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P2-CLIMATE-STATE",
+      "path": "docs/architecture-migration/evidence/phase-2-climate-state/climate-state-api.md",
+      "locator": "Task 4 canonical ClimateState API and ProjectSession ownership receipt",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P2-CLIMATE-ADAPTER",
+      "path": "docs/architecture-migration/evidence/phase-2-climate-state/climate-viewmodel-adapter.md",
+      "locator": "Task 6 ClimateViewModel adapter receipt",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P2-CLIMATE-RESTORE",
+      "path": "docs/architecture-migration/evidence/phase-2-climate-state/restore-reset-routing.md",
+      "locator": "Task 7 restore/reset routing receipt",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P2-CLIMATE-PERSISTENCE",
+      "path": "docs/architecture-migration/evidence/phase-2-climate-state/persistence-results.md",
+      "locator": "Task 8 persistence and Results projection receipt",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P2-CLIMATE-REACTIVE",
+      "path": "docs/architecture-migration/evidence/phase-2-climate-state/downstream-invalidation.md",
+      "locator": "Task 9 one authoritative downstream invalidation receipt",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P2-CLIMATE-GATES",
+      "path": "docs/architecture-migration/evidence/phase-2-climate-state/affected-gates.md",
+      "locator": "Task 11 accepted gates: targeted 330/329/329/0 and full rerun 1616/1613/1613/0",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
     }
   ],
   "limitations": [
@@ -13975,7 +14040,7 @@
     },
     {
       "id": "LIM-003",
-      "statement": "ProjectSession lifecycle shell is implemented; Climate/Construction/Thermal/Hydraulics state slices remain target-only and are not yet owned by ProjectSession.",
+      "statement": "ProjectSession lifecycle shell and Phase 2 ClimateState slice are implemented; Construction/Thermal/Hydraulics state slices remain target-only and are not yet owned by ProjectSession.",
       "status": "degraded"
     }
   ],
@@ -14005,12 +14070,17 @@
         "reactive",
         "persistence"
       ],
-      "status": "unverified",
+      "status": "verified",
       "evidence": [
         "EV-ST",
-        "EV-RE"
+        "EV-RE",
+        "EV-P2-CLIMATE-STATE",
+        "EV-P2-CLIMATE-ADAPTER",
+        "EV-P2-CLIMATE-PERSISTENCE",
+        "EV-P2-CLIMATE-REACTIVE",
+        "EV-P2-CLIMATE-GATES"
       ],
-      "target_status": "unimplemented"
+      "target_status": "implemented"
     },
     {
       "id": "INV-003",
