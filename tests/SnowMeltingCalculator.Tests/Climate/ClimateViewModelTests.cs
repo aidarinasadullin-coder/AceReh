@@ -1,9 +1,9 @@
 using NUnit.Framework;
-using Moq;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.Services.Climate;
 using SnowMeltingCalculator.Services.Results;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Core;
 using System;
 using System.Threading.Tasks;
@@ -19,15 +19,15 @@ namespace SnowMeltingCalculator.Tests.Climate
         private ClimateViewModel _viewModel = null!;
         private MockClimateDataService _mockService = null!;
         private ClimateData _climateData = null!;
-        private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
+        private ProjectSession _projectSession = null!;
 
         [SetUp]
         public void Setup()
         {
             _mockService = new MockClimateDataService();
             _climateData = new ClimateData();
-            _markDirtyServiceMock = new Mock<IMarkDirtyService>();
-            _viewModel = new ClimateViewModel(_mockService, _climateData, new ClimateValidator(), _markDirtyServiceMock.Object, new CalculationContext());
+            _projectSession = new ProjectSession(_climateData, new CalculationContext());
+            _viewModel = new ClimateViewModel(_mockService, _climateData, new ClimateValidator(), _projectSession);
         }
 
         #region SelectCity Tests
@@ -320,6 +320,37 @@ namespace SnowMeltingCalculator.Tests.Climate
 
             // Assert
             Assert.That(_climateData.AirTemperature, Is.EqualTo(-25));
+            Assert.That(_projectSession.ClimateState.Snapshot.AirTemperature, Is.EqualTo(-25));
+        }
+
+        [Test]
+        public void SameValueSetter_DoesNotEmitCanonicalCompletionOrProjectionUpdate()
+        {
+            _viewModel.AirTemperature = -20;
+            var completions = 0;
+            var projections = 0;
+            _projectSession.ClimateState.Changed += (_, _) => completions++;
+            _climateData.DataChanged += (_, _) => projections++;
+
+            _viewModel.AirTemperature = -20;
+
+            Assert.That(completions, Is.Zero);
+            Assert.That(projections, Is.Zero);
+        }
+
+        [Test]
+        public void RepeatedReset_DoesNotEmitCanonicalCompletionOrProjectionUpdate()
+        {
+            _viewModel.Reset();
+            var completions = 0;
+            var projections = 0;
+            _projectSession.ClimateState.Changed += (_, _) => completions++;
+            _climateData.DataChanged += (_, _) => projections++;
+
+            _viewModel.Reset();
+
+            Assert.That(completions, Is.Zero);
+            Assert.That(projections, Is.Zero);
         }
 
         [Test]

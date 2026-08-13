@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Services.Climate;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
 
 namespace SnowMeltingCalculator.ViewModels.Climate
@@ -20,11 +21,12 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         private readonly IClimateData _climateData;
         private readonly IValidator<IClimateData> _climateValidator;
         private readonly ISearchHistoryService? _historyService;
-        private readonly IMarkDirtyService _markDirtyService;
-        private readonly CalculationContext _calculationContext;
+        private readonly IProjectSessionClimateState _climateState;
         private CityInfo? _originalCityData;
         private CancellationTokenSource? _searchCts;
-        private bool _isResetting;
+        private bool _isMirroringClimateState;
+
+        internal IProjectSessionClimateState ClimateState => _climateState;
         private bool _isLoadingProject;
 
 
@@ -218,16 +220,47 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             IClimateDataService climateService,
             IClimateData climateData,
             IValidator<IClimateData> climateValidator,
-            IMarkDirtyService markDirtyService,
-            CalculationContext calculationContext,
+            IProjectSession projectSession,
+            ISearchHistoryService? historyService = null)
+            : this(climateService, climateData, climateValidator, projectSession?.ClimateState!, historyService)
+        {
+        }
+
+        internal ClimateViewModel(
+            IClimateDataService climateService,
+            IClimateData climateData,
+            IValidator<IClimateData> climateValidator,
+            IProjectSessionClimateState climateState,
             ISearchHistoryService? historyService = null)
         {
             _climateService = climateService ?? throw new ArgumentNullException(nameof(climateService));
             _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
             _climateValidator = climateValidator ?? throw new ArgumentNullException(nameof(climateValidator));
-            _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
-            _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
+            _climateState = climateState ?? throw new ArgumentNullException(nameof(climateState));
             _historyService = historyService;
+            MirrorSnapshot(_climateState.Snapshot);
+            _climateState.Changed += OnClimateStateChanged;
+        }
+
+        /// <summary>
+        /// Compatibility seam for legacy tests and restore helpers: immediately converts the
+        /// old dirty/context pair into the canonical <see cref="IProjectSessionClimateState"/>
+        /// without storing or calling those services inside the ViewModel.
+        /// </summary>
+        internal ClimateViewModel(
+            IClimateDataService climateService,
+            IClimateData climateData,
+            IValidator<IClimateData> climateValidator,
+            IMarkDirtyService markDirtyService,
+            CalculationContext calculationContext,
+            ISearchHistoryService? historyService = null)
+            : this(
+                climateService,
+                climateData,
+                climateValidator,
+                new ProjectSessionClimateState(markDirtyService, climateData, calculationContext),
+                historyService)
+        {
         }
 
         #endregion
@@ -388,29 +421,9 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// </summary>
         public void Reset()
         {
-            _isResetting = true;
-            try
-            {
-                SelectedCity = null;
-                AirTemperature = -15.0;
-                ColdFiveDayTemperature = 0;
-                IsCitySelected = false;
-                WindSpeed = 5.0;
-                Humidity = 70.0;
-                SnowfallIntensity = 0;
-                SelectedZone = ClimateZone.Zone_M15;
-                IsHighRequirements = false;
-                HasUserModifications = false;
-                SearchQuery = string.Empty;
-                _originalCityData = null;
-
-                OnDataChanged("Reset", null, null);
-                SyncToClimateData();
-            }
-            finally
-            {
-                _isResetting = false;
-            }
+            _climateState.ResetToDefaults(ClimateMutationOrigin.Reset);
+            SearchQuery = string.Empty;
+            _originalCityData = null;
         }
 
         /// <summary>
@@ -431,35 +444,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         {
             if (_originalCityData != null)
             {
-                // Сохраняем температуру холодной пятидневки (информационно)
-                ColdFiveDayTemperature = _originalCityData.T5Days092;
-
-                // Определяем расчётную температуру по таблице 1.6
-                var coldFiveDayTemp = _originalCityData.T5Days092;
-                if (IsHighRequirements)
-                {
-                    AirTemperature = -20.0; // Повышенные требования
-                }
-                else if (coldFiveDayTemp >= -27)
-                {
-                    AirTemperature = -10.0; // -27°C и выше
-                }
-                else if (coldFiveDayTemp >= -37)
-                {
-                    AirTemperature = -15.0; // от -27°C до -37°C
-                }
-                else
-                {
-                    AirTemperature = -20.0; // -37°C и ниже
-                }
-
-                WindSpeed = _originalCityData.WindAvgTempLe8;
-                Humidity = _originalCityData.Humidity15hCold;
-                SelectedZone = _climateService.DetermineZone(_originalCityData.T5Days092, IsHighRequirements);
-                HasUserModifications = false;
-
-                OnDataChanged("ResetToCity", null, _originalCityData);
-                SyncToClimateData();
+                _climateState.ResetToCityData(_originalCityData, ClimateMutationOrigin.Reset);
             }
         }
 
@@ -561,59 +546,31 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// </summary>
         partial void OnSelectedCityChanged(CityInfo? value)
         {
-            if (_isResetting) return;
+            if (_isMirroringClimateState) return;
 
             if (value != null)
             {
                 _originalCityData = value;
 
-                // Сохраняем температуру холодной пятидневки (информационно)
-                ColdFiveDayTemperature = value.T5Days092;
-                IsCitySelected = true;
-
                 // Пропускаем перезапись расчётных параметров из БД при загрузке проекта
-                if (!_isLoadingProject)
+                if (_isLoadingProject)
                 {
-                    // Определяем расчётную температуру по таблице 1.6
-                    var coldFiveDayTemp = value.T5Days092;
-                    if (IsHighRequirements)
-                    {
-                        AirTemperature = -20.0; // Повышенные требования
-                    }
-                    else if (coldFiveDayTemp >= -27)
-                    {
-                        AirTemperature = -10.0; // -27°C и выше
-                    }
-                    else if (coldFiveDayTemp >= -37)
-                    {
-                        AirTemperature = -15.0; // от -27°C до -37°C
-                    }
-                    else
-                    {
-                        AirTemperature = -20.0; // -37°C и ниже
-                    }
-
-                    WindSpeed = value.WindAvgTempLe8;
-                    Humidity = value.Humidity15hCold;
-                    SelectedZone = _climateService.DetermineZone(value.T5Days092, IsHighRequirements);
-                    HasUserModifications = false;
-                    _markDirtyService.MarkDirty();
-
-                    // Сохранить в историю (асинхронно)
-                    if (_historyService != null)
-                    {
-                        _ = _historyService.AddAsync(value.Name);
-                    }
+                    ColdFiveDayTemperature = value.T5Days092;
+                    IsCitySelected = true;
+                    return;
                 }
 
-                OnDataChanged("SelectedCity", null, value);
-                SyncToClimateData();
+                _climateState.ApplyCitySelection(value, IsHighRequirements, ClimateMutationOrigin.User);
+
+                if (_historyService != null)
+                {
+                    _ = _historyService.AddAsync(value.Name);
+                }
+
+                return;
             }
-            else
-            {
-                IsCitySelected = false;
-                ColdFiveDayTemperature = 0;
-            }
+
+            _climateState.ApplyCitySelection(null, IsHighRequirements, ClimateMutationOrigin.User);
         }
 
         /// <summary>
@@ -621,45 +578,11 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// </summary>
         partial void OnIsHighRequirementsChanged(bool value)
         {
-            if (_isResetting) return;
+            if (_isMirroringClimateState || _isLoadingProject) return;
 
-            if (value)
-            {
-                SelectedZone = ClimateZone.Zone_M20_Plus;
-
-                // При повышенных требованиях всегда -20°C
-                if (SelectedCity != null)
-                {
-                    AirTemperature = -20.0;
-                }
-            }
-            else if (SelectedCity != null)
-            {
-                SelectedZone = _climateService.DetermineZone(SelectedCity.T5Days092, false);
-                // Пересчитываем температуру по таблице 1.6
-                var coldFiveDayTemp = SelectedCity.T5Days092;
-                if (coldFiveDayTemp >= -27)
-                {
-                    AirTemperature = -10.0;
-                }
-                else if (coldFiveDayTemp >= -37)
-                {
-                    AirTemperature = -15.0;
-                }
-                else
-                {
-                    AirTemperature = -20.0;
-                }
-            }
-            else
-            {
-                // Определить зону по текущей температуре
-                SelectedZone = _climateService.DetermineZone(AirTemperature, false);
-            }
-
-            _markDirtyService.MarkDirty();
-            OnDataChanged("IsHighRequirements", !value, value);
-            SyncToClimateData();
+            _climateState.ApplyIndividualEdit(
+                new ClimateEdit(ClimateEditField.IsHighRequirements, value ? 1.0 : 0.0),
+                ClimateMutationOrigin.User);
         }
 
         /// <summary>
@@ -667,13 +590,10 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// </summary>
         partial void OnAirTemperatureChanged(double value)
         {
-            if (_isResetting) return;
+            if (_isMirroringClimateState || _isLoadingProject) return;
 
-            HasUserModifications = true;
-            _markDirtyService.MarkDirty();
             ValidateAll();
-            OnDataChanged("AirTemperature", null, value);
-            SyncToClimateData();
+            _climateState.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.AirTemperature, value), ClimateMutationOrigin.User);
         }
 
         /// <summary>
@@ -681,13 +601,10 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// </summary>
         partial void OnWindSpeedChanged(double value)
         {
-            if (_isResetting) return;
+            if (_isMirroringClimateState || _isLoadingProject) return;
 
-            HasUserModifications = true;
-            _markDirtyService.MarkDirty();
             ValidateAll();
-            OnDataChanged("WindSpeed", null, value);
-            SyncToClimateData();
+            _climateState.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.WindSpeed, value), ClimateMutationOrigin.User);
         }
 
         /// <summary>
@@ -695,13 +612,10 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// </summary>
         partial void OnHumidityChanged(double value)
         {
-            if (_isResetting) return;
+            if (_isMirroringClimateState || _isLoadingProject) return;
 
-            HasUserModifications = true;
-            _markDirtyService.MarkDirty();
             ValidateAll();
-            OnDataChanged("Humidity", null, value);
-            SyncToClimateData();
+            _climateState.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.Humidity, value), ClimateMutationOrigin.User);
         }
 
         /// <summary>
@@ -709,13 +623,10 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// </summary>
         partial void OnSnowfallIntensityChanged(double value)
         {
-            if (_isResetting) return;
+            if (_isMirroringClimateState || _isLoadingProject) return;
 
-            HasUserModifications = true;
-            _markDirtyService.MarkDirty();
             ValidateAll();
-            OnDataChanged("SnowfallIntensity", null, value);
-            SyncToClimateData();
+            _climateState.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.SnowfallIntensity, value), ClimateMutationOrigin.User);
         }
 
         #endregion
@@ -755,27 +666,44 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             });
         }
 
-        /// <summary>
-        /// Синхронизировать данные с singleton IClimateData
-        /// </summary>
-        public void SyncToClimateData()
+        private void OnClimateStateChanged(object? sender, ClimateStateChangedEventArgs e)
         {
-            if (_isLoadingProject) return;
+            MirrorSnapshot(e.NewSnapshot);
+            ValidateAll();
+            OnDataChanged("ClimateState", e.OldSnapshot, e.NewSnapshot);
+        }
 
-            if (_climateData is ClimateData data)
+        private void MirrorSnapshot(ClimateStateSnapshot snapshot)
+        {
+            _isMirroringClimateState = true;
+            try
             {
-                data.SelectedCity = SelectedCity?.Name ?? string.Empty;
-                data.SelectedRegion = SelectedCity?.Region ?? string.Empty;
-                data.AirTemperature = AirTemperature;
-                data.WindSpeed = WindSpeed;
-                data.Humidity = Humidity;
-                data.SnowfallIntensity = SnowfallIntensity;
-                data.Zone = SelectedZone;
-                data.ColdFiveDayTemperature = SelectedCity?.T5Days092 ?? AirTemperature;
-
-                data.RaiseDataChanged("Sync", null, null, IsValid);
-
-                _calculationContext.UpdateClimate(_climateData, "Climate");
+                SelectedCity = string.IsNullOrEmpty(snapshot.SelectedCity)
+                    ? null
+                    : SelectedCity?.Name == snapshot.SelectedCity
+                        ? SelectedCity
+                        : _climateService.GetCityByName(snapshot.SelectedCity);
+                if (SelectedCity == null && !string.IsNullOrEmpty(snapshot.SelectedCity))
+                {
+                    SelectedCity = new CityInfo
+                    {
+                        Name = snapshot.SelectedCity,
+                        Region = snapshot.SelectedRegion
+                    };
+                }
+                AirTemperature = snapshot.AirTemperature;
+                ColdFiveDayTemperature = snapshot.ColdFiveDayTemperature;
+                IsCitySelected = snapshot.IsCitySelected;
+                WindSpeed = snapshot.WindSpeed;
+                Humidity = snapshot.Humidity;
+                SnowfallIntensity = snapshot.SnowfallIntensity;
+                SelectedZone = snapshot.Zone;
+                IsHighRequirements = snapshot.IsHighRequirements;
+                HasUserModifications = snapshot.HasUserModifications;
+            }
+            finally
+            {
+                _isMirroringClimateState = false;
             }
         }
 
