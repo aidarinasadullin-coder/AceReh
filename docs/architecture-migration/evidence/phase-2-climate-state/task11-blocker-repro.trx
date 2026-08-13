@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="f353886f-b2c8-4254-b56e-559dd6b78205" name="Admin@DESKTOP-CVGB6OE 2026-08-12 18:42:40" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-08-12T18:42:40.3091324+05:00" queuing="2026-08-12T18:42:40.3091331+05:00" start="2026-08-12T18:42:39.5374837+05:00" finish="2026-08-12T18:42:40.3151146+05:00" />
+  <TestSettings name="default" id="5263d3f8-3f9e-4b01-9e9a-b8869b7c5016">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-08-12_18_42_40" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="97d6f17d-c47f-4f32-b694-ffaad3db5dd5" testId="a91c30e5-eef5-141b-9bcf-30c96b1c38ce" testName="SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache" computerName="DESKTOP-CVGB6OE" duration="00:00:00.1382120" startTime="2026-08-12T18:42:40.0627914+05:00" endTime="2026-08-12T18:42:40.2009740+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="97d6f17d-c47f-4f32-b694-ffaad3db5dd5">
+      <Output>
+        <ErrorInfo>
+          <Message>Multiple failures or warnings in test:&#xD;
+  1)   Assert.That(saved.ClimateData.SelectedCity, Is.EqualTo("Live save city"))&#xD;
+  Expected string length 14 but was 0. Strings differ at index 0.&#xD;
+  Expected: "Live save city"&#xD;
+  But was:  &lt;string.Empty&gt;&#xD;
+  -----------^&#xD;
+&#xD;
+  2)   Assert.That(saved.ClimateData.WindSpeed, Is.EqualTo(11))&#xD;
+  Expected: 11&#xD;
+  But was:  5.0d&#xD;
+&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests.SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache() in D:\IA\ace v.2\tests\SnowMeltingCalculator.Tests\ViewModels\ResultsStabilizationPhase1BehaviorContractsTests.cs:line 260&#xD;
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.BeforeAndAfterTestCommand.&lt;&gt;c__DisplayClass1_0.&lt;Execute&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.Commands.DelegatingTestCommand.RunTestMethodInThreadAbortSafeZone(TestExecutionContext context, Action action)&#xD;
+
+1)    at SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests.&lt;&gt;c__DisplayClass9_0.&lt;SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache&gt;b__0() in D:\IA\ace v.2\tests\SnowMeltingCalculator.Tests\ViewModels\ResultsStabilizationPhase1BehaviorContractsTests.cs:line 262&#xD;
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)&#xD;
+   at SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests.SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache() in D:\IA\ace v.2\tests\SnowMeltingCalculator.Tests\ViewModels\ResultsStabilizationPhase1BehaviorContractsTests.cs:line 260&#xD;
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine&amp; stateMachine)&#xD;
+   at SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests.SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache()&#xD;
+
+2)    at SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests.&lt;&gt;c__DisplayClass9_0.&lt;SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache&gt;b__0() in D:\IA\ace v.2\tests\SnowMeltingCalculator.Tests\ViewModels\ResultsStabilizationPhase1BehaviorContractsTests.cs:line 263&#xD;
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)&#xD;
+   at SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests.SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache() in D:\IA\ace v.2\tests\SnowMeltingCalculator.Tests\ViewModels\ResultsStabilizationPhase1BehaviorContractsTests.cs:line 260&#xD;
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine&amp; stateMachine)&#xD;
+   at SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests.SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache()&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache" storage="d:\ia\ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="a91c30e5-eef5-141b-9bcf-30c96b1c38ce">
+      <Execution id="97d6f17d-c47f-4f32-b694-ffaad3db5dd5" />
+      <TestMethod codeBase="D:\IA\ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="a91c30e5-eef5-141b-9bcf-30c96b1c38ce" executionId="97d6f17d-c47f-4f32-b694-ffaad3db5dd5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" passed="0" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

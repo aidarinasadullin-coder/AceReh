@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="354796de-7b43-48f0-932a-389efd4a75f3" name="Admin@DESKTOP-CVGB6OE 2026-08-12 19:26:54" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-08-12T19:26:54.0563086+05:00" queuing="2026-08-12T19:26:54.0563087+05:00" start="2026-08-12T19:26:53.3195257+05:00" finish="2026-08-12T19:26:54.0613145+05:00" />
+  <TestSettings name="default" id="639a81a9-cb48-4ddf-a835-3a0f3c9577a0">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-08-12_19_26_54" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="de6faa5c-771d-4206-bbcf-5d0294bfed1f" testId="a91c30e5-eef5-141b-9bcf-30c96b1c38ce" testName="SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache" computerName="DESKTOP-CVGB6OE" duration="00:00:00.1054070" startTime="2026-08-12T19:26:53.8300902+05:00" endTime="2026-08-12T19:26:53.9354558+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="de6faa5c-771d-4206-bbcf-5d0294bfed1f" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache" storage="d:\ia\ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="a91c30e5-eef5-141b-9bcf-30c96b1c38ce">
+      <Execution id="de6faa5c-771d-4206-bbcf-5d0294bfed1f" />
+      <TestMethod codeBase="D:\IA\ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="a91c30e5-eef5-141b-9bcf-30c96b1c38ce" executionId="de6faa5c-771d-4206-bbcf-5d0294bfed1f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="1" executed="1" passed="1" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>
