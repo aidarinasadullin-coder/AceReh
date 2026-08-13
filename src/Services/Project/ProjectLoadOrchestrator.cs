@@ -31,6 +31,7 @@ namespace SnowMeltingCalculator.Services.Project
         private readonly ICalculationStateService _calculationStateService;
         private readonly IConstructionService _constructionService;
         private readonly CalculationContext _calculationContext;
+        private readonly IProjectSessionClimateState _climateState;
 
         /// <summary>
         /// Конструктор оркестратора загрузки проекта
@@ -42,7 +43,8 @@ namespace SnowMeltingCalculator.Services.Project
             CircuitsViewModel circuitsViewModel,
             ICalculationStateService calculationStateService,
             IConstructionService constructionService,
-            CalculationContext calculationContext)
+            CalculationContext calculationContext,
+            IProjectSession? projectSession = null)
         {
             _climateViewModel = climateViewModel ?? throw new ArgumentNullException(nameof(climateViewModel));
             _constructionViewModel = constructionViewModel ?? throw new ArgumentNullException(nameof(constructionViewModel));
@@ -51,6 +53,7 @@ namespace SnowMeltingCalculator.Services.Project
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
+            _climateState = projectSession?.ClimateState ?? _climateViewModel.ClimateState;
         }
 
         /// <summary>
@@ -60,7 +63,8 @@ namespace SnowMeltingCalculator.Services.Project
         public void ResetModules()
         {
             _calculationContext.Reset();
-            _climateViewModel.Reset();
+            _climateState.ResetToDefaults(ClimateMutationOrigin.Reset);
+            _climateViewModel.SearchQuery = string.Empty;
             _constructionViewModel.Reset();
             _thermalViewModel.Reset();
             _circuitsViewModel.Reset();
@@ -77,23 +81,11 @@ namespace SnowMeltingCalculator.Services.Project
         {
             if (data == null) return;
 
-            // Восстанавливаем климатические данные и коллекторы под guard загрузки проекта,
-            // чтобы восстановление города не перезаписало сохранённые пользовательские параметры.
-            _climateViewModel.BeginLoadProject();
-            try
-            {
-                _climateViewModel.SelectedCity = null;
-                var city = _climateViewModel.FindCityByName(data.ClimateData.SelectedCity);
-                _climateViewModel.SearchQuery = data.ClimateData.SelectedCity;
-                _climateViewModel.AirTemperature = data.ClimateData.AirTemperature;
-                _climateViewModel.WindSpeed = data.ClimateData.WindSpeed;
-                _climateViewModel.Humidity = data.ClimateData.Humidity;
-                _climateViewModel.SnowfallIntensity = data.ClimateData.SnowfallIntensity;
-                _climateViewModel.SelectedZone = data.ClimateData.SelectedZone;
-                _climateViewModel.IsHighRequirements = data.ClimateData.IsHighRequirements;
-                _climateViewModel.SelectedCity = city;
+            var city = _climateViewModel.FindCityByName(data.ClimateData.SelectedCity);
+            _climateViewModel.SearchQuery = data.ClimateData.SelectedCity;
+            _climateState.ApplyProjectSnapshot(data.ClimateData, city, ClimateMutationOrigin.Load);
 
-                // Импортируем пользовательские материалы проекта перед загрузкой слоёв
+            // Импортируем пользовательские материалы проекта перед загрузкой слоёв
                 if (data.CustomMaterials.Any())
                 {
                     await _constructionService.ImportProjectMaterialsAsync(data.CustomMaterials);
@@ -193,17 +185,8 @@ namespace SnowMeltingCalculator.Services.Project
                 {
                     _circuitsViewModel.SelectedCollectorIndex = 0;
                 }
-                _circuitsViewModel.AddCircuitCommand.NotifyCanExecuteChanged();
-                _circuitsViewModel.RemoveCircuitCommand.NotifyCanExecuteChanged();
-            }
-            finally
-            {
-                _climateViewModel.EndLoadProject();
-                // После загрузки проекта явно синхронизируем singleton IClimateData
-                // с параметрами, восстановленными из файла. Иначе ThermalCalculator
-                // будет считать по старым/нулевым климатическим данным.
-                _climateViewModel.SyncToClimateData();
-            }
+            _circuitsViewModel.AddCircuitCommand.NotifyCanExecuteChanged();
+            _circuitsViewModel.RemoveCircuitCommand.NotifyCanExecuteChanged();
 
             // === Детерминированная финализация загрузки проекта ===
             //
@@ -226,9 +209,6 @@ namespace SnowMeltingCalculator.Services.Project
             // 2. Восстанавливаем результаты контуров из сохранённых данных
             RestoreCircuitsResults(data.HydraulicsData.Collectors);
 
-            // 3. Климат восстановлен из файла, а не изменён пользователем —
-            //    сбрасываем признак ручных правок, выставленный сеттерами при загрузке.
-            _climateViewModel.HasUserModifications = false;
         }
 
         /// <summary>

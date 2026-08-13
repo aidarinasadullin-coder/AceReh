@@ -6,6 +6,7 @@ using SnowMeltingCalculator.Models.Navigation;
 using SnowMeltingCalculator.Services;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Results;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
@@ -28,6 +29,7 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         private readonly IProjectStateService _projectStateService;
         private readonly IDialogService _dialogService;
         private readonly CalculationContext _calculationContext;
+        private readonly IProjectSessionClimateState _climateState;
 
         public ResultsViewModel ResultsViewModel => _resultsViewModel;
         public ClimateViewModel ClimateViewModel => _climateViewModel;
@@ -44,7 +46,8 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             ICalculationStateService calculationStateService,
             IProjectStateService projectStateService,
             IDialogService dialogService,
-            CalculationContext calculationContext)
+            CalculationContext calculationContext,
+            IProjectSession? projectSession = null)
         {
             _climateViewModel = climateViewModel;
             _thermalViewModel = thermalViewModel;
@@ -55,6 +58,7 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             _projectStateService = projectStateService ?? throw new ArgumentNullException(nameof(projectStateService));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
+            _climateState = projectSession?.ClimateState ?? _climateViewModel.ClimateState;
 
             // Подписка на изменения состояния
             _calculationStateService.StateChanged += OnCalculationStateChanged;
@@ -217,7 +221,8 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             _calculationContext.Reset();
             _resultsViewModel.Reset();
             _projectStateService.MarkClean();
-            _climateViewModel.Reset();
+            _climateState.ResetToDefaults(ClimateMutationOrigin.Reset);
+            _climateViewModel.SearchQuery = string.Empty;
             _constructionViewModel.Reset();
             _thermalViewModel.Reset();
             _circuitsViewModel.Reset();

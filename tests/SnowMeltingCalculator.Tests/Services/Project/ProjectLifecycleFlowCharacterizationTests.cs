@@ -89,7 +89,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 "Sanity: load must leave the project clean.");
 
             var climateVm = GetField<ClimateViewModel>(viewModel, "_climateViewModel");
-            climateVm.AirTemperature = -99.0;
+            climateVm.AirTemperature = -20.0;
 
             Assert.That(projectState.IsDirty, Is.True,
                 "A post-load edit must mark the project dirty through the existing IProjectStateService/IMarkDirtyService seam.");
@@ -189,8 +189,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             Assert.That(projectState.ProjectObject, Is.EqualTo("New Project"));
             Assert.That(projectState.CurrentFilePath, Is.EqualTo(@"C:\old.smc"),
                 "CurrentFilePath must remain at its pre-failure value; current behavior does not roll it back.");
-            Assert.That(projectState.IsDirty, Is.True,
-                "Current partial-restore behavior leaves the project dirty when restore fails before MarkClean.");
+            Assert.That(projectState.IsDirty, Is.False,
+                "Climate restore uses a non-user origin and must not mark the partial project dirty.");
         }
 
         [Test]
@@ -240,8 +240,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 "Climate restore happened before the late failure and is not rolled back.");
             Assert.That(projectState.CurrentFilePath, Is.EqualTo(@"C:\old.smc"),
                 "Path is set only after LoadProjectDataAsync returns; it must remain from the prior project.");
-            Assert.That(projectState.IsDirty, Is.True,
-                "Current partial-restore behavior leaves the project dirty when restore fails before MarkClean.");
+            Assert.That(projectState.IsDirty, Is.False,
+                "Climate restore uses a non-user origin and must not mark the partial project dirty.");
 
             // Thermal and construction data are restored after the failure point, so they retain their defaults.
             Assert.That(calcState.PipeSpacing, Is.EqualTo(200),
@@ -260,7 +260,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var calcState = calculationStateService ?? new CalculationStateService(projectStateService.Session);
             var calcContext = new CalculationContext();
 
-            var climateVm = CreateClimateViewModel(projectStateService);
+            var climateVm = CreateClimateViewModel(projectStateService.Session);
             var constructionVm = CreateConstructionViewModel(projectStateService);
             var thermalVm = CreateThermalViewModel(projectStateService);
             var circuitsVm = CreateCircuitsViewModel(projectStateService);
@@ -289,7 +289,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                     circuitsVm,
                     calcState,
                     constructionSvc,
-                    calcContext),
+                    calcContext,
+                    projectStateService.Session),
                 new ResultsPdfDataBuilder(
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calcState,
@@ -310,7 +311,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 circuitsVm,
                 calcState,
                 CreateDefaultConstructionService(),
-                calcContext);
+                calcContext,
+                new ProjectSession());
         }
 
         private static ClimateViewModel CreateClimateViewModel(IMarkDirtyService markDirtyService)
@@ -327,6 +329,21 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 new ClimateValidator(),
                 markDirtyService,
                 new CalculationContext());
+        }
+
+        private static ClimateViewModel CreateClimateViewModel(IProjectSession projectSession)
+        {
+            var climateServiceMock = new Mock<IClimateDataService>();
+            climateServiceMock.Setup(s => s.LoadClimateDataAsync()).Returns(Task.CompletedTask);
+            climateServiceMock.Setup(s => s.GetAllCities()).Returns(new List<CityInfo>());
+            climateServiceMock.Setup(s => s.DetermineZone(It.IsAny<double>(), It.IsAny<bool>()))
+                .Returns(ClimateZone.Zone_M15);
+
+            return new ClimateViewModel(
+                climateServiceMock.Object,
+                new ClimateData(),
+                new ClimateValidator(),
+                projectSession);
         }
 
         private static ConstructionViewModel CreateConstructionViewModel(IMarkDirtyService markDirtyService)
