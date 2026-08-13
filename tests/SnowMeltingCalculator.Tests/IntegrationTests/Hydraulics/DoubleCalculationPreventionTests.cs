@@ -7,6 +7,7 @@ using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Climate;
 using SnowMeltingCalculator.Services.Hydraulics;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.ViewModels.Climate;
@@ -310,6 +311,52 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                     It.IsAny<double>()),
                 Times.Exactly(2),
                 "GetProperties должен быть вызван дважды (для рабочей и расчётной температуры) при изменении AirTemperature");
+        }
+
+        [Test]
+        public void CanonicalClimateMutation_WithThermalAndCircuitsConsumers_PublishesOneProjectionAndOneDownstreamUpdate()
+        {
+            // Given
+            var projectSession = new ProjectSession(_climateData, _calculationContext);
+            var projectionUpdates = 0;
+            var climateContextUpdates = 0;
+            _climateData.DataChanged += (_, _) => projectionUpdates++;
+            _calculationContext.ContextChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(CalculationContext.Climate))
+                {
+                    climateContextUpdates++;
+                }
+            };
+            _thermalViewModel.Result = new ThermalCalculationResult { IsValid = true };
+            _glycolServiceMock.Reset();
+            _glycolServiceMock
+                .Setup(service => service.GetProperties(It.IsAny<GlycolType>(), It.IsAny<double>(), It.IsAny<double>()))
+                .Returns(new GlycolProperties
+                {
+                    Density = 1050,
+                    SpecificHeat = 3800,
+                    KinematicViscosity = 0.000005
+                });
+
+            // When
+            var result = projectSession.ClimateState.ApplyIndividualEdit(
+                new ClimateEdit(ClimateEditField.AirTemperature, -28.0),
+                ClimateMutationOrigin.User);
+
+            // Then
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsChanged, Is.True);
+                Assert.That(projectionUpdates, Is.EqualTo(1));
+                Assert.That(climateContextUpdates, Is.EqualTo(1));
+                _glycolServiceMock.Verify(
+                    service => service.GetProperties(
+                        It.IsAny<GlycolType>(),
+                        It.IsAny<double>(),
+                        It.IsAny<double>()),
+                    Times.Exactly(2));
+            });
         }
 
         [Test]
