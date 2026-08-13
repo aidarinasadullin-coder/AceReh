@@ -43,14 +43,15 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
                 .Returns(Task.CompletedTask);
 
-            var calculationStateService = new CalculationStateService();
+            var calculationStateService = new CalculationStateService(projectStateService.Session);
             var calculationContext = new CalculationContext();
-            var climateVm = CreateClimateViewModel();
+            var climateVm = CreateClimateViewModel(projectStateService.Session);
             var constructionVm = CreateConstructionViewModel();
             var thermalVm = CreateThermalViewModel();
 
             return new ResultsViewModel(
                 projectStateService,
+                projectStateService.Session,
                 projectStateService,
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
@@ -70,7 +71,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     circuitsVm,
                     calculationStateService,
                     constructionServiceMock.Object,
-                    calculationContext),
+                    calculationContext,
+                    projectStateService.Session),
                 new ResultsPdfDataBuilder(
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,
@@ -101,6 +103,29 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 new ClimateValidator(),
                 new Mock<IMarkDirtyService>().Object,
                 new CalculationContext());
+        }
+
+        public static ClimateViewModel CreateClimateViewModel(IProjectSession projectSession)
+        {
+            var climateServiceMock = new Mock<IClimateDataService>();
+            climateServiceMock.Setup(s => s.LoadClimateDataAsync()).Returns(Task.CompletedTask);
+            climateServiceMock.Setup(s => s.GetAllCities()).Returns(Enumerable.Empty<CityInfo>());
+            climateServiceMock.Setup(s => s.GetCityByName("Тестовый город")).Returns(new CityInfo
+            {
+                Name = "Тестовый город",
+                Region = "Тестовый регион",
+                T5Days092 = -25,
+                WindAvgTempLe8 = 3,
+                Humidity15hCold = 70
+            });
+            climateServiceMock.Setup(s => s.DetermineZone(It.IsAny<double>(), It.IsAny<bool>()))
+                .Returns(ClimateZone.Zone_M10);
+
+            return new ClimateViewModel(
+                climateServiceMock.Object,
+                new ClimateData(),
+                new ClimateValidator(),
+                projectSession);
         }
 
         public static ConstructionViewModel CreateConstructionViewModel()

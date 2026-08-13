@@ -1623,17 +1623,19 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 IsOperatingMode = this.IsOperatingMode
             };
 
-            // Сохраняем климатические данные
+            // Сохраняем климатические данные из канонического ClimateState snapshot.
+            // Совместимость с .smc форматом изолирована на границе persistence DTO <-> snapshot.
+            var climateSnapshot = _projectSession.ClimateState.Snapshot;
             data.ClimateData = new ClimateProjectData
             {
-                SelectedCity = _climateViewModel.SelectedCity?.Name ?? string.Empty,
-                Region = _climateViewModel.SelectedCity?.Region ?? string.Empty,
-                AirTemperature = _climateViewModel.AirTemperature,
-                WindSpeed = _climateViewModel.WindSpeed,
-                Humidity = _climateViewModel.Humidity,
-                SnowfallIntensity = _climateViewModel.SnowfallIntensity,
-                SelectedZone = _climateViewModel.SelectedZone,
-                IsHighRequirements = _climateViewModel.IsHighRequirements
+                SelectedCity = climateSnapshot.SelectedCity,
+                Region = climateSnapshot.SelectedRegion,
+                AirTemperature = climateSnapshot.AirTemperature,
+                WindSpeed = climateSnapshot.WindSpeed,
+                Humidity = climateSnapshot.Humidity,
+                SnowfallIntensity = climateSnapshot.SnowfallIntensity,
+                SelectedZone = climateSnapshot.Zone,
+                IsHighRequirements = climateSnapshot.IsHighRequirements
             };
 
             // Сохраняем пользовательские материалы

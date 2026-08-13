@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using NUnit.Framework;
+using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Models.Project;
 using SnowMeltingCalculator.Services.Project;
@@ -96,6 +97,52 @@ namespace SnowMeltingCalculator.Tests.Project
                 Assert.That(loaded.ConstructionData.R1, Is.EqualTo(0.1));
                 Assert.That(loaded.ConstructionData.R2, Is.EqualTo(0.2));
                 Assert.That(loaded.HydraulicsData.Collectors[0].Circuits[0].PipeSpacingCm, Is.EqualTo(30.0));
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
+        }
+
+        [Test]
+        public async Task SaveThenLoad_ClimateFields_RoundTrip()
+        {
+            var data = new ProjectData
+            {
+                Version = "1.1",
+                ProjectNumber = "CLM-RT-001",
+                ProjectObject = "climate round-trip",
+                ClimateData = new ClimateProjectData
+                {
+                    SelectedCity = "Москва",
+                    Region = "Московская область",
+                    AirTemperature = -18.0,
+                    WindSpeed = 3.5,
+                    Humidity = 65.0,
+                    SnowfallIntensity = 2.5,
+                    SelectedZone = ClimateZone.Zone_M15,
+                    IsHighRequirements = false
+                }
+            };
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"clm-rt-{Guid.NewGuid()}.smc");
+            try
+            {
+                var saved = await _service.SaveProjectAsync(tempPath, data);
+                Assert.That(saved, Is.True);
+
+                var loaded = await _service.LoadProjectAsync(tempPath);
+                Assert.That(loaded, Is.Not.Null);
+
+                var climate = loaded!.ClimateData;
+                Assert.That(climate.SelectedCity, Is.EqualTo("Москва"));
+                Assert.That(climate.Region, Is.EqualTo("Московская область"));
+                Assert.That(climate.AirTemperature, Is.EqualTo(-18.0));
+                Assert.That(climate.WindSpeed, Is.EqualTo(3.5));
+                Assert.That(climate.Humidity, Is.EqualTo(65.0));
+                Assert.That(climate.SnowfallIntensity, Is.EqualTo(2.5));
+                Assert.That(climate.SelectedZone, Is.EqualTo(ClimateZone.Zone_M15));
+                Assert.That(climate.IsHighRequirements, Is.False);
             }
             finally
             {
