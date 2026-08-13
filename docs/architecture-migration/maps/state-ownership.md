@@ -20,8 +20,22 @@ limitations: [Climate/Construction/Thermal/Hydraulics slices remain target-only;
 | `ST-003` | ResultsViewModel | DTO copy | Lifecycle.DisplayMode | load/reset writers | Results :1519-1621 | partial |
 | `ST-004` | ProjectSession | ProjectStateService/IMarkDirtyService forwarding aliases; MainWindow dirty prompt reads | Lifecycle.IsDirty | none after Phase 1 | ProjectSession.cs; ProjectStateService.cs (forwarder); ProjectLifecycleFlowCharacterizationTests.cs; final-gates.md | covered |
 | `ST-005` | ProjectSession | CalculationStateService compatibility lease (one lease, no local bool/depth) | Lifecycle.RestoreGuard | none after Phase 1; compatibility setter is temporary | ProjectSession.cs; CalculationStateService.cs; restore-guard.md; final-gates.md | covered |
-| `ST-006` | Climate VM/IClimateData seam | context/Results | ClimateState | source/context copy | Climate :389-409 | partial |
-| `ST-007` | ClimateViewModel | UI search | ClimateState/UI decision | nonpersisted members | Climate :75-92,389-409 | partial |
+| `ST-006` | `ProjectSession.ClimateState` / `ProjectSessionClimateState` | `ClimateViewModel` mirrors snapshot values; `ClimateData`/`IClimateData` is compatibility projection; `CalculationContext.Climate` is downstream projection; Results reads snapshot for save/export | `ProjectSession.ClimateState` | no second writable canonical Climate owner after Phase 2; legacy no-session test seam remains isolated and documented | `ProjectSession.cs`; `ProjectSessionClimateState.cs`; `IProjectSession.cs`; `ClimateViewModel.cs`; `ClimateData.cs`; `ResultsViewModel.cs`; `docs/architecture-migration/evidence/phase-2-climate-state/{climate-state-api.md,climate-data-projection.md,climate-viewmodel-adapter.md,persistence-results.md,downstream-invalidation.md,di-guards.md,affected-gates.md}` | covered |
+| `ST-007` | split: persisted/reset Climate fields in `ProjectSession.ClimateState`; UI-only search state in `ClimateViewModel` adapter | `SearchQuery`, filtered/recent city UI collections stay non-persisted adapter state; `ColdFiveDayTemperature`, `HasUserModifications`, city/scalar/high-requirements/reset values mirror canonical snapshot | `ProjectSession.ClimateState` for project Climate values; UI adapter for search-only state | no canonical ownership ambiguity for persisted Climate values; UI search state intentionally outside `.smc` | `ProjectSessionClimateState.cs`; `ClimateViewModel.cs`; `ProjectLoadOrchestrator.cs`; `ResultsViewModel.cs`; `docs/architecture-migration/evidence/phase-2-climate-state/{climate-viewmodel-adapter.md,restore-reset-routing.md,persistence-results.md,affected-gates.md}` | covered |
+
+## Phase 2 ClimateState acceptance overlay
+
+Task 12 refresh records Phase 2 Climate ownership as accepted through Task 11 gates:
+`ProjectSession` owns the private `ProjectSessionClimateState` instance and exposes it through
+`IProjectSession.ClimateState`; `ClimateViewModel` routes user city/scalar/high-requirements/reset
+mutations to that state slice and mirrors snapshots; `ClimateData`/`IClimateData` is a projection
+boundary updated through `ApplyProjection`; `CalculationContext` remains the downstream compatibility
+projection/invalidation seam. Load/reset/restore use non-user `ClimateMutationOrigin` paths, and
+`ResultsViewModel.SaveCurrentProject()` persists from `_projectSession.ClimateState.Snapshot`, keeping
+the existing `.smc` Climate DTO fields and version behavior. Task 11 acceptance evidence is
+`docs/architecture-migration/evidence/phase-2-climate-state/affected-gates.md` with targeted TRX
+`total 330 / executed 329 / passed 329 / failed 0` and full rerun TRX
+`total 1616 / executed 1613 / passed 1613 / failed 0`.
 | `ST-008` | model/VM ambiguous | context/Results | ConstructionState | model/VM split | Construction :694-856 | partial |
 | `ST-009` | collection/model ambiguous | Results list | ConstructionState.LayersAbovePipe | dual representation | Construction :702-724 | partial |
 | `ST-010` | collection/model ambiguous | Results list | ConstructionState.LayersBelowPipe | dual representation | Construction :702-792 | partial |

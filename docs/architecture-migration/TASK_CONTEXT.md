@@ -97,6 +97,26 @@ path допустим только внутри короткого компил�
   workspace root `C:\Users\Admin`, поэтому C# correctness gates остаются за
   прямыми `dotnet build/test`, когда production C# входит в разрешённый scope.
 - Codegraph доступен для анализа символов и связей.
+- Phase 2 Task 6 принят 2026-08-07: `ClimateViewModel` больше не вызывает
+  `IMarkDirtyService.MarkDirty()` или `CalculationContext.UpdateClimate()`
+  напрямую, user city/scalar/reset mutations идут через
+  `ProjectSession.ClimateState`, legacy test/helper constructor сохраняет старые
+  call sites без хранения dirty/context services во ViewModel, а evidence
+  записан в
+  `docs/architecture-migration/evidence/phase-2-climate-state/climate-viewmodel-adapter.md`.
+- Planning-only live inspection для `phase-2-climate-state` подтвердила текущий
+  Climate ownership seam: `ClimateViewModel` хранит writable UI state, напрямую
+  ставит dirty, публикует собственный `DataChanged`, копирует значения в
+  singleton `ClimateData` и затем вызывает `CalculationContext.UpdateClimate`.
+  `ProjectLoadOrchestrator` восстанавливает климат прямыми присваиваниями в
+  concrete ViewModel под `BeginLoadProject`/`EndLoadProject`, а
+  `ResultsViewModel.SaveCurrentProject()` строит `.smc` climate snapshot также
+  из ViewModel. DI регистрирует `ClimateViewModel`, `IClimateData`,
+  `CalculationContext`, `ProjectSession` и `ProjectLoadOrchestrator` как
+  singleton. Существующие Climate tests покрывают значения, формулы, reset и
+  singleton sync, но не дают полного доказательства exact dirty/event/context/
+  recalculation multiplicity, mutation origins, logical-action grouping,
+  repeated load/reset subscription hygiene и отсутствия bypass writers.
 - `ResultsViewModel` всё ещё хранит прямые ссылки на четыре module ViewModels и
   вручную очищает большое производное состояние в `Reset()`.
 - `CircuitsViewModel` содержит значимый reactive-протокол событий, коллекций,
@@ -501,26 +521,26 @@ OpenCode обязаны обновлять его после каждого за
 
 | Поле | Значение |
 |---|---|
-| Current phase | `phase-1-project-session-shell` |
-| Stage | `awaiting-owner-acceptance` |
-| Active plan | `docs/architecture-migration/plans/phase-1-project-session-shell.md` |
-| Active plan SHA-256 | `011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948` |
-| Parent phase | `phase-0.5-architecture-explorer-mvp` |
-| Parent plan | `docs/architecture-migration/plans/phase-0.5-architecture-explorer-mvp.md` |
-| Parent plan SHA-256 | `9C23655B3786C26AFD715FF8441E2215FEDF0D42DE6A12720BF5E94D3AF59BF1` |
-| Parent execution state | `completed and explicitly accepted by owner 2026-08-03; acceptance does not carry plan approval or execution authorization into Phase 1` |
-| Metis analysis | `completed; identity validated as Metis - Plan Consultant; source-backed lifecycle seams, single-writer risk, dirty-file protections, characterization gates, narrow shell boundary and five owner decisions analyzed` |
-| Metis session ID | `ses_037db6f56ffe7zEyJPEiRLvk4t` |
-| Planning draft | `complete corrected Markdown imported byte-identically; exact IProjectSession API, compatibility/restore semantics, 10 tasks, F1-F4, scope, rollback and owner gates present` |
-| Primary planning session ID | `ses_037ba1831ffep3dtJaDlFJeHVR` |
-| Primary planning receipt | `valid: metadata reports Prometheus - Plan Builder in a separate primary session; final artifact corrected in the same session and imported with identical SHA-256` |
-| Child planning discovery | `none for Phase 1; child task plans are not valid primary receipts` |
+| Current phase | `phase-2-climate-state` |
+| Stage | `executing` |
+| Active plan | `docs/architecture-migration/plans/phase-2-climate-state.md` |
+| Active plan SHA-256 | `D79D7C46CA73EBCFF161164FC41EE3EB041B9B172631944CB611FA42BA998A6B` |
+| Parent phase | `phase-1-project-session-shell` |
+| Parent plan | `docs/architecture-migration/plans/phase-1-project-session-shell.md` |
+| Parent plan SHA-256 | `011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948` |
+| Parent execution state | `completed and explicitly accepted by owner 2026-08-05; acceptance authorizes neither Phase 2 plan approval nor execution` |
+| Metis analysis | `completed; identity validated as Metis - Plan Consultant; six-view Climate seams, single-owner and dual-write risks, DEC-001 narrow compatibility seam, mutation/completion/origin contract, characterization gates, protected dirty paths, scope exclusions and stop conditions analyzed` |
+| Metis session ID | `ses_02e61739dffenW8itUC4j80ikX; metadata reports only Metis - Plan Consultant` |
+| Planning draft | `complete: 12 implementation todos, F1-F4, explicit ClimateState contract, characterization-first gates, protected baseline, v1.0/v1.1 compatibility, rollback/stop rules and separate owner/execution gates` |
+| Primary planning session ID | `ses_02e464159ffeLYpJkhNkBJErT1` |
+| Primary planning receipt | `valid: metadata reports Prometheus - Plan Builder plus technical compaction in separate session ses_02e464159ffeLYpJkhNkBJErT1; owner approved artifact writing only; final .omo source was imported byte-identically to the repository plan at SHA-256 D79D7C46CA73EBCFF161164FC41EE3EB041B9B172631944CB611FA42BA998A6B` |
+| Child planning discovery | `none for Phase 2; child task plans remain invalid primary receipts` |
 | Child planning receipt | `not applicable` |
-| Sisyphus review | `PASS after correction; scope, single-owner decision, self-contained API contract, non-migration boundaries, dirty protection and both owner gates are consistent` |
-| Momus review | `OKAY after one correction loop; exact API/restore lease contract, references, fixtures and executable QA are decision-complete` |
-| Momus session ID | `ses_0379213acffeHdyOTC2EpH6I3K; identity validated as Momus - Plan Critic` |
-| Owner plan approval | `approved by owner 2026-08-04 for reviewed Phase 1 plan SHA-256 011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948` |
-| Execution authorization | `approved by owner 2026-08-04 via explicit /architecture-start phase-1-project-session-shell after live authorization-gate revalidation` |
+| Sisyphus review | `PASS on exact imported SHA: Climate-only scope, single-owner boundary, explicit origin/completion/no-op contract, sequencing, persistence guardrails, dirty-worktree protection, executable QA and separate owner gates are consistent` |
+| Momus review | `OKAY on exact .omo plan source; production/test/dossier references exist and match their stated roles; each todo and final wave has executable QA` |
+| Momus session ID | `ses_02d0d549affeUPch83Lkox97qE; identity validated as Momus - Plan Critic` |
+| Owner plan approval | `approved by owner 2026-08-05 for reviewed Phase 2 plan SHA-256 D79D7C46CA73EBCFF161164FC41EE3EB041B9B172631944CB611FA42BA998A6B` |
+| Execution authorization | `approved by owner 2026-08-05 via explicit /architecture-start phase-2-climate-state after live authorization-gate revalidation` |
 | V2 amendment Metis analysis | `completed; identity validated as Metis - Plan Consultant; major v2, one stable ID, one snapshot_states source, per-kind identity/snapshot fields, snapshot-local edge/flow validity, honest Target, executable canonical_diff_fields, provenance and reopening gates analyzed` |
 | V2 amendment Metis session ID | `ses_046bb4fecffeqVxPgX7SXpsiF9` |
 | V2 amendment plan | `docs/architecture-migration/plans/phase-0.5-model-driven-architecture-widget-v2-amendment.md` |
@@ -562,9 +582,9 @@ OpenCode обязаны обновлять его после каждого за
 | Architecture Explorer MVP Task 3 | `technically complete and explicit owner visual PASS received via exact message фиксируем on 2026-08-03; standalone HTML 14073817 bytes SHA-256 F0E9F32EB0872BC504DF935D9BF96C037CE9D9523CAD4E8558A521853EE5FF65; exact ProjectSession partitions, 8/22 flows, 11/3/15/6 reference catalogs and exact-width 375/768/1280 browser QA passed; fresh independent visual QA PASS/HIGH in ses_039e0c59cffeu3Ccq64vsVQPiZ` |
 | Architecture Explorer MVP Task 4 | `technically and visually complete; canonical HTML 14279246 bytes SHA-256 11E7BDC33E5BC03AA09553844234263FC311EADD29D3CD9ECB0F1D711C6B6ACF; 14/14 checks, four isolated negative probes, exact-width 375/768/1280 browser QA and fresh image-capable visual inspection passed; source/functional Oracle PASS/HIGH in ses_038d77042ffePHmGYUUrqGbLIV; all eight owner answers are YES and the phase result is explicitly accepted` |
 | Architecture Explorer MVP owner answers | `8 of 8 YES, recorded 2026-08-03 in docs/architecture-migration/evidence/phase-0.5-architecture-explorer-mvp-acceptance.md` |
-| Phase result acceptance | `accepted by owner 2026-08-03 via exact statements YES по всем 8 вопросам. Результат Phase 0.5 Architecture Explorer MVP принимаю. and Phase 0.5 принята.` |
-| Last completed action | `2026-08-05 Phase 1 final verification wave completed: F1 plan compliance APPROVE, F2 code quality/architecture APPROVE, F3 real lifecycle QA APPROVE, F4 scope fidelity/dirty-worktree APPROVE. Active plan Tasks 1-10 and F1-F4 are checked. Phase 1 is ready for owner acceptance, not self-accepted.` |
-| Next action | `owner acceptance checkpoint for Phase 1 result; do not start Phase 2 planning or implementation until the owner explicitly accepts Phase 1 and separately authorizes the next phase workflow` |
+| Phase result acceptance | `pending for Phase 2; Phase 1 was accepted by owner 2026-08-05 via exact statement Результат Phase 1 принимаю` |
+| Last completed action | `2026-08-13 Phase 2 Final Verification Wave completed: F1 plan compliance APPROVE, F2 code quality/single-owner APPROVE, F3 real lifecycle QA APPROVE, F4 architecture dossier fidelity APPROVE. Task 12 widget correction remained in place: architecture-widget.html regenerated to 15113378 bytes / SHA-256 A8B12B29D931AB4555F2F20F6FA0036702CB08E48BBBC587A4188FB03E840549. Final gates passed: Debug build 0 warnings/errors, F2 guards 6/6, F3 targeted Release 329 passed / 1 skipped / 330 total, F3 full Release 1613 passed / 1 skipped / 1614 total, model-v2 33 assertions / 21 mutations, runtime-v2 47 assertions / 20 mutations, generate-widget --check 14 checks. Evidence: f1-plan-compliance.md, f2-code-quality-architecture.md, f3-real-lifecycle-qa.md, f4-scope-fidelity-dirty-worktree.md.` |
+| Next action | `Owner acceptance checkpoint for Phase 2 result. Do not start Phase 3 planning or implementation until the owner explicitly accepts Phase 2 and separately authorizes the next phase workflow.` |
 
 Допустимые стадии:
 
@@ -599,6 +619,41 @@ Approval gates:
 
 ## Принятые решения
 
+- Для drafting `phase-2-climate-state` принят рекомендуемый planning default по
+  `DEC-001`: `ProjectSession.ClimateState` является единственным writable
+  canonical owner Climate values; `CalculationContext` в Phase 2 не заменяется
+  и остаётся узким downstream compatibility seam/read projection. Завершённое
+  logical Climate change публикуется в него ровно через один явный adapter/
+  coordinator boundary. `IClimateData`/`ClimateData` допустимы только как
+  временная read-only либо forwarding-only compatibility projection, а не второй
+  writable owner. Этот default можно пересмотреть в отдельной primary planning
+  session, но его отклонение, требующее широкой миграции context, является
+  blocking architecture decision и требует возврата владельцу до исполнения.
+- Phase 2 ограничена Climate ownership vertical slice. Она не мигрирует
+  Construction, Thermal или Hydraulics ownership, не выполняет общий redesign
+  `CalculationContext`/`ProjectLoadOrchestrator`, не меняет `.smc` schema/version,
+  formulas, UI, packages, transactional restore или Results ownership и не
+  реализует Undo/Redo stack/history/UI commands. City selection должна
+  представлять одно grouped user action; individual edits - по одному user
+  action; load/reset/restore/system apply используют отличимые non-user origins.
+- Future Undo/Redo compatibility является сквозным обязательным ограничением для
+  всех последующих фаз миграции `ProjectSession`, а не отдельной задачей Phase 2.
+  Каждая фаза `ClimateState`, `ConstructionState`, `ThermalState` и
+  `HydraulicsState` обязана определить явные state/application mutation
+  boundaries и boundary завершённого логического изменения. Все изменения
+  canonical state проходят через явные операции state slice; ViewModel остаётся
+  адаптером и не является mutation boundary. User mutations должны быть отличимы
+  от load, reset, restore и других system mutations; несколько низкоуровневых
+  изменений могут составлять одно логическое пользовательское действие; после
+  его завершения существует явная event/result boundary для downstream
+  invalidation и будущей history recording. Snapshot/save и restore применяют
+  состояние через явно обозначенный non-user path и не создают пользовательскую
+  undo entry. `Results` потребляет завершённые изменения как derived projection,
+  не становится mutation owner; legacy cleanup удаляет обходные ViewModel
+  mutation paths. Каждая будущая state-slice phase обязана включать mutation
+  API/event contract и acceptance tests. Это решение не реализует undo stack,
+  redo stack, history persistence, command history или UI-команды Undo/Redo и не
+  предписывает конкретный framework либо преждевременную форму API.
 - Reviewed Phase 1 plan SHA-256
   `011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948`
   фиксирует `ProjectSession` как единственного writable owner для project
@@ -773,6 +828,27 @@ Approval gates:
 
 ## Открытые вопросы
 
+- Primary Prometheus plan должен определить точную форму Climate state/
+  application mutation API, immutable/read projection и completion event/result,
+  не превращая выбранную форму в framework-specific Undo/Redo implementation.
+- До Phase 2 ownership edits требуется live characterization exact counts для
+  dirty, state completion, `CalculationContext` update, downstream Circuits
+  recalculation и Results refresh на city selection, individual edits, reset,
+  load, second load и repeated load/reset. Эти числа не выводятся из текущих
+  green tests и должны быть измерены до закрепления acceptance expectations.
+- Нужно live-верифицировать полный Climate writer inventory и выбрать минимальный
+  allow-list для protected dirty paths. Любой путь из существующего dirty
+  worktree сначала требует binary-safe baseline и сохранения unrelated deltas.
+- Какая конкретная форма event/result будет обозначать завершение логического
+  изменения в state/application API каждого slice, не связывая контракт с
+  будущим Undo/Redo framework?
+- Как последующие slice plans будут задавать grouping нескольких внутренних
+  field/collection changes в одно пользовательское действие, включая границы
+  ошибок и отменённого изменения?
+- Как конкретно будет представлена mutation origin (`user`, load, reset,
+  restore, другой system apply) и где будет находиться будущий history recorder?
+  Это детали реализации; обязательность явных mutation/completion boundaries и
+  distinguishable non-user paths уже принята и не является открытым вопросом.
 - Решено: единственным writable owner project lifecycle identity, current path,
   dirty state и restore guard в Phase 1 является `ProjectSession`.
   `ProjectStateService` и `CalculationStateService` теперь forwarding-only
@@ -792,18 +868,33 @@ Approval gates:
 
 ## Следующее действие
 
-Текущий authoritative next action:
-do not continue Task 10 and do not run Phase 1 final verification wave F1-F4.
-Phase 1 implementation Tasks 1-10 and Final Verification Wave F1-F4 are accepted
-by the execution workflow after the nested restore lease correction, Task 10
-re-check, and independent final reviews. The correction is verified: regression
-disposal, repeated disposal, and final-exit subscriber exception semantics;
-`ProjectSession` no longer stores `_currentLease` and returns a fresh lease per
-successful `BeginProjectRestore()` call. Targeted/affected/persistence/build/full
-Release gates are green. Task 10 model/runtime/widget re-checks are green without
-rewriting the model/maps/widget. F1-F4 all returned `VERDICT: APPROVE`. Phase 1 is
-ready for owner acceptance, but Phase 2 planning/implementation remains blocked
-until the owner explicitly accepts the result and authorizes the next workflow.
+Текущий authoritative next action: owner acceptance checkpoint for Phase 2
+result. Phase 2 implementation Tasks 1-12 and Final Verification Wave F1-F4 are
+accepted by the execution workflow. F1 plan compliance APPROVE, F2 code quality /
+single-owner APPROVE, F3 real lifecycle QA APPROVE, and F4 architecture dossier
+fidelity APPROVE are recorded under
+`docs/architecture-migration/evidence/phase-2-climate-state/`. Task 12 widget
+correction remains in place: `docs/architecture-migration/architecture-widget.html`
+was physically regenerated through `node docs/architecture-migration/widget/generate-widget.mjs`
+to `15113378` bytes and SHA-256
+`A8B12B29D931AB4555F2F20F6FA0036702CB08E48BBBC587A4188FB03E840549`; subsequent
+`generate-widget.mjs --check` matched canonical/generated hashes. Final executable
+gates passed: Debug build 0 warnings/errors, F2 guards 6/6, F3 targeted Release
+329 passed / 1 skipped / 330 total, F3 full Release 1613 passed / 1 skipped /
+1614 total, model-v2 33 assertions / 21 mutations, runtime-v2 47 assertions / 20
+mutations, and widget check 14 checks. Phase 2 is ready for owner acceptance, but
+Phase 3 planning/implementation remains blocked until the owner explicitly
+accepts Phase 2 and separately authorizes the next workflow.
+При проектировании любой последующей state-slice phase (`ClimateState`,
+`ConstructionState`, `ThermalState`, `HydraulicsState`) план обязан переносить
+сквозной Future Undo/Redo compatibility constraint: явные user mutation и
+logical-change completion boundaries, distinguishable non-user load/reset/
+restore/system-apply paths, grouping нескольких внутренних изменений в одно
+user action и acceptance tests, доказывающие, что перехват ViewModel internals не
+нужен. Snapshot/save и restore plans обязаны использовать обозначенный non-user
+apply path; Results plan обязан оставлять Results derived projection; legacy
+cleanup plan обязан удалить обходные ViewModel mutation paths. Это planning
+constraint, а не разрешение реализовывать Undo/Redo или начинать следующую фазу.
 
 Нижеследующие записи в этом разделе сохранены как исторические next-action
 checkpoints. Они superseded authoritative инструкцией выше и не разрешают
@@ -909,6 +1000,199 @@ on 2026-08-01. Failed receipt
 5-10/F1-F5 and Phase 1 remain blocked until amendment F5.
 
 ## Журнал решений
+
+- 2026-08-12: Phase 2 Task 11 affected gates accepted after a test-only blocker
+  correction. Initial targeted Release matrix failed only
+  `SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache`: expected
+  saved Climate values from the live module state, but actual values were the
+  canonical session defaults (`SelectedCity = string.Empty`, `WindSpeed = 5.0`).
+  Root cause investigation proved fixture/runtime instance divergence:
+  `ResultsViewModelTestHelpers.CreateResultsViewModel` created `ClimateViewModel`
+  via the legacy no-session helper, which owns a standalone
+  `ProjectSessionClimateState`, while `ResultsViewModel.SaveCurrentProject()`
+  correctly reads `projectStateService.Session.ClimateState.Snapshot`. Minimal
+  correction was limited to
+  `tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelTestHelpers.cs`:
+  a session-backed `CreateClimateViewModel(IProjectSession)` overload is used by
+  the shared Results helper, the same session is forwarded to
+  `ProjectLoadOrchestrator`, and the legacy no-session overload remains for older
+  tests. Production save path and `.smc` wire format were unchanged. Gates after
+  fix: Debug build PASS 0 warnings/0 errors; Release build PASS 0 warnings/0
+  errors; isolated blocker test PASS; targeted Release matrix PASS with TRX
+  counters total 330 / executed 329 / passed 329 / failed 0; first full Release
+  run had an order-sensitive `ThermalViewModelTests.Validate_ValidInput_ReturnsTrue`
+  failure, that test passed in isolation, and full Release rerun PASSed with TRX
+  counters total 1616 / executed 1613 / passed 1613 / failed 0. LSP diagnostics
+  reproduced the known cwd harness issue. Evidence is
+  `docs/architecture-migration/evidence/phase-2-climate-state/affected-gates.md`.
+  Active plan checkbox Task 11 marked completed. Next action is Phase 2 Task 12
+  dossier refresh; Task 12 and Final Verification Wave were not started.
+
+- 2026-08-06: Phase 2 Task 3 multiplicity characterization independently
+  verified and accepted. Added
+  `tests/SnowMeltingCalculator.Tests/Climate/ClimateMultiplicityCharacterizationTests.cs`
+  and evidence
+  `docs/architecture-migration/evidence/phase-2-climate-state/multiplicity-characterization.md`.
+  Current legacy counts are encoded for MarkDirty/ClimateData.DataChanged/
+  ClimateViewModel.DataChanged/CalculationContext.ContextChanged respectively:
+  selected-city `3/3/3/3`, scalar edit `1/1/1/1`, high-requirements toggle
+  `2/2/2/2`, reset `0/1/1/1`, reset-to-city-data `3/4/4/4`, same-value scalar
+  no-op `0/0/0/0`, same-city no-op `0/0/0/0`, load and second load `0/0/0/0`,
+  and repeated resets each `0/1/1/1`. Downstream Thermal/Circuits/Results counts
+  are documented as covered by existing relevant suites rather than invented in
+  the narrow VM probe. Gates: `ClimateMultiplicity` 9/9 PASS;
+  `ClimateMultiplicity|ClimateStateLegacyStoreGuard|ClimateViewModelTests` 33/33
+  PASS; wider Climate/CalculationContext/Thermal/Hydraulics relevant filter
+  203/203 PASS; diff-check PASS with only the known TASK_CONTEXT LF/CRLF warning.
+  LSP diagnostics remains blocked by the known workspace-root harness issue.
+  Active Phase 2 plan checkbox Task 3 marked completed. Workflow stays
+  `executing`; next action is Phase 2 Task 4 ClimateState API. Task 4 was not
+  started; production code, Phase 1 docs, maps, model and widget were not changed.
+- 2026-08-06: Phase 2 Task 2 writer guard independently verified and accepted.
+  Added `tests/SnowMeltingCalculator.Tests/Climate/ClimateStateLegacyStoreGuardTests.cs`
+  as a deterministic source-text inventory for the current legacy Climate writer
+  surface. The accepted current bypass/projection list records writable
+  `ClimateViewModel` backing fields/mutation boundaries, `SyncToClimateData()`
+  concrete `ClimateData` writes, public settable `ClimateData` properties,
+  `CalculationContext.UpdateClimate()`, `ProjectLoadOrchestrator` restore/reset
+  Climate VM writes, and `ResultsViewModel.SaveCurrentProject()` as read/
+  projection-only with zero direct Climate VM setters. A negative fixture proves
+  direct setters in forbidden callers are detected. Evidence is
+  `docs/architecture-migration/evidence/phase-2-climate-state/writer-guard.md`.
+  Gates: `ClimateStateLegacyStoreGuard` 2/2 PASS;
+  `ClimateStateLegacyStoreGuard|ClimateViewModelTests` 24/24 PASS; diff-check
+  PASS with only the known TASK_CONTEXT LF/CRLF warning. LSP diagnostics remains
+  blocked by the known workspace-root harness issue. Active Phase 2 plan checkbox
+  Task 2 marked completed. Workflow stays `executing`; next action is Phase 2
+  Task 3 multiplicity tests. Task 3 was not started; production code, Phase 1
+  docs, maps, model and widget were not changed.
+- 2026-08-05: Phase 2 Task 1 baseline/recovery independently verified and
+  accepted. Verifier recalculated the four retained immutable receipts and matched
+  repaired `baseline.md`: baseline/post status SHA
+  `42BD4EE368BAAE77D37E2B306780945F436A2D2FD5FCBD09202EC3E3113597C3`, baseline
+  diff SHA `574252FE538E15F64722BAC6909294675F0001809133FE3E1C956B9B94475FD0`,
+  cached diff empty SHA
+  `E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`, 225 status
+  records + branch header, 215 modified, 0 deleted, 10 untracked, 0 staged, and
+  baseline-vs-post drift 0/0/0 after excluding only the Task 1 evidence
+  directory. Placeholder/mojibake scan passed, and `git diff --check` for
+  `baseline.md` plus `TASK_CONTEXT.md` produced no errors. Active Phase 2 plan
+  checkbox Task 1 marked completed. Workflow returned from `blocked` to
+  `executing`; next action is Phase 2 Task 2 writer guard. Task 2 was not started,
+  and production code/tests/Phase 1 docs were not changed.
+- 2026-08-05: по owner instruction `Phase 1 не трогаем. Phase 2 не начинаем
+  заново` выполнена только repair операция Task 1 baseline report. Новый
+  repository snapshot не создавался; использованы только четыре retained raw
+  receipts: `baseline-git-status.bin`, `baseline-git-diff-name-only.bin`,
+  `baseline-git-cached-diff-name-only.bin`, `post-git-status.bin`. Invalid
+  placeholder `baseline.md` заменён factual report: baseline/post status SHA
+  `42BD4EE368BAAE77D37E2B306780945F436A2D2FD5FCBD09202EC3E3113597C3`, diff
+  SHA `574252FE538E15F64722BAC6909294675F0001809133FE3E1C956B9B94475FD0`, cached
+  diff empty SHA `E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`,
+  225 status records + branch header, 215 modified, 0 deleted, 10 untracked,
+  0 staged, and 0 baseline-vs-post removed/added/status-changed records after
+  excluding only the Task 1 evidence directory. Placeholder/mojibake verification
+  passed. Workflow remains `blocked` pending independent verification; Task 2 was
+  not started.
+- 2026-08-05: Phase 2 execution остановлена на Task 1 и переведена в `blocked`.
+  Первый worker `ses_02ce7a7c2ffef6kq75r4Zv4oLf` не смог захватить NUL stream
+  через PowerShell 5.1. Replacement worker `ses_02cd56513ffe2GzG7M0dsSKBiv`
+  успешно сохранил четыре raw receipts через `cmd.exe` с exit `0`, но не
+  завершил post-processing. Recovery worker `ses_02cc9d2c2ffetA3w8wd4xB878F`
+  создал только invalid placeholder `baseline.md`: фактические SHA/count/drift
+  значения и перечисленные CSV/JSON отсутствуют. Поэтому Task 1 не принят,
+  independent verification не запускалась, plan checkbox остаётся unchecked,
+  Tasks 2-12/F1-F4 не начинались. Production code и tests этой execution lane
+  не изменялись. Safe recovery ограничен детерминированным parsing четырёх
+  immutable `.bin` и заменой placeholder evidence с последующей независимой
+  проверкой.
+- 2026-08-05: владелец отдельной явной командой `/architecture-start
+  phase-2-climate-state` авторизовал исполнение reviewed plan SHA-256
+  `D79D7C46CA73EBCFF161164FC41EE3EB041B9B172631944CB611FA42BA998A6B`.
+  Authorization gate повторно подтвердил `Current phase`, `Stage = approved`,
+  exact live plan hash, owner approval, Sisyphus PASS, terminal Momus `OKAY`,
+  реальные Metis/Prometheus/Momus identities, Git root `D:\IA\ace v.2` и
+  существенно dirty protected worktree. Workflow переведён в `executing`;
+  первым разрешён только Task 1 binary-safe baseline capture. Commits, push,
+  installs и external changes не авторизованы.
+- 2026-08-05: владелец явно утвердил reviewed Phase 2 plan точной формулировкой
+  `Утверждаю план Phase 2 SHA-256
+  D79D7C46CA73EBCFF161164FC41EE3EB041B9B172631944CB611FA42BA998A6B`.
+  Live hash канонического
+  `docs/architecture-migration/plans/phase-2-climate-state.md` совпал; current
+  phase, `awaiting-owner-approval`, Sisyphus PASS, Momus OKAY и реальные
+  Metis/Prometheus/Momus session identities повторно подтверждены. Workflow
+  переведён только в `approved`; `Execution authorization = pending`.
+  Production-код, tests, maps, widget и execution evidence не изменялись.
+  Следующий допустимый переход требует отдельной явной
+  `/architecture-start phase-2-climate-state`.
+- 2026-08-05: после явного owner approval только на запись planning artifact
+  primary Prometheus session `ses_02e464159ffeLYpJkhNkBJErT1` создала
+  `.omo/plans/phase-2-climate-state.md`: 12 implementation todos, F1-F4,
+  explicit ClimateState owner/mutation/origin/completion/no-op contract,
+  characterization-first TDD, protected dirty baseline, `.smc` v1.0/v1.1
+  compatibility, downstream multiplicity, DI/single-owner guards, six-map/
+  model/widget gates и отдельные approval/execution boundaries. Sisyphus review
+  дал PASS. Обязательный Momus review дал `OKAY` в session
+  `ses_02d0d549affeUPch83Lkox97qE`. Source импортирован byte-identically в
+  `docs/architecture-migration/plans/phase-2-climate-state.md`; обе копии имеют
+  SHA-256 `D79D7C46CA73EBCFF161164FC41EE3EB041B9B172631944CB611FA42BA998A6B`.
+  Workflow переведён в `awaiting-owner-approval`; production/tests/maps/widget
+  не изменялись, execution не авторизована.
+- 2026-08-05: получен и проверен receipt отдельной primary Plan Mode session
+  `ses_02e464159ffeLYpJkhNkBJErT1`. Metadata: 54 messages, полный transcript,
+  agents `Prometheus - Plan Builder` и техническая compaction; topology lock
+  подтверждает узкую Climate-only migration, canonical
+  `ProjectSession.ClimateState`, adapter/projection boundary, сохранение `.smc`
+  и characterization-first TDD. Один background falsification task завершился
+  `Session error: Aborted` и самим Prometheus корректно исключён из evidence.
+  Prometheus не записал `.omo/plans/phase-2-climate-state.md`, поскольку
+  остановился на явном pre-write owner approval gate. Переданный session ID не
+  интерпретирован как approval; workflow остаётся `awaiting-primary-plan`.
+- 2026-08-05: по отдельному явному запросу владельца продолжен planning-only
+  workflow `phase-2-climate-state`. После fresh проверки `D:\IA\ace v.2`, Git
+  root, большого protected dirty worktree и актуальных Climate ownership,
+  reactive, persistence, DI и test seams выполнен обязательный Metis
+  pre-analysis в session `ses_02e61739dffenW8itUC4j80ikX`; metadata подтверждает
+  единственного agent `Metis - Plan Consultant`. Принят drafting default:
+  `ProjectSession.ClimateState` - один writable owner, `CalculationContext` -
+  узкий downstream compatibility seam/read projection, ViewModel - adapter,
+  city selection - одно logical user action, load/reset/restore/system apply -
+  отличимые non-user paths. Зафиксированы characterization и exact multiplicity
+  gates, `.smc` v1.1 compatibility, protected dirty paths, узкие exclusions и
+  stop conditions. Workflow переведён только в `awaiting-primary-plan`; plan,
+  production/tests/maps/widget/evidence не создавались и не изменялись.
+- 2026-08-05: владелец явно принял результат Phase 1 точной формулировкой
+  `Результат Phase 1 принимаю`. Workflow `phase-1-project-session-shell`
+  переведён из `awaiting-owner-acceptance` в `completed` после завершения Tasks
+  1-10 и Final Verification Wave F1-F4 с итоговыми verdicts `APPROVE`. Это
+  принятие закрывает только Phase 1: Phase 2 не начата, не спланирована, не
+  утверждена и не авторизована; следующий workflow требует отдельного явного
+  запроса владельца. Production-код этим acceptance update не изменялся.
+
+- 2026-08-05: planning-only принято сквозное решение Future Undo/Redo
+  compatibility для всех последующих фаз миграции `ProjectSession`.
+  - `ClimateState`, `ConstructionState`, `ThermalState` и `HydraulicsState`
+    должны предоставлять явные state/application mutation boundaries и одну
+    идентифицируемую boundary завершения логического изменения пользователя.
+  - User mutation отличается от load, reset, restore и другого system apply;
+    несколько внутренних field/collection changes могут образовывать одно user
+    action; downstream invalidation и будущая history recording начинаются после
+    completion boundary.
+  - ViewModel остаётся адаптером и не является обязательной точкой перехвата;
+    Results остаётся derived projection; snapshot/save и restore используют
+    явно обозначенный non-user path; legacy cleanup удаляет обходные ViewModel
+    mutation paths.
+  - Каждая будущая state-slice phase должна включать mutation API/event contract
+    и acceptance tests с универсальным критерием: `Every user-visible mutation
+    of the migrated slice crosses an explicit state/application mutation
+    boundary and produces one identifiable logical-change completion boundary.
+    Load, reset, restore, and system apply use distinguishable non-user paths. No
+    future Undo/Redo implementation needs to intercept ViewModel internals, and
+    multiple internal field changes can represent one user action.`
+  - Undo/redo stacks, history persistence, command history, snapshots и UI
+    commands не проектировались и не реализовывались; production code и
+    завершённый Phase 1 plan не изменялись.
 
 - 2026-08-04: Phase 1 Task 8 GREEN implementation completed.
   - No production code changes were required; the implementation from Tasks 4-7

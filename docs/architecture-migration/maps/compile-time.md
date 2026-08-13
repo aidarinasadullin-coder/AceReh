@@ -78,6 +78,23 @@ Stable prefix: `CTN-`. All nodes below are members of `compile-time`.
 | `CTN-028` | type | `HydraulicSummaryBuilder` | `src/ViewModels/Results/ResultsViewModel.cs:494-511` |
 | `CTN-029` | test type | `DiRegistrationTests` | `tests/SnowMeltingCalculator.Tests/Configuration/DiRegistrationTests.cs:18-30` |
 | `CTN-030` | type | `MaterialEditorViewModel` | `tests/SnowMeltingCalculator.Tests/Configuration/DiRegistrationTests.cs:39-46` |
+
+### Phase 2 ClimateState compile-time overlay
+
+| Node ID | Kind | Display name | Source evidence |
+| --- | --- | --- | --- |
+| `CTN-P2-CLIMATE-001` | interface | `IProjectSessionClimateState` | `src/Services/Project/IProjectSessionClimateState.cs`; evidence `docs/architecture-migration/evidence/phase-2-climate-state/climate-state-api.md` |
+| `CTN-P2-CLIMATE-002` | type | `ProjectSessionClimateState` | `src/Services/Project/ProjectSessionClimateState.cs`; evidence `climate-state-api.md`, `downstream-invalidation.md` |
+| `CTN-P2-CLIMATE-003` | record/type set | `ClimateStateSnapshot`, `ClimateEdit`, `ClimateMutationOrigin`, `ClimateMutationResult`, `ClimateStateChangedEventArgs` | `src/Services/Project/Climate*.cs`; evidence `climate-state-api.md` |
+| `CTN-P2-CLIMATE-004` | type/interface | `ClimateData` / `IClimateData` projection boundary | `src/Models/Climate/ClimateData.cs`; evidence `climate-data-projection.md` |
+
+| Edge ID | Kind | From | To | Evidence | Status |
+| --- | --- | --- | --- | --- | --- |
+| `CTE-P2-CLIMATE-001` | ownership/type-use | `ProjectSession` | `ProjectSessionClimateState` | `ProjectSession.cs` private readonly field and `ClimateState` property; `climate-state-api.md` | verified |
+| `CTE-P2-CLIMATE-002` | interface implementation | `ProjectSessionClimateState` | `IProjectSessionClimateState` | `ProjectSessionClimateState.cs`; `IProjectSessionClimateState.cs` | verified |
+| `CTE-P2-CLIMATE-003` | constructor/interface reference | `ClimateViewModel` | `IProjectSessionClimateState` / `IProjectSession` | `ClimateViewModel.cs`; `climate-viewmodel-adapter.md` | verified |
+| `CTE-P2-CLIMATE-004` | compatibility projection reference | `ProjectSessionClimateState` | `ClimateData` / `CalculationContext` | `ProjectSessionClimateState.cs`; `downstream-invalidation.md` | verified |
+| `CTE-P2-CLIMATE-005` | persistence snapshot read | `ResultsViewModel` | `IProjectSession.ClimateState` | `ResultsViewModel.cs`; `persistence-results.md`; `affected-gates.md` | verified |
 | `CTN-031` | type | `TemplateEditorViewModel` | `tests/SnowMeltingCalculator.Tests/Configuration/DiRegistrationTests.cs:49-56` |
 
 ## Typed Edges

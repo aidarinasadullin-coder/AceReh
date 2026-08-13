@@ -26,6 +26,27 @@ limitations:
 
 # DI/Runtime Research View
 
+## Phase 2 ClimateState runtime overlay
+
+| Node ID | Runtime role | Lifetime / owner | Evidence | Status |
+| --- | --- | --- | --- | --- |
+| `DRN-P2-CLIMATE-001` | `ProjectSessionClimateState` canonical Climate state slice | owned private instance of singleton `ProjectSession`; not independently registered in DI | `ProjectSession.cs`; `DiRegistrationTests`; `di-guards.md` | verified |
+| `DRN-P2-CLIMATE-002` | `IProjectSessionClimateState` access surface | exposed through `IProjectSession.ClimateState`; consumers share the `ProjectSession` instance | `IProjectSession.cs`; `ProjectSession.cs`; `di-guards.md` | verified |
+| `DRN-P2-CLIMATE-003` | `ClimateViewModel` adapter | singleton VM observes/routes through canonical state; mirrors snapshot values | `ClimateViewModel.cs`; `climate-viewmodel-adapter.md` | verified |
+| `DRN-P2-CLIMATE-004` | `ClimateData` / `IClimateData` projection | singleton compatibility projection updated by canonical completion | `ClimateData.cs`; `climate-data-projection.md`; `downstream-invalidation.md` | verified |
+| `DRN-P2-CLIMATE-005` | `CalculationContext` Climate projection seam | singleton downstream compatibility context updated once per changed canonical completion | `ProjectSessionClimateState.cs`; `CalculationContext.cs`; `downstream-invalidation.md` | verified |
+
+| Edge ID | Runtime relation | From | To | Evidence | Status |
+| --- | --- | --- | --- | --- | --- |
+| `DRE-P2-CLIMATE-001` | owns/exposes | `ProjectSession` | `ProjectSessionClimateState` / `IProjectSessionClimateState` | `ProjectSession.cs`; `di-guards.md` | verified |
+| `DRE-P2-CLIMATE-002` | adapter consumes | `ClimateViewModel` | `IProjectSession.ClimateState` | `ClimateViewModel.cs`; `climate-viewmodel-adapter.md` | verified |
+| `DRE-P2-CLIMATE-003` | non-user restore/reset applies | `ProjectLoadOrchestrator` / `MainViewModel` | `IProjectSession.ClimateState` | `restore-reset-routing.md` | verified |
+| `DRE-P2-CLIMATE-004` | compatibility completion | `ProjectSessionClimateState` | `ClimateData.ApplyProjection` then `CalculationContext.UpdateClimate` | `downstream-invalidation.md`; `multiplicity-characterization.md` | verified |
+| `DRE-P2-CLIMATE-005` | persistence projection read | `ResultsViewModel` | `IProjectSession.ClimateState.Snapshot` | `persistence-results.md`; `affected-gates.md` | verified |
+
+Task 10 guard evidence confirms no `IProjectSessionClimateState` / `ProjectSessionClimateState`
+DI descriptor creates a transient or second owner; consumers observe the same canonical projection chain.
+
 ## Filter and Evidence Rules
 
 **View membership:** `di-runtime` only. This receipt admits `IServiceCollection` registration, lifetime, explicit factory delegation, explicit service-provider resolution, and selected composition/create paths. It does not admit a bare `using` directive, a constructor type reference by itself, or a compile-time namespace reference as DI/runtime evidence.

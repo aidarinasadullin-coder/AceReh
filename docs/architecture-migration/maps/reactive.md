@@ -25,7 +25,17 @@ limitations:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `RE-001` | `ST-021`,`ST-014` | CalculationContext.ContextChanged | Circuits handler | constructor subscription; unsubscribe not observed | ThermalInputs | notify hydraulic thermal properties | Circuits :728-730,1062-1082 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-002` | `ST-022`,`ST-014`,`ST-018` | CalculationContext.ContextChanged | Circuits handler | same subscription | valid ThermalResult | CalculateAllCollectors; invalid/null does not | Circuits :1068-1082 | verified | unknown | unknown | unknown | unknown | unknown |
-| `RE-003` | `ST-020`,`ST-006`,`ST-018` | CalculationContext.ContextChanged | Circuits handler | same subscription | Climate | update then CalculateAllCollectors | Circuits :1084-1197 | verified | unknown | unknown | unknown | unknown | unknown |
+| `RE-003` | `ST-020`,`ST-006`,`ST-018` | `ProjectSessionClimateState.CompleteMutation()` | `ClimateData.ApplyProjection`, `CalculationContext.UpdateClimate`, Circuits handler | canonical completion sequence | Climate user/load/reset/restore/system mutation that changes snapshot | one projection update then one context publication; Circuits receives one authoritative `CalculationContext.Climate` invalidation path without duplicate recalculation | `ProjectSessionClimateState.cs`; `ClimateData.cs`; `CalculationContext.cs`; `CircuitsViewModel.cs`; evidence `downstream-invalidation.md`, `multiplicity-characterization.md`, `affected-gates.md` | verified | 1 projection event for changed mutation | 1 `CalculationContext.Climate` publication | 1 Circuits recalculation path (two glycol reads for operating/design temperatures in guard test) | Results projection reads canonical snapshot | user origin marks dirty; load/reset/restore origins do not create user dirty semantics |
+
+## Phase 2 ClimateState acceptance overlay
+
+The accepted Climate reactive boundary is no longer `ClimateViewModel -> ClimateData -> CalculationContext`
+as independent writable steps. A changed canonical Climate mutation completes in
+`ProjectSessionClimateState.CompleteMutation()`, which first applies the `ClimateData` compatibility
+projection and then publishes exactly one `CalculationContext.UpdateClimate(..., "Climate")`. The
+downstream Circuits path consumes that single context publication. Task 9 evidence
+`downstream-invalidation.md` records the duplicate-recalculation guard; Task 11 `affected-gates.md`
+records the final targeted/full-suite acceptance counts.
 | `RE-004` | `ST-015`,`ST-019` | ICalculationStateService.StateChanged | Circuits handler | constructor subscription; unsubscribe not observed | state change | IsCalculating notification | CalculationStateService :146-168; Circuits :1202-1206 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-005` | `ST-015` | StateChanged | Thermal handler | constructor subscription; unsubscribe not observed | state change | handler body not observed | Thermal :279-280 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-006` | `ST-013` | PipeSpacingChanged | Circuits | constructor subscription; unsubscribe not observed | guarded spacing change | handler effects partial | CalculationStateService :120-139; Circuits :724-726 | verified | unknown | unknown | unknown | unknown | unknown |

@@ -20,6 +20,20 @@ limitations:
 
 # Persistence Map
 
+## Phase 2 ClimateState persistence overlay
+
+`PP-006` and `PP-013..PP-020` retain the existing `.smc` Climate wire fields and version behavior.
+Phase 2 changes the live source/restore boundary, not the serialized schema: `ResultsViewModel.SaveCurrentProject()`
+maps `ClimateProjectData` from `_projectSession.ClimateState.Snapshot`, while `ProjectLoadOrchestrator`
+applies loaded Climate DTO values through `IProjectSessionClimateState.ApplyProjectSnapshot` / reset paths with
+non-user `ClimateMutationOrigin`. `ClimateViewModel` is an adapter mirror, and `ClimateData`/`IClimateData`
+remains a compatibility projection updated by canonical completion. Evidence: `persistence-results.md`,
+`restore-reset-routing.md`, `climate-data-projection.md`, and Task 11 `affected-gates.md`.
+
+Task 11 accepted counts for this persistence boundary are targeted Release TRX
+`total 330 / executed 329 / passed 329 / failed 0` and full Release rerun TRX
+`total 1616 / executed 1613 / passed 1613 / failed 0`; the existing missing-fixture skip remains documented.
+
 ## Phase 1 ProjectSession Shell Boundary
 
 `ProjectSession` changes only the canonical in-memory lifecycle owner. No
