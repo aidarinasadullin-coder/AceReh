@@ -1,11 +1,18 @@
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using SnowMeltingCalculator.Configuration;
+using SnowMeltingCalculator.Core;
+using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Project;
+using SnowMeltingCalculator.Services.Results;
+using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Construction;
+using SnowMeltingCalculator.ViewModels.Results;
 using SnowMeltingCalculator.Views.Construction;
 
 namespace SnowMeltingCalculator.Tests.Configuration
@@ -33,6 +40,65 @@ namespace SnowMeltingCalculator.Tests.Configuration
         public void TearDown()
         {
             _provider?.Dispose();
+        }
+
+        [Test]
+        public void ClimateLifecycleDescriptors_HaveNoTransientSecondOwner()
+        {
+            var services = CreateApplicationServices();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(services.Any(descriptor => descriptor.ServiceType == typeof(IProjectSessionClimateState)), Is.False);
+                Assert.That(services.Any(descriptor => descriptor.ServiceType == typeof(ProjectSessionClimateState)), Is.False);
+                Assert.That(services.Single(descriptor => descriptor.ServiceType == typeof(ProjectSession)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+                Assert.That(services.Single(descriptor => descriptor.ServiceType == typeof(IClimateData)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+                Assert.That(services.Single(descriptor => descriptor.ServiceType == typeof(CalculationContext)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+                Assert.That(services.Single(descriptor => descriptor.ServiceType == typeof(ClimateViewModel)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+                Assert.That(services.Single(descriptor => descriptor.ServiceType == typeof(ProjectLoadOrchestrator)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+                Assert.That(services.Single(descriptor => descriptor.ServiceType == typeof(ResultsViewModel)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+            });
+        }
+
+        [Test]
+        public void ClimateLifecycleConsumers_ObserveCanonicalProjectionChain()
+        {
+            var provider = CreateApplicationServices().BuildServiceProvider();
+            using (provider)
+            {
+                var session = provider.GetRequiredService<IProjectSession>();
+                var climateViewModel = provider.GetRequiredService<ClimateViewModel>();
+                var climateData = provider.GetRequiredService<IClimateData>();
+                var calculationContext = provider.GetRequiredService<CalculationContext>();
+                var projectLoadOrchestrator = provider.GetRequiredService<ProjectLoadOrchestrator>();
+                var resultsViewModel = provider.GetRequiredService<ResultsViewModel>();
+                var markDirty = provider.GetRequiredService<IMarkDirtyService>();
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(session, Is.Not.Null);
+                    Assert.That(climateViewModel, Is.Not.Null);
+                    Assert.That(climateData, Is.Not.Null);
+                    Assert.That(calculationContext, Is.Not.Null);
+                    Assert.That(projectLoadOrchestrator, Is.Not.Null);
+                    Assert.That(resultsViewModel, Is.Not.Null);
+                    Assert.That(markDirty, Is.SameAs(session));
+                });
+
+                var result = session.ClimateState.ApplyIndividualEdit(
+                    new ClimateEdit(ClimateEditField.AirTemperature, -12.5),
+                    ClimateMutationOrigin.User);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(result.IsChanged, Is.True);
+                    Assert.That(result.IsValid, Is.True);
+                    Assert.That(climateData.AirTemperature, Is.EqualTo(-12.5));
+                    Assert.That(calculationContext.Climate, Is.SameAs(climateData));
+                    Assert.That(climateViewModel.AirTemperature, Is.EqualTo(-12.5));
+                    Assert.That(session.IsDirty, Is.True);
+                });
+            }
         }
 
         [Test]
@@ -118,6 +184,13 @@ namespace SnowMeltingCalculator.Tests.Configuration
             // Assert
             Assert.That(concrete, Is.Not.Null);
             Assert.That(iface, Is.Not.Null);
+        }
+
+        private static ServiceCollection CreateApplicationServices()
+        {
+            var services = new ServiceCollection();
+            services.AddApplicationServices();
+            return services;
         }
 
         private static void EnsureApplicationResources()
