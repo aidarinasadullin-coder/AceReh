@@ -1,0 +1,29 @@
+Сборка начата 12.08.2026 19:44:59.
+Уровень детализации журнала: Normal.     1>Проект "D:\IA\ace v.2\src\SnowMeltingCalculator.csproj" в узле 1 (целевые объекты по умолчанию).
+     1>MainResourcesGeneration:
+       Целевой объект "MainResourcesGeneration" пропускается, так как все выходные файлы актуальны по отношению к входным.
+       GenerateTargetFrameworkMonikerAttribute:
+       Целевой объект "GenerateTargetFrameworkMonikerAttribute" пропускается, так как все выходные файлы актуальны по отношению к входным.
+       CoreGenerateAssemblyInfo:
+       Целевой объект "CoreGenerateAssemblyInfo" пропускается, так как все выходные файлы актуальны по отношению к входным.
+       _GenerateSourceLinkFile:
+         Файл Source Link "obj\Debug\net8.0-windows\win-x64\SnowMeltingCalculator.sourcelink.json" обновлен.
+       CoreCompile:
+       Целевой объект "CoreCompile" пропускается, так как все выходные файлы актуальны по отношению к входным.
+       _CreateAppHost:
+       Целевой объект "_CreateAppHost" пропускается, так как все выходные файлы актуальны по отношению к входным.
+       _CopyOutOfDateSourceItemsToOutputDirectory:
+       Целевой объект "_CopyOutOfDateSourceItemsToOutputDirectory" пропускается, так как все выходные файлы актуальны по отношению к входным.
+       GenerateBuildDependencyFile:
+       Целевой объект "GenerateBuildDependencyFile" пропускается, так как все выходные файлы актуальны по отношению к входным.
+       GenerateBuildRuntimeConfigurationFiles:
+       Целевой объект "GenerateBuildRuntimeConfigurationFiles" пропускается, так как все выходные файлы актуальны по отношению к входным.
+       CopyFilesToOutputDirectory:
+         SnowMeltingCalculator -> D:\IA\ace v.2\src\bin\Debug\net8.0-windows\win-x64\SnowMeltingCalculator.dll
+     1>Сборка проекта "D:\IA\ace v.2\src\SnowMeltingCalculator.csproj" завершена (целевые объекты по умолчанию).
+
+Сборка успешно завершена.
+    Предупреждений: 0
+    Ошибок: 0
+
+Прошло времени 00:00:00.59
