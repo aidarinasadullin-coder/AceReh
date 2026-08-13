@@ -458,12 +458,14 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var climateService = new ClimateDataService(repositoryMock.Object);
             climateService.LoadClimateDataAsync().Wait();
 
+            // ClimateViewModel теперь адаптер над каноническим ClimateState.
+            // Для проверки persistence используем ViewModel, привязанную к той же сессии,
+            // что и ResultsViewModel, чтобы мутации шли в canonical snapshot.
             var climateVm = new ClimateViewModel(
                 climateService,
                 new ClimateData(),
                 new ClimateValidator(),
-                new Mock<IMarkDirtyService>().Object,
-                new CalculationContext());
+                _projectStateService.Session);
 
             climateVm.SelectedCity = climateService.GetCityByName(cityName);
             climateVm.AirTemperature = savedAirTemperature;
@@ -495,13 +497,14 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var json = JsonSerializer.Serialize(savedData, jsonOptions);
             var loadedData = JsonSerializer.Deserialize<ProjectData>(json, jsonOptions)!;
 
-            // Act — загружаем в чистый ViewModel
+            // Act — загружаем в чистый ViewModel, привязанный к той же канонической сессии.
+            // Так load boundary обновляет ClimateState snapshot, и адаптер climateVm2
+            // получает актуальные значения через Changed-событие.
             var climateVm2 = new ClimateViewModel(
                 climateService,
                 new ClimateData(),
                 new ClimateValidator(),
-                new Mock<IMarkDirtyService>().Object,
-                new CalculationContext());
+                _projectStateService.Session);
 
             var viewModel2 = CreateViewModel(
                 climateVm2,
@@ -520,6 +523,82 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(climateVm2.WindSpeed, Is.EqualTo(savedWindSpeed));
             Assert.That(climateVm2.Humidity, Is.EqualTo(savedHumidity));
             Assert.That(climateVm2.SnowfallIntensity, Is.EqualTo(savedSnowfallIntensity));
+        }
+
+        [Test]
+        public void SaveCurrentProject_PersistsClimateStateSnapshot_NotClimateViewModelMirror()
+        {
+            // Arrange: climateVm и projectSession.ClimateState — разные экземпляры
+            // ProjectSessionClimateState, потому что helper использует legacy constructor.
+            // Устанавливаем зеркальные значения в climateVm и канонические — в ProjectSession.ClimateState.
+            // SaveCurrentProject должен сохранить именно канонический snapshot.
+            const string canonicalCity = "Канонический город";
+            const string canonicalRegion = "Канонический регион";
+            const double canonicalAirTemperature = -22.0;
+            const double canonicalWindSpeed = 5.5;
+            const double canonicalHumidity = 80.0;
+            const double canonicalSnowfallIntensity = 3.5;
+            const ClimateZone canonicalZone = ClimateZone.Zone_M20;
+            const bool canonicalHighRequirements = true;
+
+            var climateVm = CreateClimateViewModelWithCity(
+                "Зеркальный город",
+                "Зеркальный регион",
+                t5Days: -25,
+                windAvg: 4.0,
+                humidity: 70.0);
+
+            var viewModel = CreateViewModel(
+                climateVm,
+                CreateConstructionViewModel(),
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+
+            _projectStateService.Session.ClimateState.ApplyProjectSnapshot(
+                new ClimateProjectData
+                {
+                    SelectedCity = canonicalCity,
+                    Region = canonicalRegion,
+                    AirTemperature = canonicalAirTemperature,
+                    WindSpeed = canonicalWindSpeed,
+                    Humidity = canonicalHumidity,
+                    SnowfallIntensity = canonicalSnowfallIntensity,
+                    SelectedZone = canonicalZone,
+                    IsHighRequirements = canonicalHighRequirements
+                },
+                city: null,
+                ClimateMutationOrigin.Load);
+
+            // Sanity: канонический snapshot и climateVm mirror действительно различаются.
+            Assert.That(_projectStateService.Session.ClimateState.Snapshot.SelectedCity,
+                Is.Not.EqualTo(climateVm.SelectedCity?.Name),
+                "Sanity: canonical ClimateState snapshot must differ from ClimateViewModel mirror city.");
+            Assert.That(_projectStateService.Session.ClimateState.Snapshot.AirTemperature,
+                Is.Not.EqualTo(climateVm.AirTemperature),
+                "Sanity: canonical ClimateState snapshot must differ from ClimateViewModel mirror temperature.");
+
+            // Act
+            var saved = viewModel.SaveCurrentProject();
+
+            // Assert: сохранённые поля совпадают с каноническим snapshot.
+            Assert.That(saved.ClimateData.SelectedCity, Is.EqualTo(canonicalCity));
+            Assert.That(saved.ClimateData.Region, Is.EqualTo(canonicalRegion));
+            Assert.That(saved.ClimateData.AirTemperature, Is.EqualTo(canonicalAirTemperature));
+            Assert.That(saved.ClimateData.WindSpeed, Is.EqualTo(canonicalWindSpeed));
+            Assert.That(saved.ClimateData.Humidity, Is.EqualTo(canonicalHumidity));
+            Assert.That(saved.ClimateData.SnowfallIntensity, Is.EqualTo(canonicalSnowfallIntensity));
+            Assert.That(saved.ClimateData.SelectedZone, Is.EqualTo(canonicalZone));
+            Assert.That(saved.ClimateData.IsHighRequirements, Is.EqualTo(canonicalHighRequirements));
+
+            // Assert: сохранённые поля не совпадают с зеркальными значениями climateVm.
+            Assert.That(saved.ClimateData.SelectedCity, Is.Not.EqualTo(climateVm.SelectedCity?.Name));
+            Assert.That(saved.ClimateData.Region, Is.Not.EqualTo(climateVm.SelectedCity?.Region));
+            Assert.That(saved.ClimateData.AirTemperature, Is.Not.EqualTo(climateVm.AirTemperature));
+            Assert.That(saved.ClimateData.WindSpeed, Is.Not.EqualTo(climateVm.WindSpeed));
+            Assert.That(saved.ClimateData.Humidity, Is.Not.EqualTo(climateVm.Humidity));
+            Assert.That(saved.ClimateData.SnowfallIntensity, Is.Not.EqualTo(climateVm.SnowfallIntensity));
+            Assert.That(saved.ClimateData.SelectedZone, Is.Not.EqualTo(climateVm.SelectedZone));
+            Assert.That(saved.ClimateData.IsHighRequirements, Is.Not.EqualTo(climateVm.IsHighRequirements));
         }
 
         [Test]
@@ -566,7 +645,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         public async Task ProjectRoundTrip_LiveMutationsAreSavedLoadedAndExportedWithoutResultsCalculation()
         {
             var calculationStateService = new CalculationStateService(_projectStateService.Session);
-            var climateVm = CreateClimateViewModelWithCity("Текущий город", "Текущий регион", -29, 4.5, 72);
+            var climateVm = CreateClimateViewModelWithCity(
+                "Текущий город", "Текущий регион", -29, 4.5, 72, _projectStateService.Session);
             climateVm.SelectedCity = new CityInfo { Name = "Исходный город", Region = "Исходный регион" };
 
             var constructionVm = await CreateInitializedConstructionViewModelAsync();
@@ -651,7 +731,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             var reopenedCalculationStateService = new CalculationStateService(_projectStateService.Session);
             var reopenedViewModel = CreateViewModel(
-                CreateClimateViewModelWithCity("Текущий город", "Текущий регион", -29, 4.5, 72),
+                CreateClimateViewModelWithCity("Текущий город", "Текущий регион", -29, 4.5, 72, _projectStateService.Session),
                 await CreateInitializedConstructionViewModelAsync(),
                 CreateThermalViewModel(reopenedCalculationStateService, _projectStateService, new Mock<IThermalCalculator>().Object),
                 CreateCircuitsViewModel(reopenedCalculationStateService, _projectStateService),
@@ -1592,7 +1672,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             string region,
             double t5Days,
             double windAvg,
-            double humidity)
+            double humidity,
+            IProjectSession? projectSession = null)
         {
             return CreateClimateViewModelWithCityAndSingleton(
                 new ClimateData(),
@@ -1600,7 +1681,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 region,
                 t5Days,
                 windAvg,
-                humidity);
+                humidity,
+                projectSession);
         }
 
         private static ClimateViewModel CreateClimateViewModelWithCityAndSingleton(
@@ -1609,7 +1691,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             string region,
             double t5Days,
             double windAvg,
-            double humidity)
+            double humidity,
+            IProjectSession? projectSession = null)
         {
             var climateServiceMock = new Mock<IClimateDataService>();
             climateServiceMock.Setup(s => s.LoadClimateDataAsync()).Returns(Task.CompletedTask);
@@ -1630,6 +1713,15 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     if (t > -37) return ClimateZone.Zone_M15;
                     return ClimateZone.Zone_M20;
                 });
+
+            if (projectSession != null)
+            {
+                return new ClimateViewModel(
+                    climateServiceMock.Object,
+                    climateData,
+                    new ClimateValidator(),
+                    projectSession);
+            }
 
             return new ClimateViewModel(
                 climateServiceMock.Object,
