@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "phase": "phase-4-thermal-state",
+  "stage": "blocked",
+  "plan": {
+    "path": "docs/architecture-migration/plans/phase-4-thermal-state.md",
+    "mirrorPath": ".omo/plans/phase-4-thermal-state.md",
+    "bytes": 97965,
+    "sha256": "4311E0A9BC9CCF7B678C1A3E99EAC99B9D935E9A9199C48B3A4CA80B28C8943A",
+    "frozen": true
+  },
+  "reviews": {
+    "planning": "pending",
+    "finalDomains": {
+      "conformance": "pending",
+      "architecture": "pending",
+      "executable": "pending"
+    },
+    "planningReceiptPath": "docs/architecture-migration/evidence/phase-4-thermal-state/planning-consolidated-receipt-amendment-1-rejected.md",
+    "finalReceiptPath": null,
+    "terminalRetryCount": 1
+  },
+  "ownerGates": {
+    "planApproval": "pending",
+    "executionAuthorization": "pending",
+    "resultAcceptance": "pending"
+  },
+  "lastCompletedTask": null,
+  "pendingGates": [
+    "planning-review",
+    "plan-approval",
+    "execution-authorization",
+    "result-acceptance"
+  ],
+  "nextAction": "Await an explicit owner decision to re-plan the rejected Phase 4 amendment; correction and Todo 2 remain prohibited.",
+  "stop": true,
+  "blocker": "Terminal amendment review retry rejected: missing verify-protected-baseline.ps1 creation contract, undefined F5 responsibility, and ineffective V10 top-level Todo regex."
+}
