@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "repository_root": "D:/IA/ace v.2",
+  "head": "e655735dfa66c00cf9c53be93d511eda8989e8bf",
+  "plan": {
+    "path": ".omo/plans/phase-3-task-12-1-canonical-default-construction-initialization.md",
+    "sha256": "5BCEE8D2C450DFBDC7F05A044CD8DC7D1BB065F1678A825283AA18131BF12640"
+  },
+  "entries": [
+    {
+      "path": "src/Services/Project/ConstructionDefaultStateInitializer.cs",
+      "exists": false,
+      "dirty": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "src/Services/Project/ConstructionDefaults.cs",
+      "exists": true,
+      "dirty": true,
+      "status": "??",
+      "bytes": 1056,
+      "sha256": "55B45F508AA3F302DFC6BEC8FE26A554A503D0828AEC398190EEEB4D4F982136"
+    },
+    {
+      "path": "src/ViewModels/Construction/ConstructionViewModel.cs",
+      "exists": true,
+      "dirty": true,
+      "status": " M",
+      "bytes": 55159,
+      "sha256": "9573A63972A766EB9217F58A8131C5A5D813CBCF4DA073139049E1DAA0065A1E"
+    },
+    {
+      "path": "src/ViewModels/Shell/MainViewModel.cs",
+      "exists": true,
+      "dirty": false,
+      "bytes": 15103,
+      "sha256": "43FD7BF3573BED4C6F9C3C2E27352882214881EA2AA9AD5F788AE28F9A1E1932"
+    },
+    {
+      "path": "src/Services/Project/ProjectLoadOrchestrator.cs",
+      "exists": true,
+      "dirty": true,
+      "status": " M",
+      "bytes": 27607,
+      "sha256": "02756BC9CDB35EF970B14F387C359C96FA7CAE15C7D1F4E0E7C656C88023D759"
+    },
+    {
+      "path": "src/Configuration/ServiceCollectionExtensions.cs",
+      "exists": true,
+      "dirty": true,
+      "status": " M",
+      "bytes": 11301,
+      "sha256": "68E572D9C00F079B76E8B807160E11D5AC87C8BA5CFCBECEC8694BE27303C8F3"
+    },
+    {
+      "path": "tests/SnowMeltingCalculator.Tests/Services/Project/CanonicalDefaultConstructionLifecycleTests.cs",
+      "exists": false,
+      "dirty": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "tests/SnowMeltingCalculator.Tests/Construction/ConstructionViewModelTests.cs",
+      "exists": true,
+      "dirty": true,
+      "status": " M",
+      "bytes": 48242,
+      "sha256": "193C1B46A0F672A8037F8DCDF6A1276EDD23B6F53DAA2AF7AFA282C7B7517180"
+    },
+    {
+      "path": "tests/SnowMeltingCalculator.Tests/ViewModels/MainViewModelTests.cs",
+      "exists": true,
+      "dirty": false,
+      "bytes": 38151,
+      "sha256": "799E28CC8E66D8C53516003FA9E1F731E089E18A3C8B94EBC2716F847C88DA2E"
+    },
+    {
+      "path": "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectLifecycleFlowCharacterizationTests.cs",
+      "exists": true,
+      "dirty": true,
+      "status": " M",
+      "bytes": 31463,
+      "sha256": "442CBD40F90385CA62CB0689396D91103BF13B6C25D5471E1F8421FB6533B47A"
+    },
+    {
+      "path": "tests/SnowMeltingCalculator.Tests/Services/Project/ConstructionStateLegacyStoreGuardTests.cs",
+      "exists": true,
+      "dirty": true,
+      "status": "??",
+      "bytes": 14066,
+      "sha256": "2FF5BE6E4F064F71D7548C8E499A19A4E94A101B269702EE8E2623E947C3478F"
+    },
+    {
+      "path": "tests/SnowMeltingCalculator.Tests/Configuration/DiRegistrationTests.cs",
+      "exists": true,
+      "dirty": true,
+      "status": " M",
+      "bytes": 18172,
+      "sha256": "EEEDECDD1E16AE80F04EC25D5293DEA2D1BC97D84A2C1B6AEB49421864DC0C00"
+    },
+    {
+      "path": "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelOpenProjectTests.cs",
+      "exists": true,
+      "dirty": true,
+      "status": " M",
+      "bytes": 128349,
+      "sha256": "F86073B48F7E7B627BFF24A729C4E6F25BA47460EBBB15846DE28C836353E5D5"
+    },
+    {
+      "path": "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelTestHelpers.cs",
+      "exists": true,
+      "dirty": true,
+      "status": " M",
+      "bytes": 13333,
+      "sha256": "A2D557A6C70B96308E4235DFB7287086222EDD9D25263FE3BC04440748953D0F"
+    },
+    {
+      "path": "docs/architecture-migration/evidence/phase-3-construction-state/task-12-1-canonical-default-construction-initialization.md",
+      "exists": false,
+      "dirty": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": ".omo/notepads/phase-3-construction-state/learnings.md",
+      "exists": true,
+      "dirty": false,
+      "bytes": 12649,
+      "sha256": "6F7763D05EAE884AF39936733975527E697C4A0F67F273A1D4AB27442CDCF01F"
+    },
+    {
+      "path": ".omo/notepads/phase-3-construction-state/issues.md",
+      "exists": true,
+      "dirty": false,
+      "bytes": 6371,
+      "sha256": "430BAA70EEBB13F13A3AE28D79512D41B84C62D5A2CA3E7E77DAD6BCD1F5A662"
+    },
+    {
+      "path": "docs/architecture-migration/TASK_CONTEXT.md",
+      "exists": true,
+      "dirty": true,
+      "status": " M",
+      "bytes": 198138,
+      "sha256": "71BF4028A17AF45A3AB75D4836122619C718BC1EC9330F2D9000B3E58270BC82"
+    }
+  ]
+}
