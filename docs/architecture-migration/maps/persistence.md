@@ -34,6 +34,13 @@ Task 11 accepted counts for this persistence boundary are targeted Release TRX
 `total 330 / executed 329 / passed 329 / failed 0` and full Release rerun TRX
 `total 1616 / executed 1613 / passed 1613 / failed 0`; the existing missing-fixture skip remains documented.
 
+## Phase 3.1 Climate invalidation overlay (Task 11)
+
+Persistence is verified unchanged: `.smc` Climate fields, version behavior, DTO
+shape, and restore format were not modified. Lifecycle publication suppression
+changes reactive invalidation only; it adds no persistence field or schema
+migration. Load continues to apply DTO values to canonical `ProjectSession.ClimateState`.
+
 ## Phase 1 ProjectSession Shell Boundary
 
 `ProjectSession` changes only the canonical in-memory lifecycle owner. No
@@ -62,7 +69,17 @@ characterized partial state, while the outer session lease clears the guard.
 | `PN-03` | version observation and legacy layer ordering | `ST-009`,`ST-010`,`ST-023` | `ProjectLoadOrchestrator.cs:335-350` | verified | current |
 | `PN-04` | module restore coordinator | `ST-006`-`ST-022` | `ProjectLoadOrchestrator.cs:76-232` | verified | current |
 | `PN-05` | load guard, refresh, event, clean finalization | `ST-001`,`ST-003`-`ST-005`,`ST-024`-`ST-027` | `ResultsViewModel.cs:1573-1607` | verified | current |
-| `PN-06` | snapshot assembly | `ST-001`,`ST-003`,`ST-006`,`ST-008`-`ST-018`,`ST-023` | `ResultsViewModel.cs:1613-1817` | verified | current |
+| `PN-06` | snapshot assembly | `ST-001`,`ST-003`,`ST-006`,`ST-008`-`ST-018`,`ST-023` | `ResultsViewModel.SaveCurrentProject`; `ConstructionPersistenceMapper.ToProjectData(ProjectSession.ConstructionState.Snapshot, ...)` | verified | current |
+
+## Phase 3 ConstructionState persistence overlay
+
+The `.smc` schema and save literal `Version = "1.1"` are unchanged. Project
+save reads `ProjectSession.ConstructionState.Snapshot` and maps it with
+`ConstructionPersistenceMapper`; it does not read writable adapter collections.
+Restore normalizes `ConstructionProjectData` into one canonical snapshot while
+preserving v1.0 above-pipe reversal, current below-pipe order, material fallback
+and lambda override semantics. Reset uses the canonical seven-layer initializer.
+Evidence: Tasks 8-12.1 and the accepted pre-Task 13 correction.
 | `PN-07` | Result save temp/backup/move/catch-cleanup | `ST-002`,`ST-023` | `ProjectFileService.cs:115-163` | verified | current |
 | `PN-08` | normal UI open boundary/reset sequence | `ST-001`,`ST-005`,`ST-006`-`ST-022` | `ResultsViewModel.cs:798-825` | verified | current |
 | `PN-09` | explicit save/export snapshot entry | `ST-001`,`ST-003`,`ST-006`,`ST-008`-`ST-018`,`ST-023` | `ResultsViewModel.cs:945-957,1613-1817` | verified | current |

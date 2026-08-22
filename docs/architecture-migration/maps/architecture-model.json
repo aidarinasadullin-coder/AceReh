@@ -1,9 +1,9 @@
 {
   "metadata": {
     "model_id": "AM-WIDGET-001",
-    "phase": "phase-1-project-session-shell",
-    "snapshot_sha": "021d4abd159aa71c4a19c7a6536851264e5a58ca",
-    "source_basis": "accepted-phase-1-project-session-shell",
+    "phase": "phase-3-construction-state",
+    "snapshot_sha": "e655735dfa66c00cf9c53be93d511eda8989e8bf",
+    "source_basis": "phase-3-construction-state-task-13-live-code-and-accepted-evidence",
     "status": "pass",
     "provenance": {
       "phase_0_model": "docs/architecture-migration/maps/architecture-model.baseline.json",
@@ -9252,7 +9252,7 @@
             "views": [
               "reactive"
             ],
-            "source_kind": "layer-model-edit",
+            "source_kind": "state-mutation",
             "state_refs": [
               "ST-008",
               "ST-009",
@@ -9260,13 +9260,14 @@
               "ST-011",
               "ST-004"
             ],
-            "trigger": "Construction model or layer edit",
-            "effect": "Construction handlers update calculations and dirty state",
+            "trigger": "Changed ProjectSessionConstructionState mutation",
+            "effect": "CompleteChanged refreshes CurrentProjection, publishes one valid downstream update for User/Template origins, raises Changed once, and applies origin-aware dirty semantics",
             "participants": [
-              "Construction model",
-              "layers",
-              "Construction handlers",
-              "ProjectStateService dirty state"
+              "ProjectSessionConstructionState",
+              "ConstructionStateProjection",
+              "CalculationContext",
+              "ConstructionViewModel adapter",
+              "ProjectSession dirty state"
             ]
           },
           "status": "observed",
@@ -9290,7 +9291,7 @@
             "views": [
               "reactive"
             ],
-            "source_kind": "layer-model-edit",
+            "source_kind": "state-mutation",
             "state_refs": [
               "ST-008",
               "ST-009",
@@ -9298,13 +9299,14 @@
               "ST-011",
               "ST-004"
             ],
-            "trigger": "Construction model or layer edit",
-            "effect": "Construction handlers update calculations and dirty state",
+            "trigger": "Changed ProjectSessionConstructionState mutation",
+            "effect": "CompleteChanged refreshes CurrentProjection, publishes one valid downstream update for User/Template origins, raises Changed once, and applies origin-aware dirty semantics",
             "participants": [
-              "Construction model",
-              "layers",
-              "Construction handlers",
-              "ProjectStateService dirty state"
+              "ProjectSessionConstructionState",
+              "ConstructionStateProjection",
+              "CalculationContext",
+              "ConstructionViewModel adapter",
+              "ProjectSession dirty state"
             ]
           },
           "status": "observed",
@@ -10603,19 +10605,21 @@
         "baseline": {
           "canonical": {
             "name": "Construction inputs",
-            "current_owner": "ConstructionModel/ConstructionViewModel ambiguity",
+            "current_owner": "ProjectSession.ConstructionState / ProjectSessionConstructionState",
             "target_owner": "ProjectSession.ConstructionState",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
           },
           "status": "observed",
           "confidence": "verified",
-          "evidence_refs": [
-            "EV-ST"
-          ],
+            "evidence_refs": [
+              "EV-ST",
+              "EV-P3-CONSTRUCTION-STATE",
+              "EV-P3-CONSTRUCTION-GATES"
+            ],
           "limitation_refs": [],
           "invariant_refs": [],
           "decision_refs": [],
@@ -10627,19 +10631,21 @@
         "current": {
           "canonical": {
             "name": "Construction inputs",
-            "current_owner": "ConstructionModel/ConstructionViewModel ambiguity",
+            "current_owner": "ProjectSession.ConstructionState / ProjectSessionConstructionState",
             "target_owner": "ProjectSession.ConstructionState",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
           },
           "status": "observed",
           "confidence": "verified",
-          "evidence_refs": [
-            "EV-ST"
-          ],
+            "evidence_refs": [
+              "EV-ST",
+              "EV-P3-CONSTRUCTION-STATE",
+              "EV-P3-CONSTRUCTION-GATES"
+            ],
           "limitation_refs": [],
           "invariant_refs": [],
           "decision_refs": [],
@@ -10657,19 +10663,21 @@
         "baseline": {
           "canonical": {
             "name": "Construction layers above pipe",
-            "current_owner": "VM collection/model ambiguity",
+            "current_owner": "ProjectSession.ConstructionState.LayersAbovePipe",
             "target_owner": "ProjectSession.ConstructionState.LayersAbovePipe",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
           },
           "status": "observed",
           "confidence": "verified",
-          "evidence_refs": [
-            "EV-ST"
-          ],
+            "evidence_refs": [
+              "EV-ST",
+              "EV-P3-CONSTRUCTION-PERSISTENCE",
+              "EV-P3-CONSTRUCTION-GATES"
+            ],
           "limitation_refs": [],
           "invariant_refs": [],
           "decision_refs": [],
@@ -10681,10 +10689,10 @@
         "current": {
           "canonical": {
             "name": "Construction layers above pipe",
-            "current_owner": "VM collection/model ambiguity",
+            "current_owner": "ProjectSession.ConstructionState.LayersAbovePipe",
             "target_owner": "ProjectSession.ConstructionState.LayersAbovePipe",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10692,7 +10700,9 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+              "EV-ST",
+              "EV-P3-CONSTRUCTION-PERSISTENCE",
+              "EV-P3-CONSTRUCTION-GATES"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10711,19 +10721,21 @@
         "baseline": {
           "canonical": {
             "name": "Construction layers below pipe",
-            "current_owner": "VM collection/model ambiguity",
+            "current_owner": "ProjectSession.ConstructionState.LayersBelowPipe",
             "target_owner": "ProjectSession.ConstructionState.LayersBelowPipe",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
           },
           "status": "observed",
           "confidence": "verified",
-          "evidence_refs": [
-            "EV-ST"
-          ],
+            "evidence_refs": [
+              "EV-ST",
+              "EV-P3-CONSTRUCTION-PERSISTENCE",
+              "EV-P3-CONSTRUCTION-GATES"
+            ],
           "limitation_refs": [],
           "invariant_refs": [],
           "decision_refs": [],
@@ -10735,10 +10747,10 @@
         "current": {
           "canonical": {
             "name": "Construction layers below pipe",
-            "current_owner": "VM collection/model ambiguity",
+            "current_owner": "ProjectSession.ConstructionState.LayersBelowPipe",
             "target_owner": "ProjectSession.ConstructionState.LayersBelowPipe",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10746,7 +10758,9 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P3-CONSTRUCTION-PERSISTENCE",
+            "EV-P3-CONSTRUCTION-GATES"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10765,10 +10779,10 @@
         "baseline": {
           "canonical": {
             "name": "Construction derived values",
-            "current_owner": "Construction VM/model ambiguity",
-            "target_owner": "derived construction state",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "current_owner": "ConstructionStateProjection derived from ProjectSession.ConstructionState.Snapshot",
+            "target_owner": "derived construction projection",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10776,7 +10790,9 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P3-CONSTRUCTION-DI",
+            "EV-P3-CONSTRUCTION-CORRECTION"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10789,19 +10805,21 @@
         "current": {
           "canonical": {
             "name": "Construction derived values",
-            "current_owner": "Construction VM/model ambiguity",
-            "target_owner": "derived construction state",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "current_owner": "ConstructionStateProjection derived from ProjectSession.ConstructionState.Snapshot",
+            "target_owner": "derived construction projection",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
           },
           "status": "observed",
           "confidence": "verified",
-          "evidence_refs": [
-            "EV-ST"
-          ],
+            "evidence_refs": [
+              "EV-ST",
+              "EV-P3-CONSTRUCTION-DI",
+              "EV-P3-CONSTRUCTION-CORRECTION"
+            ],
           "limitation_refs": [],
           "invariant_refs": [],
           "decision_refs": [],
@@ -11717,11 +11735,13 @@
               "user-flow"
             ]
           },
-          "status": "partial",
+          "status": "covered",
           "confidence": "verified",
           "evidence_refs": [
             "EV-CF",
-            "EV-UF"
+            "EV-UF",
+            "EV-P3-CONSTRUCTION-GATES",
+            "EV-P3-CONSTRUCTION-CORRECTION"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -14025,6 +14045,41 @@
       "locator": "Task 11 accepted gates: targeted 330/329/329/0 and full rerun 1616/1613/1613/0",
       "confidence": "verified",
       "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P3-CONSTRUCTION-STATE",
+      "path": "docs/architecture-migration/evidence/phase-3-construction-state/task-10-downstream-dirty-completion.md",
+      "locator": "authoritative ProjectSessionConstructionState completion and origin-aware dirty semantics",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P3-CONSTRUCTION-PERSISTENCE",
+      "path": "docs/architecture-migration/evidence/phase-3-construction-state/task-9-recovery.md",
+      "locator": "canonical snapshot save, ordered restore and standalone compatibility recovery",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P3-CONSTRUCTION-DI",
+      "path": "docs/architecture-migration/evidence/phase-3-construction-state/task-11-di-ownership-guards.md",
+      "locator": "IConstructionData resolves to IProjectSessionConstructionState.CurrentProjection",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P3-CONSTRUCTION-GATES",
+      "path": "docs/architecture-migration/evidence/phase-3-construction-state/task-12-1-canonical-default-construction-initialization.md",
+      "locator": "canonical defaults and Phase 3 executable gate results",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P3-CONSTRUCTION-CORRECTION",
+      "path": "docs/architecture-migration/evidence/phase-3-construction-state/pre-task-13-construction-thermal-invalidation-correction.md",
+      "locator": "accepted Construction-to-Thermal invalidation correction and separate open Climate defect",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
     }
   ],
   "limitations": [
@@ -14040,7 +14095,7 @@
     },
     {
       "id": "LIM-003",
-      "statement": "ProjectSession lifecycle shell and Phase 2 ClimateState slice are implemented; Construction/Thermal/Hydraulics state slices remain target-only and are not yet owned by ProjectSession.",
+      "statement": "ProjectSession lifecycle shell plus ClimateState and ConstructionState slices are implemented; Thermal and Hydraulics state slices remain target-only and are not yet owned by ProjectSession.",
       "status": "degraded"
     }
   ],
@@ -14090,12 +14145,17 @@
         "reactive",
         "persistence"
       ],
-      "status": "unverified",
+      "status": "verified",
       "evidence": [
         "EV-ST",
-        "EV-RE"
+        "EV-RE",
+        "EV-P3-CONSTRUCTION-STATE",
+        "EV-P3-CONSTRUCTION-PERSISTENCE",
+        "EV-P3-CONSTRUCTION-DI",
+        "EV-P3-CONSTRUCTION-GATES",
+        "EV-P3-CONSTRUCTION-CORRECTION"
       ],
-      "target_status": "unimplemented"
+      "target_status": "implemented"
     },
     {
       "id": "INV-004",

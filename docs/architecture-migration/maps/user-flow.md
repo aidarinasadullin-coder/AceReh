@@ -30,7 +30,16 @@ This ordered filter mirrors exactly `CF-001`--`CF-022` in [characterization-test
 | 3 | `CF-003` | Open legacy `.smc` | missing spacing falls back to 200 | `Load_MissingPipeSpacing_FallsBackToDefault`; partial | unknown;unknown;unknown;unknown;unknown | `FG-003` |
 | 4 | `CF-004` | Open a second project | Phase 1 characterization replaces lifecycle identity/path with B and clears the guard | `Load_AfterPreviousLoad_UpdatesProjectInfoOnlyOnce`; covered overlay below | asserted by Phase 1 characterization | none for lifecycle shell |
 | 5 | `CF-005` | Edit climate | User Climate edit crosses `ProjectSession.ClimateState`; AirTemperature=-28; GetProperties=2 for one Circuits pass; save/reload reads canonical snapshot | `ClimateStateTests`; `ClimateViewModelTests`; `ClimateMultiplicityCharacterizationTests`; `DoubleCalculationPreventionTests.UpdateFromClimateModule_TriggersSingleCalculate`; `ProjectRoundTripTests`; Task 11 targeted/full TRX receipts | one canonical projection/context path; one inferred Circuits recalculation; Results/save/export consume canonical snapshot/projection; user origin marks dirty while load/reset/restore origins remain non-user | `FG-005`; evidence `climate-state-api.md`, `climate-viewmodel-adapter.md`, `downstream-invalidation.md`, `persistence-results.md`, `affected-gates.md` |
-| 6 | `CF-006` | Edit construction | groundwater change yields LambdaB | `GroundwaterLevelChange_AfterProjectLoad_UpdatesLambdaForBelowPipeLayers`; partial | unknown;unknown;unknown;unknown;unknown | `FG-006` |
+| 6 | `CF-006` | Edit construction | scalar/layer/template changes cross one canonical mutation boundary; valid changes invalidate Thermal once; user-visible origins dirty | Phase 3 state, adapter, multiplicity, persistence, lifecycle and Construction-to-Thermal suites | one canonical completion; zero for no-op/rejected/cancelled; lifecycle origins do not dirty | covered; Tasks 3-12.1 and pre-Task 13 correction |
+
+## Phase 3 Construction user-flow overlay
+
+Startup/new-project reset, project restore/second load, scalar and layer edits,
+template apply/cancel/failure, save/reload and downstream Thermal invalidation
+now use `ProjectSession.ConstructionState`. Task 12.1 proves the seven-layer
+default snapshot is immediately available to save and Thermal. Owner manual QA
+covers thickness, material, template, groundwater and lambda/override behavior.
+The Climate-labelled ProjectLoad indicator remains a separate open defect.
 | 7 | `CF-007` | Edit thermal | one named ThermalInputs event | `UpdateThermalInputs_RaisesContextChangedEvent`; partial | 1;unknown;unknown;unknown;unknown | `FG-007` |
 | 8 | `CF-008` | Edit hydraulics | concentration=40; GetProperties=2 | `OnGlycolConcentrationChanged_TriggersSingleCalculate`; partial | unknown;unknown;1 inferred bounded source-backed;unknown;unknown | `FG-008` |
 | 9 | `CF-009` | Change upstream input | downstream results null; no stale hydraulics | `UpdateClimate_ResetsThermalAndHydraulicsResults`; partial | unknown;unknown;unknown;unknown;unknown | `FG-009` |
@@ -59,6 +68,17 @@ Phase 1 verified the following lifecycle user flows through
 | `CF-P1-002` | Repeat reset/load cycles (x3) | Stable handler/calculation counts; no duplicate subscriptions | `RepeatedResetLoad_DoesNotMultiplyHandlers` | covered |
 | `CF-P1-003` | Edit after load | Exactly one dirty transition; `IsDirty` true | `Edit_AfterLoad_MarksDirtyOnce` | covered |
 | `CF-P1-004` | Dirty Yes/No/Cancel on new/close | Save-failure preserves dirty and blocks destructive continuation | `New_WhenDirtyAndSaveFails_KeepsDirty` | covered |
+
+## Phase 3.1 Climate invalidation overlay (Task 11)
+
+Climate user reset and reset-to-city-data use `UserReset` and retain dirty and
+compatibility publication semantics. Pre-load and new-calculation resets use
+`ProjectLoadReset`; restore uses silent `Load`; these lifecycle flows do not
+invalidate a restored Thermal result through Climate compatibility publication.
+Task 9 focused Debug and Release each passed `76/76` with no skips or
+`NotExecuted`. Task 10 affected/full Release gates passed with the accepted
+explicit identities recorded in the Task 11 receipt. DI and persistence are
+verified unchanged for these flows.
 | `CF-P1-005` | Corrupt/parse failure | Pre-load state untouched; guard false | `Load_WhenParseFails_KeepsPreviousProject` | covered |
 | `CF-P1-006` | Injected early/late restore failure | Partial state preserved (no rollback); guard cleared | `Load_WhenRestoreThrows_LeavesPartialStateAndClearsGuard` | covered |
 

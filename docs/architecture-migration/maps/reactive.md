@@ -37,11 +37,31 @@ downstream Circuits path consumes that single context publication. Task 9 eviden
 `downstream-invalidation.md` records the duplicate-recalculation guard; Task 11 `affected-gates.md`
 records the final targeted/full-suite acceptance counts.
 | `RE-004` | `ST-015`,`ST-019` | ICalculationStateService.StateChanged | Circuits handler | constructor subscription; unsubscribe not observed | state change | IsCalculating notification | CalculationStateService :146-168; Circuits :1202-1206 | verified | unknown | unknown | unknown | unknown | unknown |
+
+## Phase 3.1 Climate invalidation overlay (Task 11)
+
+Changed `User` and `UserReset` completions apply the projection, publish
+compatibility `DataChanged`, update `CalculationContext`, and mark dirty once.
+Changed `ProjectLoadReset`, `Load`, `Restore`, `SystemApply`, and
+`Initialization` synchronize projection/context without compatibility publication
+or user dirty semantics. Task 9 focused Debug and Release each passed `76/76`;
+Task 10 affected/full Release gates passed with zero failures. Exact counters are
+receipt facts, not inferred from subscription declarations.
 | `RE-005` | `ST-015` | StateChanged | Thermal handler | constructor subscription; unsubscribe not observed | state change | handler body not observed | Thermal :279-280 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-006` | `ST-013` | PipeSpacingChanged | Circuits | constructor subscription; unsubscribe not observed | guarded spacing change | handler effects partial | CalculationStateService :120-139; Circuits :724-726 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-007` | `ST-013` | PipeSpacingChanged | Thermal/Construction | constructor subscriptions; unsubscribe not observed | guarded spacing change | projection effects not fully observed | Thermal :282-283; Construction :246-247 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-008` | `ST-016`,`ST-017`,`ST-004`,`ST-018` | HydraulicInputData/Collectors | Circuits handlers | old InputData explicitly unsubscribed; collection unsubscribe not observed | input/collection edit | dirty, propagation, calculate | Circuits :732-739,1113-1180 | verified | unknown | unknown | unknown | unknown | unknown |
-| `RE-009` | `ST-008`,`ST-009`,`ST-010`,`ST-011`,`ST-004` | Construction model/layers | Construction handlers | subscriptions observed; unsubscribe not observed | layer/model edit | update calculations and dirty | Construction :239-244,834-856 | verified | unknown | unknown | unknown | unknown | unknown |
+| `RE-009` | `ST-008`,`ST-009`,`ST-010`,`ST-011`,`ST-004` | `ProjectSessionConstructionState.CompleteChanged` | `CurrentProjection`, CalculationContext, adapter and dirty owner | singleton state/adapter; repeated lifecycle hygiene covered | changed canonical mutation | refresh projection; valid User/Template publishes once; raise one Changed; origin-aware dirty | Tasks 10-12.1; pre-Task 13 correction | verified | at most 1 valid user/template publication | 1 canonical Changed | one Thermal invalidation after correction | Results/save reads canonical snapshot | 1 for changed User/Template; 0 lifecycle/no-op/rejected |
+
+## Phase 3 Construction completion overlay
+
+`CompleteChanged` updates `ConstructionStateProjection` before downstream
+publication. Valid `User` and `Template` changes publish once through
+`CalculationContext.UpdateConstruction`; lifecycle origins update canonical
+state and the adapter without user dirty semantics or downstream publication;
+no-op, rejected and cancelled mutations publish nothing. The pre-Task 13
+correction proves Thermal consumes this path. The separate Climate ProjectLoad
+indicator defect remains open and is not attributed to `RE-009`.
 | `RE-010` | `ST-020`,`ST-024`,`ST-004`,`ST-006`,`ST-008`,`ST-012`,`ST-016`,`ST-017` | MainViewModel.PerformNewCalculationReset | context, Results, four module VMs | direct command path; runtime multiplicity unknown | new calculation | context reset, Results reset, clean, module resets, clean | MainViewModel.cs:178-225 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-011` | `ST-020`,`ST-024`,`ST-005`,`ST-023`,`ST-002`,`ST-004` | Results load/apply | Results/orchestrator/modules | repeat reload lifetime not proven; one load path source observed | load/reload | Results reset, modules reset, clean, guarded restore, RefreshAll, path/clean | Results :778-825,1573-1607 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-012` | `ST-020`,`ST-006`,`ST-008`,`ST-012`,`ST-016`,`ST-017`,`ST-023`,`ST-024` | ProjectLoadOrchestrator.ResetModules | context and four module VMs | **one statically observed call site from ResultsViewModel; runtime invocation multiplicity unknown** | load reset | context reset before four VM resets; restore order after entry unknown | Orchestrator :56-70; Results :813-819 | verified | unknown | unknown | unknown | unknown | unknown |
