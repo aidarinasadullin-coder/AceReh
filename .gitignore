@@ -3,8 +3,11 @@
 *.log
 nul
 
-# OpenCode internal
-.opencode/
+# OpenCode internal; keep only project workflow commands
+.opencode/*
+!.opencode/commands/
+.opencode/commands/*
+!.opencode/commands/architecture-*.md
 
 # IDE
 .vs/
@@ -33,6 +36,13 @@ Work/*.xlsm
 
 # Agent orchestration artifacts (OpenCode / OMO)
 .omo/
+
+# Local agent/tooling scratch
+.playwright-mcp/
+.slim/
+TestResults/
+Target
+console.log*
 
 # Keep data files
 !data/*.json
