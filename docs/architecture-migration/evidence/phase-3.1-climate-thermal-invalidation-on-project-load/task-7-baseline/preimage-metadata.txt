@@ -1,0 +1,26 @@
+﻿# Phase 3.1 Task 7 Protected Preimage Metadata (SHA-256 of exact current bytes)
+Captured (local): 2026-08-20T15:54:03+05:00
+Plan SHA-256: 355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9
+
+[PRODUCTION CEILING - 6 files, may be modified only in later Task 8+]
+src/Services/Project/ClimateMutationOrigin.cs | PRESENT | A27791CB886335A56403E94A402FC49C5E2DC5583E833327DDC9E7AFF7FBA691 | 373
+src/Services/Project/ProjectSessionClimateState.cs | PRESENT | BCCF7A6D18DC3D08F1A7369EF3590E89E1932C56A6C82C250296B101E65D0FED | 14862
+src/Models/Climate/ClimateData.cs | PRESENT | ED5CDD0B88A92FFE3449AAEBA0A835C2FF9771B3D190D0D78E0FE9227740EB6D | 5180
+src/Services/Project/ProjectLoadOrchestrator.cs | PRESENT | 4EE41EF1BFABA4D84B604063FA7366F32F625AA3D6BCD4CBCE3F63819F9B9549 | 25706
+src/ViewModels/Climate/ClimateViewModel.cs | PRESENT | D14A7C69555169E1BEEE70EC44BF984F0F034651FB34888F364D59E4E4B9370A | 25000
+src/ViewModels/Shell/MainViewModel.cs | PRESENT | 7EFC382D4C8CA8D962DD9CE98E8CF97010F439AECE54617AD4D5F3A8093AAD57 | 15913
+
+[READ-ONLY REFERENCE - 1 file, must remain byte-identical]
+src/ViewModels/Thermal/ThermalViewModel.cs | PRESENT | 27334159C03405747F7488116D23ED7FDF24F5769FC44F202C4B7622FF4411D2 | 20113
+
+[PERMITTED TEST PATHS - plan lines 81-90]
+tests/SnowMeltingCalculator.Tests/Services/Project/ClimateThermalInvalidationRegressionTests.cs | MISSING | - | -
+tests/SnowMeltingCalculator.Tests/Services/Project/ClimateStateTests.cs | PRESENT | 57F9209697D6E957FA1B8D597955AC77BF0BE35F5D91C81CE6C76E3B01CFBC33 | 14408
+tests/SnowMeltingCalculator.Tests/Climate/ClimateMultiplicityCharacterizationTests.cs | PRESENT | CAE51A120DC2A3FAD2010E6F8BDBC66AB3870166BDB47441A2B1282B051D7969 | 10350
+tests/SnowMeltingCalculator.Tests/Climate/ClimateDataProjectionTests.cs | PRESENT | F1F254CC5BE83CC3FB88CD144768DBA146CFF2985D25CBE08A1F5FA6C6890195 | 4735
+tests/SnowMeltingCalculator.Tests/ViewModels/ResetOrchestrationTests.cs | PRESENT | F5FAC3B687B939264202B27F437FB62053141720418E61B36357689FD47D2FF6 | 17059
+tests/SnowMeltingCalculator.Tests/ViewModels/MainViewModelTests.cs | PRESENT | CA58706C476C6F0C3F4BD53ACACD58C5F88B8700E94471123329B1CCB09C3630 | 43498
+tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelOpenProjectTests.cs | PRESENT | 9BAE304ACA2DA23E6AB8682C225A927FB34CDB1C918C2101C1948CABEAC7EA84 | 136456
+
+[NOTE] 'Existing test helpers required to construct the real load graph' (plan line 90) is a category, not a single path; per-test helper paths are enumerated at RED time in Task 7 step B.
+
