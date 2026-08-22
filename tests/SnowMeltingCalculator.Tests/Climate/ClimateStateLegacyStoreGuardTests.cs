@@ -72,7 +72,7 @@ namespace SnowMeltingCalculator.Tests.Climate
                     Is.Empty, "A legacy ClimateViewModel mutation boundary disappeared from the inventory.");
                 Assert.That(GetClimateDataPublicWritableProperties(climateDataSource), Is.Empty,
                     "ClimateData must not expose public writable setters after projection migration; setters are internal and reachable only through the approved projection updater.");
-                Assert.That(climateDataSource, Does.Contain("internal void ApplyProjection(IClimateData source, bool isValid = true)"),
+                Assert.That(climateDataSource, Does.Contain("internal void ApplyProjection(IClimateData source, bool isValid = true, bool publishDataChanged = true)"),
                     "ClimateData must expose the approved projection updater as the single internal mutation seam.");
                 Assert.That(climateViewModelSource, Does.Not.Contain("SyncToClimateData"),
                     "ClimateViewModel must not retain a legacy projection publication path outside canonical ClimateState completion.");
@@ -82,7 +82,7 @@ namespace SnowMeltingCalculator.Tests.Climate
                 Assert.That(GetDirectClimateViewModelWrites(orchestratorSource), Is.EqualTo(new[] { "SearchQuery", "SearchQuery" }),
                     "Task 7 permits only the UI search text; project climate values must not be assigned through ClimateViewModel.");
                 Assert.That(orchestratorSource, Does.Contain("public void ResetModules()"));
-                Assert.That(orchestratorSource, Does.Contain("_climateState.ResetToDefaults(ClimateMutationOrigin.Reset);"));
+                Assert.That(orchestratorSource, Does.Contain("_climateState.ResetToDefaults(ClimateMutationOrigin.ProjectLoadReset);"));
                 Assert.That(orchestratorSource, Does.Contain("_climateState.ApplyProjectSnapshot(data.ClimateData, city, ClimateMutationOrigin.Load);"));
                 Assert.That(orchestratorSource, Does.Not.Contain("_climateViewModel.BeginLoadProject();"),
                     "Task 7 removed the ClimateViewModel load guard bypass.");

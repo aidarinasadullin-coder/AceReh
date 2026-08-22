@@ -6,8 +6,9 @@ namespace SnowMeltingCalculator.Services.Project
     public enum ClimateMutationOrigin
     {
         User,
+        UserReset,
         Load,
-        Reset,
+        ProjectLoadReset,
         Restore,
         SystemApply,
         Initialization

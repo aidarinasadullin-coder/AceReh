@@ -32,6 +32,8 @@ namespace SnowMeltingCalculator.Services.Project
         private readonly IConstructionService _constructionService;
         private readonly CalculationContext _calculationContext;
         private readonly IProjectSessionClimateState _climateState;
+        private readonly IProjectSessionConstructionState _constructionState;
+        private readonly ConstructionDefaultStateInitializer _constructionDefaultStateInitializer;
 
         /// <summary>
         /// Конструктор оркестратора загрузки проекта
@@ -44,7 +46,8 @@ namespace SnowMeltingCalculator.Services.Project
             ICalculationStateService calculationStateService,
             IConstructionService constructionService,
             CalculationContext calculationContext,
-            IProjectSession? projectSession = null)
+            IProjectSession? projectSession = null,
+            ConstructionDefaultStateInitializer? constructionDefaultStateInitializer = null)
         {
             _climateViewModel = climateViewModel ?? throw new ArgumentNullException(nameof(climateViewModel));
             _constructionViewModel = constructionViewModel ?? throw new ArgumentNullException(nameof(constructionViewModel));
@@ -53,7 +56,11 @@ namespace SnowMeltingCalculator.Services.Project
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
-            _climateState = projectSession?.ClimateState ?? _climateViewModel.ClimateState;
+            var session = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
+            _climateState = session.ClimateState;
+            _constructionState = session.ConstructionState;
+            _constructionDefaultStateInitializer = constructionDefaultStateInitializer
+                ?? throw new ArgumentNullException(nameof(constructionDefaultStateInitializer));
         }
 
         /// <summary>
@@ -62,10 +69,14 @@ namespace SnowMeltingCalculator.Services.Project
         /// </summary>
         public void ResetModules()
         {
+            var constructionResult = _constructionDefaultStateInitializer.Apply(
+                _constructionState.Snapshot.GroundwaterLevel,
+                ConstructionMutationOrigin.Reset);
+
             _calculationContext.Reset();
-            _climateState.ResetToDefaults(ClimateMutationOrigin.Reset);
+            _climateState.ResetToDefaults(ClimateMutationOrigin.ProjectLoadReset);
             _climateViewModel.SearchQuery = string.Empty;
-            _constructionViewModel.Reset();
+            _constructionViewModel.ApplyLifecycleSnapshotToAdapter(constructionResult.After);
             _thermalViewModel.Reset();
             _circuitsViewModel.Reset();
         }
@@ -102,12 +113,10 @@ namespace SnowMeltingCalculator.Services.Project
                 // Загружаем данные конструкции
                 // Сначала восстанавливаем УГВ и признак нагрузок, чтобы UpdateLambda при загрузке слоёв
                 // использовал корректный уровень грунтовых вод (λБ при УГВ < 1 м, λА при УГВ >= 1 м).
-                _constructionViewModel.GroundwaterLevel = data.ConstructionData.GroundwaterLevel;
-                _constructionViewModel.HasLoads = data.ConstructionData.HasLoads;
-                if (data.ConstructionData.Layers.Any())
-                {
-                    LoadLayersFromProjectData(data.ConstructionData.Layers, data.Version);
-                }
+                var result = _constructionState.ApplySnapshot(
+                    BuildConstructionSnapshotFromProjectData(data),
+                    ConstructionMutationOrigin.ProjectLoad);
+                _constructionViewModel.ApplyLifecycleSnapshotToAdapter(result.After);
 
                 // Загружаем данные теплового расчёта
                 _thermalViewModel.SelectedMode = data.ThermalData.SelectedMode;
@@ -309,10 +318,60 @@ namespace SnowMeltingCalculator.Services.Project
             }
         }
 
+        private ConstructionStateSnapshot BuildConstructionSnapshotFromProjectData(ProjectData data)
+        {
+            var needsAbovePipeReverse = string.Compare(
+                data.Version,
+                "1.1",
+                StringComparison.OrdinalIgnoreCase) < 0;
+
+            IEnumerable<LayerProjectData> aboveLayers = data.ConstructionData.Layers
+                .Where(layer => layer.Position == LayerPosition.AbovePipe);
+            if (needsAbovePipeReverse)
+            {
+                aboveLayers = aboveLayers.Reverse();
+            }
+
+            var belowLayers = data.ConstructionData.Layers
+                .Where(layer => layer.Position == LayerPosition.BelowPipe);
+
+            return new ConstructionStateSnapshot(
+                data.ConstructionData.GroundwaterLevel,
+                data.ConstructionData.HasLoads,
+                BuildLayerSnapshots(aboveLayers, data.ConstructionData.GroundwaterLevel),
+                BuildLayerSnapshots(belowLayers, data.ConstructionData.GroundwaterLevel));
+        }
+
+        private List<ConstructionLayerSnapshot> BuildLayerSnapshots(
+            IEnumerable<LayerProjectData> layerDataList,
+            double groundwaterLevel)
+        {
+            return layerDataList.Select((layerData, index) =>
+            {
+                var material = _constructionViewModel.AvailableMaterials
+                    .FirstOrDefault(candidate => candidate.Name == layerData.MaterialName)
+                    ?? Material.GetDefaultMaterial();
+                var calculatedLambda = layerData.Position == LayerPosition.BelowPipe
+                    && !layerData.IsLambdaOverridden
+                        ? groundwaterLevel < 1.0 ? material.LambdaB : material.LambdaA
+                        : layerData.CalculatedLambda;
+
+                return new ConstructionLayerSnapshot(
+                    Guid.NewGuid(),
+                    material.Id,
+                    material.Name,
+                    layerData.Thickness,
+                    calculatedLambda,
+                    false,
+                    layerData.Position,
+                    index);
+            }).ToList();
+        }
+
         /// <summary>
         /// Загрузить слои конструкции из данных проекта
         /// </summary>
-        private void LoadLayersFromProjectData(List<LayerProjectData> layerDataList, string version)
+        private void LoadLayersFromProjectDataLegacy(List<LayerProjectData> layerDataList, string version)
         {
             // До v1.1 слои AbovePipe сохранялись в хронологическом порядке (Add в конец),
             // т.е. [у трубы, поверхность]. С v1.1 физический top-to-bottom: [поверхность, ..., у трубы].

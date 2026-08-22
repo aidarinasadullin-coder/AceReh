@@ -59,7 +59,7 @@ public class ClimateMultiplicityCharacterizationTests
     }
 
     [Test]
-    public void ClimateMultiplicity_Reset_EmitsOneExplicitCompatibilityUpdateWithoutDirtying()
+    public void ClimateMultiplicity_ChangedUserReset_EmitsOneCompletionAndCompatibilityUpdateAndMarksDirty()
     {
         var probe = CreateProbe();
         probe.ViewModel.SelectedCity = Moscow;
@@ -68,14 +68,14 @@ public class ClimateMultiplicityCharacterizationTests
         probe.ResetCounters();
         probe.ViewModel.Reset();
 
-        AssertCounts(probe, markDirtyCalls: 0, climateDataChanged: 1, viewModelDataChanged: 1, contextChanged: 1);
+        AssertCounts(probe, markDirtyCalls: 1, climateDataChanged: 1, viewModelDataChanged: 1, contextChanged: 1, completions: 1);
         Assert.That(probe.ViewModel.SelectedCity, Is.Null);
         Assert.That(probe.ClimateData.SelectedCity, Is.Empty);
         Assert.That(probe.ClimateData.AirTemperature, Is.EqualTo(-15));
     }
 
     [Test]
-    public void ClimateMultiplicity_ResetToCityData_EmitsLegacyUpdatesForEachRestoredScalarAndCompletion()
+    public void ClimateMultiplicity_ChangedUserResetToCityData_EmitsOneCompletionAndCompatibilityUpdateAndMarksDirty()
     {
         var probe = CreateProbe();
         probe.ViewModel.SelectedCity = Moscow;
@@ -86,7 +86,7 @@ public class ClimateMultiplicityCharacterizationTests
         probe.ResetCounters();
         probe.ViewModel.ResetToCityDataCommand.Execute(null);
 
-        AssertCounts(probe, markDirtyCalls: 0, climateDataChanged: 1, viewModelDataChanged: 1, contextChanged: 1);
+        AssertCounts(probe, markDirtyCalls: 1, climateDataChanged: 1, viewModelDataChanged: 1, contextChanged: 1, completions: 1);
         Assert.That(probe.ViewModel.AirTemperature, Is.EqualTo(-15));
         Assert.That(probe.ViewModel.WindSpeed, Is.EqualTo(4.5));
         Assert.That(probe.ViewModel.Humidity, Is.EqualTo(85));
@@ -101,7 +101,7 @@ public class ClimateMultiplicityCharacterizationTests
         probe.ResetCounters();
         probe.ViewModel.AirTemperature = -15;
 
-        AssertCounts(probe, markDirtyCalls: 0, climateDataChanged: 0, viewModelDataChanged: 0, contextChanged: 0);
+        AssertCounts(probe, markDirtyCalls: 0, climateDataChanged: 0, viewModelDataChanged: 0, contextChanged: 0, completions: 0);
         Assert.That(probe.ViewModel.AirTemperature, Is.EqualTo(-15));
     }
 
@@ -168,15 +168,19 @@ public class ClimateMultiplicityCharacterizationTests
         var dirty = new Mock<IMarkDirtyService>();
         var context = new CalculationContext();
         var viewModel = new ClimateViewModel(service, climateData, new ClimateValidator(), dirty.Object, context);
-        return new ClimateProbe(viewModel, climateData, context, dirty, service);
+        return new ClimateProbe(viewModel, viewModel.ClimateState, climateData, context, dirty, service);
     }
 
-    private static void AssertCounts(ClimateProbe probe, int markDirtyCalls, int climateDataChanged, int viewModelDataChanged, int contextChanged)
+    private static void AssertCounts(ClimateProbe probe, int markDirtyCalls, int climateDataChanged, int viewModelDataChanged, int contextChanged, int? completions = null)
     {
         Assert.That(probe.MarkDirtyCalls, Is.EqualTo(markDirtyCalls), nameof(probe.MarkDirtyCalls));
         Assert.That(probe.ClimateDataChanged, Is.EqualTo(climateDataChanged), nameof(probe.ClimateDataChanged));
         Assert.That(probe.ViewModelDataChanged, Is.EqualTo(viewModelDataChanged), nameof(probe.ViewModelDataChanged));
         Assert.That(probe.ContextChanged, Is.EqualTo(contextChanged), nameof(probe.ContextChanged));
+        if (completions.HasValue)
+        {
+            Assert.That(probe.Completions, Is.EqualTo(completions.Value), nameof(probe.Completions));
+        }
     }
 
     private sealed class ClimateProbe
@@ -185,8 +189,9 @@ public class ClimateMultiplicityCharacterizationTests
         private int _climateDataChanged;
         private int _viewModelDataChanged;
         private int _contextChanged;
+        private int _completions;
 
-        public ClimateProbe(ClimateViewModel viewModel, ClimateData climateData, CalculationContext context, Mock<IMarkDirtyService> dirty, CountingClimateDataService service)
+        public ClimateProbe(ClimateViewModel viewModel, IProjectSessionClimateState climateState, ClimateData climateData, CalculationContext context, Mock<IMarkDirtyService> dirty, CountingClimateDataService service)
         {
             ViewModel = viewModel;
             ClimateData = climateData;
@@ -195,6 +200,7 @@ public class ClimateMultiplicityCharacterizationTests
             climateData.DataChanged += (_, _) => _climateDataChanged++;
             viewModel.DataChanged += (_, _) => _viewModelDataChanged++;
             context.ContextChanged += (_, _) => _contextChanged++;
+            climateState.Changed += (_, _) => _completions++;
         }
 
         public ClimateViewModel ViewModel { get; }
@@ -204,6 +210,7 @@ public class ClimateMultiplicityCharacterizationTests
         public int ClimateDataChanged => _climateDataChanged;
         public int ViewModelDataChanged => _viewModelDataChanged;
         public int ContextChanged => _contextChanged;
+        public int Completions => _completions;
 
         public void ResetCounters()
         {
@@ -211,6 +218,7 @@ public class ClimateMultiplicityCharacterizationTests
             _climateDataChanged = 0;
             _viewModelDataChanged = 0;
             _contextChanged = 0;
+            _completions = 0;
         }
     }
 
