@@ -94,9 +94,10 @@ namespace SnowMeltingCalculator.Configuration
             // Services
             services.AddSingleton<IConstructionService, ConstructionService>();
 
-            // Data - Construction реализует IConstructionData
+            // Mutable compatibility model used only by the Construction adapter.
             services.AddSingleton<Construction>();
-            services.AddSingleton<IConstructionData>(sp => sp.GetRequiredService<Construction>());
+            services.AddSingleton<IConstructionData>(sp =>
+                sp.GetRequiredService<IProjectSessionConstructionState>().CurrentProjection);
 
             // ViewModels
             services.AddSingleton<ConstructionViewModel>();
@@ -174,6 +175,8 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<IProjectInfoService>(sp => sp.GetRequiredService<ProjectSession>());
             services.AddSingleton<IProjectStateService>(sp => sp.GetRequiredService<ProjectSession>());
             services.AddSingleton<IMarkDirtyService>(sp => sp.GetRequiredService<ProjectSession>());
+            services.AddSingleton<IProjectSessionConstructionState>(sp => (IProjectSessionConstructionState)sp.GetRequiredService<ProjectSession>().ConstructionState);
+            services.AddSingleton<ConstructionDefaultStateInitializer>();
             services.AddSingleton<IPdfExportService, PdfExportService>();
             services.AddSingleton<ICalculationReportDataBuilder, CalculationReportDataBuilder>();
             services.AddSingleton<ICalculationReportMarkdownRenderer, CalculationReportMarkdownRenderer>();

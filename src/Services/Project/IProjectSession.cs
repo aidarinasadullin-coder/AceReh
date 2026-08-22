@@ -14,6 +14,11 @@ namespace SnowMeltingCalculator.Services.Project
         /// Канонический срез климатического состояния текущего проекта.
         /// </summary>
         IProjectSessionClimateState ClimateState { get; }
+
+        /// <summary>
+        /// Канонический срез состояния конструкции текущего проекта.
+        /// </summary>
+        IProjectSessionConstructionState ConstructionState { get; }
         /// <summary>
         /// Номер проекта.
         /// </summary>
