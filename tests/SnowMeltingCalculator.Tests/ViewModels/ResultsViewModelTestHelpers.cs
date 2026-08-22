@@ -35,9 +35,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             ProjectStateService projectStateService,
             CircuitsViewModel circuitsVm)
         {
+            var materials = Material.GetDefaultMaterials().ToList();
+            var materialsById = materials.ToDictionary(material => material.Id);
             var materialRepositoryMock = new Mock<IMaterialRepository>();
-            materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(new List<Material>());
-            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(new List<Material>());
+            materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
+            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(materials);
+            materialRepositoryMock.Setup(r => r.GetMaterialById(It.IsAny<int>()))
+                .Returns((int id) => materialsById.GetValueOrDefault(id));
 
             var constructionServiceMock = new Mock<IConstructionService>();
             constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
@@ -46,8 +50,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var calculationStateService = new CalculationStateService(projectStateService.Session);
             var calculationContext = new CalculationContext();
             var climateVm = CreateClimateViewModel(projectStateService.Session);
-            var constructionVm = CreateConstructionViewModel();
+            var constructionVm = CreateConstructionViewModel(
+                projectStateService.Session,
+                materialRepositoryMock.Object);
             var thermalVm = CreateThermalViewModel();
+            var constructionDefaultStateInitializer = CreateDefaultConstructionInitializer(
+                projectStateService.Session,
+                materialRepositoryMock.Object);
 
             return new ResultsViewModel(
                 projectStateService,
@@ -72,7 +81,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     calculationStateService,
                     constructionServiceMock.Object,
                     calculationContext,
-                    projectStateService.Session),
+                    projectStateService.Session,
+                    constructionDefaultStateInitializer),
                 new ResultsPdfDataBuilder(
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,
@@ -130,23 +140,59 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
         public static ConstructionViewModel CreateConstructionViewModel()
         {
+            return CreateConstructionViewModel(null);
+        }
+
+        public static ConstructionViewModel CreateConstructionViewModel(IProjectSession? projectSession)
+        {
             var materialRepositoryMock = new Mock<IMaterialRepository>();
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(new List<Material>());
+            return CreateConstructionViewModel(projectSession, materialRepositoryMock.Object);
+        }
+
+        public static ConstructionDefaultStateInitializer CreateDefaultConstructionInitializer(
+            IProjectSession projectSession)
+        {
+            var materialsById = Material.GetDefaultMaterials().ToDictionary(material => material.Id);
+            var materialRepositoryMock = new Mock<IMaterialRepository>();
+            materialRepositoryMock.Setup(repository => repository.GetMaterialById(It.IsAny<int>()))
+                .Returns((int id) => materialsById.GetValueOrDefault(id));
+
+            return CreateDefaultConstructionInitializer(projectSession, materialRepositoryMock.Object);
+        }
+
+        private static ConstructionDefaultStateInitializer CreateDefaultConstructionInitializer(
+            IProjectSession projectSession,
+            IMaterialRepository materialRepository)
+        {
+            return new ConstructionDefaultStateInitializer(
+                materialRepository,
+                projectSession.ConstructionState);
+        }
+
+        private static ConstructionViewModel CreateConstructionViewModel(
+            IProjectSession? projectSession,
+            IMaterialRepository materialRepository)
+        {
             var templateRepositoryMock = new Mock<IConstructionTemplateRepository>();
             templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
+            var calculationContext = new CalculationContext();
+            projectSession ??= new ProjectSession(calculationContext: calculationContext);
 
             return new ConstructionViewModel(
                 new Mock<IConstructionService>().Object,
-                materialRepositoryMock.Object,
+                materialRepository,
                 new Mock<IConstructionRepository>().Object,
-                new CalculationStateService(),
-                new CalculationContext(),
+                new CalculationStateService(projectSession),
+                calculationContext,
                 new ConstructionValidator(),
                 new ConstructionModel(),
                 new Mock<IMarkDirtyService>().Object,
                 templateRepositoryMock.Object,
                 new Mock<IDialogService>().Object,
-                new Mock<IEditorDialogService>().Object);
+                new Mock<IEditorDialogService>().Object,
+                projectSession.ConstructionState,
+                new ConstructionDefaultStateInitializer(materialRepository, projectSession.ConstructionState));
         }
 
         public static ThermalViewModel CreateThermalViewModel()
@@ -256,7 +302,23 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     SnowfallIntensity = 1,
                     SelectedZone = ClimateZone.Zone_M10
                 },
-                ConstructionData = new ConstructionProjectData(),
+                ConstructionData = new ConstructionProjectData
+                {
+                    R1 = 0.057,
+                    R2 = 39.32,
+                    LambdaE = 1.74,
+                    GroundwaterLevel = 2.0,
+                    Layers = new List<LayerProjectData>
+                    {
+                        CreateLayer(LayerPosition.AbovePipe, "Бетон", 1.74, 100, 0),
+                        CreateLayer(LayerPosition.BelowPipe, "Бетон", 1.74, 10, 0),
+                        CreateLayer(LayerPosition.BelowPipe, "Бетон с арматурной сеткой", 1.69, 10, 1),
+                        CreateLayer(LayerPosition.BelowPipe, "Пенополистирол ЭППС", 0.035, 80, 2),
+                        CreateLayer(LayerPosition.BelowPipe, "ПГС", 1.0, 200, 3),
+                        CreateLayer(LayerPosition.BelowPipe, "Грунт", 0.5, 1000, 4),
+                        CreateLayer(LayerPosition.BelowPipe, "Грунт", 0.5, 570, 5)
+                    }
+                },
                 ThermalData = new ThermalProjectData
                 {
                     SelectedMode = OperatingMode.Melting,
@@ -280,6 +342,25 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     }
                 },
                 HydraulicsData = new HydraulicsProjectData()
+            };
+        }
+
+        private static LayerProjectData CreateLayer(
+            LayerPosition position,
+            string materialName,
+            double lambda,
+            double thickness,
+            int order)
+        {
+            return new LayerProjectData
+            {
+                Position = position,
+                MaterialName = materialName,
+                MaterialLambda = lambda,
+                Thickness = thickness,
+                CalculatedR = thickness / 1000 / lambda,
+                CalculatedLambda = lambda,
+                Order = order
             };
         }
     }

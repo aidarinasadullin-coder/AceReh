@@ -30,6 +30,8 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         private readonly IDialogService _dialogService;
         private readonly CalculationContext _calculationContext;
         private readonly IProjectSessionClimateState _climateState;
+        private readonly IProjectSessionConstructionState _constructionState;
+        private readonly ConstructionDefaultStateInitializer _constructionDefaultStateInitializer;
 
         public ResultsViewModel ResultsViewModel => _resultsViewModel;
         public ClimateViewModel ClimateViewModel => _climateViewModel;
@@ -47,7 +49,8 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             IProjectStateService projectStateService,
             IDialogService dialogService,
             CalculationContext calculationContext,
-            IProjectSession? projectSession = null)
+            IProjectSession? projectSession = null,
+            ConstructionDefaultStateInitializer? constructionDefaultStateInitializer = null)
         {
             _climateViewModel = climateViewModel;
             _thermalViewModel = thermalViewModel;
@@ -58,7 +61,11 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             _projectStateService = projectStateService ?? throw new ArgumentNullException(nameof(projectStateService));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
-            _climateState = projectSession?.ClimateState ?? _climateViewModel.ClimateState;
+            var session = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
+            _climateState = session.ClimateState;
+            _constructionState = session.ConstructionState;
+            _constructionDefaultStateInitializer = constructionDefaultStateInitializer
+                ?? throw new ArgumentNullException(nameof(constructionDefaultStateInitializer));
 
             // Подписка на изменения состояния
             _calculationStateService.StateChanged += OnCalculationStateChanged;
@@ -218,12 +225,16 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         /// </summary>
         private void PerformNewCalculationReset()
         {
+            var constructionResult = _constructionDefaultStateInitializer.Apply(
+                _constructionState.Snapshot.GroundwaterLevel,
+                ConstructionMutationOrigin.Reset);
+
             _calculationContext.Reset();
             _resultsViewModel.Reset();
             _projectStateService.MarkClean();
-            _climateState.ResetToDefaults(ClimateMutationOrigin.Reset);
+            _climateState.ResetToDefaults(ClimateMutationOrigin.ProjectLoadReset);
             _climateViewModel.SearchQuery = string.Empty;
-            _constructionViewModel.Reset();
+            _constructionViewModel.ApplyLifecycleSnapshotToAdapter(constructionResult.After);
             _thermalViewModel.Reset();
             _circuitsViewModel.Reset();
             _projectStateService.MarkClean();

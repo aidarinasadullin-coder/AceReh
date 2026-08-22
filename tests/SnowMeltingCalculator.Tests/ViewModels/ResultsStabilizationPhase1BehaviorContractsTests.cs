@@ -200,6 +200,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var constructionViewModel = GetField<ConstructionViewModel>(viewModel, "_constructionViewModel");
             var imageService = GetField<IConstructionVisualizationImageService>(builder, "_constructionVisualizationImageService");
             SnowMeltingCalculator.Services.Visualization.ConstructionVisualizationParameters? captured = null;
+            constructionViewModel.LayersAbovePipe.Clear();
+            constructionViewModel.LayersBelowPipe.Clear();
             constructionViewModel.LayersAbovePipe.Add(new Layer
             {
                 Material = new Material { Name = "Current PDF material", LambdaA = 1.8, LambdaB = 2.1 },
