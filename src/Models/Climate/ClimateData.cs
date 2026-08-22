@@ -89,11 +89,11 @@ namespace SnowMeltingCalculator.Models.Climate
 
         /// <summary>
         /// Утверждённый projection updater: обновляет совместимую проекцию из источника
-        /// и один раз поднимает <see cref="DataChanged"/>. Не является вторым canonical owner.
+        /// и при необходимости один раз поднимает <see cref="DataChanged"/>. Не является вторым canonical owner.
         /// </summary>
         /// <param name="source">Источник климатических значений (read-only DTO/projection).</param>
         /// <param name="isValid">Признак валидности для аргументов события.</param>
-        internal void ApplyProjection(IClimateData source, bool isValid = true)
+        internal void ApplyProjection(IClimateData source, bool isValid = true, bool publishDataChanged = true)
         {
             if (source is null)
             {
@@ -109,7 +109,10 @@ namespace SnowMeltingCalculator.Models.Climate
             SnowfallIntensity = source.SnowfallIntensity;
             Zone = source.Zone;
 
-            RaiseDataChanged("Sync", null, null, isValid);
+            if (publishDataChanged)
+            {
+                RaiseDataChanged("Sync", null, null, isValid);
+            }
         }
 
         /// <summary>

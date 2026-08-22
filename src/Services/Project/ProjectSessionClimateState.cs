@@ -237,13 +237,13 @@ namespace SnowMeltingCalculator.Services.Project
             {
                 if (_climateData != null)
                 {
-                    _climateData.ApplyProjection(newSnapshot, isValid);
+                    _climateData.ApplyProjection(newSnapshot, isValid, PublishesCompatibility(origin));
                     _calculationContext?.UpdateClimate(_climateData, "Climate");
                 }
 
                 Changed?.Invoke(this, new ClimateStateChangedEventArgs(origin, oldSnapshot, newSnapshot));
 
-                if (origin == ClimateMutationOrigin.User)
+                if (origin == ClimateMutationOrigin.User || origin == ClimateMutationOrigin.UserReset)
                 {
                     _markDirtyService?.MarkDirty();
                 }
@@ -256,6 +256,11 @@ namespace SnowMeltingCalculator.Services.Project
                 Array.Empty<string>(),
                 oldSnapshot,
                 newSnapshot);
+        }
+
+        private static bool PublishesCompatibility(ClimateMutationOrigin origin)
+        {
+            return origin == ClimateMutationOrigin.User || origin == ClimateMutationOrigin.UserReset;
         }
 
         private static bool Validate(ClimateEdit edit, List<string> errors)

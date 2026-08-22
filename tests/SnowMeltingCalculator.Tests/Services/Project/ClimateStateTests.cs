@@ -105,7 +105,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             _climate.ApplyCitySelection(city, false, ClimateMutationOrigin.User);
             var events = CaptureChangedEvents();
 
-            var result = _climate.ApplyCitySelection(null, false, ClimateMutationOrigin.Reset);
+            var result = _climate.ApplyCitySelection(null, false, ClimateMutationOrigin.ProjectLoadReset);
 
             Assert.That(result.IsChanged, Is.True);
             Assert.That(result.NewSnapshot.IsCitySelected, Is.False);
@@ -259,7 +259,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             _session.MarkClean();
             var events = CaptureChangedEvents();
 
-            var result = _climate.ResetToDefaults(ClimateMutationOrigin.Reset);
+            var result = _climate.ResetToDefaults(ClimateMutationOrigin.ProjectLoadReset);
 
             Assert.That(result.IsChanged, Is.True);
             Assert.That(result.NewSnapshot.IsCitySelected, Is.False);
@@ -291,7 +291,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             _climate.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.AirTemperature, -10.0), ClimateMutationOrigin.User);
             _session.MarkClean();
 
-            var result = _climate.ResetToCityData(city, ClimateMutationOrigin.Reset);
+            var result = _climate.ResetToCityData(city, ClimateMutationOrigin.ProjectLoadReset);
 
             Assert.That(result.IsChanged, Is.True);
             Assert.That(result.NewSnapshot.AirTemperature, Is.EqualTo(-15.0));
@@ -304,7 +304,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         [Test]
         public void ResetToCityData_NullCity_ReturnsNoOp()
         {
-            var result = _climate.ResetToCityData(null, ClimateMutationOrigin.Reset);
+            var result = _climate.ResetToCityData(null, ClimateMutationOrigin.ProjectLoadReset);
 
             Assert.That(result.IsChanged, Is.False);
         }

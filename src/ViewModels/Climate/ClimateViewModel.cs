@@ -421,7 +421,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         /// </summary>
         public void Reset()
         {
-            _climateState.ResetToDefaults(ClimateMutationOrigin.Reset);
+            _climateState.ResetToDefaults(ClimateMutationOrigin.UserReset);
             SearchQuery = string.Empty;
             _originalCityData = null;
         }
@@ -444,7 +444,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         {
             if (_originalCityData != null)
             {
-                _climateState.ResetToCityData(_originalCityData, ClimateMutationOrigin.Reset);
+                _climateState.ResetToCityData(_originalCityData, ClimateMutationOrigin.UserReset);
             }
         }
 
