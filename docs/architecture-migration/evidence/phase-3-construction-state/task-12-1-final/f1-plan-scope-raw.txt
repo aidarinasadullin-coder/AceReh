@@ -1,0 +1,115 @@
+F1 PLAN COMPLIANCE AND PROTECTED-WORKTREE AUDIT - CORRECTED RAW COMPARISON
+Captured: 2026-08-19
+
+AUTHORITY
+Plan: .omo/plans/phase-3-task-12-1-canonical-default-construction-initialization.md
+Correction-baseline plan SHA-256: 5BCEE8D2C450DFBDC7F05A044CD8DC7D1BB065F1678A825283AA18131BF12640
+Current raw/LF-normalized plan SHA-256: A7EF926646BCD2AFA8B5C8F734F665475D5F75D20E7FD251DD5C7E2B38139599
+Repository: D:/IA/ace v.2
+HEAD: e655735dfa66c00cf9c53be93d511eda8989e8bf
+Branch/upstream: master / origin/master
+
+PLAN SEMANTIC COMPARISON
+Top-level checkboxes found: 11
+Baseline hash recovered by checkbox-only substitution: True
+Non-checkbox text differences: 0
+
+The exact correction-baseline hash is reproduced from the current plan by changing only:
+line 107: Task 1 [x] -> [ ]
+line 117: Task 2 [x] -> [ ]
+line 131: Task 3 [x] -> [ ]
+line 142: Task 4 [x] -> [ ]
+line 153: Task 5 [x] -> [ ]
+line 164: Task 6 [x] -> [ ]
+line 179: Task 7 [x] -> [ ]
+
+F1-F4 remain unchecked. The hash drift is therefore expected workflow progress and is not a rejection reason.
+
+NUL-SAFE WORKTREE COMPARISON
+Correction baseline status records: 247
+Current status records before F1 evidence creation: 254
+Removed correction-baseline records: 0
+Added records: 7
+
+Allowed records under the exact plan allow-list:
+ M src/ViewModels/Shell/MainViewModel.cs
+ M tests/SnowMeltingCalculator.Tests/ViewModels/MainViewModelTests.cs
+?? src/Services/Project/ConstructionDefaultStateInitializer.cs
+?? tests/SnowMeltingCalculator.Tests/Services/Project/CanonicalDefaultConstructionLifecycleTests.cs
+
+Records outside the exact path allow-list and exact two-file owner expansion:
+ M tests/SnowMeltingCalculator.Tests/ViewModels/ResetOrchestrationTests.cs
+ M tests/SnowMeltingCalculator.Tests/ViewModels/ResultsStabilizationPhase1BehaviorContractsTests.cs
+ M tests/SnowMeltingCalculator.Tests/ViewModels/ResultsStabilizationPhase1ContractsTests.cs
+
+PRECISE HUNK CLASSIFICATION
+
+1. tests/SnowMeltingCalculator.Tests/ViewModels/ResetOrchestrationTests.cs
+
+@@ -209,32 +209,42 @@ private CreateConstructionViewModel
+- Adds GetMaterialById over the helper's existing complete canonical material list.
+- Creates one CalculationContext, ProjectSession, session ConstructionState, and repository-backed ConstructionDefaultStateInitializer.
+- Passes that shared context/state/initializer to ConstructionViewModel.
+- Cause: Task 12.1 ConstructionViewModel initialization now applies canonical defaults and requires material lookup against the same state graph. The constructor parameters are optional only for legacy compatibility, but this reset test initializes the VM and must exercise the production identity graph rather than an independent fallback state.
+- Classification: necessary fixture-only Task 12.1 adaptation; no test declaration/assertion/expected value changed.
+
+@@ -275,25 +285,31 @@ private CreateResultsViewModel
+- Replaces an empty material fixture with Material.GetDefaultMaterials(), supplies GetMaterialById, and creates an initializer over projectStateService.Session.ConstructionState.
+- Passes projectStateService.Session and the initializer to ProjectLoadOrchestrator.
+- Cause: Task 12.1 Task 5 made ProjectLoadOrchestrator's session and initializer runtime-required (constructor throws ArgumentNullException when omitted) so pre-load reset can validate/apply canonical defaults before destructive resets.
+- Classification: necessary fixture-only Task 12.1 constructor/catalog adaptation; no test declaration/assertion/expected value changed.
+- Nearest plan item: Task 5 requires legacy test helpers to supply the same initializer/session, but its explicit allowed test paths are MainViewModelTests, ProjectLifecycleFlowCharacterizationTests, and the legacy guard. ResetOrchestrationTests is not named, so the hunk is causally attributable to Task 5 but not path-authorized by it.
+
+2. tests/SnowMeltingCalculator.Tests/ViewModels/ResultsStabilizationPhase1BehaviorContractsTests.cs
+
+@@ -195,16 +195,18 @@ ResultsPdfDataBuilder_UsesConstructionLayersAndImageParametersFromSameCurrentSource
+- Clears LayersAbovePipe and LayersBelowPipe immediately before adding the pre-existing single custom layer.
+- Cause: allow-listed ResultsViewModelTestHelpers/CreateReadyViewModel now routes LoadReadyModulesAsync through canonical construction state. The ready-project load leaves canonical/default layers in the adapter, whereas this test's original arrangement assumed empty collections and asserted exactly one PDF material.
+- Classification: necessary fixture-arrangement isolation caused by the Task 12.1 canonical-default/shared-session fixture contract. Assertions and production behavior are unchanged; without the clears, inherited defaults contaminate the test's single-layer arrangement.
+- Nearest plan item: Task 6 conditionally allows ResultsViewModelTestHelpers and requires persistence/consumer identity over one singleton graph. This hunk is a downstream adaptation caused by that allowed helper change, but the behavior-contract test path itself is not an explicit allow-list item.
+
+3. tests/SnowMeltingCalculator.Tests/ViewModels/ResultsStabilizationPhase1ContractsTests.cs
+
+@@ -265,26 +265,30 @@ CreateWindow
+- Uses the allow-listed ResultsViewModelTestHelpers.CreateDefaultConstructionInitializer(session).
+- Passes projectStateService.Session and that initializer to MainViewModel.
+- Cause: Task 12.1 Task 5 made MainViewModel's session and initializer runtime-required; omitting them throws ArgumentNullException before navigation contract tests can run.
+- Classification: necessary fixture-only constructor adaptation; no test declaration/assertion/expected value changed.
+- Nearest plan item: Task 5 explicitly authorizes MainViewModel constructor injection and says legacy test helpers must supply the same initializer/session, but its named test allow-list includes MainViewModelTests rather than ResultsStabilizationPhase1ContractsTests. The hunk is causally attributable to Task 5 but not path-authorized by it.
+
+EXECUTABLE CHECK
+Command filter: ResetOrchestrationTests | exact ResultsPdfDataBuilder behavior test | ResultsStabilizationPhase1ContractsTests
+Configuration: Debug, --no-restore
+Result: 19 total / 19 passed / 0 failed / 0 skipped
+
+FORMAL SCOPE DECISION
+The original path-authority ruling that these three paths were unapproved is superseded by the dated owner approval overlay below. The technical classification is preserved: all three disputed paths are technically necessary Task 12.1 fixture adaptations, and none weakens an assertion or expands production behavior.
+
+STAGED/PROTECTED/SOURCE GUARDS
+Baseline staged bytes: 0
+Current staged bytes: 0
+Staged streams byte-identical: True
+Task 1 protected tracked rows: 232
+Missing protected tracked rows: 0
+Forbidden production/maps/widget status set: unchanged from correction baseline
+SyncToCanonicalState production calls: 0
+ConstructionViewModel direct MarkDirty()/UpdateConstruction() calls: 0
+BuildResetConstructionSnapshot/AddDefaultLayer duplicate recipe symbols: 0
+Synthetic src/Services/Thermal/SyntheticOutOfScope.cs classifier probe: rejected
+
+OWNER APPROVAL OVERLAY / FINAL CLASSIFICATION
+Owner decision date: 2026-08-19
+Owner decision: вариант 1: узкое явное одобрение трёх fixture-файлов, без оверинженеринга.
+
+Exact approved files:
+- tests/SnowMeltingCalculator.Tests/ViewModels/ResetOrchestrationTests.cs
+- tests/SnowMeltingCalculator.Tests/ViewModels/ResultsStabilizationPhase1BehaviorContractsTests.cs
+- tests/SnowMeltingCalculator.Tests/ViewModels/ResultsStabilizationPhase1ContractsTests.cs
+
+Exact approved scope: current shared ProjectSession/ConstructionState/initializer/material-catalog wiring and the two current collection Clear() calls for arrangement isolation.
+No helper factory, abstraction, wider refactor, assertion change, test-contract change, skip change, or production behavior change is authorized.
+
+This dated narrow overlay is not retroactive rewriting of the original plan. It records the owner's sole minimal remediation for the already classified current hunks. The prior 19/19 focused result, protected-worktree findings, source guards, and synthetic rejection result remain unchanged and preserved. No other existing finding blocks approval.
+
+Final classification: the exact current hunk set is approved and compliant with F1.
+VERDICT: APPROVE
