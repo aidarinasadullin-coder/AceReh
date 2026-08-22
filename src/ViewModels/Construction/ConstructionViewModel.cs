@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -14,6 +15,7 @@ using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Core;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
+using SnowMeltingCalculator.Services.Project;
 
 namespace SnowMeltingCalculator.ViewModels.Construction
 {
@@ -26,15 +28,18 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private readonly IMaterialRepository _materialRepository;
         private readonly IConstructionRepository _constructionRepository;
         private readonly ICalculationStateService _calculationStateService;
-        private readonly CalculationContext _calculationContext;
         private readonly IValidator<ConstructionModel> _validator;
         private readonly ConstructionModel _construction;
-        private readonly IMarkDirtyService _markDirtyService;
         private readonly IConstructionTemplateRepository _templateRepository;
         private readonly IDialogService _dialogService;
         private readonly IEditorDialogService _editorDialogService;
+        private readonly IProjectSessionConstructionState _constructionState;
+        private readonly ConstructionDefaultStateInitializer _defaultStateInitializer;
         private bool _isSyncing; // Флаг для предотвращения рекурсии при синхронизации
         private bool _isResetting;
+        private bool _isRefreshing; // Флаг для предотвращения рекурсии при обновлении из state
+        private readonly HashSet<Layer> _subscribedLayers = new(ReferenceEqualityComparer.Instance);
+        private readonly HashSet<Layer> _pendingMaterialLambdaUpdates = new(ReferenceEqualityComparer.Instance);
 
         #region Observable Properties
 
@@ -222,19 +227,25 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             IMarkDirtyService markDirtyService,
             IConstructionTemplateRepository templateRepository,
             IDialogService dialogService,
-            IEditorDialogService editorDialogService)
+            IEditorDialogService editorDialogService,
+            IProjectSessionConstructionState constructionState,
+            ConstructionDefaultStateInitializer defaultStateInitializer)
         {
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
             _constructionRepository = constructionRepository ?? throw new ArgumentNullException(nameof(constructionRepository));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
-            _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
+            ArgumentNullException.ThrowIfNull(calculationContext);
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
             _construction = construction ?? throw new ArgumentNullException(nameof(construction));
-            _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
+            ArgumentNullException.ThrowIfNull(markDirtyService);
             _templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _editorDialogService = editorDialogService ?? throw new ArgumentNullException(nameof(editorDialogService));
+            ArgumentNullException.ThrowIfNull(constructionState);
+            ArgumentNullException.ThrowIfNull(defaultStateInitializer);
+            _constructionState = constructionState;
+            _defaultStateInitializer = defaultStateInitializer;
 
             // Подписываемся на изменения коллекций
             LayersAbovePipe.CollectionChanged += OnLayersCollectionChanged;
@@ -245,6 +256,9 @@ namespace SnowMeltingCalculator.ViewModels.Construction
 
             // Подписываемся на изменения шага укладки
             _calculationStateService.PipeSpacingChanged += OnPipeSpacingChanged;
+
+            // Подписываемся на изменения состояния конструкции
+            _constructionState.Changed += OnConstructionStateChanged;
         }
 
         #endregion
@@ -265,8 +279,10 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 // Загружаем материалы и шаблоны
                 await RefreshCatalogsAsync();
 
-                // Устанавливаем конструкцию по умолчанию
-                ResetToDefault();
+                var result = _defaultStateInitializer.Apply(
+                    GroundwaterLevel,
+                    ConstructionMutationOrigin.Initialization);
+                ApplyLifecycleSnapshotToAdapter(result.After);
             }
             finally
             {
@@ -292,10 +308,22 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 Position = LayerPosition.AbovePipe
             };
 
-            LayersAbovePipe.Insert(0, layer);
+            _isSyncing = true;
+            try
+            {
+                LayersAbovePipe.Insert(0, layer);
+                for (int index = 0; index < LayersAbovePipe.Count; index++)
+                {
+                    LayersAbovePipe[index].Order = index;
+                }
+            }
+            finally
+            {
+                _isSyncing = false;
+            }
             UpdateCalculations();
             HasUnsavedChanges = true;
-            _markDirtyService.MarkDirty();
+            SyncStateFromCollections(ConstructionMutationOrigin.User);
         }
 
         /// <summary>
@@ -319,10 +347,18 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 Order = LayersBelowPipe.Count
             };
 
-            LayersBelowPipe.Add(layer);
+            _isSyncing = true;
+            try
+            {
+                LayersBelowPipe.Add(layer);
+            }
+            finally
+            {
+                _isSyncing = false;
+            }
             UpdateCalculations();
             HasUnsavedChanges = true;
-            _markDirtyService.MarkDirty();
+            SyncStateFromCollections(ConstructionMutationOrigin.User);
         }
 
         /// <summary>
@@ -334,19 +370,35 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             if (_isResetting) return;
             if (layer == null) return;
 
-            if (layer.Position == LayerPosition.AbovePipe)
+            _isSyncing = true;
+            try
             {
-                LayersAbovePipe.Remove(layer);
+                if (layer.Position == LayerPosition.AbovePipe)
+                {
+                    LayersAbovePipe.Remove(layer);
+                }
+                else
+                {
+                    LayersBelowPipe.Remove(layer);
+                }
+
+                var layers = layer.Position == LayerPosition.AbovePipe
+                    ? LayersAbovePipe
+                    : LayersBelowPipe;
+                for (int index = 0; index < layers.Count; index++)
+                {
+                    layers[index].Order = index;
+                }
             }
-            else
+            finally
             {
-                LayersBelowPipe.Remove(layer);
+                _isSyncing = false;
             }
 
             SelectedLayer = null;
             UpdateCalculations();
             HasUnsavedChanges = true;
-            _markDirtyService.MarkDirty();
+            SyncStateFromCollections(ConstructionMutationOrigin.User);
         }
 
         /// <summary>
@@ -425,36 +477,59 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         private void ApplyTemplateCore(ConstructionTemplate template)
         {
-            // Создаём новую конструкцию из шаблона
             var newConstruction = _constructionService.CreateFromTemplate(template, AvailableMaterials);
+            var candidate = new ConstructionStateSnapshot(
+                GroundwaterLevel,
+                template.HasLoads,
+                newConstruction.LayersAbovePipe.Select((layer, index) => new ConstructionLayerSnapshot(
+                    layer.Id,
+                    layer.Material?.Id ?? 0,
+                    layer.Material?.Name ?? string.Empty,
+                    layer.Thickness,
+                    layer.CalculatedLambda,
+                    layer.IsLambdaOverridden,
+                    LayerPosition.AbovePipe,
+                    index)).ToArray(),
+                newConstruction.Layers.Select((layer, index) => new ConstructionLayerSnapshot(
+                    layer.Id,
+                    layer.Material?.Id ?? 0,
+                    layer.Material?.Name ?? string.Empty,
+                    layer.Thickness,
+                    layer.CalculatedLambda,
+                    layer.IsLambdaOverridden,
+                    LayerPosition.BelowPipe,
+                    index)).ToArray());
 
-            // Очищаем текущие слои
-            LayersAbovePipe.Clear();
-            LayersBelowPipe.Clear();
+            _constructionState.ApplySnapshot(candidate, ConstructionMutationOrigin.Template);
 
-            // Добавляем слои из шаблона
-            foreach (var layer in newConstruction.LayersAbovePipe)
+            _isSyncing = true;
+            try
             {
-                LayersAbovePipe.Add(layer);
-            }
+                LayersAbovePipe.Clear();
+                LayersBelowPipe.Clear();
 
-            foreach (var layer in newConstruction.Layers)
+                foreach (var layer in newConstruction.LayersAbovePipe)
+                {
+                    LayersAbovePipe.Add(layer);
+                }
+
+                foreach (var layer in newConstruction.Layers)
+                {
+                    LayersBelowPipe.Add(layer);
+                }
+
+                HasLoads = template.HasLoads;
+                SelectedGroundwaterOption = GroundwaterLevel < 1.0
+                    ? "УГВ < 1 м (влажные условия)"
+                    : "УГВ >= 1 м (сухие условия)";
+            }
+            finally
             {
-                LayersBelowPipe.Add(layer);
+                _isSyncing = false;
             }
-
-            // Устанавливаем параметры
-            // УГВ не задаётся шаблоном — это настройка проекта на вкладке "Конструкция".
-            HasLoads = template.HasLoads;
-
-            // Обновляем УГВ опцию
-            SelectedGroundwaterOption = GroundwaterLevel < 1.0
-                ? "УГВ < 1 м (влажные условия)"
-                : "УГВ >= 1 м (сухие условия)";
 
             UpdateCalculations();
             HasUnsavedChanges = true;
-            _markDirtyService.MarkDirty();
         }
 
         /// <summary>
@@ -699,106 +774,10 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             _isResetting = true;
             try
             {
-                LayersAbovePipe.Clear();
-                LayersBelowPipe.Clear();
-
-                // Добавляем базовые слои по шаблону "Парковка / площадка — бетон"
-                // AbovePipe: Order=0 — поверхность
-                // BelowPipe: Order=0 — у трубы, Order=max — грунт
-                var concrete = AvailableMaterials.FirstOrDefault(m => m.Id == 5);
-                var concreteMesh = AvailableMaterials.FirstOrDefault(m => m.Id == 6);
-                var xps = AvailableMaterials.FirstOrDefault(m => m.Id == 10);
-                var pgs = AvailableMaterials.FirstOrDefault(m => m.Id == 13);
-                var soil = AvailableMaterials.FirstOrDefault(m => m.Id == 2);
-
-                if (concrete != null)
-                {
-                    LayersAbovePipe.Add(new Layer
-                    {
-                        Material = concrete,
-                        Thickness = 100,
-                        CalculatedLambda = concrete.LambdaA,
-                        Position = LayerPosition.AbovePipe,
-                        Order = 0
-                    });
-                }
-
-                if (concrete != null)
-                {
-                    LayersBelowPipe.Add(new Layer
-                    {
-                        Material = concrete,
-                        Thickness = 10,
-                        CalculatedLambda = concrete.LambdaA,
-                        Position = LayerPosition.BelowPipe,
-                        Order = 0
-                    });
-                }
-
-                if (concreteMesh != null)
-                {
-                    LayersBelowPipe.Add(new Layer
-                    {
-                        Material = concreteMesh,
-                        Thickness = 10,
-                        CalculatedLambda = concreteMesh.LambdaA,
-                        Position = LayerPosition.BelowPipe,
-                        Order = 1
-                    });
-                }
-
-                if (xps != null)
-                {
-                    LayersBelowPipe.Add(new Layer
-                    {
-                        Material = xps,
-                        Thickness = 80,
-                        CalculatedLambda = xps.LambdaA,
-                        Position = LayerPosition.BelowPipe,
-                        Order = 2
-                    });
-                }
-
-                if (pgs != null)
-                {
-                    LayersBelowPipe.Add(new Layer
-                    {
-                        Material = pgs,
-                        Thickness = 200,
-                        CalculatedLambda = pgs.LambdaA,
-                        Position = LayerPosition.BelowPipe,
-                        Order = 3
-                    });
-                }
-
-                if (soil != null)
-                {
-                    LayersBelowPipe.Add(new Layer
-                    {
-                        Material = soil,
-                        Thickness = 1000,
-                        CalculatedLambda = soil.LambdaA,
-                        Position = LayerPosition.BelowPipe,
-                        Order = 4
-                    });
-
-                    LayersBelowPipe.Add(new Layer
-                    {
-                        Material = soil,
-                        Thickness = 570,
-                        CalculatedLambda = soil.LambdaA,
-                        Position = LayerPosition.BelowPipe,
-                        Order = 5
-                    });
-                }
-
-                // УГВ не меняется при сбросе — это настройка проекта
-                HasLoads = false;
-                SelectedTemplate = null;
-                SelectedLayer = null;
-
-                UpdateCalculations();
-                HasUnsavedChanges = false;
+                var result = _defaultStateInitializer.Apply(
+                    GroundwaterLevel,
+                    ConstructionMutationOrigin.Reset);
+                ApplyLifecycleSnapshotToAdapter(result.After);
             }
             finally
             {
@@ -833,26 +812,19 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         public void OnLayerChanged(Layer layer)
         {
-            if (layer == null) return;
+            if (layer == null || _isRefreshing) return;
 
-            // Обновляем λ если не переопределена вручную
-            if (!layer.IsLambdaOverridden && layer.Material != null)
-            {
-                if (layer.Position == LayerPosition.AbovePipe)
-                {
-                    layer.CalculatedLambda = layer.Material.LambdaA;
-                }
-                else
-                {
-                    layer.CalculatedLambda = GroundwaterLevel < 1.0
-                        ? layer.Material.LambdaB
-                        : layer.Material.LambdaA;
-                }
-            }
+            _constructionState.Apply(
+                new ConstructionMutation.EditLayer(
+                    layer.Id,
+                    layer.Material?.Id ?? 0,
+                    layer.Material?.Name ?? string.Empty,
+                    layer.Thickness,
+                    layer.CalculatedLambda,
+                    layer.IsLambdaOverridden),
+                ConstructionMutationOrigin.User);
 
-            UpdateCalculations();
             HasUnsavedChanges = true;
-            _markDirtyService.MarkDirty();
         }
 
         /// <summary>
@@ -873,20 +845,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             // Валидация
             Validate();
 
-            // Синхронизируем с моделью перед уведомлением
-            SyncToModel();
-
-            // LambdaE берётся из модели; единый источник истины
-            LambdaE = _construction.LambdaE;
-
-            // Уведомляем об изменении данных
-            OnDataChanged();
-
-            // Публикуем в общий контекст при валидных данных
-            if (IsValid)
-            {
-                _calculationContext.UpdateConstruction(_construction, "Construction");
-            }
+            LambdaE = LayersAbovePipe.LastOrDefault()?.CalculatedLambda ?? 1.6;
         }
 
         /// <summary>
@@ -894,10 +853,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         public void Validate()
         {
-            // Синхронизируем с моделью для валидации
-            SyncToModel();
-
-            var result = _validator.Validate(_construction);
+            var result = _validator.Validate(CreateValidationModel());
 
             IsValid = result.IsValid;
 
@@ -917,6 +873,45 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             return _construction;
         }
 
+        /// <summary>
+        /// Применить уже канонический снапшот состояния конструкции к адаптерным
+        /// коллекциям и скалярам VM без повторного вызова канонического состояния.
+        /// Используется при сбросе/восстановлении проекта (Task 8).
+        /// </summary>
+        public void ApplyLifecycleSnapshotToAdapter(ConstructionStateSnapshot snapshot)
+        {
+            ArgumentNullException.ThrowIfNull(snapshot);
+
+            _isRefreshing = true;
+            try
+            {
+                GroundwaterLevel = snapshot.GroundwaterLevel;
+                HasLoads = snapshot.HasLoads;
+
+                LayersAbovePipe.Clear();
+                for (int i = 0; i < snapshot.LayersAbovePipe.Count; i++)
+                {
+                    LayersAbovePipe.Add(CreateLayerFromSnapshot(snapshot.LayersAbovePipe[i], i));
+                }
+
+                LayersBelowPipe.Clear();
+                for (int i = 0; i < snapshot.LayersBelowPipe.Count; i++)
+                {
+                    LayersBelowPipe.Add(CreateLayerFromSnapshot(snapshot.LayersBelowPipe[i], i));
+                }
+
+                SelectedLayer = null;
+                SelectedTemplate = null;
+            }
+            finally
+            {
+                _isRefreshing = false;
+            }
+
+            UpdateCalculations();
+            HasUnsavedChanges = false;
+        }
+
         #endregion
 
         #region Property Changed Handlers
@@ -926,22 +921,29 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         partial void OnGroundwaterLevelChanged(double value)
         {
-            if (_isResetting) return;
+            if (_isResetting || _isRefreshing) return;
 
-            // Обновляем λ для слоёв под трубой
-            foreach (var layer in LayersBelowPipe)
+            _isSyncing = true;
+            try
             {
-                if (!layer.IsLambdaOverridden && layer.Material != null)
+                foreach (var layer in LayersBelowPipe)
                 {
-                    layer.CalculatedLambda = value < 1.0
-                        ? layer.Material.LambdaB
-                        : layer.Material.LambdaA;
+                    if (!layer.IsLambdaOverridden && layer.Material != null)
+                    {
+                        layer.CalculatedLambda = value < 1.0
+                            ? layer.Material.LambdaB
+                            : layer.Material.LambdaA;
+                    }
                 }
+            }
+            finally
+            {
+                _isSyncing = false;
             }
 
             UpdateCalculations();
             HasUnsavedChanges = true;
-            _markDirtyService.MarkDirty();
+            SyncStateFromCollections(ConstructionMutationOrigin.User);
         }
 
         /// <summary>
@@ -949,11 +951,11 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         partial void OnHasLoadsChanged(bool value)
         {
-            if (_isResetting) return;
+            if (_isResetting || _isRefreshing) return;
 
             UpdateCalculations();
             HasUnsavedChanges = true;
-            _markDirtyService.MarkDirty();
+            SyncStateFromCollections(ConstructionMutationOrigin.User);
         }
 
         /// <summary>
@@ -1033,29 +1035,37 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         private void OnLayersCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            // Подписываемся на изменения свойств новых слоёв
-            if (e.NewItems != null)
-            {
-                foreach (Layer layer in e.NewItems)
-                {
-                    layer.PropertyChanged += OnLayerPropertyChanged;
-                }
-            }
+            ReconcileLayerSubscriptions();
 
-            // Отписываемся от изменений свойств удалённых слоёв
-            if (e.OldItems != null)
+            if (!_isSyncing && !_isResetting && !_isRefreshing)
             {
-                foreach (Layer layer in e.OldItems)
-                {
-                    layer.PropertyChanged -= OnLayerPropertyChanged;
-                }
-            }
-
-            if (!_isSyncing && !_isResetting)
-            {
-                _markDirtyService.MarkDirty();
                 UpdateCalculations();
+                HasUnsavedChanges = true;
+                SyncStateFromCollections(ConstructionMutationOrigin.User);
             }
+        }
+
+        private void ReconcileLayerSubscriptions()
+        {
+            var currentLayers = new HashSet<Layer>(LayersAbovePipe, ReferenceEqualityComparer.Instance);
+            currentLayers.UnionWith(LayersBelowPipe);
+
+            foreach (var staleLayer in _subscribedLayers.Except(currentLayers).ToArray())
+            {
+                staleLayer.PropertyChanged -= OnSubscribedLayerPropertyChanged;
+                _subscribedLayers.Remove(staleLayer);
+            }
+
+            foreach (var currentLayer in currentLayers.Except(_subscribedLayers))
+            {
+                currentLayer.PropertyChanged += OnSubscribedLayerPropertyChanged;
+                _subscribedLayers.Add(currentLayer);
+            }
+        }
+
+        private void OnSubscribedLayerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnLayerPropertyChanged(sender, e);
         }
 
         /// <summary>
@@ -1063,22 +1073,47 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         private void OnLayerPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (_isSyncing || _isResetting) return;
+            if (_isSyncing || _isResetting || _isRefreshing) return;
 
             try
             {
-                // При изменении толщины или λ пересчитываем R
+                if (sender is not Layer layer)
+                {
+                    return;
+                }
+
+                if (e.PropertyName == nameof(Layer.Material))
+                {
+                    _pendingMaterialLambdaUpdates.Add(layer);
+                    return;
+                }
+
+                if (_pendingMaterialLambdaUpdates.Contains(layer))
+                {
+                    if (e.PropertyName == nameof(Layer.IsLambdaOverridden))
+                    {
+                        return;
+                    }
+
+                    if (e.PropertyName == nameof(Layer.CalculatedLambda))
+                    {
+                        _pendingMaterialLambdaUpdates.Remove(layer);
+                        var previousLambda = layer.CalculatedLambda;
+                        layer.UpdateLambda(GroundwaterLevel);
+                        if (Math.Abs(previousLambda - layer.CalculatedLambda) > 1e-10)
+                        {
+                            return;
+                        }
+                    }
+                }
+
                 if (e.PropertyName == nameof(Layer.Thickness) ||
                     e.PropertyName == nameof(Layer.CalculatedLambda) ||
-                    e.PropertyName == nameof(Layer.Material))
+                    e.PropertyName == nameof(Layer.IsLambdaOverridden))
                 {
-                    _markDirtyService.MarkDirty();
-                    // При изменении материала обновляем λ с учётом УГВ
-                    if (e.PropertyName == nameof(Layer.Material) && sender is Layer layer)
-                    {
-                        layer.UpdateLambda(GroundwaterLevel);
-                    }
                     UpdateCalculations();
+                    HasUnsavedChanges = true;
+                    SyncStateFromCollections(ConstructionMutationOrigin.User);
                 }
             }
             catch (Exception ex)
@@ -1170,6 +1205,26 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             }
         }
 
+        private ConstructionModel CreateValidationModel()
+        {
+            var candidate = new ConstructionModel
+            {
+                GroundwaterLevel = GroundwaterLevel,
+                HasLoads = HasLoads
+            };
+            foreach (var layer in LayersAbovePipe)
+            {
+                candidate.LayersAbovePipe.Add(layer);
+            }
+
+            foreach (var layer in LayersBelowPipe)
+            {
+                candidate.Layers.Add(layer);
+            }
+
+            return candidate;
+        }
+
         /// <summary>
         /// Копировать данные из другой конструкции в текущую
         /// </summary>
@@ -1192,9 +1247,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             _construction.HasLoads = source.HasLoads;
         }
 
-        /// <summary>
-        /// Вызвать событие изменения данных
-        /// </summary>
         private void OnDataChanged()
         {
             DataChanged?.Invoke(this, new ConstructionDataChangedEventArgs
@@ -1204,6 +1256,95 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 NewValue = _construction,
                 IsValid = IsValid
             });
+        }
+
+        /// <summary>
+        /// Обработчик изменений состояния конструкции
+        /// </summary>
+        private void OnConstructionStateChanged(object? sender, EventArgs e)
+        {
+            // User edits already originate in this adapter; lifecycle snapshots
+            // refresh it explicitly through ApplyLifecycleSnapshotToAdapter.
+        }
+
+        /// <summary>
+        /// Compatibility seam for explicitly synchronizing the current adapter
+        /// collections/scalars to canonical ConstructionState.
+        /// </summary>
+        public void SyncToCanonicalState()
+        {
+            SyncStateFromCollections(ConstructionMutationOrigin.SystemApply);
+        }
+
+        /// <summary>
+        /// Copies current VM collections into canonical state. The origin determines
+        /// authoritative dirty and downstream completion semantics.
+        /// </summary>
+        private void SyncStateFromCollections(ConstructionMutationOrigin origin)
+        {
+            if (_isRefreshing || _isSyncing || _isResetting) return;
+
+            var above = LayersAbovePipe.Select((l, i) => new ConstructionLayerSnapshot(
+                l.Id,
+                l.Material?.Id ?? 0,
+                l.Material?.Name ?? string.Empty,
+                l.Thickness,
+                l.CalculatedLambda,
+                l.IsLambdaOverridden,
+                LayerPosition.AbovePipe,
+                i)).ToArray();
+
+            var below = LayersBelowPipe.Select((l, i) => new ConstructionLayerSnapshot(
+                l.Id,
+                l.Material?.Id ?? 0,
+                l.Material?.Name ?? string.Empty,
+                l.Thickness,
+                l.CalculatedLambda,
+                l.IsLambdaOverridden,
+                LayerPosition.BelowPipe,
+                i)).ToArray();
+
+            var candidate = new ConstructionStateSnapshot(GroundwaterLevel, HasLoads, above, below);
+            _constructionState.ApplySnapshot(candidate, origin);
+        }
+
+        /// <summary>
+        /// Создаёт адаптерный <see cref="Layer"/> из канонического снапшота слоя,
+        /// сохраняя данные и нормализуя порядок. Материал резолвится из каталога
+        /// по Id, затем по имени; при недоступности используется дефолтный материал
+        /// с сохранением λ и форсированным переопределением (стиль RebindLayerMaterials).
+        /// </summary>
+        private Layer CreateLayerFromSnapshot(ConstructionLayerSnapshot snap, int normalizedOrder)
+        {
+            var material = AvailableMaterials.FirstOrDefault(m => m.Id == snap.MaterialId)
+                ?? AvailableMaterials.FirstOrDefault(m => string.Equals(m.Name, snap.MaterialName, StringComparison.OrdinalIgnoreCase));
+
+            if (material == null)
+            {
+                var fallback = Material.GetDefaultMaterial();
+                material = AvailableMaterials.FirstOrDefault(m => m.Id == fallback.Id) ?? fallback;
+            }
+
+            var layer = new Layer
+            {
+                Id = snap.Id,
+                Material = material,
+                Thickness = snap.Thickness,
+                CalculatedLambda = snap.CalculatedLambda,
+                IsLambdaOverridden = snap.IsLambdaOverridden,
+                Position = snap.Position,
+                Order = normalizedOrder
+            };
+
+            // Материал снапшота недоступен в каталоге: сохраняем λ и форсируем
+            // переопределение, чтобы данные не потерялись.
+            if (material.Id != snap.MaterialId)
+            {
+                layer.CalculatedLambda = snap.CalculatedLambda;
+                layer.IsLambdaOverridden = true;
+            }
+
+            return layer;
         }
 
         #endregion

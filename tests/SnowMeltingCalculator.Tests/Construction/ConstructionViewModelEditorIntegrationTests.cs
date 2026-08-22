@@ -9,6 +9,7 @@ using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.ViewModels.Construction;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
@@ -47,18 +48,22 @@ namespace SnowMeltingCalculator.Tests.Construction
             _calculationStateServiceMock.SetupGet(s => s.PipeSpacing).Returns(200);
             _templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
 
+            var calculationContext = new CalculationContext();
+            var projectSession = new ProjectSession(calculationContext: calculationContext);
             _viewModel = new ConstructionViewModel(
                 _constructionService,
                 _materialRepository,
                 _constructionRepository,
                 _calculationStateServiceMock.Object,
-                new CalculationContext(),
+                calculationContext,
                 new ConstructionValidator(),
                 new ConstructionModel(),
                 _markDirtyServiceMock.Object,
                 _templateRepositoryMock.Object,
                 _dialogServiceMock.Object,
-                _editorDialogServiceMock.Object);
+                _editorDialogServiceMock.Object,
+                projectSession.ConstructionState,
+                new ConstructionDefaultStateInitializer(_materialRepository, projectSession.ConstructionState));
         }
 
         [Test]

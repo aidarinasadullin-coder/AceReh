@@ -7,12 +7,17 @@ using NUnit.Framework;
 using SnowMeltingCalculator.Configuration;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Climate;
+using SnowMeltingCalculator.Models.Construction;
+using SnowMeltingCalculator.Models.Thermal;
+using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Results;
+using SnowMeltingCalculator.ViewModels.Shell;
+using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.Views.Construction;
 
 namespace SnowMeltingCalculator.Tests.Configuration
@@ -99,6 +104,80 @@ namespace SnowMeltingCalculator.Tests.Configuration
                     Assert.That(session.IsDirty, Is.True);
                 });
             }
+        }
+
+        [Test]
+        public void ConstructionLifecycleDescriptors_HaveOneCanonicalOwnerAndReadProjection()
+        {
+            var services = CreateApplicationServices();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(services.Any(descriptor => descriptor.ServiceType == typeof(ProjectSessionConstructionState)), Is.False);
+                Assert.That(services.Single(descriptor => descriptor.ServiceType == typeof(IProjectSessionConstructionState)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+                Assert.That(services.Single(descriptor => descriptor.ServiceType == typeof(IConstructionData)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+                Assert.That(services.Single(descriptor => descriptor.ServiceType == typeof(ConstructionModel)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+            });
+        }
+
+        [Test]
+        public void ConstructionLifecycleConsumers_ObserveCanonicalSessionStateAndProjection()
+        {
+            using var provider = CreateApplicationServices().BuildServiceProvider();
+
+            var concreteSession = provider.GetRequiredService<ProjectSession>();
+            var session = provider.GetRequiredService<IProjectSession>();
+            var state = provider.GetRequiredService<IProjectSessionConstructionState>();
+            var constructionData = provider.GetRequiredService<IConstructionData>();
+            var compatibilityModel = provider.GetRequiredService<ConstructionModel>();
+            var initializer = provider.GetRequiredService<ConstructionDefaultStateInitializer>();
+            var constructionViewModel = provider.GetRequiredService<ConstructionViewModel>();
+            var orchestrator = provider.GetRequiredService<ProjectLoadOrchestrator>();
+            var mainViewModel = provider.GetRequiredService<MainViewModel>();
+            var resultsViewModel = provider.GetRequiredService<ResultsViewModel>();
+            var thermalViewModel = provider.GetRequiredService<ThermalViewModel>();
+            var initializerState = typeof(ConstructionDefaultStateInitializer)
+                .GetField("_constructionState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(initializer);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(session, Is.SameAs(concreteSession));
+                Assert.That(provider.GetRequiredService<IMarkDirtyService>(), Is.SameAs(concreteSession));
+                Assert.That(provider.GetRequiredService<IProjectStateService>(), Is.SameAs(concreteSession));
+                Assert.That(state, Is.SameAs(session.ConstructionState));
+                Assert.That(constructionData, Is.SameAs(state.CurrentProjection));
+                Assert.That(constructionData, Is.Not.SameAs(compatibilityModel));
+                Assert.That(initializerState, Is.SameAs(session.ConstructionState));
+                Assert.That(provider.GetRequiredService<ConstructionViewModel>(), Is.SameAs(constructionViewModel));
+                Assert.That(provider.GetRequiredService<ProjectLoadOrchestrator>(), Is.SameAs(orchestrator));
+                Assert.That(provider.GetRequiredService<MainViewModel>(), Is.SameAs(mainViewModel));
+                Assert.That(provider.GetRequiredService<ResultsViewModel>(), Is.SameAs(resultsViewModel));
+                Assert.That(provider.GetRequiredService<ThermalViewModel>(), Is.SameAs(thermalViewModel));
+            });
+        }
+
+        [Test]
+        public void ConstructionCanonicalMutation_RefreshesThermalProjectionAndCalculationContext()
+        {
+            using var provider = CreateApplicationServices().BuildServiceProvider();
+            var session = provider.GetRequiredService<IProjectSession>();
+            var constructionData = provider.GetRequiredService<IConstructionData>();
+            var context = provider.GetRequiredService<CalculationContext>();
+            var layer = new ConstructionLayerSnapshot(
+                Guid.NewGuid(), 5, "Concrete", 100.0, 2.0, false, LayerPosition.AbovePipe, 0);
+
+            var result = session.ConstructionState.ApplySnapshot(
+                new ConstructionStateSnapshot(2.0, false, new[] { layer }, Array.Empty<ConstructionLayerSnapshot>()),
+                ConstructionMutationOrigin.User);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Status, Is.EqualTo(ConstructionMutationStatus.Changed));
+                Assert.That(constructionData.R1Total, Is.EqualTo(0.05).Within(1e-10));
+                Assert.That(constructionData.LambdaE, Is.EqualTo(2.0).Within(1e-10));
+                Assert.That(context.Construction, Is.SameAs(constructionData));
+            });
         }
 
         [Test]
