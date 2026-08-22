@@ -1,8 +1,11 @@
 # Контекст архитектурной миграции
 
-Этот файл является постоянной точкой входа в задачу. Перед любым анализом,
-планированием или изменением архитектуры сначала прочитать этот файл, затем
-сверить указанные факты с текущим рабочим деревом.
+> С 2026-08-20 `docs/architecture-migration/STATE.json` является единственным
+> authoritative active workflow state. Этот файл сохраняется как append-only
+> history и provenance: читать только релевантные разделы при recovery,
+> supersession или историческом аудите. Существующие Workflow State, status и
+> next-action записи ниже являются историческими snapshots и не переопределяют
+> `STATE.json`.
 
 ## Репозиторий
 
@@ -438,6 +441,123 @@ Production-срезы выполняются последовательно од
   Fresh independent visual QA session `ses_039e0c59cffeu3Ccq64vsVQPiZ` вернула
   `PASS`, high confidence, без blockers. Accepted model/schema/runtime/validator
   и historical underscore HTML остались read-only; Task 4 не начиналась.
+- Phase 3 Task 8 accepted 2026-08-14: reset/project restore Construction now
+  applies one canonical `ProjectSession.ConstructionState` snapshot through
+  lifecycle origins (`Reset` / `ProjectLoad`) when a project session is present,
+  then refreshes the `ConstructionViewModel` adapter without recursive canonical
+  writes. Focused lifecycle gates passed: targeted Debug suite `99 passed / 1
+  skipped / 0 failed`; `dotnet build src\SnowMeltingCalculator.csproj -c Debug
+  --nologo` passed with `0 warnings / 0 errors`. Evidence receipt:
+  `docs/architecture-migration/evidence/phase-3-construction-state/task-8-reset-project-restore.md`.
+  Task 9 persistence/standalone-file work was not started.
+- Phase 3 Task 9 recovery accepted by independent verification on 2026-08-16:
+  mutation-time Construction collection/layer changes now shadow-write canonical
+  `ProjectSession.ConstructionState` before project save consumes
+  `ConstructionState.Snapshot` through `ConstructionPersistenceMapper`. Fresh
+  Todo 7 gates passed: direct recovery `11 passed / 0 failed / 0 skipped`,
+  focused persistence `6 passed / 0 failed / 0 skipped`, full targeted Task 9
+  `138 passed / 0 failed / 1 skipped / 139 total` with skip
+  `ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile`, and
+  Debug build `0 warnings / 0 errors`. Receipt:
+  `docs/architecture-migration/evidence/phase-3-construction-state/task-9-recovery.md`.
+  The original failure handoff remains historical RED evidence, Task 10 was not
+  started, and Phase 3 remains not owner-accepted/completed pending final gates.
+- Phase 3 Task 10 accepted by executable verification on 2026-08-16 after the
+  owner authorized `ConstructionViewModel.cs` as a narrow production exception.
+  `ProjectSessionConstructionState.CompleteChanged(...)` is now the one
+  authoritative completion: valid `User`/`Template` changes refresh and publish
+  one `ConstructionStateProjection`, lifecycle origins publish none and do not
+  dirty, no-op/rejected publish none, and invalid user changes dirty without
+  downstream publication. Final gates: Task 10 `34/34`, Task 9 direct `11/11`,
+  focused persistence `6/6`, affected integration `173 passed / 1 known skipped
+  / 0 failed`, Debug build `0 warnings / 0 errors`. Evidence:
+  `docs/architecture-migration/evidence/phase-3-construction-state/task-10-downstream-dirty-completion.md`.
+  The allow-list blocker is retained as resolved history. Task 11 is not started
+  and Phase 3 remains not completed/owner-accepted.
+- Phase 3 Task 12.1 completed its executable gates on 2026-08-19 after repairing
+  nine stale test fixture seams without production edits in the correction
+  lane. Focused Release passed `9/9`; exact contracts passed `117` with one
+  accepted `NotExecuted`; Debug/Release production builds passed with `0
+  warnings / 0 errors`; affected Debug passed `312` with the same accepted
+  `NotExecuted`; full Release passed `1711` with zero failures and the three
+  accepted TRX `NotExecuted` identities (`RegenerateCircuitsBaseline`,
+  `RegenerateBaseline`, and
+  `ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile`).
+  Evidence:
+  `docs/architecture-migration/evidence/phase-3-construction-state/task-12-1-canonical-default-construction-initialization.md`.
+  Task 12.1 releases only parent Task 13; Phase 3 remains executing/not accepted
+  and the parent Final Verification Wave remains unstarted.
+- Pre-Task 13 Construction thermal invalidation correction Final Wave завершена
+  2026-08-19: superseding F1 APPROVE (исторический F1 REJECT сохранён в receipt),
+  F2 APPROVE, F3 APPROVE и F4 APPROVE; correction Todos 1-4 и F1-F4 complete.
+  Закрывается только correction: Phase 3 остаётся `executing` с acceptance
+  pending, следующим Construction action является Task 13 dossier refresh (не
+  начат), а отдельный Climate ProjectLoad invalidation defect остаётся открытым
+  и не исправленным. Evidence:
+  `docs/architecture-migration/evidence/phase-3-construction-state/pre-task-13-construction-thermal-invalidation-correction.md`.
+- Phase 3 Task 13 завершена 2026-08-19: шесть architecture views,
+  supporting maps и shared model отражают `ProjectSession.ConstructionState` как
+  единственного writable owner, `ConstructionViewModel` как adapter,
+  authoritative completion/origins, canonical persistence и принятые Phase 3
+  gates. `model-v2` прошёл 33 assertions / 21 mutations, `runtime-v2` прошёл 47
+  assertions / 20 mutations, два canonical generation passes дали одинаковый
+  15,127,794-byte HTML SHA-256
+  `96A0DC6E094A5BE2B68E523FFEE6375CCA16C325651674D7681441CB5514CD4F`, а
+  `generate-widget.mjs --check` прошёл 14/14. Evidence:
+  `docs/architecture-migration/evidence/phase-3-construction-state/task-13-architecture-dossier-refresh.md`.
+  Workflow остановлен на `awaiting-owner-acceptance`; Phase result acceptance
+  остаётся `pending`, Phase 3 не объявлена `completed`, Phase 3.1 не запущена.
+- Phase 3.1 Climate ProjectLoad invalidation plan passed Sisyphus and terminal
+  Momus review on the exact 53357-byte SHA-256
+  `355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9` and was
+  explicitly approved by the owner on 2026-08-20 (pre-authorization state;
+  superseded by the execution-authorization entry immediately below). At that
+  point it was approved but unauthorized, unstarted, and incomplete, positioned
+  after accepted Phase 3 and before Phase 4; approval did not infer or grant
+  execution authorization and did not alter the active Phase 3 plan. The Climate
+  defect remains open/unfixed, with the message `Климатические данные
+  изменились. Требуется пересчёт.`. The next safe action at that point was only
+  `/architecture-start phase-3.1-climate-thermal-invalidation-on-project-load`
+  (now executed; see the authorization entry below).
+- Phase 3.1 execution authorized by owner on 2026-08-20 via explicit
+  `/architecture-start phase-3.1-climate-thermal-invalidation-on-project-load`
+  after live authorization-gate revalidation. The gate reconfirmed
+  requested/current phase equality, approved stage, owner plan approval,
+  Sisyphus PASS, terminal Momus `[OKAY]` (session
+  `ses_fe1980350ffeHmZTEJ3d60pZWu`), real Metis (`ses_fe1fff23fffefYNpPB6Ig7OEOb`)
+  /planner (`ses_fe1bc75a2ffe2jeZ89sraT8F9h`)/Momus identities, Git root and the
+  protected dirty worktree. `Stage` transitioned `approved` -> `executing`.
+  Exact reviewed plan identity is 53357 UTF-8 bytes, SHA-256
+  `355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9`; canonical
+  and `.omo` copies remain byte-identical. Only Task 7 (protected baseline and
+  RED characterization) is released; Tasks 8-11 and F1-F4 remain blocked on
+  dependencies. No production code, tests, evidence, maps, model, or widget were
+  changed by this control update; Task 7 has not yet started or passed.
+- Phase 3.1 Task 9 GREEN on 2026-08-20. Fresh routing inspection confirmed that
+  both Climate user reset entrypoints use `UserReset`, pre-load and
+  new-calculation resets use `ProjectLoadReset`, and restore remains silent
+  `Load`. The initial focused Debug gate reproduced exactly two deferred
+  lifecycle fixture failures (74 passed / 2 failed / 0 skipped), both only on
+  final clean state. The fixture omitted the real public load completion
+  boundary: `ResultsViewModel.LoadProjectDataAsync()` uses
+  `ProjectSession.BeginProjectRestore()` and calls `MarkClean()` after successful
+  restore. After aligning the focused fixture with that graph, focused Debug and
+  Release each passed 76/76 with zero skipped and zero `NotExecuted`. No
+  production edit was required. Protected `ThermalViewModel.cs` SHA-256 remains
+  `27334159C03405747F7488116D23ED7FDF24F5769FC44F202C4B7622FF4411D2`.
+  Evidence: `docs/architecture-migration/evidence/phase-3.1-climate-thermal-invalidation-on-project-load/task-9-reset-routing-focused-behavior.md`.
+- F1 control-plane provenance receipt created 2026-08-19:
+  `docs/architecture-migration/evidence/phase-3-construction-state/f1-control-plane-provenance.md`.
+  It records that `.omo/start-work/ledger.jsonl` is append-only relative to HEAD
+  (two original rows as exact prefix plus seven owner-started Task 9 recovery
+  rows), that `.omo/boulder.json` is schema-v2 control-plane orchestration state
+  (completed Task 9 recovery, active Phase 3), and that the canonical and
+  tracking Phase 3.1 plans are byte-identical, owner-directed, queued,
+  unapproved and unstarted. These are exact-hash-bound control-plane/owner-
+  directed artifacts, not Phase 3 Tasks 1-13 implementation output; the receipt
+  does not broaden any allow-list and does not waive future drift. `Stage`
+  remains `final-verification`, result acceptance remains `pending`, historical
+  F1 `REJECT` remains pending independent re-review, and F2-F4 remain pending.
 - Architecture Explorer MVP Task 4 технически и визуально завершена. Canonical
   standalone `docs/architecture-migration/architecture-widget.html` после двух
   byte-identical generation passes имеет `14279246` bytes и SHA-256
@@ -521,26 +641,41 @@ OpenCode обязаны обновлять его после каждого за
 
 | Поле | Значение |
 |---|---|
-| Current phase | `phase-2-climate-state` |
-| Stage | `executing` |
-| Active plan | `docs/architecture-migration/plans/phase-2-climate-state.md` |
-| Active plan SHA-256 | `D79D7C46CA73EBCFF161164FC41EE3EB041B9B172631944CB611FA42BA998A6B` |
-| Parent phase | `phase-1-project-session-shell` |
-| Parent plan | `docs/architecture-migration/plans/phase-1-project-session-shell.md` |
-| Parent plan SHA-256 | `011594E3AB70787CCD0D49893458F70125C143EB3BD74545680712EA6AED1948` |
-| Parent execution state | `completed and explicitly accepted by owner 2026-08-05; acceptance authorizes neither Phase 2 plan approval nor execution` |
+| Current phase | `phase-3.1-climate-thermal-invalidation-on-project-load` |
+| Stage | `completed` |
+| Active plan | `docs/architecture-migration/plans/phase-3.1-climate-thermal-invalidation-on-project-load.md` |
+| Active plan SHA-256 | `355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9` |
+| Current progress plan SHA-256 | `355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9; canonical and .omo tracking copies are byte-identical at exactly 53357 UTF-8 bytes` |
+| Parent phase | `phase-2-climate-state` |
+| Parent plan | `docs/architecture-migration/plans/phase-2-climate-state.md` |
+| Parent plan SHA-256 | `D79D7C46CA73EBCFF161164FC41EE3EB041B9B172631944CB611FA42BA998A6B` |
+| Parent execution state | `completed and explicitly accepted by owner 2026-08-13; acceptance authorized Phase 3 planning only, not plan approval or execution` |
 | Metis analysis | `completed; identity validated as Metis - Plan Consultant; six-view Climate seams, single-owner and dual-write risks, DEC-001 narrow compatibility seam, mutation/completion/origin contract, characterization gates, protected dirty paths, scope exclusions and stop conditions analyzed` |
 | Metis session ID | `ses_02e61739dffenW8itUC4j80ikX; metadata reports only Metis - Plan Consultant` |
 | Planning draft | `complete: 12 implementation todos, F1-F4, explicit ClimateState contract, characterization-first gates, protected baseline, v1.0/v1.1 compatibility, rollback/stop rules and separate owner/execution gates` |
 | Primary planning session ID | `ses_02e464159ffeLYpJkhNkBJErT1` |
 | Primary planning receipt | `valid: metadata reports Prometheus - Plan Builder plus technical compaction in separate session ses_02e464159ffeLYpJkhNkBJErT1; owner approved artifact writing only; final .omo source was imported byte-identically to the repository plan at SHA-256 D79D7C46CA73EBCFF161164FC41EE3EB041B9B172631944CB611FA42BA998A6B` |
+| Phase 3 planning provenance | `canonical plan reconstructed by primary Sisyphus from live source/dossier after rejected receipts ses_005ae5662ffej6WlrfBsUmR81v and ses_0055eb146ffeaPpmoEEBddqIhB; recovery task aborted/returned no text, so neither receipt is canonical authority` |
+| Phase 3 Sisyphus review | `PASS after correction on exact SHA-256 B81E82DEFC2DC2D2108F9240BDED6575FD1244DFCBC164AB2602829249CC5FB2: 13 sequential tasks plus command-complete F1-F4, characterization-first contract, structural equality, identity/order, cancellation/failure/no-op, dirty-worktree safety, six-view dossier and separate owner gates present` |
+| Phase 3 Momus review | `OKAY on exact canonical SHA-256 B81E82DEFC2DC2D2108F9240BDED6575FD1244DFCBC164AB2602829249CC5FB2 in continued session ses_004ffe5e5ffeTt8Ng3prTN0M27. Initial repository-path invocation was wrapper-only rejection; first content pass requested executable F2-F4 commands, which were added before final OKAY. Temporary .omo review wrapper was removed.` |
+| Phase 3 owner plan approval | `approved by owner 2026-08-13 for plan SHA-256 B81E82DEFC2DC2D2108F9240BDED6575FD1244DFCBC164AB2602829249CC5FB2` |
+| Phase 3 execution authorization | `approved by owner 2026-08-13 via explicit /architecture-start phase-3-construction-state after live authorization-gate revalidation` |
+| Phase 3 Task 8 | `accepted 2026-08-14; reset/project restore Construction lifecycle paths apply one canonical ProjectSession.ConstructionState snapshot through Reset/ProjectLoad origins and refresh the VM adapter; targeted Debug suite 99 passed / 1 skipped / 0 failed; Debug build 0 warnings / 0 errors; evidence docs/architecture-migration/evidence/phase-3-construction-state/task-8-reset-project-restore.md; Task 9 recovery planning pending` |
+| Phase 3 Task 9 | `RECOVERY ACCEPTED BY INDEPENDENT VERIFICATION 2026-08-16; prior green claim remains superseded by the 2026-08-14 RED handoff, and the recovery fixes the root cause by mutation-time ConstructionViewModel collection/layer writes into ProjectSession.ConstructionState. Fresh Todo 7 gates: direct 11 passed / 0 failed / 0 skipped, focused 6 passed / 0 failed / 0 skipped, full targeted 138 passed / 0 failed / 1 skipped / 139 total with skip ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile, Debug build 0 warnings / 0 errors. Save path remains canonical snapshot via ConstructionPersistenceMapper; no save-time SyncToCanonicalState call. Evidence: docs/architecture-migration/evidence/phase-3-construction-state/task-9-recovery.md; historical RED handoff retained at docs/architecture-migration/evidence/phase-3-construction-state/task-9-failure-investigation-handoff.md. Task 10 subsequently accepted; Phase 3 not owner-accepted/completed.` |
+| Phase 3 Task 10 | `ACCEPTED BY EXECUTABLE VERIFICATION 2026-08-16 after owner-authorized narrow ConstructionViewModel.cs exception. One authoritative ProjectSessionConstructionState completion now applies origin-aware dirty semantics and publishes one valid ConstructionStateProjection. Gates: Task 10 34/34, Task 9 direct 11/11, focused persistence 6/6, affected 173 passed / 1 known skipped / 0 failed, Debug build 0 warnings / 0 errors. Evidence: docs/architecture-migration/evidence/phase-3-construction-state/task-10-downstream-dirty-completion.md; resolved historical blocker retained at task-10-allowlist-blocker.md. Task 11 not started; Phase 3 not owner-accepted/completed.` |
+| Phase 3 Task 12.1 | `GREEN 2026-08-19. Canonical default Construction initialization is verified across cold startup, immediate save/Thermal, NewCalculation, and project pre-load reset. Final gates: focused Release 9/9; contracts 117 passed plus one accepted NotExecuted; Debug/Release builds 0 warnings / 0 errors; affected Debug 312 passed plus the same accepted NotExecuted; full Release 1711 passed / 0 failed with three accepted TRX NotExecuted identities. Evidence: docs/architecture-migration/evidence/phase-3-construction-state/task-12-1-canonical-default-construction-initialization.md. Releases only parent Task 13; Phase 3 remains executing/pending and parent F1-F4 remain unstarted.` |
+| Phase 3 pre-Task 13 correction | `Final Wave complete 2026-08-19: superseding F1 APPROVE (historical F1 REJECT preserved in the receipt), F2 APPROVE, F3 APPROVE, and F4 APPROVE; correction Todos 1-4 and F1-F4 are all complete. Automated correction evidence remains PASS and owner-accepted manual Construction PASS is recorded in docs/architecture-migration/evidence/phase-3-construction-state/pre-task-13-construction-thermal-invalidation-correction.md. Phase 3 remains executing with result acceptance pending, Task 13 dossier refresh is the next Construction action and remains not started, and the separate Climate ProjectLoad invalidation defect (message “Климатические данные изменились. Требуется пересчёт.”) remains open and is not fixed.` |
+| Phase 3 Task 13 | `GREEN 2026-08-19. Six views, supporting maps and the shared model record canonical Construction ownership, adapter/completion/origin edges, persistence compatibility and accepted gates. model-v2 33/21 and runtime-v2 47/20 PASS; two 15,127,794-byte generation passes are byte-identical at SHA-256 96A0DC6E094A5BE2B68E523FFEE6375CCA16C325651674D7681441CB5514CD4F; widget check 14/14 PASS. Evidence: docs/architecture-migration/evidence/phase-3-construction-state/task-13-architecture-dossier-refresh.md. No production/tests or Phase 3.1 files changed.` |
+| Phase 3.1 Climate ProjectLoad invalidation | TASKS 7-11 GREEN/complete; F1-F4 remain terminal APPROVE in their existing receipts: F1 `ses_fe0a3bd47ffeeY4wqn0im0ZChT`, F2 `ses_fe0a2994dffeYarvWfEift0QKf`, F3 `ses_fe0a32c9affeormUOfYQMd8L1d`, F4 `ses_fe05da03effeqRBgfC41fFPyrJ`. The earlier owner saved-file observation `протестил - открыл сохраненный файл, не появляется индикатор.` remains manual evidence for that surface only; it was not whole-phase acceptance. On 2026-08-20 the owner explicitly accepted the whole Phase 3.1 result with the exact statement `принимаю результат Phase 3.1`; this satisfies Task 12. Phase 3.1 is owner-accepted and completed. Phase 4 planning is unblocked only as a separate owner-directed planning workflow; Phase 4 is not started, approved, authorized, or executed. |
+| Phase 3.1 primary planning session | `Recovery planner authority: ses_fe1bc75a2ffe2jeZ89sraT8F9h. Corrected plan was extracted from the saved tool output between the exact start heading and the line before ## TODO List (ADD THESE), then imported byte-identically into canonical and .omo plan paths. Failed empty planner session ses_fe1c68af3ffeqHWcXO6DjxI3ik produced no valid terminal deliverable and is not planning authority.` |
+| Phase 3.1 Metis analysis | `completed real pre-analysis; session ses_fe1fff23fffefYNpPB6Ig7OEOb. Metadata independently verified: agent Metis - Plan Consultant, 45 messages, 2026-08-20T07:08:35Z-07:26:20Z. Terminal verdict: BLOCKED. Blockers: ClimateMutationOrigin.Reset is shared by user reset commands and lifecycle reset paths, so Reset -> compatibility DataChanged = 0 would break user-reset Thermal invalidation and existing ClimateMultiplicity_Reset_* characterization expectations; no resolution exists inside the current two-production-file allow-list and owner decision plus plan correction are required. The cited Momus session ses_02d0d549affeUPch83Lkox97qE is Phase 2 review provenance, not substantiated Phase 3.1 review; fresh Momus review is required after plan correction.` |
 | Child planning discovery | `none for Phase 2; child task plans remain invalid primary receipts` |
 | Child planning receipt | `not applicable` |
-| Sisyphus review | `PASS on exact imported SHA: Climate-only scope, single-owner boundary, explicit origin/completion/no-op contract, sequencing, persistence guardrails, dirty-worktree protection, executable QA and separate owner gates are consistent` |
-| Momus review | `OKAY on exact .omo plan source; production/test/dossier references exist and match their stated roles; each todo and final wave has executable QA` |
-| Momus session ID | `ses_02d0d549affeUPch83Lkox97qE; identity validated as Momus - Plan Critic` |
-| Owner plan approval | `approved by owner 2026-08-05 for reviewed Phase 2 plan SHA-256 D79D7C46CA73EBCFF161164FC41EE3EB041B9B172631944CB611FA42BA998A6B` |
-| Execution authorization | `approved by owner 2026-08-05 via explicit /architecture-start phase-2-climate-state after live authorization-gate revalidation` |
+| Sisyphus review | `VERDICT: PASS in session ses_fe1acec17ffeieLHMtCgEzAsxn on the exact current 53357-byte SHA-256 355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9. Task 12 and all prior behavior, scope, QA, and rollback contracts passed review; the current artifact is ready for Momus re-review.` |
+| Momus review | `[OKAY]` on the exact current plan, 53357 UTF-8 bytes, SHA-256 `355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9`. Historical `[REJECT]` on the superseded 51053-byte SHA remains preserved.` |
+| Momus session ID | `ses_fe1980350ffeHmZTEJ3d60pZWu` returned terminal `[OKAY]` for the exact current SHA; this successful review is not owner plan approval and is not execution authorization |
+| Owner plan approval | `approved by owner 2026-08-20 for exact plan docs/architecture-migration/plans/phase-3.1-climate-thermal-invalidation-on-project-load.md, exactly 53357 UTF-8 bytes, SHA-256 355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9` |
+| Execution authorization | `approved by owner 2026-08-20 via explicit /architecture-start phase-3.1-climate-thermal-invalidation-on-project-load invocation after live authorization-gate revalidation. The gate reconfirmed requested/current phase equality, approved stage, owner plan approval, Sisyphus PASS, terminal Momus [OKAY], real Metis/planner/Momus identities, Git root and the protected dirty worktree. Only Task 7 (protected baseline and RED characterization) is released; Tasks 8-11 and F1-F4 remain blocked on dependencies. No production code, tests, evidence, maps, model, or widget were changed by this control update.` |
 | V2 amendment Metis analysis | `completed; identity validated as Metis - Plan Consultant; major v2, one stable ID, one snapshot_states source, per-kind identity/snapshot fields, snapshot-local edge/flow validity, honest Target, executable canonical_diff_fields, provenance and reopening gates analyzed` |
 | V2 amendment Metis session ID | `ses_046bb4fecffeqVxPgX7SXpsiF9` |
 | V2 amendment plan | `docs/architecture-migration/plans/phase-0.5-model-driven-architecture-widget-v2-amendment.md` |
@@ -582,9 +717,9 @@ OpenCode обязаны обновлять его после каждого за
 | Architecture Explorer MVP Task 3 | `technically complete and explicit owner visual PASS received via exact message фиксируем on 2026-08-03; standalone HTML 14073817 bytes SHA-256 F0E9F32EB0872BC504DF935D9BF96C037CE9D9523CAD4E8558A521853EE5FF65; exact ProjectSession partitions, 8/22 flows, 11/3/15/6 reference catalogs and exact-width 375/768/1280 browser QA passed; fresh independent visual QA PASS/HIGH in ses_039e0c59cffeu3Ccq64vsVQPiZ` |
 | Architecture Explorer MVP Task 4 | `technically and visually complete; canonical HTML 14279246 bytes SHA-256 11E7BDC33E5BC03AA09553844234263FC311EADD29D3CD9ECB0F1D711C6B6ACF; 14/14 checks, four isolated negative probes, exact-width 375/768/1280 browser QA and fresh image-capable visual inspection passed; source/functional Oracle PASS/HIGH in ses_038d77042ffePHmGYUUrqGbLIV; all eight owner answers are YES and the phase result is explicitly accepted` |
 | Architecture Explorer MVP owner answers | `8 of 8 YES, recorded 2026-08-03 in docs/architecture-migration/evidence/phase-0.5-architecture-explorer-mvp-acceptance.md` |
-| Phase result acceptance | `pending for Phase 2; Phase 1 was accepted by owner 2026-08-05 via exact statement Результат Phase 1 принимаю` |
-| Last completed action | `2026-08-13 Phase 2 Final Verification Wave completed: F1 plan compliance APPROVE, F2 code quality/single-owner APPROVE, F3 real lifecycle QA APPROVE, F4 architecture dossier fidelity APPROVE. Task 12 widget correction remained in place: architecture-widget.html regenerated to 15113378 bytes / SHA-256 A8B12B29D931AB4555F2F20F6FA0036702CB08E48BBBC587A4188FB03E840549. Final gates passed: Debug build 0 warnings/errors, F2 guards 6/6, F3 targeted Release 329 passed / 1 skipped / 330 total, F3 full Release 1613 passed / 1 skipped / 1614 total, model-v2 33 assertions / 21 mutations, runtime-v2 47 assertions / 20 mutations, generate-widget --check 14 checks. Evidence: f1-plan-compliance.md, f2-code-quality-architecture.md, f3-real-lifecycle-qa.md, f4-scope-fidelity-dirty-worktree.md.` |
-| Next action | `Owner acceptance checkpoint for Phase 2 result. Do not start Phase 3 planning or implementation until the owner explicitly accepts Phase 2 and separately authorizes the next phase workflow.` |
+| Phase result acceptance | `Phase 3 accepted by owner 2026-08-20 via exact statement согласовано. Phase 3.1 accepted by owner 2026-08-20 via exact statement принимаю результат Phase 3.1; Task 12 is complete. F1-F4 remain terminal APPROVE in their existing receipts.` |
+| Last completed action | `2026-08-20: Task 12 explicit owner result acceptance completed. The owner accepted the whole Phase 3.1 result with the exact statement принимаю результат Phase 3.1 after the existing F1-F4 APPROVE receipts and technical evidence. The earlier saved-file observation remains manual evidence only. Approved canonical and .omo plan copies remain byte-identical at 53357 bytes and SHA-256 355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9.` |
+| Next action | `Phase 4 planning may be initiated only through a separate owner-directed planning workflow. Phase 4 is not started, approved, authorized, or executed; do not infer implementation authorization from this Phase 3.1 acceptance.` |
 
 Допустимые стадии:
 
@@ -619,6 +754,66 @@ Approval gates:
 
 ## Принятые решения
 
+- 2026-08-20 (superseded by the acceptance decision immediately below): Phase 3.1 F1-F4 technical verification is complete: all four
+  materialized receipts returned terminal `APPROVE` and their reviewer sessions
+  and exact paths are recorded in Workflow State. The saved-file observation
+  "протестил - открыл сохраненный файл, не появляется индикатор." is positive
+  evidence for that surface only, not whole-phase acceptance. This pending
+  checkpoint was superseded when the owner explicitly stated
+  `принимаю результат Phase 3.1` on 2026-08-20.
+- 2026-08-20: Owner explicitly accepted the whole Phase 3.1 result with the
+  exact statement `принимаю результат Phase 3.1`. This closes Task 12 and
+  transitions the authoritative workflow from `awaiting-owner-acceptance` to
+  `completed`. F1-F4 remain terminal `APPROVE` in their existing receipts;
+  the earlier saved-file observation remains manual evidence only. Phase 4
+  planning requires a separate owner-directed workflow and Phase 4 is not
+  started, approved, authorized, or executed.
+- 2026-08-20: Phase 3.1 Task 9 makes no production edit because fresh source
+  verification shows every reset/load call site already matches the approved
+  origin classification. The two deferred dirty failures are resolved by making
+  the focused fixture model the existing real public load boundary rather than
+  changing Task 8 policy, adding a Thermal guard, or editing outside the exact
+  six-file production ceiling. Task 10 is released; Phase 3.1 remains executing.
+- 2026-08-19: Workflow correction after Task 13 supersedes the premature
+  `awaiting-owner-acceptance` transition. Task 13 passed its validators and
+  deterministic generation, but parent F1-F4 remain the active technical gate:
+  F2 has fresh positive QA evidence but no parent receipt yet, F3 is `REJECTED`
+  for missing mandatory standalone failure/import and field-complete round-trip
+  coverage, and F1/F4 remain pending. `Stage = final-verification` and
+  `Phase result acceptance = pending`; Phase 3.1 remains planned/queued only,
+  the Climate defect remains open, and Phase 4 remains blocked.
+- 2026-08-19: Task 13 architecture dossier refresh завершена после canonical
+  model/runtime validation и двух byte-identical widget generation passes.
+  Technical artifacts переходят только к owner result checkpoint:
+  `Stage = awaiting-owner-acceptance`, `Phase result acceptance = pending`.
+  Это не owner acceptance, не `completed`, не authorization Phase 3.1 и не
+  исправление отдельного Climate ProjectLoad invalidation defect.
+- 2026-08-19: Owner explicitly accepted Todo 4 as complete for the Construction correction and directed that F1-F4 proceed. Manual Construction acceptance is `PASS`: thickness, material, template, УГВ, and lambda/override changes cause the indicator, and successful recalculation turns it off; startup/new-project behavior is accepted. The earlier project-load criterion is superseded for this Construction correction while the historical partial evidence remains preserved in the receipt. A project-load indicator carrying `Климатические данные изменились. Требуется пересчёт.` is tracked as a separate open Climate ProjectLoad invalidation defect, not as a Construction failure and not as fixed Climate behavior. Phase 3 remains executing, Task 13 remains not started, and F1-F4 are released but unstarted.
+- 2026-08-19: The existing Climate ProjectLoad invalidation work plan was promoted to the queued canonical Phase 3.1 position between Phase 3 and Phase 4. The repository-facing plan is under `docs/architecture-migration/plans/`, with an exact `.omo/plans/` tracking mirror. This is planning/documentation only: Phase 3 remains executing with Task 13 as the immediate next action, and Phase 3.1 still requires separate plan approval, `/architecture-start`, technical verification, and owner result acceptance. The Climate defect remains open and unfixed.
+- Task 12.1 GREEN supersedes the stale Task 10/11 next-action rows for Phase 3.
+  It releases only parent Task 13 architecture dossier refresh. Phase 3 remains
+  `executing`, result acceptance remains `pending`, and parent Final
+  Verification Wave F1-F4 remains unstarted.
+- Владелец 2026-08-13 явно принял результат Phase 2 и отдельно разрешил только
+  planning workflow Phase 3. `ProjectSession.ConstructionState` выбран как
+  единственный target writable owner Construction project inputs;
+  `ConstructionViewModel` остаётся WPF adapter, а execution Phase 3 не
+  авторизована. Plan approval и `/architecture-start
+  phase-3-construction-state` остаются двумя отдельными будущими gates.
+- Canonical Phase 3 plan фиксирует live-verified identity/order boundary:
+  `Layer.Id` идентифицирует слой, `Material.Id` - live catalog material,
+  collection index и `Layer.Order` совпадают; above order идёт от поверхности к
+  трубе, below order - от трубы к грунту. Snapshot/no-op equality обязана быть
+  structural и sequence-aware, а не default equality `IReadOnlyList<T>`.
+- Template preview, selections, editor/dialog state и catalogs не входят в
+  canonical project Construction state. Template apply является одним logical
+  mutation после успешной подготовки; cancel/failure не меняет state. Material
+  import остаётся отдельным внешним catalog side effect и не объявляется
+  транзакционно откатываемым.
+- User reset и lifecycle reset различаются origin. Project load/restore/reset не
+  создают user dirty/history semantics; точные current standalone file-load,
+  initialization, reset-groundwater, lambda-override и failure semantics должны
+  быть измерены characterization tests до ownership edits, а не угаданы планом.
 - Для drafting `phase-2-climate-state` принят рекомендуемый planning default по
   `DEC-001`: `ProjectSession.ClimateState` является единственным writable
   canonical owner Climate values; `CalculationContext` в Phase 2 не заменяется
@@ -825,9 +1020,89 @@ Approval gates:
   - отдельный минимальный Architecture Explorer MVP поверх уже принятого model
   v2/runtime фундамента. Сначала требуется видимый и лично полезный HTML;
   усиленная verifier/receipt infrastructure не является MVP prerequisite.
+- 2026-08-20: Phase 3 result explicitly accepted by owner via exact statement
+  `согласовано`. F1-F4 Final Verification Wave all APPROVE: F1 via superseding
+  receipt docs/architecture-migration/evidence/phase-3-construction-state/f1-plan-compliance-superseding.md
+  (historical F1 REJECT preserved as-is in that receipt), F2 code-quality
+  (f2-code-quality.md), F3 real-QA (f3-real-qa.md, mandatory standalone
+  corrupt/load/save/import-failure and field-complete round-trip/second-load
+  scenarios 15/15 focused and 9/9 round-trip-class), and F4 scope-fidelity
+  (f4-scope-fidelity.md, protected dirty-worktree manifest intact). Workflow
+  transitioned Stage `awaiting-owner-acceptance` -> `completed`; Phase result
+  acceptance = accepted. Canonical Phase 3 plan unchanged (immutable approval
+  identity). Phase 3.1 is execution-authorized (Stage = executing) but Task 7 is not yet started or passed; the separate Climate
+  ProjectLoad invalidation defect remains open and unfixed.
+- 2026-08-20: Owner explicitly invoked
+  `/architecture-start phase-3.1-climate-thermal-invalidation-on-project-load`,
+  authorizing execution of the approved plan (53357 UTF-8 bytes, SHA-256
+  `355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9`). The
+  authorization gate revalidated requested/current phase equality, approved
+  stage, owner plan approval, Sisyphus PASS, terminal Momus `[OKAY]` (session
+  `ses_fe1980350ffeHmZTEJ3d60pZWu`), real Metis/planner/Momus identities, Git
+  root and the protected dirty worktree. `Stage` transitioned `approved` ->
+  `executing`. Only Task 7 (protected baseline and RED characterization) is
+  released; Tasks 8-11 and F1-F4 remain blocked on dependencies. This control
+  update changed no production code, tests, evidence, maps, model, or widget,
+  and does not claim Task 7 or any implementation work started or passed.
 
 ## Открытые вопросы
 
+- Current Phase 3.1 acceptance is complete: the owner explicitly stated
+  `принимаю результат Phase 3.1` on 2026-08-20. F1-F4 remain terminal
+  `APPROVE` in their existing receipts. The prior saved-file observation is
+  manual evidence only and is distinct from this whole-phase acceptance.
+  Task 12 is complete and Stage is `completed`. Phase 4 is not started,
+  approved, authorized, or executed; only a separate owner-directed planning
+  workflow may initiate Phase 4 planning.
+
+- Historical/superseded pending checkpoint: Tasks 7-11 were GREEN/complete and F1-F4 all returned
+  terminal `APPROVE`. Receipts and reviewer sessions are recorded in the
+  Workflow State row above. The owner observation "протестил - открыл сохраненный
+  файл, не появляется индикатор." is positive saved-file evidence only, not an
+  explicit whole-phase acceptance. This checkpoint was superseded by the exact
+  owner statement `принимаю результат Phase 3.1` on 2026-08-20; Stage is now
+  `completed`, Task 12 is complete, and Phase 4 requires a separate
+  owner-directed planning workflow.
+
+  - Historical/superseded checkpoint: Phase 3.1 Tasks 7-9 are GREEN as of 2026-08-20. The earlier rows below that
+  describe Task 7 as unstarted or the Climate defect as unfixed are superseded
+  historical checkpoints. Task 10 and Task 11 are now reconciled in the active
+  dossier; F1-F4 are complete and Task 12 was the remaining owner gate at that
+  historical checkpoint; it was closed by the later exact owner acceptance.
+ - Phase 3 owner result acceptance получена 2026-08-20 via exact statement
+  `согласовано`; единственный Phase 3 gate (явное решение владельца о принятии
+  результата) закрыт, Stage = completed. Separate Climate ProjectLoad
+  invalidation defect was addressed by the Phase 3.1 implementation; this
+  historical checkpoint predates the completed Phase 3.1 owner acceptance.
+ - Historical 2026-08-19 owner scope decision: the earlier partial-observation boundary for Todo 4 was superseded; lambda/override, indicator-off-after-recalculation, and startup/new-project behavior were accepted as part of Construction manual PASS. Its separate Climate ProjectLoad defect statement is superseded by the accepted Phase 3.1 implementation and Task 11 dossier checkpoint below; Phase 3.1 remains pending F1-F4 and owner result acceptance.
+  - Historical/superseded checkpoint: Phase 3.1 was `final-verification` after Task 11 dossier reconciliation. The
+  earlier execution-authorization entry remains historical:
+  `/architecture-start phase-3.1-climate-thermal-invalidation-on-project-load`
+  on 2026-08-20 (Sisyphus `PASS` and terminal Momus `[OKAY]` preserved, Momus
+  session `ses_fe1980350ffeHmZTEJ3d60pZWu`). Execution authorization is approved;
+    Tasks 7-11 were recorded before final verification; F1-F4 have since returned
+    APPROVE. The current gate is Task 12 owner result acceptance, and no phase
+    completion is inferred.
+- Решено 2026-08-19: обязательные Task 12.1 correction gates не имеют новых
+  failures/skips. Девять Full Release fixture failures устранены только
+  согласованием session/state/initializer test graph; production, schema,
+  formulas, maps/model/widget не расширялись. Следующий разрешенный шаг - parent
+  Task 13, не Final Wave.
+- Решено 2026-08-16: владелец разрешил
+  `src/ViewModels/Construction/ConstructionViewModel.cs` как узкое
+  production-исключение Task 10. Исключение использовано только для удаления
+  direct dirty/context publications, корректных `User`/`Template` origins и
+  подавления duplicate adapter/model publication; Task 10 прошла gates.
+- До Phase 3 ownership edits characterization Task 3 должна измерить exact
+  multiplicity и observable semantics Construction user/template/file-load/
+  initialization/reset/project-load actions, editor `true`/`false`/`null`,
+  missing-material import/cancel/failure, invalid candidates, repeated
+  load/reset и collection/item subscription hygiene. Эти значения не выводятся
+  из текущего source inspection и не должны угадываться.
+- Если current standalone `LoadConstruction`, UI reset или catalog rebind
+  semantics противоречат Phase 3 origin/dirty contract либо требуют изменения
+  `.smc` wire format/material resolution, workflow обязан остановиться в
+  `blocked` для owner decision до Task 4.
 - Primary Prometheus plan должен определить точную форму Climate state/
   application mutation API, immutable/read projection и completion event/result,
   не превращая выбранную форму в framework-specific Undo/Redo implementation.
@@ -867,6 +1142,54 @@ Approval gates:
   Phase 1 relied on test-harness characterization tests.
 
 ## Следующее действие
+
+Текущий authoritative next action: отдельный owner-directed planning workflow
+для Phase 4 может быть инициирован только новым явным запросом владельца.
+Phase 3.1 Task 12 и result acceptance завершены exact owner statement
+`принимаю результат Phase 3.1` от 2026-08-20; Stage = `completed`. Phase 4 не
+начата, не утверждена, не авторизована и не исполнена.
+
+Historical/superseded next-action checkpoint: Task 12 owner result acceptance checkpoint.
+Владелец должен осмотреть четыре F1-F4 receipts и technical evidence и явно
+  принять или отклонить результат Phase 3.1. Все F1-F4 уже вернули `APPROVE`;
+техническая верификация завершена, но Task 12, Phase 3.1 result acceptance и
+  Stage transition to `completed` оставались pending до принятия владельцем. Owner observation
+"протестил - открыл сохраненный файл, не появляется индикатор." является только
+  positive saved-file evidence. Этот checkpoint superseded exact owner statement
+  `принимаю результат Phase 3.1`; Phase 4 remains not started and requires a
+  separate owner-directed planning workflow.
+
+Нижеследующий checkpoint сохранён как исторический (premature): Текущий authoritative next action для Phase 3: explicit owner result acceptance
+checkpoint. Task 13 GREEN зафиксирована в
+`docs/architecture-migration/evidence/phase-3-construction-state/task-13-architecture-dossier-refresh.md`.
+Workflow находится на `awaiting-owner-acceptance`, Phase result acceptance
+остаётся `pending`; не отмечать Phase 3 `completed` и не запускать Phase 3.1 без
+отдельного явного owner action.
+
+The following Phase 3.1 queued checkpoint is historical/superseded. It must not
+override the active `completed` state above: F1-F4 are complete, Task 12 owner
+result acceptance is recorded, and Phase 4 requires a separate owner-directed
+planning workflow.
+
+Этот review checkpoint выполнен для Phase 3.1: exact current plan SHA-256
+`355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9` получил
+Sisyphus `PASS` и Momus `[OKAY]` в session `ses_fe1980350ffeHmZTEJ3d60pZWu` при
+53357 UTF-8 bytes. Workflow переведён только в `awaiting-owner-approval` и
+остановлен. Production code, tests, maps, widget и Phase 3.1 evidence не
+изменять. Следующий переход допускается только через явное owner approval
+exact SHA командой `/architecture-approve
+phase-3.1-climate-thermal-invalidation-on-project-load`; `/architecture-start`
+и implementation остаются запрещены до отдельной последующей authorization.
+
+Этот review checkpoint выполнен и superseded: exact plan SHA-256
+`B81E82DEFC2DC2D2108F9240BDED6575FD1244DFCBC164AB2602829249CC5FB2` получил
+Sisyphus PASS и Momus `[OKAY]` в session
+`ses_004ffe5e5ffeTt8Ng3prTN0M27`. Текущий gate - только explicit owner approval
+этого exact SHA. Даже после approval execution остаётся запрещённой до отдельного
+`/architecture-start phase-3-construction-state`.
+
+Нижеследующий Phase 2 checkpoint superseded owner acceptance и Phase 3
+planning authorization выше и сохраняется только как historical record.
 
 Текущий authoritative next action: owner acceptance checkpoint for Phase 2
 result. Phase 2 implementation Tasks 1-12 and Final Verification Wave F1-F4 are
@@ -1001,6 +1324,193 @@ on 2026-08-01. Failed receipt
 
 ## Журнал решений
 
+- 2026-08-20: Phase 3.1 Task 9 completed with a test-only lifecycle fixture
+  correction. Initial focused Debug reproduced 74 passed / 2 failed / 0 skipped;
+  stage evidence localized dirty to restore-time internal activity after a clean
+  pre-load reset. The fixture now mirrors the production public load graph with
+  `BeginProjectRestore()` and successful-load `MarkClean()`. Focused Debug and
+  Release each pass 76/76, no `NotExecuted`; all required origins were already
+   correct, so production remained untouched and Task 10 became next.
+- 2026-08-20 (historical pending checkpoint, superseded below): Phase 3.1 Final Verification F1-F4 all returned terminal `APPROVE`:
+  F1 `ses_fe0a3bd47ffeeY4wqn0im0ZChT` receipt
+  `docs/architecture-migration/evidence/phase-3.1-climate-thermal-invalidation-on-project-load/f1-final-plan-compliance.md`;
+  F2 `ses_fe0a2994dffeYarvWfEift0QKf` receipt
+  `docs/architecture-migration/evidence/phase-3.1-climate-thermal-invalidation-on-project-load/f2-final-code-quality.md`;
+  F3 `ses_fe0a32c9affeormUOfYQMd8L1d` receipt
+  `docs/architecture-migration/evidence/phase-3.1-climate-thermal-invalidation-on-project-load/f3-final-executable-qa.md`;
+  F4 `ses_fe05da03effeqRBgfC41fFPyrJ` receipt
+  `docs/architecture-migration/evidence/phase-3.1-climate-thermal-invalidation-on-project-load/f4-final-scope-fidelity.md`.
+  The owner observation "протестил - открыл сохраненный файл, не появляется
+  индикатор." is positive saved-file evidence only, not whole-phase acceptance.
+  Technical F1-F4 are complete; Task 12 explicit owner acceptance or rejection
+  remains pending, Stage is `awaiting-owner-acceptance`, and Phase 4 remains
+  blocked.
+
+- 2026-08-20: Task 12 explicit owner result acceptance completed. The owner
+  stated exactly `принимаю результат Phase 3.1`, accepting the whole Phase 3.1
+  result after the existing F1-F4 terminal `APPROVE` receipts. The prior
+  saved-file observation remains manual evidence only and is distinct from
+  this whole-phase acceptance. The authoritative workflow transitioned from
+  `awaiting-owner-acceptance` to `completed`; Phase 4 planning requires a
+  separate owner-directed workflow and Phase 4 is not started, approved,
+  authorized, or executed.
+- 2026-08-20: Owner explicitly approved the exact reviewed Phase 3.1 plan via
+  `/architecture-approve phase-3.1-climate-thermal-invalidation-on-project-load`.
+  The approved artifact is
+  `docs/architecture-migration/plans/phase-3.1-climate-thermal-invalidation-on-project-load.md`
+  at exactly `53357` UTF-8 bytes with SHA-256
+  `355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9`.
+  Workflow transitions to `Stage = approved`; execution authorization remains
+  `pending`. Approval does not infer or grant execution authorization, does not
+  authorize implementation, and the next safe action is only
+  `/architecture-start phase-3.1-climate-thermal-invalidation-on-project-load`.
+
+- 2026-08-20: Momus session `ses_fe1980350ffeHmZTEJ3d60pZWu` returned terminal
+  `[OKAY]` for the exact Phase 3.1 plan at exactly `53357` UTF-8 bytes with
+  SHA-256 `355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9`.
+  This receipt supersedes the current `momus-review` gate only and advances
+  the workflow to `awaiting-owner-approval`. Successful Momus review is not
+  owner plan approval and not execution authorization. Only
+  `/architecture-approve phase-3.1-climate-thermal-invalidation-on-project-load`
+  may perform the next transition; `/architecture-start
+  phase-3.1-climate-thermal-invalidation-on-project-load` and implementation
+  remain prohibited until separate later authorization. Historical Momus
+  `[REJECT]` receipts remain preserved as superseded history.
+
+- 2026-08-20: Momus session `ses_fe1980350ffeHmZTEJ3d60pZWu` returned
+  `[REJECT]` on the exact 51053-byte Phase 3.1 plan SHA-256
+  `1C8C86ACA62DA9BF003071E179322373E0E4FA95D6BA2506149CA8631CF25382`.
+  The sole finding was that F1-F4 were followed only by an abstract final owner
+  checkpoint, not by an explicit executable Task 12 requiring owner result
+  acceptance. The plan was corrected with Task 12, a final sequential wave,
+  extended dependency/critical-path references, and completion criteria requiring
+  explicit owner acceptance. The corrected canonical and `.omo` copies are
+  byte-identical at 53357 UTF-8 bytes with uppercase SHA-256
+  `355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9`.
+  Stage is reset to `sisyphus-review`; fresh Sisyphus must pass this new SHA,
+  then the same Momus session must resume. No new review approval, owner
+  approval, execution authorization, implementation, or result acceptance is
+  claimed.
+
+- 2026-08-20: Historical Sisyphus `PASS` in session
+  `ses_fe1acec17ffeieLHMtCgEzAsxn` applied to the superseded 51053-byte plan
+  SHA-256 `1C8C86ACA62DA9BF003071E179322373E0E4FA95D6BA2506149CA8631CF25382`;
+  this receipt remains superseded by the current artifact.
+
+- 2026-08-20: Current Phase 3.1 plan received `VERDICT: PASS` from Sisyphus
+  session `ses_fe1acec17ffeieLHMtCgEzAsxn` on exact SHA-256
+  `355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9` at
+  exactly 53357 UTF-8 bytes. Task 12 and all prior behavior, scope, QA, and
+  rollback contracts passed review. Stage advanced to `momus-review`; Momus
+  has not been rerun or passed on this SHA, owner plan approval and execution
+  authorization remain absent, and no implementation checkbox or result
+  acceptance is complete. Resume Momus session
+  `ses_fe1980350ffeHmZTEJ3d60pZWu` on this exact SHA.
+
+- 2026-08-20: Fresh Sisyphus review session
+  `ses_fe1acec17ffeieLHMtCgEzAsxn` returned `VERDICT: REJECT` on the exact
+  `48263`-byte Phase 3.1 plan SHA-256
+  `95C2289CA1623D2D41B3EEE3693825BFDA955EDC9A5D8777264CC94746FDDEF8`.
+  The origin split, behavior contract, exact six-file production ceiling,
+  read-only `ThermalViewModel`, characterization ordering, executable commands,
+  protected worktree handling, and owner gates passed review; the sole blocker
+  was the missing general execution-time stop and rollback boundary. The plan
+  now requires immediate `blocked` transition for confirmed infeasibility,
+  invalid RED, unresolved test/build failure, protected drift/preimage mismatch,
+  required production scope expansion, or acceptance/assertion weakening;
+  preserves exact failure logs and blocker evidence; forbids improvisation,
+  scope expansion, weakening, silent workarounds, `git reset`, `git checkout`,
+  and `git clean`; and limits any rollback to worker-owned Phase 3.1 changes
+  restored from Task 7 preimages without touching pre-existing hunks or deleting
+  diagnostics. Canonical and `.omo` copies are byte-identical at `51053` bytes
+  with uppercase SHA-256
+  `1C8C86ACA62DA9BF003071E179322373E0E4FA95D6BA2506149CA8631CF25382`.
+  Stage remains `sisyphus-review`; a fresh Sisyphus review of this new exact SHA
+  is required before Momus. No PASS, Momus review, owner approval, execution
+  authorization, or implementation is claimed.
+- 2026-08-20: Corrected Phase 3.1 plan imported from recovery planner session
+  `ses_fe1bc75a2ffe2jeZ89sraT8F9h`, using the saved tool output as provenance.
+  Exact UTF-8 extraction starts at `# Phase 3.1 Climate Thermal Invalidation on
+  Project Load - Corrected Work Plan` and ends after `## Success Criteria`; the
+  trailing `## TODO List (ADD THESE)` orchestration appendix and wrapper text are
+  excluded. Canonical and `.omo` mirror are byte-identical at `48263` bytes with
+  uppercase SHA-256
+  `95C2289CA1623D2D41B3EEE3693825BFDA955EDC9A5D8777264CC94746FDDEF8`.
+  Previous plan SHA-256
+  `BE7A3091C4E4A1B05DD3052F0414458C1EE43228267049DCD71A2A217CFD4380` is
+  superseded and remains blocked history. Failed empty planner session
+  `ses_fe1c68af3ffeqHWcXO6DjxI3ik` produced no valid terminal deliverable.
+  Workflow is `sisyphus-review`: fresh Sisyphus must review this exact SHA, then
+  fresh Momus must review the same SHA after Sisyphus PASS. No approval,
+  authorization, or implementation is claimed; `/architecture-approve`,
+  `/architecture-start`, and production changes remain prohibited until the
+  separate review and owner gates pass.
+- 2026-08-19: создан F1 control-plane provenance receipt
+  `docs/architecture-migration/evidence/phase-3-construction-state/f1-control-plane-provenance.md`.
+  Он документирует provenance трёх findings, из-за которых parent F1 вернул
+  `VERDICT: REJECT`: (1) `.omo/start-work/ledger.jsonl` append-only относительно
+  HEAD - две исходные строки являются точным префиксом, за ними следуют семь
+  строк owner-started Task 9 recovery; (2) `.omo/boulder.json` - schema v2
+  control-plane orchestration state (completed Task 9 recovery, active Phase 3);
+  (3) canonical и tracking Phase 3.1 планы byte-identical, owner-directed,
+  queued, unapproved и unstarted. Все три классифицированы как exact-hash-bound
+  control-plane/owner-directed артефакты, а не output Phase 3 Tasks 1-13; receipt
+  не расширяет allow-list и не waives будущий drift. `Stage` остаётся
+  `final-verification`, result acceptance остаётся `pending`, исторический F1
+  `REJECT` остаётся pending независимого re-review, F2-F4 остаются pending,
+  Phase 3.1 не авторизована и не запущена. Изменены только три документальных
+  файла: receipt, `TASK_CONTEXT.md` и `.omo/notepads/phase-3-construction-state/learnings.md`.
+  maps, shared model и generated widget. Первый runtime probe выявил
+  inconsistent `ST-010`/`ST-011` baseline/current snapshots (`equal`), второй -
+  неверную invariant fixture привязку (`changed-unverified`); оба исправления
+  выполнены только в canonical model, verifier/runtime не менялись. Финальные
+  model-v2 33/21, runtime-v2 47/20 и widget 14/14 прошли; два generation passes
+  дали одинаковый SHA-256
+  `96A0DC6E094A5BE2B68E523FFEE6375CCA16C325651674D7681441CB5514CD4F`.
+  Workflow переведён только в `awaiting-owner-acceptance`, acceptance остаётся
+  pending; production/tests и Phase 3.1 не затронуты.
+- 2026-08-19: Existing `.omo/plans/fix-climate-thermal-invalidation-on-project-load.md`
+  was promoted as the planning input for canonical Phase 3.1. The final
+  repository-facing plan and exact tracking mirror preserve the Climate fix
+  scope, allow-list, verification strategy, gates, and acceptance criteria,
+  adding only the Phase 3.1 ordering and gate-positioning section. This does
+  not approve, authorize, start, or complete Phase 3.1, and does not change the
+  active Phase 3 plan or its recorded SHA-256. Phase 3 remains executing with
+  Task 13 as the immediate next action; the Climate defect remains open and
+  unfixed.
+- 2026-08-16: владелец разрешил `ConstructionViewModel.cs` как узкое production-
+  исключение Task 10. RED зафиксировал legacy duplicate boundary (`11 failed /
+  23 passed`), после чего authoritative completion перенесён в
+  `ProjectSessionConstructionState`; direct VM dirty/context publication удалены,
+  user/template origins исправлены. Финальные gates: Task 10 `34/34`, Task 9
+  direct `11/11`, persistence `6/6`, affected `173 passed / 1 known skipped / 0
+  failed`, Debug build `0 warnings / 0 errors`. Task 10 принята; Task 11 не
+  начата; Phase 3 не завершена и не принята владельцем.
+- 2026-08-16: Task 10 остановлена до RED-test/production edits из-за
+  подтверждённого allow-list blocker. Live `ConstructionViewModel.cs` остаётся
+  владельцем прямых dirty/context/model-event bypasses и передаёт user
+  shadow-writes как `SystemApply`; разрешённые `CalculationContext` и
+  Construction state/projection файлы не могут устранить оба downstream пути и
+  одновременно обеспечить origin-aware dirty semantics. Четыре текущих
+  characterization tests прошли `4/4`, подтвердив duplicate baseline. Создан
+  только blocker receipt и factual context/notepad updates; production/test
+  source не изменён. Task 11 не начата, Phase 3 не завершена и не принята
+  владельцем.
+- 2026-08-13: владелец exact statement `Результат Phase 2 принимаю` принял
+  Phase 2 и разрешил planning-only workflow Phase 3, отдельно запретив начинать
+  реализацию. После fresh чтения migration dossier, accepted Phase 2 plan и live
+  Construction source canonical plan записан в
+  `docs/architecture-migration/plans/phase-3-construction-state.md`. Два ранних
+  Prometheus receipts были отклонены из-за contract/scope/safety defects; новый
+  recovery вызов был aborted, а preserved session дважды вернула пустой ответ,
+  поэтому эти sessions не являются planning authority. Canonical artifact
+  содержит 13 sequential tasks, F1-F4, explicit structural snapshot equality,
+  layer/material identity and order, mutation origin/result/completion/no-op/
+  rejected/cancelled semantics, characterization-first template/import/editor/
+  reset/load contracts, protected dirty baseline, six-view/shared-model/widget
+  refresh и отдельные owner approval/execution/result-acceptance gates. Phase 3
+  production code/tests/maps/widget не изменялись; workflow находится на
+  exact-file Sisyphus review перед обязательным Momus review.
 - 2026-08-12: Phase 2 Task 11 affected gates accepted after a test-only blocker
   correction. Initial targeted Release matrix failed only
   `SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache`: expected
@@ -2193,3 +2703,15 @@ on 2026-08-01. Failed receipt
   - Evidence: `docs/architecture-migration/evidence/phase-1-project-session-shell/dossier-update.md`.
   - Next: independent Task 10 QA by the parent orchestrator; only after its
     acceptance may it dispatch F1-F4.
+- 2026-08-19: Phase 3 Task 12.1 final executable gates completed GREEN. The
+  approved two-file fixture correction aligned `ConstructionServiceTests` and
+  `DialogServiceThreadAffinityTests` on one session/state/initializer graph
+  while preserving custom material/template behavior. Focused Release passed
+  `9/9`; exact contracts passed `117` plus one accepted `NotExecuted`;
+  production Debug/Release builds passed with zero warnings/errors; affected
+  Debug passed `312` plus the same accepted `NotExecuted`; full Release passed
+  `1711` with zero failures and three accepted TRX `NotExecuted` identities.
+  Receipt ends `VERDICT: PASS` at
+  `docs/architecture-migration/evidence/phase-3-construction-state/task-12-1-canonical-default-construction-initialization.md`.
+  Workflow remains `executing`, Phase 3 result acceptance remains `pending`,
+  only parent Task 13 is released, and parent F1-F4 remain unstarted.
