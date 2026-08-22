@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -10,6 +11,7 @@ using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.ViewModels.Construction;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
@@ -56,18 +58,22 @@ namespace SnowMeltingCalculator.Tests.Construction
             _calculationStateServiceMock.SetupGet(s => s.PipeSpacing).Returns(200);
             _templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
 
+            var calculationContext = new CalculationContext();
+            var projectSession = new ProjectSession(calculationContext: calculationContext);
             _viewModel = new ConstructionViewModel(
                 _constructionServiceMock.Object,
                 _materialRepository,
                 _constructionRepositoryMock.Object,
                 _calculationStateServiceMock.Object,
-                new CalculationContext(),
+                calculationContext,
                 new ConstructionValidator(),
                 new ConstructionModel(),
                 _markDirtyServiceMock.Object,
                 _templateRepositoryMock.Object,
                 _dialogServiceMock.Object,
-                _editorDialogServiceMock.Object);
+                _editorDialogServiceMock.Object,
+                projectSession.ConstructionState,
+                new ConstructionDefaultStateInitializer(_materialRepository, projectSession.ConstructionState));
         }
 
         #region ConstructionService.ImportMissingMaterialAsync
@@ -275,6 +281,83 @@ namespace SnowMeltingCalculator.Tests.Construction
             // Assert
             _dialogServiceMock.Verify(d => d.ShowError(It.Is<string>(s => s.Contains("999")), It.IsAny<string>()), Times.Once);
             Assert.That(_viewModel.IsValid, Is.False);
+        }
+
+        [Test]
+        public async Task StandaloneLoadConstruction_ImportFailure_ThroughRealServicePreservesCanonicalState()
+        {
+            var calculationContext = new CalculationContext();
+            var projectSession = new ProjectSession(calculationContext: calculationContext);
+            var completionCount = 0;
+            var contextPublicationCount = 0;
+            projectSession.ConstructionState.Changed += (_, _) => completionCount++;
+            calculationContext.ContextChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(CalculationContext.Construction))
+                {
+                    contextPublicationCount++;
+                }
+            };
+            var realService = new ConstructionService(
+                new ConstructionValidator(),
+                _materialRepositoryMock.Object,
+                _templateRepositoryMock.Object);
+            var viewModel = new ConstructionViewModel(
+                realService,
+                _materialRepository,
+                _constructionRepositoryMock.Object,
+                _calculationStateServiceMock.Object,
+                calculationContext,
+                new ConstructionValidator(),
+                new ConstructionModel(),
+                _markDirtyServiceMock.Object,
+                _templateRepositoryMock.Object,
+                _dialogServiceMock.Object,
+                _editorDialogServiceMock.Object,
+                projectSession.ConstructionState,
+                new ConstructionDefaultStateInitializer(_materialRepository, projectSession.ConstructionState));
+            await viewModel.InitializeCommand.ExecuteAsync(null);
+            completionCount = 0;
+            contextPublicationCount = 0;
+            _markDirtyServiceMock.Invocations.Clear();
+            var before = projectSession.ConstructionState.Snapshot;
+            var snapshot = new MaterialSnapshot
+            {
+                Id = 999,
+                Name = "Import failure material",
+                Category = MaterialCategory.Concrete,
+                LambdaA = 1.2,
+                LambdaB = 1.3
+            };
+            _constructionRepositoryMock
+                .Setup(repository => repository.LoadConstructionAsync(It.IsAny<string>()))
+                .Throws(new MaterialNotFoundException(snapshot.Id, snapshot));
+            _dialogServiceMock
+                .Setup(dialog => dialog.Show(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    DialogButtons.YesNo,
+                    DialogIcon.Question))
+                .Returns(DialogResult.Yes);
+            _materialRepositoryMock.Setup(repository => repository.LoadMaterialsAsync())
+                .ReturnsAsync(Array.Empty<Material>());
+            _materialRepositoryMock.Setup(repository => repository.GetAllMaterials())
+                .Returns(Array.Empty<Material>());
+            _materialRepositoryMock.Setup(repository => repository.AddAsync(It.IsAny<Material>()))
+                .ThrowsAsync(new IOException("catalog import write failed"));
+
+            await viewModel.LoadConstructionCommand.ExecuteAsync(null);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(projectSession.ConstructionState.Snapshot, Is.EqualTo(before));
+                Assert.That(viewModel.IsValid, Is.False);
+                Assert.That(viewModel.ValidationMessage, Does.Contain("catalog import write failed"));
+                Assert.That(completionCount, Is.Zero);
+                Assert.That(contextPublicationCount, Is.Zero);
+            });
+            _materialRepositoryMock.Verify(repository => repository.AddAsync(It.IsAny<Material>()), Times.Once);
+            _markDirtyServiceMock.Verify(service => service.MarkDirty(), Times.Never);
         }
 
         #endregion
