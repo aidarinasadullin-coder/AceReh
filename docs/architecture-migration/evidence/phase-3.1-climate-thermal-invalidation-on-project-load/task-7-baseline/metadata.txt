@@ -1,0 +1,11 @@
+﻿Phase 3.1 Task 7 Protected Execution Baseline - Repository Metadata
+Captured (local): 2026-08-20T15:53:53+05:00
+Repository root: D:\IA\ace v.2
+Git HEAD: e655735dfa66c00cf9c53be93d511eda8989e8bf
+Branch: master
+Upstream: origin/master
+Plan file: docs/architecture-migration/plans/phase-3.1-climate-thermal-invalidation-on-project-load.md
+Plan UTF-8 bytes: 53357
+Plan SHA-256: 355A81BD354EF3E3F0A4636C154DA27EB2C596FFA9F14BA4EBE1757FCAD4D0C9
+Task: 7 (first atomic part) - protected baseline capture + notepad scaffold
+Scope: baseline only; no production/test edits; no RED yet; Task 8 blocked until characterization + valid RED verified
