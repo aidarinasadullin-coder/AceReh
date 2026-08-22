@@ -36,10 +36,19 @@ the existing `.smc` Climate DTO fields and version behavior. Task 11 acceptance 
 `docs/architecture-migration/evidence/phase-2-climate-state/affected-gates.md` with targeted TRX
 `total 330 / executed 329 / passed 329 / failed 0` and full rerun TRX
 `total 1616 / executed 1613 / passed 1613 / failed 0`.
-| `ST-008` | model/VM ambiguous | context/Results | ConstructionState | model/VM split | Construction :694-856 | partial |
-| `ST-009` | collection/model ambiguous | Results list | ConstructionState.LayersAbovePipe | dual representation | Construction :702-724 | partial |
-| `ST-010` | collection/model ambiguous | Results list | ConstructionState.LayersBelowPipe | dual representation | Construction :702-792 | partial |
-| `ST-011` | model/VM ambiguous | Results/Thermal | derived construction | recomputation/persistence ambiguity | Results :1683-1688 | partial |
+| `ST-008` | `ProjectSession.ConstructionState` | `ConstructionViewModel` adapter; `CurrentProjection`; Results DTO | same | no second writable owner | `ProjectSessionConstructionState.cs`; Tasks 8-12.1 | covered |
+| `ST-009` | `ProjectSession.ConstructionState.LayersAbovePipe` | ordered adapter/projection/DTO copies | same | identity/order guarded | Task 9 recovery; Task 12 gates | covered |
+| `ST-010` | `ProjectSession.ConstructionState.LayersBelowPipe` | ordered adapter/projection/DTO copies | same | identity/order guarded | Task 9 recovery; Task 12 gates | covered |
+| `ST-011` | `ConstructionStateProjection` derived from canonical snapshot | Thermal `IConstructionData`; Results DTO | same derived projection | no independent writer | Tasks 10-12.1; pre-Task 13 correction | covered |
+
+## Phase 3 ConstructionState acceptance overlay
+
+`ProjectSession` owns one `ProjectSessionConstructionState`. Its snapshot is the
+only writable authority for groundwater, loads and both ordered layer sequences.
+`ConstructionViewModel` is a WPF adapter, Thermal resolves `IConstructionData`
+from `CurrentProjection`, save maps the canonical snapshot through
+`ConstructionPersistenceMapper`, and `CompleteChanged` is the authoritative
+completion, dirty and downstream boundary. The `.smc` version remains `1.1`.
 | `ST-012` | ThermalViewModel | context/Results | ThermalState.Inputs | context copy | Thermal :321-406 | partial |
 | `ST-013` | guarded CalculationStateService | Thermal/Circuits/Results | ThermalState.PipeSpacing | intentional seam | CalculationStateService.cs:120-139 | partial |
 | `ST-014` | Thermal VM/context ambiguous | Results | derived thermal | dual path | Thermal :326-406 | partial |
@@ -56,3 +65,12 @@ the existing `.smc` Climate DTO fields and version behavior. Task 11 acceptance 
 | `ST-025` | ResultsViewModel | PDF/report | derived projection | mutable cached values | Results :1493-1545 | partial |
 | `ST-026` | ResultsViewModel | PDF/report | derived projection | clear/rebuild timing | Results :1546-1556 | partial |
 | `ST-027` | ResultsViewModel | UI | derived projection | selection reset | Results :1557-1559 | partial |
+
+## Phase 3.1 Climate invalidation overlay (Task 11)
+
+`ProjectSession.ClimateState` remains the sole writable canonical Climate owner.
+`ClimateViewModel` mirrors and routes mutations; `ClimateData` is only the
+compatibility projection; `CalculationContext` is downstream compatibility
+state; Results reads the canonical snapshot. `UserReset` retains user dirty and
+publication semantics, while `ProjectLoadReset` and `Load` are lifecycle origins
+without user dirty/history semantics. No second writable Climate owner exists.

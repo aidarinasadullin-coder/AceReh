@@ -165,3 +165,27 @@ No new compile-time edges from application services to concrete ViewModels were
 introduced. `ProjectSession` references only `System` and `System.ComponentModel`;
 module slices (Climate, Construction, Thermal, Hydraulics) and `CalculationContext`
 remain untouched. See `docs/architecture-migration/evidence/phase-1-project-session-shell/final-gates.md`.
+
+## Phase 3 ConstructionState compile-time overlay
+
+| Node ID | Kind | Display name | Source evidence |
+| --- | --- | --- | --- |
+| `CTN-P3-CONSTRUCTION-001` | interface | `IProjectSessionConstructionState` | `src/Services/Project/IProjectSessionConstructionState.cs`; Task 11 evidence |
+| `CTN-P3-CONSTRUCTION-002` | implementation | `ProjectSessionConstructionState` | `src/Services/Project/ProjectSessionConstructionState.cs`; Task 10 evidence |
+| `CTN-P3-CONSTRUCTION-003` | immutable contracts | Construction snapshot, layer snapshot, mutation/origin/result | `src/Services/Project/Construction*.cs`; Tasks 4-5 evidence |
+| `CTN-P3-CONSTRUCTION-004` | read projection | `ConstructionStateProjection` / `IConstructionData` | Task 11 DI evidence |
+| `CTN-P3-CONSTRUCTION-005` | pure mapper | `ConstructionPersistenceMapper` | Task 9 recovery evidence |
+
+`ProjectSession` owns/exposes the state implementation; `ConstructionViewModel`
+consumes its interface as a WPF adapter; `ResultsViewModel` maps its snapshot for
+save; Thermal consumes its read projection. The existing concrete ViewModel
+dependencies in `ProjectLoadOrchestrator` remain and keep `INV-008` open.
+
+## Phase 3.1 Climate invalidation overlay (Task 11)
+
+No new project or package reference was introduced. Verified type-level changes
+are `ClimateMutationOrigin.UserReset`, `ClimateMutationOrigin.ProjectLoadReset`,
+the explicit `ClimateData.ApplyProjection` publication parameter, and the
+existing `ProjectSessionClimateState` completion call path. DI/runtime evidence
+is excluded from this filter. Construction type references in shared files are
+pre-existing Phase 3 Construction content, not Task 11 Climate edges.

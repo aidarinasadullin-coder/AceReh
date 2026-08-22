@@ -47,6 +47,27 @@ limitations:
 Task 10 guard evidence confirms no `IProjectSessionClimateState` / `ProjectSessionClimateState`
 DI descriptor creates a transient or second owner; consumers observe the same canonical projection chain.
 
+## Phase 3.1 Climate invalidation overlay (Task 11)
+
+DI/runtime is verified unchanged: no registration, lifetime, factory, or
+service-provider resolution changed. The singleton `ProjectSession` still owns
+one `ProjectSessionClimateState`; `ClimateData` and `CalculationContext` remain
+compatibility projections. The changed behavior is origin routing and completion
+policy, not a new DI edge or second instance.
+
+## Phase 3 ConstructionState runtime overlay
+
+| Node ID | Runtime role | Lifetime / owner | Evidence | Status |
+| --- | --- | --- | --- | --- |
+| `DRN-P3-CONSTRUCTION-001` | canonical Construction state slice | private instance owned by singleton `ProjectSession`; not independently registered | `ProjectSession.cs`; Task 11 | verified |
+| `DRN-P3-CONSTRUCTION-002` | `ConstructionViewModel` adapter | singleton adapter receives canonical state | `ServiceCollectionExtensions.cs`; Task 11 | verified |
+| `DRN-P3-CONSTRUCTION-003` | Thermal `IConstructionData` projection | singleton factory resolves `CurrentProjection` | `AddConstructionModule`; Task 11 | verified |
+
+There is one runtime Construction owner. The separately registered mutable
+`Construction` instance is adapter compatibility state, not the
+`IConstructionData` service consumed by Thermal. Reset/restore applies the
+canonical slice and save reads its snapshot.
+
 ## Filter and Evidence Rules
 
 **View membership:** `di-runtime` only. This receipt admits `IServiceCollection` registration, lifetime, explicit factory delegation, explicit service-provider resolution, and selected composition/create paths. It does not admit a bare `using` directive, a constructor type reference by itself, or a compile-time namespace reference as DI/runtime evidence.
