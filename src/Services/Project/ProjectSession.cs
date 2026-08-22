@@ -22,13 +22,18 @@ namespace SnowMeltingCalculator.Services.Project
         private bool _isLoadProjectInProgress;
         private int _restoreDepth;
         private readonly ProjectSessionClimateState _climateState;
+        private readonly ProjectSessionConstructionState _constructionState;
 
         /// <inheritdoc />
         public IProjectSessionClimateState ClimateState => _climateState;
 
+        /// <inheritdoc />
+        public IProjectSessionConstructionState ConstructionState => _constructionState;
+
         public ProjectSession(IClimateData? climateData = null, CalculationContext? calculationContext = null)
         {
             _climateState = new ProjectSessionClimateState(this, climateData, calculationContext);
+            _constructionState = new ProjectSessionConstructionState(this, calculationContext);
         }
 
         /// <inheritdoc />
