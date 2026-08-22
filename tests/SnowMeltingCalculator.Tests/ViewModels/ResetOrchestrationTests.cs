@@ -37,7 +37,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         #region ClimateViewModel
 
         [Test]
-        public void ClimateViewModel_Reset_ReturnsToDefaultsAndDoesNotMarkDirty()
+        public void ClimateViewModel_UserReset_ReturnsToDefaultsAndMarksDirty()
         {
             var markDirtyMock = new Mock<IMarkDirtyService>();
             var vm = CreateClimateViewModel(markDirtyMock.Object);
@@ -63,7 +63,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(vm.IsHighRequirements, Is.False);
             Assert.That(vm.HasUserModifications, Is.False);
             Assert.That(vm.SearchQuery, Is.Empty);
-            markDirtyMock.Verify(m => m.MarkDirty(), Times.Never);
+            markDirtyMock.Verify(m => m.MarkDirty(), Times.Once);
         }
 
         #endregion
@@ -214,22 +214,32 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             var materialRepositoryMock = new Mock<IMaterialRepository>();
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
+            materialRepositoryMock.Setup(r => r.GetMaterialById(It.IsAny<int>()))
+                .Returns((int id) => materials.SingleOrDefault(material => material.Id == id));
 
             var templateRepositoryMock = new Mock<IConstructionTemplateRepository>();
             templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
+
+            var calculationContext = new CalculationContext();
+            var projectSession = new ProjectSession(calculationContext: calculationContext);
+            var defaultStateInitializer = new ConstructionDefaultStateInitializer(
+                materialRepositoryMock.Object,
+                projectSession.ConstructionState);
 
             return new ConstructionViewModel(
                 new Mock<IConstructionService>().Object,
                 materialRepositoryMock.Object,
                 new Mock<IConstructionRepository>().Object,
                 new CalculationStateService(),
-                new CalculationContext(),
+                calculationContext,
                 new ConstructionValidator(),
                 new ConstructionModel(),
                 markDirtyService,
                 templateRepositoryMock.Object,
                 new Mock<IDialogService>().Object,
-                new Mock<IEditorDialogService>().Object);
+                new Mock<IEditorDialogService>().Object,
+                projectSession.ConstructionState,
+                defaultStateInitializer);
         }
 
         private static ThermalViewModel CreateThermalViewModel(IMarkDirtyService markDirtyService)
@@ -280,8 +290,11 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var circuitsVm = CreateCircuitsViewModel(new Mock<IMarkDirtyService>().Object);
 
             var materialRepositoryMock = new Mock<IMaterialRepository>();
-            materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(new List<Material>());
-            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(new List<Material>());
+            var materials = Material.GetDefaultMaterials().ToList();
+            materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
+            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(materials);
+            materialRepositoryMock.Setup(r => r.GetMaterialById(It.IsAny<int>()))
+                .Returns((int id) => materials.SingleOrDefault(material => material.Id == id));
 
             var constructionServiceMock = new Mock<IConstructionService>();
             constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
@@ -289,6 +302,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             var calculationStateService = new CalculationStateService(projectStateService.Session);
             var calculationContext = new CalculationContext();
+            var constructionDefaultStateInitializer = new ConstructionDefaultStateInitializer(
+                materialRepositoryMock.Object,
+                projectStateService.Session.ConstructionState);
 
             return new ResultsViewModel(
                 projectStateService,
@@ -312,7 +328,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     circuitsVm,
                     calculationStateService,
                     constructionServiceMock.Object,
-                    calculationContext),
+                    calculationContext,
+                    projectStateService.Session,
+                    constructionDefaultStateInitializer),
                 new ResultsPdfDataBuilder(
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,

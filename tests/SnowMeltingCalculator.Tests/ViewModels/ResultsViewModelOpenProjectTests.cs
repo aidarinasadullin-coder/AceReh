@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
@@ -215,7 +216,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var climateVm = CreateClimateViewModel();
             var circuitsVm = CreateCircuitsViewModel();
             var thermalVm = CreateThermalViewModel();
-            var viewModel = CreateViewModel(climateVm, constructionVm: CreateConstructionViewModel(), thermalVm, circuitsVm);
+            var viewModel = CreateViewModel(climateVm, constructionVm: CreateConstructionViewModel(_projectStateService.Session), thermalVm, circuitsVm);
 
             // Act
             await viewModel.LoadProjectDataAsync(projectData);
@@ -307,7 +308,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var calculationStateService = new CalculationStateService(_projectStateService.Session);
             var viewModel = CreateViewModel(
                 CreateClimateViewModel(calculationStateService, _projectStateService),
-                CreateConstructionViewModel(calculationStateService, _projectStateService),
+                CreateConstructionViewModel(calculationStateService, _projectStateService, _projectStateService.Session),
                 CreateThermalViewModel(calculationStateService, _projectStateService),
                 CreateCircuitsViewModel(calculationStateService, _projectStateService, allowRemoveCircuit: true),
                 calculationStateService);
@@ -356,7 +357,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 region,
                 t5Days: -28,
                 windAvg: 4.0,
-                humidity: 70.0);
+                humidity: 70.0,
+                _projectStateService.Session);
             var circuitsVm = CreateCircuitsViewModel();
             var viewModel = CreateViewModel(climateVm, circuitsVm);
 
@@ -407,13 +409,16 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             };
 
             var climateDataSingleton = new ClimateData();
+            _projectStateService = new ProjectStateService(
+                new ProjectSession(climateDataSingleton, new CalculationContext()));
             var climateVm = CreateClimateViewModelWithCityAndSingleton(
                 climateDataSingleton,
                 cityName,
                 region,
                 t5Days: -28,
                 windAvg: 4.0,
-                humidity: 70.0);
+                humidity: 70.0,
+                _projectStateService.Session);
             var circuitsVm = CreateCircuitsViewModel();
             var viewModel = CreateViewModel(climateVm, circuitsVm);
 
@@ -476,7 +481,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             var viewModel = CreateViewModel(
                 climateVm,
-                CreateConstructionViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
                 CreateThermalViewModel(),
                 CreateCircuitsViewModel());
 
@@ -508,7 +513,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             var viewModel2 = CreateViewModel(
                 climateVm2,
-                CreateConstructionViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
                 CreateThermalViewModel(),
                 CreateCircuitsViewModel());
 
@@ -550,7 +555,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             var viewModel = CreateViewModel(
                 climateVm,
-                CreateConstructionViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
                 CreateThermalViewModel(),
                 CreateCircuitsViewModel());
 
@@ -599,6 +604,210 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(saved.ClimateData.SnowfallIntensity, Is.Not.EqualTo(climateVm.SnowfallIntensity));
             Assert.That(saved.ClimateData.SelectedZone, Is.Not.EqualTo(climateVm.SelectedZone));
             Assert.That(saved.ClimateData.IsHighRequirements, Is.Not.EqualTo(climateVm.IsHighRequirements));
+        }
+
+        [Test]
+        public void SaveCurrentProject_PersistsConstructionStateSnapshot_NotConstructionViewModelMirror()
+        {
+            // Arrange: constructionVm подключён к канонической сессии, но VM-коллекции
+            // и канонический snapshot различаются. SaveCurrentProject должен сохранить
+            // именно канонический snapshot, а не stale VM-кэш.
+            const double canonicalGroundwater = 0.5;
+            const bool canonicalHasLoads = true;
+            const double canonicalThickness = 333.0;
+            const double canonicalLambda = 9.5;
+            const bool canonicalOverride = true;
+
+            var constructionVm = CreateConstructionViewModel(_projectStateService.Session);
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                constructionVm,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+
+            // Sanity: VM стартует с default-значениями, отличными от канонических.
+            Assert.That(_projectStateService.Session.ConstructionState.Snapshot.GroundwaterLevel,
+                Is.Not.EqualTo(canonicalGroundwater).Within(0.001),
+                "Sanity: canonical ConstructionState must differ from target canonical values.");
+
+            // Применяем канонический snapshot напрямую через state API (non-user origin).
+            var canonicalSnapshot = new ConstructionStateSnapshot(
+                canonicalGroundwater,
+                canonicalHasLoads,
+                new[]
+                {
+                    new ConstructionLayerSnapshot(
+                        Guid.NewGuid(),
+                        5,
+                        "Concrete",
+                        canonicalThickness,
+                        canonicalLambda,
+                        canonicalOverride,
+                        LayerPosition.AbovePipe,
+                        0)
+                },
+                Array.Empty<ConstructionLayerSnapshot>());
+
+            var mutation = _projectStateService.Session.ConstructionState.ApplySnapshot(
+                canonicalSnapshot,
+                ConstructionMutationOrigin.ProjectLoad);
+
+            Assert.That(mutation.Status, Is.EqualTo(ConstructionMutationStatus.Changed));
+            Assert.That(_projectStateService.Session.ConstructionState.Snapshot.GroundwaterLevel,
+                Is.EqualTo(canonicalGroundwater).Within(1e-9));
+            Assert.That(_projectStateService.Session.ConstructionState.Snapshot.HasLoads, Is.True);
+            Assert.That(_projectStateService.Session.ConstructionState.Snapshot.LayersAbovePipe, Has.Count.EqualTo(1));
+            Assert.That(constructionVm.GroundwaterLevel, Is.Not.EqualTo(canonicalGroundwater).Within(0.001));
+            Assert.That(constructionVm.HasLoads, Is.False);
+            Assert.That(constructionVm.LayersAbovePipe, Is.Empty);
+
+            // Act
+            var saved = viewModel.SaveCurrentProject();
+
+            // Assert: сохранённые поля совпадают с каноническим snapshot.
+            Assert.Multiple(() =>
+            {
+                Assert.That(saved.ConstructionData.GroundwaterLevel,
+                    Is.EqualTo(canonicalGroundwater).Within(1e-9));
+                Assert.That(saved.ConstructionData.HasLoads, Is.EqualTo(canonicalHasLoads));
+                Assert.That(saved.ConstructionData.Layers, Has.Count.EqualTo(1));
+                var savedLayer = saved.ConstructionData.Layers[0];
+                Assert.That(savedLayer.Position, Is.EqualTo(LayerPosition.AbovePipe));
+                Assert.That(savedLayer.MaterialName, Is.EqualTo("Concrete"));
+                Assert.That(savedLayer.Thickness, Is.EqualTo(canonicalThickness).Within(1e-9));
+                Assert.That(savedLayer.CalculatedLambda, Is.EqualTo(canonicalLambda).Within(1e-9));
+                Assert.That(savedLayer.IsLambdaOverridden, Is.EqualTo(canonicalOverride));
+                Assert.That(savedLayer.Order, Is.EqualTo(0));
+            });
+        }
+
+        [Test]
+        public async Task ProjectRoundTrip_FieldCompleteRoundTrip_SecondLoadReplacesProjectA()
+        {
+            var sourceAConstruction = await CreateInitializedConstructionViewModelAsync();
+            var sourceAViewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                sourceAConstruction,
+                CreateThermalViewModel(),
+                CreateCircuitsViewModel());
+            var sourceAIds = new[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+            _projectStateService.Session.ConstructionState.ApplySnapshot(
+                new ConstructionStateSnapshot(
+                    0.45,
+                    true,
+                    new[]
+                    {
+                        new ConstructionLayerSnapshot(sourceAIds[0], 5, "Concrete", 81, 2.51, true, LayerPosition.AbovePipe, 0),
+                        new ConstructionLayerSnapshot(sourceAIds[1], 1, "Sand", 42, 0.82, true, LayerPosition.AbovePipe, 1)
+                    },
+                    new[]
+                    {
+                        new ConstructionLayerSnapshot(sourceAIds[2], 2, "Soil", 133, 1.12, true, LayerPosition.BelowPipe, 0),
+                        new ConstructionLayerSnapshot(sourceAIds[3], 5, "Concrete", 244, 1.63, true, LayerPosition.BelowPipe, 1)
+                    }),
+                ConstructionMutationOrigin.User);
+            var projectA = sourceAViewModel.SaveCurrentProject();
+
+            var projectFileService = new ProjectFileService();
+            var projectAPath = Path.Combine(TestContext.CurrentContext.WorkDirectory, $"construction-a-{Guid.NewGuid():N}.smc");
+            var projectBPath = Path.Combine(TestContext.CurrentContext.WorkDirectory, $"construction-b-{Guid.NewGuid():N}.smc");
+            try
+            {
+                Assert.That(await projectFileService.SaveProjectAsync(projectAPath, projectA), Is.True);
+                var loadedProjectA = await projectFileService.LoadProjectAsync(projectAPath);
+                Assert.That(loadedProjectA, Is.Not.Null);
+
+                _projectStateService = new ProjectStateService();
+                var targetConstruction = await CreateInitializedConstructionViewModelAsync();
+                var targetViewModel = CreateViewModel(
+                    CreateClimateViewModel(),
+                    targetConstruction,
+                    CreateThermalViewModel(),
+                    CreateCircuitsViewModel());
+                var targetSession = _projectStateService.Session;
+                var completionCount = 0;
+                targetSession.ConstructionState.Changed += (_, _) => completionCount++;
+
+                await targetViewModel.LoadProjectDataAsync(loadedProjectA!);
+
+                var roundTrippedA = targetSession.ConstructionState.Snapshot;
+                Assert.Multiple(() =>
+                {
+                    Assert.That(roundTrippedA.GroundwaterLevel, Is.EqualTo(0.45).Within(1e-9));
+                    Assert.That(roundTrippedA.HasLoads, Is.True);
+                    Assert.That(roundTrippedA.LayersAbovePipe.Select(layer => layer.Order), Is.EqualTo(new[] { 0, 1 }));
+                    Assert.That(roundTrippedA.LayersAbovePipe.Select(layer => layer.MaterialId), Is.EqualTo(new[] { 5, 1 }));
+                    Assert.That(roundTrippedA.LayersAbovePipe.Select(layer => layer.MaterialName), Is.EqualTo(new[] { "Concrete", "Sand" }));
+                    Assert.That(roundTrippedA.LayersAbovePipe.Select(layer => layer.Thickness), Is.EqualTo(new[] { 81d, 42d }));
+                    Assert.That(roundTrippedA.LayersAbovePipe.Select(layer => layer.CalculatedLambda), Is.EqualTo(new[] { 2.51, 0.82 }));
+                    Assert.That(roundTrippedA.LayersBelowPipe.Select(layer => layer.Order), Is.EqualTo(new[] { 0, 1 }));
+                    Assert.That(roundTrippedA.LayersBelowPipe.Select(layer => layer.MaterialId), Is.EqualTo(new[] { 2, 5 }));
+                    Assert.That(roundTrippedA.LayersBelowPipe.Select(layer => layer.MaterialName), Is.EqualTo(new[] { "Soil", "Concrete" }));
+                    Assert.That(roundTrippedA.LayersBelowPipe.Select(layer => layer.Thickness), Is.EqualTo(new[] { 133d, 244d }));
+                    Assert.That(roundTrippedA.LayersBelowPipe.Select(layer => layer.CalculatedLambda), Is.EqualTo(new[] { 1.12, 1.63 }));
+                    Assert.That(roundTrippedA.LayersAbovePipe.Concat(roundTrippedA.LayersBelowPipe).All(layer => !layer.IsLambdaOverridden), Is.True,
+                        ".smc stores override flags, while project restore intentionally resets them after preserving lambda values.");
+                    Assert.That(roundTrippedA.LayersAbovePipe.Concat(roundTrippedA.LayersBelowPipe).All(layer => layer.Id != Guid.Empty), Is.True);
+                    Assert.That(roundTrippedA.LayersAbovePipe.Concat(roundTrippedA.LayersBelowPipe).Select(layer => layer.Id), Is.Unique);
+                    Assert.That(roundTrippedA.LayersAbovePipe.Concat(roundTrippedA.LayersBelowPipe).Select(layer => layer.Id), Is.Not.EquivalentTo(sourceAIds),
+                        ".smc does not persist layer IDs; restore regenerates stable non-empty IDs for the loaded session.");
+                    Assert.That(completionCount, Is.EqualTo(1));
+                    Assert.That(_projectStateService.IsDirty, Is.False);
+                });
+
+                var sourceBStateService = new ProjectStateService();
+                _projectStateService = sourceBStateService;
+                var sourceBConstruction = await CreateInitializedConstructionViewModelAsync();
+                var sourceBViewModel = CreateViewModel(
+                    CreateClimateViewModel(),
+                    sourceBConstruction,
+                    CreateThermalViewModel(),
+                    CreateCircuitsViewModel());
+                sourceBStateService.Session.ConstructionState.ApplySnapshot(
+                    new ConstructionStateSnapshot(
+                        3.75,
+                        false,
+                        new[]
+                        {
+                            new ConstructionLayerSnapshot(Guid.NewGuid(), 2, "Soil", 17, 1.07, true, LayerPosition.AbovePipe, 0)
+                        },
+                        new[]
+                        {
+                            new ConstructionLayerSnapshot(Guid.NewGuid(), 1, "Sand", 318, 0.93, true, LayerPosition.BelowPipe, 0)
+                        }),
+                    ConstructionMutationOrigin.User);
+                var projectB = sourceBViewModel.SaveCurrentProject();
+                Assert.That(await projectFileService.SaveProjectAsync(projectBPath, projectB), Is.True);
+                var loadedProjectB = await projectFileService.LoadProjectAsync(projectBPath);
+                Assert.That(loadedProjectB, Is.Not.Null);
+
+                _projectStateService = new ProjectStateService();
+                await targetViewModel.LoadProjectDataAsync(loadedProjectB!);
+
+                var roundTrippedB = targetSession.ConstructionState.Snapshot;
+                Assert.Multiple(() =>
+                {
+                    Assert.That(roundTrippedB.GroundwaterLevel, Is.EqualTo(3.75).Within(1e-9));
+                    Assert.That(roundTrippedB.HasLoads, Is.False);
+                    Assert.That(roundTrippedB.LayersAbovePipe.Select(layer => (layer.Order, layer.MaterialId, layer.MaterialName, layer.Thickness, layer.CalculatedLambda, layer.IsLambdaOverridden)),
+                        Is.EqualTo(new[] { (0, 2, "Soil", 17d, 1.07, false) }));
+                    Assert.That(roundTrippedB.LayersBelowPipe.Select(layer => (layer.Order, layer.MaterialId, layer.MaterialName, layer.Thickness, layer.CalculatedLambda, layer.IsLambdaOverridden)),
+                        Is.EqualTo(new[] { (0, 1, "Sand", 318d, 0.93, false) }));
+                    Assert.That(roundTrippedB.LayersAbovePipe.Concat(roundTrippedB.LayersBelowPipe).All(layer => layer.Id != Guid.Empty), Is.True);
+                    Assert.That(roundTrippedB.LayersAbovePipe.Concat(roundTrippedB.LayersBelowPipe).Select(layer => layer.Id), Is.Unique);
+                    Assert.That(roundTrippedB.LayersAbovePipe.Concat(roundTrippedB.LayersBelowPipe).Select(layer => layer.MaterialName),
+                        Does.Not.Contain("Concrete"));
+                    Assert.That(roundTrippedB.LayersAbovePipe.Concat(roundTrippedB.LayersBelowPipe).Select(layer => layer.Thickness),
+                        Is.Not.EquivalentTo(new[] { 81d, 42d, 133d, 244d }));
+                    Assert.That(completionCount, Is.EqualTo(2), "Each project load must produce exactly one completion without subscription multiplication.");
+                    Assert.That(targetSession.IsDirty, Is.False);
+                });
+            }
+            finally
+            {
+                File.Delete(projectAPath);
+                File.Delete(projectBPath);
+            }
         }
 
         [Test]
@@ -1048,7 +1257,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
             var viewModel = CreateViewModel(
                 CreateClimateViewModel(),
-                CreateConstructionViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
                 CreateThermalViewModel(),
                 circuitsVm);
 
@@ -1131,7 +1340,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             collector.Circuits.Add(circuit);
             circuitsVm.Collectors.Add(collector);
 
-            var constructionVm = CreateConstructionViewModel();
+            var constructionVm = CreateConstructionViewModel(_projectStateService.Session);
             var viewModel = CreateViewModel(
                 CreateClimateViewModel(),
                 constructionVm,
@@ -1224,7 +1433,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
             var viewModel = CreateViewModel(
                 CreateClimateViewModel(),
-                CreateConstructionViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
                 CreateThermalViewModel(),
                 circuitsVm);
 
@@ -1336,7 +1545,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
             var viewModel = CreateViewModel(
                 CreateClimateViewModel(),
-                CreateConstructionViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
                 CreateThermalViewModel(),
                 circuitsVm);
 
@@ -1445,7 +1654,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
             var viewModel = CreateViewModel(
                 CreateClimateViewModel(),
-                CreateConstructionViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
                 CreateThermalViewModel(),
                 circuitsVm);
 
@@ -1575,9 +1784,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
 
 
-        private static async Task<ConstructionViewModel> CreateInitializedConstructionViewModelAsync()
+        private async Task<ConstructionViewModel> CreateInitializedConstructionViewModelAsync()
         {
-            var vm = CreateConstructionViewModel();
+            var vm = CreateConstructionViewModel(_projectStateService.Session);
             await vm.InitializeCommand.ExecuteAsync(null);
             return vm;
         }
@@ -1594,7 +1803,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
         private ResultsViewModel CreateViewModel(ClimateViewModel climateVm, CircuitsViewModel circuitsVm)
         {
-            return CreateViewModel(climateVm, CreateConstructionViewModel(), CreateThermalViewModel(), circuitsVm);
+            return CreateViewModel(climateVm, CreateConstructionViewModel(_projectStateService.Session), CreateThermalViewModel(), circuitsVm);
         }
 
         private ResultsViewModel CreateViewModel(
@@ -1636,7 +1845,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     circuitsVm,
                     calculationStateService,
                     constructionServiceMock.Object,
-                    calculationContext),
+                    calculationContext,
+                    _projectStateService.Session,
+                    CreateDefaultConstructionInitializer(_projectStateService.Session)),
                 new ResultsPdfDataBuilder(
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,
@@ -1731,33 +1942,45 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 new CalculationContext());
         }
 
-        private static ConstructionViewModel CreateConstructionViewModel()
+        private static ConstructionViewModel CreateConstructionViewModel(IProjectSession? projectSession = null)
         {
-            var materials = new List<Material>
+            var materialsById = Material.GetDefaultMaterials().ToDictionary(material => material.Id);
+            foreach (var material in new[]
             {
                 new Material { Id = 1, Name = "Sand", LambdaA = 0.8, LambdaB = 0.9 },
                 new Material { Id = 2, Name = "Soil", LambdaA = 1.0, LambdaB = 1.1 },
                 new Material { Id = 5, Name = "Concrete", LambdaA = 1.5, LambdaB = 1.6 }
-            };
+            })
+            {
+                materialsById[material.Id] = material;
+            }
+
+            var materials = materialsById.Values.ToList();
 
             var materialRepositoryMock = new Mock<IMaterialRepository>();
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
+            materialRepositoryMock.Setup(r => r.GetMaterialById(It.IsAny<int>()))
+                .Returns((int id) => materialsById.GetValueOrDefault(id));
 
             var templateRepositoryMock = new Mock<IConstructionTemplateRepository>();
             templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
+            var calculationContext = new CalculationContext();
+            projectSession ??= new ProjectSession(calculationContext: calculationContext);
 
             return new ConstructionViewModel(
                 new Mock<IConstructionService>().Object,
                 materialRepositoryMock.Object,
                 new Mock<IConstructionRepository>().Object,
-                new CalculationStateService(),
-                new CalculationContext(),
+                new CalculationStateService(projectSession),
+                calculationContext,
                 new ConstructionValidator(),
                 new ConstructionModel(),
                 new Mock<IMarkDirtyService>().Object,
                 templateRepositoryMock.Object,
                 new Mock<IDialogService>().Object,
-                new Mock<IEditorDialogService>().Object);
+                new Mock<IEditorDialogService>().Object,
+                projectSession.ConstructionState,
+                new ConstructionDefaultStateInitializer(materialRepositoryMock.Object, projectSession.ConstructionState));
         }
 
         private static ThermalViewModel CreateThermalViewModel()
@@ -1847,13 +2070,24 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     circuitsVm,
                     calculationStateService,
                     constructionServiceMock.Object,
-                    calculationContext),
+                    calculationContext,
+                    _projectStateService.Session,
+                    CreateDefaultConstructionInitializer(_projectStateService.Session)),
                 new ResultsPdfDataBuilder(
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,
                     constructionVm,
                     circuitsVm),
                 new HydraulicSummaryBuilder());
+        }
+
+        private static ConstructionDefaultStateInitializer CreateDefaultConstructionInitializer(IProjectSession session)
+        {
+            var materials = Material.GetDefaultMaterials().ToDictionary(material => material.Id);
+            var repository = new Mock<IMaterialRepository>();
+            repository.Setup(candidate => candidate.GetMaterialById(It.IsAny<int>()))
+                .Returns((int id) => materials.GetValueOrDefault(id));
+            return new ConstructionDefaultStateInitializer(repository.Object, session.ConstructionState);
         }
 
         private static ClimateViewModel CreateClimateViewModel(
@@ -1882,33 +2116,45 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
         private static ConstructionViewModel CreateConstructionViewModel(
             CalculationStateService calculationStateService,
-            IMarkDirtyService markDirtyService)
+            IMarkDirtyService markDirtyService,
+            IProjectSession? projectSession = null)
         {
-            var materials = new List<Material>
+            var materialsById = Material.GetDefaultMaterials().ToDictionary(material => material.Id);
+            foreach (var material in new[]
             {
                 new Material { Id = 1, Name = "Sand", LambdaA = 0.8, LambdaB = 0.9 },
                 new Material { Id = 2, Name = "Soil", LambdaA = 1.0, LambdaB = 1.1 },
                 new Material { Id = 5, Name = "Concrete", LambdaA = 1.5, LambdaB = 1.6 }
-            };
+            })
+            {
+                materialsById[material.Id] = material;
+            }
+            var materials = materialsById.Values.ToList();
 
             var materialRepositoryMock = new Mock<IMaterialRepository>();
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
+            materialRepositoryMock.Setup(r => r.GetMaterialById(It.IsAny<int>()))
+                .Returns((int id) => materialsById.GetValueOrDefault(id));
 
             var templateRepositoryMock = new Mock<IConstructionTemplateRepository>();
             templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
+            var calculationContext = new CalculationContext();
+            projectSession ??= new ProjectSession(calculationContext: calculationContext);
 
             return new ConstructionViewModel(
                 new Mock<IConstructionService>().Object,
                 materialRepositoryMock.Object,
                 new Mock<IConstructionRepository>().Object,
                 calculationStateService,
-                new CalculationContext(),
+                calculationContext,
                 new ConstructionValidator(),
                 new ConstructionModel(),
                 markDirtyService,
                 templateRepositoryMock.Object,
                 new Mock<IDialogService>().Object,
-                new Mock<IEditorDialogService>().Object);
+                new Mock<IEditorDialogService>().Object,
+                projectSession.ConstructionState,
+                new ConstructionDefaultStateInitializer(materialRepositoryMock.Object, projectSession.ConstructionState));
         }
 
         private static ThermalViewModel CreateThermalViewModel(
@@ -2114,7 +2360,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 var thermalVm = CreateThermalViewModel(calculationStateService, _projectStateService, thermalCalculatorMock.Object);
                 var viewModel = CreateViewModel(
                     CreateClimateViewModelWithCity("Тестовый город", "Тестовый регион", -25, 3, 70),
-                    CreateConstructionViewModel(),
+                    CreateConstructionViewModel(_projectStateService.Session),
                     thermalVm,
                     CreateCircuitsViewModel(calculationStateService, _projectStateService),
                     calculationStateService);
@@ -2208,7 +2454,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var circuitsVm = CreateCircuitsViewModel();
             var viewModel = CreateViewModel(
                 climateVm,
-                CreateConstructionViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
                 CreateThermalViewModel(),
                 circuitsVm);
 

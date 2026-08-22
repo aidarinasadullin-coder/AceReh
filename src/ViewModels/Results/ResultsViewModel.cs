@@ -1684,34 +1684,11 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 })
                 .ToList();
 
-            // Сохраняем данные конструкции
-            data.ConstructionData = new ConstructionProjectData
-            {
-                R1 = _constructionViewModel.R1Total,
-                R2 = _constructionViewModel.R2Total,
-                LambdaE = _constructionViewModel.LambdaE,
-                GroundwaterLevel = _constructionViewModel.GroundwaterLevel,
-                HasLoads = _constructionViewModel.HasLoads,
-                Layers = _constructionViewModel.LayersAbovePipe.Select(l => new LayerProjectData
-                {
-                    Position = LayerPosition.AbovePipe,
-                    MaterialName = l.Material?.Name ?? string.Empty,
-                    MaterialLambda = l.Material?.LambdaA ?? 0,
-                    Thickness = l.Thickness,
-                    CalculatedLambda = l.CalculatedLambda,
-                    IsLambdaOverridden = l.IsLambdaOverridden,
-                    Order = l.Order
-                }).Concat(_constructionViewModel.LayersBelowPipe.Select(l => new LayerProjectData
-                {
-                    Position = LayerPosition.BelowPipe,
-                    MaterialName = l.Material?.Name ?? string.Empty,
-                    MaterialLambda = l.Material?.LambdaA ?? 0,
-                    Thickness = l.Thickness,
-                    CalculatedLambda = l.CalculatedLambda,
-                    IsLambdaOverridden = l.IsLambdaOverridden,
-                    Order = l.Order
-                })).ToList()
-            };
+            // Сохраняем данные конструкции из канонического ConstructionState snapshot.
+            // Совместимость с .smc форматом изолирована на границе persistence DTO <-> snapshot.
+            data.ConstructionData = ConstructionPersistenceMapper.ToProjectData(
+                _projectSession.ConstructionState.Snapshot,
+                _materialRepository);
 
             // Сохраняем данные теплового расчёта
             data.ThermalData = new ThermalProjectData

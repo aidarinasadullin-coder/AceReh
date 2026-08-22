@@ -7,7 +7,9 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using SnowMeltingCalculator.Configuration;
 using SnowMeltingCalculator.Services.Reports.Calculation;
 using NUnit.Framework;
 using SnowMeltingCalculator.Core;
@@ -35,6 +37,7 @@ using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Results;
 using SnowMeltingCalculator.ViewModels.Shell;
 using SnowMeltingCalculator.ViewModels.Thermal;
+using SnowMeltingCalculator.Tests.Services.Project;
 
 namespace SnowMeltingCalculator.Tests.ViewModels
 {
@@ -73,7 +76,10 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             _calculationContext = new CalculationContext();
 
             var climateVm = CreateClimateViewModel(_projectStateService);
-            var constructionVm = CreateConstructionViewModel(_projectStateService);
+            var constructionVm = CreateConstructionViewModel(
+                _projectStateService,
+                _calculationContext,
+                out var constructionDefaultStateInitializer);
             var thermalVm = CreateThermalViewModel(_projectStateService);
             var circuitsVm = CreateCircuitsViewModel(_projectStateService);
             var resultsVm = CreateResultsViewModel(_projectStateService, _projectFileServiceMock.Object, _dialogServiceMock.Object);
@@ -87,7 +93,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 _calculationStateServiceMock.Object,
                 _projectStateService,
                 _dialogServiceMock.Object,
-                _calculationContext);
+                _calculationContext,
+                _projectStateService.Session,
+                constructionDefaultStateInitializer);
         }
 
         [TearDown]
@@ -324,6 +332,121 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 "TotalFlowRate должен быть 0 после NewCalculation.");
             Assert.That(resultsVm.MaxPressureLoss, Is.EqualTo(0.0),
                 "MaxPressureLoss должен быть 0 после NewCalculation.");
+        }
+
+        [Test]
+        public async Task NewCalculation_ReplacesEditedConstructionWithCanonicalDefaultsAndStaysClean()
+        {
+            var services = new ServiceCollection();
+            services.AddApplicationServices();
+            using var provider = services.BuildServiceProvider();
+            var mainViewModel = provider.GetRequiredService<MainViewModel>();
+            var constructionViewModel = provider.GetRequiredService<ConstructionViewModel>();
+            var session = provider.GetRequiredService<IProjectSession>();
+            var state = provider.GetRequiredService<IProjectSessionConstructionState>();
+            var context = provider.GetRequiredService<CalculationContext>();
+            var materials = provider.GetRequiredService<IMaterialRepository>();
+
+            await constructionViewModel.InitializeCommand.ExecuteAsync(null);
+            var catalog = materials.GetAllMaterials().ToDictionary(material => material.Id);
+            var staleLayerId = Guid.NewGuid();
+            var customSnapshot = new ConstructionStateSnapshot(
+                2.0,
+                true,
+                new[]
+                {
+                    new ConstructionLayerSnapshot(
+                        staleLayerId, 5, catalog[5].Name, 333.0, catalog[5].LambdaA, false,
+                        LayerPosition.AbovePipe, 0)
+                },
+                Array.Empty<ConstructionLayerSnapshot>());
+            Assert.That(state.ApplySnapshot(customSnapshot, ConstructionMutationOrigin.User).IsChanged, Is.True);
+            session.MarkClean();
+
+            var origins = new List<ConstructionMutationOrigin>();
+            var constructionPublications = 0;
+            state.Changed += (_, args) => origins.Add(args.Origin);
+            context.ContextChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(CalculationContext.Construction))
+                {
+                    constructionPublications++;
+                }
+            };
+
+            await mainViewModel.NewCalculationCommand.ExecuteAsync(null);
+
+            CanonicalDefaultConstructionLifecycleTests.AssertDefaultSnapshot(state.Snapshot, catalog);
+            CanonicalDefaultConstructionLifecycleTests.AssertAdapterParity(constructionViewModel, state.Snapshot);
+            Assert.Multiple(() =>
+            {
+                Assert.That(origins, Is.EqualTo(new[] { ConstructionMutationOrigin.Reset }));
+                Assert.That(state.Snapshot.LayersAbovePipe.Concat(state.Snapshot.LayersBelowPipe)
+                    .Any(layer => layer.Id == staleLayerId), Is.False);
+                Assert.That(session.IsDirty, Is.False);
+                Assert.That(constructionPublications, Is.Zero);
+            });
+            CanonicalDefaultConstructionLifecycleTests.AssertDefaultProjectData(
+                mainViewModel.ResultsViewModel.SaveCurrentProject(), catalog);
+        }
+
+        [Test]
+        public async Task NewCalculation_ChangedClimateReset_SynchronizesOnceWithoutCompatibilityThermalOrDirty()
+        {
+            var services = new ServiceCollection();
+            services.AddApplicationServices();
+            using var provider = services.BuildServiceProvider();
+            var mainViewModel = provider.GetRequiredService<MainViewModel>();
+            var climateViewModel = provider.GetRequiredService<ClimateViewModel>();
+            var session = provider.GetRequiredService<IProjectSession>();
+            var state = session.ClimateState;
+            var climateData = (ClimateData)provider.GetRequiredService<IClimateData>();
+            var context = provider.GetRequiredService<CalculationContext>();
+            var calculationState = provider.GetRequiredService<ICalculationStateService>();
+            var thermalViewModel = provider.GetRequiredService<ThermalViewModel>();
+            var constructionViewModel = provider.GetRequiredService<ConstructionViewModel>();
+
+            await constructionViewModel.InitializeCommand.ExecuteAsync(null);
+
+            state.ApplyIndividualEdit(
+                new ClimateEdit(ClimateEditField.AirTemperature, -25.0),
+                ClimateMutationOrigin.SystemApply);
+            thermalViewModel.LoadResult(new ThermalCalculationResult { IsValid = true });
+            session.MarkClean();
+
+            var completions = 0;
+            var compatibilityEvents = 0;
+            var contextUpdates = 0;
+            var thermalStates = 0;
+            state.Changed += (_, _) => completions++;
+            climateData.DataChanged += (_, _) => compatibilityEvents++;
+            context.ContextChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(CalculationContext.Climate))
+                {
+                    contextUpdates++;
+                }
+            };
+            calculationState.StateChanged += (_, args) =>
+            {
+                if (args.Module == "Thermal")
+                {
+                    thermalStates++;
+                }
+            };
+
+            await mainViewModel.NewCalculationCommand.ExecuteAsync(null);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(state.Snapshot.AirTemperature, Is.EqualTo(-15.0));
+                Assert.That(climateViewModel.AirTemperature, Is.EqualTo(-15.0));
+                Assert.That(completions, Is.EqualTo(1));
+                Assert.That(contextUpdates, Is.EqualTo(1));
+                Assert.That(compatibilityEvents, Is.Zero);
+                Assert.That(thermalStates, Is.Zero);
+                Assert.That(session.IsDirty, Is.False);
+            });
         }
 
         #endregion
@@ -569,16 +692,22 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             try
             {
+                var constructionViewModel = CreateConstructionViewModel(
+                    _projectStateService,
+                    _calculationContext,
+                    out var constructionDefaultStateInitializer);
                 var viewModel = new MainViewModel(
                     CreateClimateViewModel(_projectStateService),
                     CreateThermalViewModel(_projectStateService),
-                    CreateConstructionViewModel(_projectStateService),
+                    constructionViewModel,
                     CreateCircuitsViewModel(_projectStateService),
                     CreateResultsViewModel(_projectStateService, _projectFileServiceMock.Object, _dialogServiceMock.Object),
                     _calculationStateServiceMock.Object,
                     _projectStateService,
                     _dialogServiceMock.Object,
-                    _calculationContext);
+                    _calculationContext,
+                    _projectStateService.Session,
+                    constructionDefaultStateInitializer);
 
                 Assert.That(viewModel.IsSidebarCollapsed, Is.True,
                     "MainViewModel должен подхватывать сохранённое состояние свёрнутой панели при конструировании.");
@@ -659,15 +788,35 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
         private static ConstructionViewModel CreateConstructionViewModel(ProjectStateService projectStateService)
         {
+            return CreateConstructionViewModel(
+                projectStateService,
+                new CalculationContext(),
+                out _);
+        }
+
+        private static ConstructionViewModel CreateConstructionViewModel(
+            ProjectStateService projectStateService,
+            CalculationContext calculationContext,
+            out ConstructionDefaultStateInitializer constructionDefaultStateInitializer)
+        {
             var materials = new List<Material>
             {
                 new Material { Id = 1, Name = "Sand", LambdaA = 0.8, LambdaB = 0.9 },
                 new Material { Id = 2, Name = "Soil", LambdaA = 1.0, LambdaB = 1.1 },
-                new Material { Id = 5, Name = "Concrete", LambdaA = 1.5, LambdaB = 1.6 }
+                new Material { Id = 5, Name = "Concrete", LambdaA = 1.5, LambdaB = 1.6 },
+                new Material { Id = 6, Name = "Base", LambdaA = 1.2, LambdaB = 1.3 },
+                new Material { Id = 10, Name = "Insulation", LambdaA = 0.04, LambdaB = 0.05 },
+                new Material { Id = 13, Name = "Fill", LambdaA = 0.7, LambdaB = 0.8 }
             };
 
             var materialRepositoryMock = new Mock<IMaterialRepository>();
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
+            materialRepositoryMock.Setup(r => r.GetMaterialById(It.IsAny<int>()))
+                .Returns((int id) => materials.FirstOrDefault(material => material.Id == id));
+            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(materials);
+            constructionDefaultStateInitializer = new ConstructionDefaultStateInitializer(
+                materialRepositoryMock.Object,
+                projectStateService.Session.ConstructionState);
 
             var templateRepositoryMock = new Mock<IConstructionTemplateRepository>();
             templateRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(ConstructionTemplate.GetDefaultTemplates());
@@ -677,13 +826,15 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 materialRepositoryMock.Object,
                 new Mock<IConstructionRepository>().Object,
                 new CalculationStateService(),
-                new CalculationContext(),
+                calculationContext,
                 new ConstructionValidator(),
                 new ConstructionModel(),
                 projectStateService,
                 templateRepositoryMock.Object,
                 new Mock<IDialogService>().Object,
-                new Mock<IEditorDialogService>().Object);
+                new Mock<IEditorDialogService>().Object,
+                projectStateService.Session.ConstructionState,
+                constructionDefaultStateInitializer);
         }
 
         private static ThermalViewModel CreateThermalViewModel(ProjectStateService projectStateService)
@@ -733,9 +884,15 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var thermalVm = CreateThermalViewModel(projectStateService);
             var circuitsVm = CreateCircuitsViewModel(projectStateService);
 
+            var materials = Material.GetDefaultMaterials();
             var materialRepositoryMock = new Mock<IMaterialRepository>();
-            materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(new List<Material>());
-            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(new List<Material>());
+            materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(materials);
+            materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(materials);
+            materialRepositoryMock.Setup(r => r.GetMaterialById(It.IsAny<int>()))
+                .Returns((int id) => materials.FirstOrDefault(material => material.Id == id));
+            var constructionDefaultStateInitializer = new ConstructionDefaultStateInitializer(
+                materialRepositoryMock.Object,
+                projectStateService.Session.ConstructionState);
 
             var constructionServiceMock = new Mock<IConstructionService>();
             constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
@@ -766,7 +923,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     circuitsVm,
                     calculationStateService,
                     constructionServiceMock.Object,
-                    calculationContext),
+                    calculationContext,
+                    projectStateService.Session,
+                    constructionDefaultStateInitializer),
                 new ResultsPdfDataBuilder(
                     new Mock<IConstructionVisualizationImageService>().Object,
                     calculationStateService,

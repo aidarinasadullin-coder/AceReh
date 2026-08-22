@@ -270,6 +270,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var circuits = GetField<CircuitsViewModel>(results, "_circuitsViewModel");
             var calculationState = GetField<SnowMeltingCalculator.Services.Navigation.ICalculationStateService>(results, "_calculationStateService");
             dialog = new Moq.Mock<SnowMeltingCalculator.Services.Navigation.IDialogService>();
+            var constructionDefaultStateInitializer = ResultsViewModelTestHelpers.CreateDefaultConstructionInitializer(
+                projectStateService.Session);
             var mainViewModel = new MainViewModel(
                 climate,
                 thermal,
@@ -279,7 +281,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 calculationState,
                 projectStateService,
                 dialog.Object,
-                new SnowMeltingCalculator.Core.CalculationContext());
+                new SnowMeltingCalculator.Core.CalculationContext(),
+                projectStateService.Session,
+                constructionDefaultStateInitializer);
             SetField(window, "_viewModel", mainViewModel);
             SetField(window, "_projectStateService", projectStateService);
             SetField(window, "_dialogService", dialog.Object);
