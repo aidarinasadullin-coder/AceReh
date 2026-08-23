@@ -1,0 +1,11 @@
+{
+  "protectedPatterns": [
+    "docs/architecture-migration/STATE.json"
+  ],
+  "files": [
+    {
+      "path": "docs/architecture-migration/STATE.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ]
+}

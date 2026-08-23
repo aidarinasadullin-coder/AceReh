@@ -1,0 +1,13 @@
+{
+    "protected_mismatch_count":  1,
+    "allowed_hunk_count":  0,
+    "changed_paths":  [
+                          {
+                              "path":  "docs/architecture-migration/STATE.json",
+                              "kind":  "modified",
+                              "classification":  "protected-mismatch"
+                          }
+                      ],
+    "baseline":  ".\\docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\task-1\\fixtures\\synthetic-protected-drift.json",
+    "evidenceRoot":  ".\\docs\\architecture-migration\\evidence\\phase-5-hydraulics-state"
+}

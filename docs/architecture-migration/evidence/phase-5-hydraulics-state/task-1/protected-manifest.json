@@ -1,0 +1,789 @@
+{
+    "phase":  "phase-5-hydraulics-state",
+    "planPath":  "docs/architecture-migration/plans/phase-5-hydraulics-state.md",
+    "planSha256":  "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+    "protectedPatterns":  [
+                              "src/Services/Project/**",
+                              "src/Services/Navigation/CalculationStateService.cs",
+                              "src/Services/Navigation/ICalculationStateService.cs",
+                              "src/Models/Navigation/CalculationContext.cs",
+                              "src/ViewModels/Hydraulics/CircuitsViewModel.cs",
+                              "src/ViewModels/Results/ResultsViewModel.cs",
+                              "src/Configuration/ServiceCollectionExtensions.cs",
+                              "src/Models/Project/ProjectData.cs",
+                              "src/Views/Hydraulics/*.xaml",
+                              "tests/SnowMeltingCalculator.Tests/**",
+                              "docs/architecture-migration/maps/**",
+                              "docs/architecture-migration/widget/**",
+                              "docs/architecture-migration/workflow/validate-state.mjs",
+                              "docs/architecture-migration/STATE.json"
+                          ],
+    "files":  [
+                  {
+                      "path":  "docs/architecture-migration/STATE.json",
+                      "sha256":  "BEAB998F129BDC09B49C4324FB60CABA0D4CED49D4BA7BC1A4C45133E9515CD3"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/.gitkeep",
+                      "sha256":  "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/architecture-model.baseline.json",
+                      "sha256":  "BD522C91B59B973B172E8C7C88B978E05932B130B4B1F924B6745E024707B085"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/architecture-model.json",
+                      "sha256":  "0BDE781364144CF80BDAFF4E2110578B61442CE91BE243899D0F76EB2CDCED89"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/architecture-model.schema.json",
+                      "sha256":  "EF0B2888F9081AB134A61C612EF3A4A7F827D9C66FE0C901D0CD173B91CAA5D9"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/architecture-model.widget.schema.json",
+                      "sha256":  "574AA8A8C9B9989E1545EC02A65F8785C638F5854ADEB0FFECB594A8EA11F510"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/characterization-tests.md",
+                      "sha256":  "3A08B6128EB10A1BD449FBD1C35D3A140701A34FF27745B58C593CD7C817CBAF"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/compile-time.md",
+                      "sha256":  "FD52851F2188EA66CFF38171C1CCB7AA892EC181A8B90DD2D3F8D81411A9F961"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/di-runtime.md",
+                      "sha256":  "B8405D4CEB0CC2308DCDBB82BE637CA8B2BEB903228E7FFF040E73AC22FFC4D9"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/persistence-compatibility.md",
+                      "sha256":  "26AA94FC9B70E92E7F8A43438218117CAFDAF309ABEBFA1A349EAB1A19D38E6C"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/persistence.md",
+                      "sha256":  "0C647E6821408FF52F178319575F616310A213FC4AA71EFD4E64A6EEC96708D1"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/reactive.md",
+                      "sha256":  "48AD602B2FDE14E7703565F1EBB2018CD2DFC442A54B87F19F9E3C97B814A15D"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/state-inventory.md",
+                      "sha256":  "9E0AFD8647103FB6CC57EFBD9EEEAD07FDF1C4B341AF701A89FB8FB812553000"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/state-ownership.md",
+                      "sha256":  "FCCF17B54AB1B56000EAC8083DF088283725F87CF010B9EF18565E7FAB6A27A5"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/target-invariants.md",
+                      "sha256":  "D40E676D331B03573E5C93FD4D6790C7F15535DD24D3D1712C0289F515F29F19"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/maps/user-flow.md",
+                      "sha256":  "AD507BCD4D6438B77B9265EDE12C927DF174F9168645D5BE07C1B86A5E30B467"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/widget/architecture-widget.css",
+                      "sha256":  "5C2638A7E0027487913ECB43C37A3F90D4FDB0345399D79535D3C20F2D02FB90"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/widget/architecture-widget.mjs",
+                      "sha256":  "BF1F303FAB91D1DDA1C3461B9187DA479EACFC951CBBFCAD641FBC172BC8F705"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/widget/architecture-widget.template.html",
+                      "sha256":  "6D4AAF96700A5FE6F1B69319EE692A96208EAF4066AE4F8AE9B6A76EBE5FD3AA"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/widget/generate-widget.mjs",
+                      "sha256":  "8AD49BD7084C11FFDDBEF9860EC642EFA7C2991A89FE8CD8E214BEBFD0250C21"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/widget/model-contract.mjs",
+                      "sha256":  "6D6A9E1E8DF2841B40F2B6E5EC530368DCDE6917DD6936EB3A144EB14B9B3CC1"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/widget/verify-widget.mjs",
+                      "sha256":  "FC78B536F0A4CD5FA678DFE78943EC3658929EF1592AF7D486D48CD94921C717"
+                  },
+                  {
+                      "path":  "docs/architecture-migration/workflow/validate-state.mjs",
+                      "sha256":  "1B03DBA225630AC95424F473C03C4514814AD9ACE344B72B54C12E47405B5509"
+                  },
+                  {
+                      "path":  "src/Configuration/ServiceCollectionExtensions.cs",
+                      "sha256":  "F4AF0C7D6B737A565B20D44E8D88C2713000D05465B06DEF0FC4114D5A6BFE30"
+                  },
+                  {
+                      "path":  "src/Models/Project/ProjectData.cs",
+                      "sha256":  "027C972D9D67C4E1FC2B2D350C0761AA7C607ED8EFAE33B84DAB25F620C79987"
+                  },
+                  {
+                      "path":  "src/Services/Navigation/CalculationStateService.cs",
+                      "sha256":  "F6191AEEE5E4F3C301B5FA9EA92490463C09E8BFC76B60CCF77D959BA0ED5803"
+                  },
+                  {
+                      "path":  "src/Services/Navigation/ICalculationStateService.cs",
+                      "sha256":  "7248FB51407A5B6401735C13A9CA5AA207A1C4DAAA5F992FFFF02BD9BBD07B5F"
+                  },
+                  {
+                      "path":  "src/Services/Project/ClimateEdit.cs",
+                      "sha256":  "E658BE88F114459E977357A360D4B8B47FC58A897EC5BB1A1A3A875D6C65104B"
+                  },
+                  {
+                      "path":  "src/Services/Project/ClimateMutationOrigin.cs",
+                      "sha256":  "E5A0DC1D1BF7603C96ADBE5FD9D01B20BD9F08D1F28AC5B49A23CF7AE8F5E472"
+                  },
+                  {
+                      "path":  "src/Services/Project/ClimateMutationResult.cs",
+                      "sha256":  "0AC51DB90878CE98659DD19AF44CB985237C304D3B61FD3348C776B79914C3B9"
+                  },
+                  {
+                      "path":  "src/Services/Project/ClimateStateChangedEventArgs.cs",
+                      "sha256":  "1E812BC6AC49729C1554BF28842748932CB2DFE4B28D10C2A97A13E71CCD15DF"
+                  },
+                  {
+                      "path":  "src/Services/Project/ClimateStateSnapshot.cs",
+                      "sha256":  "9C3D6A1A14F4D49F2E8CBECF77711DF734DFC514805232C643CED36962B89A1F"
+                  },
+                  {
+                      "path":  "src/Services/Project/ConstructionDefaultStateInitializer.cs",
+                      "sha256":  "87785CB28EF911BB3D5D7F55AA1F0E420AFCC7C4317C86ED2626A6293B3F3587"
+                  },
+                  {
+                      "path":  "src/Services/Project/ConstructionDefaults.cs",
+                      "sha256":  "55B45F508AA3F302DFC6BEC8FE26A554A503D0828AEC398190EEEB4D4F982136"
+                  },
+                  {
+                      "path":  "src/Services/Project/ConstructionLayerSnapshot.cs",
+                      "sha256":  "A9D23CCA304BDEDD19D22C2A8CB2CD84DBF41925A23EDCAA1C1AFFA4E78BF848"
+                  },
+                  {
+                      "path":  "src/Services/Project/ConstructionMutation.cs",
+                      "sha256":  "D6FD78DF98E7F24C7E014B131DEEFB1FF7AA2FA960C138EA669EA061B7B752E8"
+                  },
+                  {
+                      "path":  "src/Services/Project/ConstructionMutationOrigin.cs",
+                      "sha256":  "3CCB39616453DBA9EFFBA4048A35134D497EC8770148A1E938C4F3E987072663"
+                  },
+                  {
+                      "path":  "src/Services/Project/ConstructionMutationResult.cs",
+                      "sha256":  "60DFE86E4501987412438FEBB1342496386BDE6A1E34D5808ECDD77CFC15BFFE"
+                  },
+                  {
+                      "path":  "src/Services/Project/ConstructionMutationStatus.cs",
+                      "sha256":  "6D95CBD59EADD51CF864D11FCC101FB3910A4FCA7E65D78DD808796C6408D761"
+                  },
+                  {
+                      "path":  "src/Services/Project/ConstructionPersistenceMapper.cs",
+                      "sha256":  "1E6CCFA24BF4AC97059497A583B567858803D8C102AAD86237EE57AF1BEF2D64"
+                  },
+                  {
+                      "path":  "src/Services/Project/ConstructionStateChangedEventArgs.cs",
+                      "sha256":  "91BF7547E3F9E999BF0720281D96F3D1B8128DBEB3C43D650DE212AF35A137C8"
+                  },
+                  {
+                      "path":  "src/Services/Project/ConstructionStateProjection.cs",
+                      "sha256":  "EBAD9DABC8FD260A1B5A341CF552EE97CB76EBD7484A77A83CA2EB4D024CE93E"
+                  },
+                  {
+                      "path":  "src/Services/Project/ConstructionStateSnapshot.cs",
+                      "sha256":  "38E1FFECED5E2CCA8ED7A6B8FB5D92C7594DFD96D1B8621879E7CCEACD558343"
+                  },
+                  {
+                      "path":  "src/Services/Project/IProjectFileService.cs",
+                      "sha256":  "E9AEDE08D94244AF78C0D7428EFAE8AB226CC919B3D02E9A54E0BC34FE7E91C2"
+                  },
+                  {
+                      "path":  "src/Services/Project/IProjectSession.cs",
+                      "sha256":  "5EA30D2F17274A561105BDAC7F7175FE271D3E5B8E18C4AC7C996A0DB78BB0AE"
+                  },
+                  {
+                      "path":  "src/Services/Project/IProjectSessionClimateState.cs",
+                      "sha256":  "150B1097456F8282477418766C8765018EAA616C6AF6A94D44C7644E8DA4E038"
+                  },
+                  {
+                      "path":  "src/Services/Project/IProjectSessionConstructionState.cs",
+                      "sha256":  "B8DC9DBA173F1BB1861F50DE91322D54D98A9F431E0D1C7F94254634672D45DA"
+                  },
+                  {
+                      "path":  "src/Services/Project/IProjectSessionThermalState.cs",
+                      "sha256":  "F7115063414BE5E98A03443B1FCCDEDF32FA3C28765B8F594D3874BE93F373DA"
+                  },
+                  {
+                      "path":  "src/Services/Project/IThermalStateCoordinator.cs",
+                      "sha256":  "22214B7BA192EAB7D65A4EA0523014128CB7C3D2061DCB419B0E556A467F1797"
+                  },
+                  {
+                      "path":  "src/Services/Project/ProjectFileService.cs",
+                      "sha256":  "C882DE2FA49ACCF723A535C0C1172B80C91926037231CF391CAF8BB55891B3B6"
+                  },
+                  {
+                      "path":  "src/Services/Project/ProjectLoadOrchestrator.cs",
+                      "sha256":  "2DC54FFCA2626666509849E3D81CBC8BD2760CB37AADF9F5BCB649AECFDDC478"
+                  },
+                  {
+                      "path":  "src/Services/Project/ProjectSession.cs",
+                      "sha256":  "0DB68CE54A3E8DFE9AC8101949148EC195C51AA6E0153B5C0A4A2F8BC8101D92"
+                  },
+                  {
+                      "path":  "src/Services/Project/ProjectSessionClimateState.cs",
+                      "sha256":  "D468ABD5E613B1A06B91677556E490EB582F59ED539788D707B7A0B0C43C57F5"
+                  },
+                  {
+                      "path":  "src/Services/Project/ProjectSessionConstructionState.cs",
+                      "sha256":  "F5E25E9D161282D390B1DAA4CAABF97888AE401520088F183C80D75F8CA26AC0"
+                  },
+                  {
+                      "path":  "src/Services/Project/ProjectSessionThermalState.cs",
+                      "sha256":  "072164544E6E0EC13422CE20EA6D0B15F41F5E42FAB025AE15F8C97B2A70B3E1"
+                  },
+                  {
+                      "path":  "src/Services/Project/ThermalMutationOrigin.cs",
+                      "sha256":  "EE390B5D9FAB8571B03E9351BA0C3FAE39F3BDFDDCE48CC83DE168E870E2DDAC"
+                  },
+                  {
+                      "path":  "src/Services/Project/ThermalMutationResult.cs",
+                      "sha256":  "C87941C31B183C6C64E1AF924498672D347E549083E5422F3AE8A4336DBC9CB2"
+                  },
+                  {
+                      "path":  "src/Services/Project/ThermalPersistenceMapper.cs",
+                      "sha256":  "82781790B750FB69F471667F64450218BF2638F5E301F74D848D2C2D1C5C8A42"
+                  },
+                  {
+                      "path":  "src/Services/Project/ThermalStateCoordinator.cs",
+                      "sha256":  "3AE7EBF72CFC94A148A1C4B4C2CE7D821DB90746BEB069F6F9B1239ECD28BF55"
+                  },
+                  {
+                      "path":  "src/Services/Project/ThermalStateSnapshots.cs",
+                      "sha256":  "D9CE24D754C794AD0D396F665CB58FBC763C9F3AC0B70C76574C117660CA8E0A"
+                  },
+                  {
+                      "path":  "src/ViewModels/Hydraulics/CircuitsViewModel.cs",
+                      "sha256":  "8F840A89689D28FA7C1CC3F1E71F74399C1D7520979763FF55328854E0E988DB"
+                  },
+                  {
+                      "path":  "src/ViewModels/Results/ResultsViewModel.cs",
+                      "sha256":  "6AC2557474A4018DB40926CCF7ECE38DA51F45F1FF52EF1BF568D64A6B956364"
+                  },
+                  {
+                      "path":  "src/Views/Hydraulics/CircuitInputView.xaml",
+                      "sha256":  "25EF8B7A1A7EEBF5F49EA79A83D4BFCFADFE44DC26CEA1AC9B25C69E3BC3215F"
+                  },
+                  {
+                      "path":  "src/Views/Hydraulics/CircuitsResultsView.xaml",
+                      "sha256":  "ABB838D098FDDCA91969646A64708F600324D427E8AA9301CC43FB5A2BD2D7AD"
+                  },
+                  {
+                      "path":  "src/Views/Hydraulics/CircuitsView.xaml",
+                      "sha256":  "E2714AD98C1ACA9D3E004F31BFDACED5DF95B90E721E21F5F88D9F154B8EAA9A"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/AppStartupTests.cs",
+                      "sha256":  "3420E16DF43AFA60BE07DA8877CCF228CD3CE3204256C77A2BEB277C4E0110A9"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/AttachedProperties/InlinesPropertyTests.cs",
+                      "sha256":  "7AE672253A7FAF6809CC557B0B57FC6241F49999F485178A18AFD7B49FBF005E"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Behaviors/DataGridBehaviorTests.cs",
+                      "sha256":  "0C05267905783F7CD2810F0D1B415A04033EDADE9B353B16DD631BB0DF085E0D"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Behaviors/TextBoxBehaviorTests.cs",
+                      "sha256":  "72F929251E080FD7D71150177F5DFBCCCF9208D51A0D1E3D333346EF3ACED93A"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Climate/ClimateDataProjectionTests.cs",
+                      "sha256":  "F1F254CC5BE83CC3FB88CD144768DBA146CFF2985D25CBE08A1F5FA6C6890195"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Climate/ClimateDataServiceTests.cs",
+                      "sha256":  "D652BCEAC434772277239E6BB724ACE9A840299D89FC7D3C0A77E7458D8119DD"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Climate/ClimateMultiplicityCharacterizationTests.cs",
+                      "sha256":  "19DEB1F853064321A6A7FA7B26394DC1F6E5B91845B7583A4328D4DB0AAD2C9B"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Climate/ClimateStateLegacyStoreGuardTests.cs",
+                      "sha256":  "C0C69B12034E1C112983C6C025C4DD508BB926200C9CE087A2DD22466E1EAE68"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Climate/ClimateViewModelTests.cs",
+                      "sha256":  "62F1374E65E98F0A0C9028B7A46C4404831B038DE0EB590D0CFF199C461F5901"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Configuration/DiRegistrationTests.cs",
+                      "sha256":  "F78EC83EE7E89DE43A69901EC6AA04CA03DEB9755A9665F1953D6C92B4113C27"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionMultiplicityCharacterizationTests.cs",
+                      "sha256":  "BA00CBE6C99E50AEB4ED3612549E845BF89A013D30C8A980ADC2A2476B2155EE"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionRepositoryTests.cs",
+                      "sha256":  "2CDA983483254EC8158DB85A7E6BB879363A9FC24F01AE7CE471D61D9B462428"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionServiceTemplateImportTests.cs",
+                      "sha256":  "342B9304FBCB8433C11260AB7A32AEF5CF5FFE2501182FEF3CF91ED1A3FADC79"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionServiceTests.cs",
+                      "sha256":  "A595443B49F9A18500038A1413F350F4435C7610DA96007148EEF6FE346DF81A"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionTemplateRepositoryTests.cs",
+                      "sha256":  "F7109B68E8BED65385E290255A060BDE80004E781D240641329CC7E9D9621D68"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionTemplateValidatorTests.cs",
+                      "sha256":  "F84E97837A5E8A1E780C35B2BC9FE3773AAFE858F1D28F2A3752D792A915C520"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionValidatorTests.cs",
+                      "sha256":  "FF6684F6541E23B1D3514B0249A5FFF9FC887811635CA6E5840DD626A9AAAFC2"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionViewModelEditorIntegrationTests.cs",
+                      "sha256":  "9BCE8F0292C11165D49688F8647B795532C2CF5482CA6EF0D2CE63F912968E87"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionViewModelTests.cs",
+                      "sha256":  "D7ADBC134005D849A17E1BC4564A1DF1C1F0DCA3C8B98B10F44D21A15F678F4F"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/MaterialCrudValidatorTests.cs",
+                      "sha256":  "BDF3A36916E0431071B1670CDA647029EF6BC26D63F1DF72EC26F2C2A50662EC"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/MaterialEditorViewModelTests.cs",
+                      "sha256":  "032ED629B2F5053CA21B50A8B01E07B1D5F0F861FFB5A260FB760F2A7E438DCA"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/MaterialImportTests.cs",
+                      "sha256":  "500481B7B91782BE2F169E5E71B7D402F3C5340D8E260E160687CB8A921A7127"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/MaterialRepositoryCrudTests.cs",
+                      "sha256":  "A076783EC87D44A5A8AFDE8A6D7D87BF1D51EA9196A0AF1DA765EF0CF128529A"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/MaterialRepositoryMigrationVerification.cs",
+                      "sha256":  "9489FE1318449CA3B124511B7D2D7D1F0E5B1A8830C8885B6FF27F9B62218D56"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/MaterialRepositoryTests.cs",
+                      "sha256":  "72D807E8FC62E97C442A7F8CFBFCB72BCF888B2DD2F63BD5F42B1B4FEDC0DDEC"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/MaterialSnapshotTests.cs",
+                      "sha256":  "5829705826C9057204BE200BEDE17FECFFCF789B2FE6F0D2EA730F0362B736E9"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Construction/TemplateEditorViewModelTests.cs",
+                      "sha256":  "C79B0E6028D122CA6D57DFD5B870188A39DA40448A88C46D0A3B19C324255544"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Converters/CityMatchToHighlightConverterTests.cs",
+                      "sha256":  "45BE3AE345CD370E901E1AE533F945AC700ACC8E6AC129E176870EE0B6E55DA1"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Converters/PressureColorConverterTests.cs",
+                      "sha256":  "05B29309C34C4E8A0DA6ED4A1B7CE6938BBA343D69A11515619CE8FF463169F8"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Converters/SidebarTooltipConverterTests.cs",
+                      "sha256":  "0988EFEDE0CA4AE83971FB198BF7E2291702266478AEC53E4D99154F4DDF7489"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Converters/ValveTurnsToFractionConverterTests.cs",
+                      "sha256":  "6071B8C542585ACDFDC65F96E3A74C29194E2BFCF7D09CD2375E8817B18D96CE"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Core/CalculationContextInvalidationTests.cs",
+                      "sha256":  "89FD9242B706215ACA843F48548CA79FF2709FB0B4171E6F94D44C5DDD78ACB9"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Core/CalculationContextTests.cs",
+                      "sha256":  "90BA6B4663A13483A63C35F28272F4303022A1734F8E969612C1283B525E1A1D"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Core/DoubleExtensionsTests.cs",
+                      "sha256":  "89D4CF10EB27B01360BA220719CB747E25F2F95F15C7EBD2F4DF358C57D4C4F6"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Core/ValidationExtensionsTests.cs",
+                      "sha256":  "F41D5631C95E4765EF1FF4066BD46E5DC6A5F23454AF472D2317DE0932C326B1"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Core/ValidationResultTests.cs",
+                      "sha256":  "DC780422676275652486E6CC564742F469CE18230BFBEC4D461E712C6EDD4F2D"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Fixtures/v1-sample.smc",
+                      "sha256":  "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Integration/HydraulicsIntegrationTests.cs",
+                      "sha256":  "0D23B25E5D493BA06A4F15D0F802FCBD09A21A695944ACCD6492A44A27AA1B96"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CalculationContextWriterAuthorityTests.cs",
+                      "sha256":  "C16A0095B2855DD91D2707E8F496CAD74C26E36AB4C1349EAF127D0572A9F00F"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CircuitsViewModelColdStartTests.cs",
+                      "sha256":  "CC066A20941A6E7D08AF5AB5C68D9AF2EA75CCBF7C036EFBA447FB0232188919"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs",
+                      "sha256":  "4D85F95DADC0A851AA4A5FC7CBABB945AE2523F8F26271AB1216FC61C57A4E6E"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/DoubleCalculationPreventionTests.cs",
+                      "sha256":  "9C29F9E46F7F5E87D7C6F47D189277EA69D6CA550400CFCDF4BC89FB7D9BE7E9"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/GlycolAutoRecalculationTests.cs",
+                      "sha256":  "8F7666169CC6D9A34B072CAD6E7822FD6FED435215D908B6B9BF23C2BFB2BD05"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/PipeSpacingSynchronizationTests.cs",
+                      "sha256":  "79D5433A7E2EB13B9D6B1D4EAA4A75AB35EA7E1BADC487C73B319BC737F9D07B"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ThermalToHydraulicsIntegrationTests.cs",
+                      "sha256":  "22F8311EABEC76251E52A24728ACB28F4651C43A4557F4B9EBCBA1977D522365"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Models/Climate/CityMatchResultTests.cs",
+                      "sha256":  "9C9F046F4E1D95EC3C17E761CF984535A9B7A7AB0FB1BF3022BF424C6F929DC6"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Models/Climate/MatchTypeTests.cs",
+                      "sha256":  "A43E415C974050586DCED3F0711865BF070AFFFF96D2889B0BDD49E715CCFF6E"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Models/Climate/SearchHistoryEntryTests.cs",
+                      "sha256":  "3DA67E2F72F0629C3C70D9C0EB2B94D10641682009947EDE4E9A652FA10DE71C"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Models/Hydraulics/CircuitRowTests.cs",
+                      "sha256":  "72A5E6E0FE5C3A7ECF313A5F0FD0D81632710C6AFC4B1057ADB982C5EAFE1FB9"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Models/Hydraulics/CollectorSummaryTests.cs",
+                      "sha256":  "3AEC4150B7D7BD32A545D9D6FF56E3D3399C18E1ABCA708B34659FA947D6C376"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Models/Hydraulics/CollectorTests.cs",
+                      "sha256":  "78515C3E2262D2DC26BACF7B5668A9E76842FDCF4B1053DBDB1C4232818FCBBD"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Models/Hydraulics/EnumsTests.cs",
+                      "sha256":  "010512F43ABF48720890115B5492668119B86C905453D68A9D5C357F9A65A4B4"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Models/Hydraulics/GlycolPropertiesTests.cs",
+                      "sha256":  "5669DE311FC88C9C16C87052438DBDBEDB0AFBD144298C8AAFC81517C38910E4"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Models/Hydraulics/HydraulicInputDataTests.cs",
+                      "sha256":  "FE075231DC6EF6EE402B480EE66D60AB13F7EDF1E6D32FCB513FE8902B80D6D0"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Models/Hydraulics/ValveTypeTests.cs",
+                      "sha256":  "FD42A2C24AD0E2F4DB37BCCB815D2B3F7CC4B41865F596362F1B8F30F62E3FE7"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Project/ProjectRoundTripTests.cs",
+                      "sha256":  "0B7D7BB0A8E1DEA06033D49A4A00DE3A2E5739B6B92ABE2A8927992DF954A473"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/RefactorBaseline/CircuitsBaselineTests.cs",
+                      "sha256":  "27DCA7120E5A7E92960D6D21FFF70358741C796CEFBC0AB729C76B0278AE19E3"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/RefactorBaseline/ThermalBaselineTests.cs",
+                      "sha256":  "D5B72DB282A12EF3309759300D785C3435DAD3FA7D0313FB14CDCC7976108D60"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Repositories/Climate/SearchHistoryRepositoryTests.cs",
+                      "sha256":  "1C424E247DDA28687F6643B3BABED473C284EFD61E55F217A730A36317D9426D"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Repositories/Hydraulics/CollectorRepositoryJsonLoadingTests.cs",
+                      "sha256":  "B73E3BA550324D17E0D890CCC5B98EE066611B04FB619570C0DAE978A97DE965"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Repositories/Hydraulics/CollectorRepositoryTests.cs",
+                      "sha256":  "223D3BA24F50937A991BED69CBAB1D35EA68C64BCC1D06A1316F7966B9A668B1"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Repositories/Hydraulics/ICollectorRepositoryTests.cs",
+                      "sha256":  "15A8D67D3C3ECE7CDFA89B3533B027E8C43023B77A502D5C22B557BEA48E13F6"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/AppSettingsTests.cs",
+                      "sha256":  "03CDA1A6E3A8B802E8679212719DD9C9B272651458C139A4229695870639AAB1"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Climate/ClimateValidatorTests.cs",
+                      "sha256":  "2283BA9A104C9767A93FA8990A882629ABC07CA80579B5C3D74F2BF014D90FF9"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Climate/SearchHistoryServiceTests.cs",
+                      "sha256":  "134E6A0833ED4D8B4FED3524A479C74795AE1831BE18CC5AC6C661ABAB79E691"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Hydraulics/.AGENTS.md",
+                      "sha256":  "B903079DC1938CBC12FE5701DEF58AAA728BA2672A485AFB831136F6416C8923"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Hydraulics/CircuitValidatorTests.cs",
+                      "sha256":  "092C56B79CBF3A7A2327C74A815879503E5AAAC38F80A4EB51289C08E7272805"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Hydraulics/CircuitsCalculatorTests.cs",
+                      "sha256":  "44CBCFD9E47765E791F6745DE425C3562F4C042D3BC68048683EB5B7B817D5AB"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Hydraulics/CircuitsValidatorTests.cs",
+                      "sha256":  "BF198DA84F16F7D06D7E29C0A9C1B8698CDE9A6CC109400D0B5AFA7717CFDBC3"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Hydraulics/FlowRegimeCalculatorTests.cs",
+                      "sha256":  "CB73EEA002EE5526F5992F066E30EE88DC0AF425D8A964D9AA07270CD512FAF0"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Hydraulics/GlycolDataServiceJsonLoadingTests.cs",
+                      "sha256":  "03FC4FF618E7125BF8A1432E99A7FF4A99E413087E0CC76CB6DFB2D45FD99B1D"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Hydraulics/GlycolDataServiceTests.cs",
+                      "sha256":  "C8B41C1DCAC3893DC822A4FFC52486E740530A4D280510078645CF8D5989CEA4"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Hydraulics/GlycolInterpolationTests.cs",
+                      "sha256":  "6DCB8FD2E10C8A4CB641CB970C2F24D01A2B0C1B9AB9CFCF0BCB812F49FD1F70"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Hydraulics/HydraulicValidatorTests.cs",
+                      "sha256":  "968A4D75F1E4516CA0728192475E533CCB746EA48698A01872B51A7B296C72CF"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Hydraulics/IGlycolDataServiceTests.cs",
+                      "sha256":  "8404DD38F1D05436B867F5F0D1DA3F3653307E1C08D699AB502908693B05C685"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Hydraulics/ValveTurnsCalculatorTests.cs",
+                      "sha256":  "6B9FDB70565CCD509E3BCEB2FE79B2C0B1FC8D1DE1FE7AD009D21197AE1BBAF6"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Navigation/CalculationStateServiceGuardTests.cs",
+                      "sha256":  "F1F50A41129625CC467686BEC0306066D9E67E6701806FEED7F2C20B00135F6D"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Navigation/CalculationStateServiceTests.cs",
+                      "sha256":  "5C784524DC29D2A6B8C33ABDC13ED7DA0AB9FAF7902763FD3137BAA7C5DE80F4"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Navigation/DialogServiceThreadAffinityTests.cs",
+                      "sha256":  "B82C0294458942117871D88F643FF064E4A0F6B93D1D287636816BF3A8C5204A"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Navigation/EditorDialogServiceTests.cs",
+                      "sha256":  "923A9EEB929E2E673FAF8FCADB0BAB55A4A75333E9EABA4DCFAB1D8CE6D8B1A7"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/CanonicalDefaultConstructionLifecycleTests.cs",
+                      "sha256":  "E9096BEFB8873C90AE5E9DBB253F4555C7EF6C4DD331707364A8A6FB3E9FF72F"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ClimateStateTests.cs",
+                      "sha256":  "4AEF27EF5A315CF7CA9ED23BED2EE1B1615B88A98251C0448535041AF5753A5B"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ClimateThermalInvalidationRegressionTests.cs",
+                      "sha256":  "AD3FB4CC87D727248D1985C9C4CC179490DE5FB2456F5DCE07CD13B2009CED2D"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ConstructionStateLegacyStoreGuardTests.cs",
+                      "sha256":  "1B3AF23F9423A1915414F040728FBD9845ED1151D147F96F2A5BE9D68A43FC58"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ConstructionThermalInvalidationRegressionTests.cs",
+                      "sha256":  "CD42AD62F7C27897865F578C4283C9DE13598F5A46953DCEBD639E10A6D09C02"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectFileServiceAtomicityTests.cs",
+                      "sha256":  "5AAF733EEAFD22648F8AAAB20595B5472F71815C7A8959A7C735F412DDBFDAC4"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectFileServiceMutationTests.cs",
+                      "sha256":  "DE884FB6ECC39C348E9A6798A61133EC4127A9E5DDB845A45AAF23751CA73B29"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectFileServiceResultTests.cs",
+                      "sha256":  "EAB18FA65363A57758FEBE47193F06A1AA012295624CB7A59DC98AF3A6D61A1E"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectLifecycleFlowCharacterizationTests.cs",
+                      "sha256":  "0DAA6C85D7C2756291D3D8EA98176DE2F9F7E803BEE47F743CBA96A365807DD2"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectSessionConstructionStateTests.cs",
+                      "sha256":  "3257BB1288F059E11962C605F622D544F3BA57EEEE59BAC8C6803F8FB182F6B8"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectSessionLegacyStoreGuardTests.cs",
+                      "sha256":  "41E9B71200062977A1DA3F90CAD70DF96FBEB85FBF941BB9C235CE6ABF4D35C8"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectSessionTests.cs",
+                      "sha256":  "9CBECE4CFE961EE1CE5A47C3D14B92C0030133334B6C042A9437F40D394BCECE"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectSessionThermalStateTests.cs",
+                      "sha256":  "3783B303A0F54C24C99A443358EA2B25403F5333B648A900952D6809E0811E43"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalMultiplicityCharacterizationTests.cs",
+                      "sha256":  "FC41DF16E81689F51775FC4596E8BF834A504D8F85893CE339E10BEF14A883CF"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalPersistenceMapperTests.cs",
+                      "sha256":  "22606503B430B88F25A9D9A33CE3F0445538CFA55E3541F8D6F2A71517912371"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalStateCoordinatorTests.cs",
+                      "sha256":  "76EC86AF8BB8E251ECE09940B8DB57BB53C2C43C70031DFA45B14CFC2A37362A"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalStateLegacyStoreGuardTests.cs",
+                      "sha256":  "4FCE466576CFBB981B662C261B5A1C3E61529F1135034536F6D4BCE7F866ADF9"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Reports/Calculation/CalculationReportDataBuilderTests.cs",
+                      "sha256":  "87A96167E563CA865A60544F897183501E74134D8B14276283C19DA2AE1B7EF6"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Reports/Calculation/CalculationReportExportServiceTests.cs",
+                      "sha256":  "9EE5D56B3BB787BF211E437A94EEDF6B175936BB63BA696369BBE15F44E3B8A1"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Reports/Calculation/CalculationReportInventoryTests.cs",
+                      "sha256":  "77C2E4F151B794B02CEC2B41D59977CD18A408B5FF37FC5271F5959A8718335B"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Reports/Calculation/CalculationReportMarkdownRendererTests.cs",
+                      "sha256":  "347663AAEDC345CDED9B41519DBB6D6A5B9CA353CFADAF03A9B3F5A57A555C21"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Reports/Calculation/CalculationReportModelTests.cs",
+                      "sha256":  "AD2845CEA1BAEA0E5B5E4F08E9C990F06AA0EBDF89051A7CC1D87AAB723AE0CE"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Reports/Calculation/CalculationReportWarningTests.cs",
+                      "sha256":  "B7D8B634E057E79C0594C167F91F835F1ECCB769D89EBBB1B92F3A9A0C09522E"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Results/PdfExportServiceTests.cs",
+                      "sha256":  "2B1825BE9D0C46789B4D9BDA9343FF9142603EAB9624DB1F2E9D4DBD0F193F78"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Results/ProjectStateServiceTests.cs",
+                      "sha256":  "50031482A880FC1BF2514DFAEA5A84E586F8C531C7BB7F9F7B915B0FB3F11494"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Thermal/ThermalResultValidatorTests.cs",
+                      "sha256":  "5BB214AFBBA31D22C3F62D95A3FC0037F48B89428E66553F42AC82C2E2D1037F"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Services/Thermal/ThermalValidatorTests.cs",
+                      "sha256":  "F3A4F3BE810F89C52CA633BECDCD8D98CD3C44A6E1D868CEF34666D4344CCD7F"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/SnowMeltingCalculator.Tests.csproj",
+                      "sha256":  "4D928317C6D15A7AD74DAFB91E5E6272E9D3E6A4F2C6835234B11CC9CD1D30FE"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Thermal/.AGENTS.md",
+                      "sha256":  "ECA7A0EE5FD7C72035BB9C517F5B5E7D10C3BD860C82C8699645FC8B75522341"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Thermal/ThermalAutomationIdSelectorContractTests.cs",
+                      "sha256":  "403C9324B80E12FA8815070FA40FA948BB4B1E0C762F8FA65C19FD6B390A9137"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Thermal/ThermalCalculatorTests.cs",
+                      "sha256":  "20152076B70A99409DBA0423E7C279B379AEFF929AF0CA3990965906B4B8F28B"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Thermal/ThermalViewModelTests.cs",
+                      "sha256":  "A4F6191DDBD7661BD8497BB736DE0255A418C6EC6F1D062073779E3F7A99C9F0"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelEventLeakTests.cs",
+                      "sha256":  "1A7FF05A18A89EE95D702F087A7C5F40F38DAF2AC278BD4288ABAD132EDF132A"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelTests.cs",
+                      "sha256":  "8C15767956B5B535A1B0B8287D1048BA2794316F449D0F718E86941E865865F3"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CollectorViewModelTests.cs",
+                      "sha256":  "269FD22B3DF0E825FB877855A7B8AAB952AF7B2BA9111A8C4C7B0B0CBC687D29"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/MainViewModelTests.cs",
+                      "sha256":  "328150C253E6798658EA93D8F5F9FD22CD5FC4685071FE6EBB250EC94A8EDCB4"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResetOrchestrationTests.cs",
+                      "sha256":  "ACF606131D30DE19B8076A9C0E87093A2076EB2180D993FAB2B50A09A9447E5C"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsStabilizationPhase1BehaviorContractsTests.cs",
+                      "sha256":  "CB17C82AB5A9EAF42E0BFA7B0C8F7AF26103982A49DE00D279F25ED806CBE268"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsStabilizationPhase1ContractsTests.cs",
+                      "sha256":  "42C1AAEAC823414F5A618E8876ED7C4EC60F1F7C52E9F35476DABC43B0C61D7C"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelCollectorEquipmentItemsTests.cs",
+                      "sha256":  "F11150EFE78B4BC330261106694BE8CF23D852A657631188D86740793F5D8B63"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelOpenProjectTests.cs",
+                      "sha256":  "8E52B8271CB6186F28024CFD76370AA6B465D8EB3578ACD083A41DDF62128BAD"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelTestHelpers.cs",
+                      "sha256":  "B72EB9E9D9DB02F0E16B33B3FCB5361A52E28D54F5C5A90C4299CD10522A040A"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Views/ConstructionVisualizationRendererTests.cs",
+                      "sha256":  "5ECB0FAE7C3A2F6D165ABC17ECE1BC2746E97BAFD90C5C58F073B32632C0B81F"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Views/Hydraulics/FlowRegimeToColorConverterTests.cs",
+                      "sha256":  "D86D988A3B520E1D3E01889ED7C4A707F51FF9E89B86344B0857EBD50C766479"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/Views/MainWindowChromeLayoutTests.cs",
+                      "sha256":  "39443618A33D5A18AC9A113F06E5912F4008DCFD881F3E5ED55499A49A813AA4"
+                  },
+                  {
+                      "path":  "tests/SnowMeltingCalculator.Tests/baseline_refactor_dedupe.json",
+                      "sha256":  "AAE53E16B7ECCD2A0E9553D7203CAA4B6278617B9CA6E0C44042058A835A4B02"
+                  }
+              ],
+    "capturedHead":  "471c4f1e5b7428f79a6edaa8128f3767ca613ee1",
+    "branch":  "master"
+}
