@@ -73,6 +73,20 @@ namespace SnowMeltingCalculator.Configuration
             // Services
             services.AddSingleton<IThermalCalculator, ThermalCalculator>();
 
+            // Каноническая граница применения тепловых команд (DEC-T04A):
+            // ровно один singleton; ThermalViewModel получает его через ctor.
+            // Срез ThermalState не регистрируется в DI отдельно — берётся
+            // reference-identically с ProjectSession (как ConstructionState выше).
+            services.AddSingleton<IThermalStateCoordinator>(sp => new ThermalStateCoordinator(
+                sp.GetRequiredService<ProjectSession>().ThermalState,
+                sp.GetRequiredService<CalculationContext>(),
+                sp.GetRequiredService<IMarkDirtyService>(),
+                sp.GetRequiredService<IThermalCalculator>(),
+                sp.GetRequiredService<IClimateData>(),
+                sp.GetRequiredService<IConstructionData>(),
+                sp.GetRequiredService<IValidator<ThermalInputs>>(),
+                sp.GetRequiredService<IValidator<ThermalCalculationResult>>()));
+
             // ViewModels
             services.AddSingleton<ThermalViewModel>();
 

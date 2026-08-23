@@ -181,6 +181,312 @@ namespace SnowMeltingCalculator.Tests.Configuration
         }
 
         [Test]
+        [Category("ThermalState")]
+        public void ThermalLifecycleDescriptors_HaveNoIndependentRegistration()
+        {
+            var services = CreateApplicationServices();
+
+            Assert.Multiple(() =>
+            {
+                // DEC-T01: the canonical Thermal state is created and owned by
+                // ProjectSession; it is never registered in DI by itself.
+                Assert.That(services.Any(descriptor => descriptor.ServiceType == typeof(IProjectSessionThermalState)), Is.False);
+                Assert.That(services.Any(descriptor => descriptor.ServiceType == typeof(ProjectSessionThermalState)), Is.False);
+
+                // The owning session keeps its singleton lifetime.
+                Assert.That(services.Single(descriptor => descriptor.ServiceType == typeof(ProjectSession)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+                Assert.That(services.Single(descriptor => descriptor.ServiceType == typeof(IProjectSession)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+            });
+        }
+
+        [Test]
+        [Category("ThermalState")]
+        public void ThermalState_ResolvesReferenceIdenticalThroughEverySessionAlias()
+        {
+            using var provider = CreateApplicationServices().BuildServiceProvider();
+
+            var concreteSession = provider.GetRequiredService<ProjectSession>();
+            var session = provider.GetRequiredService<IProjectSession>();
+            var projectInfo = provider.GetRequiredService<IProjectInfoService>();
+            var projectState = provider.GetRequiredService<IProjectStateService>();
+            var markDirty = provider.GetRequiredService<IMarkDirtyService>();
+
+            Assert.Multiple(() =>
+            {
+                // Every legacy lifecycle alias resolves to the one owning session.
+                Assert.That(session, Is.SameAs(concreteSession));
+                Assert.That(projectInfo, Is.SameAs(concreteSession));
+                Assert.That(projectState, Is.SameAs(concreteSession));
+                Assert.That(markDirty, Is.SameAs(concreteSession));
+
+                // Repeated accesses return the reference-identical instance.
+                Assert.That(session.ThermalState, Is.Not.Null);
+                Assert.That(session.ThermalState, Is.SameAs(session.ThermalState));
+                Assert.That(concreteSession.ThermalState, Is.SameAs(session.ThermalState));
+
+                // Both resolution paths (concrete type and IProjectSession)
+                // expose exactly the same owning state instance.
+                Assert.That(((IProjectSession)concreteSession).ThermalState, Is.SameAs(session.ThermalState));
+
+                // The exposed contract is the Todo-3 canonical implementation.
+                Assert.That(session.ThermalState, Is.InstanceOf<ProjectSessionThermalState>());
+            });
+        }
+
+        [Test]
+        [Category("ThermalState")]
+        public void ThermalState_IsNotResolvableAsIndependentService_FromBuiltProvider()
+        {
+            using var provider = CreateApplicationServices().BuildServiceProvider();
+
+            Assert.Multiple(() =>
+            {
+                // Provider self-validation: enumerating descriptors of a built
+                // provider yields no independent Thermal-state registration.
+                Assert.That(provider.GetServices<IProjectSessionThermalState>(), Is.Empty);
+
+                // Neither the interface nor the concrete type is resolvable.
+                Assert.That(provider.GetService<ProjectSessionThermalState>(), Is.Null);
+
+                // The only path to the state is through the owning session.
+                Assert.That(provider.GetRequiredService<IProjectSession>().ThermalState, Is.Not.Null);
+            });
+        }
+
+        [Test]
+        [Category("ThermalState")]
+        public void ThermalState_IsOnePerSession_SingletonAcrossScopes_DistinctAcrossSessions()
+        {
+            using var provider = CreateApplicationServices().BuildServiceProvider();
+
+            var rootSession = provider.GetRequiredService<IProjectSession>();
+
+            // Singleton session: any scope resolves the same session and thus
+            // the same single Thermal state (one state per application).
+            using (var scope = provider.CreateScope())
+            {
+                var scopedSession = scope.ServiceProvider.GetRequiredService<IProjectSession>();
+                Assert.Multiple(() =>
+                {
+                    Assert.That(scopedSession, Is.SameAs(rootSession));
+                    Assert.That(scopedSession.ThermalState, Is.SameAs(rootSession.ThermalState));
+                });
+            }
+
+            // A separate composition root owns a distinct session whose state
+            // is distinct too — still exactly one per session lifetime.
+            using var secondProvider = CreateApplicationServices().BuildServiceProvider();
+            var secondSession = secondProvider.GetRequiredService<IProjectSession>();
+            Assert.Multiple(() =>
+            {
+                Assert.That(secondSession, Is.Not.SameAs(rootSession));
+                Assert.That(secondSession.ThermalState, Is.Not.SameAs(rootSession.ThermalState));
+                Assert.That(secondSession.ThermalState, Is.SameAs(secondSession.ThermalState));
+            });
+        }
+
+        [Test]
+        [Category("ThermalState")]
+        public void ThermalState_DuplicateIndependentRegistration_IsFlaggedByDescriptorGuard()
+        {
+            // Canonical composition: zero independent descriptors — guard passes.
+            var canonical = CreateApplicationServices();
+            Assert.That(CountIndependentThermalStateDescriptors(canonical), Is.EqualTo(0));
+
+            // Synthetic defect model (task-local negative case): an accidental
+            // duplicate independent registration of the state produces more
+            // than one descriptor and must be flagged by the same guard that
+            // the canonical composition satisfies. No service locator involved:
+            // the guard inspects registration descriptors only.
+            var defective = CreateApplicationServices();
+            defective.AddSingleton<IProjectSessionThermalState>(new ProjectSessionThermalState());
+            defective.AddSingleton<IProjectSessionThermalState>(new ProjectSessionThermalState());
+            Assert.That(CountIndependentThermalStateDescriptors(defective), Is.GreaterThan(1));
+        }
+
+        [Test]
+        [Category("NegativeFixture")]
+        public void ThermalState_IndependentRegistration_IsRejectedByDescriptorAndRuntimeIdentityGuards()
+        {
+            var services = CreateApplicationServices();
+            Assert.That(CountIndependentThermalStateDescriptors(services), Is.Zero);
+
+            services.AddSingleton<IProjectSessionThermalState>(new ProjectSessionThermalState());
+            using var defectiveProvider = services.BuildServiceProvider();
+            var independentState = defectiveProvider.GetServices<IProjectSessionThermalState>().Single();
+            var canonicalState = defectiveProvider.GetRequiredService<IProjectSession>().ThermalState;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(CountIndependentThermalStateDescriptors(services), Is.EqualTo(1));
+                Assert.That(independentState, Is.Not.SameAs(canonicalState));
+            });
+        }
+
+        [Test]
+        [Category("ThermalState")]
+        public void ThermalState_ConstructorCycle_IsRejectedByContainerWithoutServiceLocator()
+        {
+            // Synthetic cycle model (task-local negative case): the defect being
+            // modeled is an INDEPENDENT registration of the Thermal state whose
+            // implementation constructor depends on a consumer that itself
+            // requires the state. The whole cycle is declared through
+            // implementation types, so the container rejects it while building
+            // the resolution plan ("A circular dependency was detected") before
+            // any instance exists. No service locator or cycle workaround is
+            // involved anywhere.
+            var services = new ServiceCollection();
+            services.AddSingleton<CycleDependentConsumer>();
+            services.AddSingleton<IProjectSessionThermalState, CycleStateImplementation>();
+
+            using var provider = services.BuildServiceProvider();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    () => provider.GetRequiredService<CycleDependentConsumer>(),
+                    Throws.InvalidOperationException.With.Message.Contains("circular").IgnoreCase);
+                Assert.That(
+                    () => provider.GetRequiredService<IProjectSessionThermalState>(),
+                    Throws.InvalidOperationException.With.Message.Contains("circular").IgnoreCase);
+            });
+        }
+
+        [Test]
+        [Category("ThermalState")]
+        public void ThermalState_Addition_PreservesClimateAndConstructionIdentities()
+        {
+            using var provider = CreateApplicationServices().BuildServiceProvider();
+
+            var concreteSession = provider.GetRequiredService<ProjectSession>();
+            var session = provider.GetRequiredService<IProjectSession>();
+            var constructionState = provider.GetRequiredService<IProjectSessionConstructionState>();
+            var constructionData = provider.GetRequiredService<IConstructionData>();
+
+            Assert.Multiple(() =>
+            {
+                // Climate slice: unchanged identities (no independent registration,
+                // stable reference across repeated accesses and aliases).
+                Assert.That(provider.GetServices<IProjectSessionClimateState>(), Is.Empty);
+                Assert.That(session.ClimateState, Is.SameAs(session.ClimateState));
+                Assert.That(session.ClimateState, Is.SameAs(concreteSession.ClimateState));
+
+                // Construction slice: unchanged identities.
+                Assert.That(constructionState, Is.SameAs(session.ConstructionState));
+                Assert.That(constructionData, Is.SameAs(constructionState.CurrentProjection));
+
+                // Legacy lifecycle aliases: unchanged identity with the session.
+                Assert.That(provider.GetRequiredService<IMarkDirtyService>(), Is.SameAs(concreteSession));
+                Assert.That(provider.GetRequiredService<IProjectStateService>(), Is.SameAs(concreteSession));
+                Assert.That(provider.GetRequiredService<IProjectInfoService>(), Is.SameAs(concreteSession));
+
+                // The new Thermal slice follows the same ownership pattern.
+                Assert.That(session.ThermalState, Is.SameAs(concreteSession.ThermalState));
+            });
+        }
+
+        [Test]
+        [Category("ThermalState")]
+        public void ThermalStateCoordinator_IsSingleton_ReferenceIdenticalWithSessionState()
+        {
+            using var provider = CreateApplicationServices().BuildServiceProvider();
+
+            var first = provider.GetRequiredService<IThermalStateCoordinator>();
+            var second = provider.GetRequiredService<IThermalStateCoordinator>();
+            var session = provider.GetRequiredService<IProjectSession>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(first, Is.SameAs(second),
+                    "Exactly one coordinator instance exists per composition.");
+                Assert.That(first.State, Is.SameAs(session.ThermalState),
+                    "The coordinator owns the reference-identical canonical state slice.");
+                Assert.That(first, Is.InstanceOf<ThermalStateCoordinator>());
+            });
+        }
+
+        [Test]
+        [Category("ThermalState")]
+        public void ThermalViewModel_EagerlyMaterializesTheSingleCoordinator()
+        {
+            using var provider = CreateApplicationServices().BuildServiceProvider();
+
+            var viewModel = provider.GetRequiredService<ThermalViewModel>();
+            var viewModelAgain = provider.GetRequiredService<ThermalViewModel>();
+            var coordinator = provider.GetRequiredService<IThermalStateCoordinator>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(viewModel, Is.SameAs(viewModelAgain),
+                    "ThermalViewModel is an application singleton.");
+                Assert.That(viewModel.Coordinator, Is.SameAs(coordinator),
+                    "The ViewModel eagerly materialized the one DI coordinator via ctor injection.");
+            });
+        }
+
+        private static int CountIndependentThermalStateDescriptors(IServiceCollection services)
+        {
+            return services.Count(descriptor =>
+                descriptor.ServiceType == typeof(IProjectSessionThermalState) ||
+                descriptor.ServiceType == typeof(ProjectSessionThermalState));
+        }
+
+        /// <summary>
+        /// Synthetic consumer used only to model a constructor cycle in
+        /// <see cref="ThermalState_ConstructorCycle_IsRejectedByContainerWithoutServiceLocator"/>.
+        /// </summary>
+        private sealed class CycleDependentConsumer
+        {
+            public CycleDependentConsumer(IProjectSessionThermalState thermalState)
+            {
+                ThermalState = thermalState;
+            }
+
+            public IProjectSessionThermalState ThermalState { get; }
+        }
+
+        /// <summary>
+        /// Synthetic independent Thermal-state registration used only to close the
+        /// constructor cycle modeled in
+        /// <see cref="ThermalState_ConstructorCycle_IsRejectedByContainerWithoutServiceLocator"/>.
+        /// Its constructor depends back on <see cref="CycleDependentConsumer"/>;
+        /// members are never invoked because the container rejects the graph.
+        /// </summary>
+        private sealed class CycleStateImplementation : IProjectSessionThermalState
+        {
+            public CycleStateImplementation(CycleDependentConsumer consumer)
+            {
+                _ = consumer;
+            }
+
+#pragma warning disable CS0067
+            public event EventHandler<ThermalStateChangedEventArgs>? Changed;
+#pragma warning restore CS0067
+
+            public ThermalStateSnapshot Snapshot => throw new NotSupportedException();
+
+            public ThermalMutationResult ApplyInputs(ThermalInputsSnapshot candidate, ThermalMutationOrigin origin) => throw new NotSupportedException();
+
+            public ThermalMutationResult ApplyInputEdit(ThermalInputEdit edit, ThermalMutationOrigin origin) => throw new NotSupportedException();
+
+            public ThermalMutationResult ResetToDefaults(ThermalMutationOrigin origin) => throw new NotSupportedException();
+
+            public ThermalMutationResult BeginCalculation() => throw new NotSupportedException();
+
+            public ThermalMutationResult CompleteCalculation(ThermalInputsSnapshot calculatedInputs, ThermalResultSnapshot result, string validationMessage) => throw new NotSupportedException();
+
+            public ThermalMutationResult FailCalculation(ThermalInputsSnapshot calculatedInputs, string validationMessage, ThermalResultSnapshot? compatibilityInvalidResult = null) => throw new NotSupportedException();
+
+            public ThermalMutationResult Restore(ThermalInputsSnapshot inputs, ThermalResultSnapshot? savedResult) => throw new NotSupportedException();
+
+            public ThermalMutationResult InvalidateFromClimate(string message) => throw new NotSupportedException();
+
+            public ThermalMutationResult InvalidateFromConstruction(string message) => throw new NotSupportedException();
+
+            public ThermalMutationResult ApplyNeedsRecalculation(string recalculationMessage, ThermalMutationOrigin origin) => throw new NotSupportedException();
+        }
+
+        [Test]
         public void MaterialEditorViewModel_ResolvesFromProvider()
         {
             // Act
