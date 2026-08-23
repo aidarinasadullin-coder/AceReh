@@ -1028,13 +1028,20 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         private void LoadThermalData()
         {
-            PipeType = _thermalViewModel.SelectedPipe?.Name ?? string.Empty;
-            PipeSpacing = _calculationStateService.PipeSpacing;
-            OperatingMode = _thermalViewModel.SelectedMode;
-            GroundTemperature = _thermalViewModel.GroundTemperature;
+            // Todo 10 (DEC-T07): проекция Results читает входы из канонического
+            // ThermalState snapshot, а не из кэшей VM/сервиса. Последний результат
+            // остаётся на текущей проекции адаптера — frozen characterization
+            // (ResultsStabilizationPhase1BehaviorContractsTests) фиксирует, что
+            // очистка адаптерного результата обнуляет KPI без пересчёта.
+            var thermalSnapshot = _projectSession.ThermalState.Snapshot;
+
+            PipeType = thermalSnapshot.Inputs.Pipe?.Name ?? string.Empty;
+            PipeSpacing = thermalSnapshot.Inputs.PipeSpacing;
+            OperatingMode = thermalSnapshot.Inputs.Mode;
+            GroundTemperature = thermalSnapshot.Inputs.GroundTemperature;
 
             // Surface temperature from mode: +3, +5, +7
-            SurfaceTemperature = (int)_thermalViewModel.SelectedMode;
+            SurfaceTemperature = (int)thermalSnapshot.Inputs.Mode;
 
             var result = _thermalViewModel.Result;
             if (result != null)
@@ -1162,11 +1169,12 @@ namespace SnowMeltingCalculator.ViewModels.Results
             double totalLength = 0;
             double innerDiameter_m = 0;
 
-            // Получаем внутренний диаметр трубы
-            var selectedPipe = _thermalViewModel.SelectedPipe;
-            if (selectedPipe != null)
+            // Получаем внутренний диаметр трубы из канонического ThermalState
+            // snapshot (Todo 10 / DEC-T07), а не из кэша адаптера.
+            var canonicalPipe = _projectSession.ThermalState.Snapshot.Inputs.Pipe;
+            if (canonicalPipe != null)
             {
-                innerDiameter_m = selectedPipe.InnerDiameter / 1000.0; // мм → м
+                innerDiameter_m = canonicalPipe.InnerDiameter / 1000.0; // мм → м
             }
 
             // Суммируем длины всех контуров
@@ -1690,32 +1698,12 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 _projectSession.ConstructionState.Snapshot,
                 _materialRepository);
 
-            // Сохраняем данные теплового расчёта
-            data.ThermalData = new ThermalProjectData
-            {
-                SelectedMode = _thermalViewModel.SelectedMode,
-                SupplyTemperature = _thermalViewModel.SupplyTemperature,
-                GroundTemperature = _thermalViewModel.GroundTemperature,
-                PipeSpacing = _calculationStateService.PipeSpacing,
-                SelectedPipe = _thermalViewModel.SelectedPipe != null ? new PipeTypeProjectData
-                {
-                    Name = _thermalViewModel.SelectedPipe.Name,
-                    OuterDiameter = _thermalViewModel.SelectedPipe.OuterDiameter,
-                    InnerDiameter = _thermalViewModel.SelectedPipe.InnerDiameter,
-                    WallThickness = _thermalViewModel.SelectedPipe.WallThickness
-                } : null,
-                Result = _thermalViewModel.Result != null ? new ThermalResultProjectData
-                {
-                    PowerUp = _thermalViewModel.Result.PowerUp,
-                    PowerDown = _thermalViewModel.Result.PowerDown,
-                    PowerTotal = _thermalViewModel.Result.PowerTotal,
-                    SupplyTemperature = _thermalViewModel.Result.SupplyTemperature,
-                    ReturnTemperature = _thermalViewModel.Result.ReturnTemperature,
-                    MeanTemperature = _thermalViewModel.Result.MeanTemperature,
-                    DeltaT = _thermalViewModel.Result.DeltaT,
-                    IsValid = _thermalViewModel.Result.IsValid
-                } : null
-            };
+            // Сохраняем данные теплового расчёта из канонического ThermalState
+            // snapshot (Todo 10 / DEC-T08): save читает только каноническое
+            // состояние проекта — никогда кэши ThermalViewModel или сервиса.
+            // Точный wire-набор полей изолирован в ThermalPersistenceMapper.
+            data.ThermalData = ThermalPersistenceMapper.BuildThermalProjectData(
+                _projectSession.ThermalState.Snapshot);
 
             // Сохраняем данные гидравлики
             data.HydraulicsData = new HydraulicsProjectData

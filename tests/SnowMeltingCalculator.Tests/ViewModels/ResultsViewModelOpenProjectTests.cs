@@ -2403,6 +2403,94 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
 
         /// <summary>
+        /// Todo 9 / DEC-T08 «second load»: повторная загрузка проекта без
+        /// сохранённого результата полностью заменяет Thermal-состояние проекта A
+        /// (входы/результат/статус) и выполняет ровно один fallback-расчёт.
+        /// </summary>
+        [Test]
+        public async Task LoadProjectData_SecondLoadWithoutSavedResult_ReplacesAllThermalStaleValues()
+        {
+            var calculationStateService = new CalculationStateService(_projectStateService.Session);
+            var thermalCalculatorMock = new Mock<IThermalCalculator>();
+            thermalCalculatorMock
+                .Setup(calculator => calculator.Calculate(
+                    It.IsAny<ThermalInputs>(),
+                    It.IsAny<IClimateData>(),
+                    It.IsAny<IConstructionData>()))
+                .Returns(new ThermalCalculationResult
+                {
+                    PowerUp = 11,
+                    PowerDown = 22,
+                    PowerTotal = 42.5,
+                    SupplyTemperature = 45,
+                    ReturnTemperature = 34,
+                    MeanTemperature = 39.5,
+                    DeltaT = 11,
+                    IsValid = true
+                });
+            var thermalVm = CreateThermalViewModel(calculationStateService, _projectStateService, thermalCalculatorMock.Object);
+            var viewModel = CreateViewModel(
+                CreateClimateViewModelWithCity("Тестовый город", "Тестовый регион", -25, 3, 70),
+                CreateConstructionViewModel(_projectStateService.Session),
+                thermalVm,
+                CreateCircuitsViewModel(calculationStateService, _projectStateService),
+                calculationStateService);
+
+            var projectA = ResultsViewModelTestHelpers.CreateReadyProjectData();
+            projectA.ProjectNumber = "SEC-A";
+            projectA.ThermalData.SelectedMode = OperatingMode.Intensive;
+            projectA.ThermalData.SupplyTemperature = 60.0;
+            projectA.ThermalData.GroundTemperature = 5.0;
+            projectA.ThermalData.PipeSpacing = 300;
+            projectA.ThermalData.SelectedPipe = new PipeTypeProjectData
+            {
+                Name = "RAUTHERM S 25x2,3",
+                OuterDiameter = 25,
+                InnerDiameter = 20.4,
+                WallThickness = 2.3
+            };
+            projectA.ThermalData.Result = new ThermalResultProjectData { PowerTotal = 777.0, IsValid = true };
+
+            await viewModel.LoadProjectDataAsync(projectA);
+            Assert.That(_projectStateService.Session.ThermalState.Snapshot.Result!.PowerTotal, Is.EqualTo(777.0),
+                "Sanity: first load publishes the valid saved result.");
+
+            var projectB = ResultsViewModelTestHelpers.CreateReadyProjectData();
+            projectB.ProjectNumber = "SEC-B";
+            projectB.ThermalData.SelectedMode = OperatingMode.Melting;
+            projectB.ThermalData.SupplyTemperature = 45.0;
+            projectB.ThermalData.GroundTemperature = 2.0;
+            projectB.ThermalData.PipeSpacing = 150;
+            projectB.ThermalData.SelectedPipe = null;
+            projectB.ThermalData.Result = null;
+
+            await viewModel.LoadProjectDataAsync(projectB);
+
+            var snapshot = _projectStateService.Session.ThermalState.Snapshot;
+            Assert.Multiple(() =>
+            {
+                Assert.That(snapshot.Inputs.Mode, Is.EqualTo(OperatingMode.Melting));
+                Assert.That(snapshot.Inputs.SupplyTemperature, Is.EqualTo(45.0));
+                Assert.That(snapshot.Inputs.GroundTemperature, Is.EqualTo(2.0));
+                Assert.That(snapshot.Inputs.PipeSpacing, Is.EqualTo(150));
+                Assert.That(snapshot.Inputs.Pipe, Is.Null);
+                Assert.That(snapshot.Result, Is.Not.Null);
+                Assert.That(snapshot.Result!.PowerTotal, Is.EqualTo(42.5),
+                    "Fresh fallback result must replace every project-A Thermal value.");
+                Assert.That(snapshot.Status.Phase, Is.EqualTo(ThermalCalculationPhase.Actual));
+                Assert.That(thermalVm.Result!.PowerTotal, Is.EqualTo(42.5));
+                Assert.That(_projectStateService.IsDirty, Is.False);
+            });
+            thermalCalculatorMock.Verify(
+                calculator => calculator.Calculate(
+                    It.IsAny<ThermalInputs>(),
+                    It.IsAny<IClimateData>(),
+                    It.IsAny<IConstructionData>()),
+                Times.Once,
+                "Valid saved result must not calculate; absent result must fall back exactly once.");
+        }
+
+        /// <summary>
         /// Регрессионный тест (драфт fix-load-project-climate-kpi-temperatures):
         /// KPI температур должны отражать финальный тепловой результат сразу после
         /// LoadProjectDataAsync — без ручного повторного выбора города на вкладке «Климат».
@@ -2508,6 +2596,367 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 "Восстановление климата из файла не должно выглядеть как ручная правка");
             Assert.That(_projectStateService.IsDirty, Is.False,
                 "После загрузки проекта состояние должно быть чистым");
+        }
+
+        // === Todo 10 (DEC-T08): canonical Thermal save/read seams ===
+
+        private static readonly IReadOnlyList<PipeType> StandardPipes = PipeType.StandardPipes;
+
+        private static ThermalInputsSnapshot CreateCanonicalInputs()
+        {
+            var standard = StandardPipes.First(p => p.Name == "RAUTHERM S 20x2,0");
+            return new ThermalInputsSnapshot(
+                OperatingMode.Intensive,
+                60.0,
+                5.0,
+                ThermalPipeSnapshot.FromPipeType(standard),
+                250);
+        }
+
+        private static ThermalResultSnapshot CreateCanonicalResult(double powerTotal)
+        {
+            return ThermalResultSnapshot.FromResult(new ThermalCalculationResult
+            {
+                PowerUp = powerTotal - 5.8,
+                PowerDown = 5.8,
+                PowerTotal = powerTotal,
+                SupplyTemperature = 60.0,
+                ReturnTemperature = 44.31,
+                MeanTemperature = 52.16,
+                DeltaT = 15.69,
+                IsValid = true
+            })!;
+        }
+
+        private static System.Text.Json.JsonSerializerOptions CreateProductionJsonOptions()
+        {
+            // Те же опции, что и save-путь ProjectFileService.
+            return new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                Converters =
+                {
+                    new System.Text.Json.Serialization.JsonStringEnumConverter(
+                        System.Text.Json.JsonNamingPolicy.CamelCase)
+                }
+            };
+        }
+
+        /// <summary>
+        /// Todo 10: save читает только канонический ThermalState snapshot —
+        /// расходящийся зеркальный кэш ThermalViewModel (труба/шаг/температуры/
+        /// режим/результат, изменённый под load-guard) не попадает в .smc.
+        /// </summary>
+        [Test]
+        public async Task SaveCurrentProject_PersistsThermalStateSnapshot_NotThermalViewModelMirror()
+        {
+            var calculationStateService = new CalculationStateService(_projectStateService.Session);
+            var thermalVm = CreateThermalViewModel(calculationStateService, _projectStateService);
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
+                thermalVm,
+                CreateCircuitsViewModel(calculationStateService, _projectStateService),
+                calculationStateService);
+
+            // Канонические значения X — через canonical state API.
+            var inputsX = CreateCanonicalInputs();
+            var resultX = CreateCanonicalResult(363.3);
+            _projectStateService.Session.ThermalState.Restore(inputsX, resultX);
+
+            // Зеркальные значения Y — только в VM-кэше: под load-guard правки
+            // адаптера не маршрутизируются в каноническое состояние.
+            calculationStateService.IsLoadProjectInProgress = true;
+            thermalVm.SelectedPipe = StandardPipes.First(p => p.Name == "RAUTHERM S 25x2,3");
+            thermalVm.PipeSpacing = 150;
+            thermalVm.SupplyTemperature = 45.0;
+            thermalVm.GroundTemperature = 2.0;
+            thermalVm.SelectedMode = OperatingMode.Melting;
+            thermalVm.Result = new ThermalCalculationResult { PowerTotal = 999, IsValid = true };
+            calculationStateService.IsLoadProjectInProgress = false;
+
+            // Sanity: зеркало действительно расходится с каноном.
+            Assert.That(thermalVm.PipeSpacing, Is.Not.EqualTo(inputsX.PipeSpacing));
+            Assert.That(thermalVm.Result!.PowerTotal, Is.Not.EqualTo(resultX.PowerTotal));
+
+            // Act
+            var saved = viewModel.SaveCurrentProject();
+
+            // Assert: сохранены ровно канонические значения X.
+            Assert.Multiple(() =>
+            {
+                Assert.That(saved.ThermalData.SelectedMode, Is.EqualTo(OperatingMode.Intensive));
+                Assert.That(saved.ThermalData.SupplyTemperature, Is.EqualTo(60.0));
+                Assert.That(saved.ThermalData.GroundTemperature, Is.EqualTo(5.0));
+                Assert.That(saved.ThermalData.PipeSpacing, Is.EqualTo(250));
+                Assert.That(saved.ThermalData.SelectedPipe!.Name, Is.EqualTo("RAUTHERM S 20x2,0"));
+                Assert.That(saved.ThermalData.Result!.PowerTotal, Is.EqualTo(363.3));
+                Assert.That(saved.ThermalData.Result.IsValid, Is.True);
+                Assert.That(saved.ThermalData.Result.PowerTotal, Is.Not.EqualTo(999),
+                    "VM mirror result must never leak into the saved wire DTO.");
+            });
+        }
+
+        /// <summary>
+        /// Todo 10: save/export не запускают расчёты — ноль вызовов калькулятора
+        /// на SaveCurrentProject + RefreshAll + построение PDF-модели.
+        /// </summary>
+        [Test]
+        public async Task SaveCurrentProject_AndPdfExport_TriggerZeroThermalCalculatorCalls()
+        {
+            var calculationStateService = new CalculationStateService(_projectStateService.Session);
+            var calculatorMock = new Mock<IThermalCalculator>();
+            var thermalVm = CreateThermalViewModel(calculationStateService, _projectStateService, calculatorMock.Object);
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
+                thermalVm,
+                CreateCircuitsViewModel(calculationStateService, _projectStateService),
+                calculationStateService);
+
+            _projectStateService.Session.ThermalState.Restore(
+                CreateCanonicalInputs(),
+                CreateCanonicalResult(363.3));
+            // Публикуем результат в проекцию адаптера так же, как оркестратор
+            // восстановления (LoadResult-путь): KPI Results читают текущую
+            // проекцию адаптера, save читает канонический snapshot.
+            thermalVm.Result = new ThermalCalculationResult
+            {
+                PowerUp = 357.5,
+                PowerDown = 5.8,
+                PowerTotal = 363.3,
+                SupplyTemperature = 60.0,
+                ReturnTemperature = 44.31,
+                MeanTemperature = 52.16,
+                DeltaT = 15.69,
+                IsValid = true
+            };
+
+            // Act: save + refresh + PDF/export-модель.
+            var saved = viewModel.SaveCurrentProject();
+            viewModel.RefreshAll();
+            var pdfData = GetField<ResultsPdfDataBuilder>(viewModel, "_resultsPdfDataBuilder").Build(viewModel);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(saved.ThermalData.Result!.PowerTotal, Is.EqualTo(363.3));
+                Assert.That(viewModel.TotalPowerDensity, Is.EqualTo(363.3).Within(0.01));
+            });
+            calculatorMock.Verify(
+                calculator => calculator.Calculate(
+                    It.IsAny<ThermalInputs>(),
+                    It.IsAny<IClimateData>(),
+                    It.IsAny<IConstructionData>()),
+                Times.Never,
+                "Save/export must never trigger a Thermal calculation.");
+        }
+
+        [Test]
+        [Category("PersistenceFailure")]
+        public async Task PersistenceFailure_UnknownPipe_FallsBackToFirstStandard_NoSchemaDrift()
+        {
+            var calculationStateService = new CalculationStateService(_projectStateService.Session);
+            var calculatorMock = new Mock<IThermalCalculator>();
+            calculatorMock
+                .Setup(calculator => calculator.Calculate(
+                    It.IsAny<ThermalInputs>(),
+                    It.IsAny<IClimateData>(),
+                    It.IsAny<IConstructionData>()))
+                .Returns(new ThermalCalculationResult
+                {
+                    PowerUp = 11, PowerDown = 22, PowerTotal = 42.5,
+                    SupplyTemperature = 45, ReturnTemperature = 34,
+                    MeanTemperature = 39.5, DeltaT = 11, IsValid = true
+                });
+            var thermalVm = CreateThermalViewModel(calculationStateService, _projectStateService, calculatorMock.Object);
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
+                thermalVm,
+                CreateCircuitsViewModel(calculationStateService, _projectStateService),
+                calculationStateService);
+
+            var projectA = ResultsViewModelTestHelpers.CreateReadyProjectData();
+            // Валидные входные температуры: иначе замороженная атомарная валидация
+            // отклонит кандидата (supply < 20) и сработает путь "дефолты +
+            // сохранённый результат", а не fallback трубы.
+            projectA.ThermalData.SupplyTemperature = 45.0;
+            projectA.ThermalData.GroundTemperature = 5.0;
+            projectA.ThermalData.SelectedPipe = new PipeTypeProjectData
+            {
+                Name = "PHASE4 UNKNOWN PIPE",
+                OuterDiameter = 99,
+                InnerDiameter = 95,
+                WallThickness = 2.0
+            };
+            projectA.ThermalData.Result = new ThermalResultProjectData
+            {
+                PowerUp = 100, PowerDown = 100, PowerTotal = 200,
+                SupplyTemperature = 45, ReturnTemperature = 35,
+                MeanTemperature = 40, DeltaT = 10, IsValid = true
+            };
+
+            await viewModel.LoadProjectDataAsync(projectA);
+
+            // Frozen fallback: неизвестная труба → первая стандартная; валидный
+            // сохранённый результат публикуется без пересчёта.
+            var snapshot = _projectStateService.Session.ThermalState.Snapshot;
+            Assert.Multiple(() =>
+            {
+                Assert.That(snapshot.Inputs.Pipe!.Name, Is.EqualTo(StandardPipes[0].Name));
+                Assert.That(snapshot.Result!.PowerTotal, Is.EqualTo(200.0));
+            });
+            calculatorMock.Verify(
+                calculator => calculator.Calculate(
+                    It.IsAny<ThermalInputs>(),
+                    It.IsAny<IClimateData>(),
+                    It.IsAny<IConstructionData>()),
+                Times.Never);
+
+            // Повторное сохранение не даёт schema drift: набор свойств тот же.
+            var saved = viewModel.SaveCurrentProject();
+            Assert.That(saved.ThermalData.SelectedPipe!.Name, Is.EqualTo(StandardPipes[0].Name));
+
+            var json = System.Text.Json.JsonSerializer.Serialize(
+                saved.ThermalData, CreateProductionJsonOptions());
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            Assert.Multiple(() =>
+            {
+                Assert.That(doc.RootElement.EnumerateObject().Select(p => p.Name).OrderBy(n => n).ToArray(),
+                    Is.EqualTo(new[]
+                    {
+                        "groundTemperature", "pipeSpacing", "result", "selectedMode",
+                        "selectedPipe", "supplyTemperature"
+                    }));
+                Assert.That(json, Does.Not.Contain("article"));
+                Assert.That(json, Does.Not.Contain("thermalConductivity"));
+            });
+
+            // Перезагрузка сохранённого файла: fallback воспроизводится семантически.
+            var restoredInputs = ThermalPersistenceMapper.BuildInputsCandidate(
+                saved.ThermalData, PipeType.StandardPipes);
+            Assert.That(restoredInputs.Pipe!.Name, Is.EqualTo(StandardPipes[0].Name));
+        }
+
+        [Test]
+        [Category("PersistenceFailure")]
+        public async Task PersistenceFailure_MissingOrCorruptSavedResult_FallbackOnce_InvalidNeverCanonical()
+        {
+            foreach (var brokenResult in new ThermalResultProjectData?[]
+            {
+                null,
+                new ThermalResultProjectData { PowerTotal = 999, IsValid = false }
+            })
+            {
+                _projectStateService = new ProjectStateService();
+                var calculationStateService = new CalculationStateService(_projectStateService.Session);
+                var calculatorMock = new Mock<IThermalCalculator>();
+                calculatorMock
+                    .Setup(calculator => calculator.Calculate(
+                        It.IsAny<ThermalInputs>(),
+                        It.IsAny<IClimateData>(),
+                        It.IsAny<IConstructionData>()))
+                    .Returns(new ThermalCalculationResult
+                    {
+                        PowerUp = 11, PowerDown = 22, PowerTotal = 42.5,
+                        SupplyTemperature = 45, ReturnTemperature = 34,
+                        MeanTemperature = 39.5, DeltaT = 11, IsValid = true
+                    });
+                var thermalVm = CreateThermalViewModel(calculationStateService, _projectStateService, calculatorMock.Object);
+                var viewModel = CreateViewModel(
+                    CreateClimateViewModel(),
+                    CreateConstructionViewModel(_projectStateService.Session),
+                    thermalVm,
+                    CreateCircuitsViewModel(calculationStateService, _projectStateService),
+                    calculationStateService);
+
+                var projectA = ResultsViewModelTestHelpers.CreateReadyProjectData();
+                // Валидные входные температуры: fallback-расчёт должен быть вызван
+                // отсутствием/невалидностью результата, а не отклонением кандидата.
+                projectA.ThermalData.SupplyTemperature = 45.0;
+                projectA.ThermalData.GroundTemperature = 5.0;
+                projectA.ThermalData.Result = brokenResult;
+
+                await viewModel.LoadProjectDataAsync(projectA);
+
+                // Frozen fallback/error state: ровно один fallback-расчёт;
+                // повреждённый/отсутствующий результат не становится каноническим.
+                var snapshot = _projectStateService.Session.ThermalState.Snapshot;
+                Assert.Multiple(() =>
+                {
+                    Assert.That(snapshot.Result, Is.Not.Null);
+                    Assert.That(snapshot.Result!.IsValid, Is.True);
+                    Assert.That(snapshot.Result.PowerTotal, Is.EqualTo(42.5),
+                        "Fallback result must replace the missing/corrupt saved value.");
+                    Assert.That(_projectStateService.IsDirty, Is.False);
+                });
+                calculatorMock.Verify(
+                    calculator => calculator.Calculate(
+                        It.IsAny<ThermalInputs>(),
+                        It.IsAny<IClimateData>(),
+                        It.IsAny<IConstructionData>()),
+                    Times.Once);
+
+                // Сохранение после fallback персистит именно fallback-результат
+                // (не повреждённые 999) с точным восьмиполевым контрактом.
+                var saved = viewModel.SaveCurrentProject();
+                Assert.Multiple(() =>
+                {
+                    Assert.That(saved.ThermalData.Result, Is.Not.Null);
+                    Assert.That(saved.ThermalData.Result!.PowerTotal, Is.EqualTo(42.5));
+                    Assert.That(saved.ThermalData.Result.IsValid, Is.True);
+                });
+            }
+        }
+
+        [Test]
+        [Category("PersistenceFailure")]
+        public async Task PersistenceFailure_FailedFileOperation_PreservesErrorStateWithoutSchemaDrift()
+        {
+            var calculationStateService = new CalculationStateService(_projectStateService.Session);
+            var thermalVm = CreateThermalViewModel(calculationStateService, _projectStateService);
+            var viewModel = CreateViewModel(
+                CreateClimateViewModel(),
+                CreateConstructionViewModel(_projectStateService.Session),
+                thermalVm,
+                CreateCircuitsViewModel(calculationStateService, _projectStateService),
+                calculationStateService);
+
+            var inputsX = CreateCanonicalInputs();
+            var resultX = CreateCanonicalResult(363.3);
+            _projectStateService.Session.ThermalState.Restore(inputsX, resultX);
+            var beforeSave = _projectStateService.Session.ThermalState.Snapshot;
+
+            // Неуспешная файловая операция: несуществующая директория → Failure.
+            var fileService = new ProjectFileService();
+            var badPath = Path.Combine(
+                TestContext.CurrentContext.WorkDirectory,
+                "no-such-dir",
+                $"persistence-failure-{Guid.NewGuid():N}.smc");
+            var saveResult = await fileService.SaveProjectResultAsync(badPath, viewModel.SaveCurrentProject());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(saveResult.IsSuccess, Is.False, "Missing target directory must fail the save.");
+                Assert.That(File.Exists(badPath), Is.False);
+                // Frozen error state: каноническое состояние не тронуто.
+                Assert.That(_projectStateService.Session.ThermalState.Snapshot, Is.EqualTo(beforeSave));
+            });
+
+            // Успешное сохранение тех же данных не даёт schema drift.
+            var saved = viewModel.SaveCurrentProject();
+            var json = System.Text.Json.JsonSerializer.Serialize(
+                saved.ThermalData, CreateProductionJsonOptions());
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            Assert.That(doc.RootElement.EnumerateObject().Select(p => p.Name).OrderBy(n => n).ToArray(),
+                Is.EqualTo(new[]
+                {
+                    "groundTemperature", "pipeSpacing", "result", "selectedMode",
+                    "selectedPipe", "supplyTemperature"
+                }));
         }
     }
 }

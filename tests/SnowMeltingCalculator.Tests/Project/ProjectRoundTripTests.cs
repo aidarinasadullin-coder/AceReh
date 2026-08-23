@@ -1,9 +1,11 @@
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using NUnit.Framework;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Models.Project;
+using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Project;
 
 namespace SnowMeltingCalculator.Tests.Project
@@ -551,6 +553,211 @@ namespace SnowMeltingCalculator.Tests.Project
             Assert.That(actual.ReynoldsNumber, Is.EqualTo(expected.ReynoldsNumber));
             Assert.That(actual.FrictionFactor, Is.EqualTo(expected.FrictionFactor));
             Assert.That(actual.PressureLossPerMeter, Is.EqualTo(expected.PressureLossPerMeter));
+        }
+
+        // === Todo 10 (DEC-T08): canonical Thermal save → file → restore round-trips ===
+
+        private static (ThermalInputsSnapshot Inputs, ThermalResultSnapshot Result) CreateCanonicalThermal()
+        {
+            var standard = PipeType.StandardPipes.Single(p => p.Name == "RAUTHERM S 20x2,0");
+            var inputs = new ThermalInputsSnapshot(
+                OperatingMode.Intensive,
+                55.0,
+                8.0,
+                ThermalPipeSnapshot.FromPipeType(standard),
+                250);
+            var result = new ThermalResultSnapshot(
+                alpha: 0.35,
+                powerUp: 357.5,
+                powerDown: 5.8,
+                powerTotal: 363.3,
+                meltingHeat: 1.1,
+                radiationHeat: 2.2,
+                convectionHeat: 3.3,
+                excessTemperature: 4.4,
+                meanTemperature: 52.16,
+                supplyTemperature: 60.0,
+                returnTemperature: 44.31,
+                deltaT: 15.69,
+                rFb: 5.5,
+                rD: 6.6,
+                parameterM: 7.7,
+                efficiencyEtaR: 8.8,
+                massFlowRate: 9.9,
+                volumeFlowRate: 10.10,
+                isValid: true,
+                validationErrors: null);
+            return (inputs, result);
+        }
+
+        /// <summary>
+        /// Todo 10: полный save→load семантический round-trip канонического
+        /// Thermal-состояния через реальный ProjectFileService и обе половины
+        /// маппера + proof отсутствия schema drift в записанном файле.
+        /// </summary>
+        [Test]
+        public async Task ThermalRoundTrip_CanonicalSaveLoad_RestoresSemanticEquality_WithoutSchemaDrift()
+        {
+            var (inputs, result) = CreateCanonicalThermal();
+            var session = new ProjectSession();
+            session.ThermalState.Restore(inputs, result);
+
+            var data = new ProjectData
+            {
+                Version = "1.1",
+                ProjectNumber = "THM-RT-11",
+                ThermalData = ThermalPersistenceMapper.BuildThermalProjectData(
+                    session.ThermalState.Snapshot)
+            };
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"thm-rt-{Guid.NewGuid()}.smc");
+            try
+            {
+                Assert.That(await _service.SaveProjectAsync(tempPath, data), Is.True);
+                var loaded = await _service.LoadProjectAsync(tempPath);
+                Assert.That(loaded, Is.Not.Null);
+                Assert.That(loaded!.Version, Is.EqualTo("1.1"));
+
+                var restoredInputs = ThermalPersistenceMapper.BuildInputsCandidate(
+                    loaded.ThermalData, PipeType.StandardPipes);
+                var restoredResult = ThermalPersistenceMapper.BuildSavedResult(loaded.ThermalData.Result);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(restoredInputs, Is.EqualTo(inputs),
+                        "Save→load→restore must be semantically equal for inputs.");
+                    Assert.That(restoredResult, Is.Not.Null);
+                    Assert.That(restoredResult!.PowerUp, Is.EqualTo(result.PowerUp));
+                    Assert.That(restoredResult.PowerDown, Is.EqualTo(result.PowerDown));
+                    Assert.That(restoredResult.PowerTotal, Is.EqualTo(result.PowerTotal));
+                    Assert.That(restoredResult.SupplyTemperature, Is.EqualTo(result.SupplyTemperature));
+                    Assert.That(restoredResult.ReturnTemperature, Is.EqualTo(result.ReturnTemperature));
+                    Assert.That(restoredResult.MeanTemperature, Is.EqualTo(result.MeanTemperature));
+                    Assert.That(restoredResult.DeltaT, Is.EqualTo(result.DeltaT));
+                    Assert.That(restoredResult.IsValid, Is.True);
+                });
+
+                // Schema drift proof на реальном файле: набор свойств thermalData
+                // равен точному wire-контракту; version не изменился.
+                var json = await File.ReadAllTextAsync(tempPath);
+                using var doc = JsonDocument.Parse(json);
+                var thermal = doc.RootElement.GetProperty("thermalData");
+                var actualRoot = thermal.EnumerateObject().Select(p => p.Name).OrderBy(n => n).ToArray();
+                Assert.That(actualRoot, Is.EqualTo(new[]
+                {
+                    "groundTemperature", "pipeSpacing", "result", "selectedMode",
+                    "selectedPipe", "supplyTemperature"
+                }));
+                Assert.That(
+                    thermal.GetProperty("selectedPipe").EnumerateObject().Select(p => p.Name).OrderBy(n => n).ToArray(),
+                    Is.EqualTo(new[] { "innerDiameter", "name", "outerDiameter", "wallThickness" }));
+                Assert.That(
+                    thermal.GetProperty("result").EnumerateObject().Select(p => p.Name).OrderBy(n => n).ToArray(),
+                    Is.EqualTo(new[]
+                    {
+                        "deltaT", "isValid", "meanTemperature", "powerDown",
+                        "powerTotal", "powerUp", "returnTemperature", "supplyTemperature"
+                    }));
+                Assert.That(json, Does.Contain("\"version\": \"1.1\""));
+                Assert.That(json, Does.Not.Contain("article"));
+                Assert.That(json, Does.Not.Contain("thermalConductivity"));
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
+        }
+
+        /// <summary>
+        /// Todo 10: v1.0-файл с каноническим Thermal-состоянием проходит тот же
+        /// семантический round-trip — версия не меняет wire-контракт.
+        /// </summary>
+        [Test]
+        public async Task ThermalRoundTrip_V10_SemanticEquality()
+        {
+            var (inputs, result) = CreateCanonicalThermal();
+            var session = new ProjectSession();
+            session.ThermalState.Restore(inputs, result);
+
+            var data = new ProjectData
+            {
+                Version = "1.0",
+                ProjectNumber = "THM-RT-10",
+                ThermalData = ThermalPersistenceMapper.BuildThermalProjectData(
+                    session.ThermalState.Snapshot)
+            };
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"thm-rt10-{Guid.NewGuid()}.smc");
+            try
+            {
+                Assert.That(await _service.SaveProjectAsync(tempPath, data), Is.True);
+                var loaded = await _service.LoadProjectAsync(tempPath);
+                Assert.That(loaded, Is.Not.Null);
+                Assert.That(loaded!.Version, Is.EqualTo("1.0"));
+
+                var restoredInputs = ThermalPersistenceMapper.BuildInputsCandidate(
+                    loaded.ThermalData, PipeType.StandardPipes);
+                var restoredResult = ThermalPersistenceMapper.BuildSavedResult(loaded.ThermalData.Result);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(restoredInputs, Is.EqualTo(inputs));
+                    Assert.That(restoredResult, Is.Not.Null);
+                    Assert.That(restoredResult!.PowerTotal, Is.EqualTo(result.PowerTotal));
+                    Assert.That(restoredResult.IsValid, Is.True);
+                });
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
+        }
+
+        /// <summary>
+        /// Todo 10: save дефолтного состояния не добавляет свойств — null-труба и
+        /// null-результат опускаются (WhenWritingNull), spacing 200 сохраняется.
+        /// </summary>
+        [Test]
+        public async Task ThermalRoundTrip_DefaultSession_PersistsExactDefaultWireShape()
+        {
+            var session = new ProjectSession();
+            var data = new ProjectData
+            {
+                Version = "1.1",
+                ProjectNumber = "THM-RT-DEF",
+                ThermalData = ThermalPersistenceMapper.BuildThermalProjectData(
+                    session.ThermalState.Snapshot)
+            };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(data.ThermalData.SelectedPipe, Is.Null);
+                Assert.That(data.ThermalData.Result, Is.Null);
+                Assert.That(data.ThermalData.PipeSpacing, Is.EqualTo(200));
+                Assert.That(data.ThermalData.SelectedMode, Is.EqualTo(OperatingMode.Melting));
+                Assert.That(data.ThermalData.SupplyTemperature, Is.EqualTo(50.0));
+                Assert.That(data.ThermalData.GroundTemperature, Is.EqualTo(10.0));
+            });
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"thm-def-{Guid.NewGuid()}.smc");
+            try
+            {
+                Assert.That(await _service.SaveProjectAsync(tempPath, data), Is.True);
+                var loaded = await _service.LoadProjectAsync(tempPath);
+                Assert.That(loaded, Is.Not.Null);
+
+                var restoredInputs = ThermalPersistenceMapper.BuildInputsCandidate(
+                    loaded!.ThermalData, PipeType.StandardPipes);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(restoredInputs, Is.EqualTo(ThermalInputsSnapshot.Default));
+                    Assert.That(loaded.ThermalData.Result, Is.Null);
+                });
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
         }
     }
 }

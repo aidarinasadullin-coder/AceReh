@@ -57,7 +57,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
             var climateViewModel = GetField<ClimateViewModel>(viewModel, "_climateViewModel");
             var thermalViewModel = GetField<ThermalViewModel>(viewModel, "_thermalViewModel");
-            var calculator = GetField<IThermalCalculator>(thermalViewModel, "_calculator");
+            // AMZ-1: калькулятор переехал из ThermalViewModel в канонический координатор.
+            var calculator = GetField<IThermalCalculator>(thermalViewModel.Coordinator, "_calculator");
             var retainedPower = viewModel.TotalPowerDensity;
 
             climateViewModel.SelectedCity = new CityInfo { Name = "Новый город", Region = "Новый регион" };
@@ -121,7 +122,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var viewModel = ResultsViewModelTestHelpers.CreateResultsViewModel(_projectStateService, circuitsViewModel);
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
             var thermalViewModel = GetField<ThermalViewModel>(viewModel, "_thermalViewModel");
-            var thermalCalculator = GetField<IThermalCalculator>(thermalViewModel, "_calculator");
+            // AMZ-1: калькулятор переехал из ThermalViewModel в канонический координатор.
+            var thermalCalculator = GetField<IThermalCalculator>(thermalViewModel.Coordinator, "_calculator");
             var circuitsCalculator = GetField<SnowMeltingCalculator.Services.Hydraulics.ICircuitsCalculator>(
                 circuitsViewModel,
                 "_circuitsCalculator");
@@ -297,7 +299,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             Assert.Multiple(() =>
             {
-                Assert.That(source, Does.Contain("_thermalViewModel.Result != null && _thermalViewModel.Result.IsValid"));
+                // Todo 9 (DEC-T08): финализация читает результат из канонического
+                // ThermalState вместо VM-поля; fallback-вызов сохранён как был.
+                Assert.That(source, Does.Contain("_thermalState.Snapshot.Result is { IsValid: true }"));
                 Assert.That(source, Does.Contain("await _thermalViewModel.CalculateCommand.ExecuteAsync(null);"));
                 Assert.That(File.ReadAllText(FindRepositoryFile("src/ViewModels/Results/ResultsViewModel.cs")),
                     Does.Not.Contain("RefreshAll()\r\n        {\r\n            await _thermalViewModel.CalculateCommand"));
