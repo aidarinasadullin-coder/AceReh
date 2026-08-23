@@ -7,6 +7,7 @@ using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Navigation;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Core;
@@ -14,18 +15,18 @@ using SnowMeltingCalculator.Core;
 namespace SnowMeltingCalculator.ViewModels.Thermal
 {
     /// <summary>
-    /// ViewModel для модуля теплового расчёта
+    /// ViewModel для модуля теплового расчёта.
+    /// Phase 4 (AMZ-1): WPF-адаптер над канонической границей
+    /// <see cref="IThermalStateCoordinator"/>; все пользовательские правки,
+    /// расчёт и восстановление идут через координатор. ViewModel не хранит
+    /// dirty/context/status политики и не подписан на upstream-события.
     /// </summary>
     public partial class ThermalViewModel : ObservableObject
     {
-        private readonly IThermalCalculator _calculator;
-        private readonly IClimateData _climateData;
         private readonly IConstructionData _constructionData;
         private readonly ICalculationStateService _calculationStateService;
-        private readonly CalculationContext _calculationContext;
         private readonly IValidator<ThermalInputs> _thermalValidator;
-        private readonly IValidator<ThermalCalculationResult> _thermalResultValidator;
-        private readonly IMarkDirtyService _markDirtyService;
+        private readonly IThermalStateCoordinator _coordinator;
         private bool _isResetting;
 
         #region Observable Properties
@@ -102,83 +103,66 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         }
 
         /// <summary>
-        /// Уведомление об изменении выбранной трубы для обновления доступности шага укладки
+        /// Уведомление об изменении выбранной трубы: правка уходит в координатор
+        /// (одна каноническая мутация + один dirty-intent при изменении).
         /// </summary>
         partial void OnSelectedPipeChanged(PipeType? value)
         {
             if (_isResetting) return;
             if (_calculationStateService.IsLoadProjectInProgress) return;
 
-            _markDirtyService.MarkDirty();
             OnPropertyChanged(nameof(IsPipeSpacingEnabled));
-
-            if (Result != null)
-            {
-                _calculationStateService.SetThermalNeedsRecalculation("Тип трубы изменён. Требуется пересчёт.");
-            }
+            _coordinator.ApplyInputEdit(ThermalInputEdit.ForPipe(ThermalPipeSnapshot.FromPipeType(value)));
         }
 
         /// <summary>
-        /// Уведомление об изменении шага укладки трубы
+        /// Уведомление об изменении шага укладки трубы: правка уходит в координатор.
         /// </summary>
         partial void OnPipeSpacingChanged(int value)
         {
             if (_isResetting) return;
             if (_calculationStateService.IsLoadProjectInProgress) return;
 
-            _markDirtyService.MarkDirty();
-            // Обновляем шаг укладки в сервисе для визуализации
+            // Каноническая правка (dirty-intent + завершение) и затем совместимый
+            // эхо-вызов legacy-поверхности: в реальной композиции он no-op
+            // (значение уже применено канонически), а изолированные композиции с
+            // подменой ICalculationStateService продолжают получать
+            // PipeSpacingChanged (замороженный интеграционный контракт).
+            _coordinator.ApplyInputEdit(ThermalInputEdit.ForPipeSpacing(value));
             _calculationStateService.SetPipeSpacing(value, "ThermalViewModel");
-
-            if (Result != null)
-            {
-                _calculationStateService.SetThermalNeedsRecalculation("Шаг укладки изменён. Требуется пересчёт.");
-            }
         }
 
         /// <summary>
-        /// Уведомление об изменении температуры подачи
+        /// Уведомление об изменении температуры подачи: правка уходит в координатор.
         /// </summary>
         partial void OnSupplyTemperatureChanged(double value)
         {
             if (_isResetting) return;
             if (_calculationStateService.IsLoadProjectInProgress) return;
 
-            _markDirtyService.MarkDirty();
-            if (Result != null)
-            {
-                _calculationStateService.SetThermalNeedsRecalculation("Температура подачи изменена. Требуется пересчёт.");
-            }
+            _coordinator.ApplyInputEdit(ThermalInputEdit.ForSupplyTemperature(value));
         }
 
         /// <summary>
-        /// Уведомление об изменении температуры грунта
+        /// Уведомление об изменении температуры грунта: правка уходит в координатор.
         /// </summary>
         partial void OnGroundTemperatureChanged(double value)
         {
             if (_isResetting) return;
             if (_calculationStateService.IsLoadProjectInProgress) return;
 
-            _markDirtyService.MarkDirty();
-            if (Result != null)
-            {
-                _calculationStateService.SetThermalNeedsRecalculation("Температура грунта изменена. Требуется пересчёт.");
-            }
+            _coordinator.ApplyInputEdit(ThermalInputEdit.ForGroundTemperature(value));
         }
 
         /// <summary>
-        /// Уведомление об изменении режима работы
+        /// Уведомление об изменении режима работы: правка уходит в координатор.
         /// </summary>
         partial void OnSelectedModeChanged(OperatingMode value)
         {
             if (_isResetting) return;
             if (_calculationStateService.IsLoadProjectInProgress) return;
 
-            _markDirtyService.MarkDirty();
-            if (Result != null)
-            {
-                _calculationStateService.SetThermalNeedsRecalculation("Режим работы изменён. Требуется пересчёт.");
-            }
+            _coordinator.ApplyInputEdit(ThermalInputEdit.ForMode(value));
         }
 
         /// <summary>
@@ -236,7 +220,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         #region Constructor
 
         /// <summary>
-        /// Создать ViewModel
+        /// Создать ViewModel. Координатор внедряется DI как application-singleton;
+        /// legacy/тестовая композиция без явного координатора строит его из тех же
+        /// зависимостей вокруг сессии переданного сервиса состояния.
         /// </summary>
         public ThermalViewModel(
             IThermalCalculator calculator,
@@ -246,16 +232,12 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             CalculationContext calculationContext,
             IValidator<ThermalInputs> thermalValidator,
             IValidator<ThermalCalculationResult> thermalResultValidator,
-            IMarkDirtyService markDirtyService)
+            IMarkDirtyService markDirtyService,
+            IThermalStateCoordinator? coordinator = null)
         {
-            _calculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
-            _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
             _constructionData = constructionData ?? throw new ArgumentNullException(nameof(constructionData));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
-            _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
             _thermalValidator = thermalValidator ?? throw new ArgumentNullException(nameof(thermalValidator));
-            _thermalResultValidator = thermalResultValidator ?? throw new ArgumentNullException(nameof(thermalResultValidator));
-            _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
 
             // Инициализация коллекций
             AvailablePipes = new ObservableCollection<PipeType>(PipeType.StandardPipes);
@@ -266,21 +248,28 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 OperatingMode.Intensive
             };
 
-            // Подписка на изменения климатических данных
-            if (_climateData is ClimateData climateDataImpl)
-            {
-                climateDataImpl.DataChanged += OnClimateDataChanged;
-            }
+            // Каноническая граница применения команд (DEC-T04A). В DI-композиции
+            // координатор ровно один и внедряется сюда; изолированная композиция
+            // строит координатор вокруг reference-identical срезов своей сессии.
+            _coordinator = coordinator ?? CreateIsolatedCoordinator(
+                calculationStateService,
+                calculationContext,
+                markDirtyService,
+                calculator,
+                climateData,
+                constructionData,
+                thermalValidator,
+                thermalResultValidator);
 
-            // Подписка на изменения данных конструкции
-            // Construction реализует IConstructionData и вызывает DataChanged
-            _constructionData.DataChanged += OnConstructionDataChanged;
-
-            // Подписка на изменения состояния расчёта
+            // Подписка на изменения состояния расчёта (обновление RecalcMessage/
+            // NeedsRecalculation) и эхо канонического шага укладки.
             _calculationStateService.StateChanged += OnCalculationStateChanged;
-
-            // Подписка на изменения канонического шага укладки
             _calculationStateService.PipeSpacingChanged += OnPipeSpacingServiceChanged;
+
+            // Единственная подписка адаптера на канонические завершения
+            // (обновление привязок) и refresh-сигнал upstream-проекций.
+            _coordinator.Completion += OnCoordinatorCompletion;
+            _coordinator.UpstreamObserved += OnUpstreamObserved;
 
             // Инициализация команды сброса
             ResetCommand = new RelayCommand(Reset);
@@ -291,19 +280,49 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         public IRelayCommand ResetCommand { get; }
 
+        /// <summary>
+        /// Канонический координатор этого адаптера (для проверок идентичности DI).
+        /// </summary>
+        internal IThermalStateCoordinator Coordinator => _coordinator;
+
+        private static IThermalStateCoordinator CreateIsolatedCoordinator(
+            ICalculationStateService calculationStateService,
+            CalculationContext calculationContext,
+            IMarkDirtyService markDirtyService,
+            IThermalCalculator calculator,
+            IClimateData climateData,
+            IConstructionData constructionData,
+            IValidator<ThermalInputs> thermalValidator,
+            IValidator<ThermalCalculationResult> thermalResultValidator)
+        {
+            var session = (calculationStateService as CalculationStateService)?.Session
+                ?? new ProjectSession(climateData as ClimateData, calculationContext);
+            return new ThermalStateCoordinator(
+                session.ThermalState,
+                calculationContext,
+                markDirtyService,
+                calculator,
+                climateData,
+                constructionData,
+                thermalValidator,
+                thermalResultValidator);
+        }
+
         #endregion
 
         #region Commands
 
         /// <summary>
-        /// Команда выполнения расчёта
+        /// Команда выполнения расчёта: предвалидация входов, затем оркестрация
+        /// DEC-T05 внутри координатора.
         /// </summary>
         [RelayCommand]
         private async Task Calculate()
         {
-            if (IsCalculating) return;
+            if (IsCalculating || _coordinator.IsCalculating) return;
 
-            // Валидация входных данных
+            // Валидация входных данных: невалидный кандидат не доходит до
+            // калькулятора, контекста и фазы (DEC-T05 шаги 1-2).
             var inputValidation = ValidateInput();
             if (!inputValidation.IsValid)
             {
@@ -311,60 +330,19 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 return;
             }
 
-            // Установить флаг выполнения расчёта
-            _calculationStateService.SetThermalCalculating();
             IsCalculating = true;
             ValidationMessage = string.Empty;
 
             try
             {
-                // 1. Собрать ThermalInputs из свойств
-                var parameters = BuildThermalInputs();
-                _calculationContext.UpdateThermalInputs(parameters, "Thermal");
-
-                // 2. Вызвать _calculator.Calculate(parameters, _climateData, _constructionData)
-                Result = await Task.Run(() => _calculator.Calculate(parameters, _climateData, _constructionData));
-
-                // 3. Пост-расчётная валидация результата
-                var resultValidation = Result != null ? _thermalResultValidator.Validate(Result) : ValidationResult.Success();
-
-                // 5. Отобразить ошибки в ValidationMessage
-                var messages = new List<string>();
-                if (Result != null && !Result.IsValid && Result.ValidationErrors.Length > 0)
-                {
-                    messages.AddRange(Result.ValidationErrors);
-                }
-
-                if (!resultValidation.IsValid)
-                {
-                    messages.AddRange(resultValidation.Errors.Select(e => e.Message));
-                }
-
-                if (messages.Count > 0)
-                {
-                    ValidationMessage = string.Join("; ", messages);
-                }
-
-                // Публикуем результат в общий контекст ВСЕГДА (вкл. invalid) —
-                // потребитель (CircuitsViewModel) реагирует через OnCalculationContextChanged,
-                // вызывая Notify-only без Calculate при invalid.
-                if (Result != null)
-                {
-                    _calculationContext.UpdateThermal(Result, "Thermal");
-                }
-
-                // Сбросить состояние после успешного расчёта
-                _calculationStateService.ResetThermalState();
+                var outcome = await _coordinator.CalculateAsync(BuildThermalInputs());
+                Result = outcome.Result;
+                ValidationMessage = outcome.ValidationMessage;
             }
             catch (Exception ex)
             {
                 ValidationMessage = $"Ошибка расчёта: {ex.Message}";
                 Result = null;
-                _calculationContext.UpdateThermal(
-                    new ThermalCalculationResult { IsValid = false, ValidationErrors = new[] { $"Ошибка расчёта: {ex.Message}" } },
-                    "Thermal");
-                // При ошибке также сбросить состояние
-                _calculationStateService.ResetThermalState();
             }
             finally
             {
@@ -373,13 +351,16 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         }
 
         /// <summary>
-        /// Сбросить ViewModel к дефолтным значениям
+        /// Сбросить ViewModel к дефолтным значениям. Наследуемое наблюдаемое
+        /// поведение ST-013/ST-015: только адаптер; каноническое состояние и
+        /// события не затрагиваются.
         /// </summary>
         public void Reset()
         {
             _isResetting = true;
             try
             {
+                _coordinator.Reset();
                 SelectedMode = OperatingMode.Melting;
                 SupplyTemperature = 50.0;
                 GroundTemperature = 10.0;
@@ -400,10 +381,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// </summary>
         public void LoadResult(ThermalCalculationResult result, ThermalInputs? inputs = null)
         {
-            Result = result;
             var thermalInputs = inputs ?? BuildThermalInputs();
-            _calculationContext.UpdateThermalInputs(thermalInputs, "Thermal");
-            _calculationContext.UpdateThermal(result, "Thermal");
+            _coordinator.LoadResult(result, thermalInputs);
+            Result = result;
         }
 
         #endregion
@@ -441,32 +421,31 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         }
 
         /// <summary>
-        /// Обработчик изменения климатических данных
+        /// Обработчик канонического завершения: обновление привязок статуса и
+        /// очистка результата при upstream-инвалидации.
         /// </summary>
-        private void OnClimateDataChanged(object? sender, ClimateDataChangedEventArgs e)
+        private void OnCoordinatorCompletion(object? sender, ThermalStateChangedEventArgs e)
         {
-            if (Result != null)
+            var mutation = e.Mutation;
+            if ((mutation.Origin == ThermalMutationOrigin.ClimateInvalidation
+                || mutation.Origin == ThermalMutationOrigin.ConstructionInvalidation)
+                && mutation.Before.Result != null
+                && mutation.After.Result == null)
             {
                 Result = null;
-                _calculationStateService.SetThermalNeedsRecalculation("Климатические данные изменены. Требуется пересчёт.");
             }
+
+            OnPropertyChanged(nameof(RecalcMessage));
+            OnPropertyChanged(nameof(NeedsRecalculation));
         }
 
         /// <summary>
-        /// Обработчик изменения данных конструкции
+        /// Refresh-сигнал upstream-проекций (R-сопротивления и подсказки).
         /// </summary>
-        private void OnConstructionDataChanged(object? sender, ConstructionDataChangedEventArgs e)
+        private void OnUpstreamObserved(object? sender, EventArgs e)
         {
             OnPropertyChanged(nameof(R1Total));
             OnPropertyChanged(nameof(R2Total));
-
-            if (Result != null)
-            {
-                Result = null;
-                _calculationStateService.SetThermalNeedsRecalculation("Данные конструкции изменены. Требуется пересчёт.");
-            }
-
-            // Уведомляем UI о сбросе подсказки температуры подачи
             OnPropertyChanged(nameof(RecommendedSupplyTemperature));
             OnPropertyChanged(nameof(SupplyTemperatureHint));
         }

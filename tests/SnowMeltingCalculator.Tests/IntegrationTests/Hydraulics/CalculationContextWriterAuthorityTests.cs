@@ -1,3 +1,5 @@
+using System.IO;
+using System.Text.RegularExpressions;
 using Moq;
 using NUnit.Framework;
 using SnowMeltingCalculator.Models.Climate;
@@ -225,6 +227,49 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
             }
             _calculationContext.UpdateThermalInputs(inputs, "Thermal");
             _calculationContext.UpdateThermal(result, "Thermal");
+        }
+
+        [Test]
+        [Category("ThermalProjection")]
+        public void ThermalProjection_HasExactlyOneProductionWriterType()
+        {
+            var sourceRoot = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+            while (sourceRoot != null && !Directory.Exists(Path.Combine(sourceRoot.FullName, "src")))
+            {
+                sourceRoot = sourceRoot.Parent;
+            }
+
+            Assert.That(sourceRoot, Is.Not.Null);
+            var sourceDirectory = Path.Combine(sourceRoot!.FullName, "src");
+            var writerFiles = Directory.EnumerateFiles(sourceDirectory, "*.cs", SearchOption.AllDirectories)
+                .Select(file => new { File = file, Text = File.ReadAllText(file) })
+                .Where(item => !string.Equals(Path.GetFileNameWithoutExtension(item.File), "CalculationContext", StringComparison.OrdinalIgnoreCase))
+                .Where(item => Regex.IsMatch(item.Text, @"\bUpdateThermal(?:Inputs|Result)?\s*\("))
+                .Select(item => Path.GetFileNameWithoutExtension(item.File))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            Assert.That(writerFiles, Is.EqualTo(new[] { "ThermalStateCoordinator" }));
+        }
+
+        [Test]
+        [Category("ThermalProjection")]
+        public void CircuitsOwnSourceContextEvents_DoNotReenterHydraulicsCalculation()
+        {
+            var validResult = new ThermalCalculationResult
+            {
+                IsValid = true,
+                PowerUp = 256,
+                PowerDown = 5,
+                SupplyTemperature = 50,
+                ReturnTemperature = 30
+            };
+            SeedThermalInputsAndResult(validResult);
+            _circuitsCalculatorMock.Invocations.Clear();
+
+            _calculationContext.UpdateThermal(validResult, "CircuitsViewModel");
+
+            Assert.That(_circuitsCalculatorMock.Invocations.Count(i => i.Method.Name == nameof(ICircuitsCalculator.CalculateCircuitPower)), Is.Zero);
         }
 
         [Test]

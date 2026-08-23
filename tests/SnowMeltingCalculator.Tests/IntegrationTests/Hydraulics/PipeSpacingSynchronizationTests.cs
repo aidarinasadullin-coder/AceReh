@@ -276,6 +276,35 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
         #region UpdatePipeSpacingInCircuits Tests
 
         [Test]
+        [Category("ThermalProjection")]
+        public void ChangedPipeSpacing_UpdatesExactConsumersAndCalculatesOnce()
+        {
+            var collector = _viewModel.Collectors[0];
+            collector.Circuits.Clear();
+            collector.Circuits.Add(new CircuitRow { CircuitNumber = 1, CircuitLength = 100 });
+            collector.Circuits.Add(new CircuitRow { CircuitNumber = 2, CircuitLength = 80 });
+            _thermalViewModel.PipeSpacing = 200;
+            _circuitsCalculatorMock.Invocations.Clear();
+
+            _thermalViewModel.PipeSpacing = 250;
+
+            Assert.That(collector.Circuits.Select(c => c.PipeSpacing_cm), Is.All.EqualTo(25.0));
+            Assert.That(_circuitsCalculatorMock.Invocations.Count(i => i.Method.Name == nameof(ICircuitsCalculator.CalculateCircuitPower)), Is.EqualTo(2));
+        }
+
+        [Test]
+        [Category("ThermalProjection")]
+        public void UnchangedPipeSpacing_HasZeroHydraulicsCalculations()
+        {
+            _thermalViewModel.PipeSpacing = 200;
+            _circuitsCalculatorMock.Invocations.Clear();
+
+            _thermalViewModel.PipeSpacing = 200;
+
+            Assert.That(_circuitsCalculatorMock.Invocations.Count(i => i.Method.Name == nameof(ICircuitsCalculator.CalculateCircuitPower)), Is.Zero);
+        }
+
+        [Test]
         public void OnThermalViewModelPropertyChanged_WhenPipeSpacingChanged_UpdatesCircuits()
         {
             // Arrange
