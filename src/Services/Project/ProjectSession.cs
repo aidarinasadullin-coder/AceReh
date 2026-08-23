@@ -24,6 +24,7 @@ namespace SnowMeltingCalculator.Services.Project
         private readonly ProjectSessionClimateState _climateState;
         private readonly ProjectSessionConstructionState _constructionState;
         private readonly ProjectSessionThermalState _thermalState;
+        private readonly ProjectSessionHydraulicsState _hydraulicsState;
 
         /// <inheritdoc />
         public IProjectSessionClimateState ClimateState => _climateState;
@@ -34,11 +35,15 @@ namespace SnowMeltingCalculator.Services.Project
         /// <inheritdoc />
         public IProjectSessionThermalState ThermalState => _thermalState;
 
+        /// <inheritdoc />
+        public IProjectSessionHydraulicsState HydraulicsState => _hydraulicsState;
+
         public ProjectSession(IClimateData? climateData = null, CalculationContext? calculationContext = null)
         {
             _climateState = new ProjectSessionClimateState(this, climateData, calculationContext);
             _constructionState = new ProjectSessionConstructionState(this, calculationContext);
             _thermalState = new ProjectSessionThermalState();
+            _hydraulicsState = new ProjectSessionHydraulicsState(this);
         }
 
         /// <inheritdoc />
