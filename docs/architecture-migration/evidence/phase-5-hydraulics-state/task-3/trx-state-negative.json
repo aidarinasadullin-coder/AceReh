@@ -1,0 +1,35 @@
+{
+  "todo": 3,
+  "negativeProbes": [
+    {
+      "identity": "ProjectSessionHydraulicsStateTests.NoChangeAndRejected_EmitNoEvents",
+      "purpose": "Rejected input and no-op input do not emit Changed or dirty the project",
+      "observed": "passed"
+    },
+    {
+      "identity": "ProjectSessionHydraulicsStateTests.Restore_OnlyAcceptsProjectLoad_AndResetRestoresDefaults",
+      "purpose": "Restore with a non-ProjectLoad origin is rejected without an event",
+      "observed": "passed"
+    },
+    {
+      "identity": "ProjectSessionHydraulicsStateTests.ReturnedCollectionsAreReadOnly",
+      "purpose": "Snapshot collections reject external mutation with NotSupportedException",
+      "observed": "passed"
+    }
+  ],
+  "immutabilityProbe": {
+    "purpose": "Snapshot properties expose getters and IReadOnlyList values; source collections are copied on construction",
+    "coverage": [
+      "ProjectSessionHydraulicsStateTests.ReplaceCollectors_Changed_StoresDefensiveCollectionCopy",
+      "ProjectSessionHydraulicsStateTests.ReturnedCollectionsAreReadOnly"
+    ],
+    "observed": "passed"
+  },
+  "testRun": {
+    "command": "dotnet test tests\\SnowMeltingCalculator.Tests\\SnowMeltingCalculator.Tests.csproj -c Release --no-build --filter FullyQualifiedName~ProjectSessionHydraulicsStateTests",
+    "exitCode": 0,
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0
+  }
+}
