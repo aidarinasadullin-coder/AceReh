@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun>
+  <TestDefinitions>
+    <UnitTest name="Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged" id="uid-0001">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged" />
+    </UnitTest>
+    <UnitTest name="Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication" id="uid-0002">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication" />
+    </UnitTest>
+    <UnitTest name="Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit" id="uid-0003">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit" />
+    </UnitTest>
+    <UnitTest name="Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics" id="uid-0004">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics" />
+    </UnitTest>
+  </TestDefinitions>
+  <Results>
+    <UnitTestResult testId="uid-0001" testName="Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged" outcome="Passed" />
+    <UnitTestResult testId="uid-0002" testName="Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication" outcome="Passed" />
+    <UnitTestResult testId="uid-0003" testName="Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit" outcome="Passed" />
+    <UnitTestResult testId="uid-0004" testName="Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics" outcome="Passed" />
+  </Results>
+</TestRun>

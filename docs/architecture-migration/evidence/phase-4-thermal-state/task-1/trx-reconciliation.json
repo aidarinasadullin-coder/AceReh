@@ -1,0 +1,14 @@
+{
+  "reconciled": true,
+  "identitiesCompared": 1739,
+  "passedInBoth": 1736,
+  "notExecutedCount": 3,
+  "notExecutedIdentities": [
+    "SnowMeltingCalculator.Tests.RefactorBaseline.CircuitsBaselineTests.RegenerateCircuitsBaseline",
+    "SnowMeltingCalculator.Tests.RefactorBaseline.ThermalBaselineTests.RegenerateBaseline",
+    "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile"
+  ],
+  "mismatchCount": 0,
+  "mismatches": [
+  ]
+}

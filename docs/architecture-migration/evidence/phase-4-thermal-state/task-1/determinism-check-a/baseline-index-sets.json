@@ -1,0 +1,18 @@
+{
+  "branchLine": "## master...origin/master [ahead 47]",
+  "staged": [
+  ],
+  "unstaged": [
+    "docs/architecture-migration/STATE.json",
+    "docs/architecture-migration/plans/phase-4-thermal-state.md"
+  ],
+  "untracked": [
+    "docs/architecture-migration/evidence/phase-4-thermal-state/capture-baseline.ps1",
+    "docs/architecture-migration/evidence/phase-4-thermal-state/parse-trx.ps1",
+    "docs/architecture-migration/evidence/phase-4-thermal-state/planning-consolidated-receipt-replan-1.md",
+    "docs/architecture-migration/evidence/phase-4-thermal-state/task-1/",
+    "docs/architecture-migration/evidence/phase-4-thermal-state/todo-1-allowed-hunks.json",
+    "docs/architecture-migration/evidence/phase-4-thermal-state/verify-plan-structure.ps1",
+    "docs/architecture-migration/evidence/phase-4-thermal-state/verify-protected-baseline.ps1"
+  ]
+}

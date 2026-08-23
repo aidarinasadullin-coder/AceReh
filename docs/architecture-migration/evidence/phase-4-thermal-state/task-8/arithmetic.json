@@ -1,0 +1,14 @@
+{
+    "reconciled":  true,
+    "baseline_total":  1739,
+    "baseline_passed":  1736,
+    "full_parser_total":  1909,
+    "full_passed":  1906,
+    "full_failed":  0,
+    "full_notExecuted":  3,
+    "focused_total":  59,
+    "focused_passed":  59,
+    "focused_failed":  0,
+    "focused_notExecuted":  0,
+    "parser_pseudo_row_delta":  2
+}

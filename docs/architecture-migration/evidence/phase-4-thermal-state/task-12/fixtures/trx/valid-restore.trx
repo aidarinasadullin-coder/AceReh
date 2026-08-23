@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun>
+  <TestDefinitions>
+    <UnitTest name="LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults" id="uid-0008">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults" />
+    </UnitTest>
+    <UnitTest name="LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults" id="uid-0009">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults" />
+    </UnitTest>
+  </TestDefinitions>
+  <Results>
+    <UnitTestResult testId="uid-0008" testName="LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults" outcome="Passed" />
+    <UnitTestResult testId="uid-0009" testName="LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults" outcome="Passed" />
+  </Results>
+</TestRun>

@@ -1,0 +1,45 @@
+{
+  "allExitZero": true,
+  "suites": [
+    {
+      "id": "v2",
+      "trx": "task-12-v2-focused.trx",
+      "exit": 0,
+      "durationSeconds": 1.8,
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "log": "docs/architecture-migration/evidence/phase-4-thermal-state/task-12/logs/run-v2.log"
+    },
+    {
+      "id": "v3",
+      "trx": "task-12-v3-upstream-invalidation.trx",
+      "exit": 0,
+      "durationSeconds": 1.3,
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "log": "docs/architecture-migration/evidence/phase-4-thermal-state/task-12/logs/run-v3.log"
+    },
+    {
+      "id": "v4",
+      "trx": "task-12-v4-hydraulics-consumer.trx",
+      "exit": 0,
+      "durationSeconds": 1.4,
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "log": "docs/architecture-migration/evidence/phase-4-thermal-state/task-12/logs/run-v4.log"
+    },
+    {
+      "id": "v5",
+      "trx": "task-12-v5-persistence.trx",
+      "exit": 0,
+      "durationSeconds": 10.7,
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "log": "docs/architecture-migration/evidence/phase-4-thermal-state/task-12/logs/run-v5.log"
+    }
+  ]
+}

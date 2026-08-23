@@ -1,0 +1,12 @@
+{
+  "status": "ok",
+  "group": "RestoreFailure",
+  "inputTrx": "docs/architecture-migration/evidence/phase-4-thermal-state/task-12/TestResults/task-12-v6c-restore-failure.trx",
+  "expected": 3,
+  "matched": 3,
+  "identities": [
+    "SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests.RestoreModulesFromProjectAsync_ThermalBoundaryException_ClearsLeaseAndPreservesPartialState",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults"
+  ]
+}

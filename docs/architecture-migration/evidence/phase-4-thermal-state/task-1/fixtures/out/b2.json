@@ -1,0 +1,14 @@
+{
+  "protected_mismatch_count": 1,
+  "allowed_hunk_count": 0,
+  "changed_paths": [
+    {"path": "README.md", "classification": "protected-mismatch", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/capture-baseline.ps1", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/parse-trx.ps1", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/planning-consolidated-receipt-replan-1.md", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-1/", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/todo-1-allowed-hunks.json", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/verify-plan-structure.ps1", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/verify-protected-baseline.ps1", "classification": "allowed", "kind": "added"}
+  ]
+}

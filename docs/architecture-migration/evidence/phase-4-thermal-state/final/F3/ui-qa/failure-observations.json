@@ -1,0 +1,103 @@
+{
+  "project": "unknown-pipe.smc",
+  "fixturePath": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\final\\f3\\fixtures\\unknown-pipe.smc",
+  "fixtureSha256": "D6B580D0664208D0F92906C8EF28700A6A59C216FC244246A0EA922608DAB6B6",
+  "characterizedFallbacks": {
+    "pipe": "first standard pipe (RAUTHERM S 17x2,0) — Todo 8/9 RestoreFailure characterization",
+    "result": "fallback Calculate executed; calculator returns INVALID zero result for fixture inputs (supply 55 / ground 5) — published canonically with validation status",
+    "guardClearedIndirectly": "Температура подачи изменена. Требуется пересчёт."
+  },
+  "assertions": [
+    {
+      "assert": "title after new-calculation reset is bare app title (clean, no file)",
+      "expected": "Калькулятор снеготаяния REHAU",
+      "observed": "Калькулятор снеготаяния REHAU",
+      "pass": true
+    },
+    {
+      "assert": "reset mode == Melting",
+      "expected": "Melting",
+      "observed": "Melting",
+      "pass": true
+    },
+    {
+      "assert": "reset supply == 50.0",
+      "expected": "50 (+/-1dp)",
+      "observed": "50",
+      "pass": true
+    },
+    {
+      "assert": "reset ground == 10.0",
+      "expected": "10 (+/-1dp)",
+      "observed": "10",
+      "pass": true
+    },
+    {
+      "assert": "reset pipe selection empty (no pipe)",
+      "expected": "no selection",
+      "observed": "0:",
+      "pass": true
+    },
+    {
+      "assert": "reset spacing == 200 mm",
+      "expected": "200 (+/-0dp)",
+      "observed": "200",
+      "pass": true
+    },
+    {
+      "assert": "reset leaves spacing combo present (enabled-state not contract-bound)",
+      "expected": "present",
+      "observed": "True",
+      "pass": true
+    },
+    {
+      "assert": "reset clears result (PowerTotal absent)",
+      "expected": "absent",
+      "observed": "absent",
+      "pass": true
+    },
+    {
+      "assert": "reset leaves no recalc message",
+      "expected": "absent",
+      "observed": "absent",
+      "pass": true
+    },
+    {
+      "assert": "close 'b-load-reset': clean exit code",
+      "expected": "0",
+      "observed": "0",
+      "pass": true
+    },
+    {
+      "assert": "close 'b-load-reset': stderr free of crash patterns",
+      "expected": "no match",
+      "observed": "clean",
+      "pass": true
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\final\\f3\\ui-qa\\06-reset.png",
+      "sha256": "E8875E7C6224610645662B48C7873E0C3BDD39975A273C9C6DE833B32AFF1BEA",
+      "note": "screenshot 06-reset"
+    }
+  ],
+  "process": {
+    "tag": "unknown-pipe",
+    "project": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\final\\f3\\fixtures\\unknown-pipe.smc",
+    "pid": 4800,
+    "exitCode": 0,
+    "exeShaBefore": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+    "exeShaAfter": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+    "stdoutLog": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\final\\f3\\ui-qa\\run-unknown-pipe-stdout.log",
+    "stdoutSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "stderrLog": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\final\\f3\\ui-qa\\run-unknown-pipe-stderr.log",
+    "stderrSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "startedUtc": "2026-08-23T19:48:35.0917929Z",
+    "exitUtc": "2026-08-23T19:48:42.9879908Z"
+  },
+  "screenshots": [
+    "07-unknown-pipe.png"
+  ],
+  "result": "PASS"
+}

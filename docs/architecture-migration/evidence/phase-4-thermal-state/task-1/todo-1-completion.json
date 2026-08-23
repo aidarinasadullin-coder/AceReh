@@ -1,0 +1,42 @@
+{
+  "todo": 1,
+  "phase": "phase-4-thermal-state",
+  "root": "D:\\IA\\3ace v.2",
+  "branch": "master",
+  "headBase": "6a5a96f1763dd952c8d772ecd1d2536eb3b804cf",
+  "fourBuildResults": {
+    "debugSrc":   {"exitCode": 0, "warnings": 0, "errors": 0, "durationMs": 1158},
+    "releaseSrc": {"exitCode": 0, "warnings": 0, "errors": 0, "durationMs": 4733},
+    "debugTests": {"exitCode": 0, "warnings": 0, "errors": 0, "durationMs": 2815},
+    "releaseTests": {"exitCode": 0, "warnings": 0, "errors": 0, "durationMs": 2111}
+  },
+  "testSuites": {
+    "debug":   {"exitCode": 0, "total": 1739, "passed": 1736, "failed": 0, "notExecuted": 3},
+    "release": {"exitCode": 0, "total": 1739, "passed": 1736, "failed": 0, "notExecuted": 3}
+  },
+  "trxDebug": {
+    "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-1/TestResults-debug/task-1-full-debug.trx",
+    "sha256": "ED2211FFD241CC360D4080F525986AC5F3F6FA086B199B93D7E8958771ECE7E0"
+  },
+  "trxRelease": {
+    "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-1/TestResults-release/task-1-full-release.trx",
+    "sha256": "353AC3C71A407CA3577C8E5DF04690980B2048CEA5FA7D7D831ED0D5AE9FBB6C"
+  },
+  "notExecutedIdentities": [
+    "SnowMeltingCalculator.Tests.RefactorBaseline.CircuitsBaselineTests.RegenerateCircuitsBaseline",
+    "SnowMeltingCalculator.Tests.RefactorBaseline.ThermalBaselineTests.RegenerateBaseline",
+    "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile"
+  ],
+  "protectedMismatchCount": 0,
+  "allowedHunkCount": 0,
+  "gates": {
+    "g1_stateValidation": {"exitCode": 0, "valid": true},
+    "g2_baselineDeterministic": true,
+    "g3_protectedVerifierPrePost": {"preExitCode": 0, "postExitCode": 0},
+    "g4_planStructure": {"exitCode": 0, "v11_first_todo": 11},
+    "g5_fourBuilds": true,
+    "g6_fullSuites": true,
+    "g7_trxReconciliation": {"reconciled": true, "identitiesCompared": 1739, "mismatches": 0}
+  },
+  "todo2_unlocked": true
+}

@@ -1,0 +1,13 @@
+{
+  "status": "ok",
+  "group": "CalculationFailure",
+  "inputTrx": "docs/architecture-migration/evidence/phase-4-thermal-state/final/f3/TestResults/f3-calculation-failure.trx",
+  "expected": 4,
+  "matched": 4,
+  "identities": [
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit"
+  ]
+}

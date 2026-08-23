@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun>
+  <TestDefinitions>
+    <UnitTest name="Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged" id="uid-0027">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged" />
+    </UnitTest>
+    <UnitTest name="Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication" id="uid-0028">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication" />
+    </UnitTest>
+    <UnitTest name="Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit" id="uid-0029">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit" />
+    </UnitTest>
+    <UnitTest name="Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics" id="uid-0030">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics" />
+    </UnitTest>
+    <UnitTest name="Restore_InvalidSavedResult_CalculatorOnceInvalidResultNotFinalCanonical" id="uid-0031">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Restore_InvalidSavedResult_CalculatorOnceInvalidResultNotFinalCanonical" />
+    </UnitTest>
+  </TestDefinitions>
+  <Results>
+    <UnitTestResult testId="uid-0027" testName="Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged" outcome="Passed" />
+    <UnitTestResult testId="uid-0028" testName="Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication" outcome="Passed" />
+    <UnitTestResult testId="uid-0029" testName="Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit" outcome="Passed" />
+    <UnitTestResult testId="uid-0030" testName="Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics" outcome="Passed" />
+    <UnitTestResult testId="uid-0031" testName="Restore_InvalidSavedResult_CalculatorOnceInvalidResultNotFinalCanonical" outcome="Passed" />
+  </Results>
+</TestRun>

@@ -1,0 +1,17 @@
+{
+    "reconciled":  true,
+    "baseline_total":  1909,
+    "baseline_passed":  1906,
+    "full_parser_total":  1924,
+    "full_passed":  1921,
+    "full_failed":  0,
+    "full_notExecuted":  3,
+    "focused_total":  54,
+    "focused_passed":  53,
+    "focused_failed":  0,
+    "focused_notExecuted":  1,
+    "parser_pseudo_row_delta":  2,
+    "new_test_count":  15,
+    "arithmetic":  "1906 baseline passed + 15 new tests = 1921; 1909 baseline total + 15 new = 1924 parser total; NotExecuted identities identical to baseline (RegenerateBaseline, RegenerateCircuitsBaseline, ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile)",
+    "amz2_note":  "Owner decision AMZ-2 (journal 2026-08-23, TASK_CONTEXT.md) authorized updating exactly two rows in ThermalMultiplicityCharacterizationTests.cs to DEC-T08 targets; production translation suppression for ProjectLoadReset origin added in CalculationStateService.OnThermalStateChanged to preserve frozen lifecycle-reset silence."
+}

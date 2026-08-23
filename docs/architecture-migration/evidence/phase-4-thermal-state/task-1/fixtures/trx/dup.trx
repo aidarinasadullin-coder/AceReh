@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <TestDefinitions>
+    <UnitTest name="T1" storage="a.dll" id="11111111-1111-1111-1111-111111111111">
+      <TestMethod className="Ns.ClassA" name="DoThing" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <UnitTestResult testId="11111111-1111-1111-1111-111111111111" testName="DoThing" outcome="Passed" />
+    <UnitTestResult testId="11111111-1111-1111-1111-111111111111" testName="DoThing" outcome="Passed" />
+  </TestEntries>
+</TestRun>

@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalStateLegacyStoreGuardTests.ContextUnapprovedWriter_GuardAllowsOnlyCoordinatorProductionWriter", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalStateLegacyStoreGuardTests.DiIndependentStateRegistration_GuardRejectsIndependentDescriptorsAndInstances", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalStateLegacyStoreGuardTests.DuplicateUpstreamSubscriber_GuardRequiresOneCoordinatorAttachPerSurface", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalStateLegacyStoreGuardTests.OrchestratorDirectAssign_GuardRequiresRestoreBeforeAdapterProjection", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalStateLegacyStoreGuardTests.ResultsNonCanonicalSave_GuardRequiresCanonicalMapperInput", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalStateLegacyStoreGuardTests.ServiceThermalStore_GuardRejectsThermalAndSpacingBackingFields", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalStateLegacyStoreGuardTests.SnapshotMutability_GuardDefensivelyCopiesEscapingMutableValues", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalStateLegacyStoreGuardTests.VmWritableStore_GuardRejectsThermalStatusBackingFields", "outcome": "Passed"}
+  ],
+  "counts": {"total": 8, "passed": 8, "failed": 0, "notExecuted": 0}
+}

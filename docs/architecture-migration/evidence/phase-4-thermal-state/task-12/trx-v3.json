@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ClimateThermalInvalidationRegressionTests.ChangedProjectLoadReset_SynchronizesWithoutThermalInvalidationOrDirty", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ClimateThermalInvalidationRegressionTests.ChangedUserResetToCityData_InvalidatesThermalExactlyOnceAndMarksDirty", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ClimateThermalInvalidationRegressionTests.ChangedUserResetToDefaults_InvalidatesThermalExactlyOnceAndMarksDirty", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ClimateThermalInvalidationRegressionTests.NoOpUserResetToDefaults_IsSilent", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ClimateThermalInvalidationRegressionTests.PostLoadUserClimateEdit_InvalidatesThermalExactlyOnceAndMarksDirtyAcrossRepeatedLoads", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ClimateThermalInvalidationRegressionTests.ProjectLoadWithoutSavedThermalResult_CalculatesOnceWithoutClimateInvalidation", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ClimateThermalInvalidationRegressionTests.ProjectLoad_DoesNotInvalidateRestoredThermalResult", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ClimateThermalInvalidationRegressionTests.RepeatedResetAndLoad_DoesNotMultiplyClimateOrThermalEvents", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ClimateThermalInvalidationRegressionTests.ResetModules_CanonicallyClearsRestoredThermalResultWithLifecycleOrigin", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.Cancelled_IsNotReachableFromCurrentProductionMutationPaths", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.LifecycleMutation_WithExistingResult_IsSilent(Initialization)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.LifecycleMutation_WithExistingResult_IsSilent(ProjectLoad)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.LifecycleMutation_WithExistingResult_IsSilent(Reset)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.NoChange_WithExistingResult_IsSilent", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.Rejected_WithExistingResult_IsSilent", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.SuccessfulRecalculation_AfterInvalidation_ReturnsThermalToActual", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.TemplateMutation_WithExistingResult_InvalidatesThermalOnce", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.UserMutation_WithExistingResult_InvalidatesThermalOnce(CalculatedLambda)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.UserMutation_WithExistingResult_InvalidatesThermalOnce(Material)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.UserMutation_WithExistingResult_InvalidatesThermalOnce(Thickness)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ConstructionThermalInvalidationRegressionTests.UserMutation_WithoutExistingResult_PublishesProjectionButDoesNotInvalidateThermal", "outcome": "Passed"}
+  ],
+  "counts": {"total": 21, "passed": 21, "failed": 0, "notExecuted": 0}
+}

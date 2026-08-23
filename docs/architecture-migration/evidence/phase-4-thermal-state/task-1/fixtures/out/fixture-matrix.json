@@ -1,0 +1,170 @@
+[
+  {
+    "Name": "baseline-spaces-path",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 977
+  },
+  {
+    "Name": "baseline-nonascii-path",
+    "ExitCode": 3,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 1444
+  },
+  {
+    "Name": "baseline-nul-boundary",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 942
+  },
+  {
+    "Name": "baseline-missing-row-field",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 1037
+  },
+  {
+    "Name": "baseline-malformed-row",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 1009
+  },
+  {
+    "Name": "baseline-duplicate-path",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 926
+  },
+  {
+    "Name": "baseline-path-escape",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 919
+  },
+  {
+    "Name": "baseline-file-missing",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 915
+  },
+  {
+    "Name": "drift-tampered-hash",
+    "ExitCode": 3,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 1456
+  },
+  {
+    "Name": "drift-omitted-tracked-file",
+    "ExitCode": 3,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 1469
+  },
+  {
+    "Name": "trx-empty",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 929
+  },
+  {
+    "Name": "trx-truncated-xml",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 889
+  },
+  {
+    "Name": "trx-zero-tests",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 792
+  },
+  {
+    "Name": "trx-duplicate-identity",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 773
+  },
+  {
+    "Name": "trx-input-missing",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 764
+  },
+  {
+    "Name": "trx-usage-no-input",
+    "ExitCode": 1,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 755
+  },
+  {
+    "Name": "plan-zero-task-rows",
+    "ExitCode": 3,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 401
+  },
+  {
+    "Name": "plan-duplicate-id",
+    "ExitCode": 3,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 464
+  },
+  {
+    "Name": "plan-gapped-id",
+    "ExitCode": 3,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 456
+  },
+  {
+    "Name": "plan-out-of-order",
+    "ExitCode": 3,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 440
+  },
+  {
+    "Name": "plan-todo-15",
+    "ExitCode": 3,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 455
+  },
+  {
+    "Name": "plan-fifth-final-f5",
+    "ExitCode": 3,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 443
+  },
+  {
+    "Name": "plan-unresolved-v99",
+    "ExitCode": 3,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 454
+  },
+  {
+    "Name": "plan-output-owned-by-another-task",
+    "ExitCode": 3,
+    "ExpectedNonzero": true,
+    "Pass": true,
+    "DurationMs": 432
+  }
+]

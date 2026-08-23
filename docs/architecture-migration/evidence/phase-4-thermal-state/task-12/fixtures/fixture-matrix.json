@@ -1,0 +1,218 @@
+{
+  "pwshVersion": "7.6.5",
+  "caseCount": 35,
+  "allPass": true,
+  "b1ReceiptWritten": true,
+  "cases": [
+    {
+      "id": "A1-happy-cf",
+      "expect": "0",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "id": "A2-happy-pf",
+      "expect": "0",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "id": "A3-happy-rf",
+      "expect": "0",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "id": "A4-reject-nonpassed",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "A5-reject-absent",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "A6-reject-unexpected",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "A7-reject-duplicate",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "A8-reject-zero-tests",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "A9-reject-empty-group",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "A10-reject-missing-input",
+      "expect": "nz",
+      "exit": 2,
+      "ok": true
+    },
+    {
+      "id": "A11-reject-bad-group",
+      "expect": "nz",
+      "exit": 2,
+      "ok": true
+    },
+    {
+      "id": "A12-reject-crossgroup",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "B1-happy-frozen",
+      "expect": "0",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "id": "B2-reject-extra-key",
+      "expect": "nz",
+      "exit": 2,
+      "ok": true
+    },
+    {
+      "id": "B3-reject-missing-key",
+      "expect": "nz",
+      "exit": 2,
+      "ok": true
+    },
+    {
+      "id": "B4-reject-lowercase-sha",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "B5-reject-hash-mismatch",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "B6-reject-missing-file",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "B7-reject-path-escape",
+      "expect": "nz",
+      "exit": 2,
+      "ok": true
+    },
+    {
+      "id": "B8-reject-duplicate-path",
+      "expect": "nz",
+      "exit": 2,
+      "ok": true
+    },
+    {
+      "id": "B9-reject-nonregular",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "B10-reject-bad-lane",
+      "expect": "nz",
+      "exit": 2,
+      "ok": true
+    },
+    {
+      "id": "B11-reject-bad-moment",
+      "expect": "nz",
+      "exit": 2,
+      "ok": true
+    },
+    {
+      "id": "C1-happy-receipts",
+      "expect": "0",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "id": "C2-reject-missing-receipt",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "C3-reject-missing-field",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "C4-reject-duplicate-field",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "C5-reject-wrong-subject",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "C6-reject-verdict-reject",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "C7-reject-verdict-blocked",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "C8-reject-altered-artifact-hash",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "C9-reject-cross-lane-drift",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "C10-reject-before-after-drift",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "C11-reject-extra-machine-field",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    },
+    {
+      "id": "C12-reject-missing-frozen-hashes",
+      "expect": "nz",
+      "exit": 3,
+      "ok": true
+    }
+  ]
+}

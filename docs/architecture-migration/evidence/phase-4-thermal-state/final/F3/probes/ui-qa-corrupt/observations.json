@@ -1,0 +1,178 @@
+{
+  "executable": "D:\\IA\\3ace v.2\\src\\bin\\Release\\net8.0-windows\\win-x64\\SnowMeltingCalculator.exe",
+  "expectedSha256": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+  "generatedUtc": "2026-08-23T19:47:41.4876452Z",
+  "fixtures": null,
+  "processes": [],
+  "selectors": [
+    {
+      "id": "ThermalMode",
+      "controlType": "ComboBox",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ThermalSupplyTemperature",
+      "controlType": "Edit",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ThermalGroundTemperature",
+      "controlType": "Edit",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ThermalPipe",
+      "controlType": "ComboBox",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ThermalPipeSpacing",
+      "controlType": "ComboBox",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ThermalCalculate",
+      "controlType": "Button",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ThermalReset",
+      "controlType": "Button",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ThermalRecalcMessage",
+      "controlType": "Text",
+      "view": "Thermal",
+      "optional": true,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ThermalDeltaT",
+      "controlType": "Text",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ThermalPowerTotal",
+      "controlType": "Text",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ThermalResultStatus",
+      "controlType": "Text",
+      "view": "Thermal",
+      "optional": true,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "HydraulicsPipeSpacing",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "HydraulicsSupplyTemperature",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "HydraulicsReturnTemperature",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ResultsThermalPower",
+      "controlType": "Text",
+      "view": "Results",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ResultsSupplyTemperature",
+      "controlType": "Text",
+      "view": "Results",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "ResultsReturnTemperature",
+      "controlType": "Text",
+      "view": "Results",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    }
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "name": "Verify fixture-manifest.json and all three input SHA-256 values",
+      "status": "FAILED",
+      "assertions": [
+        {
+          "assert": "fixture project-a.smc SHA matches manifest",
+          "expected": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+          "observed": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+          "pass": true
+        },
+        {
+          "assert": "fixture project-b.smc SHA matches manifest",
+          "expected": "FBE377ABAB8A5D3A47086E23A5E4FFFA68B95EAEEE569DEE459CEB0235940882",
+          "observed": "FBE377ABAB8A5D3A47086E23A5E4FFFA68B95EAEEE569DEE459CEB0235940882",
+          "pass": true
+        },
+        {
+          "assert": "fixture unknown-pipe.smc SHA matches manifest",
+          "expected": "D7BA538E14C8C9AC33556540705EECA6C10E8F223BB0DA837463B584F1AB1532",
+          "observed": "339E37F5AD33C1AE6555FEE9D661A6743FE2C051A256420450945C8CE81AEF42",
+          "pass": false
+        }
+      ],
+      "artifacts": []
+    }
+  ],
+  "screenshots": [],
+  "deviations": [],
+  "unexpectedDialogs": [],
+  "error": "run-wpf-ui-qa: assertion FAILED [fixture unknown-pipe.smc SHA matches manifest]: expected <D7BA538E14C8C9AC33556540705EECA6C10E8F223BB0DA837463B584F1AB1532>, observed <339E37F5AD33C1AE6555FEE9D661A6743FE2C051A256420450945C8CE81AEF42> @ At D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-4-thermal-state\\run-wpf-ui-qa.ps1:60 char:5 + throw [System.InvalidOperationException]::new(\"run-wpf-ui-qa: $me … + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ | STACK: at Fail, D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-4-thermal-state\\run-wpf-ui-qa.ps1: line 60\r\nat Add-Assertion, D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-4-thermal-state\\run-wpf-ui-qa.ps1: line 204\r\nat Invoke-MainFlow, D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-4-thermal-state\\run-wpf-ui-qa.ps1: line 783\r\nat <ScriptBlock>, D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-4-thermal-state\\run-wpf-ui-qa.ps1: line 1216",
+  "result": "FAIL"
+}

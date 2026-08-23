@@ -1,0 +1,54 @@
+{
+  "sdkVersion": "8.0.418",
+  "allExitZero": true,
+  "builds": [
+    {
+      "id": "v1-product-debug",
+      "project": "src/SnowMeltingCalculator.csproj",
+      "configuration": "Debug",
+      "exit": 0,
+      "durationSeconds": 1.0,
+      "warningsSummary": -1,
+      "errorsSummary": -1,
+      "warningLines": 0,
+      "errorLines": 0,
+      "log": "docs/architecture-migration/evidence/phase-4-thermal-state/task-12/logs/v1-product-debug.log"
+    },
+    {
+      "id": "v1-product-release",
+      "project": "src/SnowMeltingCalculator.csproj",
+      "configuration": "Release",
+      "exit": 0,
+      "durationSeconds": 1.0,
+      "warningsSummary": -1,
+      "errorsSummary": -1,
+      "warningLines": 0,
+      "errorLines": 0,
+      "log": "docs/architecture-migration/evidence/phase-4-thermal-state/task-12/logs/v1-product-release.log"
+    },
+    {
+      "id": "v1-tests-release",
+      "project": "tests/SnowMeltingCalculator.Tests/SnowMeltingCalculator.Tests.csproj",
+      "configuration": "Release",
+      "exit": 0,
+      "durationSeconds": 1.2,
+      "warningsSummary": -1,
+      "errorsSummary": -1,
+      "warningLines": 0,
+      "errorLines": 0,
+      "log": "docs/architecture-migration/evidence/phase-4-thermal-state/task-12/logs/v1-tests-release.log"
+    },
+    {
+      "id": "v1-tests-debug",
+      "project": "tests/SnowMeltingCalculator.Tests/SnowMeltingCalculator.Tests.csproj",
+      "configuration": "Debug",
+      "exit": 0,
+      "durationSeconds": 4.4,
+      "warningsSummary": -1,
+      "errorsSummary": -1,
+      "warningLines": 0,
+      "errorLines": 0,
+      "log": "docs/architecture-migration/evidence/phase-4-thermal-state/task-12/logs/v1-tests-debug.log"
+    }
+  ]
+}

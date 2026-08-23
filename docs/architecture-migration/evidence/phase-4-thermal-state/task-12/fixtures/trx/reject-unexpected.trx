@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun>
+  <TestDefinitions>
+    <UnitTest name="Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged" id="uid-0017">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged" />
+    </UnitTest>
+    <UnitTest name="Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication" id="uid-0018">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication" />
+    </UnitTest>
+    <UnitTest name="Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit" id="uid-0019">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit" />
+    </UnitTest>
+    <UnitTest name="Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics" id="uid-0020">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics" />
+    </UnitTest>
+    <UnitTest name="Extra_UnexpectedIdentityCase" id="uid-0021">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Extra_UnexpectedIdentityCase" />
+    </UnitTest>
+  </TestDefinitions>
+  <Results>
+    <UnitTestResult testId="uid-0017" testName="Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged" outcome="Passed" />
+    <UnitTestResult testId="uid-0018" testName="Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication" outcome="Passed" />
+    <UnitTestResult testId="uid-0019" testName="Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit" outcome="Passed" />
+    <UnitTestResult testId="uid-0020" testName="Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics" outcome="Passed" />
+    <UnitTestResult testId="uid-0021" testName="Extra_UnexpectedIdentityCase" outcome="Passed" />
+  </Results>
+</TestRun>

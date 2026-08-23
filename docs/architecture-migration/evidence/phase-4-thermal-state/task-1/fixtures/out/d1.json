@@ -1,0 +1,18 @@
+{
+  "valid": false,
+  "plan": "docs/architecture-migration/evidence/phase-4-thermal-state/task-1/fixtures/plans/zero-rows.md",
+  "v11_first_todo": 0,
+  "todos": [],
+  "finals": [],
+  "counts": {
+    "todoCount": 0,
+    "finalCount": 0,
+    "taskRowCount": 0,
+    "catalogVDefinitionCount": 14,
+    "errorCount": 2
+  },
+  "errors": [
+    "zero task rows matched",
+    "no todo body defines/references V11; v11_first_todo unresolved"
+  ]
+}

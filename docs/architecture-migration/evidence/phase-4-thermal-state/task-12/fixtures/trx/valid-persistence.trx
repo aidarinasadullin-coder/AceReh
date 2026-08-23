@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun>
+  <TestDefinitions>
+    <UnitTest name="Restore_InvalidSavedResult_CalculatorOnceInvalidResultNotFinalCanonical" id="uid-0005">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Restore_InvalidSavedResult_CalculatorOnceInvalidResultNotFinalCanonical" />
+    </UnitTest>
+    <UnitTest name="Restore_UnknownPersistedPipe_FallsBackToFirstStandardPipe" id="uid-0006">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="Restore_UnknownPersistedPipe_FallsBackToFirstStandardPipe" />
+    </UnitTest>
+    <UnitTest name="LoadCorruptProjectFile_ShowsErrorKeepsPriorProjectAndThermalStateUntouched" id="uid-0007">
+      <TestMethod className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="LoadCorruptProjectFile_ShowsErrorKeepsPriorProjectAndThermalStateUntouched" />
+    </UnitTest>
+  </TestDefinitions>
+  <Results>
+    <UnitTestResult testId="uid-0005" testName="Restore_InvalidSavedResult_CalculatorOnceInvalidResultNotFinalCanonical" outcome="Passed" />
+    <UnitTestResult testId="uid-0006" testName="Restore_UnknownPersistedPipe_FallsBackToFirstStandardPipe" outcome="Passed" />
+    <UnitTestResult testId="uid-0007" testName="LoadCorruptProjectFile_ShowsErrorKeepsPriorProjectAndThermalStateUntouched" outcome="Passed" />
+  </Results>
+</TestRun>

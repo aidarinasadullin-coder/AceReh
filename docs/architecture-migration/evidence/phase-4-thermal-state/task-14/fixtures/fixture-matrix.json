@@ -1,0 +1,25 @@
+﻿{
+  "todo": "task-14",
+  "contract": "plan QA-failure (line 493): validator against task-owned copied model fixtures - missing evidence edge and invalid ID - expect nonzero",
+  "canonicalModelUntouched": true,
+  "probes": [
+    {
+      "fixture": "model-missing-evidence-edge.json",
+      "mutation": "RE-001 snapshot_states.current.evidence_refs = ['EV-NO-SUCH-EVIDENCE']",
+      "command": "node docs/architecture-migration/widget/verify-widget.mjs --suite model-v2 --schema docs/architecture-migration/maps/architecture-model.widget.schema.json --model <fixture> --output <fixture-out>",
+      "exitCode": 1,
+      "rejection": {"category": "orphan-reference", "detail": "RE-001:EV-NO-SUCH-EVIDENCE"},
+      "stderr": "missing-evidence-edge.stderr.json"
+    },
+    {
+      "fixture": "model-invalid-id.json",
+      "mutation": "ST-012 record id renamed to 'st-012-invalid' (violates ^[A-Z][A-Z0-9-]*$)",
+      "command": "node docs/architecture-migration/widget/verify-widget.mjs --suite model-v2 --schema docs/architecture-migration/maps/architecture-model.widget.schema.json --model <fixture> --output <fixture-out>",
+      "exitCode": 1,
+      "rejection": {"category": "duplicate-id", "detail": "st-012-invalid"},
+      "stderr": "invalid-id.stderr.json"
+    }
+  ],
+  "expected": "both nonzero",
+  "result": "PASS"
+}
