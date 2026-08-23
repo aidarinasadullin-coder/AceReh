@@ -4,6 +4,7 @@ using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.Core;
@@ -27,6 +28,9 @@ namespace SnowMeltingCalculator.Tests.Thermal
         private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
         private IValidator<ThermalInputs> _thermalValidator = null!;
         private IValidator<ThermalCalculationResult> _thermalResultValidator = null!;
+        private ProjectSession _session = null!;
+        private CalculationContext _context = null!;
+        private IThermalStateCoordinator _coordinator = null!;
 
         [SetUp]
         public void Setup()
@@ -48,15 +52,27 @@ namespace SnowMeltingCalculator.Tests.Thermal
             _markDirtyServiceMock = new Mock<IMarkDirtyService>();
             _thermalValidator = new ThermalValidator(new ThermalCalculator(), _mockClimateData, _mockConstructionData);
             _thermalResultValidator = new ThermalResultValidator();
+            _context = new CalculationContext();
+            _session = new ProjectSession(_mockClimateData, _context);
+            _coordinator = new ThermalStateCoordinator(
+                _session.ThermalState,
+                _context,
+                _markDirtyServiceMock.Object,
+                _mockCalculator,
+                _mockClimateData,
+                _mockConstructionData,
+                _thermalValidator,
+                _thermalResultValidator);
             _viewModel = new ThermalViewModel(
                 _mockCalculator,
                 _mockClimateData,
                 _mockConstructionData,
                 _mockCalculationStateService.Object,
-                new CalculationContext(),
+                _context,
                 _thermalValidator,
                 _thermalResultValidator,
-                _markDirtyServiceMock.Object);
+                _markDirtyServiceMock.Object,
+                _coordinator);
         }
 
         #region Constructor Tests
@@ -278,13 +294,13 @@ namespace SnowMeltingCalculator.Tests.Thermal
         #region Validation Tests
 
         [Test]
-        public void Validate_SupplyTemperatureTooLow_ReturnsFalse()
+        public async Task Validate_SupplyTemperatureTooLow_ReturnsFalse()
         {
             // Arrange
             _viewModel.SupplyTemperature = 10.0; // Ниже минимума
 
             // Act
-            _viewModel.CalculateCommand.Execute(null);
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
 
             // Assert
             Assert.That(_viewModel.Result, Is.Null);
@@ -292,13 +308,13 @@ namespace SnowMeltingCalculator.Tests.Thermal
         }
 
         [Test]
-        public void Validate_SupplyTemperatureTooHigh_ReturnsFalse()
+        public async Task Validate_SupplyTemperatureTooHigh_ReturnsFalse()
         {
             // Arrange
             _viewModel.SupplyTemperature = 100.0; // Выше максимума
 
             // Act
-            _viewModel.CalculateCommand.Execute(null);
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
 
             // Assert
             Assert.That(_viewModel.Result, Is.Null);
@@ -306,13 +322,13 @@ namespace SnowMeltingCalculator.Tests.Thermal
         }
 
         [Test]
-        public void Validate_GroundTemperatureTooLow_ReturnsFalse()
+        public async Task Validate_GroundTemperatureTooLow_ReturnsFalse()
         {
             // Arrange
             _viewModel.GroundTemperature = -15.0; // Ниже минимума
 
             // Act
-            _viewModel.CalculateCommand.Execute(null);
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
 
             // Assert
             Assert.That(_viewModel.Result, Is.Null);
@@ -320,13 +336,13 @@ namespace SnowMeltingCalculator.Tests.Thermal
         }
 
         [Test]
-        public void Validate_GroundTemperatureTooHigh_ReturnsFalse()
+        public async Task Validate_GroundTemperatureTooHigh_ReturnsFalse()
         {
             // Arrange
             _viewModel.GroundTemperature = 40.0; // Выше максимума
 
             // Act
-            _viewModel.CalculateCommand.Execute(null);
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
 
             // Assert
             Assert.That(_viewModel.Result, Is.Null);
@@ -334,14 +350,14 @@ namespace SnowMeltingCalculator.Tests.Thermal
         }
 
         [Test]
-        public void Validate_PipeSpacingTooLow_ReturnsFalse()
+        public async Task Validate_PipeSpacingTooLow_ReturnsFalse()
         {
             // Arrange
             _viewModel.SelectedPipe = PipeType.StandardPipes[1];
             _viewModel.PipeSpacing = 49; // Ниже минимума
 
             // Act
-            _viewModel.CalculateCommand.Execute(null);
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
 
             // Assert
             Assert.That(_viewModel.Result, Is.Null);
@@ -349,14 +365,14 @@ namespace SnowMeltingCalculator.Tests.Thermal
         }
 
         [Test]
-        public void Validate_PipeSpacingTooHigh_ReturnsFalse()
+        public async Task Validate_PipeSpacingTooHigh_ReturnsFalse()
         {
             // Arrange
             _viewModel.SelectedPipe = PipeType.StandardPipes[1];
             _viewModel.PipeSpacing = 600; // Выше максимума
 
             // Act
-            _viewModel.CalculateCommand.Execute(null);
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
 
             // Assert
             Assert.That(_viewModel.Result, Is.Null);
@@ -364,13 +380,13 @@ namespace SnowMeltingCalculator.Tests.Thermal
         }
 
         [Test]
-        public void Validate_ValidInput_ReturnsTrue()
+        public async Task Validate_ValidInput_ReturnsTrue()
         {
             // Arrange - все значения по умолчанию валидны
             _viewModel.SelectedPipe = PipeType.StandardPipes[1];
 
             // Act
-            _viewModel.CalculateCommand.Execute(null);
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
 
             // Assert
             Assert.That(_viewModel.Result, Is.Not.Null);
@@ -378,13 +394,13 @@ namespace SnowMeltingCalculator.Tests.Thermal
         }
 
         [Test]
-        public void Validate_SelectedPipeNull_ReturnsFalse()
+        public async Task Validate_SelectedPipeNull_ReturnsFalse()
         {
             // Arrange - труба не выбрана
             _viewModel.SelectedPipe = null;
 
             // Act
-            _viewModel.CalculateCommand.Execute(null);
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
 
             // Assert
             Assert.That(_viewModel.Result, Is.Null);
@@ -551,12 +567,12 @@ namespace SnowMeltingCalculator.Tests.Thermal
         [Test]
         public void ClimateDataChanged_ClearsResult()
         {
-            // Arrange
-            _viewModel.Result = new ThermalCalculationResult { PowerTotal = 100 };
+            // Arrange: результат публикуется через канонический восстановительный
+            // путь (старый прямой сеттер Result удалён вместе с VM-подпиской).
+            _viewModel.LoadResult(new ThermalCalculationResult { PowerTotal = 100 });
             string? capturedMessage = null;
-            _mockCalculationStateService
-                .Setup(s => s.SetThermalNeedsRecalculation(It.IsAny<string>()))
-                .Callback<string>(msg => capturedMessage = msg);
+            _session.ThermalState.Changed += (_, e) =>
+                capturedMessage = e.Mutation.After.Status.RecalculationMessage;
 
             // Act
             _mockClimateData.RaiseDataChanged("AirTemperature", -20.0, -25.0, true);
@@ -573,12 +589,12 @@ namespace SnowMeltingCalculator.Tests.Thermal
         [Test]
         public void ConstructionDataChanged_ClearsResult()
         {
-            // Arrange
-            _viewModel.Result = new ThermalCalculationResult { PowerTotal = 100 };
+            // Arrange: результат публикуется через канонический восстановительный
+            // путь (старый прямой сеттер Result удалён вместе с VM-подпиской).
+            _viewModel.LoadResult(new ThermalCalculationResult { PowerTotal = 100 });
             string? capturedMessage = null;
-            _mockCalculationStateService
-                .Setup(s => s.SetThermalNeedsRecalculation(It.IsAny<string>()))
-                .Callback<string>(msg => capturedMessage = msg);
+            _session.ThermalState.Changed += (_, e) =>
+                capturedMessage = e.Mutation.After.Status.RecalculationMessage;
 
             // Act
             _mockConstructionData.RaiseDataChanged("R1Total", 0.05, 0.06, true);
