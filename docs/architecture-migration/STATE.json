@@ -1,38 +1,33 @@
 {
   "schemaVersion": 1,
   "phase": "phase-4-thermal-state",
-  "stage": "blocked",
+  "stage": "completed",
   "plan": {
     "path": "docs/architecture-migration/plans/phase-4-thermal-state.md",
     "mirrorPath": ".omo/plans/phase-4-thermal-state.md",
-    "bytes": 97965,
-    "sha256": "4311E0A9BC9CCF7B678C1A3E99EAC99B9D935E9A9199C48B3A4CA80B28C8943A",
+    "bytes": 107979,
+    "sha256": "327B1288B8072E7A76D814F8439ECBC353F54F4CE59AB2B507595A08980B4C02",
     "frozen": true
   },
   "reviews": {
-    "planning": "pending",
+    "planning": "approved",
     "finalDomains": {
-      "conformance": "pending",
-      "architecture": "pending",
-      "executable": "pending"
+      "conformance": "approved",
+      "architecture": "approved",
+      "executable": "approved"
     },
-    "planningReceiptPath": "docs/architecture-migration/evidence/phase-4-thermal-state/planning-consolidated-receipt-amendment-1-rejected.md",
-    "finalReceiptPath": null,
-    "terminalRetryCount": 1
+    "planningReceiptPath": "docs/architecture-migration/evidence/phase-4-thermal-state/planning-consolidated-receipt-replan-1.md",
+    "finalReceiptPath": "docs/architecture-migration/evidence/phase-4-thermal-state/final/consolidated/final-receipt.md",
+    "terminalRetryCount": 0
   },
   "ownerGates": {
-    "planApproval": "pending",
-    "executionAuthorization": "pending",
-    "resultAcceptance": "pending"
+    "planApproval": "approved",
+    "executionAuthorization": "approved",
+    "resultAcceptance": "accepted"
   },
   "lastCompletedTask": null,
-  "pendingGates": [
-    "planning-review",
-    "plan-approval",
-    "execution-authorization",
-    "result-acceptance"
-  ],
-  "nextAction": "Await an explicit owner decision to re-plan the rejected Phase 4 amendment; correction and Todo 2 remain prohibited.",
+  "pendingGates": [],
+  "nextAction": "Await an explicit owner direction to begin a separate successor planning workflow; any subsequent phase is not started, approved, authorized, or executed.",
   "stop": true,
-  "blocker": "Terminal amendment review retry rejected: missing verify-protected-baseline.ps1 creation contract, undefined F5 responsibility, and ineffective V10 top-level Todo regex."
+  "blocker": null
 }
