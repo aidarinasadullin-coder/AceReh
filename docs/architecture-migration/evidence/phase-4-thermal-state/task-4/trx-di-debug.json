@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {"name": "SnowMeltingCalculator.Tests.Configuration.DiRegistrationTests.ThermalLifecycleDescriptors_HaveNoIndependentRegistration", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Configuration.DiRegistrationTests.ThermalState_Addition_PreservesClimateAndConstructionIdentities", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Configuration.DiRegistrationTests.ThermalState_ConstructorCycle_IsRejectedByContainerWithoutServiceLocator", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Configuration.DiRegistrationTests.ThermalState_DuplicateIndependentRegistration_IsFlaggedByDescriptorGuard", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Configuration.DiRegistrationTests.ThermalState_IsNotResolvableAsIndependentService_FromBuiltProvider", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Configuration.DiRegistrationTests.ThermalState_IsOnePerSession_SingletonAcrossScopes_DistinctAcrossSessions", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Configuration.DiRegistrationTests.ThermalState_ResolvesReferenceIdenticalThroughEverySessionAlias", "outcome": "Passed"}
+  ],
+  "counts": {"total": 7, "passed": 7, "failed": 0, "notExecuted": 0}
+}

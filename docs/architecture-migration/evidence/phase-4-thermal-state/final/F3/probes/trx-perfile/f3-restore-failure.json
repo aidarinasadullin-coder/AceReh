@@ -1,0 +1,8 @@
+{
+  "tests": [
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests.RestoreModulesFromProjectAsync_ThermalBoundaryException_ClearsLeaseAndPreservesPartialState", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults", "outcome": "Passed"}
+  ],
+  "counts": {"total": 3, "passed": 3, "failed": 0, "notExecuted": 0}
+}

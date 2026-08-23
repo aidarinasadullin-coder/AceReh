@@ -1,0 +1,935 @@
+{
+  "executable": "D:\\IA\\3ace v.2\\src\\bin\\Release\\net8.0-windows\\win-x64\\SnowMeltingCalculator.exe",
+  "expectedSha256": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+  "generatedUtc": "2026-08-23T17:25:40.0453649Z",
+  "fixtures": {
+    "manifest": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\fixtures\\fixture-manifest.json",
+    "outputs": [
+      {
+        "name": "project-a.smc",
+        "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\fixtures\\project-a.smc",
+        "sha256": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+        "manifestMatch": true
+      },
+      {
+        "name": "project-b.smc",
+        "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\fixtures\\project-b.smc",
+        "sha256": "FBE377ABAB8A5D3A47086E23A5E4FFFA68B95EAEEE569DEE459CEB0235940882",
+        "manifestMatch": true
+      },
+      {
+        "name": "unknown-pipe.smc",
+        "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\fixtures\\unknown-pipe.smc",
+        "sha256": "D7BA538E14C8C9AC33556540705EECA6C10E8F223BB0DA837463B584F1AB1532",
+        "manifestMatch": true
+      }
+    ],
+    "executableShaPreRun": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D"
+  },
+  "processes": [
+    {
+      "tag": "a-edit-save",
+      "project": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\fixtures\\project-a.smc",
+      "pid": 5264,
+      "exitCode": 0,
+      "exeShaBefore": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+      "exeShaAfter": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+      "stdoutLog": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\run-a-edit-save-stdout.log",
+      "stdoutSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "stderrLog": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\run-a-edit-save-stderr.log",
+      "stderrSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "startedUtc": "2026-08-23T17:25:04.1224666Z",
+      "exitUtc": "2026-08-23T17:25:21.8100593Z"
+    },
+    {
+      "tag": "a-relaunch",
+      "project": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\fixtures\\project-a.smc",
+      "pid": 21216,
+      "exitCode": 0,
+      "exeShaBefore": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+      "exeShaAfter": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+      "stdoutLog": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\run-a-relaunch-stdout.log",
+      "stdoutSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "stderrLog": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\run-a-relaunch-stderr.log",
+      "stderrSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "startedUtc": "2026-08-23T17:25:21.8127642Z",
+      "exitUtc": "2026-08-23T17:25:25.2465397Z"
+    },
+    {
+      "tag": "b-load-reset",
+      "project": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\fixtures\\project-b.smc",
+      "pid": 20652,
+      "exitCode": 0,
+      "exeShaBefore": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+      "exeShaAfter": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+      "stdoutLog": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\run-b-load-reset-stdout.log",
+      "stdoutSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "stderrLog": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\run-b-load-reset-stderr.log",
+      "stderrSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "startedUtc": "2026-08-23T17:25:25.2495015Z",
+      "exitUtc": "2026-08-23T17:25:32.1108595Z"
+    },
+    {
+      "tag": "unknown-pipe",
+      "project": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\fixtures\\unknown-pipe.smc",
+      "pid": 17708,
+      "exitCode": 0,
+      "exeShaBefore": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+      "exeShaAfter": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D",
+      "stdoutLog": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\run-unknown-pipe-stdout.log",
+      "stdoutSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "stderrLog": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\run-unknown-pipe-stderr.log",
+      "stderrSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "startedUtc": "2026-08-23T17:25:32.1153860Z",
+      "exitUtc": "2026-08-23T17:25:40.0305860Z"
+    }
+  ],
+  "selectors": [
+    {
+      "id": "ThermalMode",
+      "controlType": "ComboBox",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 5,
+      "lastPresent": true
+    },
+    {
+      "id": "ThermalSupplyTemperature",
+      "controlType": "Edit",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 8,
+      "lastPresent": true
+    },
+    {
+      "id": "ThermalGroundTemperature",
+      "controlType": "Edit",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 7,
+      "lastPresent": true
+    },
+    {
+      "id": "ThermalPipe",
+      "controlType": "ComboBox",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 8,
+      "lastPresent": true
+    },
+    {
+      "id": "ThermalPipeSpacing",
+      "controlType": "ComboBox",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 7,
+      "lastPresent": true
+    },
+    {
+      "id": "ThermalCalculate",
+      "controlType": "Button",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 3,
+      "lastPresent": true
+    },
+    {
+      "id": "ThermalReset",
+      "controlType": "Button",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "ThermalRecalcMessage",
+      "controlType": "Text",
+      "view": "Thermal",
+      "optional": true,
+      "resolvedCount": 14,
+      "lastPresent": true
+    },
+    {
+      "id": "ThermalDeltaT",
+      "controlType": "Text",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 2,
+      "lastPresent": true
+    },
+    {
+      "id": "ThermalPowerTotal",
+      "controlType": "Text",
+      "view": "Thermal",
+      "optional": false,
+      "resolvedCount": 13,
+      "lastPresent": true
+    },
+    {
+      "id": "ThermalResultStatus",
+      "controlType": "Text",
+      "view": "Thermal",
+      "optional": true,
+      "resolvedCount": 3,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsPipeSpacing",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsSupplyTemperature",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsReturnTemperature",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "ResultsThermalPower",
+      "controlType": "Text",
+      "view": "Results",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "ResultsSupplyTemperature",
+      "controlType": "Text",
+      "view": "Results",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "ResultsReturnTemperature",
+      "controlType": "Text",
+      "view": "Results",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    }
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "name": "Verify fixture-manifest.json and all three input SHA-256 values",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "fixture project-a.smc SHA matches manifest",
+          "expected": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+          "observed": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+          "pass": true
+        },
+        {
+          "assert": "fixture project-b.smc SHA matches manifest",
+          "expected": "FBE377ABAB8A5D3A47086E23A5E4FFFA68B95EAEEE569DEE459CEB0235940882",
+          "observed": "FBE377ABAB8A5D3A47086E23A5E4FFFA68B95EAEEE569DEE459CEB0235940882",
+          "pass": true
+        },
+        {
+          "assert": "fixture unknown-pipe.smc SHA matches manifest",
+          "expected": "D7BA538E14C8C9AC33556540705EECA6C10E8F223BB0DA837463B584F1AB1532",
+          "observed": "D7BA538E14C8C9AC33556540705EECA6C10E8F223BB0DA837463B584F1AB1532",
+          "pass": true
+        }
+      ],
+      "artifacts": []
+    },
+    {
+      "step": 2,
+      "name": "Start Project A as first .smc command-line argument and wait for main window",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "launch 'a-edit-save': window title carries app suffix",
+          "expected": "*Калькулятор снеготаяния REHAU",
+          "observed": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "pass": true
+        },
+        {
+          "assert": "step2: clean loaded title (no dirty marker)",
+          "expected": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "observed": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "pass": true
+        }
+      ],
+      "artifacts": []
+    },
+    {
+      "step": 3,
+      "name": "Navigate to Thermal and record baseline mode/supply/ground/pipe/spacing/result text",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "baseline mode == Melting",
+          "expected": "Melting",
+          "observed": "1:Melting",
+          "pass": true
+        },
+        {
+          "assert": "baseline supply temperature (F1)",
+          "expected": "50 (+/-1dp)",
+          "observed": "50",
+          "pass": true
+        },
+        {
+          "assert": "baseline ground temperature (F1)",
+          "expected": "10 (+/-1dp)",
+          "observed": "10",
+          "pass": true
+        },
+        {
+          "assert": "baseline pipe contains 'RAUTHERM S 20'",
+          "expected": "*RAUTHERM S 20*",
+          "observed": "RAUTHERM S 20x2,0 (Ø20×2)",
+          "pass": true
+        },
+        {
+          "assert": "baseline pipe spacing (mm)",
+          "expected": "250 (+/-0dp)",
+          "observed": "250",
+          "pass": true
+        },
+        {
+          "assert": "baseline PowerTotal (fixture v1-sample result, F1)",
+          "expected": "261 (+/-1dp)",
+          "observed": "261",
+          "pass": true
+        },
+        {
+          "assert": "baseline DeltaT (F1)",
+          "expected": "15 (+/-1dp)",
+          "observed": "15",
+          "pass": true
+        },
+        {
+          "assert": "baseline recalc message absent (collapsed)",
+          "expected": "absent",
+          "observed": "absent",
+          "pass": true
+        },
+        {
+          "assert": "baseline validation status absent (collapsed)",
+          "expected": "absent",
+          "observed": "absent",
+          "pass": true
+        }
+      ],
+      "artifacts": []
+    },
+    {
+      "step": 4,
+      "name": "Edit mode/supply/ground/pipe/spacing; assert exact recalculation oracles and prior result retention",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "mode edit -> EXACT recalc message",
+          "expected": "Режим работы изменён. Требуется пересчёт.",
+          "observed": "Режим работы изменён. Требуется пересчёт.",
+          "pass": true
+        },
+        {
+          "assert": "prior result retained after mode change",
+          "expected": "261 (+/-1dp)",
+          "observed": "261",
+          "pass": true
+        },
+        {
+          "assert": "supply edit -> EXACT recalc message",
+          "expected": "Температура подачи изменена. Требуется пересчёт.",
+          "observed": "Температура подачи изменена. Требуется пересчёт.",
+          "pass": true
+        },
+        {
+          "assert": "supply edit applied (displayed value)",
+          "expected": "65 (+/-1dp)",
+          "observed": "65",
+          "pass": true
+        },
+        {
+          "assert": "prior result retained after supply change",
+          "expected": "261 (+/-1dp)",
+          "observed": "261",
+          "pass": true
+        },
+        {
+          "assert": "ground edit applied",
+          "expected": "15 (+/-1dp)",
+          "observed": "15",
+          "pass": true
+        },
+        {
+          "assert": "recalc message still present after ground edit",
+          "expected": "present",
+          "observed": "present",
+          "pass": true
+        },
+        {
+          "assert": "prior result retained after ground change",
+          "expected": "261 (+/-1dp)",
+          "observed": "261",
+          "pass": true
+        },
+        {
+          "assert": "pipe changed to RAUTHERM S 25 family",
+          "expected": "*RAUTHERM S 25*",
+          "observed": "RAUTHERM S 25x2,3 (Ø25×2,3)",
+          "pass": true
+        },
+        {
+          "assert": "prior result retained after pipe change",
+          "expected": "261 (+/-1dp)",
+          "observed": "261",
+          "pass": true
+        },
+        {
+          "assert": "spacing changed to 300 mm",
+          "expected": "300 (+/-0dp)",
+          "observed": "300",
+          "pass": true
+        },
+        {
+          "assert": "prior result retained after spacing change",
+          "expected": "261 (+/-1dp)",
+          "observed": "261",
+          "pass": true
+        },
+        {
+          "assert": "registry:ThermalMode unique/enabled/ComboBox",
+          "expected": "ComboBox",
+          "observed": "ControlType.ComboBox",
+          "pass": true
+        },
+        {
+          "assert": "registry:ThermalSupplyTemperature unique/enabled/Edit",
+          "expected": "Edit",
+          "observed": "ControlType.Edit",
+          "pass": true
+        },
+        {
+          "assert": "registry:ThermalGroundTemperature unique/enabled/Edit",
+          "expected": "Edit",
+          "observed": "ControlType.Edit",
+          "pass": true
+        },
+        {
+          "assert": "registry:ThermalPipe unique/enabled/ComboBox",
+          "expected": "ComboBox",
+          "observed": "ControlType.ComboBox",
+          "pass": true
+        },
+        {
+          "assert": "registry:ThermalPipeSpacing unique/enabled/ComboBox",
+          "expected": "ComboBox",
+          "observed": "ControlType.ComboBox",
+          "pass": true
+        },
+        {
+          "assert": "registry:ThermalCalculate unique/enabled/Button",
+          "expected": "Button",
+          "observed": "ControlType.Button",
+          "pass": true
+        },
+        {
+          "assert": "registry:ThermalReset unique/enabled/Button",
+          "expected": "Button",
+          "observed": "ControlType.Button",
+          "pass": true
+        },
+        {
+          "assert": "registry:ThermalRecalcMessage unique/correct-type (optional)",
+          "expected": "Text, presence optional",
+          "observed": "present/Text",
+          "pass": true
+        },
+        {
+          "assert": "registry:ThermalDeltaT unique/enabled/Text",
+          "expected": "Text",
+          "observed": "ControlType.Text",
+          "pass": true
+        },
+        {
+          "assert": "registry:ThermalPowerTotal unique/enabled/Text",
+          "expected": "Text",
+          "observed": "ControlType.Text",
+          "pass": true
+        },
+        {
+          "assert": "registry:ThermalResultStatus unique/correct-type (optional)",
+          "expected": "Text, presence optional",
+          "observed": "absent (collapsed)",
+          "pass": true
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\01-edit.png",
+          "sha256": "3358C450F5DD3F287F65975072D08DE303AB876FECAA383B79B75DF43FBF86FE",
+          "note": "screenshot 01-edit"
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "name": "Invoke Рассчитать; wait calculating state clears; recalc absent; result differs from baseline",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "result text differs from step-3 baseline (261.0)",
+          "expected": "!= 261.0",
+          "observed": "0.0",
+          "pass": true
+        },
+        {
+          "assert": "recalculation message absent after successful calculate",
+          "expected": "absent",
+          "observed": "absent",
+          "pass": true
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\02-calculate.png",
+          "sha256": "24F70204399A0C95099F017E17343E876DA0BE0FD3256C2B13EE1A0ECEBDF4F5",
+          "note": "screenshot 02-calculate"
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "name": "Select Гидравлический расчёт and Результаты; record six downstream output projections",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "HydraulicsPipeSpacing projection == thermal spacing 300 mm / 10 (cm, CircuitsViewModel.PipeSpacing_cm)",
+          "expected": "30 (+/-0dp)",
+          "observed": "30",
+          "pass": true
+        },
+        {
+          "assert": "HydraulicsSupplyTemperature projection == edited supply 65.0",
+          "expected": "65 (+/-1dp)",
+          "observed": "65",
+          "pass": true
+        },
+        {
+          "assert": "HydraulicsReturnTemperature numeric-parseable",
+          "expected": "number",
+          "observed": "30.0",
+          "pass": true
+        },
+        {
+          "assert": "ResultsThermalPower numeric-parseable and > 0",
+          "expected": "> 0",
+          "observed": "5.2",
+          "pass": true
+        },
+        {
+          "assert": "ResultsSupplyTemperature projection == 65.0",
+          "expected": "65 (+/-1dp)",
+          "observed": "65",
+          "pass": true
+        },
+        {
+          "assert": "ResultsReturnTemperature numeric-parseable",
+          "expected": "number",
+          "observed": "0.0",
+          "pass": true
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\03-hydraulics.png",
+          "sha256": "8DAE9A32A1FC480461A5DBB9BE7C3B932A60D6FADB8A0333A7849D4DCBAEBAFA",
+          "note": "screenshot 03-hydraulics"
+        },
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\04-results.png",
+          "sha256": "666E0C250B528C9EC5A15653FAADDC58893500545DCE93456D2DB15EC12CF1BE",
+          "note": "screenshot 04-results"
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "name": "Ctrl+S on Project A: file SHA/timestamp advance + title loses *; WM_CLOSE clean exit; relaunch restores edited state",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "project-a.smc SHA advanced after Ctrl+S",
+          "expected": "! E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+          "observed": "69E083B6AD68F2A491AA72A617C71B104A3799C840B80AE08F6704C97A5C43C4",
+          "pass": true
+        },
+        {
+          "assert": "project-a.smc timestamp advanced after Ctrl+S",
+          "expected": "> 08/18/2026 17:43:51",
+          "observed": "08/23/2026 17:25:17",
+          "pass": true
+        },
+        {
+          "assert": "title after save is clean <file> — Калькулятор снеготаяния REHAU",
+          "expected": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "observed": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "pass": true
+        },
+        {
+          "assert": "close 'a-edit-save': clean exit code",
+          "expected": "0",
+          "observed": "0",
+          "pass": true
+        },
+        {
+          "assert": "close 'a-edit-save': stderr free of crash patterns",
+          "expected": "no match",
+          "observed": "clean",
+          "pass": true
+        },
+        {
+          "assert": "launch 'a-relaunch': window title carries app suffix",
+          "expected": "*Калькулятор снеготаяния REHAU",
+          "observed": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "pass": true
+        },
+        {
+          "assert": "restored mode == AntiIcing",
+          "expected": "AntiIcing",
+          "observed": "AntiIcing",
+          "pass": true
+        },
+        {
+          "assert": "restored supply == 65.0",
+          "expected": "65 (+/-1dp)",
+          "observed": "65",
+          "pass": true
+        },
+        {
+          "assert": "restored ground == 15.0",
+          "expected": "15 (+/-1dp)",
+          "observed": "15",
+          "pass": true
+        },
+        {
+          "assert": "restored pipe in RAUTHERM S 25 family",
+          "expected": "*RAUTHERM S 25*",
+          "observed": "RAUTHERM S 25x2,3 (Ø25×2,3)",
+          "pass": true
+        },
+        {
+          "assert": "restored spacing == 300 mm",
+          "expected": "300 (+/-0dp)",
+          "observed": "300",
+          "pass": true
+        },
+        {
+          "assert": "restored PowerTotal == step-5 calculated value",
+          "expected": "0 (+/-1dp)",
+          "observed": "0",
+          "pass": true
+        },
+        {
+          "assert": "no recalc message after restore",
+          "expected": "absent",
+          "observed": "absent",
+          "pass": true
+        },
+        {
+          "assert": "close 'a-relaunch': clean exit code",
+          "expected": "0",
+          "observed": "0",
+          "pass": true
+        },
+        {
+          "assert": "close 'a-relaunch': stderr free of crash patterns",
+          "expected": "no match",
+          "observed": "clean",
+          "pass": true
+        }
+      ],
+      "artifacts": []
+    },
+    {
+      "step": 8,
+      "name": "Close clean; relaunch Project B; assert 55.0/5.0/150/RAUTHERM S 17 and no project-A result",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "launch 'b-load-reset': window title carries app suffix",
+          "expected": "*Калькулятор снеготаяния REHAU",
+          "observed": "project-b.smc — Калькулятор снеготаяния REHAU",
+          "pass": true
+        },
+        {
+          "assert": "Project B supply == 55.0",
+          "expected": "55 (+/-1dp)",
+          "observed": "55",
+          "pass": true
+        },
+        {
+          "assert": "Project B ground == 5.0",
+          "expected": "5 (+/-1dp)",
+          "observed": "5",
+          "pass": true
+        },
+        {
+          "assert": "Project B spacing == 150 mm",
+          "expected": "150 (+/-0dp)",
+          "observed": "150",
+          "pass": true
+        },
+        {
+          "assert": "Project B pipe in RAUTHERM S 17 family",
+          "expected": "*RAUTHERM S 17*",
+          "observed": "RAUTHERM S 17x2,0 (Ø17×2)",
+          "pass": true
+        },
+        {
+          "assert": "no project-A result carried into B (PowerTotal != 261.0 baseline)",
+          "expected": "!= 261.0",
+          "observed": "0.0",
+          "pass": true
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\05-load-2.png",
+          "sha256": "E79632B253A1369F9D2339CFA006587AFCE2431678B22E7CD3CA8DAC9451C741",
+          "note": "screenshot 05-load-2"
+        }
+      ]
+    },
+    {
+      "step": 9,
+      "name": "While B is clean invoke Создать новый расчёт; assert DEC-T01 defaults Melting/50.0/10.0/no-pipe/200/no-result",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "title after new-calculation reset is bare app title (clean, no file)",
+          "expected": "Калькулятор снеготаяния REHAU",
+          "observed": "Калькулятор снеготаяния REHAU",
+          "pass": true
+        },
+        {
+          "assert": "reset mode == Melting",
+          "expected": "Melting",
+          "observed": "Melting",
+          "pass": true
+        },
+        {
+          "assert": "reset supply == 50.0",
+          "expected": "50 (+/-1dp)",
+          "observed": "50",
+          "pass": true
+        },
+        {
+          "assert": "reset ground == 10.0",
+          "expected": "10 (+/-1dp)",
+          "observed": "10",
+          "pass": true
+        },
+        {
+          "assert": "reset pipe selection empty (no pipe)",
+          "expected": "no selection",
+          "observed": "0:",
+          "pass": true
+        },
+        {
+          "assert": "reset spacing == 200 mm",
+          "expected": "200 (+/-0dp)",
+          "observed": "200",
+          "pass": true
+        },
+        {
+          "assert": "reset leaves spacing combo present (enabled-state not contract-bound)",
+          "expected": "present",
+          "observed": "True",
+          "pass": true
+        },
+        {
+          "assert": "reset clears result (PowerTotal absent)",
+          "expected": "absent",
+          "observed": "absent",
+          "pass": true
+        },
+        {
+          "assert": "reset leaves no recalc message",
+          "expected": "absent",
+          "observed": "absent",
+          "pass": true
+        },
+        {
+          "assert": "close 'b-load-reset': clean exit code",
+          "expected": "0",
+          "observed": "0",
+          "pass": true
+        },
+        {
+          "assert": "close 'b-load-reset': stderr free of crash patterns",
+          "expected": "no match",
+          "observed": "clean",
+          "pass": true
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\06-reset.png",
+          "sha256": "DA121583447BB18F3236E648B336DDA00F9ACBC56901B31620C27F51B034727D",
+          "note": "screenshot 06-reset"
+        }
+      ]
+    },
+    {
+      "step": 10,
+      "name": "Failure branch: unknown-pipe.smc fallback pipe/result, restore-guard cleared via supply edit, Ctrl+S save, clean close",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "launch 'unknown-pipe': window title carries app suffix",
+          "expected": "*Калькулятор снеготаяния REHAU",
+          "observed": "unknown-pipe.smc — Калькулятор снеготаяния REHAU",
+          "pass": true
+        },
+        {
+          "assert": "fallback pipe == first standard (RAUTHERM S 17 family)",
+          "expected": "*RAUTHERM S 17*",
+          "observed": "RAUTHERM S 17x2,0 (Ø17×2)",
+          "pass": true
+        },
+        {
+          "assert": "fallback-calculated result published (ThermalPowerTotal present)",
+          "expected": "present",
+          "observed": "0.0",
+          "pass": true
+        },
+        {
+          "assert": "characterized invalid-result status present (calculator validation on fixture inputs)",
+          "expected": "present",
+          "observed": "При текущих параметрах системы не обеспечивается требуемая мощность. Температура подачи (55,0°C) должна быть не менее 104,2°C. Увеличьте температуру подачи, уменьшите интенсивность снегопада или измените режим работы.; Температурный перепад должен быть положительным",
+          "pass": true
+        },
+        {
+          "assert": "no recalculation message after unknown-pipe restore",
+          "expected": "absent",
+          "observed": "absent",
+          "pass": true
+        },
+        {
+          "assert": "supply edit accepted -> EXACT recalc message proves restore guard cleared",
+          "expected": "Температура подачи изменена. Требуется пересчёт.",
+          "observed": "Температура подачи изменена. Требуется пересчёт.",
+          "pass": true
+        },
+        {
+          "assert": "unknown-pipe.smc SHA advanced after Ctrl+S",
+          "expected": "! D7BA538E14C8C9AC33556540705EECA6C10E8F223BB0DA837463B584F1AB1532",
+          "observed": "DED9CADF2A5595748F5D2B27544F4A74BABC2E6A8071A8A58A8913EC46B2E505",
+          "pass": true
+        },
+        {
+          "assert": "title after save is clean <file> — Калькулятор снеготаяния REHAU",
+          "expected": "unknown-pipe.smc — Калькулятор снеготаяния REHAU",
+          "observed": "unknown-pipe.smc — Калькулятор снеготаяния REHAU",
+          "pass": true
+        },
+        {
+          "assert": "close 'unknown-pipe': clean exit code",
+          "expected": "0",
+          "observed": "0",
+          "pass": true
+        },
+        {
+          "assert": "close 'unknown-pipe': stderr free of crash patterns",
+          "expected": "no match",
+          "observed": "clean",
+          "pass": true
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\07-unknown-pipe.png",
+          "sha256": "E79632B253A1369F9D2339CFA006587AFCE2431678B22E7CD3CA8DAC9451C741",
+          "note": "screenshot 07-unknown-pipe"
+        },
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\failure-observations.json",
+          "sha256": "4E2E2DA9FE0A2C83B650967D5B7FC489DA6787572E3DF0710DE3B652107BBA3C",
+          "note": "failure-branch observations"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "01-edit",
+      "file": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\01-edit.png",
+      "bytes": 54564,
+      "dimensions": "900x700",
+      "sha256": "3358C450F5DD3F287F65975072D08DE303AB876FECAA383B79B75DF43FBF86FE"
+    },
+    {
+      "name": "02-calculate",
+      "file": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\02-calculate.png",
+      "bytes": 55446,
+      "dimensions": "900x700",
+      "sha256": "24F70204399A0C95099F017E17343E876DA0BE0FD3256C2B13EE1A0ECEBDF4F5"
+    },
+    {
+      "name": "03-hydraulics",
+      "file": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\03-hydraulics.png",
+      "bytes": 92952,
+      "dimensions": "900x700",
+      "sha256": "8DAE9A32A1FC480461A5DBB9BE7C3B932A60D6FADB8A0333A7849D4DCBAEBAFA"
+    },
+    {
+      "name": "04-results",
+      "file": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\04-results.png",
+      "bytes": 100797,
+      "dimensions": "900x700",
+      "sha256": "666E0C250B528C9EC5A15653FAADDC58893500545DCE93456D2DB15EC12CF1BE"
+    },
+    {
+      "name": "05-load-2",
+      "file": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\05-load-2.png",
+      "bytes": 53354,
+      "dimensions": "900x700",
+      "sha256": "E79632B253A1369F9D2339CFA006587AFCE2431678B22E7CD3CA8DAC9451C741"
+    },
+    {
+      "name": "06-reset",
+      "file": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\06-reset.png",
+      "bytes": 50169,
+      "dimensions": "900x700",
+      "sha256": "DA121583447BB18F3236E648B336DDA00F9ACBC56901B31620C27F51B034727D"
+    },
+    {
+      "name": "07-unknown-pipe",
+      "file": "docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-13\\ui-qa\\07-unknown-pipe.png",
+      "bytes": 53354,
+      "dimensions": "900x700",
+      "sha256": "E79632B253A1369F9D2339CFA006587AFCE2431678B22E7CD3CA8DAC9451C741"
+    }
+  ],
+  "deviations": [
+    "Cross-view AutomationIds are only resolvable while their view is active (single-view host ModuleContentControl with cached views); the 17-ID contract is therefore verified per-view at each navigation point of steps 3, 4, 6, 7, 8 and 10 rather than in one flat scan.",
+    "HydraulicsPipeSpacing displays centimetres: CircuitsViewModel.PipeSpacing_cm = thermal PipeSpacing(mm)/10 (src/ViewModels/Hydraulics/CircuitsViewModel.cs:285). The distilled brief said \"assert == 300\"; the code-faithful expectation is 30 (cm) for thermal spacing 300 mm — asserted accordingly.",
+    "Keystroke substitution (steps 7/9/10): injected Ctrl+S/Ctrl+N chords never reach the Window-level KeyDown handler in this environment (probe evidence: plain keys and TextBox-internal Ctrl+A deliver; Ctrl+O raises no open-dialog). The harness drives the SAME bound commands (SaveProjectCommand / NewCalculationCommand) through the visible «Файл» menu via UIA Invoke/Selection patterns; the plan-mandated observables (file SHA/timestamp advance, dirty-marker clears, DEC-T01 defaults) are asserted unchanged.",
+    "Unknown-pipe fallback publishes an INVALID zero result with a physics-validation status instead of a positive power: the orchestrator runs exactly one fallback Calculate (ProjectLoadOrchestrator.cs:227), the calculator rejects the fixture inputs (supply 55 / ground 5) and the coordinator publishes the invalid result canonically. Asserted as presence + exact recorded status per plan line 316 (\"exact fallback pipe/message/result/status frozen by Todo 9\"). Status text: При текущих параметрах системы не обеспечивается требуемая мощность. Температура подачи (55,0°C) должна быть не менее 104,2°C. Увеличьте температуру подачи, уменьшите интенсивность снегопада или измените режим работы.; Температурный перепад должен быть положительным"
+  ],
+  "unexpectedDialogs": [],
+  "error": "",
+  "result": "PASS"
+}

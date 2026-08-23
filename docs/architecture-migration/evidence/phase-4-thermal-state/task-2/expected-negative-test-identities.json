@@ -1,0 +1,21 @@
+{
+  "PersistenceFailure": [
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Restore_InvalidSavedResult_CalculatorOnceInvalidResultNotFinalCanonical",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Restore_UnknownPersistedPipe_FallsBackToFirstStandardPipe",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadCorruptProjectFile_ShowsErrorKeepsPriorProjectAndThermalStateUntouched",
+    "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.PersistenceFailure_FailedFileOperation_PreservesErrorStateWithoutSchemaDrift",
+    "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.PersistenceFailure_MissingOrCorruptSavedResult_FallbackOnce_InvalidNeverCanonical",
+    "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.PersistenceFailure_UnknownPipe_FallsBackToFirstStandard_NoSchemaDrift"
+  ],
+  "RestoreFailure": [
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults",
+    "SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests.RestoreModulesFromProjectAsync_ThermalBoundaryException_ClearsLeaseAndPreservesPartialState"
+  ],
+  "CalculationFailure": [
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics"
+  ]
+}

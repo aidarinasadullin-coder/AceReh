@@ -1,0 +1,11 @@
+{
+  "tests": [
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadCorruptProjectFile_ShowsErrorKeepsPriorProjectAndThermalStateUntouched", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Restore_InvalidSavedResult_CalculatorOnceInvalidResultNotFinalCanonical", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Restore_UnknownPersistedPipe_FallsBackToFirstStandardPipe", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.PersistenceFailure_FailedFileOperation_PreservesErrorStateWithoutSchemaDrift", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.PersistenceFailure_MissingOrCorruptSavedResult_FallbackOnce_InvalidNeverCanonical", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.PersistenceFailure_UnknownPipe_FallsBackToFirstStandard_NoSchemaDrift", "outcome": "Passed"}
+  ],
+  "counts": {"total": 6, "passed": 6, "failed": 0, "notExecuted": 0}
+}

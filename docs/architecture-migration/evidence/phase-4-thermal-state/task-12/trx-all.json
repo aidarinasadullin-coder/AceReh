@@ -1,0 +1,72 @@
+{
+  "note": "Per-suite parse-trx outputs (trx-v2..v6.json); directory-level combined parse is impossible because V2-V5 filtered sets are subsets of V6 (parse-trx rejects cross-file duplicate identities by design). This file aggregates the five authoritative parser outputs.",
+  "suites": [
+    {
+      "id": "v2",
+      "trx": "task-12-v2-focused.trx",
+      "total": 203,
+      "passed": 203,
+      "failed": 0,
+      "notExecuted": 0,
+      "notExecutedIdentities": []
+    },
+    {
+      "id": "v3",
+      "trx": "task-12-v3-upstream-invalidation.trx",
+      "total": 21,
+      "passed": 21,
+      "failed": 0,
+      "notExecuted": 0,
+      "notExecutedIdentities": []
+    },
+    {
+      "id": "v4",
+      "trx": "task-12-v4-hydraulics-consumer.trx",
+      "total": 59,
+      "passed": 59,
+      "failed": 0,
+      "notExecuted": 0,
+      "notExecutedIdentities": []
+    },
+    {
+      "id": "v5",
+      "trx": "task-12-v5-persistence.trx",
+      "total": 77,
+      "passed": 76,
+      "failed": 0,
+      "notExecuted": 1,
+      "notExecutedIdentities": [
+        "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile"
+      ]
+    },
+    {
+      "id": "v6",
+      "trx": "task-12-v6-full-release.trx",
+      "total": 1946,
+      "passed": 1943,
+      "failed": 0,
+      "notExecuted": 3,
+      "notExecutedIdentities": [
+        "SnowMeltingCalculator.Tests.RefactorBaseline.CircuitsBaselineTests.RegenerateCircuitsBaseline",
+        "SnowMeltingCalculator.Tests.RefactorBaseline.ThermalBaselineTests.RegenerateBaseline",
+        "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile"
+      ]
+    }
+  ],
+  "reconciliation": {
+    "allSuitesFailedZero": true,
+    "v6_total": 1946,
+    "v6_passed": 1943,
+    "v6_failed": 0,
+    "v6_notExecuted": 3,
+    "v6_arithmetic_ok": true,
+    "v6_total_equals_1946": true,
+    "v6_notExecuted_count_is_3": true,
+    "v6_notExecuted_identities_match_baseline": true,
+    "v6_notExecuted_actual": [
+      "SnowMeltingCalculator.Tests.RefactorBaseline.CircuitsBaselineTests.RegenerateCircuitsBaseline",
+      "SnowMeltingCalculator.Tests.RefactorBaseline.ThermalBaselineTests.RegenerateBaseline",
+      "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile"
+    ]
+  }
+}

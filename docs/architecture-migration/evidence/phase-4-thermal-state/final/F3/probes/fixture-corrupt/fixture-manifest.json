@@ -1,0 +1,33 @@
+{
+  "todo": "task-13",
+  "generator": "docs/architecture-migration/evidence/phase-4-thermal-state/prepare-ui-fixtures.ps1",
+  "source": {
+    "path": "tests/SnowMeltingCalculator.Tests/Fixtures/v1-sample.smc",
+    "sha256": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A"
+  },
+  "outputs": [
+    {
+      "name": "project-a.smc",
+      "relativePath": "project-a.smc",
+      "sha256": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A"
+    },
+    {
+      "name": "project-b.smc",
+      "relativePath": "project-b.smc",
+      "sha256": "FBE377ABAB8A5D3A47086E23A5E4FFFA68B95EAEEE569DEE459CEB0235940882"
+    },
+    {
+      "name": "unknown-pipe.smc",
+      "relativePath": "unknown-pipe.smc",
+      "sha256": "D7BA538E14C8C9AC33556540705EECA6C10E8F223BB0DA837463B584F1AB1532"
+    }
+  ],
+  "assertions": {
+    "projectACopyOfSource": true,
+    "projectBValuesExact": true,
+    "unknownPipeValuesExact": true,
+    "mutatedPathsPreExisted": true,
+    "utf8NoBom": true,
+    "convertToJsonDepth": 100
+  }
+}

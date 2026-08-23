@@ -1,0 +1,18 @@
+{
+  "valid": false,
+  "plan": "docs/architecture-migration/evidence/phase-4-thermal-state/task-1/fixtures/plans/todo-15.md",
+  "v11_first_todo": 11,
+  "todos": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+  "finals": ["F1","F2","F3","F4"],
+  "counts": {
+    "todoCount": 15,
+    "finalCount": 4,
+    "taskRowCount": 19,
+    "catalogVDefinitionCount": 14,
+    "errorCount": 2
+  },
+  "errors": [
+    "integer task id 15 exceeds 14 (line 498)",
+    "sequence mismatch at position 15: expected 'F1' got '15' (gap/duplicate/out-of-order)"
+  ]
+}

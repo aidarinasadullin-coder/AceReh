@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.ApplyInputEdit_InvalidValue_RejectedAtomically(19.9d)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.ApplyInputEdit_InvalidValue_RejectedAtomically(90.1d)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.ApplyInputs_OutOfRangeGroundTemperature_RejectedAtomically(-10.1d)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.ApplyInputs_OutOfRangeGroundTemperature_RejectedAtomically(30.1d)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.ApplyInputs_OutOfRangePipeSpacing_RejectedAtomically(49)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.ApplyInputs_OutOfRangePipeSpacing_RejectedAtomically(501)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.ApplyInputs_OutOfRangeSupplyTemperature_RejectedAtomically(19.9d)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.ApplyInputs_OutOfRangeSupplyTemperature_RejectedAtomically(90.1d)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.ApplyInputs_OutOfRangeSupplyTemperature_RejectedAtomically(double.NaN)", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.ApplyInputs_UndefinedOperatingMode_RejectedAtomically", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.EgressValidationErrors_ExposeNoWritableBackingReference", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.PipeIngress_MutatingOriginalPipeType_DoesNotMutateOwner", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.Restore_InvalidInputs_RejectedAtomically", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.Restore_SavedResultIngress_MutatingOriginal_DoesNotMutateOwner", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.ResultIngress_MutatingOriginalResult_DoesNotMutateOwner", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ProjectSessionThermalStateTests.StructuralSnapshots_ReferenceEqualityIsNotIdentity", "outcome": "Passed"}
+  ],
+  "counts": {"total": 16, "passed": 16, "failed": 0, "notExecuted": 0}
+}

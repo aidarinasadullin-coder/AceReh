@@ -1,0 +1,13 @@
+{
+  "status": "ok",
+  "group": "CalculationFailure",
+  "inputTrx": "D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-12\\fixtures\\trx\\valid-calculation.trx",
+  "expected": 4,
+  "matched": 4,
+  "identities": [
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit"
+  ]
+}

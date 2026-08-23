@@ -1,0 +1,27 @@
+{
+  "manifestSha256": "6D039FC7B84C84F389D2DB435B69C354323ACCAB6C62A16C0B8F75475B13BA72",
+  "lane": "F1",
+  "moment": "before",
+  "artifacts": [
+    {
+      "key": "executable",
+      "resolvedPath": "src/bin/Release/net8.0-windows/win-x64/SnowMeltingCalculator.exe",
+      "sha256": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D"
+    },
+    {
+      "key": "productDll",
+      "resolvedPath": "src/bin/Release/net8.0-windows/win-x64/SnowMeltingCalculator.dll",
+      "sha256": "E03F335273A1EDFE6706C37828F941992EFF064DE73B91A0345C5CD1E489F5B9"
+    },
+    {
+      "key": "testDll",
+      "resolvedPath": "tests/SnowMeltingCalculator.Tests/bin/Release/net8.0-windows/SnowMeltingCalculator.Tests.dll",
+      "sha256": "E6B451F520BB25AFE543484458861D54EEA1E6729D680A75456DABED3D013D4C"
+    },
+    {
+      "key": "plan",
+      "resolvedPath": "docs/architecture-migration/plans/phase-4-thermal-state.md",
+      "sha256": "327B1288B8072E7A76D814F8439ECBC353F54F4CE59AB2B507595A08980B4C02"
+    }
+  ]
+}

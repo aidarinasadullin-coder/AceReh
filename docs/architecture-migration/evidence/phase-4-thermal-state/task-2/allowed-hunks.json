@@ -1,0 +1,6 @@
+{
+  "allowedHunks": [
+    "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalMultiplicityCharacterizationTests.cs",
+    "tests/SnowMeltingCalculator.Tests/Thermal/ThermalViewModelTests.cs"
+  ]
+}

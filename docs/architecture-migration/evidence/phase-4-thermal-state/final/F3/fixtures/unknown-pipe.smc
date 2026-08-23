@@ -1,0 +1,146 @@
+{
+  "version": "1.1",
+  "projectNumber": "PHASE4-UNKNOWN-PIPE",
+  "projectObject": "v1.0 serialization regression sample",
+  "createdDate": "2026-08-24T00:48:38.5364978+05:00",
+  "modifiedDate": "2026-08-24T00:48:38.5364773+05:00",
+  "climateData": {
+    "selectedCity": "\u041C\u043E\u0441\u043A\u0432\u0430",
+    "region": "\u041C\u043E\u0441\u043A\u043E\u0432\u0441\u043A\u0430\u044F \u043E\u0431\u043B\u0430\u0441\u0442\u044C",
+    "airTemperature": -28,
+    "windSpeed": 5,
+    "humidity": 70,
+    "snowfallIntensity": 0.003,
+    "selectedZone": "zone_M10",
+    "isHighRequirements": false
+  },
+  "constructionData": {
+    "r1": 0.05714285714285714,
+    "r2": 0.11494252873563218,
+    "lambdaE": 1.05,
+    "layers": [
+      {
+        "position": "abovePipe",
+        "materialName": "\u0411\u0435\u0442\u043E\u043D",
+        "materialLambda": 1.74,
+        "thickness": 60,
+        "calculatedR": 0,
+        "calculatedLambda": 1.05,
+        "isLambdaOverridden": false,
+        "order": 0
+      },
+      {
+        "position": "belowPipe",
+        "materialName": "\u0411\u0435\u0442\u043E\u043D",
+        "materialLambda": 1.74,
+        "thickness": 200,
+        "calculatedR": 0,
+        "calculatedLambda": 1.74,
+        "isLambdaOverridden": false,
+        "order": 0
+      }
+    ],
+    "groundwaterLevel": 2,
+    "hasLoads": false
+  },
+  "thermalData": {
+    "selectedMode": "melting",
+    "supplyTemperature": 65,
+    "groundTemperature": 5,
+    "selectedPipe": {
+      "name": "RAUTHERM S 17x2,0",
+      "outerDiameter": 17,
+      "innerDiameter": 13,
+      "wallThickness": 2
+    },
+    "pipeSpacing": 150,
+    "result": {
+      "powerUp": 665.7533542521434,
+      "powerDown": 0,
+      "powerTotal": 0,
+      "supplyTemperature": 55,
+      "returnTemperature": 0,
+      "meanTemperature": 104.18366067619198,
+      "deltaT": 0,
+      "isValid": false
+    }
+  },
+  "hydraulicsData": {
+    "glycolType": "ethylene",
+    "glycolConcentration": 30,
+    "supplySpacingCm": 5,
+    "supplyHeatPercent": 10,
+    "collectors": [
+      {
+        "collectorNumber": 1,
+        "collectorType": "HKV-D (2-12 \u043A\u043E\u043D\u0442\u0443\u0440\u043E\u0432)",
+        "valveType": "hkV_D",
+        "circuits": [
+          {
+            "circuitNumber": 1,
+            "circuitLength": 80,
+            "supplyLength": 8,
+            "supplySpacingCm": 5,
+            "supplyHeatPercent": 10,
+            "pipeSpacingCm": 25,
+            "operatingResult": {
+              "power": 20480,
+              "flowRate": 1172,
+              "velocity": 1.45,
+              "dpRohr": 15000,
+              "dpVerteiler": 2500,
+              "dpVent": 1200,
+              "dpGesamt": 18700,
+              "throttling": 0,
+              "valveTurns": 2.5,
+              "flowRegime": "Turbulent",
+              "flowRegimeString": "Turbulent",
+              "density": 0,
+              "kinematicViscosity": 0,
+              "reynoldsNumber": 0,
+              "frictionFactor": 0,
+              "pressureLossPerMeter": 0
+            },
+            "designResult": {
+              "power": 20480,
+              "flowRate": 1172,
+              "velocity": 1.45,
+              "dpRohr": 18000,
+              "dpVerteiler": 3000,
+              "dpVent": 1400,
+              "dpGesamt": 22400,
+              "throttling": 0,
+              "valveTurns": 2.5,
+              "flowRegime": "Turbulent",
+              "flowRegimeString": "Turbulent",
+              "density": 0,
+              "kinematicViscosity": 0,
+              "reynoldsNumber": 0,
+              "frictionFactor": 0,
+              "pressureLossPerMeter": 0
+            },
+            "power": 20480,
+            "flowRate": 1172,
+            "velocity": 1.45,
+            "flowRegimeDescription": "\u0422\u0443\u0440\u0431\u0443\u043B\u0435\u043D\u0442\u043D\u044B\u0439",
+            "throttling": 0,
+            "valveTurns": 2.5
+          }
+        ],
+        "summary": {
+          "circuitCount": 1,
+          "totalPipeLength": 88,
+          "totalPower": 20480,
+          "totalFlowRate": 1172,
+          "pressureLoss_Operating_Pa": 18700,
+          "pressureLoss_Cold_Pa": 22400,
+          "kv": 1.2,
+          "collectorType": "HKV-D (2-12 \u043A\u043E\u043D\u0442\u0443\u0440\u043E\u0432)"
+        }
+      }
+    ]
+  },
+  "customMaterials": [],
+  "customTemplates": [],
+  "isOperatingMode": true
+}

@@ -1,0 +1,12 @@
+{
+  "allowedHunks": [
+    "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalMultiplicityCharacterizationTests.cs",
+    "tests/SnowMeltingCalculator.Tests/Thermal/ThermalViewModelTests.cs",
+    "src/Services/Project/IProjectSessionThermalState.cs",
+    "src/Services/Project/ProjectSessionThermalState.cs",
+    "src/Services/Project/ThermalMutationOrigin.cs",
+    "src/Services/Project/ThermalMutationResult.cs",
+    "src/Services/Project/ThermalStateSnapshots.cs",
+    "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectSessionThermalStateTests.cs"
+  ]
+}

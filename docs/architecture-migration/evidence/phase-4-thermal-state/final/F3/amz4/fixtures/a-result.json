@@ -1,0 +1,7 @@
+{
+  "tests": [
+    {"name": "T1", "outcome": "Passed"},
+    {"name": "T2", "outcome": "Passed"}
+  ],
+  "counts": {"total": 2, "passed": 2, "failed": 0, "notExecuted": 0}
+}

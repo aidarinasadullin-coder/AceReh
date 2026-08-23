@@ -1,0 +1,15 @@
+{
+  "status": "ok",
+  "group": "PersistenceFailure",
+  "inputTrx": "docs/architecture-migration/evidence/phase-4-thermal-state/task-12/TestResults/task-12-v6b-persistence-failure.trx",
+  "expected": 6,
+  "matched": 6,
+  "identities": [
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadCorruptProjectFile_ShowsErrorKeepsPriorProjectAndThermalStateUntouched",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Restore_InvalidSavedResult_CalculatorOnceInvalidResultNotFinalCanonical",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Restore_UnknownPersistedPipe_FallsBackToFirstStandardPipe",
+    "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.PersistenceFailure_FailedFileOperation_PreservesErrorStateWithoutSchemaDrift",
+    "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.PersistenceFailure_MissingOrCorruptSavedResult_FallbackOnce_InvalidNeverCanonical",
+    "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.PersistenceFailure_UnknownPipe_FallsBackToFirstStandard_NoSchemaDrift"
+  ]
+}

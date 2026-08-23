@@ -1,0 +1,46 @@
+{
+  "subject": "phase-4-thermal-state@327B1288B8072E7A76D814F8439ECBC353F54F4CE59AB2B507595A08980B4C02",
+  "frozenManifestSha256": "6D039FC7B84C84F389D2DB435B69C354323ACCAB6C62A16C0B8F75475B13BA72",
+  "domains": [
+    {
+      "lane": "F1",
+      "domain": "Conformance / Scope / Provenance",
+      "verdict": "APPROVE",
+      "receiptPath": "docs/architecture-migration/evidence/phase-4-thermal-state/final/f1/conformance-scope-provenance.md",
+      "receiptSha256": "7A3646D647F5C2B9F2215763D973370A34F745D781306FD7E9C9F6F2F29F382F"
+    },
+    {
+      "lane": "F2",
+      "domain": "Architecture / Code Quality",
+      "verdict": "APPROVE",
+      "receiptPath": "docs/architecture-migration/evidence/phase-4-thermal-state/final/f2/architecture-code-quality.md",
+      "receiptSha256": "F5F7FD59CC34641D259575BBF90B6278DDF7D9B58FDE098E50ACFC95CE01488F"
+    },
+    {
+      "lane": "F3",
+      "domain": "Executable QA / User Risk",
+      "verdict": "APPROVE",
+      "receiptPath": "docs/architecture-migration/evidence/phase-4-thermal-state/final/f3/executable-user-risk.md",
+      "receiptSha256": "9DF136842FD33A5ED8B7B48CBA5CC04F208ACC2F5E60C89399A628E85E5C1C4B"
+    }
+  ],
+  "frozenArtifacts": {
+    "executable": { "path": "src/bin/Release/net8.0-windows/win-x64/SnowMeltingCalculator.exe", "sha256": "BE36766AF72900F8734B6BADD4EF014C6E0FC689EB459B62651EB2CFF3C6335D" },
+    "productDll": { "path": "src/bin/Release/net8.0-windows/win-x64/SnowMeltingCalculator.dll", "sha256": "E03F335273A1EDFE6706C37828F941992EFF064DE73B91A0345C5CD1E489F5B9" },
+    "testDll": { "path": "tests/SnowMeltingCalculator.Tests/bin/Release/net8.0-windows/SnowMeltingCalculator.Tests.dll", "sha256": "E6B451F520BB25AFE543484458861D54EEA1E6729D680A75456DABED3D013D4C" },
+    "plan": { "path": "docs/architecture-migration/plans/phase-4-thermal-state.md", "sha256": "327B1288B8072E7A76D814F8439ECBC353F54F4CE59AB2B507595A08980B4C02" }
+  },
+  "laneHashReceipts": {
+    "F1": { "before": "docs/architecture-migration/evidence/phase-4-thermal-state/final/F1/frozen-hashes-before.json", "after": "docs/architecture-migration/evidence/phase-4-thermal-state/final/F1/frozen-hashes-after.json" },
+    "F2": { "before": "docs/architecture-migration/evidence/phase-4-thermal-state/final/F2/frozen-hashes-before.json", "after": "docs/architecture-migration/evidence/phase-4-thermal-state/final/F2/frozen-hashes-after.json" },
+    "F3": { "before": "docs/architecture-migration/evidence/phase-4-thermal-state/final/F3/frozen-hashes-before.json", "after": "docs/architecture-migration/evidence/phase-4-thermal-state/final/F3/frozen-hashes-after.json" },
+    "F4": { "before": "docs/architecture-migration/evidence/phase-4-thermal-state/final/F4/frozen-hashes-before.json", "after": "docs/architecture-migration/evidence/phase-4-thermal-state/final/F4/frozen-hashes-after.json" }
+  },
+  "corrections": [
+    "AMZ-1: Todos 5+6+7 merged into one green boundary (ThermalStateCoordinator sole upstream subscriber/context writer; VM adapter; service zero Thermal stores); transitional canonical mutation ApplyNeedsRecalculation retained with exactly one production caller",
+    "AMZ-2: two characterization pins updated to DEC-T08 target semantics (LifecycleResetModules_..., SecondProjectLoad_...UntilTodo9 renamed)",
+    "AMZ-3: negative-category manifest extended CF=4/PF=3/RF=2 -> CF=4/PF=6/RF=3 (four additive tests from Todos 9-10)",
+    "AMZ-4: parse-trx.ps1 directory-mode deduplication - benign cross-file overlap with agreeing outcomes accepted; outcome conflicts, within-file duplicates still fail closed; fixture-proven under final/f3/amz4/"
+  ],
+  "consolidatedReceipt": "docs/architecture-migration/evidence/phase-4-thermal-state/final/consolidated/final-receipt.md"
+}

@@ -1,0 +1,18 @@
+{
+  "valid": false,
+  "plan": "docs/architecture-migration/evidence/phase-4-thermal-state/task-1/fixtures/plans/gapped-id.md",
+  "v11_first_todo": 11,
+  "todos": [1,2,3,4,5,6,8,9,10,11,12,13,14],
+  "finals": ["F1","F2","F3","F4"],
+  "counts": {
+    "todoCount": 13,
+    "finalCount": 4,
+    "taskRowCount": 17,
+    "catalogVDefinitionCount": 14,
+    "errorCount": 2
+  },
+  "errors": [
+    "sequence mismatch at position 7: expected '7' got '8' (gap/duplicate/out-of-order)",
+    "task 8: unresolved Todo dependency '7'"
+  ]
+}

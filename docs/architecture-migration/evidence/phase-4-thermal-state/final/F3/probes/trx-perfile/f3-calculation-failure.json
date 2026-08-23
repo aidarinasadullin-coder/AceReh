@@ -1,0 +1,9 @@
+{
+  "tests": [
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_CalculatorReturnedInvalidResult_StoredCanonicallyPublishedOnceZeroHydraulics", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_Exception_SetsExactErrorMessageNullResultAndInvalidContextPublication", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_InvalidInput_ZeroCalculatorZeroContextPhaseUnchanged", "outcome": "Passed"},
+    {"name": "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Calculate_ReentrantWhileCalculating_PerformsNoSecondCalculatorHit", "outcome": "Passed"}
+  ],
+  "counts": {"total": 4, "passed": 4, "failed": 0, "notExecuted": 0}
+}

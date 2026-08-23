@@ -1,0 +1,17 @@
+{
+  "protected_mismatch_count": 0,
+  "allowed_hunk_count": 2,
+  "changed_paths": [
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/capture-baseline.ps1", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/parse-trx.ps1", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/planning-consolidated-receipt-replan-1.md", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-1/", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-2/", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-3/", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/todo-1-allowed-hunks.json", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/verify-plan-structure.ps1", "classification": "allowed", "kind": "added"},
+    {"path": "docs/architecture-migration/evidence/phase-4-thermal-state/verify-protected-baseline.ps1", "classification": "allowed", "kind": "added"},
+    {"path": "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalMultiplicityCharacterizationTests.cs", "classification": "allowed", "kind": "added"},
+    {"path": "tests/SnowMeltingCalculator.Tests/Thermal/ThermalViewModelTests.cs", "classification": "allowed", "kind": "modified"}
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "status": "ok",
+  "group": "PersistenceFailure",
+  "inputTrx": "D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-12\\fixtures\\trx\\valid-persistence.trx",
+  "expected": 3,
+  "matched": 3,
+  "identities": [
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadCorruptProjectFile_ShowsErrorKeepsPriorProjectAndThermalStateUntouched",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Restore_InvalidSavedResult_CalculatorOnceInvalidResultNotFinalCanonical",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.Restore_UnknownPersistedPipe_FallsBackToFirstStandardPipe"
+  ]
+}

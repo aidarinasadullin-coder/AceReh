@@ -1,0 +1,11 @@
+{
+  "status": "ok",
+  "group": "RestoreFailure",
+  "inputTrx": "D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-4-thermal-state\\task-12\\fixtures\\trx\\valid-restore.trx",
+  "expected": 2,
+  "matched": 2,
+  "identities": [
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults",
+    "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults"
+  ]
+}
