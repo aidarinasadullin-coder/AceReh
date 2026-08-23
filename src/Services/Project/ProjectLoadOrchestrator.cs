@@ -33,6 +33,7 @@ namespace SnowMeltingCalculator.Services.Project
         private readonly CalculationContext _calculationContext;
         private readonly IProjectSessionClimateState _climateState;
         private readonly IProjectSessionConstructionState _constructionState;
+        private readonly IProjectSessionThermalState _thermalState;
         private readonly ConstructionDefaultStateInitializer _constructionDefaultStateInitializer;
 
         /// <summary>
@@ -59,6 +60,7 @@ namespace SnowMeltingCalculator.Services.Project
             var session = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _climateState = session.ClimateState;
             _constructionState = session.ConstructionState;
+            _thermalState = session.ThermalState;
             _constructionDefaultStateInitializer = constructionDefaultStateInitializer
                 ?? throw new ArgumentNullException(nameof(constructionDefaultStateInitializer));
         }
@@ -77,6 +79,10 @@ namespace SnowMeltingCalculator.Services.Project
             _climateState.ResetToDefaults(ClimateMutationOrigin.ProjectLoadReset);
             _climateViewModel.SearchQuery = string.Empty;
             _constructionViewModel.ApplyLifecycleSnapshotToAdapter(constructionResult.After);
+            // Канонический сброс теплового состояния жизненным циклом проекта
+            // (не пользователем): результат/статус очищаются без user-dirty
+            // (DEC-T08, Todo 9); адаптер ниже зеркалит дефолты без мутаций.
+            _thermalState.ResetToDefaults(ThermalMutationOrigin.ProjectLoadReset);
             _thermalViewModel.Reset();
             _circuitsViewModel.Reset();
         }
@@ -118,43 +124,45 @@ namespace SnowMeltingCalculator.Services.Project
                     ConstructionMutationOrigin.ProjectLoad);
                 _constructionViewModel.ApplyLifecycleSnapshotToAdapter(result.After);
 
-                // Загружаем данные теплового расчёта
-                _thermalViewModel.SelectedMode = data.ThermalData.SelectedMode;
-                _thermalViewModel.SupplyTemperature = data.ThermalData.SupplyTemperature;
-                _thermalViewModel.GroundTemperature = data.ThermalData.GroundTemperature;
-                _calculationStateService.SetPipeSpacing(data.ThermalData.PipeSpacing, "ProjectLoadOrchestrator.RestoreModules");
-
-                // Восстанавливаем выбранную трубу
-                var restoredPipe = data.ThermalData.SelectedPipe;
-                if (restoredPipe != null)
+                // Загружаем данные теплового расчёта через канонический Restore
+                // (DEC-T08, Todo 9): маппер строит кандидата входов и сохранённого
+                // результата из DTO; Restore атомарно заменяет ВСЕ компоненты
+                // состояния предыдущего проекта (входы/результат/статус) — вторая
+                // загрузка не оставляет stale-значений проекта A.
+                var thermalCandidate = ThermalPersistenceMapper.BuildInputsCandidate(
+                    data.ThermalData,
+                    _thermalViewModel.AvailablePipes);
+                var restoreMutation = _thermalState.Restore(
+                    thermalCandidate,
+                    ThermalPersistenceMapper.BuildSavedResult(data.ThermalData?.Result));
+                if (restoreMutation.IsRejected)
                 {
-                    var restoredPipeType = new PipeType
-                    {
-                        Name = restoredPipe.Name,
-                        OuterDiameter = restoredPipe.OuterDiameter,
-                        InnerDiameter = restoredPipe.InnerDiameter,
-                        WallThickness = restoredPipe.WallThickness
-                    };
-                    _thermalViewModel.SelectedPipe = _thermalViewModel.AvailablePipes
-                        .FirstOrDefault(p => p == restoredPipeType)
-                        ?? _thermalViewModel.AvailablePipes.FirstOrDefault();
+                    // Повреждённый/вне-диапазона кандидат отклонён атомарно
+                    // (замороженная валидация не ослабляется). Гарантируем ноль
+                    // stale-значений проекта A (DEC-T08) повторным Restore с
+                    // каноническими дефолтами входов; валидный сохранённый
+                    // результат файла при этом сохраняется (legacy-наблюдаемое:
+                    // файловый результат публикуется без пересчёта), а при
+                    // отсутствии/невалидности результата финализация выполнит
+                    // ровно один fallback-расчёт.
+                    _thermalState.Restore(
+                        ThermalInputsSnapshot.Default,
+                        ThermalPersistenceMapper.BuildSavedResult(data.ThermalData?.Result));
                 }
 
-                // Восстанавливаем результат теплового расчёта
-                if (data.ThermalData.Result != null)
-                {
-                    _thermalViewModel.Result = new ThermalCalculationResult
-                    {
-                        PowerUp = data.ThermalData.Result.PowerUp,
-                        PowerDown = data.ThermalData.Result.PowerDown,
-                        PowerTotal = data.ThermalData.Result.PowerTotal,
-                        SupplyTemperature = data.ThermalData.Result.SupplyTemperature,
-                        ReturnTemperature = data.ThermalData.Result.ReturnTemperature,
-                        MeanTemperature = data.ThermalData.Result.MeanTemperature,
-                        DeltaT = data.ThermalData.Result.DeltaT,
-                        IsValid = data.ThermalData.Result.IsValid
-                    };
-                }
+                // Совместимая поверхность шага укладки: после канонического Restore
+                // значение совпадает, вызов гарантированно no-op (ноль событий).
+                _calculationStateService.SetPipeSpacing(thermalCandidate.PipeSpacing, "ProjectLoadOrchestrator.RestoreModules");
+
+                // Обновляем адаптер ViewModel из канонического кандидата (привязки UI);
+                // под guard загрузки присвоения не создают пользовательских мутаций.
+                _thermalViewModel.SelectedMode = thermalCandidate.Mode;
+                _thermalViewModel.SupplyTemperature = thermalCandidate.SupplyTemperature;
+                _thermalViewModel.GroundTemperature = thermalCandidate.GroundTemperature;
+                _thermalViewModel.SelectedPipe = ThermalPersistenceMapper.ResolveStandardPipe(
+                    thermalCandidate.Pipe,
+                    _thermalViewModel.AvailablePipes);
+                _thermalViewModel.PipeSpacing = thermalCandidate.PipeSpacing;
 
                 // Загружаем коллекторы
                 _circuitsViewModel.Collectors.Clear();
@@ -199,14 +207,18 @@ namespace SnowMeltingCalculator.Services.Project
 
             // === Детерминированная финализация загрузки проекта ===
             //
-            // 1. Тепловой результат: если сохранённый результат валиден —
-            //    публикуем его через canonical writer (ThermalViewModel.LoadResult),
-            //    иначе выполняем полный расчёт из восстановленных входных данных.
-            //    CircuitsViewModel — чистый потребитель контекста: пересчёт
-            //    гидравлики срабатывает через OnCalculationContextChanged.
-            if (_thermalViewModel.Result != null && _thermalViewModel.Result.IsValid)
+            // 1. Тепловой результат читается ТОЛЬКО из канонического состояния
+            //    (DEC-T08, Todo 9): валидный сохранённый результат уже восстановлен
+            //    через Restore — публикуем его ровно один раз через адаптер
+            //    (LoadResult); иначе выполняем РОВНО ОДИН полный расчёт из
+            //    восстановленных входных данных (fallback для отсутствующего или
+            //    невалидного сохранённого результата). CircuitsViewModel — чистый
+            //    потребитель контекста: пересчёт гидравлики срабатывает через
+            //    OnCalculationContextChanged.
+            if (_thermalState.Snapshot.Result is { IsValid: true })
             {
-                _thermalViewModel.LoadResult(_thermalViewModel.Result);
+                _thermalViewModel.LoadResult(
+                    ThermalPersistenceMapper.ToDomainResult(_thermalState.Snapshot.Result));
             }
             else
             {

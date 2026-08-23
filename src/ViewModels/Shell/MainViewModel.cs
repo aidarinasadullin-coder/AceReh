@@ -31,6 +31,7 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         private readonly CalculationContext _calculationContext;
         private readonly IProjectSessionClimateState _climateState;
         private readonly IProjectSessionConstructionState _constructionState;
+        private readonly IProjectSessionThermalState _thermalState;
         private readonly ConstructionDefaultStateInitializer _constructionDefaultStateInitializer;
 
         public ResultsViewModel ResultsViewModel => _resultsViewModel;
@@ -64,6 +65,7 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             var session = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _climateState = session.ClimateState;
             _constructionState = session.ConstructionState;
+            _thermalState = session.ThermalState;
             _constructionDefaultStateInitializer = constructionDefaultStateInitializer
                 ?? throw new ArgumentNullException(nameof(constructionDefaultStateInitializer));
 
@@ -235,6 +237,10 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             _climateState.ResetToDefaults(ClimateMutationOrigin.ProjectLoadReset);
             _climateViewModel.SearchQuery = string.Empty;
             _constructionViewModel.ApplyLifecycleSnapshotToAdapter(constructionResult.After);
+            // Канонический Thermal-сброс жизненным циклом нового расчёта (не
+            // пользователем): результат/статус очищаются без user-dirty
+            // (DEC-T08, Todo 9); адаптер ниже зеркалит дефолты без мутаций.
+            _thermalState.ResetToDefaults(ThermalMutationOrigin.ProjectLoadReset);
             _thermalViewModel.Reset();
             _circuitsViewModel.Reset();
             _projectStateService.MarkClean();
