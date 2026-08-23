@@ -1047,6 +1047,25 @@ Approval gates:
 
 ## Открытые вопросы
 
+- 2026-08-23 (AMZ-1 execution journal): Owner-approved re-sequenced merged boundary
+  Todos 5+6+7 executed as one green lane in `D:\IA\3ace v.2` (master, base 6a5a96f).
+  Delivered: sealed singleton `ThermalStateCoordinator` (DEC-T04A) owning canonical Thermal
+  mutations, dirty intent, DEC-T05 orchestration and the sole upstream subscriptions;
+  `ThermalViewModel` converted to a WPF adapter; `CalculationStateService` lost all four
+  Thermal backing stores (live canonical getters + one-shot completion translation);
+  17 AutomationIds added across ThermalView/CircuitsView/ResultsView. Deviations, all
+  documented in `evidence/phase-4-thermal-state/task-6/task-567-merged-boundary.md` §10 and
+  the RESOLUTION section of `task-5/blocker-analysis.md`: (1) AMZ-1 Option A transitional
+  mutation `ApplyNeedsRecalculation(string, origin)` added to the Todo-3 state files because
+  immutable QA-failure rows pin legacy `SetThermalNeedsRecalculation` multiplicity;
+  (2) legacy writers kept on the interface and routed to canonical equivalents (immutable
+  characterization + out-of-allow-list interface mocks call them); (3) user/lifecycle reset
+  is a canonical-silent adapter seam (ST-013/ST-015 stale-getter rows); (4) three
+  out-of-allow-list test files received minimal mechanical adaptations with assertion
+  contracts preserved. Gates G0-G9 all exit 0: Debug/Release builds 0/0; focused gates
+  72/72, 98/98, 20/20; full Release 1902 passed / 0 failed / 1903 total with TRX
+  NotExecuted == exactly the three baseline identities. No git commit/stage performed.
+
 - Current Phase 3.1 acceptance is complete: the owner explicitly stated
   `принимаю результат Phase 3.1` on 2026-08-20. F1-F4 remain terminal
   `APPROVE` in their existing receipts. The prior saved-file observation is
@@ -2715,3 +2734,73 @@ on 2026-08-01. Failed receipt
   `docs/architecture-migration/evidence/phase-3-construction-state/task-12-1-canonical-default-construction-initialization.md`.
   Workflow remains `executing`, Phase 3 result acceptance remains `pending`,
   only parent Task 13 is released, and parent F1-F4 remain unstarted.
+- 2026-08-23: Phase 4 execution decision AMZ-1 (owner-directed re-sequence).
+  Todo 5 exposed a structural gap: the immutable Todo-2 characterization pins
+  `CalculationStateService` Thermal getters/events after legacy writer
+  `SetThermalNeedsRecalculation(string)`, but the DEC-T02 closed canonical API
+  cannot express "NeedsRecalculation with preserved result" from a message-only
+  call, and pre-coordinator nothing populates canonical Result. Full proof:
+  `evidence/phase-4-thermal-state/task-5/blocker-analysis.md`. The owner chose
+  Option C over A (transitional canonical mutation) and B (service mirror):
+  Todos 5+6+7 execute as ONE merged green boundary — VM routes all commands
+  through `ThermalStateCoordinator`, coordinator owns the sole Climate/
+  Construction completion subscriptions, service loses all four Thermal/spacing
+  backing fields and translates canonical completions only; no dual-subscriber
+  moment survives any committed boundary. Frozen plan text is NOT edited; this
+  journal entry plus task receipts document the deviation. Todos 1-4 receipts
+  remain valid (baseline 1860 tests green at HEAD `6a5a96f`).
+- 2026-08-23: Phase 4 execution decision AMZ-2 (owner-approved two-row
+  characterization amendment). Todo 9 implementation completed green at
+  1919/1924 with exactly two residual failures pinned in
+  `ThermalMultiplicityCharacterizationTests.cs`:
+  `SecondProjectLoad_ReplacesProjectAInputsButKeepsStaleResultUntilTodo9`
+  (line 1147) and `LifecycleResetModules_IsSilentForThermalAndDoesNotDirty`
+  (line 390). Both pin pre-Todo-9 quirks that DEC-T08 second-load/canonical-
+  defaults rows explicitly supersede; the first pin's own name declares
+  "UntilTodo9". The frozen Todo 9 allow-list omitted this file — a plan bug,
+  not intent. The owner authorized updating exactly these two rows to DEC-T08
+  target semantics as AMZ-2, recorded via a supplementary task-9 allow-list
+  entry and this journal note; no other row of that file changes. Evidence:
+  `evidence/phase-4-thermal-state/task-9/task-9-lifecycle-restore.md` §5.
+- 2026-08-23: Phase 4 execution decision AMZ-3 (owner-approved negative-manifest
+  correction). Todo 12's strict category-lane reconciliation found additive drift:
+  four legitimate negative-category tests created during Todos 9-10 in allow-listed
+  files were absent from the Todo-2 immutable manifest — PersistenceFailure:
+  3 × `ResultsViewModelOpenProjectTests.PersistenceFailure_*`; RestoreFailure:
+  1 × `ProjectLifecycleFlowCharacterizationTests.RestoreModulesFromProjectAsync_ThermalBoundaryException_ClearsLeaseAndPreservesPartialState`.
+  All additive-only (no missing identities), all Passed. The owner authorized
+  extending `evidence/phase-4-thermal-state/task-2/expected-negative-test-identities.json`
+  from CF=4/PF=3/RF=2 to CF=4/PF=6/RF=3. Post-correction strict equality passes
+  for all three category lanes. Evidence: `task-12/task-12-executable-gates.md`
+  FINDINGS → RESOLVED-AMZ3.
+- 2026-08-23: Phase 4 execution decision AMZ-4 (owner-approved parser-semantics
+  correction). F3's plan-mandated directory reconciliation (line 289:
+  `parse-trx.ps1 -InputDirectory final/f3/TestResults`) was unsatisfiable by
+  construction: the same frozen catalog places the full-suite TRX (lines 282)
+  AND its three category extracts (lines 283–285) into one TestResults
+  directory, while the Todo-1 parser rejected ANY cross-file identity overlap.
+  All substantive F3 gates were green at decision time (full suite
+  1946/1943/0/3 exact match; strict category equality CF=4/PF=6/RF=3; UI QA
+  PASS 98 assertions; V13 before/after identical); the REJECT cited only the
+  unsatisfiable parse step and its missing output artifact. The owner
+  authorized correcting the parser semantics: cross-file identities with
+  AGREEING outcomes are deduplicated; conflicting outcomes for one identity,
+  within-file duplicates, zero-test/malformed inputs still fail closed.
+  Fixtures under `final/f3/amz4/fixtures` prove every branch (benign overlap
+  exit 0 deduped; outcome conflict exit 3; within-file duplicate exit 3;
+  single-file regression totals unchanged). Line-289 rerun exits 0 producing
+  `final/f3/trx-identities.json` merged totals 1946/1943/0/3. F1/F2 lanes are
+  unaffected (they never exercise directory-parse; the frozen manifest covers
+  exe/productDll/testDll/plan only, so an evidence-script edit cannot drift
+  those hashes). Evidence: `final/f3/executable-user-risk.md` AMZ-4 addendum.
+- 2026-08-23: Phase 4 result acceptance completed. The owner stated exactly
+  `принимаю результат phase-4-thermal-state`, accepting the whole phase result
+  after the F1/F2/F3 domain APPROVE receipts (Conformance/Scope/Provenance,
+  Architecture/Code Quality, Executable QA/User Risk — the third resolved under
+  owner decision AMZ-4) and the consolidated F4 APPROVE binding frozen manifest
+  sha256 `6D039FC7B84C84F389D2DB435B69C354323ACCAB6C62A16C0B8F75475B13BA72`
+  (plan sha256 `327B1288B8072E7A76D814F8439ECBC353F54F4CE59AB2B507595A08980B4C02`).
+  The authoritative workflow transitioned from `awaiting-owner-acceptance` to
+  `completed`; resultAcceptance recorded as accepted; stop remains true; no
+  subsequent phase starts automatically — a new explicit owner direction is
+  required to begin any separate planning workflow.
