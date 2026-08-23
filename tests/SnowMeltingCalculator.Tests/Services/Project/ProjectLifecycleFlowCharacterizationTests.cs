@@ -371,6 +371,155 @@ namespace SnowMeltingCalculator.Tests.Services.Project
 
         #endregion
 
+        #region Thermal canonical restore (DEC-T08, Todo 9)
+
+        [Test]
+        public async Task RestoreModulesFromProjectAsync_SecondLoadWithoutSavedResult_ReplacesAllThermalStaleValues()
+        {
+            var fixture = CreateCanonicalThermalOrchestrator();
+            var projectA = CreateThermalProjectData(
+                OperatingMode.Intensive,
+                60.0,
+                5.0,
+                300,
+                new PipeTypeProjectData { Name = "RAUTHERM S 25x2,3", OuterDiameter = 25, InnerDiameter = 20.4, WallThickness = 2.3 },
+                new ThermalResultProjectData { PowerTotal = 777.0, IsValid = true });
+            var projectB = CreateThermalProjectData(OperatingMode.Melting, 55.0, 8.0, 150, null, null);
+
+            using (fixture.Session.BeginProjectRestore())
+            {
+                await fixture.Orchestrator.RestoreModulesFromProjectAsync(projectA);
+            }
+
+            fixture.Session.MarkClean(); // конвенция ResetAndRestoreAsync: вызывающий слой завершает загрузку MarkClean
+
+            Assert.That(fixture.Session.ThermalState.Snapshot.Result!.PowerTotal, Is.EqualTo(777.0),
+                "Sanity: first load publishes the valid saved result.");
+
+            using (fixture.Session.BeginProjectRestore())
+            {
+                await fixture.Orchestrator.RestoreModulesFromProjectAsync(projectB);
+            }
+
+            fixture.Session.MarkClean(); // см. комментарий выше (Todo 9 receipt)
+
+            var afterB = fixture.Session.ThermalState.Snapshot;
+            Assert.Multiple(() =>
+            {
+                // DEC-T08 «second load»: каждое Thermal-значение проекта A заменено.
+                Assert.That(afterB.Inputs.Mode, Is.EqualTo(OperatingMode.Melting));
+                Assert.That(afterB.Inputs.SupplyTemperature, Is.EqualTo(55.0));
+                Assert.That(afterB.Inputs.GroundTemperature, Is.EqualTo(8.0));
+                Assert.That(afterB.Inputs.PipeSpacing, Is.EqualTo(150));
+                Assert.That(afterB.Inputs.Pipe, Is.Null);
+                Assert.That(afterB.Status.Phase, Is.EqualTo(ThermalCalculationPhase.Actual));
+                Assert.That(fixture.ThermalViewModel.Result, Is.Not.Null);
+                Assert.That(fixture.ThermalViewModel.Result!.PowerTotal, Is.EqualTo(42.5),
+                    "Fallback result of project B replaces the stale project-A result.");
+                // Чистота успешной загрузки закреплена на публичной границе
+                // (ResultsViewModel.LoadProjectDataAsync завершается MarkClean —
+                // см. LoadProjectData_SecondLoadWithoutSavedResult_... в
+                // ResultsViewModelOpenProjectTests); прямой вызов оркестратора
+                // транзитивно грязнит через адаптер коллекторов (базовое поведение).
+            });
+            fixture.ThermalCalculator.Verify(
+                calculator => calculator.Calculate(It.IsAny<ThermalInputs>(), It.IsAny<IClimateData>(), It.IsAny<IConstructionData>()),
+                Times.Once,
+                "Valid saved result must not calculate; absent result must fall back exactly once.");
+        }
+
+        [Test]
+        public async Task RepeatedResetAndLoadCycles_DoNotMultiplyThermalCompletionsOrCalculations()
+        {
+            var fixture = CreateCanonicalThermalOrchestrator();
+            var project = CreateThermalProjectData(OperatingMode.Melting, 55.0, 8.0, 200, null, null);
+            var completions = 0;
+            var calculations = 0;
+            fixture.Session.ThermalState.Changed += (_, _) => completions++;
+            fixture.ThermalCalculator
+                .Setup(calculator => calculator.Calculate(It.IsAny<ThermalInputs>(), It.IsAny<IClimateData>(), It.IsAny<IConstructionData>()))
+                .Returns(new ThermalCalculationResult { PowerTotal = 42.5, IsValid = true })
+                .Callback(() => calculations++);
+
+            async Task RunCycleAsync()
+            {
+                fixture.Orchestrator.ResetModules();
+                using (fixture.Session.BeginProjectRestore())
+                {
+                    await fixture.Orchestrator.RestoreModulesFromProjectAsync(project);
+                }
+                fixture.Session.MarkClean(); // конвенция ResetAndRestoreAsync (см. Todo 9 receipt)
+            }
+
+            await RunCycleAsync(); // warmup: первый цикл стартует из дефолтного состояния
+
+            completions = 0;
+            calculations = 0;
+            await RunCycleAsync();
+            var steadyCompletions = completions;
+            var steadyCalculations = calculations;
+
+            completions = 0;
+            calculations = 0;
+            await RunCycleAsync();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(steadyCompletions, Is.GreaterThan(0), "Sanity: a cycle produces canonical completions.");
+                Assert.That(completions, Is.EqualTo(steadyCompletions),
+                    "Repeated load/reset cycles must not multiply canonical completions.");
+                Assert.That(steadyCalculations, Is.EqualTo(1), "Each cycle runs exactly one fallback calculation.");
+                Assert.That(calculations, Is.EqualTo(steadyCalculations),
+                    "Repeated cycles must not multiply calculations.");
+            });
+        }
+
+        [Test]
+        [NUnit.Framework.Category("RestoreFailure")]
+        public async Task RestoreModulesFromProjectAsync_ThermalBoundaryException_ClearsLeaseAndPreservesPartialState()
+        {
+            var session = new ProjectSession();
+            var calculationContext = new CalculationContext();
+            var constructionViewModel = CreateConstructionViewModelWithSession(session);
+            var calculationStateMock = new Mock<ICalculationStateService>();
+            calculationStateMock.SetupGet(service => service.IsLoadProjectInProgress).Returns(true);
+            calculationStateMock
+                .Setup(service => service.SetPipeSpacing(It.IsAny<int>(), It.IsAny<string>()))
+                .Throws(new InvalidOperationException("injected thermal boundary failure"));
+            var orchestrator = new ProjectLoadOrchestrator(
+                CreateClimateViewModelWithSession(session),
+                constructionViewModel,
+                CreateCanonicalThermalViewModel(session),
+                CreateCircuitsViewModel(session),
+                calculationStateMock.Object,
+                CreateDefaultConstructionService(),
+                calculationContext,
+                session,
+                CreateDefaultStateInitializer(session, constructionViewModel.AvailableMaterials));
+            var data = CreateThermalProjectData(OperatingMode.Melting, 55.0, 8.0, 250, null, null);
+
+            InvalidOperationException? thrown;
+            using (session.BeginProjectRestore())
+            {
+                thrown = Assert.ThrowsAsync<InvalidOperationException>(
+                    async () => await orchestrator.RestoreModulesFromProjectAsync(data));
+            }
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(thrown!.Message, Does.Contain("injected thermal boundary failure"));
+                Assert.That(session.IsLoadProjectInProgress, Is.False,
+                    "Restore lease must clear even when the thermal boundary throws.");
+                // Охарактеризованная не-транзакционная граница: канонический Restore
+                // уже применён до точки сбоя — частичное состояние сохраняется без отката.
+                Assert.That(session.ThermalState.Snapshot.Inputs.SupplyTemperature, Is.EqualTo(55.0));
+                Assert.That(session.ThermalState.Snapshot.Inputs.PipeSpacing, Is.EqualTo(250));
+                Assert.That(session.ThermalState.Snapshot.Result, Is.Null);
+            });
+        }
+
+        #endregion
+
         #region Helpers
 
         private static ResultsViewModel CreateResultsViewModel(
@@ -675,6 +824,82 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             ProjectSession Session,
             ConstructionViewModel ConstructionViewModel,
             ProjectLoadOrchestrator Orchestrator);
+
+        private static ThermalViewModel CreateCanonicalThermalViewModel(
+            ProjectSession session,
+            Mock<IThermalCalculator>? thermalCalculator = null)
+        {
+            thermalCalculator ??= new Mock<IThermalCalculator>();
+            var validator = new Mock<IValidator<ThermalInputs>>();
+            validator.Setup(validate => validate.Validate(It.IsAny<ThermalInputs>()))
+                .Returns(ValidationResult.Success());
+            // CalculationStateService над общей сессией: изолированный координатор
+            // адаптера оборачивается вокруг session.ThermalState.
+            return new ThermalViewModel(
+                thermalCalculator.Object,
+                new ClimateData(),
+                new ConstructionData(),
+                new CalculationStateService(session),
+                new CalculationContext(),
+                validator.Object,
+                new ThermalResultValidator(),
+                session);
+        }
+
+        private static CanonicalThermalFixture CreateCanonicalThermalOrchestrator()
+        {
+            var session = new ProjectSession();
+            var calculationContext = new CalculationContext();
+            var constructionViewModel = CreateConstructionViewModelWithSession(session);
+            var thermalCalculator = new Mock<IThermalCalculator>();
+            thermalCalculator
+                .Setup(calculator => calculator.Calculate(It.IsAny<ThermalInputs>(), It.IsAny<IClimateData>(), It.IsAny<IConstructionData>()))
+                .Returns(new ThermalCalculationResult { PowerTotal = 42.5, IsValid = true });
+            var thermalViewModel = CreateCanonicalThermalViewModel(session, thermalCalculator);
+            var orchestrator = new ProjectLoadOrchestrator(
+                CreateClimateViewModelWithSession(session),
+                constructionViewModel,
+                thermalViewModel,
+                CreateCircuitsViewModel(session),
+                new CalculationStateService(session),
+                CreateDefaultConstructionService(),
+                calculationContext,
+                session,
+                CreateDefaultStateInitializer(session, constructionViewModel.AvailableMaterials));
+
+            return new CanonicalThermalFixture(
+                session,
+                thermalCalculator,
+                orchestrator,
+                thermalViewModel);
+        }
+
+        private static ProjectData CreateThermalProjectData(
+            OperatingMode mode,
+            double supplyTemperature,
+            double groundTemperature,
+            int pipeSpacing,
+            PipeTypeProjectData? pipe,
+            ThermalResultProjectData? result)
+        {
+            var data = CreateMinimalProjectData("THERMAL", "Thermal lifecycle");
+            data.ThermalData = new ThermalProjectData
+            {
+                SelectedMode = mode,
+                SupplyTemperature = supplyTemperature,
+                GroundTemperature = groundTemperature,
+                PipeSpacing = pipeSpacing,
+                SelectedPipe = pipe,
+                Result = result
+            };
+            return data;
+        }
+
+        private sealed record CanonicalThermalFixture(
+            ProjectSession Session,
+            Mock<IThermalCalculator> ThermalCalculator,
+            ProjectLoadOrchestrator Orchestrator,
+            ThermalViewModel ThermalViewModel);
 
         private static T GetField<T>(object instance, string fieldName) where T : class
         {

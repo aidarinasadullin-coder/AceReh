@@ -112,6 +112,34 @@ public sealed class ClimateThermalInvalidationRegressionTests
     }
 
     [Test]
+    public void ResetModules_CanonicallyClearsRestoredThermalResultWithLifecycleOrigin()
+    {
+        // DEC-T08 (Todo 9): lifecycle reset применяет канонические дефолты с
+        // не-пользовательским origin ProjectLoadReset — результат очищается,
+        // статус нормализуется к Actual, ноль user-dirty и ноль compatibility.
+        var fixture = CreateFixture();
+        fixture.ThermalViewModel.LoadResult(new ThermalCalculationResult { PowerTotal = 111.0, IsValid = true });
+        var thermalMutations = new List<ThermalMutationResult>();
+        fixture.Session.ThermalState.Changed += (_, args) => thermalMutations.Add(args.Mutation);
+        var events = fixture.CaptureEvents();
+
+        fixture.Orchestrator.ResetModules();
+
+        Assert.Multiple(() =>
+        {
+            var resetMutation = thermalMutations.Single(mutation => mutation.Origin == ThermalMutationOrigin.ProjectLoadReset);
+            Assert.That(resetMutation.After.Result, Is.Null);
+            Assert.That(resetMutation.After.Inputs, Is.EqualTo(ThermalInputsSnapshot.Default));
+            Assert.That(resetMutation.After.Status.Phase, Is.EqualTo(ThermalCalculationPhase.Actual));
+            // Статус Default → Default: трансляция в StateChanged("Thermal") молчит.
+            Assert.That(events.ThermalStates, Is.Zero);
+            Assert.That(events.CompatibilityEvents, Is.Zero);
+            Assert.That(events.ContextUpdates, Is.Zero);
+            Assert.That(fixture.Session.IsDirty, Is.False);
+        });
+    }
+
+    [Test]
     public async Task ProjectLoad_DoesNotInvalidateRestoredThermalResult()
     {
         // Given: the current graph has a valid Thermal result and the incoming project has
