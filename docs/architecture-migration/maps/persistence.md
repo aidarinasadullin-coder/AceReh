@@ -99,7 +99,7 @@ Evidence: Tasks 8-12.1 and the accepted pre-Task 13 correction.
 
 ## Exact entry boundaries and save sequence
 
-Normal UI open calls `ApplyLoadedProjectAsync(filePath, data)`: after its dirty confirmation it calls `ResultsViewModel.Reset()`, then `_projectLoadOrchestrator.ResetModules()`, marks clean, calls `LoadProjectDataAsync(data)`, assigns file path, and marks clean again ([ResultsViewModel.cs](/D:/IA/ace%20v.2/src/ViewModels/Results/ResultsViewModel.cs:798)). Direct `LoadProjectDataAsync(data)` enters `using var restoreScope = _projectSession.BeginProjectRestore()`, restores identity, calls `RestoreModulesFromProjectAsync`, calls one `RefreshAll`, raises `ProjectChanged`, marks clean, and clears the guard when the outer lease exits; it does **not** call either reset boundary ([ResultsViewModel.cs](/D:/IA/ace%20v.2/src/ViewModels/Results/ResultsViewModel.cs:1573)).
+Normal UI open calls `ApplyLoadedProjectAsync(filePath, data)`: after its dirty confirmation it calls `ResultsViewModel.Reset()`, then `_projectLoadOrchestrator.ResetModules()`, marks clean, calls `LoadProjectDataAsync(data)`, assigns file path, and marks clean again ([ResultsViewModel.cs](/D:/IA/3ace%20v.2/src/ViewModels/Results/ResultsViewModel.cs:798)). Direct `LoadProjectDataAsync(data)` enters `using var restoreScope = _projectSession.BeginProjectRestore()`, restores identity, calls `RestoreModulesFromProjectAsync`, calls one `RefreshAll`, raises `ProjectChanged`, marks clean, and clears the guard when the outer lease exits; it does **not** call either reset boundary ([ResultsViewModel.cs](/D:/IA/3ace%20v.2/src/ViewModels/Results/ResultsViewModel.cs:1573)).
 
 Both save APIs serialize the supplied snapshot, name temp with `Path.ChangeExtension(filePath, ".tmp")`, write that temp, conditionally copy an existing destination to `filePath + ".bak"`, execute `File.Move(tempPath, filePath, overwrite: true)`, and on any caught exception attempt to delete the same `.tmp` path. `File.Move` is not a reload edge. A reload is only a separate user/test initiated load call (`ProjectRoundTripTests.SaveThenLoad_NewProject_RoundTripsFields`); no automatic save-to-reload behavior is documented.
 
@@ -155,3 +155,43 @@ Verified preservation:
 effect on `PN-05` and `PN-08` is unchanged.
 
 Evidence: `docs/architecture-migration/evidence/phase-1-project-session-shell/lifecycle-user-flows.md`, `final-gates.md`.
+
+## Phase 4 ThermalState persistence overlay (Task 14)
+
+The `.smc` schema, Thermal DTO fields, exact 8-field result wire contract and
+save literal `Version = "1.1"` are unchanged. Phase 4 changes only the live
+source/restore boundary for the Thermal slice:
+
+- **Save** reads exclusively the canonical snapshot:
+  `data.ThermalData = ThermalPersistenceMapper.BuildThermalProjectData(_projectSession.ThermalState.Snapshot)`
+  (`ResultsViewModel.cs:1701-1706`); it never reads `ThermalViewModel` caches or
+  service state. The mapper is pure and emits exactly the eight persisted result
+  fields (`PowerUp`, `PowerDown`, `PowerTotal`, `SupplyTemperature`,
+  `ReturnTemperature`, `MeanTemperature`, `DeltaT`, `IsValid`;
+  `ThermalPersistenceMapper.cs:79-98`); runtime-only snapshot fields, status,
+  messages and origins are not persisted.
+- **Restore** goes through the canonical `Restore`
+  (`ProjectLoadOrchestrator.cs:127-155`): `BuildInputsCandidate` +
+  `BuildSavedResult` construct candidates from the DTO; a rejected
+  (out-of-range/corrupt) candidate falls back atomically to canonical defaults
+  while preserving a valid saved file result; pipe resolution keeps the frozen
+  structural-match-else-first-standard fallback (`ResolveStandardPipe`,
+  `ThermalPersistenceMapper.cs:126-175`). Finalization publishes the restored
+  valid result once via the adapter or performs exactly one fallback calculation
+  (`ProjectLoadOrchestrator.cs:208-228`).
+- **Second-load zero-stale (DEC-T08/AMZ-2):** `Restore` atomically replaces all
+  components (inputs/result/status) of the previous project; the two
+  characterization rows that pinned pre-Todo-9 stale behavior were updated to
+  DEC-T08 target semantics under owner-approved AMZ-2
+  (`task-9/task-9-lifecycle-restore.md` §5).
+- **Compatibility rows:** `PP-008` and `PP-035..PP-052` in
+  [persistence-compatibility.md](persistence-compatibility.md) retain their JSON
+  names, CLR types and classifications; their save/restore evidence now cites
+  the mapper and canonical state.
+
+Executable evidence: `task-10/task-10-persistence-results.md` (V5 persistence
+lane + full Release), `task-12/task-12-executable-gates.md` (frozen full Release
+1946 total / 1943 passed / 0 failed / 3 accepted NotExecuted), and the UI QA
+save/reload/second-load/unknown-pipe steps in
+`task-13/task-13-user-flow-qa.md`. Byte identity, compatibility duration and
+crash atomicity remain deferred exactly as before.

@@ -65,3 +65,20 @@ coverage without claiming a migration of module state ownership:
 Parent Phase 1 QA also recorded the full Release suite as 1565 passed and 1
 skipped. These receipts prove the Phase 1 shell boundary only; they do not turn
 unknown Phase 0 module counters into measured facts.
+
+## Phase 4 Thermal characterization overlay (Task 14)
+
+Phase 4 adds assertion-backed Thermal coverage without weakening any prior row:
+
+| Coverage | Current Phase 4 result | Evidence |
+| --- | --- | --- |
+| canonical state contract | `ProjectSessionThermalStateTests`: closed mutation API, validation/rejection, exhaustive origins, single completion per changed mutation | `task-3/task-3-thermal-state-contract.md` (`trx-state-debug.json`, `trx-state-negative.json`) |
+| multiplicity characterization (NEW, 41 executed cases) | `ThermalMultiplicityCharacterizationTests`: single completion, reentrancy, restore-under-guard, upstream invalidation no-op without result, exact context publication order; AMZ-2 updated exactly two rows (`SecondProjectLoad_...UntilTodo9`, `LifecycleResetModules_...`) to DEC-T08 target semantics | `task-2/task-2-thermal-characterization.md` §3; AMZ-2 journal in `TASK_CONTEXT.md` |
+| coordinator/adapter/compat service | `ThermalStateCoordinatorTests`, `ThermalViewModelTests`, `CalculationStateServiceTests`/`CalculationStateServiceGuardTests` | `task-6/task-567-merged-boundary.md` (focused gates 72/72, 98/98, 20/20) |
+| ownership guards (NEW, 8 NegativeFixture categories) | `ThermalStateLegacyStoreGuardTests`: VM writable stores, service Thermal/spacing stores, orchestrator direct assignment, Results non-canonical save, unapproved context writer, snapshot mutability, duplicate upstream subscriber, independent DI state registration | `task-11/task-11-ownership-guards.md` (V11 TRX) |
+| persistence/lifecycle/results | `ThermalPersistenceMapperTests` (exact 8-field wire contract), `ProjectRoundTripTests`, `ResultsViewModelOpenProjectTests`, `ProjectLifecycleFlowCharacterizationTests` | `task-10/task-10-persistence-results.md`; `task-9/task-9-lifecycle-restore.md` |
+| full Release closure | 1946 total / 1943 passed / 0 failed / exactly 3 accepted baseline NotExecuted identities | `task-12/task-12-executable-gates.md` (`trx-v6.json`) |
+
+`CF-007` is covered by this overlay; all other `CF-001..CF-022` rows keep their
+recorded status. The negative-category manifest was extended under owner-approved
+AMZ-3 to CF=4/PF=6/RF=3 with strict lane equality re-proven in Todo 12.
