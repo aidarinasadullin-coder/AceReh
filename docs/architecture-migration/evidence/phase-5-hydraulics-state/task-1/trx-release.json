@@ -1,0 +1,8 @@
+{
+  "command": "dotnet build src\\SnowMeltingCalculator.csproj -c Release --nologo /p:UseSharedCompilation=false",
+  "exitCode": 0,
+  "warnings": 0,
+  "errors": 0,
+  "status": "passed",
+  "note": "Serial rerun with shared compilation disabled after a transient Roslyn output lock."
+}

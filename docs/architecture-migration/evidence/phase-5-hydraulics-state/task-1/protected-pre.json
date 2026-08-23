@@ -1,0 +1,64 @@
+{
+    "phase":  "phase-5-hydraulics-state",
+    "capturedAt":  "execution-time",
+    "worktreeClean":  false,
+    "gitStatusPorcelain":  [
+                               " M docs/architecture-migration/STATE.json",
+                               "?? docs/architecture-migration/evidence/phase-5-hydraulics-state/",
+                               "?? docs/architecture-migration/plans/phase-5-hydraulics-state.md"
+                           ],
+    "status":  [
+                   {
+                       "code":  " M",
+                       "path":  "docs/architecture-migration/STATE.json"
+                   },
+                   {
+                       "code":  "??",
+                       "path":  "docs/architecture-migration/evidence/phase-5-hydraulics-state/"
+                   },
+                   {
+                       "code":  "??",
+                       "path":  "docs/architecture-migration/plans/phase-5-hydraulics-state.md"
+                   }
+               ],
+    "protectedDirtyPreimages":  [
+                                    {
+                                        "code":  " M",
+                                        "path":  "docs/architecture-migration/STATE.json"
+                                    }
+                                ],
+    "dirtyPreimages":  [
+                           {
+                               "path":  "docs/architecture-migration/STATE.json",
+                               "code":  " M",
+                               "sha256":  "BEAB998F129BDC09B49C4324FB60CABA0D4CED49D4BA7BC1A4C45133E9515CD3"
+                           },
+                           {
+                               "path":  "docs/architecture-migration/evidence/phase-5-hydraulics-state/",
+                               "code":  "??",
+                               "sha256":  null
+                           },
+                           {
+                               "path":  "docs/architecture-migration/plans/phase-5-hydraulics-state.md",
+                               "code":  "??",
+                               "sha256":  "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38"
+                           }
+                       ],
+    "protectedPatterns":  [
+                              "src/Services/Project/**",
+                              "src/Services/Navigation/CalculationStateService.cs",
+                              "src/Services/Navigation/ICalculationStateService.cs",
+                              "src/Models/Navigation/CalculationContext.cs",
+                              "src/ViewModels/Hydraulics/CircuitsViewModel.cs",
+                              "src/ViewModels/Results/ResultsViewModel.cs",
+                              "src/Configuration/ServiceCollectionExtensions.cs",
+                              "src/Models/Project/ProjectData.cs",
+                              "src/Views/Hydraulics/*.xaml",
+                              "tests/SnowMeltingCalculator.Tests/**",
+                              "docs/architecture-migration/maps/**",
+                              "docs/architecture-migration/widget/**",
+                              "docs/architecture-migration/workflow/validate-state.mjs",
+                              "docs/architecture-migration/STATE.json"
+                          ],
+    "note":  "pre-existing dirty paths recorded verbatim; no files were overwritten"
+}

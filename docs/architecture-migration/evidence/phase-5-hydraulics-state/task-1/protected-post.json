@@ -1,0 +1,9 @@
+{
+    "protected_mismatch_count":  0,
+    "allowed_hunk_count":  0,
+    "changed_paths":  [
+
+                      ],
+    "baseline":  ".\\docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\task-1\\protected-manifest.json",
+    "evidenceRoot":  ".\\docs\\architecture-migration\\evidence\\phase-5-hydraulics-state"
+}
