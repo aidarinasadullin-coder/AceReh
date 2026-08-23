@@ -19,6 +19,13 @@ namespace SnowMeltingCalculator.Services.Project
         /// Канонический срез состояния конструкции текущего проекта.
         /// </summary>
         IProjectSessionConstructionState ConstructionState { get; }
+
+        /// <summary>
+        /// Канонический срез теплового состояния текущего проекта. Создаётся и
+        /// хранится сессией; самостоятельно в DI не регистрируется (DEC-T01).
+        /// </summary>
+        IProjectSessionThermalState ThermalState { get; }
+
         /// <summary>
         /// Номер проекта.
         /// </summary>
