@@ -189,3 +189,29 @@ the explicit `ClimateData.ApplyProjection` publication parameter, and the
 existing `ProjectSessionClimateState` completion call path. DI/runtime evidence
 is excluded from this filter. Construction type references in shared files are
 pre-existing Phase 3 Construction content, not Task 11 Climate edges.
+
+## Phase 4 ThermalState compile-time overlay (Task 14)
+
+| Node ID | Kind | Display name | Source evidence |
+| --- | --- | --- | --- |
+| `CTN-P4-THERMAL-001` | interface | `IProjectSessionThermalState` | `src/Services/Project/IProjectSessionThermalState.cs:14-100`; evidence `task-3/task-3-thermal-state-contract.md` |
+| `CTN-P4-THERMAL-002` | implementation | `ProjectSessionThermalState` (sealed) | `src/Services/Project/ProjectSessionThermalState.cs:16`; evidence `task-3/task-3-thermal-state-contract.md` |
+| `CTN-P4-THERMAL-003` | immutable contracts | `ThermalStateSnapshot`, `ThermalInputsSnapshot`, `ThermalResultSnapshot`, `ThermalStatusSnapshot`, `ThermalInputEdit`, `ThermalStateChangedEventArgs` | `src/Services/Project/ThermalStateSnapshots.cs`; evidence `task-3/task-3-thermal-state-contract.md` |
+| `CTN-P4-THERMAL-004` | enum/result set | `ThermalMutationOrigin`, `ThermalMutationStatus`, `ThermalMutationResult` | `src/Services/Project/ThermalMutationOrigin.cs:8-36`; `src/Services/Project/ThermalMutationResult.cs`; evidence `task-3/task-3-thermal-state-contract.md` |
+| `CTN-P4-THERMAL-005` | interface | `IThermalStateCoordinator` (+ `ThermalCalculationOutcome`) | `src/Services/Project/IThermalStateCoordinator.cs:23-93`; evidence `task-6/task-567-merged-boundary.md` |
+| `CTN-P4-THERMAL-006` | implementation | `ThermalStateCoordinator` (sealed) | `src/Services/Project/ThermalStateCoordinator.cs:34`; evidence `task-6/task-567-merged-boundary.md` |
+| `CTN-P4-THERMAL-007` | pure mapper | `ThermalPersistenceMapper` | `src/Services/Project/ThermalPersistenceMapper.cs:49,103,182,216`; evidence `task-10/task-10-persistence-results.md` |
+
+| Edge ID | Kind | From | To | Evidence | Status |
+| --- | --- | --- | --- | --- | --- |
+| `CTE-P4-THERMAL-001` | ownership/type-use | `ProjectSession` | `ProjectSessionThermalState` / `IProjectSessionThermalState` | private readonly field and `ThermalState` property at `ProjectSession.cs:26,35,41`; `IProjectSession.cs` | verified |
+| `CTE-P4-THERMAL-002` | interface implementation | `ProjectSessionThermalState` | `IProjectSessionThermalState` | `ProjectSessionThermalState.cs:16` | verified |
+| `CTE-P4-THERMAL-003` | constructor/interface reference | `ThermalViewModel` | `IThermalStateCoordinator` | ctor parameter and command routing at `ThermalViewModel.cs:227-276,322-385` | verified |
+| `CTE-P4-THERMAL-004` | coordinator/state reference | `ThermalStateCoordinator` | `IProjectSessionThermalState`, `CalculationContext`, `IMarkDirtyService`, `IThermalCalculator`, `IClimateData`, `IConstructionData` | ctor at `ThermalStateCoordinator.cs:61-93` | verified |
+| `CTE-P4-THERMAL-005` | persistence mapper references | `ResultsViewModel` / `ProjectLoadOrchestrator` | `ThermalPersistenceMapper` | save `ResultsViewModel.cs:1705-1706`; restore `ProjectLoadOrchestrator.cs:132-150,218-221` | verified |
+
+`ProjectSession` owns/exposes the Thermal state implementation;
+`ThermalViewModel` consumes the coordinator as a WPF adapter; Results maps the
+canonical snapshot for save; restore goes through canonical `Restore`. The
+existing concrete ViewModel dependencies in `ProjectLoadOrchestrator` remain
+(`INV-008` still open). No new project or package reference was introduced.

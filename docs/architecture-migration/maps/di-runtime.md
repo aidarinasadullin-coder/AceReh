@@ -307,3 +307,25 @@ guard ownership moved to a new canonical aggregate.
   `CalculationStateService` contain no mutable lifecycle backing fields.
 - See `docs/architecture-migration/evidence/phase-1-project-session-shell/di-runtime.md`
   and `final-gates.md` for full test output.
+
+## Phase 4 ThermalState runtime overlay (Task 14)
+
+| Node ID | Runtime role | Lifetime / owner | Evidence | Status |
+| --- | --- | --- | --- | --- |
+| `DRN-P4-THERMAL-001` | `ProjectSessionThermalState` canonical Thermal state slice | owned private instance of singleton `ProjectSession`; not independently registered in DI; consumers share it reference-identically via `IProjectSession.ThermalState` | `ProjectSession.cs:26,35,41`; `ServiceCollectionExtensions.cs:76-79`; `DiRegistrationTests`; evidence `task-4/task-4-project-session-di.md`, `task-11/task-11-ownership-guards.md` | verified |
+| `DRN-P4-THERMAL-002` | `IThermalStateCoordinator` canonical command boundary | exactly one singleton, created by factory in `AddThermalModule`; materialized eagerly with the first resolution of `ThermalViewModel`/coordinator consumer and bound to the session slice at that moment | `ServiceCollectionExtensions.cs:80-88`; evidence `task-6/task-567-merged-boundary.md` | verified |
+| `DRN-P4-THERMAL-003` | `ThermalViewModel` WPF adapter | singleton VM receives the DI coordinator (optional ctor seam keeps legacy/test composition isolated); routes every command through it | `ThermalViewModel.cs:227-276`; evidence `task-6/task-567-merged-boundary.md` | verified |
+| `DRN-P4-THERMAL-004` | `CalculationStateService` compat adapter | singleton; zero Thermal/spacing backing stores; canonical getters plus one-shot completion translation; subscribes `ThermalState.Changed` for legacy event surfaces | `CalculationStateService.cs:53-58,81-103,190-235`; evidence `task-6/task-567-merged-boundary.md`, `task-11/task-11-ownership-guards.md` | verified |
+
+| Edge ID | Runtime relation | From | To | Lifetime / path | Evidence | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| `DRE-P4-THERMAL-001` | di-registration (singleton factory) | `AddThermalModule` (`DRN-003`) | `IThermalStateCoordinator` (`DRN-P4-THERMAL-002`) | `services.AddSingleton<IThermalStateCoordinator>(sp => new ThermalStateCoordinator(sp.GetRequiredService<ProjectSession>().ThermalState, ...))` — factory resolves the session slice so no second state instance can exist | `ServiceCollectionExtensions.cs:80-88`; guard `DiIndependentStateRegistration_GuardRejectsIndependentDescriptorsAndInstances` | verified |
+| `DRE-P4-THERMAL-002` | adapter consumes | `ThermalViewModel` (`DRN-019`) | `IThermalStateCoordinator` (`DRN-P4-THERMAL-002`) | constructor injection; all user commands route through `ApplyInputEdit`/`CalculateAsync`/`Reset`/`LoadResult` | `ThermalViewModel.cs:114-165,322-385` | verified |
+| `DRE-P4-THERMAL-003` | orchestrator consumes slices | `ProjectLoadOrchestrator` (`DRN-016`) | `IProjectSessionClimateState`/`IProjectSessionConstructionState`/`IProjectSessionThermalState` | constructor resolves the three canonical slices from one `IProjectSession` | `ProjectLoadOrchestrator.cs:50-65`; evidence `task-9/task-9-lifecycle-restore.md` | verified |
+| `DRE-P4-THERMAL-004` | compat subscription | `CalculationStateService` (`DRN-009`) | `IProjectSessionThermalState.Changed` | ctor subscribe for legacy `StateChanged`/`PipeSpacingChanged` translation only; no store | `CalculationStateService.cs:53-58` | verified |
+
+Task 11 guard evidence confirms no independent `IProjectSessionThermalState`
+descriptor/instance exists in DI and that the coordinator is attached exactly
+once per upstream surface. The concrete-ViewModel dependencies of
+`ProjectLoadOrchestrator` remain (see `INV-008`), unchanged by Phase 4.
+Evidence: `task-4/task-4-project-session-di.md`, `task-11/task-11-ownership-guards.md`.

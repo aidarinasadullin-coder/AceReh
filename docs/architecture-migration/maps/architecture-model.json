@@ -1,9 +1,9 @@
 {
   "metadata": {
     "model_id": "AM-WIDGET-001",
-    "phase": "phase-3-construction-state",
-    "snapshot_sha": "e655735dfa66c00cf9c53be93d511eda8989e8bf",
-    "source_basis": "phase-3-construction-state-task-13-live-code-and-accepted-evidence",
+    "phase": "phase-4-thermal-state",
+    "snapshot_sha": "327B1288B8072E7A76D814F8439ECBC353F54F4CE59AB2B507595A08980B4C02",
+    "source_basis": "phase-4-thermal-state-task-14-live-code-and-accepted-evidence",
     "status": "pass",
     "provenance": {
       "phase_0_model": "docs/architecture-migration/maps/architecture-model.baseline.json",
@@ -11,7 +11,8 @@
       "target_invariants": "docs/architecture-migration/maps/target-invariants.md",
       "widget_spec": "docs/architecture-migration/widget-spec.md",
       "historical_sources_excluded": true,
-      "phase_1_plan": "docs/architecture-migration/plans/phase-1-project-session-shell.md"
+      "phase_1_plan": "docs/architecture-migration/plans/phase-1-project-session-shell.md",
+      "phase_4_plan": "docs/architecture-migration/plans/phase-4-thermal-state.md"
     },
     "v1_source_sha256": "EE9E0069D71F3ABFFA5FA1E9B698A97507694597FBE85B84C272C30D3F55EFBD"
   },
@@ -8702,7 +8703,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-RE"
+            "EV-RE",
+            "EV-P4-CONTEXT"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -8778,7 +8780,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-RE"
+            "EV-RE",
+            "EV-P4-CONTEXT"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -8963,7 +8966,7 @@
               "ST-015"
             ],
             "trigger": "StateChanged",
-            "effect": "Thermal handler body not observed",
+            "effect": "compat refresh surface only (RecalcMessage/NeedsRecalculation re-notify); canonical completion arrives via coordinator Completion",
             "participants": [
               "ICalculationStateService.StateChanged",
               "Thermal handler"
@@ -8972,7 +8975,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-RE"
+            "EV-RE",
+            "EV-P4-COORD"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -8995,7 +8999,7 @@
               "ST-015"
             ],
             "trigger": "StateChanged",
-            "effect": "Thermal handler body not observed",
+            "effect": "compat refresh surface only (RecalcMessage/NeedsRecalculation re-notify); canonical completion arrives via coordinator Completion",
             "participants": [
               "ICalculationStateService.StateChanged",
               "Thermal handler"
@@ -9004,7 +9008,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-RE"
+            "EV-RE",
+            "EV-P4-COORD"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -9033,7 +9038,7 @@
               "ST-013"
             ],
             "trigger": "guarded PipeSpacingChanged",
-            "effect": "Circuits handler effects partial",
+            "effect": "compat echo fired only from canonical completions with changed spacing; no independent writer",
             "participants": [
               "PipeSpacingChanged",
               "Circuits handler"
@@ -9042,7 +9047,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-RE"
+            "EV-RE",
+            "EV-P4-COORD"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -9065,7 +9071,7 @@
               "ST-013"
             ],
             "trigger": "guarded PipeSpacingChanged",
-            "effect": "Circuits handler effects partial",
+            "effect": "compat echo fired only from canonical completions with changed spacing; no independent writer",
             "participants": [
               "PipeSpacingChanged",
               "Circuits handler"
@@ -9074,7 +9080,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-RE"
+            "EV-RE",
+            "EV-P4-COORD"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -9103,7 +9110,7 @@
               "ST-013"
             ],
             "trigger": "guarded PipeSpacingChanged",
-            "effect": "Thermal and Construction projection effects not fully observed",
+            "effect": "compat refresh surfaces fed from canonical completions; no independent writer",
             "participants": [
               "PipeSpacingChanged",
               "Thermal handler",
@@ -9113,7 +9120,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-RE"
+            "EV-RE",
+            "EV-P4-COORD"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -9136,7 +9144,7 @@
               "ST-013"
             ],
             "trigger": "guarded PipeSpacingChanged",
-            "effect": "Thermal and Construction projection effects not fully observed",
+            "effect": "compat refresh surfaces fed from canonical completions; no independent writer",
             "participants": [
               "PipeSpacingChanged",
               "Thermal handler",
@@ -9146,7 +9154,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-RE"
+            "EV-RE",
+            "EV-P4-COORD"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10615,11 +10624,11 @@
           },
           "status": "observed",
           "confidence": "verified",
-            "evidence_refs": [
-              "EV-ST",
-              "EV-P3-CONSTRUCTION-STATE",
-              "EV-P3-CONSTRUCTION-GATES"
-            ],
+          "evidence_refs": [
+            "EV-ST",
+            "EV-P3-CONSTRUCTION-STATE",
+            "EV-P3-CONSTRUCTION-GATES"
+          ],
           "limitation_refs": [],
           "invariant_refs": [],
           "decision_refs": [],
@@ -10641,11 +10650,11 @@
           },
           "status": "observed",
           "confidence": "verified",
-            "evidence_refs": [
-              "EV-ST",
-              "EV-P3-CONSTRUCTION-STATE",
-              "EV-P3-CONSTRUCTION-GATES"
-            ],
+          "evidence_refs": [
+            "EV-ST",
+            "EV-P3-CONSTRUCTION-STATE",
+            "EV-P3-CONSTRUCTION-GATES"
+          ],
           "limitation_refs": [],
           "invariant_refs": [],
           "decision_refs": [],
@@ -10673,11 +10682,11 @@
           },
           "status": "observed",
           "confidence": "verified",
-            "evidence_refs": [
-              "EV-ST",
-              "EV-P3-CONSTRUCTION-PERSISTENCE",
-              "EV-P3-CONSTRUCTION-GATES"
-            ],
+          "evidence_refs": [
+            "EV-ST",
+            "EV-P3-CONSTRUCTION-PERSISTENCE",
+            "EV-P3-CONSTRUCTION-GATES"
+          ],
           "limitation_refs": [],
           "invariant_refs": [],
           "decision_refs": [],
@@ -10700,9 +10709,9 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-              "EV-ST",
-              "EV-P3-CONSTRUCTION-PERSISTENCE",
-              "EV-P3-CONSTRUCTION-GATES"
+            "EV-ST",
+            "EV-P3-CONSTRUCTION-PERSISTENCE",
+            "EV-P3-CONSTRUCTION-GATES"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -10731,11 +10740,11 @@
           },
           "status": "observed",
           "confidence": "verified",
-            "evidence_refs": [
-              "EV-ST",
-              "EV-P3-CONSTRUCTION-PERSISTENCE",
-              "EV-P3-CONSTRUCTION-GATES"
-            ],
+          "evidence_refs": [
+            "EV-ST",
+            "EV-P3-CONSTRUCTION-PERSISTENCE",
+            "EV-P3-CONSTRUCTION-GATES"
+          ],
           "limitation_refs": [],
           "invariant_refs": [],
           "decision_refs": [],
@@ -10815,11 +10824,11 @@
           },
           "status": "observed",
           "confidence": "verified",
-            "evidence_refs": [
-              "EV-ST",
-              "EV-P3-CONSTRUCTION-DI",
-              "EV-P3-CONSTRUCTION-CORRECTION"
-            ],
+          "evidence_refs": [
+            "EV-ST",
+            "EV-P3-CONSTRUCTION-DI",
+            "EV-P3-CONSTRUCTION-CORRECTION"
+          ],
           "limitation_refs": [],
           "invariant_refs": [],
           "decision_refs": [],
@@ -10837,10 +10846,10 @@
         "baseline": {
           "canonical": {
             "name": "Thermal inputs",
-            "current_owner": "ThermalViewModel",
-            "target_owner": "ProjectSession.ThermalState.Inputs",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "current_owner": "ProjectSession.ThermalState (ProjectSessionThermalState)",
+            "target_owner": "ProjectSession.ThermalState",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10848,10 +10857,15 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-STATE",
+            "EV-P4-COORD",
+            "EV-P4-GUARDS"
           ],
           "limitation_refs": [],
-          "invariant_refs": [],
+          "invariant_refs": [
+            "INV-004"
+          ],
           "decision_refs": [],
           "comparison": {
             "status": "comparable",
@@ -10861,10 +10875,10 @@
         "current": {
           "canonical": {
             "name": "Thermal inputs",
-            "current_owner": "ThermalViewModel",
-            "target_owner": "ProjectSession.ThermalState.Inputs",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "current_owner": "ProjectSession.ThermalState (ProjectSessionThermalState)",
+            "target_owner": "ProjectSession.ThermalState",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10872,10 +10886,15 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-STATE",
+            "EV-P4-COORD",
+            "EV-P4-GUARDS"
           ],
           "limitation_refs": [],
-          "invariant_refs": [],
+          "invariant_refs": [
+            "INV-004"
+          ],
           "decision_refs": [],
           "comparison": {
             "status": "comparable",
@@ -10891,10 +10910,10 @@
         "baseline": {
           "canonical": {
             "name": "Thermal pipe spacing",
-            "current_owner": "CalculationStateService",
+            "current_owner": "ProjectSession.ThermalState (Inputs.PipeSpacing)",
             "target_owner": "ProjectSession.ThermalState.PipeSpacing",
-            "migration_status": "seam",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10902,10 +10921,14 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-COORD",
+            "EV-P4-LIFECYCLE"
           ],
           "limitation_refs": [],
-          "invariant_refs": [],
+          "invariant_refs": [
+            "INV-004"
+          ],
           "decision_refs": [],
           "comparison": {
             "status": "comparable",
@@ -10915,10 +10938,10 @@
         "current": {
           "canonical": {
             "name": "Thermal pipe spacing",
-            "current_owner": "CalculationStateService",
+            "current_owner": "ProjectSession.ThermalState (Inputs.PipeSpacing)",
             "target_owner": "ProjectSession.ThermalState.PipeSpacing",
-            "migration_status": "seam",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10926,10 +10949,14 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-COORD",
+            "EV-P4-LIFECYCLE"
           ],
           "limitation_refs": [],
-          "invariant_refs": [],
+          "invariant_refs": [
+            "INV-004"
+          ],
           "decision_refs": [],
           "comparison": {
             "status": "comparable",
@@ -10944,11 +10971,11 @@
       "snapshot_states": {
         "baseline": {
           "canonical": {
-            "name": "Thermal result",
-            "current_owner": "ThermalViewModel with context copy",
-            "target_owner": "derived thermal result",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "name": "Thermal last-derived result",
+            "current_owner": "ProjectSession.ThermalState (derived value; sole writable owner)",
+            "target_owner": "derived thermal result owned by ProjectSession.ThermalState",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10956,10 +10983,14 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-CONTEXT",
+            "EV-P4-PERSIST"
           ],
           "limitation_refs": [],
-          "invariant_refs": [],
+          "invariant_refs": [
+            "INV-004"
+          ],
           "decision_refs": [],
           "comparison": {
             "status": "comparable",
@@ -10968,11 +10999,11 @@
         },
         "current": {
           "canonical": {
-            "name": "Thermal result",
-            "current_owner": "ThermalViewModel with context copy",
-            "target_owner": "derived thermal result",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "name": "Thermal last-derived result",
+            "current_owner": "ProjectSession.ThermalState (derived value; sole writable owner)",
+            "target_owner": "derived thermal result owned by ProjectSession.ThermalState",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10980,10 +11011,14 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-CONTEXT",
+            "EV-P4-PERSIST"
           ],
           "limitation_refs": [],
-          "invariant_refs": [],
+          "invariant_refs": [
+            "INV-004"
+          ],
           "decision_refs": [],
           "comparison": {
             "status": "comparable",
@@ -10999,10 +11034,10 @@
         "baseline": {
           "canonical": {
             "name": "Thermal status",
-            "current_owner": "CalculationStateService/VM split",
-            "target_owner": "status seam disposition open",
-            "migration_status": "seam",
-            "coverage_status": "partial",
+            "current_owner": "ProjectSession.ThermalState (ThermalStatusSnapshot)",
+            "target_owner": "ProjectSession.ThermalState.Status",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -11010,10 +11045,15 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-COORD",
+            "EV-P4-BLOCKER",
+            "EV-P4-GUARDS"
           ],
           "limitation_refs": [],
-          "invariant_refs": [],
+          "invariant_refs": [
+            "INV-004"
+          ],
           "decision_refs": [],
           "comparison": {
             "status": "comparable",
@@ -11023,10 +11063,10 @@
         "current": {
           "canonical": {
             "name": "Thermal status",
-            "current_owner": "CalculationStateService/VM split",
-            "target_owner": "status seam disposition open",
-            "migration_status": "seam",
-            "coverage_status": "partial",
+            "current_owner": "ProjectSession.ThermalState (ThermalStatusSnapshot)",
+            "target_owner": "ProjectSession.ThermalState.Status",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -11034,10 +11074,15 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-COORD",
+            "EV-P4-BLOCKER",
+            "EV-P4-GUARDS"
           ],
           "limitation_refs": [],
-          "invariant_refs": [],
+          "invariant_refs": [
+            "INV-004"
+          ],
           "decision_refs": [],
           "comparison": {
             "status": "comparable",
@@ -11322,11 +11367,11 @@
       "snapshot_states": {
         "baseline": {
           "canonical": {
-            "name": "CalculationContext thermal inputs",
-            "current_owner": "CalculationContext",
-            "target_owner": "CalculationContext disposition open",
-            "migration_status": "seam",
-            "coverage_status": "partial",
+            "name": "CalculationContext thermal inputs projection",
+            "current_owner": "CalculationContext projection bus; sole Thermal-side production writer is ThermalStateCoordinator",
+            "target_owner": "downstream compatibility projection of ProjectSession.ThermalState",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -11334,7 +11379,9 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-CONTEXT",
+            "EV-P4-GUARDS"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -11346,11 +11393,11 @@
         },
         "current": {
           "canonical": {
-            "name": "CalculationContext thermal inputs",
-            "current_owner": "CalculationContext",
-            "target_owner": "CalculationContext disposition open",
-            "migration_status": "seam",
-            "coverage_status": "partial",
+            "name": "CalculationContext thermal inputs projection",
+            "current_owner": "CalculationContext projection bus; sole Thermal-side production writer is ThermalStateCoordinator",
+            "target_owner": "downstream compatibility projection of ProjectSession.ThermalState",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -11358,7 +11405,9 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-CONTEXT",
+            "EV-P4-GUARDS"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -11376,11 +11425,11 @@
       "snapshot_states": {
         "baseline": {
           "canonical": {
-            "name": "CalculationContext results",
-            "current_owner": "CalculationContext",
-            "target_owner": "derived context seam",
-            "migration_status": "seam",
-            "coverage_status": "partial",
+            "name": "CalculationContext results projections",
+            "current_owner": "CalculationContext projection bus; Thermal results written only by the coordinator, Hydraulics results by Circuits",
+            "target_owner": "derived context seam fed from canonical owners",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -11388,7 +11437,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-CONTEXT"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -11400,11 +11450,11 @@
         },
         "current": {
           "canonical": {
-            "name": "CalculationContext results",
-            "current_owner": "CalculationContext",
-            "target_owner": "derived context seam",
-            "migration_status": "seam",
-            "coverage_status": "partial",
+            "name": "CalculationContext results projections",
+            "current_owner": "CalculationContext projection bus; Thermal results written only by the coordinator, Hydraulics results by Circuits",
+            "target_owner": "derived context seam fed from canonical owners",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -11412,7 +11462,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
-            "EV-ST"
+            "EV-ST",
+            "EV-P4-CONTEXT"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -14080,6 +14131,83 @@
       "locator": "accepted Construction-to-Thermal invalidation correction and separate open Climate defect",
       "confidence": "verified",
       "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P4-CHAR",
+      "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-2/task-2-thermal-characterization.md",
+      "locator": "41-case Thermal multiplicity characterization matrix and AMZ-2 two-row update",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P4-STATE",
+      "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-3/task-3-thermal-state-contract.md",
+      "locator": "canonical ProjectSessionThermalState contract, closed mutations and exhaustive origins receipt",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P4-DI",
+      "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-4/task-4-project-session-di.md",
+      "locator": "ProjectSession-owned Thermal slice DI guards; no independent state registration",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P4-BLOCKER",
+      "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-5/blocker-analysis.md",
+      "locator": "AMZ-1 owner-approved deviation: transitional ApplyNeedsRecalculation bridge",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P4-COORD",
+      "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-6/task-567-merged-boundary.md",
+      "locator": "AMZ-1 merged boundary: sealed singleton ThermalStateCoordinator, WPF adapter VM, compat service delegation, sole upstream subscriptions",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P4-CONTEXT",
+      "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-8/task-8-context-hydraulics.md",
+      "locator": "coordinator sole CalculationContext Thermal writer; Circuits/Hydraulics consumer semantics",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P4-LIFECYCLE",
+      "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-9/task-9-lifecycle-restore.md",
+      "locator": "canonical Restore lifecycle; second-load zero-stale fixed per DEC-T08/AMZ-2",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P4-PERSIST",
+      "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-10/task-10-persistence-results.md",
+      "locator": "ThermalPersistenceMapper pure save/restore halves and exact 8-field result wire contract",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P4-GUARDS",
+      "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-11/task-11-ownership-guards.md",
+      "locator": "ThermalStateLegacyStoreGuardTests: 8 NegativeFixture ownership categories incl. single upstream attach and coordinator-only context writer",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P4-GATES",
+      "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-12/task-12-executable-gates.md",
+      "locator": "frozen Release gates: full suite 1946 total / 1943 passed / 0 failed / 3 accepted NotExecuted identities",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P4-UIQA",
+      "path": "docs/architecture-migration/evidence/phase-4-thermal-state/task-13/task-13-user-flow-qa.md",
+      "locator": "agent-operated UI QA ten happy steps plus unknown-pipe failure branch PASS",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
     }
   ],
   "limitations": [
@@ -14095,7 +14223,7 @@
     },
     {
       "id": "LIM-003",
-      "statement": "ProjectSession lifecycle shell plus ClimateState and ConstructionState slices are implemented; Thermal and Hydraulics state slices remain target-only and are not yet owned by ProjectSession.",
+      "statement": "ProjectSession lifecycle shell plus ClimateState, ConstructionState and ThermalState slices are implemented; the Hydraulics state slice remains target-only and is not yet owned by ProjectSession.",
       "status": "degraded"
     }
   ],
@@ -14164,12 +14292,18 @@
         "state-ownership",
         "reactive"
       ],
-      "status": "unverified",
+      "status": "verified",
       "evidence": [
         "EV-ST",
-        "EV-RE"
+        "EV-RE",
+        "EV-P4-STATE",
+        "EV-P4-COORD",
+        "EV-P4-CONTEXT",
+        "EV-P4-LIFECYCLE",
+        "EV-P4-GUARDS",
+        "EV-P4-GATES"
       ],
-      "target_status": "unimplemented"
+      "target_status": "implemented"
     },
     {
       "id": "INV-005",

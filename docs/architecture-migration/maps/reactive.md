@@ -47,9 +47,9 @@ Changed `ProjectLoadReset`, `Load`, `Restore`, `SystemApply`, and
 or user dirty semantics. Task 9 focused Debug and Release each passed `76/76`;
 Task 10 affected/full Release gates passed with zero failures. Exact counters are
 receipt facts, not inferred from subscription declarations.
-| `RE-005` | `ST-015` | StateChanged | Thermal handler | constructor subscription; unsubscribe not observed | state change | handler body not observed | Thermal :279-280 | verified | unknown | unknown | unknown | unknown | unknown |
-| `RE-006` | `ST-013` | PipeSpacingChanged | Circuits | constructor subscription; unsubscribe not observed | guarded spacing change | handler effects partial | CalculationStateService :120-139; Circuits :724-726 | verified | unknown | unknown | unknown | unknown | unknown |
-| `RE-007` | `ST-013` | PipeSpacingChanged | Thermal/Construction | constructor subscriptions; unsubscribe not observed | guarded spacing change | projection effects not fully observed | Thermal :282-283; Construction :246-247 | verified | unknown | unknown | unknown | unknown | unknown |
+| `RE-005` | `ST-015` | StateChanged | Thermal handler | constructor subscription; unsubscribe not observed | state change | compat refresh surface only (`RecalcMessage`/`NeedsRecalculation` re-notify); canonical completion arrives via coordinator `Completion` | ThermalViewModel.cs:266,438-460 | verified | unknown | unknown | unknown | unknown | unknown |
+| `RE-006` | `ST-013` | PipeSpacingChanged | Circuits | constructor subscription; unsubscribe not observed | guarded spacing change | compat echo fired only from canonical completions with changed spacing | CalculationStateService.cs:226-235; Circuits :724-726 | verified | unknown | unknown | unknown | unknown | unknown |
+| `RE-007` | `ST-013` | PipeSpacingChanged | Thermal/Construction | constructor subscriptions; unsubscribe not observed | guarded spacing change | compat refresh surfaces fed from canonical completions; no independent writer | ThermalViewModel.cs:267; ConstructionViewModel.cs:258; CalculationStateService.cs:226-235 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-008` | `ST-016`,`ST-017`,`ST-004`,`ST-018` | HydraulicInputData/Collectors | Circuits handlers | old InputData explicitly unsubscribed; collection unsubscribe not observed | input/collection edit | dirty, propagation, calculate | Circuits :732-739,1113-1180 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-009` | `ST-008`,`ST-009`,`ST-010`,`ST-011`,`ST-004` | `ProjectSessionConstructionState.CompleteChanged` | `CurrentProjection`, CalculationContext, adapter and dirty owner | singleton state/adapter; repeated lifecycle hygiene covered | changed canonical mutation | refresh projection; valid User/Template publishes once; raise one Changed; origin-aware dirty | Tasks 10-12.1; pre-Task 13 correction | verified | at most 1 valid user/template publication | 1 canonical Changed | one Thermal invalidation after correction | Results/save reads canonical snapshot | 1 for changed User/Template; 0 lifecycle/no-op/rejected |
 
@@ -98,3 +98,24 @@ Lifecycle events now originate from `ProjectSession` (`INotifyPropertyChanged`):
 `PropertyChanged` is raised exactly once per real lifecycle mutation and never for
 idempotent assignments, equal values, or nested restore scopes. Module-level
 reactive edges (`RE-001` through `RE-014`) are unchanged by Phase 1.
+
+## Phase 4 ThermalState overlay (Task 14)
+
+The Thermal reactive boundary is no longer
+`ThermalViewModel -> CalculationContext -> Circuits` with independent writable
+steps. The sealed singleton `ThermalStateCoordinator` (DEC-T04A) holds the only
+upstream subscriptions and is the sole Thermal-side writer of the
+`CalculationContext` projection bus; `CircuitsViewModel` remains a pure consumer.
+
+| Edge ID | State IDs | Publisher | Subscriber | Subscription and unsubscribe/lifetime | Trigger/action | Effect | Evidence | Confidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `RE-P4-001` | `ST-006`,`ST-011`,`ST-012` | `ClimateData.DataChanged` / `IConstructionData.DataChanged` | `ThermalStateCoordinator` upstream handlers | singleton ctor subscription (sole attach per surface, guard-proved); disposal via `IDisposable` | user Climate/Construction completion publications | canonical invalidation at most once when a Thermal result exists (`InvalidateFromClimate/Construction`); no-op without result; adapter refresh via `UpstreamObserved` | `ThermalStateCoordinator.cs:80-93,197-218`; evidence `task-6/task-567-merged-boundary.md`, `task-11/task-11-ownership-guards.md` | verified |
+| `RE-P4-002` | `ST-012`,`ST-014`,`ST-015`,`ST-004` | coordinator `ApplyInputEdit`/`CalculateAsync` completions | `IMarkDirtyService`, adapter `Completion`, `CalculationContext` | one dirty-intent per changed user edit; no-op/rejected emit nothing | changed user edit / DEC-T05 orchestration | exactly one canonical `Changed`; context inputs published once; result published once (valid or compatible-invalid) | `ThermalStateCoordinator.cs:108-129,132-202`; evidence `task-8/task-8-context-hydraulics.md` | verified |
+| `RE-P4-003` | `ST-021`,`ST-022`,`ST-016`,`ST-018` | `CalculationContext.ContextChanged` | Circuits handler | constructor subscription; unsubscribe not observed | coordinator input/result publications | unchanged consumer semantics: thermal properties notify, valid result triggers one `CalculateAllCollectors` pass | `CircuitsViewModel.cs:728-730,1062-1082`; evidence `task-8/task-8-context-hydraulics.md` | verified |
+| `RE-P4-004` | `ST-013`,`ST-015` | `ProjectSessionThermalState.Changed` | `CalculationStateService` translation | compat adapter subscribes in ctor (`_thermalChangedHandler`) | any changed canonical mutation | one-shot legacy translation: `StateChanged` and (when spacing changed) `PipeSpacingChanged`; ProjectLoadReset suppression keeps restore silent | `CalculationStateService.cs:53-58,190-235`; evidence `task-6/task-567-merged-boundary.md` | verified |
+
+Multiplicity facts are receipt-backed: the Todo 2 characterization suite pins
+41 executed cases (single completion, reentrancy, restore-under-guard,
+duplicate-subscriber detection); the Todo 11 guard suite rejects duplicate
+upstream attaches and non-coordinator context writers; the Todo 12 full Release
+run passed 1943/1946 with zero failures.

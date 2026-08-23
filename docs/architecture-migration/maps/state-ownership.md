@@ -49,17 +49,17 @@ only writable authority for groundwater, loads and both ordered layer sequences.
 from `CurrentProjection`, save maps the canonical snapshot through
 `ConstructionPersistenceMapper`, and `CompleteChanged` is the authoritative
 completion, dirty and downstream boundary. The `.smc` version remains `1.1`.
-| `ST-012` | ThermalViewModel | context/Results | ThermalState.Inputs | context copy | Thermal :321-406 | partial |
-| `ST-013` | guarded CalculationStateService | Thermal/Circuits/Results | ThermalState.PipeSpacing | intentional seam | CalculationStateService.cs:120-139 | partial |
-| `ST-014` | Thermal VM/context ambiguous | Results | derived thermal | dual path | Thermal :326-406 | partial |
-| `ST-015` | service/VM split | UI | status disposition open | split status owners | CalculationStateService.cs:23-70 | partial |
+| `ST-012` | `ProjectSession.ThermalState` (`ProjectSessionThermalState`) — sole writable owner of Thermal inputs incl. spacing | `ThermalViewModel` adapter mirror; `CalculationContext.ThermalInputs` projection; Results DTO via `ThermalPersistenceMapper` | same canonical slice | no second writable owner; guard suite rejects VM/service/context stores | `IProjectSessionThermalState.cs`; `ProjectSessionThermalState.cs`; `ThermalStateCoordinator.cs`; evidence `task-3/task-3-thermal-state-contract.md`, `task-6/task-567-merged-boundary.md`, `task-11/task-11-ownership-guards.md` | covered |
+| `ST-013` | `ProjectSession.ThermalState` (`Inputs.PipeSpacing`) | legacy read-through `ICalculationStateService.PipeSpacing`/`PipeSpacingChanged` compat surface (zero backing store, AMZ-1) | same canonical slice | compat setter is a no-op echo when equal; restore applies spacing before adapter finalization | `CalculationStateService.cs:226-235`; `ProjectLoadOrchestrator.cs:132-155`; evidence `task-9/task-9-lifecycle-restore.md` | covered |
+| `ST-014` | `ProjectSession.ThermalState` last-derived result (derived value; not an input store) | `CalculationContext.ThermalResult` single-writer projection; Results values | same derived ownership | upstream invalidation clears once only when a result exists (DEC-T04 frozen behavior) | `ProjectSessionThermalState.cs:160-218`; `ThermalStateCoordinator.cs:132-202`; evidence `task-8/task-8-context-hydraulics.md` | covered |
+| `ST-015` | `ProjectSession.ThermalState` status (`ThermalStatusSnapshot`) | compat getters/`StateChanged` translation in `CalculationStateService`; adapter mirrors | same canonical slice | AMZ-1 transitional `ApplyNeedsRecalculation` has exactly one production caller (compat route) | `ProjectSessionThermalState.cs:172-195`; `CalculationStateService.cs:56-103`; evidence `task-5/blocker-analysis.md`, `task-11/task-11-ownership-guards.md` | covered |
 | `ST-016` | Circuits InputData | circuit copies/Results | HydraulicsState.GlobalInputs | fan-out writes | Circuits :1113-1180 | partial |
 | `ST-017` | Circuits Collectors | Results/export | HydraulicsState.Collectors | restore census incomplete | Results :1745-1814 | partial |
 | `ST-018` | calculator/Circuits ambiguous | Results/context | derived hydraulics | result authority incomplete | Circuits :430-459 | partial |
 | `ST-019` | CalculationStateService | Circuits UI | status disposition open | distinct status seam | CalculationStateService.cs:77-104 | partial |
 | `ST-020` | CalculationContext | source modules | context disposition open | context versus module writes | CalculationContext.cs:142-169 | partial |
-| `ST-021` | CalculationContext | Thermal inputs | context disposition open | Reset retains inputs | CalculationContext.cs:192-230 | partial |
-| `ST-022` | CalculationContext | Thermal/Circuits results | derived context seam | invalidation paths | CalculationContext.cs:176-230 | partial |
+| `ST-021` | CalculationContext projection bus; sole Thermal-side production writer is `ThermalStateCoordinator` | Circuits/Results consumers | downstream projection of canonical Thermal inputs | guard suite rejects any non-coordinator production writer | `CalculationContext.cs:192-204`; `ThermalStateCoordinator.cs:147,239`; evidence `task-8/task-8-context-hydraulics.md`, `task-11/task-11-ownership-guards.md` | covered |
+| `ST-022` | CalculationContext projection bus (Thermal results written only by coordinator; Hydraulics results by Circuits) | Circuits/Results consumers | derived context seam fed from canonical owners | no second Thermal writer; invalidation paths measured | `CalculationContext.cs:176-217`; `ThermalStateCoordinator.cs:147-187,239-240`; evidence `task-8/task-8-context-hydraulics.md` | covered |
 | `ST-023` | ProjectData boundary | live state materializations | snapshot adapter | restore transactional behavior unknown | ProjectFileService.cs:115-190 | partial |
 | `ST-024` | ResultsViewModel | UI/export | derived projection | mutable projection | Results :1510-1607 | partial |
 | `ST-025` | ResultsViewModel | PDF/report | derived projection | mutable cached values | Results :1493-1545 | partial |
@@ -74,3 +74,28 @@ compatibility projection; `CalculationContext` is downstream compatibility
 state; Results reads the canonical snapshot. `UserReset` retains user dirty and
 publication semantics, while `ProjectLoadReset` and `Load` are lifecycle origins
 without user dirty/history semantics. No second writable Climate owner exists.
+
+## Phase 4 ThermalState acceptance overlay (Task 14)
+
+`ProjectSession` owns one sealed `ProjectSessionThermalState`
+(`IProjectSessionThermalState`); it is not independently registered in DI and is
+reached reference-identically through `IProjectSession.ThermalState`. It is the
+sole writable owner of Thermal inputs (mode, supply, ground, pipe, spacing), the
+last-derived result and the status snapshot. All mutations are closed
+(`ApplyInputs`, `ApplyInputEdit`, `ResetToDefaults`, `BeginCalculation`,
+`CompleteCalculation`, `FailCalculation`, `Restore`,
+`InvalidateFromClimate/Construction`, AMZ-1 `ApplyNeedsRecalculation`) with
+immutable snapshots, exhaustive `ThermalMutationOrigin` values and a single
+`Changed` completion per changed mutation. `ThermalStateCoordinator` (sealed
+singleton) is the sole writer outside persistence/restore paths, the single
+dirty-intent owner for changed user edits, the DEC-T05 calculation orchestrator,
+and the sole upstream Climate/Construction subscriber. `ThermalViewModel` is a
+WPF adapter; `CalculationStateService` is a compat adapter with zero Thermal
+stores; `CircuitsViewModel`/Hydraulics and Results remain consumers;
+`ResultsViewModel` saves/reads canonical via `ThermalPersistenceMapper`. The
+`.smc` Thermal wire fields and version are unchanged. Acceptance evidence:
+`task-3/task-3-thermal-state-contract.md`, `task-6/task-567-merged-boundary.md`,
+`task-8/task-8-context-hydraulics.md`, `task-9/task-9-lifecycle-restore.md`,
+`task-10/task-10-persistence-results.md`, `task-11/task-11-ownership-guards.md`,
+`task-12/task-12-executable-gates.md` (full Release 1946/1943/0/3),
+`task-13/task-13-user-flow-qa.md`.

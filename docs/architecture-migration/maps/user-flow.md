@@ -40,7 +40,7 @@ now use `ProjectSession.ConstructionState`. Task 12.1 proves the seven-layer
 default snapshot is immediately available to save and Thermal. Owner manual QA
 covers thickness, material, template, groundwater and lambda/override behavior.
 The Climate-labelled ProjectLoad indicator remains a separate open defect.
-| 7 | `CF-007` | Edit thermal | one named ThermalInputs event | `UpdateThermalInputs_RaisesContextChangedEvent`; partial | 1;unknown;unknown;unknown;unknown | `FG-007` |
+| 7 | `CF-007` | Edit thermal | one canonical mutation + one dirty-intent per changed edit; recalculation indicator exact text | `ThermalMultiplicityCharacterizationTests` (41 cases); `ThermalViewModelTests`; `ThermalStateCoordinatorTests`; Task 13 UI QA step 4 | one canonical completion; context inputs published once; no-op/rejected emit nothing | covered; Phase 4 overlay below |
 | 8 | `CF-008` | Edit hydraulics | concentration=40; GetProperties=2 | `OnGlycolConcentrationChanged_TriggersSingleCalculate`; partial | unknown;unknown;1 inferred bounded source-backed;unknown;unknown | `FG-008` |
 | 9 | `CF-009` | Change upstream input | downstream results null; no stale hydraulics | `UpdateClimate_ResetsThermalAndHydraulicsResults`; partial | unknown;unknown;unknown;unknown;unknown | `FG-009` |
 | 10 | `CF-010` | Calculate | four edits cause GetProperties=8 | `FullWorkflow_ThermalClimateGlycol_TriggersCorrectNumberOfCalculates`; partial | unknown;unknown;4 inferred bounded source-backed;unknown;unknown | `FG-010` |
@@ -89,3 +89,28 @@ remains a temporary compatibility read-through. Module-level flows (`CF-001` thr
 
 Evidence: `docs/architecture-migration/evidence/phase-1-project-session-shell/lifecycle-user-flows.md`,
 `restore-guard.md`, `final-gates.md`.
+
+## Phase 4 Thermal user-flow overlay (Task 14)
+
+Thermal user flows now cross the canonical boundary: every edit
+(`CF-007`) routes through `ThermalStateCoordinator.ApplyInputEdit` (one canonical
+mutation, one dirty-intent, exact indicator texts); Calculate (`CF-010` Thermal
+half) is the DEC-T05 orchestration with reentrancy no-op; reset keeps the
+frozen adapter-silent observable behavior; save/reload (`CF-013`) and second
+load (`CF-004`) read/restore canonical state with zero stale project-A values
+(DEC-T08/AMZ-2). Hydraulics (`CF-008`) and Results remain consumers.
+
+The Todo 13 agent-operated UI QA (V9) exercised the full happy flow in ten
+numbered steps plus the failure branch against task-owned fixtures — all PASS:
+mode/supply/ground/pipe/spacing edits retain the last result and show exactly
+`Температура подачи изменена. Требуется пересчёт.`; Calculate refreshes
+Hydraulics/Results once; Ctrl+S advances file SHA/timestamp and clears the dirty
+marker; relaunch restores edited values; Project B load shows its own inputs
+with no project-A result; reset behaves; unknown-pipe load asserts the frozen
+fallback pipe/message/status and a cleared restore guard. Evidence:
+`task-13/task-13-user-flow-qa.md`, `task-13/ui-qa/observations.json`,
+`failure-observations.json`, six screenshots `01-edit.png`..`06-reset.png` and
+`07-unknown-pipe.png`. The 17 AutomationIds across ThermalView/CircuitsView/
+ResultsView are contract-tested by `ThermalAutomationIdSelectorContractTests`.
+Executable gates: `task-12/task-12-executable-gates.md` (full Release
+1946/1943/0/3).
