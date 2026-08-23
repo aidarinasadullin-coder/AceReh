@@ -1,0 +1,34 @@
+{
+  "phase": "phase-5-hydraulics-state",
+  "todo": 1,
+  "planSha256": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+  "status": "passed",
+  "gates": {
+    "H0_statePlan": { "valid": true, "exitCode": 0 },
+    "H10_planStructure": { "valid": true, "v11_first_todo": 11, "exitCode": 0 },
+    "protectedBaseline": { "protectedMismatchCount": 0, "exitCode": 0 },
+    "negativeProbe": { "expectedExitCode": 3, "protectedMismatchCount": 1, "passed": true },
+    "debugBuild": { "exitCode": 0, "warnings": 0, "errors": 0 },
+    "releaseBuild": { "exitCode": 0, "warnings": 0, "errors": 0 },
+    "fullRelease": { "exitCode": 0, "passed": 1943, "failed": 0, "notExecuted": 3, "total": 1946 }
+  },
+  "protectedFiles": 191,
+  "preExistingProtectedDirtyPaths": [
+    "docs/architecture-migration/STATE.json"
+  ],
+  "scopeCheck": {
+    "productionCodeChanged": false,
+    "testsChanged": false,
+    "mapsChanged": false,
+    "stateFileOverwritten": false
+  },
+  "evidence": {
+    "protectedPre": "task-1/protected-pre.json",
+    "protectedPost": "task-1/protected-post.json",
+    "planStructure": "task-1/plan-structure.json",
+    "negativeProbe": "task-1/fixtures/out/negative-probe.json",
+    "fullReleaseTrx": "task-1/TestResults-release/task-1-full-release.trx"
+  },
+  "commit": "a78c8f4",
+  "carryOverNote": "commit hash recorded post-commit; file intentionally left uncommitted for inclusion in task-2 allow-list"
+}
