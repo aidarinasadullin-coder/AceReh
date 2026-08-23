@@ -1,0 +1,7 @@
+{
+  "task": "phase-5-hydraulics-state/task-2",
+  "status": "planned-and-identified",
+  "probe": "Mutated expectation validSummaryCalls == 1",
+  "expectedResult": "exactly one failing assertion in ThermalContextRouting_ValidResultCalculatesOnce_InvalidAndNullNotifyOnly",
+  "restoration": "No production or test source mutation was retained; the committed characterization expectation remains validSummaryCalls == 2."
+}

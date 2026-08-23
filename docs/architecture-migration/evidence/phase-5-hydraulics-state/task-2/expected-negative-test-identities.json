@@ -1,0 +1,11 @@
+{
+  "task": "phase-5-hydraulics-state/task-2",
+  "purpose": "Sensitivity identities for the characterization boundary",
+  "negativeProbe": {
+    "kind": "mutated-expectation",
+    "mutation": "Change the valid thermal-result expectation from two CalculateCollectorSummary calls to one.",
+    "expectedFailingIdentity": "ThermalContextRouting_ValidResultCalculatesOnce_InvalidAndNullNotifyOnly",
+    "expectedAssertion": "validSummaryCalls == 2",
+    "reason": "The current valid ThermalResult routing invokes CalculateAllCollectors, which produces two summary calls in the fixture; a one-call expectation must fail."
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "phase": "phase-5-hydraulics-state",
+  "todo": 2,
+  "planSha256": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+  "suite": {
+    "identity": "HydraulicsMultiplicityCharacterizationTests",
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0,
+    "total": 13
+  },
+  "behavioralCounts": {
+    "globalInputProperties": {
+      "properties": [
+        "GlycolType",
+        "GlycolConcentration",
+        "SupplySpacing_cm",
+        "SupplyHeatPercent"
+      ],
+      "expectedDirtyCallsPerEdit": 2,
+      "expectedSummaryCallsPerEdit": 2,
+      "caseCount": 4
+    },
+    "collectionChanges": {
+      "events": 3,
+      "expectedDirtyCalls": 3
+    },
+    "propertyChanges": {
+      "events": 2,
+      "expectedDirtyCalls": 2
+    },
+    "calculateCommand": {
+      "expectedOrder": [
+        "calculating",
+        "publish",
+        "reset"
+      ],
+      "expectedPublishedHydraulicsResults": 1,
+      "expectedSummaryCalls": 2
+    },
+    "thermalContextRouting": {
+      "validResultSummaryCalls": 2,
+      "invalidResultAdditionalSummaryCalls": 0,
+      "nullResultAdditionalSummaryCalls": 0
+    },
+    "ownPublication": {
+      "expectedSummaryCalls": 2
+    },
+    "pipeSpacing": {
+      "changedSummaryCalls": 2,
+      "sameValueAdditionalSummaryCalls": 0
+    },
+    "subscriptionHygiene": {
+      "resetCycles": 3,
+      "oldCircuitExternalNotifications": 1,
+      "currentCircuitDirtyCalls": 1
+    },
+    "restore": {
+      "collectors": 1,
+      "circuits": 1,
+      "flowRegimeFallback": "unknown -> Laminar",
+      "designFlowRegime": "Turbulent"
+    },
+    "saveProjection": {
+      "version": "1.1",
+      "requiredHydraulicsWireFields": 9
+    }
+  },
+  "rawTrx": "hydraulics-characterization-release.trx"
+}
