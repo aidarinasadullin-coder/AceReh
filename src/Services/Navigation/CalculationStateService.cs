@@ -5,6 +5,13 @@
 // Соответствует: design_guidelines.md
 // Реализует: ICalculationStateService
 //
+// Phase 4 (AMZ-1, DEC-T06/T07): все Thermal backing stores удалены. Геттеры
+// читают живой канонический срез IProjectSession.ThermalState; канонические
+// завершения транслируются в legacy StateChanged/PipeSpacingChanged ровно один
+// раз; SetPipeSpacing остаётся временной поверхностью записи шага укладки
+// (guard сохранён) и применяет правку напрямую к каноническому состоянию с
+// flow-through статусом и без dirty.
+//
 // ================================================================================
 
 using System;
@@ -21,16 +28,11 @@ namespace SnowMeltingCalculator.Services.Navigation
     {
         #region Private Fields
 
-        private bool _thermalNeedsRecalculation;
-        private bool _thermalIsCalculating;
-        private string _thermalValidationMessage = string.Empty;
-
         private bool _hydraulicsIsCalculating;
         private string _hydraulicsValidationMessage = string.Empty;
 
-        private int _pipeSpacing = 200; // Шаг укладки по умолчанию
-
         private readonly IProjectSession _projectSession;
+        private readonly EventHandler<ThermalStateChangedEventArgs> _thermalChangedHandler;
         private IDisposable? _restoreLease;
 
         #endregion
@@ -38,7 +40,7 @@ namespace SnowMeltingCalculator.Services.Navigation
         #region Constructors
 
         /// <summary>
-        /// Создаёт сервис состояния расчёта с собственным экземпляром сессии проекта.
+        /// Создаёт сервис состояния расчёта с собственным изолированным экземпляром сессии проекта.
         /// </summary>
         public CalculationStateService()
             : this(new ProjectSession())
@@ -51,7 +53,14 @@ namespace SnowMeltingCalculator.Services.Navigation
         public CalculationStateService(IProjectSession projectSession)
         {
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
+            _thermalChangedHandler = OnThermalStateChanged;
+            _projectSession.ThermalState.Changed += _thermalChangedHandler;
         }
+
+        /// <summary>
+        /// Сессия проекта, с которой связан сервис (шов для композиции координатора).
+        /// </summary>
+        internal IProjectSession Session => _projectSession;
 
         #endregion
 
@@ -60,37 +69,37 @@ namespace SnowMeltingCalculator.Services.Navigation
         #region Тепловой расчёт
 
         /// <inheritdoc/>
-        public bool ThermalNeedsRecalculation => _thermalNeedsRecalculation;
+        public bool ThermalNeedsRecalculation =>
+            _projectSession.ThermalState.Snapshot.Status.Phase == ThermalCalculationPhase.NeedsRecalculation;
 
         /// <inheritdoc/>
-        public bool ThermalIsCalculating => _thermalIsCalculating;
+        public bool ThermalIsCalculating =>
+            _projectSession.ThermalState.Snapshot.Status.Phase == ThermalCalculationPhase.Calculating;
 
         /// <inheritdoc/>
-        public string ThermalValidationMessage => _thermalValidationMessage;
+        public string ThermalValidationMessage =>
+            _projectSession.ThermalState.Snapshot.Status.RecalculationMessage;
 
         /// <inheritdoc/>
         public void SetThermalNeedsRecalculation(string message)
         {
-            _thermalNeedsRecalculation = true;
-            _thermalValidationMessage = message;
-            OnStateChanged("Thermal", ModuleState.NeedsRecalculation, message);
+            // Мост AMZ-1: переходная каноническая мутация сохраняет входы/результат
+            // и воспроизводит legacy-наблюдаемое (ровно один StateChanged).
+            _projectSession.ThermalState.ApplyNeedsRecalculation(message, ThermalMutationOrigin.User);
         }
 
         /// <inheritdoc/>
         public void SetThermalCalculating()
         {
-            _thermalIsCalculating = true;
-            _thermalNeedsRecalculation = false;
-            OnStateChanged("Thermal", ModuleState.Calculating);
+            _projectSession.ThermalState.BeginCalculation();
         }
 
         /// <inheritdoc/>
         public void ResetThermalState()
         {
-            _thermalIsCalculating = false;
-            _thermalNeedsRecalculation = false;
-            _thermalValidationMessage = string.Empty;
-            OnStateChanged("Thermal", ModuleState.Actual);
+            _projectSession.ThermalState.ApplyInputs(
+                _projectSession.ThermalState.Snapshot.Inputs,
+                ThermalMutationOrigin.SystemApply);
         }
 
         #endregion
@@ -132,7 +141,7 @@ namespace SnowMeltingCalculator.Services.Navigation
         #region Параметры конструкции
 
         /// <inheritdoc/>
-        public int PipeSpacing => _pipeSpacing;
+        public int PipeSpacing => _projectSession.ThermalState.Snapshot.Inputs.PipeSpacing;
 
         /// <inheritdoc/>
         public event EventHandler<int>? PipeSpacingChanged;
@@ -176,11 +185,13 @@ namespace SnowMeltingCalculator.Services.Navigation
                 throw new InvalidOperationException($"SetPipeSpacing called from non-canonical source: {source}");
             }
 
-            if (_pipeSpacing != spacing)
-            {
-                _pipeSpacing = spacing;
-                PipeSpacingChanged?.Invoke(this, spacing);
-            }
+            // Временная поверхность записи шага укладки (DEC-T06): правка уходит
+            // напрямую в каноническое состояние без dirty; origin с flow-through
+            // статусом гарантирует наследуемое поведение "только PipeSpacingChanged,
+            // ноль StateChanged" (заморожено characterization Todo 2).
+            _projectSession.ThermalState.ApplyInputEdit(
+                ThermalInputEdit.ForPipeSpacing(spacing),
+                ThermalMutationOrigin.Calculation);
         }
 
         #endregion
@@ -195,6 +206,55 @@ namespace SnowMeltingCalculator.Services.Navigation
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// Трансляция канонического завершения в legacy-события: изменение шага
+        /// укладки даёт ровно одно PipeSpacingChanged; изменение статуса даёт ровно
+        /// одно StateChanged с фазой канонического состояния; NoChange/Rejected не
+        /// дают событий.
+        /// </summary>
+        private void OnThermalStateChanged(object? sender, ThermalStateChangedEventArgs e)
+        {
+            var mutation = e.Mutation;
+            if (!mutation.IsChanged)
+            {
+                return;
+            }
+
+            // Сброс жизненного цикла (ProjectLoadReset, Todo 9 / AMZ-2) канонически
+            // применяет дефолты, но сохраняет замороженную наблюдаемую тишину
+            // legacy-поверхности (StateChanged/PipeSpacingChanged): каноническое
+            // завершение доступно подписчикам ThermalState.Changed.
+            if (mutation.Origin == ThermalMutationOrigin.ProjectLoadReset)
+            {
+                return;
+            }
+
+            if (mutation.Before.Inputs.PipeSpacing != mutation.After.Inputs.PipeSpacing)
+            {
+                PipeSpacingChanged?.Invoke(this, mutation.After.Inputs.PipeSpacing);
+            }
+
+            if (!mutation.Before.Status.Equals(mutation.After.Status))
+            {
+                var phase = MapPhase(mutation.After.Status.Phase);
+                var message = phase == ModuleState.NeedsRecalculation
+                    ? mutation.After.Status.RecalculationMessage
+                    : null;
+                OnStateChanged("Thermal", phase, message);
+            }
+        }
+
+        private static ModuleState MapPhase(ThermalCalculationPhase phase)
+        {
+            return phase switch
+            {
+                ThermalCalculationPhase.Actual => ModuleState.Actual,
+                ThermalCalculationPhase.NeedsRecalculation => ModuleState.NeedsRecalculation,
+                ThermalCalculationPhase.Calculating => ModuleState.Calculating,
+                _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Unknown thermal phase.")
+            };
+        }
 
         /// <summary>
         /// Вызвать событие изменения состояния

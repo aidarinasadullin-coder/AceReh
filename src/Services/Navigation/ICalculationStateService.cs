@@ -34,18 +34,24 @@ namespace SnowMeltingCalculator.Services.Navigation
         string ThermalValidationMessage { get; }
 
         /// <summary>
-        /// Установить флаг необходимости пересчёта теплового расчёта
+        /// Установить флаг необходимости пересчёта теплового расчёта.
+        /// Мост AMZ-1: маршрутизируется в каноническую переходную мутацию
+        /// ApplyNeedsRecalculation (см. evidence/phase-4-thermal-state/task-5/
+        /// blocker-analysis.md); production-вызовов после Todos 5-7 не осталось.
         /// </summary>
         /// <param name="message">Сообщение о причине пересчёта</param>
         void SetThermalNeedsRecalculation(string message);
 
         /// <summary>
-        /// Установить флаг выполнения расчёта теплового расчёта
+        /// Установить флаг выполнения расчёта теплового расчёта.
+        /// Мост AMZ-1: маршрутизируется в канонический BeginCalculation.
         /// </summary>
         void SetThermalCalculating();
 
         /// <summary>
-        /// Сбросить состояние теплового расчёта
+        /// Сбросить состояние теплового расчёта.
+        /// Мост AMZ-1: маршрутизируется в каноническое применение текущих входов
+        /// с origin SystemApply (нормализация статуса к Actual).
         /// </summary>
         void ResetThermalState();
 
