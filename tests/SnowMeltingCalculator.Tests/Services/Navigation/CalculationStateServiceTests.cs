@@ -5,7 +5,9 @@
 using NUnit.Framework;
 using SnowMeltingCalculator.Models.Enums;
 using SnowMeltingCalculator.Models.Navigation;
+using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Project;
 
 namespace SnowMeltingCalculator.Tests.Services.Navigation
 {
@@ -177,7 +179,9 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
         [Test]
         public void ResetThermalState_RaisesStateChangedEvent()
         {
-            // Arrange
+            // Arrange: статус сначала уводится из дефолта, чтобы нормализация к
+            // Actual дала ровно одно каноническое завершение (мост AMZ-1).
+            _service.SetThermalNeedsRecalculation("Test message");
             ModuleStateChangedEventArgs? eventArgs = null;
             _service.StateChanged += (sender, args) => eventArgs = args;
 
@@ -189,6 +193,165 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
             Assert.That(eventArgs!.Module, Is.EqualTo("Thermal"));
             Assert.That(eventArgs.State, Is.EqualTo(ModuleState.Actual));
             Assert.That(eventArgs.Message, Is.Null);
+        }
+
+        [Test]
+        public void ResetThermalState_WhenAlreadyActual_IsIdempotentlySilent()
+        {
+            // Arrange
+            var eventCount = 0;
+            _service.StateChanged += (_, _) => eventCount++;
+
+            // Act
+            _service.ResetThermalState();
+
+            // Assert: NoChange-завершения не транслируются в события.
+            Assert.That(eventCount, Is.Zero);
+        }
+
+        #endregion
+
+        #region Тепловой расчёт - Каноническое делегирование (AMZ-1)
+
+        [Test]
+        public void Getters_MapLiveCanonicalSnapshot()
+        {
+            var session = new ProjectSession();
+            var service = new CalculationStateService(session);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(service.ThermalNeedsRecalculation, Is.False);
+                Assert.That(service.ThermalValidationMessage, Is.Empty);
+                Assert.That(service.PipeSpacing, Is.EqualTo(200));
+            });
+
+            session.ThermalState.ApplyInputEdit(
+                ThermalInputEdit.ForPipeSpacing(250), ThermalMutationOrigin.User);
+
+            Assert.That(service.PipeSpacing, Is.EqualTo(250),
+                "PipeSpacing getter reads the live canonical inputs snapshot.");
+
+            session.ThermalState.Restore(
+                new ThermalInputsSnapshot(OperatingMode.Melting, 50.0, 10.0, null, 250),
+                ThermalResultSnapshot.FromResult(new ThermalCalculationResult { PowerTotal = 5.0, IsValid = true }));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(service.ThermalNeedsRecalculation, Is.False,
+                    "Restore normalizes the canonical phase to Actual.");
+                Assert.That(service.PipeSpacing, Is.EqualTo(250));
+            });
+
+            session.ThermalState.InvalidateFromClimate("Климатические данные изменены. Требуется пересчёт.");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(service.ThermalNeedsRecalculation, Is.True);
+                Assert.That(service.ThermalValidationMessage,
+                    Is.EqualTo("Климатические данные изменены. Требуется пересчёт."));
+            });
+        }
+
+        [Test]
+        public void CanonicalCompletion_TranslatesExactlyOncePerLegacySurface()
+        {
+            var session = new ProjectSession();
+            var service = new CalculationStateService(session);
+            var stateEvents = 0;
+            var spacingEvents = 0;
+            ModuleStateChangedEventArgs? last = null;
+            service.StateChanged += (_, args) => { stateEvents++; last = args; };
+            service.PipeSpacingChanged += (_, _) => spacingEvents++;
+
+            // Правка шага с существующим результатом: ровно одно PipeSpacingChanged
+            // и ровно одно StateChanged(NeedsRecalculation, точное сообщение).
+            session.ThermalState.Restore(
+                new ThermalInputsSnapshot(OperatingMode.Melting, 50.0, 10.0, null, 200),
+                ThermalResultSnapshot.FromResult(new ThermalCalculationResult { PowerTotal = 9.0, IsValid = true }));
+            stateEvents = 0;
+
+            session.ThermalState.ApplyInputEdit(
+                ThermalInputEdit.ForPipeSpacing(300), ThermalMutationOrigin.User);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(spacingEvents, Is.EqualTo(1));
+                Assert.That(stateEvents, Is.EqualTo(1));
+                Assert.That(last!.State, Is.EqualTo(ModuleState.NeedsRecalculation));
+                Assert.That(last.Message, Is.EqualTo("Шаг укладки изменён. Требуется пересчёт."));
+            });
+
+            // Правка собственного поля без результата не синтезирует статус:
+            // ноль StateChanged (замороженная строка characterization OwnInputEdit_
+            // ChangedWithoutResult_MarksDirtyOnceWithoutRecalculationEvent).
+            var freshSession = new ProjectSession();
+            var freshService = new CalculationStateService(freshSession);
+            var freshEvents = 0;
+            freshService.StateChanged += (_, _) => freshEvents++;
+
+            freshSession.ThermalState.ApplyInputEdit(
+                ThermalInputEdit.ForSupplyTemperature(60.0), ThermalMutationOrigin.User);
+
+            Assert.That(freshEvents, Is.Zero);
+        }
+
+        [Test]
+        public void SetPipeSpacing_CanonicalDelegation_NoOpSilent_GuardPreserved()
+        {
+            var session = new ProjectSession();
+            var service = new CalculationStateService(session);
+            var spacingEvents = 0;
+            var stateEvents = 0;
+            service.PipeSpacingChanged += (_, _) => spacingEvents++;
+            service.StateChanged += (_, args) =>
+            {
+                if (args.Module == "Thermal")
+                {
+                    stateEvents++;
+                }
+            };
+
+            service.SetPipeSpacing(150, "ThermalViewModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(service.PipeSpacing, Is.EqualTo(150),
+                    "SetPipeSpacing delegates to the canonical inputs snapshot.");
+                Assert.That(spacingEvents, Is.EqualTo(1));
+                Assert.That(stateEvents, Is.Zero,
+                    "Compatibility spacing writer never synthesizes a status event.");
+                Assert.That(session.IsDirty, Is.False,
+                    "Compatibility spacing writer never marks dirty.");
+            });
+
+            // Повтор то же значения — no-op, ноль событий (refresh-idempotence).
+            service.SetPipeSpacing(150, "ThermalViewModel");
+            Assert.That(spacingEvents, Is.EqualTo(1));
+
+            // Guard сохранён.
+            Assert.Throws<InvalidOperationException>(
+                () => service.SetPipeSpacing(150, "rogue source"));
+        }
+
+        [Test]
+        public void ParameterlessConstructor_CreatesIsolatedConsistentSession()
+        {
+            var shared = new ProjectSession();
+            var serviceA = new CalculationStateService(shared);
+            var serviceB = new CalculationStateService(shared);
+            var isolated = new CalculationStateService();
+
+            serviceA.SetThermalNeedsRecalculation("только A");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serviceB.ThermalNeedsRecalculation, Is.True,
+                    "Services sharing one session observe one canonical state.");
+                Assert.That(isolated.ThermalNeedsRecalculation, Is.False,
+                    "Parameterless service owns an isolated session.");
+                Assert.That(isolated.PipeSpacing, Is.EqualTo(200));
+            });
         }
 
         #endregion

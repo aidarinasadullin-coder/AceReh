@@ -25,7 +25,7 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
         public void BadSource_Throws()
         {
             // Act & Assert
-            var ex = Assert.Throws<InvalidOperationException>(() => _service.SetPipeSpacing(42, "BadSource"));
+            var ex = Assert.Throws<InvalidOperationException>(() => _service.SetPipeSpacing(420, "BadSource"));
             Assert.That(ex!.Message, Is.EqualTo("SetPipeSpacing called from non-canonical source: BadSource"));
         }
 
@@ -42,12 +42,12 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
             };
 
             // Act
-            _service.SetPipeSpacing(42, "ThermalViewModel");
+            _service.SetPipeSpacing(420, "ThermalViewModel");
 
             // Assert
-            Assert.That(_service.PipeSpacing, Is.EqualTo(42));
+            Assert.That(_service.PipeSpacing, Is.EqualTo(420));
             Assert.That(eventFired, Is.True);
-            Assert.That(eventValue, Is.EqualTo(42));
+            Assert.That(eventValue, Is.EqualTo(420));
         }
 
         [Test]
@@ -59,16 +59,16 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
 
             // Act & Assert - without flag throws
             var ex = Assert.Throws<InvalidOperationException>(() =>
-                _service.SetPipeSpacing(42, "ProjectLoadOrchestrator.RestoreModules"));
+                _service.SetPipeSpacing(420, "ProjectLoadOrchestrator.RestoreModules"));
             Assert.That(ex!.Message, Is.EqualTo("SetPipeSpacing called from non-canonical source: ProjectLoadOrchestrator.RestoreModules"));
-            Assert.That(_service.PipeSpacing, Is.Not.EqualTo(42));
+            Assert.That(_service.PipeSpacing, Is.Not.EqualTo(420));
 
             // Act - with flag succeeds
             _service.IsLoadProjectInProgress = true;
-            _service.SetPipeSpacing(42, "ProjectLoadOrchestrator.RestoreModules");
+            _service.SetPipeSpacing(420, "ProjectLoadOrchestrator.RestoreModules");
 
             // Assert
-            Assert.That(_service.PipeSpacing, Is.EqualTo(42));
+            Assert.That(_service.PipeSpacing, Is.EqualTo(420));
             Assert.That(eventFired, Is.True);
         }
     }
