@@ -27,6 +27,12 @@ namespace SnowMeltingCalculator.Services.Project
         IProjectSessionThermalState ThermalState { get; }
 
         /// <summary>
+        /// Канонический срез гидравлического состояния текущего проекта. Создаётся
+        /// и хранится сессией; самостоятельно в DI не регистрируется.
+        /// </summary>
+        IProjectSessionHydraulicsState HydraulicsState { get; }
+
+        /// <summary>
         /// Номер проекта.
         /// </summary>
         string ProjectNumber { get; set; }

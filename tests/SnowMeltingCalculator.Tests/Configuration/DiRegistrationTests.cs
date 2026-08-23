@@ -254,6 +254,42 @@ namespace SnowMeltingCalculator.Tests.Configuration
         }
 
         [Test]
+        [Category("HydraulicsState")]
+        public void HydraulicsState_ResolvesReferenceIdenticalThroughEverySessionAlias()
+        {
+            using var provider = CreateApplicationServices().BuildServiceProvider();
+
+            var concreteSession = provider.GetRequiredService<ProjectSession>();
+            var session = provider.GetRequiredService<IProjectSession>();
+            var markDirty = provider.GetRequiredService<IMarkDirtyService>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(session, Is.SameAs(concreteSession));
+                Assert.That(markDirty, Is.SameAs(concreteSession));
+                Assert.That(session.HydraulicsState, Is.Not.Null);
+                Assert.That(session.HydraulicsState, Is.SameAs(session.HydraulicsState));
+                Assert.That(concreteSession.HydraulicsState, Is.SameAs(session.HydraulicsState));
+                Assert.That(((IProjectSession)concreteSession).HydraulicsState, Is.SameAs(session.HydraulicsState));
+                Assert.That(session.HydraulicsState, Is.InstanceOf<ProjectSessionHydraulicsState>());
+            });
+        }
+
+        [Test]
+        [Category("HydraulicsState")]
+        public void HydraulicsState_IsNotResolvableAsIndependentService_FromBuiltProvider()
+        {
+            using var provider = CreateApplicationServices().BuildServiceProvider();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(provider.GetServices<IProjectSessionHydraulicsState>(), Is.Empty);
+                Assert.That(provider.GetService<ProjectSessionHydraulicsState>(), Is.Null);
+                Assert.That(provider.GetRequiredService<IProjectSession>().HydraulicsState, Is.Not.Null);
+            });
+        }
+
+        [Test]
         [Category("ThermalState")]
         public void ThermalState_IsOnePerSession_SingletonAcrossScopes_DistinctAcrossSessions()
         {
