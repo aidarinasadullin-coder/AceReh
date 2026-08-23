@@ -453,7 +453,8 @@
                     <StackPanel Orientation="Horizontal" Margin="0,2">
                         <TextBlock Text="T_подачи:" Width="100" FontSize="11"/>
                         <TextBlock Text="{Binding SupplyTemperature, StringFormat=F1}"
-                                   FontSize="11"/>
+                                   FontSize="11"
+                                   AutomationProperties.AutomationId="HydraulicsSupplyTemperature"/>
                         <TextBlock Text=" °C" FontSize="11"/>
                     </StackPanel>
 
@@ -461,7 +462,8 @@
                     <StackPanel Orientation="Horizontal" Margin="0,2">
                         <TextBlock Text="T_обратки:" Width="100" FontSize="11"/>
                         <TextBlock Text="{Binding ReturnTemperature, StringFormat=F1}"
-                                   FontSize="11"/>
+                                   FontSize="11"
+                                   AutomationProperties.AutomationId="HydraulicsReturnTemperature"/>
                         <TextBlock Text=" °C" FontSize="11"/>
                     </StackPanel>
 
@@ -550,7 +552,8 @@
                     <StackPanel Orientation="Horizontal" Margin="0,2">
                         <TextBlock Text="Шаг:" Width="80" FontSize="11"/>
                         <TextBlock Text="{Binding PipeSpacing_cm, StringFormat=F0}"
-                                   FontSize="11"/>
+                                   FontSize="11"
+                                   AutomationProperties.AutomationId="HydraulicsPipeSpacing"/>
                         <TextBlock Text=" см" FontSize="11"/>
                     </StackPanel>
 

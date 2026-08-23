@@ -329,7 +329,8 @@
                                   Stretch="Uniform"/>
                             <TextBlock Text="{Binding TotalThermalPower_kW, StringFormat={}{0:F1}}"
                                        Style="{StaticResource KpiValueStyle}"
-                                       Margin="0,4,0,0"/>
+                                       Margin="0,4,0,0"
+                                       AutomationProperties.AutomationId="ResultsThermalPower"/>
                             <TextBlock Text="кВт"
                                        Style="{StaticResource KpiLabelStyle}"/>
                             <TextBlock Text="Тепловая мощность"
@@ -414,7 +415,8 @@
                             <TextBlock Text="{Binding SupplyTemperature, StringFormat={}{0:F1}}"
                                        Style="{StaticResource KpiValueStyle}"
                                        Foreground="{DynamicResource RehauRedBrush}"
-                                       Margin="0,4,0,0"/>
+                                       Margin="0,4,0,0"
+                                       AutomationProperties.AutomationId="ResultsSupplyTemperature"/>
                             <TextBlock Text="°C"
                                        Style="{StaticResource KpiLabelStyle}"/>
                             <TextBlock Text="Подача"
@@ -436,7 +438,8 @@
                             <TextBlock Text="{Binding ReturnTemperature, StringFormat={}{0:F1}}"
                                        Style="{StaticResource KpiValueStyle}"
                                        Foreground="{DynamicResource RehauTealBrush}"
-                                       Margin="0,4,0,0"/>
+                                       Margin="0,4,0,0"
+                                       AutomationProperties.AutomationId="ResultsReturnTemperature"/>
                             <TextBlock Text="°C"
                                        Style="{StaticResource KpiLabelStyle}"/>
                             <TextBlock Text="Обратка"
