@@ -73,6 +73,98 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
         });
     }
 
+    [TestCase(nameof(HydraulicInputData.SupplySpacing_cm), 8.0, 10.0)]
+    [TestCase(nameof(HydraulicInputData.SupplyHeatPercent), 5.0, 18.0)]
+    public void GivenUserEditsGlobalSupplyInput_WhenInputChanges_ThenCanonicalGlobalAndEveryCircuitMirrorIt(
+        string propertyName,
+        double expectedSpacing,
+        double expectedHeatPercent)
+    {
+        var fixture = CreateFixture();
+
+        if (propertyName == nameof(HydraulicInputData.SupplySpacing_cm))
+            fixture.ViewModel.InputData.SupplySpacing_cm = expectedSpacing;
+        else
+            fixture.ViewModel.InputData.SupplyHeatPercent = expectedHeatPercent;
+
+        var snapshot = fixture.Session.HydraulicsState.Snapshot;
+        var circuits = fixture.ViewModel.Collectors.SelectMany(collector => collector.Circuits).ToList();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(snapshot.GlobalInputs.SupplySpacingCm, Is.EqualTo(expectedSpacing));
+            Assert.That(snapshot.GlobalInputs.SupplyHeatPercent, Is.EqualTo(expectedHeatPercent));
+            Assert.That(circuits, Is.Not.Empty);
+            Assert.That(circuits.All(circuit => circuit.SupplySpacing_cm == expectedSpacing), Is.True);
+            Assert.That(circuits.All(circuit => circuit.SupplyHeatPercent == expectedHeatPercent), Is.True);
+        });
+    }
+
+    [Test]
+    public void GivenUserEditsSupplyInputs_WhenHydraulicsCalculates_ThenCalculatorReceivesMirroredValuesAndPublishesResults()
+    {
+        var fixture = CreateFixture();
+
+        fixture.ViewModel.InputData.SupplySpacing_cm = 8;
+        fixture.ViewModel.InputData.SupplyHeatPercent = 18;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(fixture.CalculatedSupplyInputs, Is.Not.Empty);
+            Assert.That(fixture.CalculatedSupplyInputs[^1], Is.EqualTo((8.0, 18.0)));
+            Assert.That(fixture.ViewModel.Collectors.SelectMany(collector => collector.Circuits).Any(circuit => circuit.Power == 100), Is.True);
+            Assert.That(fixture.Context.HydraulicsResults, Is.Not.Null);
+        });
+    }
+
+    [Test]
+    public async Task GivenUserEditsSupplyInputs_WhenProjectIsSaved_ThenGlobalAndCircuitWireFieldsContainNewValues()
+    {
+        var fixture = CreateFixture();
+        fixture.ViewModel.InputData.SupplySpacing_cm = 8;
+        fixture.ViewModel.InputData.SupplyHeatPercent = 18;
+
+        var savedProject = new ProjectData
+        {
+            Version = "1.1",
+            HydraulicsData = HydraulicsPersistenceMapper.BuildHydraulicsProjectData(
+                fixture.Session.HydraulicsState.Snapshot)
+        };
+        var json = JsonSerializer.Serialize(savedProject, CreateSmcSerializerOptions());
+        using var document = JsonDocument.Parse(json);
+        var hydraulics = document.RootElement.GetProperty("hydraulicsData");
+        var circuit = hydraulics.GetProperty("collectors")[0].GetProperty("circuits")[0];
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(hydraulics.GetProperty("supplySpacingCm").GetDouble(), Is.EqualTo(8));
+            Assert.That(hydraulics.GetProperty("supplyHeatPercent").GetDouble(), Is.EqualTo(18));
+            Assert.That(circuit.GetProperty("supplySpacingCm").GetDouble(), Is.EqualTo(8));
+            Assert.That(circuit.GetProperty("supplyHeatPercent").GetDouble(), Is.EqualTo(18));
+        });
+
+        await Task.CompletedTask;
+    }
+
+    [Test]
+    public async Task GivenLifecycleMutation_WhenProjectLoadSystemApplyOrResetRuns_ThenNoUserPropagationOccurs()
+    {
+        var fixture = CreateFixture();
+        await fixture.Orchestrator.RestoreModulesFromProjectAsync(CreateProjectData());
+        fixture.Origins.Clear();
+
+        var loadedCircuitValues = fixture.ViewModel.Collectors.SelectMany(collector => collector.Circuits)
+            .Select(circuit => (circuit.SupplySpacing_cm, circuit.SupplyHeatPercent)).ToList();
+        fixture.StateMock.Object.ResetHydraulicsState();
+        fixture.ViewModel.Reset();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(fixture.Origins, Does.Not.Contain(HydraulicsMutationOrigin.User));
+            Assert.That(loadedCircuitValues, Is.Not.Empty);
+        });
+    }
+
     [Test]
     public void CollectorAndCircuitCollectionChanges_MarkDirtyOncePerCollectionEvent()
     {
@@ -346,8 +438,11 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
 
     private static Fixture CreateFixture()
     {
+        var calculatedSupplyInputs = new List<(double Spacing, double HeatPercent)>();
         var calculator = new Mock<ICircuitsCalculator>();
-        calculator.Setup(c => c.CalculateCircuitPower(It.IsAny<CircuitRow>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<double>())).Returns(100);
+        calculator.Setup(c => c.CalculateCircuitPower(It.IsAny<CircuitRow>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<double>()))
+            .Callback<CircuitRow, double, double, double>((circuit, _, _, _) => calculatedSupplyInputs.Add((circuit.SupplySpacing_cm, circuit.SupplyHeatPercent)))
+            .Returns(100);
         calculator.Setup(c => c.CalculateFlowRate(It.IsAny<double>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<double>())).Returns(10);
         calculator.Setup(c => c.CalculateCollectorSummary(It.IsAny<List<CircuitRow>>(), It.IsAny<int>(), It.IsAny<ValveType>()))
             .Returns((List<CircuitRow> circuits, int number, ValveType valve) => new CollectorSummary { CollectorNumber = number, CircuitCount = circuits.Count, TotalPower = circuits.Sum(c => c.Power), ValveType = valve });
@@ -398,19 +493,21 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
             hydraulicsDependencies.Coordinator,
             hydraulicsDependencies.Session);
         circuits.Collectors[0].Circuits.Add(new CircuitRow { CircuitNumber = 1, CircuitLength = 100 });
+        circuits.Collectors[0].Circuits.Add(new CircuitRow { CircuitNumber = 2, CircuitLength = 110 });
         circuits.SelectedCollectorIndex = 0;
         var climate = new ClimateViewModel(new Mock<IClimateDataService>().Object, new ClimateData(), new ClimateValidator(), dirty.Object, context);
         var construction = new ConstructionViewModelTestFactory().Create(session);
         var thermal = new ThermalViewModel(new Mock<IThermalCalculator>().Object, new ClimateData(), new ConstructionData(), state.Object, context, new ThermalValidator(new ThermalCalculator(), new ClimateData(), new ConstructionData()), new ThermalResultValidator(), dirty.Object);
         var orchestrator = new ProjectLoadOrchestrator(climate, construction, thermal, circuits, state.Object, new Mock<IConstructionService>().Object, context, session, new ConstructionDefaultStateInitializer(new Mock<IMaterialRepository>().Object, session.ConstructionState));
-        return new Fixture(circuits, calculator, state, dirty, context, orchestrator, session);
+        return new Fixture(circuits, calculator, state, dirty, context, orchestrator, session, calculatedSupplyInputs);
     }
 
     private sealed class Fixture
     {
-        public Fixture(CircuitsViewModel viewModel, Mock<ICircuitsCalculator> calculatorMock, Mock<ICalculationStateService> stateMock, Mock<IMarkDirtyService> dirtyMock, CalculationContext context, ProjectLoadOrchestrator orchestrator, ProjectSession session)
+        public Fixture(CircuitsViewModel viewModel, Mock<ICircuitsCalculator> calculatorMock, Mock<ICalculationStateService> stateMock, Mock<IMarkDirtyService> dirtyMock, CalculationContext context, ProjectLoadOrchestrator orchestrator, ProjectSession session, List<(double Spacing, double HeatPercent)> calculatedSupplyInputs)
         {
-            ViewModel = viewModel; CalculatorMock = calculatorMock; StateMock = stateMock; DirtyMock = dirtyMock; Context = context; Orchestrator = orchestrator; Session = session;
+            ViewModel = viewModel; CalculatorMock = calculatorMock; StateMock = stateMock; DirtyMock = dirtyMock; Context = context; Orchestrator = orchestrator; Session = session; CalculatedSupplyInputs = calculatedSupplyInputs;
+            Session.HydraulicsState.Changed += (_, args) => Origins.Add(args.Origin);
             StateMock.Setup(s => s.SetHydraulicsCalculating()).Callback(() => { });
             StateMock.Setup(s => s.ResetHydraulicsState()).Callback(() => { });
         }
@@ -421,6 +518,8 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
         public CalculationContext Context { get; }
         public ProjectLoadOrchestrator Orchestrator { get; }
         public ProjectSession Session { get; }
+        public List<(double Spacing, double HeatPercent)> CalculatedSupplyInputs { get; }
+        public List<HydraulicsMutationOrigin> Origins { get; } = new();
         public int DirtyCalls => DirtyMock.Invocations.Count(i => i.Method.Name == nameof(IMarkDirtyService.MarkDirty));
         public int SummaryCalls => CalculatorMock.Invocations.Count(i => i.Method.Name == nameof(ICircuitsCalculator.CalculateCollectorSummary));
         public int PipeSpacing { get; set; } = 200;

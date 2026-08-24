@@ -1273,6 +1273,29 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             }
         }
 
+        private void MirrorSupplyInputs(double supplySpacing_cm, double supplyHeatPercent)
+        {
+            _isMirroringHydraulicsState = true;
+            try
+            {
+                foreach (var collector in Collectors)
+                {
+                    foreach (var circuit in collector.Circuits)
+                    {
+                        circuit.SupplySpacing_cm = supplySpacing_cm;
+                        circuit.SupplyHeatPercent = supplyHeatPercent;
+                    }
+                }
+
+                OnPropertyChanged(nameof(SupplySpacing_cm));
+                OnPropertyChanged(nameof(SupplyHeatPercent));
+            }
+            finally
+            {
+                _isMirroringHydraulicsState = false;
+            }
+        }
+
         /// <summary>
         /// Установить новый InputData с переподпиской на PropertyChanged
         /// </summary>
@@ -1308,6 +1331,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 if (e.PropertyName == nameof(HydraulicInputData.SupplySpacing_cm) ||
                     e.PropertyName == nameof(HydraulicInputData.SupplyHeatPercent))
                 {
+                    MirrorSupplyInputs(InputData.SupplySpacing_cm, InputData.SupplyHeatPercent);
                     _markDirtyService.MarkDirty();
                     Calculate();
                 }
