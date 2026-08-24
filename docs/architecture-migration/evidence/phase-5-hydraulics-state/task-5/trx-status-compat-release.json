@@ -1,0 +1,10 @@
+{
+  "planSha256": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+  "suite": "ProjectSessionHydraulicsStateTests|DiRegistrationTests",
+  "passed": 34,
+  "failed": 0,
+  "skipped": 0,
+  "build": "Release",
+  "productionDebugBuild": { "warnings": 0, "errors": 0 },
+  "productionReleaseBuild": { "warnings": 0, "errors": 0 }
+}

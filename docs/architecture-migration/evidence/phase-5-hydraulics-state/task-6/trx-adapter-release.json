@@ -1,0 +1,9 @@
+{
+  "planSha256": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+  "suite": "HydraulicsMultiplicityCharacterizationTests|CircuitsViewModelColdStartTests|GlycolAutoRecalculationTests",
+  "characterizationPassed": 13,
+  "vmRegressionPassed": 17,
+  "failed": 0,
+  "skipped": 0,
+  "build": "Release"
+}

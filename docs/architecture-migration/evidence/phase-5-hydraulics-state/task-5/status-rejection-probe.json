@@ -1,0 +1,18 @@
+{
+  "planSha256": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+  "scenario": "FailCalculation phase guard",
+  "actualPhase": {
+    "result": "Rejected",
+    "snapshotChanged": false,
+    "eventsEmitted": 0
+  },
+  "calculatingPhase": {
+    "result": "Changed",
+    "phaseAfter": "Error",
+    "validationMessage": "boom"
+  },
+  "systemApply": {
+    "phaseAfter": "Actual",
+    "validationMessage": ""
+  }
+}
