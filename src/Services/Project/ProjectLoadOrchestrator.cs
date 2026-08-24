@@ -86,6 +86,7 @@ namespace SnowMeltingCalculator.Services.Project
             // (DEC-T08, Todo 9); адаптер ниже зеркалит дефолты без мутаций.
             _thermalState.ResetToDefaults(ThermalMutationOrigin.ProjectLoadReset);
             _thermalViewModel.Reset();
+            _hydraulicsState.ResetToDefaults(HydraulicsMutationOrigin.ProjectLoadReset);
             _circuitsViewModel.Reset();
         }
 

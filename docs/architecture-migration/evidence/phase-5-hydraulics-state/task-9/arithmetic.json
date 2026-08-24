@@ -1,0 +1,20 @@
+{
+  "phase": "phase-5-hydraulics-state",
+  "todo": 9,
+  "planSha256": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+  "behavioralAssertions": {
+    "projectLoadReset": "ProjectLoadOrchestrator.ResetModules calls HydraulicsState.ResetToDefaults(ProjectLoadReset) before CircuitsViewModel.Reset",
+    "newCalculationReset": "MainViewModel.PerformNewCalculationReset calls HydraulicsState.ResetToDefaults(UserReset)",
+    "fallbackCalculation": "absent saved thermal result uses the existing fallback path exactly once",
+    "secondLoad": "second project load replaces the first hydraulics snapshot without stale state",
+    "subscriptionHygiene": "repeated reset/load cycles preserve one upstream delivery and do not multiply calculations"
+  },
+  "verifiedBy": [
+    "ProjectLifecycleFlowCharacterizationTests",
+    "HydraulicsMultiplicityCharacterizationTests",
+    "ThermalMultiplicityCharacterizationTests",
+    "ProjectRoundTripTests",
+    "ResultsViewModelOpenProjectTests"
+  ],
+  "consecutivePassingRuns": 2
+}
