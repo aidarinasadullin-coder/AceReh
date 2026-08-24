@@ -1,0 +1,155 @@
+{
+  "version": "1.0",
+  "projectNumber": "PHASE5-B",
+  "projectObject": "v1.0 serialization regression sample",
+  "createdDate": "2026-07-14T12:00:00",
+  "modifiedDate": "2026-07-14T12:00:00",
+  "climateData": {
+    "selectedCity": "Москва",
+    "region": "Московская область",
+    "airTemperature": -28.0,
+    "windSpeed": 5.0,
+    "humidity": 70.0,
+    "snowfallIntensity": 0.003,
+    "selectedZone": "zone_M10",
+    "isHighRequirements": false
+  },
+  "constructionData": {
+    "r1": 0.0875,
+    "r2": 0.175,
+    "lambdaE": 1.6,
+    "layers": [
+      {
+        "position": "abovePipe",
+        "materialName": "Асфальтобетон",
+        "materialLambda": 1.05,
+        "thickness": 60.0,
+        "calculatedR": 0.0571,
+        "calculatedLambda": 1.05
+      },
+      {
+        "position": "belowPipe",
+        "materialName": "Щебеночное основание",
+        "materialLambda": 1.4,
+        "thickness": 200.0,
+        "calculatedR": 0.1429,
+        "calculatedLambda": 1.4
+      }
+    ]
+  },
+  "thermalData": {
+    "selectedMode": "melting",
+    "supplyTemperature": 55.0,
+    "groundTemperature": 5.0,
+    "selectedPipe": {
+      "name": "RAUTHERM S 17x2,0",
+      "outerDiameter": 17.0,
+      "innerDiameter": 13.0,
+      "wallThickness": 2.0
+    },
+    "pipeSpacing": 150,
+    "result": null
+  },
+  "hydraulicsData": {
+    "glycolType": "propylene",
+    "glycolConcentration": 40.0,
+    "supplySpacingCm": 7.0,
+    "supplyHeatPercent": 15.0,
+    "collectors": [
+      {
+        "collectorNumber": 1,
+        "collectorType": "HKV-D (2-12 контуров)",
+        "valveType": "hkV_D",
+        "circuits": [
+          {
+            "circuitNumber": 1,
+            "circuitLength": 60.0,
+            "supplyLength": 6.0,
+            "supplySpacingCm": 5.0,
+            "supplyHeatPercent": 10.0,
+            "pipeSpacingCm": 15.0,
+            "power": 11111.0,
+            "flowRate": 2222.0,
+            "velocity": 1.45,
+            "flowRegimeDescription": "turbulent",
+            "throttling": 0.0,
+            "valveTurns": 2.5,
+            "operatingResult": {
+              "power": 11111.0,
+              "flowRate": 2222.0,
+              "velocity": 1.45,
+              "dpRohr": 15000.0,
+              "dpVerteiler": 2500.0,
+              "dpVent": 1200.0,
+              "dpGesamt": 18700.0,
+              "throttling": 0.0,
+              "valveTurns": 2.5,
+              "flowRegime": "turbulent"
+            },
+            "designResult": {
+              "power": 11111.0,
+              "flowRate": 2222.0,
+              "velocity": 1.45,
+              "dpRohr": 18000.0,
+              "dpVerteiler": 3000.0,
+              "dpVent": 1400.0,
+              "dpGesamt": 22400.0,
+              "throttling": 0.0,
+              "valveTurns": 2.5,
+              "flowRegime": "turbulent"
+            }
+          },
+          {
+            "circuitNumber": 2,
+            "circuitLength": 90.0,
+            "supplyLength": 9.0,
+            "supplySpacingCm": 5.0,
+            "supplyHeatPercent": 10.0,
+            "pipeSpacingCm": 15.0,
+            "power": 33333.0,
+            "flowRate": 4444.0,
+            "velocity": 1.45,
+            "flowRegimeDescription": "turbulent",
+            "throttling": 0.0,
+            "valveTurns": 2.5,
+            "operatingResult": {
+              "power": 33333.0,
+              "flowRate": 4444.0,
+              "velocity": 1.45,
+              "dpRohr": 15000.0,
+              "dpVerteiler": 2500.0,
+              "dpVent": 1200.0,
+              "dpGesamt": 18700.0,
+              "throttling": 0.0,
+              "valveTurns": 2.5,
+              "flowRegime": "turbulent"
+            },
+            "designResult": {
+              "power": 33333.0,
+              "flowRate": 4444.0,
+              "velocity": 1.45,
+              "dpRohr": 18000.0,
+              "dpVerteiler": 3000.0,
+              "dpVent": 1400.0,
+              "dpGesamt": 22400.0,
+              "throttling": 0.0,
+              "valveTurns": 2.5,
+              "flowRegime": "turbulent"
+            }
+          }
+        ],
+        "summary": {
+          "circuitCount": 2,
+          "totalPipeLength": 165.0,
+          "totalPower": 44444.0,
+          "totalFlowRate": 6666.0,
+          "pressureLoss_Operating_Pa": 18700.0,
+          "pressureLoss_Cold_Pa": 22400.0,
+          "kv": 1.2,
+          "collectorType": "HKV-D (2-12 контуров)"
+        }
+      }
+    ]
+  },
+  "isOperatingMode": true
+}

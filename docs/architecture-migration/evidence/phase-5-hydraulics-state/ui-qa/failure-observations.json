@@ -1,0 +1,137 @@
+{
+  "project": "unknown-pipe.smc",
+  "fixturePath": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\unknown-pipe.smc",
+  "fixtureSha256": "FA0EDAAC71AEAC82AB84A3C119DFA2D1228D61C84B530EB47DE6836210ADB614",
+  "characterization": {
+    "corruption": "hydraulicsData.collectors[0].valveType = \"PHASE5 UNKNOWN PIPE\" — undefined ValveType enum string",
+    "expectedPath": "ProjectFileService.LoadProjectResultAsync catches JsonException → OperationResult.Failure → ResultsViewModel.LoadProjectFromPathAsync shows _dialogService.ShowError(\"Не удалось открыть проект: …\", \"Ошибка\") (ResultsViewModel.cs:789)",
+    "gracefulContract": "process stays alive, dialog dismissed via OK, clean WM_CLOSE exit 0, stderr free of crash patterns"
+  },
+  "assertions": [
+    {
+      "assert": "S8: title is bare app title (clean, no file)",
+      "expected": "Калькулятор снеготаяния REHAU",
+      "observed": "Калькулятор снеготаяния REHAU",
+      "outcome": "PASS",
+      "selector": "",
+      "elementRuntimeId": "",
+      "screenshot": "",
+      "timestampUtc": "2026-08-24T15:19:04.8723054Z"
+    },
+    {
+      "assert": "S8: reset glycol type == Этиленгликоль (default)",
+      "expected": "Этиленгликоль",
+      "observed": "Этиленгликоль",
+      "outcome": "PASS",
+      "selector": "HydraulicsGlycolType",
+      "elementRuntimeId": "7:14888:53412038",
+      "screenshot": "",
+      "timestampUtc": "2026-08-24T15:19:06.0871551Z"
+    },
+    {
+      "assert": "S8: reset concentration == 50 (HydraulicInputData default)",
+      "expected": "50 (+/-1dp)",
+      "observed": "50",
+      "outcome": "PASS",
+      "selector": "HydraulicsGlycolConcentration",
+      "elementRuntimeId": "7:14888:12153337",
+      "screenshot": "",
+      "timestampUtc": "2026-08-24T15:19:06.2070499Z"
+    },
+    {
+      "assert": "S8: reset supply heat percent == 10 (default)",
+      "expected": "10 (+/-1dp)",
+      "observed": "10",
+      "outcome": "PASS",
+      "selector": "HydraulicsSupplyHeatPercent",
+      "elementRuntimeId": "7:14888:57311924",
+      "screenshot": "",
+      "timestampUtc": "2026-08-24T15:19:06.3168470Z"
+    },
+    {
+      "assert": "S8: reset leaves no validation message",
+      "expected": "absent",
+      "observed": "absent",
+      "outcome": "PASS",
+      "selector": "HydraulicsValidationMessage",
+      "elementRuntimeId": "",
+      "screenshot": "",
+      "timestampUtc": "2026-08-24T15:19:06.4320116Z"
+    },
+    {
+      "assert": "S8: summary card Длина труб reset to 0.0 м (default collector)",
+      "expected": "0.0 м",
+      "observed": "0.0 м",
+      "outcome": "PASS",
+      "selector": "Results card[Длина труб]",
+      "elementRuntimeId": "",
+      "screenshot": "",
+      "timestampUtc": "2026-08-24T15:19:07.7361271Z"
+    },
+    {
+      "assert": "S8: summary card Мощность reset to 0 Вт (B sentinel 44444 gone)",
+      "expected": "0 Вт",
+      "observed": "0 Вт",
+      "outcome": "PASS",
+      "selector": "Results card[Мощность]",
+      "elementRuntimeId": "",
+      "screenshot": "",
+      "timestampUtc": "2026-08-24T15:19:07.8625318Z"
+    },
+    {
+      "assert": "S8: summary card Расход reset to 0.00 м³/ч",
+      "expected": "0.00 м³/ч",
+      "observed": "0.00 м³/ч",
+      "outcome": "PASS",
+      "selector": "Results card[Расход]",
+      "elementRuntimeId": "",
+      "screenshot": "",
+      "timestampUtc": "2026-08-24T15:19:07.9897508Z"
+    },
+    {
+      "assert": "close 'b-load-reset': clean exit code",
+      "expected": "0",
+      "observed": "0",
+      "outcome": "PASS",
+      "selector": "",
+      "elementRuntimeId": "",
+      "screenshot": "",
+      "timestampUtc": "2026-08-24T15:19:09.3581401Z"
+    },
+    {
+      "assert": "close 'b-load-reset': stderr free of crash patterns",
+      "expected": "no match",
+      "observed": "clean",
+      "outcome": "PASS",
+      "selector": "",
+      "elementRuntimeId": "",
+      "screenshot": "",
+      "timestampUtc": "2026-08-24T15:19:09.3584356Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\screenshots\\08-reset-defaults.png",
+      "sha256": "788FBCB33E07622EFF5B99E36BB0ABB96E961FAA200A2E67E21DC795ACDF44AF",
+      "note": "screenshot 08-reset-defaults"
+    }
+  ],
+  "process": {
+    "tag": "unknown-pipe",
+    "project": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\unknown-pipe.smc",
+    "pid": 8812,
+    "exitCode": 0,
+    "exeShaBefore": "356550DC8934C33B214846F00449085A2800AB5C22C9C5B1F006EB3696364DE9",
+    "exeShaAfter": "356550DC8934C33B214846F00449085A2800AB5C22C9C5B1F006EB3696364DE9",
+    "stdoutLog": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\run-unknown-pipe-stdout.log",
+    "stdoutSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "stderrLog": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\run-unknown-pipe-stderr.log",
+    "stderrSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "startedUtc": "2026-08-24T15:19:09.3639364Z",
+    "exitUtc": "2026-08-24T15:19:12.6519103Z"
+  },
+  "screenshots": [
+    "09-unknown-pipe-validation-dialog.png"
+  ],
+  "result": "PASS"
+}
