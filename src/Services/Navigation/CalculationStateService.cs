@@ -28,11 +28,9 @@ namespace SnowMeltingCalculator.Services.Navigation
     {
         #region Private Fields
 
-        private bool _hydraulicsIsCalculating;
-        private string _hydraulicsValidationMessage = string.Empty;
-
         private readonly IProjectSession _projectSession;
         private readonly EventHandler<ThermalStateChangedEventArgs> _thermalChangedHandler;
+        private readonly EventHandler<HydraulicsStateChangedEventArgs> _hydraulicsChangedHandler;
         private IDisposable? _restoreLease;
 
         #endregion
@@ -55,6 +53,8 @@ namespace SnowMeltingCalculator.Services.Navigation
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _thermalChangedHandler = OnThermalStateChanged;
             _projectSession.ThermalState.Changed += _thermalChangedHandler;
+            _hydraulicsChangedHandler = OnHydraulicsStateChanged;
+            _projectSession.HydraulicsState.Changed += _hydraulicsChangedHandler;
         }
 
         /// <summary>
@@ -107,33 +107,30 @@ namespace SnowMeltingCalculator.Services.Navigation
         #region Гидравлический расчёт
 
         /// <inheritdoc/>
-        public bool HydraulicsIsCalculating => _hydraulicsIsCalculating;
+        public bool HydraulicsIsCalculating =>
+            _projectSession.HydraulicsState.Snapshot.Status.Phase == HydraulicsCalculationPhase.Calculating;
 
         /// <inheritdoc/>
-        public string HydraulicsValidationMessage => _hydraulicsValidationMessage;
+        public string HydraulicsValidationMessage => _projectSession.HydraulicsState.Snapshot.Status.ValidationMessage;
 
         /// <inheritdoc/>
         public void SetHydraulicsCalculating()
         {
-            _hydraulicsIsCalculating = true;
-            _hydraulicsValidationMessage = string.Empty;
-            OnStateChanged("Hydraulics", ModuleState.Calculating);
+            _projectSession.HydraulicsState.BeginCalculation();
         }
 
         /// <inheritdoc/>
         public void SetHydraulicsError(string message)
         {
-            _hydraulicsIsCalculating = false;
-            _hydraulicsValidationMessage = message;
-            OnStateChanged("Hydraulics", ModuleState.Error, message);
+            _projectSession.HydraulicsState.FailCalculation(message);
         }
 
         /// <inheritdoc/>
         public void ResetHydraulicsState()
         {
-            _hydraulicsIsCalculating = false;
-            _hydraulicsValidationMessage = string.Empty;
-            OnStateChanged("Hydraulics", ModuleState.Actual);
+            _projectSession.HydraulicsState.ApplyGlobalInputs(
+                _projectSession.HydraulicsState.Snapshot.GlobalInputs,
+                HydraulicsMutationOrigin.SystemApply);
         }
 
         #endregion
@@ -242,6 +239,22 @@ namespace SnowMeltingCalculator.Services.Navigation
                     ? mutation.After.Status.RecalculationMessage
                     : null;
                 OnStateChanged("Thermal", phase, message);
+            }
+        }
+
+        private void OnHydraulicsStateChanged(object? sender, HydraulicsStateChangedEventArgs e)
+        {
+            if (!e.OldSnapshot.Status.Equals(e.NewSnapshot.Status))
+            {
+                var state = e.NewSnapshot.Status.Phase switch
+                {
+                    HydraulicsCalculationPhase.Actual => ModuleState.Actual,
+                    HydraulicsCalculationPhase.Calculating => ModuleState.Calculating,
+                    HydraulicsCalculationPhase.Error => ModuleState.Error,
+                    _ => throw new ArgumentOutOfRangeException(nameof(e), e.NewSnapshot.Status.Phase, "Unknown hydraulics phase.")
+                };
+                OnStateChanged("Hydraulics", state,
+                    state == ModuleState.Error ? e.NewSnapshot.Status.ValidationMessage : null);
             }
         }
 

@@ -83,9 +83,21 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             Assert.That(result.IsChanged, Is.True);
             Assert.That(_state.Snapshot.Status.Phase, Is.EqualTo(HydraulicsCalculationPhase.Actual));
             Assert.That(_state.Snapshot.Collectors[0].Summary, Is.EqualTo(Summary()));
+
+            var completedSnapshot = _state.Snapshot;
+            var completedEvents = _events;
+            Assert.That(_state.FailCalculation("boom").IsRejected, Is.True);
+            Assert.That(_state.Snapshot, Is.EqualTo(completedSnapshot));
+            Assert.That(_events, Is.EqualTo(completedEvents));
+
+            Assert.That(_state.BeginCalculation().IsChanged, Is.True);
             Assert.That(_state.FailCalculation("boom").IsChanged, Is.True);
             Assert.That(_state.Snapshot.Status.Phase, Is.EqualTo(HydraulicsCalculationPhase.Error));
             Assert.That(_state.Snapshot.Status.ValidationMessage, Is.EqualTo("boom"));
+
+            Assert.That(_state.ApplyGlobalInputs(_state.Snapshot.GlobalInputs, HydraulicsMutationOrigin.SystemApply).IsChanged, Is.True);
+            Assert.That(_state.Snapshot.Status.Phase, Is.EqualTo(HydraulicsCalculationPhase.Actual));
+            Assert.That(_state.Snapshot.Status.ValidationMessage, Is.Empty);
         }
 
         [Test]

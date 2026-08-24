@@ -49,7 +49,10 @@ namespace SnowMeltingCalculator.Services.Project
         {
             if (candidate is null) throw new ArgumentNullException(nameof(candidate));
             var errors = Validate(candidate);
-            return errors.Count == 0 ? Commit(new(candidate, _snapshot.Collectors, _snapshot.Status), origin) : Reject(origin, errors);
+            var status = origin == HydraulicsMutationOrigin.SystemApply
+                ? HydraulicsStatusSnapshot.Default
+                : _snapshot.Status;
+            return errors.Count == 0 ? Commit(new(candidate, _snapshot.Collectors, status), origin) : Reject(origin, errors);
         }
 
         public HydraulicsMutationResult ReplaceCollectors(IEnumerable<HydraulicCollectorSnapshot> collectors, HydraulicsMutationOrigin origin)
@@ -70,8 +73,12 @@ namespace SnowMeltingCalculator.Services.Project
             return Commit(new(_snapshot.GlobalInputs, collectors, HydraulicsStatusSnapshot.Default), origin);
         }
 
-        public HydraulicsMutationResult FailCalculation(string message) =>
-            Commit(new(_snapshot.GlobalInputs, _snapshot.Collectors, new(HydraulicsCalculationPhase.Error, message)), HydraulicsMutationOrigin.Calculation);
+        public HydraulicsMutationResult FailCalculation(string message)
+        {
+            if (_snapshot.Status.Phase != HydraulicsCalculationPhase.Calculating)
+                return Reject(HydraulicsMutationOrigin.Calculation, new[] { "FailCalculation requires an active calculation." });
+            return Commit(new(_snapshot.GlobalInputs, _snapshot.Collectors, new(HydraulicsCalculationPhase.Error, message)), HydraulicsMutationOrigin.Calculation);
+        }
 
         public HydraulicsMutationResult Restore(HydraulicsStateSnapshot snapshot, HydraulicsMutationOrigin origin)
         {

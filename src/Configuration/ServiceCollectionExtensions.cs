@@ -145,6 +145,10 @@ namespace SnowMeltingCalculator.Configuration
 
             // Services - Селектор типа коллектора (без состояния)
             services.AddSingleton<ICollectorTypeSelector, CollectorTypeSelector>();
+            services.AddSingleton<IHydraulicsStateCoordinator>(sp => new HydraulicsStateCoordinator(
+                sp.GetRequiredService<ProjectSession>().HydraulicsState,
+                sp.GetRequiredService<ICalculationStateService>(),
+                sp.GetRequiredService<CalculationContext>()));
 
             // ViewModels - Singleton для модуля "Контура" (сохранение состояния между навигациями)
             services.AddSingleton<CircuitsViewModel>();

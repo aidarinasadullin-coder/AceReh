@@ -1,0 +1,12 @@
+{
+  "planSha256": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+  "coordinatorCoverage": "CalculationContextWriterAuthorityTests|HydraulicsMultiplicityCharacterizationTests|DiRegistrationTests",
+  "coordinatorContextPassed": 6,
+  "multiplicityPassed": 13,
+  "diPassed": 25,
+  "failed": 0,
+  "skipped": 0,
+  "build": "Release",
+  "upstreamH3Passed": 63,
+  "h4ConsumerAndWriterPassed": 23
+}
