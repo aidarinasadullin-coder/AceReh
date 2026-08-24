@@ -1,0 +1,98 @@
+[
+  {
+    "ordinal": 1,
+    "outcome": "Failed",
+    "fqn": "SnowMeltingCalculator.Tests.Services.Navigation.CalculationStateServiceTests.SetHydraulicsError_UpdatesHydraulicsValidationMessage_FiresStateChanged",
+    "exceptionType": "NUnit.Framework.AssertionException",
+    "assertionMessage": "Assert.That(_service.HydraulicsValidationMessage, Is.EqualTo(\"test\"))\nExpected string length 4 but was 0. Strings differ at index 0.\nExpected: \"test\"\nBut was:  <string.Empty>\n-----------^",
+    "stackFirstLine": "at SnowMeltingCalculator.Tests.Services.Navigation.CalculationStateServiceTests.SetHydraulicsError_UpdatesHydraulicsValidationMessage_FiresStateChanged() in D:\\IA\\3ace v.2\\tests\\SnowMeltingCalculator.Tests\\Services\\Navigation\\CalculationStateServiceTests.cs:line 460",
+    "classification": "a",
+    "cause": "Phase 5 status compat regression",
+    "changeArea": "status compat",
+    "evidence": "The test directly exercises CalculationStateService.SetHydraulicsError and legacy HydraulicsValidationMessage/StateChanged compatibility. Current CalculationStateService routes through HydraulicsState.FailCalculation, which rejects unless the canonical state is already Calculating; the test calls it from the default Actual state. The five related failures reproduce in the same class."
+  },
+  {
+    "ordinal": 2,
+    "outcome": "Failed",
+    "fqn": "SnowMeltingCalculator.Tests.Services.Navigation.CalculationStateServiceTests.SetHydraulicsError_FiresStateChanged_WithErrorAndMessage",
+    "exceptionType": "NUnit.Framework.AssertionException",
+    "assertionMessage": "Assert.That(eventArgs, Is.Not.Null)\nExpected: not null\nBut was: null",
+    "stackFirstLine": "at SnowMeltingCalculator.Tests.Services.Navigation.CalculationStateServiceTests.SetHydraulicsError_FiresStateChanged_WithErrorAndMessage() in D:\\IA\\3ace v.2\\tests\\SnowMeltingCalculator.Tests\\Services\\Navigation\\CalculationStateServiceTests.cs:line 438",
+    "classification": "a",
+    "cause": "Phase 5 status compat regression",
+    "changeArea": "status compat",
+    "evidence": "The assertion requires the legacy CalculationStateService.StateChanged error event. The current canonical FailCalculation path rejects from non-Calculating state, so no event is emitted."
+  },
+  {
+    "ordinal": 3,
+    "outcome": "Failed",
+    "fqn": "SnowMeltingCalculator.Tests.Services.Navigation.CalculationStateServiceTests.SetHydraulicsError_DoesNotTouchThermalState",
+    "exceptionType": "NUnit.Framework.AssertionException",
+    "assertionMessage": "Assert.That(lastEventArgs, Is.Not.Null)\nExpected: not null\nBut was: null",
+    "stackFirstLine": "at SnowMeltingCalculator.Tests.Services.Navigation.CalculationStateServiceTests.SetHydraulicsError_DoesNotTouchThermalState() in D:\\IA\\3ace v.2\\tests\\SnowMeltingCalculator.Tests\\Services\\Navigation\\CalculationStateServiceTests.cs:line 484",
+    "classification": "a",
+    "cause": "Phase 5 status compat regression",
+    "changeArea": "status compat",
+    "evidence": "The thermal assertions pass; the failure is the expected hydraulics StateChanged event. This is the same legacy status bridge break as the other SetHydraulicsError failures."
+  },
+  {
+    "ordinal": 4,
+    "outcome": "Failed",
+    "fqn": "SnowMeltingCalculator.Tests.Services.Navigation.CalculationStateServiceTests.ResetHydraulicsState_RaisesStateChangedEvent",
+    "exceptionType": "NUnit.Framework.AssertionException",
+    "assertionMessage": "Assert.That(eventArgs, Is.Not.Null)\nExpected: not null\nBut was: null",
+    "stackFirstLine": "at SnowMeltingCalculator.Tests.Services.Navigation.CalculationStateServiceTests.ResetHydraulicsState_RaisesStateChangedEvent() in D:\\IA\\3ace v.2\\tests\\SnowMeltingCalculator.Tests\\Services\\Navigation\\CalculationStateServiceTests.cs:line 516",
+    "classification": "a",
+    "cause": "Phase 5 status compat regression",
+    "changeArea": "status compat",
+    "evidence": "The test requires ResetHydraulicsState to publish the legacy Actual event. Current ResetHydraulicsState applies unchanged canonical inputs with SystemApply, producing no canonical change and therefore no event."
+  },
+  {
+    "ordinal": 5,
+    "outcome": "Failed",
+    "fqn": "SnowMeltingCalculator.Tests.Services.Navigation.CalculationStateServiceTests.SetHydraulicsError_UpdatesHydraulicsValidationMessage",
+    "exceptionType": "NUnit.Framework.AssertionException",
+    "assertionMessage": "Assert.That(_service.HydraulicsValidationMessage, Is.EqualTo(\"test\"))\nExpected string length 4 but was 0. Strings differ at index 0.\nExpected: \"test\"\nBut was:  <string.Empty>\n-----------^",
+    "stackFirstLine": "at SnowMeltingCalculator.Tests.Services.Navigation.CalculationStateServiceTests.SetHydraulicsError_UpdatesHydraulicsValidationMessage() in D:\\IA\\3ace v.2\\tests\\SnowMeltingCalculator.Tests\\Services\\Navigation\\CalculationStateServiceTests.cs:line 410",
+    "classification": "a",
+    "cause": "Phase 5 status compat regression",
+    "changeArea": "status compat",
+    "evidence": "The test expects the legacy status error message to be available immediately after SetHydraulicsError from the default state. Current FailCalculation rejects that transition and leaves the message empty."
+  },
+  {
+    "ordinal": 6,
+    "outcome": "Failed",
+    "fqn": "SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.RepeatedLoadResetCycles_DoNotMultiplyEventsSubscriptionsOrCalculations",
+    "exceptionType": "NUnit.Framework.AssertionException",
+    "assertionMessage": "Assert.That(secondCycle.IsDirtyTransitionCount, Is.EqualTo(firstCycle.IsDirtyTransitionCount))\nExpected: 0\nBut was: 2",
+    "stackFirstLine": "at SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.RepeatedLoadResetCycles_DoNotMultiplyEventsSubscriptionsOrCalculations() in D:\\IA\\3ace v.2\\tests\\SnowMeltingCalculator.Tests\\Services\\Project\\ThermalMultiplicityCharacterizationTests.cs:line 1229",
+    "classification": "c",
+    "cause": "Unrelated baseline drift, not proven by checkout",
+    "changeArea": "climate/thermal lifecycle",
+    "evidence": "The test source itself labels the second-cycle surplus as a characterized legacy defect: Climate lifecycle publication sees project A's valid ThermalResult and causes the extra downstream work. The failing assertion is dirty-transition count, while Phase 5 hydraulics restore uses ProjectLoad and its canonical mutation does not mark dirty. The test reproduces twice independently and is not a hydraulics persistence assertion. No stash/revert was used, so historical-baseline execution was not performed."
+  },
+  {
+    "ordinal": 7,
+    "outcome": "Failed in original full-suite run; passed in both isolated reruns",
+    "fqn": "SnowMeltingCalculator.Tests.ViewModels.MainViewModelTests.ToggleSidebarCommand_FlipsIsSidebarCollapsed",
+    "exceptionType": "System.IO.IOException",
+    "assertionMessage": "TearDown : System.IO.IOException : The process cannot access the file 'C:\\Users\\Admin\\AppData\\Roaming\\SnowMeltingCalculator\\settings.json' because it is being used by another process.",
+    "stackFirstLine": "at System.IO.FileSystem.DeleteFile(String fullPath)",
+    "classification": "b",
+    "cause": "Pre-existing environmental file-lock flake",
+    "changeArea": "WPF/UI test teardown",
+    "evidence": "The original full-suite console output reports the IOException during MainViewModelTests.TearDown at ResetAppSettingsSingleton, not in the sidebar assertion. The same single test passed twice with --no-build: run 1 passed 1/1 and run 2 passed 1/1."
+  },
+  {
+    "ordinal": 8,
+    "outcome": "Skipped",
+    "fqn": "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile",
+    "exceptionType": null,
+    "assertionMessage": "F5 smoke fixture not found: D:\\IA\\ace\\Test\\test 40.smc. Put file 'test 40.smc' in 'D:\\IA\\ace\\Test\\' and the test will check real values.",
+    "stackFirstLine": null,
+    "classification": "environmental prerequisite",
+    "cause": "Required external fixture absent",
+    "changeArea": "F5 smoke fixture",
+    "evidence": "TRX UnitTestResult outcome=NotExecuted contains this exact skip message."
+  }
+]
