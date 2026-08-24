@@ -237,6 +237,7 @@
                                Margin="0,0,10,0"/>
                     <ComboBox SelectedValue="{Binding InputData.GlycolType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               SelectedValuePath="Tag"
+                              AutomationProperties.AutomationId="HydraulicsGlycolType"
                               Width="150"
                               Height="26"
                               Margin="0,0,20,0">
@@ -250,6 +251,7 @@
                                VerticalAlignment="Center"
                                Margin="0,0,10,0"/>
                     <TextBox Text="{Binding InputData.GlycolConcentration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"
+                             AutomationProperties.AutomationId="HydraulicsGlycolConcentration"
                              Width="60"
                              Height="26"
                              VerticalContentAlignment="Center"
@@ -316,6 +318,7 @@
                                VerticalAlignment="Center"
                                Margin="0,0,10,0"/>
                     <TextBox Text="{Binding InputData.SupplyHeatPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"
+                             AutomationProperties.AutomationId="HydraulicsSupplyHeatPercent"
                              Width="60"
                              Height="26"
                              VerticalContentAlignment="Center"
@@ -343,6 +346,7 @@
                       VerticalAlignment="Center"
                       Stretch="Uniform"/>
                 <TextBlock Text="{Binding ValidationMessage}"
+                           AutomationProperties.AutomationId="HydraulicsValidationMessage"
                            VerticalAlignment="Center"
                            Foreground="#C62828"
                            TextWrapping="Wrap"/>
@@ -684,6 +688,7 @@
 
                 <Button Content="Рассчитать"
                         Command="{Binding CalculateCommand}"
+                        AutomationProperties.AutomationId="HydraulicsCalculateButton"
                         Style="{StaticResource Button.Primary}"/>
             </StackPanel>
         </Grid>
@@ -760,6 +765,7 @@
                                             <DataGridTemplateColumn.CellEditingTemplate>
                                                 <DataTemplate>
                                                     <TextBox Text="{Binding CircuitLength, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat=F0}"
+                                                             AutomationProperties.AutomationId="HydraulicsCircuitLengthFirst"
                                                              HorizontalContentAlignment="Right"
                                                              VerticalContentAlignment="Center"
                                                              Padding="4,0"
