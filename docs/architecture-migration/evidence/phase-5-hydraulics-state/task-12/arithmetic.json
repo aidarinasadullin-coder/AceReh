@@ -1,0 +1,79 @@
+{
+    "reconciled":  true,
+    "baseline_total":  1946,
+    "baseline_passed":  1943,
+    "full_parser_total":  1979,
+    "full_passed":  1976,
+    "full_failed":  0,
+    "full_notExecuted":  3,
+    "focused_total":  8,
+    "focused_passed":  8,
+    "focused_failed":  0,
+    "focused_notExecuted":  0,
+    "parser_pseudo_row_delta":  3,
+    "new_test_count":  33,
+    "notExecutedIdentities":  [
+        "RegenerateBaseline",
+        "RegenerateCircuitsBaseline",
+        "ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile"
+    ],
+    "acceptedNotExecutedBaseline":  [
+        "RegenerateCircuitsBaseline",
+        "RegenerateBaseline",
+        "ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile"
+    ],
+    "perSuite":  [
+        {
+            "suite":  "full-release",
+            "source":  "fresh",
+            "command":  "dotnet test tests\\SnowMeltingCalculator.Tests\\SnowMeltingCalculator.Tests.csproj -c Release --no-build --logger trx;LogFileName=trx-fullsuite-release.json --results-directory docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\task-12",
+            "trx":  "task-12/trx-fullsuite-release.json",
+            "total":  1979,
+            "passed":  1976,
+            "failed":  0,
+            "notExecutedOutcomeRows":  3
+        },
+        {
+            "suite":  "guards-H11-focused",
+            "source":  "fresh",
+            "filter":  "FullyQualifiedName~HydraulicsStateLegacyStoreGuardTests",
+            "trx":  "task-12/trx-guards-release.json",
+            "total":  8,
+            "passed":  8,
+            "failed":  0,
+            "notExecutedOutcomeRows":  0
+        },
+        {
+            "suite":  "characterization-gate (HydraulicsMultiplicityCharacterizationTests)",
+            "source":  "fresh-derived-from-todays-full-suite-trx-class-filter; cross-checked against reused receipt task-6/correction-notes.md Final gate battery (13 passed / 0 failed) - match",
+            "total":  13,
+            "passed":  13,
+            "failed":  0
+        },
+        {
+            "suite":  "H3-integration-set (ThermalToHydraulicsIntegrationTests 16 + PipeSpacingSynchronizationTests 14 + DoubleCalculationPreventionTests 16 + ClimateToHydraulicsIntegrationTests 17)",
+            "source":  "fresh-derived-from-todays-full-suite-trx-class-filter; cross-checked against reused receipt task-6/correction-notes.md Final gate battery (63 passed / 0 failed) - match",
+            "total":  63,
+            "passed":  63,
+            "failed":  0
+        },
+        {
+            "suite":  "H4-authority-cold-start-set (CalculationContextWriterAuthorityTests 7 + GlycolAutoRecalculationTests 16 + CircuitsViewModelColdStartTests 1)",
+            "source":  "fresh-derived-from-todays-full-suite-trx-class-filter; cross-checked against reused receipt task-6/correction-notes.md Final gate battery (24 passed / 0 failed) - match",
+            "total":  24,
+            "passed":  24,
+            "failed":  0
+        },
+        {
+            "suite":  "lifecycle-battery",
+            "source":  "reused: task-6/correction-notes.md Final gate battery (2026-08-24, final source state = current HEAD 47faf28): 166 passed / 0 failed / 1 accepted skip; skip identity ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile is a member of the baseline accepted NotExecuted set and also appears as NotExecuted in todays fresh full-suite run",
+            "total":  167,
+            "passed":  166,
+            "failed":  0,
+            "skipped":  1,
+            "reused":  true
+        }
+    ],
+    "arithmetic":  "1943 baseline passed + 33 new tests = 1976 full passed; 1946 baseline total + 33 new = 1979 full-suite total; total(1979) = passed(1976) + failed(0) + skipped-in-counters(0) + NotExecuted outcome rows(3); focused guards 8/8 with zero NotExecuted; parser_pseudo_row_delta=3 records the TRX Counters quirk: the Counters element reports notExecuted=0 while three UnitTestResult rows carry outcome=NotExecuted (they surface only as total-executed delta and as console Пропущен lines), so honest counters are taken from outcome rows; NotExecuted identities {RegenerateBaseline, RegenerateCircuitsBaseline, ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile} are identical to the baseline accepted set from Todo 1 (task-1/trx-full-release-inspect.json: 1943/0/3 @1946) - no NEW NotExecuted or skipped identities.",
+    "todo12_note": "Todo 12 executable evidence reconciliation for phase-5-hydraulics-state at plan SHA 0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38, HEAD 47faf28. Debug build 0 warnings/0 errors (task-12/build-debug.json); Release build 0/0 (task-12/build-release.json); protected drift 27 paths, all allow-listed phase-5 commit-touched files, mismatch=0 (task-12/protected-post.json)."
+}

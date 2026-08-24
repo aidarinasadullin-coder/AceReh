@@ -1,0 +1,9 @@
+{
+  "command": "dotnet build src\\SnowMeltingCalculator.csproj -c Release --nologo",
+  "exitCode": 0,
+  "warnings": 0,
+  "errors": 0,
+  "status": "passed",
+  "todo": 12,
+  "note": "Todo 12 H1 Release production build gate; expect 0 warnings / 0 errors."
+}
