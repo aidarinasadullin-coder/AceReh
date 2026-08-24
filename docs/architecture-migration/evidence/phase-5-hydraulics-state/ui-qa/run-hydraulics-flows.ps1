@@ -228,6 +228,7 @@ $script:GlycolTables   = $null
 $script:SelectorRegistry = @(
     @{ id = 'HydraulicsGlycolType';         type = 'ComboBox'; view = 'Hydraulics'; optional = $false },
     @{ id = 'HydraulicsGlycolConcentration'; type = 'Edit';    view = 'Hydraulics'; optional = $false },
+    @{ id = 'HydraulicsSupplySpacing';      type = 'Edit';     view = 'Hydraulics'; optional = $false },
     @{ id = 'HydraulicsSupplyHeatPercent';  type = 'Edit';     view = 'Hydraulics'; optional = $false },
     @{ id = 'HydraulicsCalculateButton';    type = 'Button';   view = 'Hydraulics'; optional = $false },
     @{ id = 'HydraulicsValidationMessage';  type = 'Text';     view = 'Hydraulics'; optional = $true  },
@@ -959,11 +960,15 @@ $flowE30P80  = Get-FlowRateLh $script:P_A80 15 $propsE30.rho $propsE30.cp
 $flowP30P80  = Get-FlowRateLh $script:P_A80 15 $propsP30.rho $propsP30.cp
 $flowP50P80  = Get-FlowRateLh $script:P_A80 15 $propsP50.rho $propsP50.cp
 $flowE30P120 = Get-FlowRateLh $script:P_A120 15 $propsE30.rho $propsE30.cp
+$script:P_A80_SupplySpacing12_Heat10 = Get-CircuitPower 80 8 25 12 10 256 5
+$script:P_A80_SupplySpacing12_Heat15 = Get-CircuitPower 80 8 25 12 15 256 5
 $script:CalcFlowEthylene30 = Format-UiNumber $flowE30P80 1    # after ANY recalc @ e30
 $script:CalcFlowPropylene30 = Format-UiNumber $flowP30P80 1
 $script:CalcFlowPropylene50 = Format-UiNumber $flowP50P80 1
 $script:CalcPowerRecalc80  = Format-UiNumber ([math]::Round($script:P_A80, 0)) 0
 $script:CalcPowerLen120    = Format-UiNumber ([math]::Round($script:P_A120, 0)) 0
+$script:CalcPowerSpacing12Heat10 = Format-UiNumber ([math]::Round($script:P_A80_SupplySpacing12_Heat10, 0)) 0
+$script:CalcPowerSpacing12Heat15 = Format-UiNumber ([math]::Round($script:P_A80_SupplySpacing12_Heat15, 0)) 0
 $script:CalcFlowLen120     = Format-UiNumber $flowE30P120 1
 $script:CardPowerLen120    = '{0} Вт' -f (Format-UiNumber ([math]::Round($script:P_A120, 0)) 0)
 $script:CardFlowLen120     = '{0} м³/ч' -f (Format-UiNumber ($flowE30P120 / 1000.0) 2)
@@ -1110,6 +1115,59 @@ function Invoke-MainFlow {
     }
     Add-Assertion ('S4e: type→Этиленгликоль auto-recalc: row flow cell == ' + $script:CalcFlowEthylene30) `
         $script:CalcFlowEthylene30 'present' $true 'DataGrid row[Расход л/ч]'
+
+    Wait-IdResolvable 'HydraulicsSupplySpacing' 'Edit' 15000
+    $supplySpacingOriginal = Get-TextBoxValue 'HydraulicsSupplySpacing'
+    Assert-NumberNear (Get-FirstNameNumber $supplySpacingOriginal) 5.0 0 'S4f: supply spacing baseline == 5 (fixture)' 'HydraulicsSupplySpacing'
+
+    [void](Set-TextBoxValue 'HydraulicsSupplySpacing' '12')
+    $supplySpacing12 = Get-TextBoxValue 'HydraulicsSupplySpacing'
+    Assert-NumberNear (Get-FirstNameNumber $supplySpacing12) 12.0 0 'S4f: supply spacing edits to 12' 'HydraulicsSupplySpacing'
+    Wait-True -what 'row reflects supply spacing 12' -timeoutMs 20000 -condition {
+        $rows = Find-SelectableRowsContaining $script:A_StoredRowLength
+        if ($rows.Count -ne 1) { return $false }
+        return ((Get-RowCellTexts $rows[0]) -ccontains '12')
+    }
+    $rowsSpacing12 = Find-SelectableRowsContaining $script:A_StoredRowLength
+    if ($rowsSpacing12.Count -ne 1) { Fail "S4f: expected exactly 1 row after spacing edit, got $($rowsSpacing12.Count)" }
+    $cellsSpacing12 = Get-RowCellTexts $rowsSpacing12[0]
+    Add-Assertion 'S4f: first circuit row reflects supply spacing 12' '12' ($cellsSpacing12 -join ' | ') (($cellsSpacing12 -ccontains '12')) 'DataGrid row[Подводка]'
+    Invoke-Button 'HydraulicsCalculateButton'
+    Wait-True -what 'recalculated power after supply spacing 12' -timeoutMs 30000 -condition {
+        $rows = Find-SelectableRowsContaining $script:CalcPowerSpacing12Heat10
+        return ($rows.Count -ge 1)
+    }
+    Add-Assertion ('S4f: supply spacing 12 recalculates power == ' + $script:CalcPowerSpacing12Heat10 + ' W') `
+        $script:CalcPowerSpacing12Heat10 'present' $true 'HydraulicsCalculateButton'
+
+    [void](Set-TextBoxValue 'HydraulicsSupplyHeatPercent' '15')
+    $supplyHeat15 = Get-TextBoxValue 'HydraulicsSupplyHeatPercent'
+    Assert-NumberNear (Get-FirstNameNumber $supplyHeat15) 15.0 0 'S4f: supply heat edits to 15' 'HydraulicsSupplyHeatPercent'
+    Wait-True -what 'row reflects supply heat 15' -timeoutMs 20000 -condition {
+        $rows = Find-SelectableRowsContaining $script:A_StoredRowLength
+        if ($rows.Count -ne 1) { return $false }
+        return ((Get-RowCellTexts $rows[0]) -ccontains '15')
+    }
+    $rowsHeat15 = Find-SelectableRowsContaining $script:A_StoredRowLength
+    if ($rowsHeat15.Count -ne 1) { Fail "S4f: expected exactly 1 row after heat edit, got $($rowsHeat15.Count)" }
+    $cellsHeat15 = Get-RowCellTexts $rowsHeat15[0]
+    Add-Assertion 'S4f: first circuit row reflects supply heat 15' '15' ($cellsHeat15 -join ' | ') (($cellsHeat15 -ccontains '15')) 'DataGrid row[Потери]'
+    Invoke-Button 'HydraulicsCalculateButton'
+    Wait-True -what 'recalculated power after supply spacing 12 and heat 15' -timeoutMs 30000 -condition {
+        $rows = Find-SelectableRowsContaining $script:CalcPowerSpacing12Heat15
+        return ($rows.Count -ge 1)
+    }
+    Add-Assertion ('S4f: supply spacing 12 + heat 15 recalculates power == ' + $script:CalcPowerSpacing12Heat15 + ' W') `
+        $script:CalcPowerSpacing12Heat15 'present' $true 'HydraulicsCalculateButton'
+
+    [void](Set-TextBoxValue 'HydraulicsSupplySpacing' '5')
+    [void](Set-TextBoxValue 'HydraulicsSupplyHeatPercent' '10')
+    Invoke-Button 'HydraulicsCalculateButton'
+    Wait-True -what 'row restored to fixture power after reverting spacing/heat' -timeoutMs 30000 -condition {
+        $rows = Find-SelectableRowsContaining $script:CalcPowerRecalc80
+        return ($rows.Count -ge 1)
+    }
+    Add-Assertion 'S4f: reverted spacing/heat restores fixture power row' $script:CalcPowerRecalc80 'present' $true 'DataGrid row[Мощность]'
 
     $dirtyT = $script:MainWindow.Current.Name
     Add-Assertion 'S4: edits mark project dirty (title carries *)' '*project-a.smc — …' $dirtyT ($dirtyT.StartsWith('*')) 

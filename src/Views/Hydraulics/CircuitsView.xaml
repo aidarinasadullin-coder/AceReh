@@ -304,12 +304,13 @@
                                VerticalAlignment="Center"
                                Margin="0,0,10,0"/>
                     <TextBox Text="{Binding InputData.SupplySpacing_cm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"
+                             AutomationProperties.AutomationId="HydraulicsSupplySpacing"
                              Width="60"
                              Height="26"
                              VerticalContentAlignment="Center"
-                             Margin="0,0,20,0"
-                             behaviors:TextBoxBehavior.SelectAllOnFocus="True"
-                             behaviors:TextBoxBehavior.RestoreOnEscape="True"
+                              Margin="0,0,20,0"
+                              behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                              behaviors:TextBoxBehavior.RestoreOnEscape="True"
                              behaviors:TextBoxBehavior.NormalizeDecimalSeparator="True"/>
 
                     <!-- Полезное тепло от подводок -->
