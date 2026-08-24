@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="28ae0d6c-fe75-4b29-a8ec-83676970953a" name="Admin@DESKTOP-CVGB6OE 2026-08-24 06:22:06" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-08-24T06:22:06.0941965+05:00" queuing="2026-08-24T06:22:06.0941967+05:00" start="2026-08-24T06:22:05.4108921+05:00" finish="2026-08-24T06:22:06.1186371+05:00" />
+  <TestSettings name="default" id="9c0afb30-832f-474e-8e33-b9df6774d61b">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-08-24_06_22_06" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="885a7f8c-d4dc-45d4-925a-d86b55d76b10" testId="cb465314-015d-3b7c-ee62-972164900974" testName="HydraulicsProjection_HasExactlyOneApprovedProductionWriterType" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0336020" startTime="2026-08-24T06:22:05.9542954+05:00" endTime="2026-08-24T06:22:05.9878965+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="885a7f8c-d4dc-45d4-925a-d86b55d76b10" />
+    <UnitTestResult executionId="860ce39b-60ab-4e5b-a4c3-60e973f06b7e" testId="f3d6a8b7-d5b9-9fa4-2c49-cd97d67d07dc" testName="OnGlycolConcentrationChanged_UpdatesInputData" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0016240" startTime="2026-08-24T06:22:06.0481389+05:00" endTime="2026-08-24T06:22:06.0497628+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="860ce39b-60ab-4e5b-a4c3-60e973f06b7e" />
+    <UnitTestResult executionId="c1cd7609-b1b0-490c-9bea-455b497f3c6c" testId="c320843a-22eb-137b-efd9-db897d38af4b" testName="CircuitsVM_Calculate_PublishesCollectorSummariesToContext" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0042770" startTime="2026-08-24T06:22:05.9474501+05:00" endTime="2026-08-24T06:22:05.9517272+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c1cd7609-b1b0-490c-9bea-455b497f3c6c" />
+    <UnitTestResult executionId="0ea6688a-514a-4f25-a2d3-f45cf69f324c" testId="23681c14-cdd3-f52a-ba86-520d33302fce" testName="ChangeGlycolType_RecalculatesAllCollectors" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0014189" startTime="2026-08-24T06:22:06.0294913+05:00" endTime="2026-08-24T06:22:06.0309101+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0ea6688a-514a-4f25-a2d3-f45cf69f324c" />
+    <UnitTestResult executionId="0b3b50b8-e224-41c8-94fb-619e61a7099a" testId="80864c02-e706-2943-ac0c-c4c48236e206" testName="OnGlycolTypeChanged_TriggersCalculate" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0013080" startTime="2026-08-24T06:22:06.0529566+05:00" endTime="2026-08-24T06:22:06.0542645+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0b3b50b8-e224-41c8-94fb-619e61a7099a" />
+    <UnitTestResult executionId="f7434de9-b107-485d-87e3-5e436db86c30" testId="00478fc3-e00f-b575-c1f5-7d39f4b95aab" testName="CircuitsViewModel_ColdStart_NoThermalResult_Uses5KDeltaTFallback" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0053640" startTime="2026-08-24T06:22:06.0211127+05:00" endTime="2026-08-24T06:22:06.0264764+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f7434de9-b107-485d-87e3-5e436db86c30" />
+    <UnitTestResult executionId="fdab5cae-e785-4256-960d-9a7e9a7532c6" testId="c59fd844-12da-7c36-755a-4c7fd7c3ad5b" testName="OnGlycolConcentrationChanged_SameValue_DoesNotTriggerDuplicateCalculate" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0013290" startTime="2026-08-24T06:22:06.0447982+05:00" endTime="2026-08-24T06:22:06.0461272+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fdab5cae-e785-4256-960d-9a7e9a7532c6" />
+    <UnitTestResult executionId="4eefbbd1-813c-4e40-a6ef-2536e2c293eb" testId="2483b734-c2dc-9365-3b7f-5cf5e2628e24" testName="GlycolProperties_UsedInCalculation" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0015610" startTime="2026-08-24T06:22:06.0394819+05:00" endTime="2026-08-24T06:22:06.0410423+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4eefbbd1-813c-4e40-a6ef-2536e2c293eb" />
+    <UnitTestResult executionId="07b27ba1-8077-4db4-991c-9c6870aea70a" testId="90e145bb-2b65-8076-0d42-05386eef2620" testName="GlycolTypeAndConcentration_BothChanged_UpdatesInputData" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0014370" startTime="2026-08-24T06:22:06.0420664+05:00" endTime="2026-08-24T06:22:06.0435034+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="07b27ba1-8077-4db4-991c-9c6870aea70a" />
+    <UnitTestResult executionId="cc023110-592c-4322-8472-9bc38c1a5183" testId="fcdd4008-a94c-c600-f236-17437d72639d" testName="OnGlycolTypeChanged_FromPropyleneToEthylene_UpdatesCorrectly" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0012849" startTime="2026-08-24T06:22:06.0516620+05:00" endTime="2026-08-24T06:22:06.0529464+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cc023110-592c-4322-8472-9bc38c1a5183" />
+    <UnitTestResult executionId="c5445ca1-6e85-4523-983a-f5b6456c8c4a" testId="938a740b-e9da-382b-6ebb-0b05a3246227" testName="ChangeGlycolConcentration_RecalculatesAllCollectors" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0029080" startTime="2026-08-24T06:22:06.0265691+05:00" endTime="2026-08-24T06:22:06.0294774+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c5445ca1-6e85-4523-983a-f5b6456c8c4a" />
+    <UnitTestResult executionId="4a5e1d4a-9691-4fc8-a606-9e2877bda91c" testId="89f38a54-9bf1-01e2-d3cb-29ca6ee3fde9" testName="CircuitsVM_Calculate_WithGlycolError_PublishesNullHydraulicsResults" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0025339" startTime="2026-08-24T06:22:05.9517464+05:00" endTime="2026-08-24T06:22:05.9542801+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4a5e1d4a-9691-4fc8-a606-9e2877bda91c" />
+    <UnitTestResult executionId="7052e9e3-56b8-42d1-8d32-6f63dcde099a" testId="934fd6d7-ce1f-4260-ec29-1471296aa69e" testName="OnGlycolConcentrationChanged_DifferentValues_UpdatesCorrectly" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0012760" startTime="2026-08-24T06:22:06.0435134+05:00" endTime="2026-08-24T06:22:06.0447889+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7052e9e3-56b8-42d1-8d32-6f63dcde099a" />
+    <UnitTestResult executionId="f1cbca4e-0692-4d4d-9917-29168388dd08" testId="b6b23348-88d3-9611-38d9-caebf60e9168" testName="UpdateFromThermalModule_NoLongerWritesToContext" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0026350" startTime="2026-08-24T06:22:06.0171926+05:00" endTime="2026-08-24T06:22:06.0198272+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f1cbca4e-0692-4d4d-9917-29168388dd08" />
+    <UnitTestResult executionId="650f7cfd-0868-40aa-86d9-b1709daaf990" testId="84c7db1b-28d3-ec26-3863-0e666f55cf55" testName="GlycolType_PropertyChanged_IsRaised" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0010030" startTime="2026-08-24T06:22:06.0410531+05:00" endTime="2026-08-24T06:22:06.0420556+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="650f7cfd-0868-40aa-86d9-b1709daaf990" />
+    <UnitTestResult executionId="07e8b0ab-3ce9-4256-992a-10d50f6cf816" testId="e9bfae1b-c03e-00bb-3be6-c6ddc97c7017" testName="OnGlycolTypeChanged_FromEthyleneToPropylene_UpdatesCorrectly" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0018700" startTime="2026-08-24T06:22:06.0497788+05:00" endTime="2026-08-24T06:22:06.0516481+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="07e8b0ab-3ce9-4256-992a-10d50f6cf816" />
+    <UnitTestResult executionId="e624a662-752c-44e6-9092-71798258cd36" testId="7cf66a89-265c-14ca-2faf-dc7a001dca84" testName="CircuitsOwnSourceContextEvents_DoNotReenterHydraulicsCalculation" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0829940" startTime="2026-08-24T06:22:05.8638458+05:00" endTime="2026-08-24T06:22:05.9468047+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e624a662-752c-44e6-9092-71798258cd36" />
+    <UnitTestResult executionId="cb965cce-911a-4f5d-8193-8bd3a570fa18" testId="9182ec6f-bd22-891a-6e51-1da6128e1f1b" testName="ThermalProjection_HasExactlyOneProductionWriterType" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0277390" startTime="2026-08-24T06:22:05.9879216+05:00" endTime="2026-08-24T06:22:06.0156604+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cb965cce-911a-4f5d-8193-8bd3a570fa18" />
+    <UnitTestResult executionId="01fe9006-b0b2-40de-aba8-84b1fa131fc8" testId="35c7f482-3861-533d-d271-cb7f46ade099" testName="OnGlycolConcentrationChanged_TriggersCalculate" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0019840" startTime="2026-08-24T06:22:06.0461374+05:00" endTime="2026-08-24T06:22:06.0481210+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="01fe9006-b0b2-40de-aba8-84b1fa131fc8" />
+    <UnitTestResult executionId="9fb2df8e-2e55-4635-a384-7351e8770154" testId="591a95f6-5e27-3369-9ad2-2123cfdde654" testName="GlycolConcentration_MaximumValue_UpdatesCorrectly" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0037130" startTime="2026-08-24T06:22:06.0309193+05:00" endTime="2026-08-24T06:22:06.0346323+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9fb2df8e-2e55-4635-a384-7351e8770154" />
+    <UnitTestResult executionId="dbdee81e-733b-4ded-ba09-f53dd880ebdd" testId="065e112e-1a9a-f631-de3a-9e662fbf8f36" testName="GlycolConcentration_PropertyChanged_IsRaised" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0012250" startTime="2026-08-24T06:22:06.0382465+05:00" endTime="2026-08-24T06:22:06.0394717+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dbdee81e-733b-4ded-ba09-f53dd880ebdd" />
+    <UnitTestResult executionId="2d22ee55-61ab-4b96-add3-59f7c2441149" testId="7f3e8bab-ea9e-202e-5f71-a2dc2986ada4" testName="OnGlycolTypeChanged_UpdatesInputData" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0008610" startTime="2026-08-24T06:22:06.0542743+05:00" endTime="2026-08-24T06:22:06.0551348+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2d22ee55-61ab-4b96-add3-59f7c2441149" />
+    <UnitTestResult executionId="b593005c-282f-4a88-83f6-334eef442dbb" testId="8852ec69-b6e4-7e07-4be8-5ddd15c3fb90" testName="ThermalVM_Calculate_PublishesInvalidResult_NotifiesCircuitsButDoesNotCalculate" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0014900" startTime="2026-08-24T06:22:06.0156858+05:00" endTime="2026-08-24T06:22:06.0171760+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b593005c-282f-4a88-83f6-334eef442dbb" />
+    <UnitTestResult executionId="452302b4-5c59-4797-ba5d-9efcf801b0ab" testId="9178eafe-16dc-30c2-f296-b84028da75d4" testName="GlycolConcentration_MinimumValue_UpdatesCorrectly" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0035900" startTime="2026-08-24T06:22:06.0346442+05:00" endTime="2026-08-24T06:22:06.0382338+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="452302b4-5c59-4797-ba5d-9efcf801b0ab" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="GlycolType_PropertyChanged_IsRaised" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="84c7db1b-28d3-ec26-3863-0e666f55cf55">
+      <Execution id="650f7cfd-0868-40aa-86d9-b1709daaf990" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="GlycolType_PropertyChanged_IsRaised" />
+    </UnitTest>
+    <UnitTest name="UpdateFromThermalModule_NoLongerWritesToContext" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="b6b23348-88d3-9611-38d9-caebf60e9168">
+      <Execution id="f1cbca4e-0692-4d4d-9917-29168388dd08" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="UpdateFromThermalModule_NoLongerWritesToContext" />
+    </UnitTest>
+    <UnitTest name="GlycolTypeAndConcentration_BothChanged_UpdatesInputData" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="90e145bb-2b65-8076-0d42-05386eef2620">
+      <Execution id="07b27ba1-8077-4db4-991c-9c6870aea70a" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="GlycolTypeAndConcentration_BothChanged_UpdatesInputData" />
+    </UnitTest>
+    <UnitTest name="OnGlycolTypeChanged_UpdatesInputData" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="7f3e8bab-ea9e-202e-5f71-a2dc2986ada4">
+      <Execution id="2d22ee55-61ab-4b96-add3-59f7c2441149" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="OnGlycolTypeChanged_UpdatesInputData" />
+    </UnitTest>
+    <UnitTest name="OnGlycolConcentrationChanged_DifferentValues_UpdatesCorrectly" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="934fd6d7-ce1f-4260-ec29-1471296aa69e">
+      <Execution id="7052e9e3-56b8-42d1-8d32-6f63dcde099a" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="OnGlycolConcentrationChanged_DifferentValues_UpdatesCorrectly" />
+    </UnitTest>
+    <UnitTest name="ChangeGlycolConcentration_RecalculatesAllCollectors" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="938a740b-e9da-382b-6ebb-0b05a3246227">
+      <Execution id="c5445ca1-6e85-4523-983a-f5b6456c8c4a" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="ChangeGlycolConcentration_RecalculatesAllCollectors" />
+    </UnitTest>
+    <UnitTest name="ThermalVM_Calculate_PublishesInvalidResult_NotifiesCircuitsButDoesNotCalculate" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="8852ec69-b6e4-7e07-4be8-5ddd15c3fb90">
+      <Execution id="b593005c-282f-4a88-83f6-334eef442dbb" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="ThermalVM_Calculate_PublishesInvalidResult_NotifiesCircuitsButDoesNotCalculate" />
+    </UnitTest>
+    <UnitTest name="GlycolConcentration_MinimumValue_UpdatesCorrectly" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="9178eafe-16dc-30c2-f296-b84028da75d4">
+      <Execution id="452302b4-5c59-4797-ba5d-9efcf801b0ab" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="GlycolConcentration_MinimumValue_UpdatesCorrectly" />
+    </UnitTest>
+    <UnitTest name="OnGlycolConcentrationChanged_TriggersCalculate" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="35c7f482-3861-533d-d271-cb7f46ade099">
+      <Execution id="01fe9006-b0b2-40de-aba8-84b1fa131fc8" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="OnGlycolConcentrationChanged_TriggersCalculate" />
+    </UnitTest>
+    <UnitTest name="CircuitsOwnSourceContextEvents_DoNotReenterHydraulicsCalculation" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="7cf66a89-265c-14ca-2faf-dc7a001dca84">
+      <Execution id="e624a662-752c-44e6-9092-71798258cd36" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="CircuitsOwnSourceContextEvents_DoNotReenterHydraulicsCalculation" />
+    </UnitTest>
+    <UnitTest name="GlycolConcentration_MaximumValue_UpdatesCorrectly" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="591a95f6-5e27-3369-9ad2-2123cfdde654">
+      <Execution id="9fb2df8e-2e55-4635-a384-7351e8770154" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="GlycolConcentration_MaximumValue_UpdatesCorrectly" />
+    </UnitTest>
+    <UnitTest name="OnGlycolConcentrationChanged_SameValue_DoesNotTriggerDuplicateCalculate" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="c59fd844-12da-7c36-755a-4c7fd7c3ad5b">
+      <Execution id="fdab5cae-e785-4256-960d-9a7e9a7532c6" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="OnGlycolConcentrationChanged_SameValue_DoesNotTriggerDuplicateCalculate" />
+    </UnitTest>
+    <UnitTest name="OnGlycolConcentrationChanged_UpdatesInputData" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="f3d6a8b7-d5b9-9fa4-2c49-cd97d67d07dc">
+      <Execution id="860ce39b-60ab-4e5b-a4c3-60e973f06b7e" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="OnGlycolConcentrationChanged_UpdatesInputData" />
+    </UnitTest>
+    <UnitTest name="CircuitsVM_Calculate_PublishesCollectorSummariesToContext" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="c320843a-22eb-137b-efd9-db897d38af4b">
+      <Execution id="c1cd7609-b1b0-490c-9bea-455b497f3c6c" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="CircuitsVM_Calculate_PublishesCollectorSummariesToContext" />
+    </UnitTest>
+    <UnitTest name="GlycolConcentration_PropertyChanged_IsRaised" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="065e112e-1a9a-f631-de3a-9e662fbf8f36">
+      <Execution id="dbdee81e-733b-4ded-ba09-f53dd880ebdd" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="GlycolConcentration_PropertyChanged_IsRaised" />
+    </UnitTest>
+    <UnitTest name="ChangeGlycolType_RecalculatesAllCollectors" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="23681c14-cdd3-f52a-ba86-520d33302fce">
+      <Execution id="0ea6688a-514a-4f25-a2d3-f45cf69f324c" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="ChangeGlycolType_RecalculatesAllCollectors" />
+    </UnitTest>
+    <UnitTest name="CircuitsVM_Calculate_WithGlycolError_PublishesNullHydraulicsResults" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="89f38a54-9bf1-01e2-d3cb-29ca6ee3fde9">
+      <Execution id="4a5e1d4a-9691-4fc8-a606-9e2877bda91c" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="CircuitsVM_Calculate_WithGlycolError_PublishesNullHydraulicsResults" />
+    </UnitTest>
+    <UnitTest name="CircuitsViewModel_ColdStart_NoThermalResult_Uses5KDeltaTFallback" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="00478fc3-e00f-b575-c1f5-7d39f4b95aab">
+      <Execution id="f7434de9-b107-485d-87e3-5e436db86c30" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CircuitsViewModelColdStartTests" name="CircuitsViewModel_ColdStart_NoThermalResult_Uses5KDeltaTFallback" />
+    </UnitTest>
+    <UnitTest name="ThermalProjection_HasExactlyOneProductionWriterType" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="9182ec6f-bd22-891a-6e51-1da6128e1f1b">
+      <Execution id="cb965cce-911a-4f5d-8193-8bd3a570fa18" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="ThermalProjection_HasExactlyOneProductionWriterType" />
+    </UnitTest>
+    <UnitTest name="HydraulicsProjection_HasExactlyOneApprovedProductionWriterType" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="cb465314-015d-3b7c-ee62-972164900974">
+      <Execution id="885a7f8c-d4dc-45d4-925a-d86b55d76b10" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="HydraulicsProjection_HasExactlyOneApprovedProductionWriterType" />
+    </UnitTest>
+    <UnitTest name="OnGlycolTypeChanged_FromEthyleneToPropylene_UpdatesCorrectly" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="e9bfae1b-c03e-00bb-3be6-c6ddc97c7017">
+      <Execution id="07e8b0ab-3ce9-4256-992a-10d50f6cf816" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="OnGlycolTypeChanged_FromEthyleneToPropylene_UpdatesCorrectly" />
+    </UnitTest>
+    <UnitTest name="OnGlycolTypeChanged_FromPropyleneToEthylene_UpdatesCorrectly" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="fcdd4008-a94c-c600-f236-17437d72639d">
+      <Execution id="cc023110-592c-4322-8472-9bc38c1a5183" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="OnGlycolTypeChanged_FromPropyleneToEthylene_UpdatesCorrectly" />
+    </UnitTest>
+    <UnitTest name="OnGlycolTypeChanged_TriggersCalculate" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="80864c02-e706-2943-ac0c-c4c48236e206">
+      <Execution id="0b3b50b8-e224-41c8-94fb-619e61a7099a" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="OnGlycolTypeChanged_TriggersCalculate" />
+    </UnitTest>
+    <UnitTest name="GlycolProperties_UsedInCalculation" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="2483b734-c2dc-9365-3b7f-5cf5e2628e24">
+      <Execution id="4eefbbd1-813c-4e40-a6ef-2536e2c293eb" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.GlycolAutoRecalculationTests" name="GlycolProperties_UsedInCalculation" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="cb465314-015d-3b7c-ee62-972164900974" executionId="885a7f8c-d4dc-45d4-925a-d86b55d76b10" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f3d6a8b7-d5b9-9fa4-2c49-cd97d67d07dc" executionId="860ce39b-60ab-4e5b-a4c3-60e973f06b7e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c320843a-22eb-137b-efd9-db897d38af4b" executionId="c1cd7609-b1b0-490c-9bea-455b497f3c6c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="23681c14-cdd3-f52a-ba86-520d33302fce" executionId="0ea6688a-514a-4f25-a2d3-f45cf69f324c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="80864c02-e706-2943-ac0c-c4c48236e206" executionId="0b3b50b8-e224-41c8-94fb-619e61a7099a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="00478fc3-e00f-b575-c1f5-7d39f4b95aab" executionId="f7434de9-b107-485d-87e3-5e436db86c30" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c59fd844-12da-7c36-755a-4c7fd7c3ad5b" executionId="fdab5cae-e785-4256-960d-9a7e9a7532c6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2483b734-c2dc-9365-3b7f-5cf5e2628e24" executionId="4eefbbd1-813c-4e40-a6ef-2536e2c293eb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="90e145bb-2b65-8076-0d42-05386eef2620" executionId="07b27ba1-8077-4db4-991c-9c6870aea70a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fcdd4008-a94c-c600-f236-17437d72639d" executionId="cc023110-592c-4322-8472-9bc38c1a5183" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="938a740b-e9da-382b-6ebb-0b05a3246227" executionId="c5445ca1-6e85-4523-983a-f5b6456c8c4a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="89f38a54-9bf1-01e2-d3cb-29ca6ee3fde9" executionId="4a5e1d4a-9691-4fc8-a606-9e2877bda91c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="934fd6d7-ce1f-4260-ec29-1471296aa69e" executionId="7052e9e3-56b8-42d1-8d32-6f63dcde099a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b6b23348-88d3-9611-38d9-caebf60e9168" executionId="f1cbca4e-0692-4d4d-9917-29168388dd08" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="84c7db1b-28d3-ec26-3863-0e666f55cf55" executionId="650f7cfd-0868-40aa-86d9-b1709daaf990" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e9bfae1b-c03e-00bb-3be6-c6ddc97c7017" executionId="07e8b0ab-3ce9-4256-992a-10d50f6cf816" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7cf66a89-265c-14ca-2faf-dc7a001dca84" executionId="e624a662-752c-44e6-9092-71798258cd36" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9182ec6f-bd22-891a-6e51-1da6128e1f1b" executionId="cb965cce-911a-4f5d-8193-8bd3a570fa18" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="35c7f482-3861-533d-d271-cb7f46ade099" executionId="01fe9006-b0b2-40de-aba8-84b1fa131fc8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="591a95f6-5e27-3369-9ad2-2123cfdde654" executionId="9fb2df8e-2e55-4635-a384-7351e8770154" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="065e112e-1a9a-f631-de3a-9e662fbf8f36" executionId="dbdee81e-733b-4ded-ba09-f53dd880ebdd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7f3e8bab-ea9e-202e-5f71-a2dc2986ada4" executionId="2d22ee55-61ab-4b96-add3-59f7c2441149" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8852ec69-b6e4-7e07-4be8-5ddd15c3fb90" executionId="b593005c-282f-4a88-83f6-334eef442dbb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9178eafe-16dc-30c2-f296-b84028da75d4" executionId="452302b4-5c59-4797-ba5d-9efcf801b0ab" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="24" executed="24" passed="24" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 24 of 24 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

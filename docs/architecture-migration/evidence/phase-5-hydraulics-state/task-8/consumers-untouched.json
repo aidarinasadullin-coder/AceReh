@@ -1,0 +1,17 @@
+{
+  "baseline": "a78c8f4",
+  "head": "8ba5a36",
+  "files": [
+    "src/ViewModels/Results/ResultsViewModel.cs",
+    "src/Services/Results/ResultsPdfDataBuilder.cs"
+  ],
+  "requiredConsumerSymbols": [
+    "ResultsViewModel.LoadHydraulicsData",
+    "ResultsViewModel.UpdateCircuitsFilter",
+    "ResultsPdfDataBuilder"
+  ],
+  "gitDiffSinceBaseline": [],
+  "workingTreeDiff": [],
+  "result": "untouched",
+  "inspection": "LoadHydraulicsData still reads InputData then updates collectors, circuits, specifications, and equipment in the existing order; UpdateCircuitsFilter still reads CircuitsViewModel.Collectors and preserves circuit order; ResultsPdfDataBuilder remains a reader of the VM adapter."
+}

@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="7c2e7074-3005-494c-a303-5dc4bab86781" name="Admin@DESKTOP-CVGB6OE 2026-08-24 06:18:04" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-08-24T06:18:04.1933258+05:00" queuing="2026-08-24T06:18:04.1933259+05:00" start="2026-08-24T06:18:03.4550175+05:00" finish="2026-08-24T06:18:04.1981795+05:00" />
+  <TestSettings name="default" id="e32b5198-7bb1-4b48-bc9d-685be4e38272">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-08-24_06_18_04" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="2e0c9fbb-971c-4d39-9d21-f535209714fd" testId="7cf66a89-265c-14ca-2faf-dc7a001dca84" testName="CircuitsOwnSourceContextEvents_DoNotReenterHydraulicsCalculation" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0795759" startTime="2026-08-24T06:18:03.9059642+05:00" endTime="2026-08-24T06:18:03.9855112+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2e0c9fbb-971c-4d39-9d21-f535209714fd" />
+    <UnitTestResult executionId="5e39dc7d-1ba7-40da-a191-ab1995d860db" testId="c320843a-22eb-137b-efd9-db897d38af4b" testName="CircuitsVM_Calculate_PublishesCollectorSummariesToContext" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0150590" startTime="2026-08-24T06:18:03.9861626+05:00" endTime="2026-08-24T06:18:04.0012212+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5e39dc7d-1ba7-40da-a191-ab1995d860db">
+      <Output>
+        <ErrorInfo>
+          <Message>  Assert.That(hydraulicsPublicationCount, Is.EqualTo(1))&#xD;
+  Expected: 1&#xD;
+  But was:  2&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests.CircuitsVM_Calculate_PublishesCollectorSummariesToContext() in D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\CalculationContextWriterAuthorityTests.cs:line 405&#xD;
+
+1)    at SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests.CircuitsVM_Calculate_PublishesCollectorSummariesToContext() in D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\IntegrationTests\Hydraulics\CalculationContextWriterAuthorityTests.cs:line 405&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e8dd8877-6b66-4867-a32a-607ec5307c03" testId="8852ec69-b6e4-7e07-4be8-5ddd15c3fb90" testName="ThermalVM_Calculate_PublishesInvalidResult_NotifiesCircuitsButDoesNotCalculate" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0014250" startTime="2026-08-24T06:18:04.0719730+05:00" endTime="2026-08-24T06:18:04.0733973+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e8dd8877-6b66-4867-a32a-607ec5307c03" />
+    <UnitTestResult executionId="f0ee2497-736c-42d2-ae68-bba7589fb657" testId="9182ec6f-bd22-891a-6e51-1da6128e1f1b" testName="ThermalProjection_HasExactlyOneProductionWriterType" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0284960" startTime="2026-08-24T06:18:04.0434499+05:00" endTime="2026-08-24T06:18:04.0719452+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f0ee2497-736c-42d2-ae68-bba7589fb657" />
+    <UnitTestResult executionId="4161b7fd-cef4-4abc-812c-976db467ff06" testId="cb465314-015d-3b7c-ee62-972164900974" testName="HydraulicsProjection_HasExactlyOneApprovedProductionWriterType" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0394730" startTime="2026-08-24T06:18:04.0039546+05:00" endTime="2026-08-24T06:18:04.0434275+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4161b7fd-cef4-4abc-812c-976db467ff06" />
+    <UnitTestResult executionId="aad536ca-33ec-4b5c-a385-ab1619d40194" testId="89f38a54-9bf1-01e2-d3cb-29ca6ee3fde9" testName="CircuitsVM_Calculate_WithGlycolError_PublishesNullHydraulicsResults" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0026290" startTime="2026-08-24T06:18:04.0013073+05:00" endTime="2026-08-24T06:18:04.0039358+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="aad536ca-33ec-4b5c-a385-ab1619d40194" />
+    <UnitTestResult executionId="5135e7e4-b164-4e15-861f-348746a6fc42" testId="b6b23348-88d3-9611-38d9-caebf60e9168" testName="UpdateFromThermalModule_NoLongerWritesToContext" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0027540" startTime="2026-08-24T06:18:04.0734158+05:00" endTime="2026-08-24T06:18:04.0761691+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5135e7e4-b164-4e15-861f-348746a6fc42" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="CircuitsVM_Calculate_WithGlycolError_PublishesNullHydraulicsResults" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="89f38a54-9bf1-01e2-d3cb-29ca6ee3fde9">
+      <Execution id="aad536ca-33ec-4b5c-a385-ab1619d40194" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="CircuitsVM_Calculate_WithGlycolError_PublishesNullHydraulicsResults" />
+    </UnitTest>
+    <UnitTest name="ThermalVM_Calculate_PublishesInvalidResult_NotifiesCircuitsButDoesNotCalculate" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="8852ec69-b6e4-7e07-4be8-5ddd15c3fb90">
+      <Execution id="e8dd8877-6b66-4867-a32a-607ec5307c03" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="ThermalVM_Calculate_PublishesInvalidResult_NotifiesCircuitsButDoesNotCalculate" />
+    </UnitTest>
+    <UnitTest name="CircuitsVM_Calculate_PublishesCollectorSummariesToContext" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="c320843a-22eb-137b-efd9-db897d38af4b">
+      <Execution id="5e39dc7d-1ba7-40da-a191-ab1995d860db" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="CircuitsVM_Calculate_PublishesCollectorSummariesToContext" />
+    </UnitTest>
+    <UnitTest name="HydraulicsProjection_HasExactlyOneApprovedProductionWriterType" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="cb465314-015d-3b7c-ee62-972164900974">
+      <Execution id="4161b7fd-cef4-4abc-812c-976db467ff06" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="HydraulicsProjection_HasExactlyOneApprovedProductionWriterType" />
+    </UnitTest>
+    <UnitTest name="ThermalProjection_HasExactlyOneProductionWriterType" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="9182ec6f-bd22-891a-6e51-1da6128e1f1b">
+      <Execution id="f0ee2497-736c-42d2-ae68-bba7589fb657" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="ThermalProjection_HasExactlyOneProductionWriterType" />
+    </UnitTest>
+    <UnitTest name="UpdateFromThermalModule_NoLongerWritesToContext" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="b6b23348-88d3-9611-38d9-caebf60e9168">
+      <Execution id="5135e7e4-b164-4e15-861f-348746a6fc42" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="UpdateFromThermalModule_NoLongerWritesToContext" />
+    </UnitTest>
+    <UnitTest name="CircuitsOwnSourceContextEvents_DoNotReenterHydraulicsCalculation" storage="d:\ia\3ace v.2\tests\snowmeltingcalculator.tests\bin\release\net8.0-windows\snowmeltingcalculator.tests.dll" id="7cf66a89-265c-14ca-2faf-dc7a001dca84">
+      <Execution id="2e0c9fbb-971c-4d39-9d21-f535209714fd" />
+      <TestMethod codeBase="D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics.CalculationContextWriterAuthorityTests" name="CircuitsOwnSourceContextEvents_DoNotReenterHydraulicsCalculation" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="7cf66a89-265c-14ca-2faf-dc7a001dca84" executionId="2e0c9fbb-971c-4d39-9d21-f535209714fd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c320843a-22eb-137b-efd9-db897d38af4b" executionId="5e39dc7d-1ba7-40da-a191-ab1995d860db" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8852ec69-b6e4-7e07-4be8-5ddd15c3fb90" executionId="e8dd8877-6b66-4867-a32a-607ec5307c03" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9182ec6f-bd22-891a-6e51-1da6128e1f1b" executionId="f0ee2497-736c-42d2-ae68-bba7589fb657" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cb465314-015d-3b7c-ee62-972164900974" executionId="4161b7fd-cef4-4abc-812c-976db467ff06" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="89f38a54-9bf1-01e2-d3cb-29ca6ee3fde9" executionId="aad536ca-33ec-4b5c-a385-ab1619d40194" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b6b23348-88d3-9611-38d9-caebf60e9168" executionId="5135e7e4-b164-4e15-861f-348746a6fc42" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="7" executed="7" passed="6" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\3ace v.2\tests\SnowMeltingCalculator.Tests\bin\Release\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 7 of 7 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

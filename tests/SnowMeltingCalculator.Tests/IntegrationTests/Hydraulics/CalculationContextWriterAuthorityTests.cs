@@ -24,7 +24,9 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
     /// <remarks>
     /// Проверяет, что каждый модуль пишет только в свою зону ответственности:
     /// - ThermalViewModel — канонический автор ThermalResult / ThermalInputs.
-    /// - CircuitsViewModel — канонический автор HydraulicsResults.
+    /// - HydraulicsStateCoordinator — единственный production-автор HydraulicsResults.
+    /// - CircuitsViewModel сохраняет только null-coordinator compatibility seam для
+    ///   изолированных тестовых конструкций; production DI всегда передаёт coordinator.
     /// </remarks>
     [TestFixture]
     public class CalculationContextWriterAuthorityTests
@@ -250,6 +252,35 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 .ToArray();
 
             Assert.That(writerFiles, Is.EqualTo(new[] { "ThermalStateCoordinator" }));
+        }
+
+        [Test]
+        [Category("HydraulicsProjection")]
+        public void HydraulicsProjection_HasExactlyOneApprovedProductionWriterType()
+        {
+            var sourceRoot = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+            while (sourceRoot != null && !Directory.Exists(Path.Combine(sourceRoot.FullName, "src")))
+            {
+                sourceRoot = sourceRoot.Parent;
+            }
+
+            Assert.That(sourceRoot, Is.Not.Null);
+            var sourceDirectory = Path.Combine(sourceRoot!.FullName, "src");
+            var writerFiles = Directory.EnumerateFiles(sourceDirectory, "*.cs", SearchOption.AllDirectories)
+                .Select(file => new { File = file, Text = File.ReadAllText(file) })
+                .Where(item => !string.Equals(Path.GetFileNameWithoutExtension(item.File), "CalculationContext", StringComparison.OrdinalIgnoreCase))
+                .Where(item => Regex.IsMatch(item.Text, @"\bUpdateHydraulics\s*\("))
+                .Select(item => Path.GetFileNameWithoutExtension(item.File))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            var approvedProductionWriters = writerFiles
+                .Where(file => !string.Equals(file, "CircuitsViewModel", StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+
+            Assert.That(approvedProductionWriters, Is.EqualTo(new[] { "HydraulicsStateCoordinator" }));
+            Assert.That(writerFiles, Does.Contain("CircuitsViewModel"),
+                "The compatibility seam must remain visible to prevent silently broadening the test scope.");
         }
 
         [Test]
