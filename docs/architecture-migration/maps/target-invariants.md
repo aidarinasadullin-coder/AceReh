@@ -42,7 +42,7 @@ Hydraulics, Results and shared orchestration retain documented legacy seams.
 `INV-008` remains open because `ProjectLoadOrchestrator` still depends on
 concrete module ViewModels.
 | `INV-004` | Thermal inputs SHALL be owned by `ProjectSession.ThermalState`; thermal results SHALL be derived and SHALL NOT become a second writable input store. | state-ownership, reactive | `ST-012..ST-015`, `ST-021..ST-022`; `RE-001..RE-007`; Phase 4 evidence `docs/architecture-migration/evidence/phase-4-thermal-state/task-3/task-3-thermal-state-contract.md`, `task-6/task-567-merged-boundary.md`, `task-8/task-8-context-hydraulics.md`, `task-11/task-11-ownership-guards.md`, `task-12/task-12-executable-gates.md` | Owner/writer uniqueness proven by the Todo 11 guard suite (8 NegativeFixture categories); every user-visible thermal action crosses the closed state/coordinator mutation boundary with one logical-change completion (41-case characterization); non-user origins distinguished; exact invalidation/recalculation counts asserted in thermal and downstream hydraulics tests; full Release 1946/1943/0/3. | verified | None for the migrated Thermal slice. Hydraulics (`INV-005`) and shared orchestration seams remain open. |
-| `INV-005` | Hydraulics inputs and collectors SHALL be owned by `ProjectSession.HydraulicsState`; hydraulic results SHALL be derived. | state-ownership, reactive, persistence | `ST-016..ST-019`; `RE-002..RE-008`; `COV-PP` | Assert collection ownership and one writer; prove every user-visible hydraulics action crosses a public state/application mutation boundary and one logical-change completion boundary without intercepting ViewModel internals; distinguish non-user apply and assert stale-state absence plus exact calculator/Results update counts. | unverified | Current Circuits collections, input data, and calculator ownership remain ambiguous. |
+| `INV-005` | Hydraulics inputs and collectors SHALL be owned by `ProjectSession.HydraulicsState`; hydraulic results SHALL be derived. | state-ownership, reactive, persistence | `ST-016..ST-019`, `ST-022`; `RE-001..RE-008`; `COV-PP`; Phase 5 evidence `docs/architecture-migration/evidence/phase-5-hydraulics-state/task-9/divergence-notes.md`, `task-6/correction-notes.md`, `task-8/writer-authority-updates.md`, `task-11/trx-guards-release.json`, `task-12/arithmetic.json` | Owner/writer uniqueness proven by the Todo 11 guard suite (8 NegativeFixture categories); every user-visible hydraulics action commits through the closed slice mutations with User-origin dirty raised by the slice itself; per-attempt status termination asserted; serialized eight-field round-trip characterization proves the exact wire contract; full Release reconciliation 1976 passed / 0 failed / 3 accepted NotExecuted identities. | verified | None for the migrated Hydraulics slice. Shared orchestration seams (`INV-008`) remain open. |
 | `INV-006` | Every migrated value SHALL have exactly one writable canonical owner; transitional dual-write paths SHALL be short-lived, compiling, and explicitly recorded as risk. | state-ownership | `ST-001..ST-027`; `maps/state-ownership.md` | Machine-check writer inventory per slice and reject more than one canonical writer at each phase gate. | unverified | Baseline records legacy, seam, split, and ambiguous owners. |
 | `INV-007` | ViewModels SHALL be WPF adapters and SHALL NOT serve as shared canonical state stores or required mutation interception points after their slice migrates. | compile-time, di-runtime, state-ownership | `CTN-008..CTN-011`, `CTN-020`; `DRN-017..DRN-021`; `ST-003`, `ST-006..ST-019`, `ST-024..ST-027` | Inspect constructor contracts and writer inventory; run UI adapter characterization tests proving user actions use public state/application mutation boundaries and no future history recorder must intercept ViewModel setters, commands, or internal details. | unverified | Current ViewModels own substantial writable and derived state. |
 | `INV-008` | Application services SHALL NOT depend on concrete ViewModels. | compile-time, di-runtime | `CTE-005..CTE-008`; `DRE-032..DRE-035`; `DRN-016` | Static architecture test rejects application-service constructors referencing concrete ViewModel types. | unverified | `ProjectLoadOrchestrator` currently depends on four concrete module ViewModels. |
@@ -171,3 +171,28 @@ Evidence: `docs/architecture-migration/evidence/phase-4-thermal-state/task-3/tas
 `task-6/task-567-merged-boundary.md`, `task-9/task-9-lifecycle-restore.md`,
 `task-10/task-10-persistence-results.md`, `task-11/task-11-ownership-guards.md`,
 `task-12/task-12-executable-gates.md`, `task-13/task-13-user-flow-qa.md`.
+
+## Phase 5 Status Overlay (Task 14)
+
+`INV-005` is verified for the Hydraulics slice: `ProjectSession.HydraulicsState`
+(`ProjectSessionHydraulicsState`) is the sole writable owner of hydraulics global inputs,
+collectors/circuits, derived results and the status snapshot; `HydraulicsStateCoordinator`
+(sealed singleton) is the single command boundary, the sole production writer of the
+`CalculationContext` hydraulics results projection, and terminates every calculation attempt with
+exactly one unconditional `ResetHydraulicsState` (FIX B). `CircuitsViewModel` is a WPF adapter with
+required `IHydraulicsStateCoordinator` + `IProjectSession` constructor parameters and zero
+`UpdateHydraulics` calls. Dirty authority lives in the slice (`User` origin raises
+`IMarkDirtyService` via `hydraulicsDirtyService ?? this`); auto-recalculation dirty churn is
+eliminated because calculation-origin work never dirties. Save maps only the canonical snapshot via
+`HydraulicsPersistenceMapper.BuildHydraulicsProjectData`; restore goes only through slice
+`Restore(origin=ProjectLoad)`. The DI construction-cycle deadlock was fixed composition-only by an
+explicit `ProjectSession` factory registration in `AddResultsModule`.
+
+The Hydraulics portions of the broader single-owner (`INV-006`), adapter (`INV-007`) and
+mutation-boundary (`INV-016`) invariants are evidenced by the same Phase 5 receipts, but those
+invariants remain unverified globally because Results projections and shared orchestration retain
+documented seams. `INV-008` remains open because `ProjectLoadOrchestrator` still depends on concrete
+module ViewModels. Evidence: `task-4/di-negative-probe.md`, `task-5/blocker-analysis.md`,
+`task-6/correction-notes.md`, `task-7/trx-coordinator-release.json`,
+`task-8/writer-authority-updates.md`, `task-9/divergence-notes.md`,
+`task-11/trx-guards-release.json`, `task-12/arithmetic.json`, `ui-qa/observations.json`.

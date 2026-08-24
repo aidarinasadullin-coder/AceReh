@@ -1,0 +1,19 @@
+{
+  "artifact": "docs/architecture-migration/architecture-widget.html",
+  "generator": "docs/architecture-migration/widget/generate-widget.mjs",
+  "model_input": "docs/architecture-migration/maps/architecture-model.json",
+  "passes": [
+    { "pass": 1, "exit_code": 0, "bytes": 15174383, "sha256": "3C823B73DAF1D0706C515C4ED2541E503783DC61A59387B64E709E06068B0CD9" },
+    { "pass": 2, "exit_code": 0, "bytes": 15174383, "sha256": "3C823B73DAF1D0706C515C4ED2541E503783DC61A59387B64E709E06068B0CD9" }
+  ],
+  "byte_identical": true,
+  "check": {
+    "command": "node docs/architecture-migration/widget/generate-widget.mjs --check",
+    "exit_code": 0,
+    "assertions_passed": 14,
+    "canonical_sha256_before": "3c823b73daf1d0706c515c4ed2541e503783dc61a59387b64e709e06068b0cd9",
+    "canonical_sha256_after": "3c823b73daf1d0706c515c4ed2541e503783dc61a59387b64e709e06068b0cd9",
+    "generated_sha256": "3c823b73daf1d0706c515c4ed2541e503783dc61a59387b64e709e06068b0cd9"
+  },
+  "hand_edits": "none; generated exclusively from the canonical model/template/CSS"
+}

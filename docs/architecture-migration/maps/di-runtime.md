@@ -329,3 +329,24 @@ descriptor/instance exists in DI and that the coordinator is attached exactly
 once per upstream surface. The concrete-ViewModel dependencies of
 `ProjectLoadOrchestrator` remain (see `INV-008`), unchanged by Phase 4.
 Evidence: `task-4/task-4-project-session-di.md`, `task-11/task-11-ownership-guards.md`.
+
+## Phase 5 HydraulicsState runtime overlay (Task 14)
+
+| Node ID | Runtime role | Lifetime / owner | Evidence | Status |
+| --- | --- | --- | --- | --- |
+| `DRN-P5-HYDRAULICS-001` | `ProjectSessionHydraulicsState` canonical Hydraulics state slice | owned private instance of singleton `ProjectSession`; not independently registered in DI; consumers share it reference-identically via `IProjectSession.HydraulicsState`; dirty owner resolves `hydraulicsDirtyService ?? this` | `ProjectSession.cs:27,39,41-47`; `ProjectSessionHydraulicsState.cs:41-44`; evidence `task-4/di-negative-probe.md`, `task-11/trx-guards-release.json` | verified |
+| `DRN-P5-HYDRAULICS-002` | `IHydraulicsStateCoordinator` canonical command boundary | exactly one singleton, created by factory in `AddHydraulicsModule` resolving the session slice plus `ICalculationStateService` and `CalculationContext` | `ServiceCollectionExtensions.cs:148-151`; evidence `task-7/trx-coordinator-release.json` | verified |
+| `DRN-P5-HYDRAULICS-003` | `CircuitsViewModel` WPF adapter | singleton VM with required constructor parameters `IHydraulicsStateCoordinator` + `IProjectSession`; binds `_hydraulicsState = projectSession.HydraulicsState`; zero `UpdateHydraulics` calls | `CircuitsViewModel.cs:898-938`; evidence `task-6/correction-notes.md` | verified |
+| `DRN-P5-HYDRAULICS-004` | explicit `ProjectSession` factory registration (DI construction-cycle fix) | singleton factory in `AddResultsModule`: `sp => new ProjectSession(IClimateData, CalculationContext, hydraulicsDirtyService: null)`; replaces type activation that re-entered the in-flight `ProjectSession` construction through `IMarkDirtyService -> ProjectSession` under .NET 8 DI locks | `ServiceCollectionExtensions.cs:190-199`; evidence `task-9/divergence-notes.md` (DI construction-cycle deadlock fixed) | verified |
+
+| Edge ID | Runtime relation | From | To | Lifetime / path | Evidence | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| `DRE-P5-HYDRAULICS-001` | di-registration (singleton factory) | `AddHydraulicsModule` (`DRN-005`) | `IHydraulicsStateCoordinator` (`DRN-P5-HYDRAULICS-002`) | factory resolves `ProjectSession().HydraulicsState` so no second state instance can exist | `ServiceCollectionExtensions.cs:148-151` | verified |
+| `DRE-P5-HYDRAULICS-002` | adapter consumes | `CircuitsViewModel` (`DRN-020`) | coordinator + slice (`DRN-P5-HYDRAULICS-001/002`) | constructor injection; commands route through `Calculate/CalculateAll/ApplyPipeSpacing/PublishHydraulics`; edits commit via slice mutations with User origin | `CircuitsViewModel.cs:438,479,571,929-935,1024-1319` | verified |
+| `DRE-P5-HYDRAULICS-003` | orchestrator restores slice | `ProjectLoadOrchestrator` (`DRN-016`) | `IProjectSession.HydraulicsState` (`DRN-P5-HYDRAULICS-001`) | restore applies `BuildRestoreCandidate` + `Restore(origin=ProjectLoad)` then mirrors read-only into the adapter; re-applied after thermal finalization for lossless round-trip | `ProjectLoadOrchestrator.cs:171-173,197-201`; evidence `task-9/divergence-notes.md` | verified |
+| `DRE-P5-HYDRAULICS-004` | di-registration (explicit aggregate-root factory) | `AddResultsModule` (`DRN-007`) | `ProjectSession` / `IProjectSession` | explicit factory passes `hydraulicsDirtyService: null` (canonical fallback keeps the session as its own dirty owner), removing the reentrant resolution cycle | `ServiceCollectionExtensions.cs:196-203`; evidence `task-9/divergence-notes.md`, full-DI characterization green in `task-6/correction-notes.md` | verified |
+
+Task 11 guard evidence confirms no independent `IProjectSessionHydraulicsState`
+descriptor/instance exists in DI and that the coordinator is attached exactly once per upstream
+surface. The concrete-ViewModel dependencies of `ProjectLoadOrchestrator` remain (see `INV-008`),
+unchanged by Phase 5.

@@ -236,6 +236,26 @@ path допустим только внутри короткого компил�
   verification: verifier session `ses_03c773098ffeQbTL4jjvY05kCB`, final
   `CONFIRMED`, `101932` assertions. TypeScript LSP недоступен из-за ранее
   отклонённой установки; `node --check` passed.
+- 2026-08-24: Todo 14 фазы 5 (`phase-5-hydraulics-state`, план SHA
+  `0D48A757…FC8D38`) завершён на HEAD `14a8e51`: шесть архитектурных карт,
+  общая модель и виджет обновлены по фактическому состоянию коррекционной
+  полосы. Коррекционная полоса tasks-5-7 завершена коммитами `47faf28`,
+  `4fc9205`, `14a8e51` (адаптер CircuitsViewModel, единственная точка записи
+  контекста, каноническое сохранение); четыре семантических решения владельца
+  (dirty только User-origin из среза, безусловный per-attempt
+  ResetHydraulicsState в RunCalculation finally, устранение auto-recalc dirty
+  churn, ссылка на исправление DI construction-cycle deadlock явной фабрикой
+  ProjectSession в AddResultsModule) зафиксированы в
+  `evidence/phase-5-hydraulics-state/task-9/divergence-notes.md`. Итоговые
+  счётчики: полный Release suite 1976 passed / 0 failed / 3 accepted
+  NotExecuted (базовый набор {RegenerateBaseline, RegenerateCircuitsBaseline,
+  ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile});
+  guard suite 8/8; UI QA 9/9 PASS. Модель: ST-016..ST-019 migrated/verified,
+  INV-005 verified, +9 evidence EV-P5-*; model-v2 33 assertions / 21
+  mutations, runtime-v2 47/20 PASS; негативная фикстура отвергнута валидатором
+  (`duplicate-id: st-016-invalid`, exit 1); два прогона генерации виджета
+  byte-identical SHA-256 `3C823B73…B0CD9`, `--check` exit 0 (14/14). Evidence:
+  `evidence/phase-5-hydraulics-state/task-14/{update-model.mjs,model-v2.json,runtime-v2.json,widget-hash.json,fixtures/}`.
 
 Все метрики, количества файлов, циклов, тестов и LOC должны пересчитываться.
 Не копировать их из старого аудита без проверки.

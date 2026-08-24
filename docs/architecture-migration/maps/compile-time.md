@@ -215,3 +215,29 @@ pre-existing Phase 3 Construction content, not Task 11 Climate edges.
 canonical snapshot for save; restore goes through canonical `Restore`. The
 existing concrete ViewModel dependencies in `ProjectLoadOrchestrator` remain
 (`INV-008` still open). No new project or package reference was introduced.
+
+## Phase 5 HydraulicsState compile-time overlay (Task 14)
+
+| Node ID | Kind | Display name | Source evidence |
+| --- | --- | --- | --- |
+| `CTN-P5-HYDRAULICS-001` | interface | `IProjectSessionHydraulicsState` | `src/Services/Project/IProjectSessionHydraulicsState.cs:6-18`; evidence `task-4/di-negative-probe.md` |
+| `CTN-P5-HYDRAULICS-002` | implementation | `ProjectSessionHydraulicsState` | `src/Services/Project/ProjectSessionHydraulicsState.cs:41-97`; evidence `task-9/divergence-notes.md` |
+| `CTN-P5-HYDRAULICS-003` | immutable contracts | `HydraulicsStateSnapshot`, `HydraulicGlobalInputsSnapshot`, `HydraulicCollectorSnapshot`, `HydraulicCircuitSnapshot`, `HydraulicCircuitResultSnapshot`, `HydraulicCollectorSummarySnapshot`, `HydraulicsStatusSnapshot`, `HydraulicsStateChangedEventArgs` | `src/Services/Project/HydraulicsStateSnapshots.cs`; evidence `task-2/trx-characterization-release.json` |
+| `CTN-P5-HYDRAULICS-004` | enum/result set | `HydraulicsMutationOrigin`, `HydraulicsMutationStatus`, `HydraulicsMutationResult` | `src/Services/Project/HydraulicsMutationOrigin.cs`; evidence `task-9/divergence-notes.md` |
+| `CTN-P5-HYDRAULICS-005` | interface | `IHydraulicsStateCoordinator` | `src/Services/Project/IHydraulicsStateCoordinator.cs`; evidence `task-7/trx-coordinator-release.json` |
+| `CTN-P5-HYDRAULICS-006` | implementation | `HydraulicsStateCoordinator` (sealed) | `src/Services/Project/HydraulicsStateCoordinator.cs:11`; evidence `task-7/trx-coordinator-release.json` |
+| `CTN-P5-HYDRAULICS-007` | pure mapper | `HydraulicsPersistenceMapper` | `src/Services/Project/HydraulicsPersistenceMapper.cs:13-15`; evidence `task-6/correction-notes.md` |
+
+| Edge ID | Kind | From | To | Evidence | Status |
+| --- | --- | --- | --- | --- | --- |
+| `CTE-P5-HYDRAULICS-001` | ownership/type-use | `ProjectSession` | `ProjectSessionHydraulicsState` / `IProjectSessionHydraulicsState` | private readonly field and `HydraulicsState` property at `ProjectSession.cs:27,39,41-47`; ctor third parameter `IMarkDirtyService? hydraulicsDirtyService = null` | verified |
+| `CTE-P5-HYDRAULICS-002` | constructor/interface reference | `CircuitsViewModel` (`CTN-011`) | `IHydraulicsStateCoordinator`, `IProjectSession` | required ctor parameters and slice binding at `CircuitsViewModel.cs:898-918` | verified |
+| `CTE-P5-HYDRAULICS-003` | coordinator/state reference | `HydraulicsStateCoordinator` | `IProjectSessionHydraulicsState`, `ICalculationStateService`, `CalculationContext` | ctor at `HydraulicsStateCoordinator.cs:23-34` | verified |
+| `CTE-P5-HYDRAULICS-004` | persistence mapper references | `ResultsViewModel` / `ProjectLoadOrchestrator` | `HydraulicsPersistenceMapper` | save `ResultsViewModel.cs:1711-1712`; restore `ProjectLoadOrchestrator.cs:171,200` | verified |
+| `CTE-P5-HYDRAULICS-005` | factory/type reference | `ServiceCollectionExtensions` | `ProjectSession` explicit factory, `HydraulicsStateCoordinator` factory | `AddResultsModule` at `ServiceCollectionExtensions.cs:196-199`; `AddHydraulicsModule` at `:148-151` | verified |
+
+`ProjectSession` owns/exposes the Hydraulics state implementation; `CircuitsViewModel` consumes the
+coordinator and the session slice as a WPF adapter; Results maps the canonical snapshot for save;
+restore goes through canonical `Restore`. The existing concrete ViewModel dependencies in
+`ProjectLoadOrchestrator` remain (`INV-008` still open). No new project or package reference was
+introduced.

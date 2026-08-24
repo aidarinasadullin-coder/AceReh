@@ -1,0 +1,16 @@
+{
+  "purpose": "Todo 14 QA-failure probe (phase-5-hydraulics-state): prove the canonical validator honestly rejects an invalid model id. Pattern reused from evidence/phase-4-thermal-state/task-14/fixtures/.",
+  "canonical_model_unmodified": true,
+  "probes": [
+    {
+      "fixture": "fixtures/model-invalid-id.json",
+      "mutation": "record ST-016 id rewritten to 'st-016-invalid' (violates the required ^[A-Z][A-Z0-9-]*$ id pattern)",
+      "command": "node docs/architecture-migration/widget/verify-widget.mjs --suite model-v2 --schema docs/architecture-migration/maps/architecture-model.widget.schema.json --model docs/architecture-migration/evidence/phase-5-hydraulics-state/task-14/fixtures/model-invalid-id.json --output docs/architecture-migration/evidence/phase-5-hydraulics-state/task-14/fixtures/invalid-id.rejected-output.json",
+      "exit_code": 1,
+      "stderr_verbatim": "{\"result\":\"fail\",\"category\":\"duplicate-id\",\"detail\":\"st-016-invalid\"}",
+      "stdout": "empty",
+      "nominal_output_file_written": false
+    }
+  ],
+  "result": "rejected-nonzero-as-required"
+}
