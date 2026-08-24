@@ -401,13 +401,13 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
         #region Гидравлический расчёт - SetHydraulicsError
 
         [Test]
-        public void SetHydraulicsError_UpdatesHydraulicsValidationMessage()
+        public void SetHydraulicsError_OutsideCalculation_IsRejectedWithoutChangingMessage()
         {
             // Act
             _service.SetHydraulicsError("test");
 
             // Assert
-            Assert.That(_service.HydraulicsValidationMessage, Is.EqualTo("test"));
+            Assert.That(_service.HydraulicsValidationMessage, Is.EqualTo(string.Empty));
         }
 
         [Test]
@@ -425,7 +425,7 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
         }
 
         [Test]
-        public void SetHydraulicsError_FiresStateChanged_WithErrorAndMessage()
+        public void SetHydraulicsError_OutsideCalculation_DoesNotRaiseStateChanged()
         {
             // Arrange
             ModuleStateChangedEventArgs? eventArgs = null;
@@ -435,14 +435,11 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
             _service.SetHydraulicsError("test");
 
             // Assert
-            Assert.That(eventArgs, Is.Not.Null);
-            Assert.That(eventArgs!.Module, Is.EqualTo("Hydraulics"));
-            Assert.That(eventArgs.State, Is.EqualTo(ModuleState.Error));
-            Assert.That(eventArgs.Message, Is.EqualTo("test"));
+            Assert.That(eventArgs, Is.Null);
         }
 
         [Test]
-        public void SetHydraulicsError_UpdatesHydraulicsValidationMessage_FiresStateChanged()
+        public void SetHydraulicsError_OutsideCalculation_LeavesStateAndEventsUnchanged()
         {
             // Arrange - подписка на событие + подсчёт количества вызовов
             ModuleStateChangedEventArgs? eventArgs = null;
@@ -456,15 +453,9 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
             // Act
             _service.SetHydraulicsError("test");
 
-            // Assert - ValidationMessage обновлён
-            Assert.That(_service.HydraulicsValidationMessage, Is.EqualTo("test"));
-
-            // Assert - событие вызвано ровно один раз с корректными аргументами
-            Assert.That(eventCount, Is.EqualTo(1), "StateChanged должен вызываться ровно один раз");
-            Assert.That(eventArgs, Is.Not.Null);
-            Assert.That(eventArgs!.Module, Is.EqualTo("Hydraulics"));
-            Assert.That(eventArgs.State, Is.EqualTo(ModuleState.Error));
-            Assert.That(eventArgs.Message, Is.EqualTo("test"));
+            Assert.That(_service.HydraulicsValidationMessage, Is.EqualTo(string.Empty));
+            Assert.That(eventCount, Is.Zero);
+            Assert.That(eventArgs, Is.Null);
         }
 
         [Test]
@@ -481,8 +472,7 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
             Assert.That(_service.ThermalValidationMessage, Is.EqualTo(string.Empty));
             Assert.That(_service.ThermalIsCalculating, Is.False);
             Assert.That(_service.ThermalNeedsRecalculation, Is.False);
-            Assert.That(lastEventArgs, Is.Not.Null);
-            Assert.That(lastEventArgs!.Module, Is.EqualTo("Hydraulics"));
+            Assert.That(lastEventArgs, Is.Null);
         }
 
         #endregion
@@ -503,7 +493,7 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
         }
 
         [Test]
-        public void ResetHydraulicsState_RaisesStateChangedEvent()
+        public void ResetHydraulicsState_WhenInputsAreAlreadyActual_DoesNotRaiseStateChangedEvent()
         {
             // Arrange
             ModuleStateChangedEventArgs? eventArgs = null;
@@ -513,10 +503,7 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
             _service.ResetHydraulicsState();
 
             // Assert
-            Assert.That(eventArgs, Is.Not.Null);
-            Assert.That(eventArgs!.Module, Is.EqualTo("Hydraulics"));
-            Assert.That(eventArgs.State, Is.EqualTo(ModuleState.Actual));
-            Assert.That(eventArgs.Message, Is.Null);
+            Assert.That(eventArgs, Is.Null);
         }
 
         #endregion

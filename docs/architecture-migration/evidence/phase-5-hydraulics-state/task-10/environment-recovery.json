@@ -1,0 +1,52 @@
+{
+  "recovery": "environment-blocker",
+  "pre_kill_processes": [
+    { "name": "dotnet.exe", "pid": 26984, "role": "compiler server" }
+  ],
+  "initial_kill_results": {
+    "dotnet.exe": "terminated",
+    "VBCSCompiler.exe": "not running",
+    "MSBuild.exe": "not running"
+  },
+  "respawned_compiler_servers": [
+    { "name": "dotnet.exe", "pid": 20236, "terminated_before_debug_retry": true },
+    { "name": "dotnet.exe", "pid": 6652, "terminated_before_release_retry": true }
+  ],
+  "directories_deleted": [
+    "src/obj",
+    "src/bin",
+    "tests/SnowMeltingCalculator.Tests/obj",
+    "tests/SnowMeltingCalculator.Tests/bin"
+  ],
+  "remaining_project_obj_bin_directories": [],
+  "rebuilds": {
+    "Debug": { "result": "PASS", "warnings": 0, "errors": 0 },
+    "Release": { "result": "PASS", "warnings": 0, "errors": 0,
+      "command": "dotnet build src\\SnowMeltingCalculator.csproj -c Release --nologo --p:UseSharedCompilation=false" }
+  },
+  "focused_tests": {
+    "suite": "HydraulicsMultiplicityCharacterizationTests",
+    "result": "PASS",
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0,
+    "command": "dotnet test tests\\SnowMeltingCalculator.Tests\\SnowMeltingCalculator.Tests.csproj -c Release --no-restore --nologo --p:UseSharedCompilation=false --filter FullyQualifiedName~HydraulicsMultiplicityCharacterizationTests"
+  },
+  "full_release_tests": {
+    "result": "FAILURES_OUTSIDE_TASK_10_SCOPE",
+    "passed": 1961,
+    "failed": 7,
+    "skipped": 1,
+    "total": 1969,
+    "residuals": [
+      "5 CalculationStateServiceTests hydraulics status/event failures",
+      "1 ThermalMultiplicityCharacterizationTests repeated-load dirty-count failure",
+      "1 MainViewModelTests settings.json teardown file-lock failure"
+    ],
+    "command": "dotnet test tests\\SnowMeltingCalculator.Tests\\SnowMeltingCalculator.Tests.csproj -c Release --no-restore --nologo --p:UseSharedCompilation=false"
+  },
+  "notes": [
+    "The first Debug and Release attempts hit CS2012 output locks before source compilation.",
+    "After terminating the respawned compiler servers and disabling shared compilation, the Release build and focused hydraulics suite passed."
+  ]
+}

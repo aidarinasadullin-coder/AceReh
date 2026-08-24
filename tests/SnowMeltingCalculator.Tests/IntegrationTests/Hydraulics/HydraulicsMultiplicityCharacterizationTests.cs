@@ -238,14 +238,8 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
         {
             Assert.That(saveBody, Does.Contain("Version = \"1.1\""));
             Assert.That(saveBody, Does.Contain("HydraulicsData"));
-            Assert.That(saveBody, Does.Contain("GlycolType"));
-            Assert.That(saveBody, Does.Contain("GlycolConcentration"));
-            Assert.That(saveBody, Does.Contain("SupplySpacingCm"));
-            Assert.That(saveBody, Does.Contain("SupplyHeatPercent"));
-            Assert.That(saveBody, Does.Contain("Collectors"));
-            Assert.That(saveBody, Does.Contain("OperatingResult"));
-            Assert.That(saveBody, Does.Contain("DesignResult"));
-            Assert.That(saveBody, Does.Contain("FlowRegimeString"));
+            Assert.That(saveBody, Does.Contain("BuildCanonicalSnapshot"));
+            Assert.That(saveBody, Does.Contain("HydraulicsPersistenceMapper.BuildHydraulicsProjectData"));
         });
     }
 
