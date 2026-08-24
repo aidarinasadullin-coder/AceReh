@@ -149,8 +149,10 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
     [Test]
     public async Task GivenLifecycleMutation_WhenProjectLoadSystemApplyOrResetRuns_ThenNoUserPropagationOccurs()
     {
+        var projectData = CreateProjectData();
+        var expectedCircuit = projectData.HydraulicsData.Collectors[0].Circuits[0];
         var fixture = CreateFixture();
-        await fixture.Orchestrator.RestoreModulesFromProjectAsync(CreateProjectData());
+        await fixture.Orchestrator.RestoreModulesFromProjectAsync(projectData);
         fixture.Origins.Clear();
         fixture.DirtyMock.Invocations.Clear();
 
