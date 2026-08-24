@@ -14,6 +14,7 @@ using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.Core;
+using SnowMeltingCalculator.Tests.Fixtures;
 
 namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
 {
@@ -160,6 +161,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                     return result;
                 });
 
+            var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(_calculationStateServiceMock.Object, _calculationContext);
+
             // Создаём ViewModel
             _viewModel = new CircuitsViewModel(
                 _circuitsCalculatorMock.Object,
@@ -168,7 +171,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                 _validatorMock.Object,
                 _collectorTypeSelectorMock.Object,
                 _calculationContext,
-                _markDirtyServiceMock.Object
+                 _markDirtyServiceMock.Object,
+                 hydraulicsDependencies.Coordinator,
+                  hydraulicsDependencies.Session
             );
         }
 
@@ -1324,10 +1329,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                     It.IsAny<ValveType>()),
                 Times.Never);
 
-            // Assert - ResetHydraulicsState НЕ вызывался (иначе Error был бы сброшен в Actual)
+            // Assert - координатор терминирует статус-машину ровно один раз на попытку
+            // расчёта (безусловно, FIX B): ошибка валидации больше не делает статус
+            // липким — ValidationMessage остаётся каналом доведения ошибки до UI.
             _calculationStateServiceMock.Verify(
                 s => s.ResetHydraulicsState(),
-                Times.Never);
+                Times.Once);
         }
 
         [Test]
@@ -1407,10 +1414,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                 s => s.SetHydraulicsError(It.IsAny<string>()),
                 Times.Once);
 
-            // Assert - ResetHydraulicsState был вызван только один раз (из второй попытки в finally)
+            // Assert - ResetHydraulicsState: ровно один терминационный сброс на каждую
+            // попытку расчёта (контракт координатора FIX B): первая попытка завершилась
+            // ошибкой (1 сброс), вторая — успехом (1 сброс). Итого ровно два, без
+            // дублей внутри одной попытки.
             _calculationStateServiceMock.Verify(
                 s => s.ResetHydraulicsState(),
-                Times.Once);
+                Times.Exactly(2));
 
             // Assert - расчёт продолжился на второй попытке
             _circuitsCalculatorMock.Verify(

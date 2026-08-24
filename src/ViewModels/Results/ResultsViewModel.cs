@@ -1706,13 +1706,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 _projectSession.ThermalState.Snapshot);
 
             // Сохраняем данные гидравлики из канонического HydraulicsState snapshot.
-            var hydraulicsSnapshot = _circuitsViewModel.BuildCanonicalSnapshot();
-            _projectSession.HydraulicsState.ApplyGlobalInputs(
-                hydraulicsSnapshot.GlobalInputs,
-                HydraulicsMutationOrigin.User);
-            _projectSession.HydraulicsState.ReplaceCollectors(
-                hydraulicsSnapshot.Collectors,
-                HydraulicsMutationOrigin.User);
+            // BuildCanonicalSnapshot is represented by the canonical session snapshot;
+            // HydraulicsPersistenceMapper remains the sole wire-format writer.
             data.HydraulicsData = HydraulicsPersistenceMapper.BuildHydraulicsProjectData(
                 _projectSession.HydraulicsState.Snapshot);
 

@@ -23,6 +23,7 @@ using SnowMeltingCalculator.Services.Visualization;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
+using SnowMeltingCalculator.Tests.Fixtures;
 using SnowMeltingCalculator.ViewModels.Results;
 using SnowMeltingCalculator.ViewModels.Thermal;
 
@@ -272,14 +273,19 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var selectorMock = new Mock<ICollectorTypeSelector>();
             selectorMock.Setup(s => s.SelectCollectorType(It.IsAny<CollectorData>())).Returns(new CollectorSelectionResult { ValveType = ValveType.HKV_D });
 
+            var calculationStateService = new CalculationStateService();
+            var calculationContext = new CalculationContext();
+            var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(calculationStateService, calculationContext);
             return new CircuitsViewModel(
                 calculatorMock.Object,
                 glycolMock.Object,
-                new CalculationStateService(),
+                 calculationStateService,
                 new Mock<ICircuitsValidator>().Object,
                 selectorMock.Object,
-                new CalculationContext(),
-                markDirtyService);
+                 calculationContext,
+                 markDirtyService,
+                 hydraulicsDependencies.Coordinator,
+                  hydraulicsDependencies.Session);
         }
 
         private static ResultsViewModel CreateResultsViewModel(ProjectStateService projectStateService, IMarkDirtyService markDirtyService)

@@ -105,6 +105,7 @@ using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Results;
 using SnowMeltingCalculator.ViewModels.Thermal;
+using SnowMeltingCalculator.Tests.Fixtures;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
 
 namespace SnowMeltingCalculator.Tests.Services.Project;
@@ -1232,12 +1233,14 @@ public sealed class ThermalMultiplicityCharacterizationTests
             Assert.That(secondCycle.ThermalStateCount, Is.EqualTo(firstCycle.ThermalStateCount));
             Assert.That(secondCycle.ContextPublicationCount, Is.EqualTo(firstCycle.ContextPublicationCount));
             Assert.That(secondCycle.PipeSpacingChangedCount, Is.EqualTo(firstCycle.PipeSpacingChangedCount));
-            // The second restore observes the prior valid thermal result during
-            // the Climate lifecycle publication. This is a fixed +2 dirty
-            // transition offset, not subscription multiplication; the probe
-            // below still proves one delivery per downstream consumer.
+            // CANONICAL DIRTY CONTRACT (phase-5 correction): the second restore's
+            // Climate publication still triggers the characterized +2 downstream
+            // recalculation surplus (asserted below via HydraulicsCalculationDelta),
+            // but calculation-origin work no longer raises dirty transitions at all
+            // — only User-origin mutations reach ProjectSession.MarkDirty. The
+            // equality pin keeps proving zero subscription/event multiplication.
             Assert.That(secondCycle.IsDirtyTransitionCount,
-                Is.EqualTo(firstCycle.IsDirtyTransitionCount + 2));
+                Is.EqualTo(firstCycle.IsDirtyTransitionCount));
             Assert.That(secondCycle.ProjectChangedCount, Is.EqualTo(firstCycle.ProjectChangedCount));
             Assert.That(secondCycle.CalculatorInvocationDelta, Is.EqualTo(firstCycle.CalculatorInvocationDelta));
             // CHARACTERIZED STALE-RESULT SURPLUS (same legacy defect as the
@@ -1692,6 +1695,7 @@ public sealed class ThermalMultiplicityCharacterizationTests
         var selector = new Mock<ICollectorTypeSelector>();
         selector.Setup(service => service.SelectCollectorType(It.IsAny<CollectorData>()))
             .Returns(new CollectorSelectionResult { ValveType = ValveType.HKV_D });
+        var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(calculationState, context);
         var circuitsViewModel = new CircuitsViewModel(
             circuitsCalcMock.Object,
             glycol.Object,
@@ -1699,7 +1703,9 @@ public sealed class ThermalMultiplicityCharacterizationTests
             new Mock<ICircuitsValidator>().Object,
             selector.Object,
             context,
-            otherMarkDirty);
+             otherMarkDirty,
+             hydraulicsDependencies.Coordinator,
+                  hydraulicsDependencies.Session);
 
         var orchestrator = new ProjectLoadOrchestrator(
             climateViewModel,

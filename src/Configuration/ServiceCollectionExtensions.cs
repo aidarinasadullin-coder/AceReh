@@ -188,7 +188,15 @@ namespace SnowMeltingCalculator.Configuration
         public static IServiceCollection AddResultsModule(this IServiceCollection services)
         {
             // Services - Project lifecycle aggregate root and legacy compatibility views
-            services.AddSingleton<ProjectSession>();
+            // Явная фабрика: авто-резолв параметров конструктора ProjectSession тянет
+            // IMarkDirtyService (фабричная регистрация ниже -> GetRequiredService<ProjectSession>),
+            // что даёт реентерабельный дедлок DI .NET 8 на construction-цикле.
+            // hydraulicsDirtyService = null каноничен: срез использует саму сессию
+            // как dirty-owner (ProjectSessionHydraulicsState: markDirtyService ?? this).
+            services.AddSingleton(sp => new ProjectSession(
+                sp.GetRequiredService<IClimateData>(),
+                sp.GetRequiredService<CalculationContext>(),
+                hydraulicsDirtyService: null));
             services.AddSingleton<IProjectSession>(sp => sp.GetRequiredService<ProjectSession>());
             services.AddSingleton<IProjectInfoService>(sp => sp.GetRequiredService<ProjectSession>());
             services.AddSingleton<IProjectStateService>(sp => sp.GetRequiredService<ProjectSession>());

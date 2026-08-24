@@ -6,7 +6,9 @@ using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Services.Hydraulics;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
+using SnowMeltingCalculator.Tests.Fixtures;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 
 namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
@@ -25,6 +27,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
         private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
         private CalculationContext _calculationContext = null!;
         private CircuitsViewModel _viewModel = null!;
+        private ProjectSession _canonicalSession = null!;
 
         [SetUp]
         public void Setup()
@@ -78,6 +81,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                     ValveType = ValveType.HKV_D
                 });
 
+            var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(_calculationStateServiceMock.Object, _calculationContext);
+            _canonicalSession = (ProjectSession)hydraulicsDependencies.Session;
             _viewModel = new CircuitsViewModel(
                 _circuitsCalculatorMock.Object,
                 _glycolServiceMock.Object,
@@ -85,7 +90,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                 _validatorMock.Object,
                 _collectorTypeSelectorMock.Object,
                 _calculationContext,
-                _markDirtyServiceMock.Object
+                 _markDirtyServiceMock.Object,
+                 hydraulicsDependencies.Coordinator,
+                  hydraulicsDependencies.Session
             );
         }
 
@@ -126,14 +133,40 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                 _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Never,
                     "После Reset изменение старого контура не должно помечать проект изменённым");
 
-                // Assert: новый контур после Reset получает ровно одну подписку ViewModel,
-                // поэтому изменение его свойства вызывает MarkDirty ровно один раз.
+                // Assert: новый контур после Reset получает ровно одну подписку ViewModel.
+                // Канонический dirty-контракт (миграция phase 5): dirty-владение живёт в
+                // ProjectSession.HydraulicsState — срез поднимает MarkDirty на aggregate
+                // root, а не на IMarkDirtyService, инжектированном во ViewModel. Ровно
+                // один переход IsDirty false->true доказывает отсутствие дублей подписок.
                 var newCircuit = _viewModel.Collectors[0].Circuits[0];
+                _canonicalSession.MarkClean();
                 _markDirtyServiceMock.Invocations.Clear();
-                newCircuit.CircuitLength = 100;
 
-                _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Once,
-                    "Изменение нового контура после Reset должно пометить проект изменённым ровно один раз");
+                var isDirtyTransitions = 0;
+                PropertyChangedEventHandler dirtyHandler = (_, e) =>
+                {
+                    if (e.PropertyName == nameof(ProjectSession.IsDirty))
+                    {
+                        isDirtyTransitions++;
+                    }
+                };
+                _canonicalSession.PropertyChanged += dirtyHandler;
+                try
+                {
+                    newCircuit.CircuitLength = 100;
+
+                    Assert.That(isDirtyTransitions, Is.EqualTo(1),
+                        "Изменение нового контура после Reset должно поднять ровно один переход IsDirty на canonical session");
+                    Assert.That(_canonicalSession.IsDirty, Is.True,
+                        "После изменения нового контура canonical session должна быть помечена изменённой");
+                }
+                finally
+                {
+                    _canonicalSession.PropertyChanged -= dirtyHandler;
+                }
+
+                _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Never,
+                    "VM-инжектированный IMarkDirtyService больше не канал dirty — владение перенесено в canonical slice");
             }
             finally
             {
