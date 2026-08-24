@@ -55,13 +55,14 @@ namespace SnowMeltingCalculator.Services.Project
         public double ReynoldsNumber { get; }
         public double FrictionFactor { get; }
         public double PressureLossPerMeter { get; }
+        public FlowRegime FlowRegime { get; }
 
-        public HydraulicCircuitResultSnapshot(double power, double flowRate, double velocity, double dpRohr, double dpVerteiler, double dpVent, double dpGesamt, double throttling, double valveTurns, double density, double kinematicViscosity, double reynoldsNumber, double frictionFactor, double pressureLossPerMeter)
+        public HydraulicCircuitResultSnapshot(double power, double flowRate, double velocity, double dpRohr, double dpVerteiler, double dpVent, double dpGesamt, double throttling, double valveTurns, double density, double kinematicViscosity, double reynoldsNumber, double frictionFactor, double pressureLossPerMeter, FlowRegime flowRegime = FlowRegime.Laminar)
         {
             Power = power; FlowRate = flowRate; Velocity = velocity; DpRohr = dpRohr; DpVerteiler = dpVerteiler;
             DpVent = dpVent; DpGesamt = dpGesamt; Throttling = throttling; ValveTurns = valveTurns; Density = density;
             KinematicViscosity = kinematicViscosity; ReynoldsNumber = reynoldsNumber; FrictionFactor = frictionFactor;
-            PressureLossPerMeter = pressureLossPerMeter;
+            PressureLossPerMeter = pressureLossPerMeter; FlowRegime = flowRegime;
         }
 
         public bool Equals(HydraulicCircuitResultSnapshot? other) => other is not null
@@ -70,7 +71,7 @@ namespace SnowMeltingCalculator.Services.Project
             && DpGesamt.Equals(other.DpGesamt) && Throttling.Equals(other.Throttling) && ValveTurns.Equals(other.ValveTurns)
             && Density.Equals(other.Density) && KinematicViscosity.Equals(other.KinematicViscosity)
             && ReynoldsNumber.Equals(other.ReynoldsNumber) && FrictionFactor.Equals(other.FrictionFactor)
-            && PressureLossPerMeter.Equals(other.PressureLossPerMeter);
+            && PressureLossPerMeter.Equals(other.PressureLossPerMeter) && FlowRegime == other.FlowRegime;
         public override bool Equals(object? obj) => obj is HydraulicCircuitResultSnapshot other && Equals(other);
         public override int GetHashCode()
         {
@@ -78,6 +79,7 @@ namespace SnowMeltingCalculator.Services.Project
             hash.Add(Power); hash.Add(FlowRate); hash.Add(Velocity); hash.Add(DpRohr); hash.Add(DpVerteiler); hash.Add(DpVent);
             hash.Add(DpGesamt); hash.Add(Throttling); hash.Add(ValveTurns); hash.Add(Density); hash.Add(KinematicViscosity);
             hash.Add(ReynoldsNumber); hash.Add(FrictionFactor); hash.Add(PressureLossPerMeter);
+            hash.Add(FlowRegime);
             return hash.ToHashCode();
         }
     }

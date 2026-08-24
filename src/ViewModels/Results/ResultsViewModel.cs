@@ -1705,84 +1705,16 @@ namespace SnowMeltingCalculator.ViewModels.Results
             data.ThermalData = ThermalPersistenceMapper.BuildThermalProjectData(
                 _projectSession.ThermalState.Snapshot);
 
-            // Сохраняем данные гидравлики
-            data.HydraulicsData = new HydraulicsProjectData
-            {
-                GlycolType = _circuitsViewModel.InputData.GlycolType,
-                GlycolConcentration = _circuitsViewModel.InputData.GlycolConcentration,
-                SupplySpacingCm = _circuitsViewModel.InputData.SupplySpacing_cm,
-                SupplyHeatPercent = _circuitsViewModel.InputData.SupplyHeatPercent,
-                Collectors = _circuitsViewModel.Collectors.Select(c => new CollectorProjectData
-                {
-                    CollectorNumber = c.CollectorNumber,
-                    CollectorType = c.CollectorType,
-                    ValveType = c.ValveType,
-                    Circuits = c.Circuits.Select(circuit => new CircuitProjectData
-                    {
-                        CircuitNumber = circuit.CircuitNumber,
-                        CircuitLength = circuit.CircuitLength,
-                        SupplyLength = circuit.SupplyLength,
-                        SupplySpacingCm = circuit.SupplySpacing_cm,
-                        SupplyHeatPercent = circuit.SupplyHeatPercent,
-                        PipeSpacingCm = circuit.PipeSpacing_cm,
-                        Power = circuit.Power,
-                        FlowRate = circuit.FlowRate,
-                        Velocity = circuit.Velocity,
-                        FlowRegimeDescription = circuit.FlowRegimeDescription,
-                        Throttling = circuit.Throttling,
-                        ValveTurns = circuit.ValveTurns,
-                        OperatingResult = circuit.OperatingResult != null ? new CircuitResultProjectData
-                        {
-                            Power = circuit.Power,
-                            FlowRate = circuit.FlowRate,
-                            Velocity = circuit.Velocity,
-                            DpRohr = circuit.OperatingResult.DpRohr,
-                            DpVerteiler = circuit.OperatingResult.DpVerteiler,
-                            DpVent = circuit.OperatingResult.DpVent,
-                            DpGesamt = circuit.OperatingResult.DpGesamt,
-                            Throttling = circuit.Throttling,
-                            ValveTurns = circuit.ValveTurns,
-                            FlowRegime = circuit.OperatingResult.FlowRegime.ToString(),
-                            FlowRegimeString = circuit.OperatingResult.FlowRegime.ToString(),
-                            Density = circuit.OperatingResult.Density,
-                            KinematicViscosity = circuit.OperatingResult.KinematicViscosity,
-                            ReynoldsNumber = circuit.OperatingResult.ReynoldsNumber,
-                            FrictionFactor = circuit.OperatingResult.FrictionFactor,
-                            PressureLossPerMeter = circuit.OperatingResult.PressureLossPerMeter
-                        } : null,
-                        DesignResult = circuit.DesignResult != null ? new CircuitResultProjectData
-                        {
-                            Power = circuit.Power,
-                            FlowRate = circuit.FlowRate,
-                            Velocity = circuit.Velocity,
-                            DpRohr = circuit.DesignResult.DpRohr,
-                            DpVerteiler = circuit.DesignResult.DpVerteiler,
-                            DpVent = circuit.DesignResult.DpVent,
-                            DpGesamt = circuit.DesignResult.DpGesamt,
-                            Throttling = circuit.Throttling,
-                            ValveTurns = circuit.ValveTurns,
-                            FlowRegime = circuit.DesignResult.FlowRegime.ToString(),
-                            FlowRegimeString = circuit.DesignResult.FlowRegime.ToString(),
-                            Density = circuit.DesignResult.Density,
-                            KinematicViscosity = circuit.DesignResult.KinematicViscosity,
-                            ReynoldsNumber = circuit.DesignResult.ReynoldsNumber,
-                            FrictionFactor = circuit.DesignResult.FrictionFactor,
-                            PressureLossPerMeter = circuit.DesignResult.PressureLossPerMeter
-                        } : null
-                    }).ToList(),
-                    Summary = c.Summary != null ? new CollectorSummaryProjectData
-                    {
-                        CircuitCount = c.Summary.CircuitCount,
-                        TotalPipeLength = c.Summary.TotalPipeLength,
-                        TotalPower = c.Summary.TotalPower,
-                        TotalFlowRate = c.Summary.TotalFlowRate,
-                        PressureLoss_Operating_Pa = c.Summary.PressureLoss_Operating_Pa,
-                        PressureLoss_Cold_Pa = c.Summary.PressureLoss_Cold_Pa,
-                        Kv = c.Summary.Kv,
-                        CollectorType = c.Summary.CollectorType
-                    } : null
-                }).ToList()
-            };
+            // Сохраняем данные гидравлики из канонического HydraulicsState snapshot.
+            var hydraulicsSnapshot = _circuitsViewModel.BuildCanonicalSnapshot();
+            _projectSession.HydraulicsState.ApplyGlobalInputs(
+                hydraulicsSnapshot.GlobalInputs,
+                HydraulicsMutationOrigin.User);
+            _projectSession.HydraulicsState.ReplaceCollectors(
+                hydraulicsSnapshot.Collectors,
+                HydraulicsMutationOrigin.User);
+            data.HydraulicsData = HydraulicsPersistenceMapper.BuildHydraulicsProjectData(
+                _projectSession.HydraulicsState.Snapshot);
 
             return data;
         }

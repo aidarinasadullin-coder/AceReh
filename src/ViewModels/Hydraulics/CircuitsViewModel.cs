@@ -732,6 +732,173 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             }
         }
 
+        /// <summary>
+        /// Mirror a canonical lifecycle snapshot into the WPF adapter.
+        /// The caller owns the canonical mutation; this method only refreshes UI data.
+        /// </summary>
+        public void ApplyLifecycleSnapshotToAdapter(HydraulicsStateSnapshot snapshot)
+        {
+            ArgumentNullException.ThrowIfNull(snapshot);
+
+            _isResetting = true;
+            try
+            {
+                Collectors.Clear();
+                SetInputData(new HydraulicInputData
+                {
+                    GlycolType = snapshot.GlobalInputs.GlycolType,
+                    GlycolConcentration = snapshot.GlobalInputs.GlycolConcentration,
+                    SupplySpacing_cm = snapshot.GlobalInputs.SupplySpacingCm,
+                    SupplyHeatPercent = snapshot.GlobalInputs.SupplyHeatPercent
+                });
+
+                foreach (var collectorSnapshot in snapshot.Collectors)
+                {
+                    var collector = new CollectorData(collectorSnapshot.CollectorNumber)
+                    {
+                        CollectorType = collectorSnapshot.CollectorType ?? string.Empty,
+                        ValveType = collectorSnapshot.ValveType
+                    };
+
+                    if (collectorSnapshot.Summary is { } summary)
+                    {
+                        collector.Summary = new CollectorSummary
+                        {
+                            CollectorNumber = collectorSnapshot.CollectorNumber,
+                            CollectorType = summary.CollectorType,
+                            CircuitCount = summary.CircuitCount,
+                            TotalPipeLength = summary.TotalPipeLength,
+                            TotalPower = summary.TotalPower,
+                            TotalFlowRate = summary.TotalFlowRate,
+                            PressureLoss_Operating_Pa = summary.PressureLoss_Operating_Pa,
+                            PressureLoss_Cold_Pa = summary.PressureLoss_Cold_Pa,
+                            Kv = summary.Kv,
+                            ValveType = collectorSnapshot.ValveType
+                        };
+                    }
+
+                    foreach (var circuitSnapshot in collectorSnapshot.Circuits)
+                    {
+                        collector.Circuits.Add(new CircuitRow
+                        {
+                            CircuitNumber = circuitSnapshot.CircuitNumber,
+                            CircuitLength = circuitSnapshot.CircuitLength,
+                            SupplyLength = circuitSnapshot.SupplyLength,
+                            SupplySpacing_cm = circuitSnapshot.SupplySpacingCm,
+                            SupplyHeatPercent = circuitSnapshot.SupplyHeatPercent,
+                            PipeSpacing_cm = circuitSnapshot.PipeSpacingCm,
+                            Power = circuitSnapshot.OperatingResult?.Power ?? 0,
+                            FlowRate = circuitSnapshot.OperatingResult?.FlowRate ?? 0,
+                            Velocity = circuitSnapshot.OperatingResult?.Velocity ?? 0,
+                            Throttling = circuitSnapshot.OperatingResult?.Throttling ?? 0,
+                            ValveTurns = circuitSnapshot.OperatingResult?.ValveTurns ?? 0,
+                            OperatingResult = ToDomainResult(circuitSnapshot.OperatingResult),
+                            DesignResult = ToDomainResult(circuitSnapshot.DesignResult)
+                        });
+                    }
+
+                    Collectors.Add(collector);
+                }
+
+                SelectedCollectorIndex = Collectors.Count == 0 ? -1 : 0;
+                CurrentMode = HydraulicMode.OperatingTemperature;
+                RebuildHydraulicSummaryCards();
+                AddCollectorCommand.NotifyCanExecuteChanged();
+                AddCircuitCommand.NotifyCanExecuteChanged();
+                RemoveCollectorCommand.NotifyCanExecuteChanged();
+                RemoveCircuitCommand.NotifyCanExecuteChanged();
+            }
+            finally
+            {
+                _isResetting = false;
+            }
+        }
+
+        /// <summary>
+        /// Capture the current adapter state for the canonical project slice.
+        /// </summary>
+        public HydraulicsStateSnapshot BuildCanonicalSnapshot()
+        {
+            var collectors = Collectors.Select(collector => new HydraulicCollectorSnapshot(
+                collector.CollectorNumber,
+                collector.CollectorType,
+                collector.ValveType,
+                collector.Circuits.Select(circuit => new HydraulicCircuitSnapshot(
+                    circuit.CircuitNumber,
+                    circuit.CircuitLength,
+                    circuit.SupplyLength,
+                    circuit.SupplySpacing_cm,
+                    circuit.SupplyHeatPercent,
+                    circuit.PipeSpacing_cm,
+                    ToSnapshot(circuit.OperatingResult, circuit),
+                    ToSnapshot(circuit.DesignResult, circuit))),
+                ToSnapshot(collector.Summary)));
+
+            return new HydraulicsStateSnapshot(
+                new HydraulicGlobalInputsSnapshot(
+                    InputData.GlycolType,
+                    InputData.GlycolConcentration,
+                    InputData.SupplySpacing_cm,
+                    InputData.SupplyHeatPercent),
+                collectors,
+                HydraulicsStatusSnapshot.Default);
+        }
+
+        private static HydraulicCircuitResultSnapshot ToSnapshot(CircuitTemperatureResult result, CircuitRow circuit)
+        {
+            return new HydraulicCircuitResultSnapshot(
+                circuit.Power,
+                circuit.FlowRate,
+                circuit.Velocity,
+                result.DpRohr,
+                result.DpVerteiler,
+                result.DpVent,
+                result.DpGesamt,
+                circuit.Throttling,
+                circuit.ValveTurns,
+                result.Density,
+                result.KinematicViscosity,
+                result.ReynoldsNumber,
+                result.FrictionFactor,
+                result.PressureLossPerMeter,
+                result.FlowRegime);
+        }
+
+        private static HydraulicCollectorSummarySnapshot? ToSnapshot(CollectorSummary summary)
+        {
+            return summary is null ? null : new HydraulicCollectorSummarySnapshot(
+                summary.CircuitCount,
+                summary.TotalPipeLength,
+                summary.TotalPower,
+                summary.TotalFlowRate,
+                summary.PressureLoss_Operating_Pa,
+                summary.PressureLoss_Cold_Pa,
+                summary.Kv,
+                summary.CollectorType);
+        }
+
+        private static CircuitTemperatureResult ToDomainResult(HydraulicCircuitResultSnapshot? snapshot)
+        {
+            if (snapshot is null)
+            {
+                return new CircuitTemperatureResult();
+            }
+
+            return new CircuitTemperatureResult
+            {
+                DpRohr = snapshot.DpRohr,
+                DpVerteiler = snapshot.DpVerteiler,
+                DpVent = snapshot.DpVent,
+                ZuDrosseln = snapshot.Throttling,
+                FlowRegime = snapshot.FlowRegime,
+                Density = snapshot.Density,
+                KinematicViscosity = snapshot.KinematicViscosity,
+                ReynoldsNumber = snapshot.ReynoldsNumber,
+                FrictionFactor = snapshot.FrictionFactor,
+                PressureLossPerMeter = snapshot.PressureLossPerMeter
+            };
+        }
+
         #endregion
 
         #region Constructor
