@@ -1,0 +1,20 @@
+﻿{
+    "status":  "passed",
+    "pattern":  "phase-4 historical negative probes",
+    "negativeProbe":  {
+                          "expectedExit":  3,
+                          "exitCode":  3,
+                          "output":  [
+                                         "RECONCILE FAIL: 2 mismatch(es) in C:\\Users\\Admin\\AppData\\Local\\Temp\\opencode\\t12-corrupted-arithmetic.json",
+                                         "  - sum: baseline_passed(1943) + new_test_count(33) != full_passed(1981)",
+                                         "  - partition: passed(1981) + failed(0) + skipped(0) + notExecuted(3) != total(1979)"
+                                     ],
+                          "receipt":  "synthetic corrupted copy (full_passed bumped +5)"
+                      },
+    "validatorScript":  "task-12/reconcile-arithmetic.ps1",
+    "positiveProbe":  {
+                          "output":  "RECONCILE OK: sums match and identities subset holds for docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\task-12\\arithmetic.json",
+                          "exitCode":  0,
+                          "receipt":  "task-12/arithmetic.json"
+                      }
+}
