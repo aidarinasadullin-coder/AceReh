@@ -1,0 +1,203 @@
+{
+    "protected_mismatch_count":  0,
+    "allowed_hunk_count":  39,
+    "changed_paths":  [
+                          {
+                              "path":  "docs/architecture-migration/maps/architecture-model.json",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "docs/architecture-migration/maps/characterization-tests.md",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "docs/architecture-migration/maps/compile-time.md",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "docs/architecture-migration/maps/di-runtime.md",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "docs/architecture-migration/maps/persistence-compatibility.md",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "docs/architecture-migration/maps/persistence.md",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "docs/architecture-migration/maps/reactive.md",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "docs/architecture-migration/maps/state-inventory.md",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "docs/architecture-migration/maps/state-ownership.md",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "docs/architecture-migration/maps/target-invariants.md",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "docs/architecture-migration/maps/user-flow.md",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "src/Configuration/ServiceCollectionExtensions.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "src/Services/Navigation/CalculationStateService.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "src/Services/Project/IProjectSession.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "src/Services/Project/ProjectLoadOrchestrator.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "src/Services/Project/ProjectSession.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "src/ViewModels/Hydraulics/CircuitsViewModel.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "src/ViewModels/Results/ResultsViewModel.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "src/Views/Hydraulics/CircuitsView.xaml",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/Configuration/DiRegistrationTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionServiceTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CalculationContextWriterAuthorityTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CircuitsViewModelColdStartTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/DoubleCalculationPreventionTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/GlycolAutoRecalculationTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/PipeSpacingSynchronizationTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ThermalToHydraulicsIntegrationTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/Services/Navigation/CalculationStateServiceTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/Services/Navigation/DialogServiceThreadAffinityTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ClimateThermalInvalidationRegressionTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectLifecycleFlowCharacterizationTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalMultiplicityCharacterizationTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelEventLeakTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/MainViewModelTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResetOrchestrationTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelOpenProjectTests.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          },
+                          {
+                              "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelTestHelpers.cs",
+                              "kind":  "modified",
+                              "classification":  "allowed"
+                          }
+                      ],
+    "baseline":  "docs/architecture-migration/evidence/phase-5-hydraulics-state/task-1/protected-manifest.json",
+    "evidenceRoot":  "docs/architecture-migration/evidence/phase-5-hydraulics-state/final/f1"
+}
