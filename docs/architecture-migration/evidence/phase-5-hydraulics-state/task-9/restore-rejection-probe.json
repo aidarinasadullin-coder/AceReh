@@ -1,0 +1,14 @@
+{
+  "phase": "phase-5-hydraulics-state",
+  "todo": 9,
+  "planSha256": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+  "scenario": "HydraulicsState restore origin and atomic rejection contract",
+  "acceptedBehavior": {
+    "restoreOrigin": "ProjectLoad",
+    "nonProjectLoadRestore": "Rejected",
+    "rejectedSnapshotChanged": false,
+    "rejectedEventsEmitted": 0,
+    "previousSnapshotPreserved": true
+  },
+  "sourceContract": "ProjectSessionHydraulicsState.Restore accepts only ProjectLoad and rejects other origins before Commit"
+}

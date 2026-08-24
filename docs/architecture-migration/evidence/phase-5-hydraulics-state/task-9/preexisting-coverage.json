@@ -1,0 +1,28 @@
+{
+  "phase": "phase-5-hydraulics-state",
+  "todo": 9,
+  "planSha256": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+  "coverage": [
+    {
+      "testClass": "ProjectLifecycleFlowCharacterizationTests",
+      "covers": "repeated reset/load lifecycle and subscription hygiene"
+    },
+    {
+      "testClass": "HydraulicsMultiplicityCharacterizationTests",
+      "covers": "restore census, fallback calculation, replacement and exact hydraulics counts"
+    },
+    {
+      "testClass": "ThermalMultiplicityCharacterizationTests",
+      "covers": "load/reset completion and fallback boundary"
+    },
+    {
+      "testClass": "ProjectRoundTripTests",
+      "covers": "project persistence and restore compatibility"
+    },
+    {
+      "testClass": "ResultsViewModelOpenProjectTests",
+      "covers": "public project-load completion path"
+    }
+  ],
+  "testSourcesModified": false
+}

@@ -32,6 +32,7 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         private readonly IProjectSessionClimateState _climateState;
         private readonly IProjectSessionConstructionState _constructionState;
         private readonly IProjectSessionThermalState _thermalState;
+        private readonly IProjectSessionHydraulicsState _hydraulicsState;
         private readonly ConstructionDefaultStateInitializer _constructionDefaultStateInitializer;
 
         public ResultsViewModel ResultsViewModel => _resultsViewModel;
@@ -66,6 +67,7 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             _climateState = session.ClimateState;
             _constructionState = session.ConstructionState;
             _thermalState = session.ThermalState;
+            _hydraulicsState = session.HydraulicsState;
             _constructionDefaultStateInitializer = constructionDefaultStateInitializer
                 ?? throw new ArgumentNullException(nameof(constructionDefaultStateInitializer));
 
@@ -242,6 +244,7 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             // (DEC-T08, Todo 9); адаптер ниже зеркалит дефолты без мутаций.
             _thermalState.ResetToDefaults(ThermalMutationOrigin.ProjectLoadReset);
             _thermalViewModel.Reset();
+            _hydraulicsState.ResetToDefaults(HydraulicsMutationOrigin.UserReset);
             _circuitsViewModel.Reset();
             _projectStateService.MarkClean();
         }

@@ -1,0 +1,28 @@
+{
+  "phase": "phase-5-hydraulics-state",
+  "todo": 9,
+  "planSha256": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+  "command": "dotnet test tests\\SnowMeltingCalculator.Tests\\SnowMeltingCalculator.Tests.csproj -c Release --no-build --filter \"FullyQualifiedName~ProjectLifecycleFlowCharacterizationTests|FullyQualifiedName~HydraulicsMultiplicityCharacterizationTests|FullyQualifiedName~ThermalMultiplicityCharacterizationTests|FullyQualifiedName~ProjectRoundTripTests|FullyQualifiedName~ResultsViewModelOpenProjectTests\" --logger \"trx;LogFileName=task-9-run-N.trx\"",
+  "runs": [
+    {
+      "id": "run-1",
+      "result": "PASS",
+      "total": 115,
+      "passed": 114,
+      "failed": 0,
+      "acceptedNotExecuted": 1,
+      "rawTrx": "task-9-run-1.trx"
+    },
+    {
+      "id": "run-2",
+      "result": "PASS",
+      "total": 115,
+      "passed": 114,
+      "failed": 0,
+      "acceptedNotExecuted": 1,
+      "rawTrx": "task-9-run-2.trx"
+    }
+  ],
+  "acceptedNotExecutedIdentity": "SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests.ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile",
+  "gate": "PASS"
+}
