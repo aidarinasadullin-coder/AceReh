@@ -9,6 +9,7 @@ using SnowMeltingCalculator.Services.Hydraulics;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
+using SnowMeltingCalculator.Tests.Fixtures;
 
 namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
 {
@@ -101,6 +102,7 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                     Warning = null
                 });
 
+            var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(_calculationStateServiceMock.Object, _calculationContext);
             _viewModel = new CircuitsViewModel(
                 _realCircuitsCalculator,
                 _glycolServiceMock.Object,
@@ -108,7 +110,9 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 _validatorMock.Object,
                 _collectorTypeSelectorMock.Object,
                 _calculationContext,
-                _markDirtyServiceMock.Object);
+                 _markDirtyServiceMock.Object,
+                 hydraulicsDependencies.Coordinator,
+                  hydraulicsDependencies.Session);
 
             // Prepare a single active circuit with known length and no supply length.
             var collector = _viewModel.Collectors[0];

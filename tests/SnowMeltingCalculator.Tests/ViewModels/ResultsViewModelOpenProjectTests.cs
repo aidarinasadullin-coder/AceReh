@@ -31,6 +31,7 @@ using SnowMeltingCalculator.Services.Visualization;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
+using SnowMeltingCalculator.Tests.Fixtures;
 using SnowMeltingCalculator.ViewModels.Results;
 using SnowMeltingCalculator.ViewModels.Thermal;
 
@@ -883,7 +884,10 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 IsValid = true
             };
 
-            var circuitsVm = CreateCircuitsViewModel(calculationStateService, _projectStateService);
+            var circuitsVm = CreateCircuitsViewModel(
+                calculationStateService,
+                _projectStateService,
+                projectSession: _projectStateService.Session);
             circuitsVm.InputData.GlycolType = GlycolType.Propylene;
             circuitsVm.InputData.GlycolConcentration = 42;
             circuitsVm.Collectors.Clear();
@@ -2021,14 +2025,19 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     .Returns(true);
             }
 
+            var calculationStateService = new CalculationStateService();
+            var calculationContext = new CalculationContext();
+            var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(calculationStateService, calculationContext);
             return new CircuitsViewModel(
                 calculatorMock.Object,
                 glycolMock.Object,
-                new CalculationStateService(),
+                calculationStateService,
                 validatorMock.Object,
                 selectorMock.Object,
-                new CalculationContext(),
-                new Mock<IMarkDirtyService>().Object);
+                calculationContext,
+                new Mock<IMarkDirtyService>().Object,
+                hydraulicsDependencies.Coordinator,
+                hydraulicsDependencies.Session);
         }
 
         private ResultsViewModel CreateViewModel(
@@ -2192,7 +2201,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         private static CircuitsViewModel CreateCircuitsViewModel(
             CalculationStateService calculationStateService,
             IMarkDirtyService markDirtyService,
-            bool allowRemoveCircuit = false)
+            bool allowRemoveCircuit = false,
+            IProjectSession? projectSession = null)
         {
             var calculatorMock = new Mock<ICircuitsCalculator>();
             calculatorMock.Setup(c => c.CalculateCircuitPower(It.IsAny<CircuitRow>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<double>())).Returns(0.0);
@@ -2215,14 +2225,21 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     .Returns(true);
             }
 
+            var calculationContext = new CalculationContext();
+            var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(
+                calculationStateService,
+                calculationContext,
+                projectSession);
             return new CircuitsViewModel(
                 calculatorMock.Object,
                 glycolMock.Object,
                 calculationStateService,
                 validatorMock.Object,
                 selectorMock.Object,
-                new CalculationContext(),
-                markDirtyService);
+                calculationContext,
+                markDirtyService,
+                hydraulicsDependencies.Coordinator,
+                hydraulicsDependencies.Session);
         }
 
         private static CollectorData CreateCollectorForLifecycle(

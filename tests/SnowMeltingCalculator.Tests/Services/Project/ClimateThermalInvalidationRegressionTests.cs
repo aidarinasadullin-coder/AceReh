@@ -14,6 +14,7 @@ using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Hydraulics;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Project;
+using SnowMeltingCalculator.Tests.Fixtures;
 using SnowMeltingCalculator.Services.Reports.Calculation;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Services.Thermal;
@@ -495,6 +496,7 @@ public sealed class ClimateThermalInvalidationRegressionTests
         var selector = new Mock<ICollectorTypeSelector>();
         selector.Setup(service => service.SelectCollectorType(It.IsAny<CollectorData>()))
             .Returns(new CollectorSelectionResult { ValveType = ValveType.HKV_D });
+        var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(calculationState, context);
         return new CircuitsViewModel(
             calculator.Object,
             glycol.Object,
@@ -502,7 +504,9 @@ public sealed class ClimateThermalInvalidationRegressionTests
             new Mock<ICircuitsValidator>().Object,
             selector.Object,
             context,
-            markDirtyService);
+             markDirtyService,
+             hydraulicsDependencies.Coordinator,
+                  hydraulicsDependencies.Session);
     }
 
     private sealed record Fixture(

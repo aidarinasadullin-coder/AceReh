@@ -38,12 +38,12 @@ namespace SnowMeltingCalculator.Services.Project
         /// <inheritdoc />
         public IProjectSessionHydraulicsState HydraulicsState => _hydraulicsState;
 
-        public ProjectSession(IClimateData? climateData = null, CalculationContext? calculationContext = null)
+        public ProjectSession(IClimateData? climateData = null, CalculationContext? calculationContext = null, IMarkDirtyService? hydraulicsDirtyService = null)
         {
             _climateState = new ProjectSessionClimateState(this, climateData, calculationContext);
             _constructionState = new ProjectSessionConstructionState(this, calculationContext);
             _thermalState = new ProjectSessionThermalState();
-            _hydraulicsState = new ProjectSessionHydraulicsState(this);
+            _hydraulicsState = new ProjectSessionHydraulicsState(hydraulicsDirtyService ?? this);
         }
 
         /// <inheritdoc />

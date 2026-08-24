@@ -1,6 +1,6 @@
 using System.ComponentModel;
-using System.IO;
-using System.Text.RegularExpressions;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Moq;
 using NUnit.Framework;
 using SnowMeltingCalculator.Core;
@@ -22,6 +22,7 @@ using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Thermal;
+using SnowMeltingCalculator.Tests.Fixtures;
 
 namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics;
 
@@ -226,29 +227,84 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
     }
 
     [Test]
-    public void SaveProjection_ContainsCurrentHydraulicsWireFieldsAndVersionLiteral()
+    public async Task SaveProjection_ContainsCurrentHydraulicsWireFieldsAndVersionLiteral()
     {
-        var sourceRoot = FindSourceRoot();
-        var resultsSource = File.ReadAllText(Path.Combine(sourceRoot, "ViewModels", "Results", "ResultsViewModel.cs"));
-        var methodStart = resultsSource.IndexOf("public ProjectData SaveCurrentProject", StringComparison.Ordinal);
-        var nextMethod = resultsSource.IndexOf("\n        /// <summary>", methodStart + 1, StringComparison.Ordinal);
-        var saveBody = resultsSource[methodStart..nextMethod];
+        // Characterizes the real .smc save projection instead of source text:
+        // a representative project is restored into the canonical
+        // ProjectSession.HydraulicsState (the production load boundary), then
+        // projected through HydraulicsPersistenceMapper.BuildHydraulicsProjectData
+        // — the sole hydraulics wire-format writer invoked by
+        // ResultsViewModel.SaveCurrentProject — and serialized with the exact
+        // System.Text.Json options ProjectFileService applies to .smc files.
+        var fixture = CreateFixture();
+        await fixture.Orchestrator.RestoreModulesFromProjectAsync(CreateProjectData());
+
+        var savedProject = new ProjectData
+        {
+            Version = "1.1",
+            HydraulicsData = HydraulicsPersistenceMapper.BuildHydraulicsProjectData(
+                fixture.Session.HydraulicsState.Snapshot)
+        };
+        var json = JsonSerializer.Serialize(savedProject, CreateSmcSerializerOptions());
+
+        using var document = JsonDocument.Parse(json);
+        var root = document.RootElement;
+        var hydraulics = root.GetProperty("hydraulicsData");
+        var circuit = hydraulics.GetProperty("collectors")[0].GetProperty("circuits")[0];
+        var operatingResult = circuit.GetProperty("operatingResult");
+        var designResult = circuit.GetProperty("designResult");
 
         Assert.Multiple(() =>
         {
-            Assert.That(saveBody, Does.Contain("Version = \"1.1\""));
-            Assert.That(saveBody, Does.Contain("HydraulicsData"));
-            Assert.That(saveBody, Does.Contain("BuildCanonicalSnapshot"));
-            Assert.That(saveBody, Does.Contain("HydraulicsPersistenceMapper.BuildHydraulicsProjectData"));
+            Assert.That(root.TryGetProperty("version", out var version), Is.True,
+                "Serialized .smc payload must contain the 'version' field");
+            Assert.That(version.GetString(), Is.EqualTo("1.1"),
+                "Serialized .smc payload must keep the Version = 1.1 compatibility literal");
+
+            Assert.That(hydraulics.TryGetProperty("glycolType", out var glycolType), Is.True,
+                "Serialized .smc payload must contain wire field 'glycolType'");
+            Assert.That(glycolType.GetString(), Is.EqualTo("propylene"),
+                "'glycolType' must serialize as the established camelCase enum wire value");
+
+            Assert.That(hydraulics.TryGetProperty("glycolConcentration", out _), Is.True,
+                "Serialized .smc payload must contain wire field 'glycolConcentration'");
+            Assert.That(hydraulics.TryGetProperty("supplySpacingCm", out _), Is.True,
+                "Serialized .smc payload must contain wire field 'supplySpacingCm'");
+            Assert.That(hydraulics.TryGetProperty("supplyHeatPercent", out _), Is.True,
+                "Serialized .smc payload must contain wire field 'supplyHeatPercent'");
+            Assert.That(hydraulics.TryGetProperty("collectors", out _), Is.True,
+                "Serialized .smc payload must contain wire field 'collectors'");
+
+            Assert.That(circuit.TryGetProperty("operatingResult", out _), Is.True,
+                "Serialized .smc payload must contain wire field 'operatingResult'");
+            Assert.That(operatingResult.TryGetProperty("flowRegimeString", out var operatingFlowRegime), Is.True,
+                "Serialized .smc payload must contain wire field 'flowRegimeString' on operatingResult");
+            Assert.That(operatingFlowRegime.GetString(), Is.EqualTo("Laminar"),
+                "'flowRegimeString' must carry the restored operating flow regime literal");
+
+            Assert.That(circuit.TryGetProperty("designResult", out _), Is.True,
+                "Serialized .smc payload must contain wire field 'designResult'");
+            Assert.That(designResult.TryGetProperty("flowRegimeString", out var designFlowRegime), Is.True,
+                "Serialized .smc payload must contain wire field 'flowRegimeString' on designResult");
+            Assert.That(designFlowRegime.GetString(), Is.EqualTo("Turbulent"),
+                "'flowRegimeString' must carry the restored design flow regime literal");
         });
     }
 
-    private static string FindSourceRoot()
+    private static JsonSerializerOptions CreateSmcSerializerOptions()
     {
-        var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-        while (directory != null && !Directory.Exists(Path.Combine(directory.FullName, "src")))
-            directory = directory.Parent;
-        return directory == null ? throw new InvalidOperationException("Repository root not found") : Path.Combine(directory.FullName, "src");
+        // Mirror the serialization options used by ProjectFileService for .smc
+        // files (same pattern as ProjectFileServiceMutationTests).
+        return new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters =
+            {
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+            }
+        };
     }
 
     private static ProjectData CreateProjectData() => new()
@@ -329,22 +385,32 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
         selector.Setup(s => s.SelectCollectorType(It.IsAny<CollectorData>())).Returns(new CollectorSelectionResult { ValveType = ValveType.HKV_D });
         var glycol = new Mock<IGlycolDataService>();
         glycol.Setup(g => g.GetProperties(It.IsAny<GlycolType>(), It.IsAny<double>(), It.IsAny<double>())).Returns(new GlycolProperties { Density = 1050, SpecificHeat = 3800, KinematicViscosity = 0.000005 });
-        var circuits = new CircuitsViewModel(calculator.Object, glycol.Object, state.Object, validator.Object, selector.Object, context, dirty.Object);
+        var session = new ProjectSession(calculationContext: context, hydraulicsDirtyService: dirty.Object);
+        var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(state.Object, context, session);
+        var circuits = new CircuitsViewModel(
+            calculator.Object,
+            glycol.Object,
+            state.Object,
+            validator.Object,
+            selector.Object,
+            context,
+            dirty.Object,
+            hydraulicsDependencies.Coordinator,
+            hydraulicsDependencies.Session);
         circuits.Collectors[0].Circuits.Add(new CircuitRow { CircuitNumber = 1, CircuitLength = 100 });
         circuits.SelectedCollectorIndex = 0;
-        var session = new ProjectSession();
         var climate = new ClimateViewModel(new Mock<IClimateDataService>().Object, new ClimateData(), new ClimateValidator(), dirty.Object, context);
         var construction = new ConstructionViewModelTestFactory().Create(session);
         var thermal = new ThermalViewModel(new Mock<IThermalCalculator>().Object, new ClimateData(), new ConstructionData(), state.Object, context, new ThermalValidator(new ThermalCalculator(), new ClimateData(), new ConstructionData()), new ThermalResultValidator(), dirty.Object);
         var orchestrator = new ProjectLoadOrchestrator(climate, construction, thermal, circuits, state.Object, new Mock<IConstructionService>().Object, context, session, new ConstructionDefaultStateInitializer(new Mock<IMaterialRepository>().Object, session.ConstructionState));
-        return new Fixture(circuits, calculator, state, dirty, context, orchestrator);
+        return new Fixture(circuits, calculator, state, dirty, context, orchestrator, session);
     }
 
     private sealed class Fixture
     {
-        public Fixture(CircuitsViewModel viewModel, Mock<ICircuitsCalculator> calculatorMock, Mock<ICalculationStateService> stateMock, Mock<IMarkDirtyService> dirtyMock, CalculationContext context, ProjectLoadOrchestrator orchestrator)
+        public Fixture(CircuitsViewModel viewModel, Mock<ICircuitsCalculator> calculatorMock, Mock<ICalculationStateService> stateMock, Mock<IMarkDirtyService> dirtyMock, CalculationContext context, ProjectLoadOrchestrator orchestrator, ProjectSession session)
         {
-            ViewModel = viewModel; CalculatorMock = calculatorMock; StateMock = stateMock; DirtyMock = dirtyMock; Context = context; Orchestrator = orchestrator;
+            ViewModel = viewModel; CalculatorMock = calculatorMock; StateMock = stateMock; DirtyMock = dirtyMock; Context = context; Orchestrator = orchestrator; Session = session;
             StateMock.Setup(s => s.SetHydraulicsCalculating()).Callback(() => { });
             StateMock.Setup(s => s.ResetHydraulicsState()).Callback(() => { });
         }
@@ -354,6 +420,7 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
         public Mock<IMarkDirtyService> DirtyMock { get; }
         public CalculationContext Context { get; }
         public ProjectLoadOrchestrator Orchestrator { get; }
+        public ProjectSession Session { get; }
         public int DirtyCalls => DirtyMock.Invocations.Count(i => i.Method.Name == nameof(IMarkDirtyService.MarkDirty));
         public int SummaryCalls => CalculatorMock.Invocations.Count(i => i.Method.Name == nameof(ICircuitsCalculator.CalculateCollectorSummary));
         public int PipeSpacing { get; set; } = 200;

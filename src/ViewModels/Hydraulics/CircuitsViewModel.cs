@@ -37,11 +37,12 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         private readonly ICollectorTypeSelector _collectorTypeSelector;
         private readonly CalculationContext _calculationContext;
         private readonly IMarkDirtyService _markDirtyService;
-        private readonly IHydraulicsStateCoordinator? _coordinator;
+        private readonly IHydraulicsStateCoordinator _coordinator;
+        private readonly IProjectSessionHydraulicsState _hydraulicsState;
 
         private PropertyChangedEventHandler? _inputDataPropertyChangedHandler;
-        private EventHandler<ContextChangedEventArgs>? _contextChangedHandler;
-        private EventHandler<int>? _pipeSpacingChangedHandler;
+        private bool _isMirroringHydraulicsState;
+        private bool _isCalculating;
         private bool _isInitializing = true;
         private bool _isResetting;
 
@@ -285,7 +286,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// ICalculationStateService.PipeSpacing (мм), делённый на 10.
         /// </remarks>
         public double PipeSpacing_cm =>
-            (_calculationContext.ThermalInputs?.PipeSpacing ?? _calculationStateService.PipeSpacing) / 10.0;
+            _calculationStateService.PipeSpacing / 10.0;
 
         /// <summary>
         /// Шаг подводки, см
@@ -431,104 +432,90 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         [RelayCommand]
         private void Calculate()
         {
-            if (_coordinator != null)
-            {
-                _coordinator.Calculate(ExecuteCalculate);
-                return;
-            }
-
-            _calculationStateService.SetHydraulicsCalculating();
+            _isCalculating = true;
             try
             {
-                var summaries = ExecuteCalculate();
-                if (summaries == null)
-                {
-                    return;
-                }
-
-                _calculationContext.UpdateHydraulics(summaries, "CircuitsViewModel");
+                _coordinator.Calculate(ExecuteCalculate);
             }
             finally
             {
-                if (string.IsNullOrEmpty(ValidationMessage))
-                {
-                    _calculationStateService.ResetHydraulicsState();
-                }
+                _isCalculating = false;
             }
         }
 
         private List<CollectorSummary>? ExecuteCalculate()
         {
-            ValidationMessage = string.Empty;
-
-            if (SelectedCollector == null)
+            _isCalculating = true;
+            try
             {
-                return null;
+                ValidationMessage = string.Empty;
+
+                if (SelectedCollector == null)
+                {
+                    return null;
+                }
+
+                CalculateCollector(SelectedCollector, autoSelectType: true);
+
+                if (!string.IsNullOrEmpty(ValidationMessage))
+                {
+                    return null;
+                }
+
+                RebuildHydraulicSummaryCards();
+                return Collectors.Where(c => c.Summary != null).Select(c => c.Summary!).ToList();
             }
-
-            CalculateCollector(SelectedCollector, autoSelectType: true);
-
-            if (!string.IsNullOrEmpty(ValidationMessage))
+            finally
             {
-                return null;
+                _isCalculating = false;
             }
-
-            RebuildHydraulicSummaryCards();
-            return Collectors.Where(c => c.Summary != null).Select(c => c.Summary!).ToList();
         }
 
         private void CalculateAllCollectors()
         {
-            if (_coordinator != null)
-            {
-                _coordinator.CalculateAll(ExecuteCalculateAll);
-                return;
-            }
-
-            _calculationStateService.SetHydraulicsCalculating();
+            _isCalculating = true;
             try
             {
-                var summaries = ExecuteCalculateAll();
-                if (summaries == null)
-                {
-                    return;
-                }
-
-                _calculationContext.UpdateHydraulics(summaries, "CircuitsViewModel");
+                _coordinator.CalculateAll(ExecuteCalculateAll);
             }
             finally
             {
-                if (string.IsNullOrEmpty(ValidationMessage))
-                {
-                    _calculationStateService.ResetHydraulicsState();
-                }
+                _isCalculating = false;
             }
         }
 
         private List<CollectorSummary>? ExecuteCalculateAll()
         {
-            ValidationMessage = string.Empty;
-
-            foreach (var collector in Collectors)
+            _isCalculating = true;
+            try
             {
-                CalculateCollector(collector, autoSelectType: true);
+                ValidationMessage = string.Empty;
+
+                foreach (var collector in Collectors)
+                {
+                    CalculateCollector(collector, autoSelectType: true);
+                    if (!string.IsNullOrEmpty(ValidationMessage))
+                    {
+                        break;
+                    }
+                }
+
                 if (!string.IsNullOrEmpty(ValidationMessage))
                 {
-                    break;
+                    return null;
                 }
-            }
 
-            if (!string.IsNullOrEmpty(ValidationMessage))
+                OnPropertyChanged(nameof(Summary));
+                OnPropertyChanged(nameof(CollectorTypeDisplay));
+                OnPropertyChanged(nameof(KvValue));
+
+                RebuildHydraulicSummaryCards();
+                return Collectors.Where(c => c.Summary != null).Select(c => c.Summary!).ToList();
+            }
+            finally
             {
-                return null;
+                _isCalculating = false;
             }
-
-            OnPropertyChanged(nameof(Summary));
-            OnPropertyChanged(nameof(CollectorTypeDisplay));
-            OnPropertyChanged(nameof(KvValue));
-
-            RebuildHydraulicSummaryCards();
-            return Collectors.Where(c => c.Summary != null).Select(c => c.Summary!).ToList();
         }
 
         private void CalculateCollector(CollectorData collector, bool autoSelectType)
@@ -565,7 +552,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             }
 
             double innerDiameter = thermalInputs?.Pipe?.InnerDiameter ?? DefaultInnerDiameter;
-            double pipeSpacing_mm = thermalInputs?.PipeSpacing ?? _calculationStateService.PipeSpacing;
+            double pipeSpacing_mm = _calculationStateService.PipeSpacing;
 
             double operatingTemp = thermalResult?.MeanTemperature ?? 0.0;
             double designTemp = _calculationContext.AirTemperature;
@@ -581,7 +568,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             {
                 ValidationMessage = ex.Message;
                 _calculationStateService.SetHydraulicsError(ex.Message);
-                _calculationContext.UpdateHydraulics(((List<CollectorSummary>?)null)!, "CircuitsViewModel");
+                _coordinator.PublishHydraulics(null);
                 return;
             }
 
@@ -675,15 +662,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             {
                 circuit.DisplayMode = CurrentMode;
             }
-        }
-
-        private void PublishHydraulicsSummaries()
-        {
-            var summaries = Collectors
-                .Where(c => c.Summary != null)
-                .Select(c => c.Summary!)
-                .ToList();
-            _calculationContext.UpdateHydraulics(summaries, "CircuitsViewModel");
         }
 
         /// <summary>
@@ -817,35 +795,13 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// <summary>
         /// Capture the current adapter state for the canonical project slice.
         /// </summary>
-        public HydraulicsStateSnapshot BuildCanonicalSnapshot()
+        private static HydraulicCircuitResultSnapshot? ToSnapshot(CircuitTemperatureResult? result, CircuitRow circuit)
         {
-            var collectors = Collectors.Select(collector => new HydraulicCollectorSnapshot(
-                collector.CollectorNumber,
-                collector.CollectorType,
-                collector.ValveType,
-                collector.Circuits.Select(circuit => new HydraulicCircuitSnapshot(
-                    circuit.CircuitNumber,
-                    circuit.CircuitLength,
-                    circuit.SupplyLength,
-                    circuit.SupplySpacing_cm,
-                    circuit.SupplyHeatPercent,
-                    circuit.PipeSpacing_cm,
-                    ToSnapshot(circuit.OperatingResult, circuit),
-                    ToSnapshot(circuit.DesignResult, circuit))),
-                ToSnapshot(collector.Summary)));
+            if (result is null)
+            {
+                return null;
+            }
 
-            return new HydraulicsStateSnapshot(
-                new HydraulicGlobalInputsSnapshot(
-                    InputData.GlycolType,
-                    InputData.GlycolConcentration,
-                    InputData.SupplySpacing_cm,
-                    InputData.SupplyHeatPercent),
-                collectors,
-                HydraulicsStatusSnapshot.Default);
-        }
-
-        private static HydraulicCircuitResultSnapshot ToSnapshot(CircuitTemperatureResult result, CircuitRow circuit)
-        {
             return new HydraulicCircuitResultSnapshot(
                 circuit.Power,
                 circuit.FlowRate,
@@ -864,7 +820,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 result.FlowRegime);
         }
 
-        private static HydraulicCollectorSummarySnapshot? ToSnapshot(CollectorSummary summary)
+        private static HydraulicCollectorSummarySnapshot? ToSnapshot(CollectorSummary? summary)
         {
             return summary is null ? null : new HydraulicCollectorSummarySnapshot(
                 summary.CircuitCount,
@@ -899,6 +855,42 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             };
         }
 
+        private IReadOnlyList<HydraulicCollectorSnapshot> CaptureCanonicalCollectors()
+        {
+            return Collectors.Select(collector => new HydraulicCollectorSnapshot(
+                collector.CollectorNumber,
+                collector.CollectorType,
+                collector.ValveType,
+                collector.Circuits.Select(circuit => new HydraulicCircuitSnapshot(
+                    circuit.CircuitNumber,
+                    circuit.CircuitLength,
+                    circuit.SupplyLength,
+                    circuit.SupplySpacing_cm,
+                    circuit.SupplyHeatPercent,
+                    circuit.PipeSpacing_cm,
+                    ToSnapshot(circuit.OperatingResult, circuit),
+                    ToSnapshot(circuit.DesignResult, circuit))),
+                ToSnapshot(collector.Summary))).ToList();
+        }
+
+        private void OnHydraulicsStateChanged(object? sender, HydraulicsStateChangedEventArgs e)
+        {
+            if (e.Origin != HydraulicsMutationOrigin.ProjectLoad)
+            {
+                return;
+            }
+
+            _isMirroringHydraulicsState = true;
+            try
+            {
+                ApplyLifecycleSnapshotToAdapter(e.NewSnapshot);
+            }
+            finally
+            {
+                _isMirroringHydraulicsState = false;
+            }
+        }
+
         #endregion
 
         #region Constructor
@@ -911,7 +903,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             ICollectorTypeSelector collectorTypeSelector,
             CalculationContext calculationContext,
             IMarkDirtyService markDirtyService,
-            IHydraulicsStateCoordinator? coordinator = null)
+            IHydraulicsStateCoordinator coordinator,
+            IProjectSession projectSession)
         {
             _circuitsCalculator = circuitsCalculator ?? throw new ArgumentNullException(nameof(circuitsCalculator));
             _glycolService = glycolService ?? throw new ArgumentNullException(nameof(glycolService));
@@ -920,16 +913,9 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             _collectorTypeSelector = collectorTypeSelector ?? throw new ArgumentNullException(nameof(collectorTypeSelector));
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
             _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
-            _coordinator = coordinator;
-
-            if (_coordinator == null)
-            {
-                _calculationStateService.StateChanged += OnCalculationStateChanged;
-                _pipeSpacingChangedHandler = OnPipeSpacingChanged;
-                _calculationStateService.PipeSpacingChanged += _pipeSpacingChangedHandler;
-                _contextChangedHandler = OnCalculationContextChanged;
-                _calculationContext.ContextChanged += _contextChangedHandler;
-            }
+            _coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
+            _hydraulicsState = (projectSession ?? throw new ArgumentNullException(nameof(projectSession))).HydraulicsState;
+            _hydraulicsState.Changed += OnHydraulicsStateChanged;
 
             // Подписка на изменения коллекторов и их контуров для отслеживания изменений проекта
             // ДОЛЖНА быть до AddCollector(), чтобы первый коллектор и его контуры получили обработчики
@@ -940,9 +926,10 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
             AddCollector();
 
-            _coordinator?.Connect(
+            _coordinator.Connect(
                 ExecuteCalculate,
                 ExecuteCalculateAll,
+                CaptureCanonicalCollectors,
                 NotifyThermalPropertiesChanged,
                 UpdateFromClimateModule,
                 MirrorPipeSpacing);
@@ -1029,12 +1016,14 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     break;
             }
 
-            if (!_isInitializing && !_isResetting)
-            {
-                _markDirtyService.MarkDirty();
-            }
-
             RebuildHydraulicSummaryCards();
+            if (!_isInitializing && !_isResetting && !_isMirroringHydraulicsState)
+            {
+                if (!_isCalculating)
+                {
+                    _hydraulicsState.ReplaceCollectors(CaptureCanonicalCollectors(), HydraulicsMutationOrigin.User);
+                }
+            }
         }
 
         /// <summary>
@@ -1098,9 +1087,12 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 }
             }
 
-            if (!_isInitializing && !_isResetting)
+            if (!_isInitializing && !_isResetting && !_isMirroringHydraulicsState)
             {
-                _markDirtyService.MarkDirty();
+                if (!_isCalculating)
+                {
+                    _hydraulicsState.ReplaceCollectors(CaptureCanonicalCollectors(), HydraulicsMutationOrigin.User);
+                }
             }
         }
 
@@ -1112,9 +1104,12 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             if (e.PropertyName == nameof(CollectorData.ValveType) ||
                 e.PropertyName == nameof(CollectorData.CollectorType))
             {
-                if (!_isInitializing && !_isResetting)
+                if (!_isInitializing && !_isResetting && !_isMirroringHydraulicsState)
                 {
-                    _markDirtyService.MarkDirty();
+                    if (!_isCalculating)
+                    {
+                        _hydraulicsState.ReplaceCollectors(CaptureCanonicalCollectors(), HydraulicsMutationOrigin.User);
+                    }
                 }
             }
         }
@@ -1130,9 +1125,12 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 e.PropertyName == nameof(CircuitRow.SupplyHeatPercent) ||
                 e.PropertyName == nameof(CircuitRow.PipeSpacing_cm))
             {
-                if (!_isInitializing && !_isResetting)
+                if (!_isInitializing && !_isResetting && !_isMirroringHydraulicsState)
                 {
-                    _markDirtyService.MarkDirty();
+                    if (!_isCalculating)
+                    {
+                        _hydraulicsState.ReplaceCollectors(CaptureCanonicalCollectors(), HydraulicsMutationOrigin.User);
+                    }
                 }
             }
         }
@@ -1254,71 +1252,25 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             }
         }
 
-        /// <summary>
-        /// Обработчик изменения единого контекста расчёта
-        /// </summary>
-        /// <remarks>
-        /// Реагируем на ThermalInputs, ThermalResult и Climate.
-        /// - ThermalInputs: уведомляем UI о смене трубы/шага укладки (без пересчёта,
-        ///   т.к. изменение входных данных ещё не означает готовности результата).
-        /// - ThermalResult (логическое завершение теплового расчёта): уведомляем UI.
-        ///   Пересчёт гидравлики запускается только при валидном результате;
-        ///   invalid/null оставляет fallback в UI без расчёта по невалидным данным.
-        /// - Climate: обновляем расчётную температуру и пересчитываем гидравлику.
-        /// Собственные изменения контекста (Source == "CircuitsViewModel") игнорируем,
-        /// чтобы избежать двойного пересчёта — Calculate вызывается явно.
-        /// </remarks>
-        private void OnCalculationContextChanged(object? sender, ContextChangedEventArgs e)
-        {
-            // Игнорировать собственные изменения контекста — Calculate вызывается явно
-            if (e.Source == "CircuitsViewModel")
-                return;
-
-            switch (e.PropertyName)
-            {
-                case nameof(CalculationContext.ThermalInputs):
-                    NotifyThermalPropertiesChanged();
-                    break;
-
-                case nameof(CalculationContext.ThermalResult):
-                    NotifyThermalPropertiesChanged();
-                    // Только валидный результат вызывает пересчёт;
-                    // invalid/null показывает fallback в UI без расчёта по невалидным данным.
-                    if (_calculationContext.ThermalResult?.IsValid == true)
-                    {
-                        CalculateAllCollectors();
-                    }
-                    break;
-
-                case nameof(CalculationContext.Climate):
-                    UpdateFromClimateModule();
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Обработчик изменения шага укладки из ICalculationStateService
-        /// </summary>
-        private void OnPipeSpacingChanged(object? sender, int spacing)
-        {
-            var pipeSpacing_cm = spacing / 10.0;
-
-            MirrorPipeSpacing(pipeSpacing_cm);
-            CalculateAllCollectors();
-        }
-
         private void MirrorPipeSpacing(double pipeSpacing_cm)
         {
-
-            foreach (var collector in Collectors)
+            _isMirroringHydraulicsState = true;
+            try
             {
-                foreach (var circuit in collector.Circuits)
+                foreach (var collector in Collectors)
                 {
-                    circuit.PipeSpacing_cm = pipeSpacing_cm;
+                    foreach (var circuit in collector.Circuits)
+                    {
+                        circuit.PipeSpacing_cm = pipeSpacing_cm;
+                    }
                 }
-            }
 
-            OnPropertyChanged(nameof(PipeSpacing_cm));
+                OnPropertyChanged(nameof(PipeSpacing_cm));
+            }
+            finally
+            {
+                _isMirroringHydraulicsState = false;
+            }
         }
 
         /// <summary>
@@ -1339,47 +1291,28 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             // Создать обработчик и подписаться на новый InputData
             _inputDataPropertyChangedHandler = (s, e) =>
             {
-                if (_isResetting) return;
-                if (_calculationStateService.IsLoadProjectInProgress) return;
-
-                if (!_isInitializing)
+                if (_isResetting || _isInitializing || _isMirroringHydraulicsState ||
+                    _calculationStateService.IsLoadProjectInProgress)
                 {
-                    _markDirtyService.MarkDirty();
+                    return;
                 }
 
-                if (e.PropertyName == nameof(HydraulicInputData.SupplySpacing_cm))
+                _hydraulicsState.ApplyGlobalInputs(
+                    new HydraulicGlobalInputsSnapshot(
+                        InputData.GlycolType,
+                        InputData.GlycolConcentration,
+                        InputData.SupplySpacing_cm,
+                        InputData.SupplyHeatPercent),
+                    HydraulicsMutationOrigin.User);
+
+                if (e.PropertyName == nameof(HydraulicInputData.SupplySpacing_cm) ||
+                    e.PropertyName == nameof(HydraulicInputData.SupplyHeatPercent))
                 {
                     _markDirtyService.MarkDirty();
-                    OnPropertyChanged(nameof(SupplySpacing_cm));
-                    foreach (var collector in Collectors)
-                    {
-                        foreach (var circuit in collector.Circuits)
-                        {
-                            circuit.SupplySpacing_cm = InputData.SupplySpacing_cm;
-                        }
-                    }
                     Calculate();
                 }
-                else if (e.PropertyName == nameof(HydraulicInputData.SupplyHeatPercent))
-                {
-                    _markDirtyService.MarkDirty();
-                    OnPropertyChanged(nameof(SupplyHeatPercent));
-                    foreach (var collector in Collectors)
-                    {
-                        foreach (var circuit in collector.Circuits)
-                        {
-                            circuit.SupplyHeatPercent = InputData.SupplyHeatPercent;
-                        }
-                    }
-                    Calculate();
-                }
-                else if (e.PropertyName == nameof(HydraulicInputData.GlycolType))
-                {
-                    _markDirtyService.MarkDirty();
-                    OnPropertyChanged(nameof(GlycolTypeName));
-                    CalculateAllCollectors();
-                }
-                else if (e.PropertyName == nameof(HydraulicInputData.GlycolConcentration))
+                else if (e.PropertyName == nameof(HydraulicInputData.GlycolType) ||
+                         e.PropertyName == nameof(HydraulicInputData.GlycolConcentration))
                 {
                     _markDirtyService.MarkDirty();
                     CalculateAllCollectors();
@@ -1409,15 +1342,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
             // Выполнить расчёт после обновления данных
             CalculateAllCollectors();
-        }
-
-        /// <summary>
-        /// Обработчик изменения состояния расчёта
-        /// </summary>
-        private void OnCalculationStateChanged(object? sender, ModuleStateChangedEventArgs e)
-        {
-            // Уведомить UI об изменении свойства IsCalculating
-            OnPropertyChanged(nameof(IsCalculating));
         }
 
         private void NotifyThermalPropertiesChanged()

@@ -25,6 +25,7 @@ using SnowMeltingCalculator.Services.Visualization;
 using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
+using SnowMeltingCalculator.Tests.Fixtures;
 using SnowMeltingCalculator.ViewModels.Results;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
@@ -224,8 +225,9 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void RepeatedResetCycles_DoNotDuplicateCircuitsEventSubscriptions()
         {
             var markDirtyMock = new Mock<IMarkDirtyService>();
-            var circuitsVm = CreateCircuitsViewModel(markDirtyMock.Object);
-            var orchestrator = CreateProjectLoadOrchestrator(circuitsVm);
+            var session = new ProjectSession();
+            var circuitsVm = CreateCircuitsViewModel(markDirtyMock.Object, session);
+            var orchestrator = CreateProjectLoadOrchestrator(circuitsVm, session);
 
             var collector = circuitsVm.Collectors[0];
             collector.Circuits.Clear();
@@ -257,8 +259,9 @@ namespace SnowMeltingCalculator.Tests.Services.Project
 
                 markDirtyMock.Verify(
                     m => m.MarkDirty(),
-                    Times.Once,
-                    "A new circuit after repeated cycles must mark dirty exactly once — no duplicated VM subscriptions.");
+                    Times.Never,
+                    "Canonical hydraulics state owns dirty transitions after migration.");
+                Assert.That(session.IsDirty, Is.True);
             }
             finally
             {
@@ -573,9 +576,9 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 new HydraulicSummaryBuilder());
         }
 
-        private static ProjectLoadOrchestrator CreateProjectLoadOrchestrator(CircuitsViewModel circuitsVm)
+        private static ProjectLoadOrchestrator CreateProjectLoadOrchestrator(CircuitsViewModel circuitsVm, ProjectSession? session = null)
         {
-            var session = new ProjectSession();
+            session ??= new ProjectSession();
             var calcState = new CalculationStateService();
             var calcContext = new CalculationContext();
             var constructionViewModel = CreateConstructionViewModelWithSession(session);
@@ -704,7 +707,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 markDirtyService);
         }
 
-        private static CircuitsViewModel CreateCircuitsViewModel(IMarkDirtyService markDirtyService)
+        private static CircuitsViewModel CreateCircuitsViewModel(IMarkDirtyService markDirtyService, ProjectSession? session = null)
         {
             var calculatorMock = new Mock<ICircuitsCalculator>();
             calculatorMock.Setup(c => c.CalculateCircuitPower(It.IsAny<CircuitRow>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<double>())).Returns(0.0);
@@ -720,14 +723,20 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var selectorMock = new Mock<ICollectorTypeSelector>();
             selectorMock.Setup(s => s.SelectCollectorType(It.IsAny<CollectorData>())).Returns(new CollectorSelectionResult { ValveType = ValveType.HKV_D });
 
+            var calculationStateService = new CalculationStateService();
+            var calculationContext = new CalculationContext();
+            session ??= new ProjectSession(calculationContext: calculationContext);
+            var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(calculationStateService, calculationContext, session);
             return new CircuitsViewModel(
                 calculatorMock.Object,
                 glycolMock.Object,
-                new CalculationStateService(),
+                calculationStateService,
                 new Mock<ICircuitsValidator>().Object,
                 selectorMock.Object,
-                new CalculationContext(),
-                markDirtyService);
+                calculationContext,
+                markDirtyService,
+                hydraulicsDependencies.Coordinator,
+                hydraulicsDependencies.Session);
         }
 
         private static IConstructionService CreateDefaultConstructionService()

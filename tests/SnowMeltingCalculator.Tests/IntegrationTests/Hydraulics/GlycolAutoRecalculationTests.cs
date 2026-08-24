@@ -13,6 +13,7 @@ using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.Core;
+using SnowMeltingCalculator.Tests.Fixtures;
 
 namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
 {
@@ -124,6 +125,8 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                     Warning = null
                 });
 
+            var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(_calculationStateServiceMock.Object, _calculationContext);
+
             // Создаём ViewModel
             _viewModel = new CircuitsViewModel(
                 _circuitsCalculatorMock.Object,
@@ -132,7 +135,9 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 _circuitsValidatorMock.Object,
                 _collectorTypeSelectorMock.Object,
                 _calculationContext,
-                _markDirtyServiceMock.Object
+                 _markDirtyServiceMock.Object,
+                 hydraulicsDependencies.Coordinator,
+                  hydraulicsDependencies.Session
             );
 
             // Создаём коллектор с контурами и устанавливаем как выбранный

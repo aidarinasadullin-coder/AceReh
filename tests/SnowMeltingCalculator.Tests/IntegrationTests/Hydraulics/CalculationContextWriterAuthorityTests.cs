@@ -15,6 +15,7 @@ using SnowMeltingCalculator.ViewModels.Climate;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Thermal;
 using SnowMeltingCalculator.Core;
+using SnowMeltingCalculator.Tests.Fixtures;
 
 namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
 {
@@ -134,6 +135,7 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                     Warning = null
                 });
 
+            var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(_calculationStateServiceMock.Object, _calculationContext);
             _viewModel = new CircuitsViewModel(
                 _circuitsCalculatorMock.Object,
                 _glycolServiceMock.Object,
@@ -141,7 +143,9 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 _validatorMock.Object,
                 _collectorTypeSelectorMock.Object,
                 _calculationContext,
-                _markDirtyServiceMock.Object
+                 _markDirtyServiceMock.Object,
+                 hydraulicsDependencies.Coordinator,
+                  hydraulicsDependencies.Session
             );
 
             SetupCollectorWithCircuits();
@@ -274,13 +278,7 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToArray();
 
-            var approvedProductionWriters = writerFiles
-                .Where(file => !string.Equals(file, "CircuitsViewModel", StringComparison.OrdinalIgnoreCase))
-                .ToArray();
-
-            Assert.That(approvedProductionWriters, Is.EqualTo(new[] { "HydraulicsStateCoordinator" }));
-            Assert.That(writerFiles, Does.Contain("CircuitsViewModel"),
-                "The compatibility seam must remain visible to prevent silently broadening the test scope.");
+            Assert.That(writerFiles, Is.EqualTo(new[] { "HydraulicsStateCoordinator" }));
         }
 
         [Test]

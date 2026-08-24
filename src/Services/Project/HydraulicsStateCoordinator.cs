@@ -15,6 +15,7 @@ namespace SnowMeltingCalculator.Services.Project
         private readonly CalculationContext _calculationContext;
         private Func<List<CollectorSummary>?>? _calculateSelected;
         private Func<List<CollectorSummary>?>? _calculateAll;
+        private Func<IReadOnlyList<HydraulicCollectorSnapshot>>? _captureCollectors;
         private Action? _notifyThermal;
         private Action? _notifyClimate;
         private Action<double>? _mirrorPipeSpacing;
@@ -32,10 +33,11 @@ namespace SnowMeltingCalculator.Services.Project
             _calculationStateService.StateChanged += OnStateChanged;
         }
 
-        public void Connect(Func<List<CollectorSummary>?> calculateSelected, Func<List<CollectorSummary>?> calculateAll, Action notifyThermal, Action notifyClimate, Action<double> mirrorPipeSpacing)
+        public void Connect(Func<List<CollectorSummary>?> calculateSelected, Func<List<CollectorSummary>?> calculateAll, Func<IReadOnlyList<HydraulicCollectorSnapshot>> captureCollectors, Action notifyThermal, Action notifyClimate, Action<double> mirrorPipeSpacing)
         {
             _calculateSelected = calculateSelected ?? throw new ArgumentNullException(nameof(calculateSelected));
             _calculateAll = calculateAll ?? throw new ArgumentNullException(nameof(calculateAll));
+            _captureCollectors = captureCollectors ?? throw new ArgumentNullException(nameof(captureCollectors));
             _notifyThermal = notifyThermal ?? throw new ArgumentNullException(nameof(notifyThermal));
             _notifyClimate = notifyClimate ?? throw new ArgumentNullException(nameof(notifyClimate));
             _mirrorPipeSpacing = mirrorPipeSpacing ?? throw new ArgumentNullException(nameof(mirrorPipeSpacing));
@@ -47,23 +49,38 @@ namespace SnowMeltingCalculator.Services.Project
 
         public void ApplyPipeSpacing(int spacing, Action<double> mirror)
         {
+            RunCalculation(_calculateAll!);
             mirror(spacing / 10.0);
-            _calculateAll?.Invoke();
         }
 
-        private void RunCalculation(Func<List<CollectorSummary>?> calculation)
+        public void PublishHydraulics(List<CollectorSummary>? summaries) =>
+            _calculationContext.UpdateHydraulics(summaries, "CircuitsViewModel");
+
+        private void RunCalculation(Func<List<CollectorSummary>?> calculation, Action? beforeComplete = null)
         {
             _calculationStateService.SetHydraulicsCalculating();
-            var summaries = calculation();
-            if (summaries == null || !_calculationStateService.HydraulicsValidationMessage.Equals(string.Empty, StringComparison.Ordinal))
+            try
             {
-                return;
-            }
+                var summaries = calculation();
+                if (summaries == null || !string.IsNullOrEmpty(_calculationStateService.HydraulicsValidationMessage))
+                {
+                    if (summaries is null)
+                    {
+                        PublishHydraulics(null);
+                    }
 
-            _calculationContext.UpdateHydraulics(summaries, "CircuitsViewModel");
-            _state.CompleteCalculation(_state.Snapshot.Collectors,
-                new Dictionary<int, HydraulicCollectorSummarySnapshot>());
-            _calculationStateService.ResetHydraulicsState();
+                    return;
+                }
+
+                PublishHydraulics(summaries);
+                beforeComplete?.Invoke();
+                _state.CompleteCalculation(_captureCollectors!(),
+                    new Dictionary<int, HydraulicCollectorSummarySnapshot>());
+            }
+            finally
+            {
+                _calculationStateService.ResetHydraulicsState();
+            }
         }
 
         private void OnContextChanged(object? sender, ContextChangedEventArgs e)
@@ -80,7 +97,6 @@ namespace SnowMeltingCalculator.Services.Project
                     break;
                 case nameof(CalculationContext.Climate):
                     _notifyClimate?.Invoke();
-                    _calculateAll?.Invoke();
                     break;
             }
         }
