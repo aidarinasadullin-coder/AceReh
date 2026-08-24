@@ -1,0 +1,1267 @@
+{
+  "executable": "D:\\IA\\3ace v.2\\src\\bin\\Release\\net8.0-windows\\win-x64\\SnowMeltingCalculator.exe",
+  "generatedUtc": "2026-08-24T19:50:04.7488114Z",
+  "frozenExeSha256": {
+    "beforeFirstFlow": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+    "afterLastFlow": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+    "equal": true
+  },
+  "fixtures": {
+    "manifest": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\fixture-manifest.json",
+    "outputs": [
+      {
+        "name": "project-a.smc",
+        "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\project-a.smc",
+        "sha256": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+        "manifestMatch": true
+      },
+      {
+        "name": "project-b.smc",
+        "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\project-b.smc",
+        "sha256": "8A8A1C9767BF266B90E95D8CCC33FF663736CC69D37D3F5571D5B1B15510BF1A",
+        "manifestMatch": true
+      },
+      {
+        "name": "unknown-pipe.smc",
+        "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\unknown-pipe.smc",
+        "sha256": "FA0EDAAC71AEAC82AB84A3C119DFA2D1228D61C84B530EB47DE6836210ADB614",
+        "manifestMatch": true
+      }
+    ],
+    "executableShaPreRun": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E"
+  },
+  "processes": [
+    {
+      "tag": "a-load-edit-save",
+      "project": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\project-a.smc",
+      "pid": 22012,
+      "exitCode": 0,
+      "exeShaBefore": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+      "exeShaAfter": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+      "stdoutLog": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\run-a-load-edit-save-stdout.log",
+      "stdoutSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "stderrLog": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\run-a-load-edit-save-stderr.log",
+      "stderrSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "startedUtc": "2026-08-24T19:49:11.9906305Z",
+      "exitUtc": "2026-08-24T19:49:40.6381642Z"
+    },
+    {
+      "tag": "a-reload",
+      "project": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\project-a.smc",
+      "pid": 20772,
+      "exitCode": 0,
+      "exeShaBefore": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+      "exeShaAfter": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+      "stdoutLog": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\run-a-reload-stdout.log",
+      "stdoutSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "stderrLog": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\run-a-reload-stderr.log",
+      "stderrSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "startedUtc": "2026-08-24T19:49:40.6398655Z",
+      "exitUtc": "2026-08-24T19:49:46.9045092Z"
+    },
+    {
+      "tag": "b-load-reset",
+      "project": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\project-b.smc",
+      "pid": 2128,
+      "exitCode": 0,
+      "exeShaBefore": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+      "exeShaAfter": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+      "stdoutLog": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\run-b-load-reset-stdout.log",
+      "stdoutSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "stderrLog": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\run-b-load-reset-stderr.log",
+      "stderrSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "startedUtc": "2026-08-24T19:49:46.9059801Z",
+      "exitUtc": "2026-08-24T19:50:01.3187828Z"
+    },
+    {
+      "tag": "unknown-pipe",
+      "project": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\unknown-pipe.smc",
+      "pid": 17152,
+      "exitCode": 0,
+      "exeShaBefore": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+      "exeShaAfter": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+      "stdoutLog": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\run-unknown-pipe-stdout.log",
+      "stdoutSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "stderrLog": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\run-unknown-pipe-stderr.log",
+      "stderrSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "startedUtc": "2026-08-24T19:50:01.3239420Z",
+      "exitUtc": "2026-08-24T19:50:04.7312292Z"
+    }
+  ],
+  "selectors": [
+    {
+      "id": "HydraulicsGlycolType",
+      "controlType": "ComboBox",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 6,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsGlycolConcentration",
+      "controlType": "Edit",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 7,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsSupplySpacing",
+      "controlType": "Edit",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 4,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsSupplyHeatPercent",
+      "controlType": "Edit",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 6,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsCalculateButton",
+      "controlType": "Button",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 5,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsValidationMessage",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": true,
+      "resolvedCount": 5,
+      "lastPresent": false
+    },
+    {
+      "id": "HydraulicsCircuitLengthFirst",
+      "controlType": "Edit",
+      "view": "Hydraulics",
+      "optional": true,
+      "resolvedCount": 2,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsPipeSpacing",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 3,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsSupplyTemperature",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 3,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsReturnTemperature",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 3,
+      "lastPresent": true
+    }
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "name": "S1 fixtures: manifest + three .smc SHA-256 + frozen exe SHA pre-run",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "fixture project-a.smc SHA matches manifest",
+          "expected": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+          "observed": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:11.9588127Z"
+        },
+        {
+          "assert": "fixture project-b.smc SHA matches manifest",
+          "expected": "8A8A1C9767BF266B90E95D8CCC33FF663736CC69D37D3F5571D5B1B15510BF1A",
+          "observed": "8A8A1C9767BF266B90E95D8CCC33FF663736CC69D37D3F5571D5B1B15510BF1A",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:11.9689893Z"
+        },
+        {
+          "assert": "fixture unknown-pipe.smc SHA matches manifest",
+          "expected": "FA0EDAAC71AEAC82AB84A3C119DFA2D1228D61C84B530EB47DE6836210ADB614",
+          "observed": "FA0EDAAC71AEAC82AB84A3C119DFA2D1228D61C84B530EB47DE6836210ADB614",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:11.9698276Z"
+        }
+      ],
+      "artifacts": []
+    },
+    {
+      "step": 2,
+      "name": "S2 launch project-a as first .smc argument; clean loaded title",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "launch 'a-load-edit-save': window title carries app suffix",
+          "expected": "*Калькулятор снеготаяния REHAU",
+          "observed": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:12.7705749Z"
+        },
+        {
+          "assert": "S2: clean loaded title (no dirty marker)",
+          "expected": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "observed": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:12.8185977Z"
+        }
+      ],
+      "artifacts": []
+    },
+    {
+      "step": 3,
+      "name": "S3 navigate Гидравлический расчёт; outputs match v1-sample.smc stored fixture math; registry",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "S3: glycol type combo == Этиленгликоль (fixture ethylene)",
+          "expected": "Этиленгликоль",
+          "observed": "Этиленгликоль",
+          "outcome": "PASS",
+          "selector": "HydraulicsGlycolType",
+          "elementRuntimeId": "7:22012:6705199",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:14.2061591Z"
+        },
+        {
+          "assert": "S3: glycol concentration == 30 (fixture)",
+          "expected": "30 (+/-1dp)",
+          "observed": "30",
+          "outcome": "PASS",
+          "selector": "HydraulicsGlycolConcentration",
+          "elementRuntimeId": "7:22012:60141268",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:14.3952308Z"
+        },
+        {
+          "assert": "S3: supply heat percent == 10 (fixture)",
+          "expected": "10 (+/-1dp)",
+          "observed": "10",
+          "outcome": "PASS",
+          "selector": "HydraulicsSupplyHeatPercent",
+          "elementRuntimeId": "7:22012:36168141",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:14.5550338Z"
+        },
+        {
+          "assert": "S3: calculate button resolved/enabled",
+          "expected": "enabled Button",
+          "observed": "enabled=True",
+          "outcome": "PASS",
+          "selector": "HydraulicsCalculateButton",
+          "elementRuntimeId": "7:22012:26673201",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:14.7037275Z"
+        },
+        {
+          "assert": "S3: HydraulicsPipeSpacing == 25 cm (fixture pipeSpacing 250 mm / 10)",
+          "expected": "25 (+/-0dp)",
+          "observed": "25",
+          "outcome": "PASS",
+          "selector": "HydraulicsPipeSpacing",
+          "elementRuntimeId": "7:22012:19714506",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:14.8464352Z"
+        },
+        {
+          "assert": "S3: HydraulicsSupplyTemperature == 50.0 (fixture thermal supply)",
+          "expected": "50 (+/-1dp)",
+          "observed": "50",
+          "outcome": "PASS",
+          "selector": "HydraulicsSupplyTemperature",
+          "elementRuntimeId": "7:22012:15651772",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:14.9769082Z"
+        },
+        {
+          "assert": "S3: HydraulicsReturnTemperature == 35.0 (fixture thermal result return)",
+          "expected": "35 (+/-1dp)",
+          "observed": "35",
+          "outcome": "PASS",
+          "selector": "HydraulicsReturnTemperature",
+          "elementRuntimeId": "7:22012:1635228",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:15.0894185Z"
+        },
+        {
+          "assert": "S3: first circuit row length cell == 80 (stored fixture)",
+          "expected": "80",
+          "observed": "1 | 80 | 8.0 | 20.0 | 25 | 20480 | 1172.0 | 0.33 | 1.450 | 0 | 0.0000 | Турбулентный | 0.00 | 15000 | 2500 | 1200 | 18700 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Длина]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:15.4236039Z"
+        },
+        {
+          "assert": "S3: first circuit row power cell == 20480 (stored fixture)",
+          "expected": "20480",
+          "observed": "1 | 80 | 8.0 | 20.0 | 25 | 20480 | 1172.0 | 0.33 | 1.450 | 0 | 0.0000 | Турбулентный | 0.00 | 15000 | 2500 | 1200 | 18700 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Мощность]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:15.4236949Z"
+        },
+        {
+          "assert": "S3: first circuit row flow cell == 1172,0 (stored fixture)",
+          "expected": "1172.0",
+          "observed": "1 | 80 | 8.0 | 20.0 | 25 | 20480 | 1172.0 | 0.33 | 1.450 | 0 | 0.0000 | Турбулентный | 0.00 | 15000 | 2500 | 1200 | 18700 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Расход л/ч]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:15.4237455Z"
+        },
+        {
+          "assert": "S3: summary card Длина труб == 88,0 м (stored fixture)",
+          "expected": "88.0 м",
+          "observed": "88.0 м",
+          "outcome": "PASS",
+          "selector": "Results card[Длина труб]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:16.6463810Z"
+        },
+        {
+          "assert": "S3: summary card Мощность == 20480 Вт (stored fixture)",
+          "expected": "20480 Вт",
+          "observed": "20480 Вт",
+          "outcome": "PASS",
+          "selector": "Results card[Мощность]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:16.8039964Z"
+        },
+        {
+          "assert": "S3: summary card Расход == 1,17 м³/ч (stored fixture)",
+          "expected": "1.17 м³/ч",
+          "observed": "1.17 м³/ч",
+          "outcome": "PASS",
+          "selector": "Results card[Расход]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:16.9479186Z"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\01-launch-project-a-hydraulics-card.png",
+          "sha256": "2D5F1CB5AA728D796695785ED6EC74CF6A454936E8BB7BFFDC769489F6BF85F4",
+          "note": "screenshot 01-launch-project-a-hydraulics-card"
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "name": "S4 glycol edits trigger auto-recalculation; outputs follow fixture math; validation branch",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "S4a: type→Пропиленгликоль auto-recalc: row flow cell == 297.9 (computed from glycol_data.json bilinear interp)",
+          "expected": "297.9",
+          "observed": "1 matching rows",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Расход л/ч]",
+          "elementRuntimeId": "7:22012:6705199",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:20.1398692Z"
+        },
+        {
+          "assert": "S4a: stored-file flow 1172.0 no longer displayed after recalc",
+          "expected": "0 matching rows",
+          "observed": "0",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Расход л/ч]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:20.4364754Z"
+        },
+        {
+          "assert": "S4b: concentration→50 auto-recalc: row flow cell == 308.9",
+          "expected": "308.9",
+          "observed": "present",
+          "outcome": "PASS",
+          "selector": "HydraulicsGlycolConcentration",
+          "elementRuntimeId": "7:22012:60141268",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:21.3689397Z"
+        },
+        {
+          "assert": "S4c: out-of-range concentration → EXACT validation message core",
+          "expected": "*Концентрация должна быть 0% (вода) или в диапазоне 10-90%, получено: 95%*",
+          "observed": "Концентрация должна быть 0% (вода) или в диапазоне 10-90%, получено: 95% (Parameter 'concentration')",
+          "outcome": "PASS",
+          "selector": "HydraulicsValidationMessage",
+          "elementRuntimeId": "7:22012:57077814",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:22.2134237Z"
+        },
+        {
+          "assert": "S4d: validation message absent again (concentration 30)",
+          "expected": "absent",
+          "observed": "absent",
+          "outcome": "PASS",
+          "selector": "HydraulicsValidationMessage",
+          "elementRuntimeId": "7:22012:60141268",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:23.1131632Z"
+        },
+        {
+          "assert": "S4d: reverting inputs reproduces identical output 297.9 (deterministic fixture math)",
+          "expected": "297.9",
+          "observed": "present",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Расход л/ч]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:23.4358749Z"
+        },
+        {
+          "assert": "S4e: type→Этиленгликоль auto-recalc: row flow cell == 258.4",
+          "expected": "258.4",
+          "observed": "present",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Расход л/ч]",
+          "elementRuntimeId": "7:22012:6705199",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:25.1214133Z"
+        },
+        {
+          "assert": "S4f: supply spacing baseline == 5 (fixture)",
+          "expected": "5 (+/-0dp)",
+          "observed": "5",
+          "outcome": "PASS",
+          "selector": "HydraulicsSupplySpacing",
+          "elementRuntimeId": "7:22012:59061958",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:25.3418991Z"
+        },
+        {
+          "assert": "S4f: supply spacing edits to 12",
+          "expected": "12 (+/-0dp)",
+          "observed": "12",
+          "outcome": "PASS",
+          "selector": "HydraulicsSupplySpacing",
+          "elementRuntimeId": "7:22012:59061958",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:26.0840205Z"
+        },
+        {
+          "assert": "S4f: supply spacing 12 recalculates power == 5245 W",
+          "expected": "5245",
+          "observed": "present",
+          "outcome": "PASS",
+          "selector": "HydraulicsCalculateButton",
+          "elementRuntimeId": "7:22012:26673201",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:26.4827307Z"
+        },
+        {
+          "assert": "S4f: supply heat edits to 15",
+          "expected": "15 (+/-0dp)",
+          "observed": "15",
+          "outcome": "PASS",
+          "selector": "HydraulicsSupplyHeatPercent",
+          "elementRuntimeId": "7:22012:36168141",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:27.2232822Z"
+        },
+        {
+          "assert": "S4f: supply spacing 12 + heat 15 recalculates power == 5258 W",
+          "expected": "5258",
+          "observed": "present",
+          "outcome": "PASS",
+          "selector": "HydraulicsCalculateButton",
+          "elementRuntimeId": "7:22012:26673201",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:27.6338663Z"
+        },
+        {
+          "assert": "S4f: reverted spacing/heat restores fixture power row",
+          "expected": "5230",
+          "observed": "present",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Мощность]",
+          "elementRuntimeId": "7:22012:26673201",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:29.3086481Z"
+        },
+        {
+          "assert": "S4: edits mark project dirty (title carries *)",
+          "expected": "*project-a.smc — …",
+          "observed": "*project-a.smc — Калькулятор снеготаяния REHAU",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:29.3096613Z"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\03-validation-message.png",
+          "sha256": "3CB09C45B2BA42F832D6DA93C3FEBF18E085151AAF949C04C4420454A2E12CD6",
+          "note": "screenshot 03-validation-message"
+        },
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\02-glycol-edits-recalc.png",
+          "sha256": "14C1043EC255A54BCEAD64C7910B96ED0DD284C0BC2ADD21BFDE6006219F67F5",
+          "note": "screenshot 02-glycol-edits-recalc"
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "name": "S5 keyboard-edit first circuit length 80→120; Рассчитать; summary card updates",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "S5: cell editor materialized with AutomationId (stored value)",
+          "expected": "80",
+          "observed": "value='80'",
+          "outcome": "PASS",
+          "selector": "HydraulicsCircuitLengthFirst",
+          "elementRuntimeId": "7:22012:35026424",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:30.4262766Z"
+        },
+        {
+          "assert": "S5: editor value set to 120 via accessibility ValuePattern",
+          "expected": "120",
+          "observed": "value='120'",
+          "outcome": "PASS",
+          "selector": "HydraulicsCircuitLengthFirst",
+          "elementRuntimeId": "7:22012:35026424",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:30.9544573Z"
+        },
+        {
+          "assert": "S5: committed first-circuit length cell == 120",
+          "expected": "120",
+          "observed": "1 | 120 | 8.0 | 30.0 | 25 | 5230 | 258.4 | 0.07 | 0.357 | 9295 | 0.0321 | Турбулентный | 135.47 | 11921 | 4908 | 1012 | 17842 | 0 | 2 ½ | ✕",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Длина]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:32.0352649Z"
+        },
+        {
+          "assert": "S5: canonical circuit-length write marks project dirty (title * )",
+          "expected": "*project-a.smc — …",
+          "observed": "*project-a.smc — Калькулятор снеготаяния REHAU",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:32.0354786Z"
+        },
+        {
+          "assert": "S5: Рассчитать recomputes power == 7840 W (formula oracle for L=120)",
+          "expected": "7840",
+          "observed": "present",
+          "outcome": "PASS",
+          "selector": "HydraulicsCalculateButton",
+          "elementRuntimeId": "7:22012:26673201",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:32.4628692Z"
+        },
+        {
+          "assert": "S5: summary card Длина труб updated to 128,0 м (120+8)",
+          "expected": "128.0 м",
+          "observed": "128.0 м",
+          "outcome": "PASS",
+          "selector": "Results card[Длина труб]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:33.8324729Z"
+        },
+        {
+          "assert": "S5: summary card Мощность updated to 7840 Вт",
+          "expected": "7840 Вт",
+          "observed": "7840 Вт",
+          "outcome": "PASS",
+          "selector": "Results card[Мощность]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:33.9942878Z"
+        },
+        {
+          "assert": "S5: summary card Расход updated to 0.39 м³/ч",
+          "expected": "0.39 м³/ч",
+          "observed": "0.39 м³/ч",
+          "outcome": "PASS",
+          "selector": "Results card[Расход]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:34.1421742Z"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\04-circuit-length-edited.png",
+          "sha256": "0576234524EF562355959AC8665743823590B94F7FDA293B45A7661043A61833",
+          "note": "screenshot 04-circuit-length-edited"
+        },
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\05-summary-card-updated.png",
+          "sha256": "06BE31545DE260435C4DAEE5246295D3A85E8534BCD1B449C5E39814AB104972",
+          "note": "screenshot 05-summary-card-updated"
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "name": "S6 save (Файл→Сохранить ≙ Ctrl+S): SHA/timestamp advance, dirty clears; reload → identical outputs",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "S6: project-a.smc SHA advanced after save (Ctrl+S observable)",
+          "expected": "! E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+          "observed": "0C3AB5E3AD2B890359218F78244CE4E69F844EBE6D3235B5D024C611C23FC920",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:37.3705240Z"
+        },
+        {
+          "assert": "S6: project-a.smc timestamp advanced after save",
+          "expected": "> 08/18/2026 17:43:51",
+          "observed": "08/24/2026 19:49:36",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:37.3734529Z"
+        },
+        {
+          "assert": "S6: title after save is clean <file> — Калькулятор снеготаяния REHAU",
+          "expected": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "observed": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:39.2508442Z"
+        },
+        {
+          "assert": "close 'a-load-edit-save': clean exit code",
+          "expected": "0",
+          "observed": "0",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:40.6261262Z"
+        },
+        {
+          "assert": "close 'a-load-edit-save': stderr free of crash patterns",
+          "expected": "no match",
+          "observed": "clean",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:40.6330234Z"
+        },
+        {
+          "assert": "launch 'a-reload': window title carries app suffix",
+          "expected": "*Калькулятор снеготаяния REHAU",
+          "observed": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:41.3667306Z"
+        },
+        {
+          "assert": "S6: reloaded spacing == 25 cm (identical)",
+          "expected": "25 (+/-0dp)",
+          "observed": "25",
+          "outcome": "PASS",
+          "selector": "HydraulicsPipeSpacing",
+          "elementRuntimeId": "7:20772:19714506",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:42.7393288Z"
+        },
+        {
+          "assert": "S6: reloaded supply == 50.0 (identical)",
+          "expected": "50 (+/-1dp)",
+          "observed": "50",
+          "outcome": "PASS",
+          "selector": "HydraulicsSupplyTemperature",
+          "elementRuntimeId": "7:20772:15651772",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:42.9082561Z"
+        },
+        {
+          "assert": "S6: reloaded return == 35.0 (identical)",
+          "expected": "35 (+/-1dp)",
+          "observed": "35",
+          "outcome": "PASS",
+          "selector": "HydraulicsReturnTemperature",
+          "elementRuntimeId": "7:20772:1635228",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:43.0488560Z"
+        },
+        {
+          "assert": "S6: reloaded glycol type == Этиленгликоль",
+          "expected": "Этиленгликоль",
+          "observed": "Этиленгликоль",
+          "outcome": "PASS",
+          "selector": "HydraulicsGlycolType",
+          "elementRuntimeId": "7:20772:6705199",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:43.1867254Z"
+        },
+        {
+          "assert": "S6: reloaded concentration == 30",
+          "expected": "30 (+/-1dp)",
+          "observed": "30",
+          "outcome": "PASS",
+          "selector": "HydraulicsGlycolConcentration",
+          "elementRuntimeId": "7:20772:60141268",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:43.3386714Z"
+        },
+        {
+          "assert": "S6: reloaded length cell == 120 (persisted edit)",
+          "expected": "120",
+          "observed": "1 | 120 | 8.0 | 30.0 | 25 | 7840 | 387.4 | 0.11 | 0.535 | 13933 | 0.0291 | Турбулентный | 275.80 | 35302 | 11029 | 2273 | 48605 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Длина]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:44.0302736Z"
+        },
+        {
+          "assert": "S6: reloaded flow cell == 387.4 (identical to pre-save state)",
+          "expected": "387.4",
+          "observed": "1 | 120 | 8.0 | 30.0 | 25 | 7840 | 387.4 | 0.11 | 0.535 | 13933 | 0.0291 | Турбулентный | 275.80 | 35302 | 11029 | 2273 | 48605 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Расход л/ч]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:44.0303085Z"
+        },
+        {
+          "assert": "S6: reloaded summary card Длина труб == 128,0 м (identical)",
+          "expected": "128.0 м",
+          "observed": "128.0 м",
+          "outcome": "PASS",
+          "selector": "Results card[Длина труб]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:45.3812813Z"
+        },
+        {
+          "assert": "S6: reloaded summary card Мощность identical",
+          "expected": "7840 Вт",
+          "observed": "7840 Вт",
+          "outcome": "PASS",
+          "selector": "Results card[Мощность]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:45.5303712Z"
+        },
+        {
+          "assert": "close 'a-reload': clean exit code",
+          "expected": "0",
+          "observed": "0",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:46.9030430Z"
+        },
+        {
+          "assert": "close 'a-reload': stderr free of crash patterns",
+          "expected": "no match",
+          "observed": "clean",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:46.9033192Z"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\06-saved-reloaded-identical.png",
+          "sha256": "F22B89790F2180B2024E1C346EE71F4CCDA6C34C327A30788C91C18FBB0B55D1",
+          "note": "screenshot 06-saved-reloaded-identical"
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "name": "S7 second load project-b: clean replace, no stale project-A values",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "launch 'b-load-reset': window title carries app suffix",
+          "expected": "*Калькулятор снеготаяния REHAU",
+          "observed": "project-b.smc — Калькулятор снеготаяния REHAU",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:47.8597110Z"
+        },
+        {
+          "assert": "S7: spacing == 15 cm (B pipeSpacing 150 mm)",
+          "expected": "15 (+/-0dp)",
+          "observed": "15",
+          "outcome": "PASS",
+          "selector": "HydraulicsPipeSpacing",
+          "elementRuntimeId": "7:2128:43299552",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:49.3568980Z"
+        },
+        {
+          "assert": "S7: supply == 55.0 (B thermal inputs)",
+          "expected": "55 (+/-1dp)",
+          "observed": "55",
+          "outcome": "PASS",
+          "selector": "HydraulicsSupplyTemperature",
+          "elementRuntimeId": "7:2128:66727538",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:49.5689060Z"
+        },
+        {
+          "assert": "S7: return == 30.0 (invalid-B thermal falls back to default return)",
+          "expected": "30 (+/-1dp)",
+          "observed": "30",
+          "outcome": "PASS",
+          "selector": "HydraulicsReturnTemperature",
+          "elementRuntimeId": "7:2128:57557895",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:49.7385870Z"
+        },
+        {
+          "assert": "S7: glycol type == Пропиленгликоль (B fixture)",
+          "expected": "Пропиленгликоль",
+          "observed": "Пропиленгликоль",
+          "outcome": "PASS",
+          "selector": "HydraulicsGlycolType",
+          "elementRuntimeId": "7:2128:22646572",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:49.9457123Z"
+        },
+        {
+          "assert": "S7: concentration == 40 (B fixture)",
+          "expected": "40 (+/-1dp)",
+          "observed": "40",
+          "outcome": "PASS",
+          "selector": "HydraulicsGlycolConcentration",
+          "elementRuntimeId": "7:2128:22433040",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:50.1358095Z"
+        },
+        {
+          "assert": "S7: supply heat percent == 15 (B fixture)",
+          "expected": "15 (+/-1dp)",
+          "observed": "15",
+          "outcome": "PASS",
+          "selector": "HydraulicsSupplyHeatPercent",
+          "elementRuntimeId": "7:2128:6066333",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:50.2975007Z"
+        },
+        {
+          "assert": "S7: B circuit-1 row length == 60",
+          "expected": "60",
+          "observed": "1 | 60 | 6.0 | 9.0 | 15 | 11111 | 2222.0 | 0.62 | 1.450 | 0 | 0.0000 | Турбулентный | 0.00 | 15000 | 2500 | 1200 | 18700 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Длина]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:50.7508703Z"
+        },
+        {
+          "assert": "S7: B circuit-1 row power == 11111 (B sentinel, not stale A)",
+          "expected": "11111",
+          "observed": "1 | 60 | 6.0 | 9.0 | 15 | 11111 | 2222.0 | 0.62 | 1.450 | 0 | 0.0000 | Турбулентный | 0.00 | 15000 | 2500 | 1200 | 18700 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Мощность]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:50.7509031Z"
+        },
+        {
+          "assert": "S7: B circuit-2 row length == 90",
+          "expected": "90",
+          "observed": "2 | 90 | 9.0 | 13.5 | 15 | 33333 | 4444.0 | 1.23 | 1.450 | 0 | 0.0000 | Турбулентный | 0.00 | 15000 | 2500 | 1200 | 18700 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Длина]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:51.1542346Z"
+        },
+        {
+          "assert": "S7: B circuit-2 row power == 33333 (B sentinel, distinct per-row)",
+          "expected": "33333",
+          "observed": "2 | 90 | 9.0 | 13.5 | 15 | 33333 | 4444.0 | 1.23 | 1.450 | 0 | 0.0000 | Турбулентный | 0.00 | 15000 | 2500 | 1200 | 18700 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Мощность]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:51.1542609Z"
+        },
+        {
+          "assert": "S7: NO stale project-A length (120) anywhere in B grid",
+          "expected": "0 rows",
+          "observed": "0",
+          "outcome": "PASS",
+          "selector": "DataGrid",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:51.5137750Z"
+        },
+        {
+          "assert": "S7: NO stale project-A recalculated flow carried into B",
+          "expected": "0 rows",
+          "observed": "0",
+          "outcome": "PASS",
+          "selector": "DataGrid",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:51.8560610Z"
+        },
+        {
+          "assert": "S7: B summary card Длина труб == 165.0 м (60+6+90+9)",
+          "expected": "165.0 м",
+          "observed": "165.0 м",
+          "outcome": "PASS",
+          "selector": "Results card[Длина труб]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:53.1844188Z"
+        },
+        {
+          "assert": "S7: B summary card Мощность == 44444 Вт (B sentinel, not stale A 7840)",
+          "expected": "44444 Вт",
+          "observed": "44444 Вт",
+          "outcome": "PASS",
+          "selector": "Results card[Мощность]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:53.3238698Z"
+        },
+        {
+          "assert": "S7: B summary card Расход == 6.67 м³/ч (6666/1000, not stale A 0.39)",
+          "expected": "6.67 м³/ч",
+          "observed": "6.67 м³/ч",
+          "outcome": "PASS",
+          "selector": "Results card[Расход]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:53.4638516Z"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\07-second-load-project-b.png",
+          "sha256": "EB774F737DFE3659BB8E2029CD451D0DB34B8844148A168301F85F20BD60590E",
+          "note": "screenshot 07-second-load-project-b"
+        }
+      ]
+    },
+    {
+      "step": 8,
+      "name": "S8 reset (Файл→Создать новый расчёт): defaults restored",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "S8: title is bare app title (clean, no file)",
+          "expected": "Калькулятор снеготаяния REHAU",
+          "observed": "Калькулятор снеготаяния REHAU",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:56.7210934Z"
+        },
+        {
+          "assert": "S8: reset glycol type == Этиленгликоль (default)",
+          "expected": "Этиленгликоль",
+          "observed": "Этиленгликоль",
+          "outcome": "PASS",
+          "selector": "HydraulicsGlycolType",
+          "elementRuntimeId": "7:2128:22646572",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:57.9628163Z"
+        },
+        {
+          "assert": "S8: reset concentration == 50 (HydraulicInputData default)",
+          "expected": "50 (+/-1dp)",
+          "observed": "50",
+          "outcome": "PASS",
+          "selector": "HydraulicsGlycolConcentration",
+          "elementRuntimeId": "7:2128:22433040",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:58.0872115Z"
+        },
+        {
+          "assert": "S8: reset supply heat percent == 10 (default)",
+          "expected": "10 (+/-1dp)",
+          "observed": "10",
+          "outcome": "PASS",
+          "selector": "HydraulicsSupplyHeatPercent",
+          "elementRuntimeId": "7:2128:6066333",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:58.2131571Z"
+        },
+        {
+          "assert": "S8: reset leaves no validation message",
+          "expected": "absent",
+          "observed": "absent",
+          "outcome": "PASS",
+          "selector": "HydraulicsValidationMessage",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:58.3455950Z"
+        },
+        {
+          "assert": "S8: summary card Длина труб reset to 0.0 м (default collector)",
+          "expected": "0.0 м",
+          "observed": "0.0 м",
+          "outcome": "PASS",
+          "selector": "Results card[Длина труб]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:59.6746130Z"
+        },
+        {
+          "assert": "S8: summary card Мощность reset to 0 Вт (B sentinel 44444 gone)",
+          "expected": "0 Вт",
+          "observed": "0 Вт",
+          "outcome": "PASS",
+          "selector": "Results card[Мощность]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:59.8210355Z"
+        },
+        {
+          "assert": "S8: summary card Расход reset to 0.00 м³/ч",
+          "expected": "0.00 м³/ч",
+          "observed": "0.00 м³/ч",
+          "outcome": "PASS",
+          "selector": "Results card[Расход]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:49:59.9613414Z"
+        },
+        {
+          "assert": "close 'b-load-reset': clean exit code",
+          "expected": "0",
+          "observed": "0",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:50:01.3164744Z"
+        },
+        {
+          "assert": "close 'b-load-reset': stderr free of crash patterns",
+          "expected": "no match",
+          "observed": "clean",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:50:01.3167565Z"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\08-reset-defaults.png",
+          "sha256": "788FBCB33E07622EFF5B99E36BB0ABB96E961FAA200A2E67E21DC795ACDF44AF",
+          "note": "screenshot 08-reset-defaults"
+        }
+      ]
+    },
+    {
+      "step": 9,
+      "name": "F failure branch: corrupt unknown-pipe.smc → graceful validation dialog, NO crash, clean close",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "F: graceful validation dialog appeared",
+          "expected": "Ошибка",
+          "observed": "Ошибка",
+          "outcome": "PASS",
+          "selector": "Window[name=Ошибка]",
+          "elementRuntimeId": "42:1772182",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:50:02.0501101Z"
+        },
+        {
+          "assert": "F: dialog message reports load failure",
+          "expected": "*Не удалось открыть проект:*",
+          "observed": "Не удалось открыть проект: Ошибка десериализации: The JSON value could not be converted to SnowMeltingCalculator.Models.Hydraulics.ValveType. Path: $.hydraulicsData.collectors[0].valveType | LineNumber: 61 | BytePositionInLine: 42.",
+          "outcome": "PASS",
+          "selector": "dialog Text",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:50:02.0592033Z"
+        },
+        {
+          "assert": "F: dialog dismissed via OK",
+          "expected": "closed",
+          "observed": "closed",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "42:1510020",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:50:03.3807906Z"
+        },
+        {
+          "assert": "F: process ALIVE after corrupt load; main window still bare app title",
+          "expected": "Калькулятор снеготаяния REHAU",
+          "observed": "Калькулятор снеготаяния REHAU",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:50:03.3817791Z"
+        },
+        {
+          "assert": "close 'unknown-pipe': clean exit code",
+          "expected": "0",
+          "observed": "0",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:50:04.7300442Z"
+        },
+        {
+          "assert": "close 'unknown-pipe': stderr free of crash patterns",
+          "expected": "no match",
+          "observed": "clean",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:50:04.7302527Z"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\09-unknown-pipe-validation-dialog.png",
+          "sha256": "C887AD7432FA31D2CFB7B5C3111D4CF9E43BFAAA7032E477DD4CD661AA2B1D26",
+          "note": "screenshot 09-unknown-pipe-validation-dialog"
+        },
+        {
+          "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\failure-observations.json",
+          "sha256": "7E9AB456DF4E4AF34D9494830C682A8820932BA2757A0242D5E15016D6B65067",
+          "note": "failure-branch observations"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "01-launch-project-a-hydraulics-card",
+      "file": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\01-launch-project-a-hydraulics-card.png",
+      "bytes": 96763,
+      "dimensions": "900x700",
+      "sha256": "2D5F1CB5AA728D796695785ED6EC74CF6A454936E8BB7BFFDC769489F6BF85F4"
+    },
+    {
+      "name": "03-validation-message",
+      "file": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\03-validation-message.png",
+      "bytes": 88546,
+      "dimensions": "900x700",
+      "sha256": "3CB09C45B2BA42F832D6DA93C3FEBF18E085151AAF949C04C4420454A2E12CD6"
+    },
+    {
+      "name": "02-glycol-edits-recalc",
+      "file": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\02-glycol-edits-recalc.png",
+      "bytes": 93419,
+      "dimensions": "900x700",
+      "sha256": "14C1043EC255A54BCEAD64C7910B96ED0DD284C0BC2ADD21BFDE6006219F67F5"
+    },
+    {
+      "name": "04-circuit-length-edited",
+      "file": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\04-circuit-length-edited.png",
+      "bytes": 99230,
+      "dimensions": "900x700",
+      "sha256": "0576234524EF562355959AC8665743823590B94F7FDA293B45A7661043A61833"
+    },
+    {
+      "name": "05-summary-card-updated",
+      "file": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\05-summary-card-updated.png",
+      "bytes": 98414,
+      "dimensions": "900x700",
+      "sha256": "06BE31545DE260435C4DAEE5246295D3A85E8534BCD1B449C5E39814AB104972"
+    },
+    {
+      "name": "06-saved-reloaded-identical",
+      "file": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\06-saved-reloaded-identical.png",
+      "bytes": 97549,
+      "dimensions": "900x700",
+      "sha256": "F22B89790F2180B2024E1C346EE71F4CCDA6C34C327A30788C91C18FBB0B55D1"
+    },
+    {
+      "name": "07-second-load-project-b",
+      "file": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\07-second-load-project-b.png",
+      "bytes": 100352,
+      "dimensions": "900x700",
+      "sha256": "EB774F737DFE3659BB8E2029CD451D0DB34B8844148A168301F85F20BD60590E"
+    },
+    {
+      "name": "08-reset-defaults",
+      "file": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\08-reset-defaults.png",
+      "bytes": 107278,
+      "dimensions": "900x700",
+      "sha256": "788FBCB33E07622EFF5B99E36BB0ABB96E961FAA200A2E67E21DC795ACDF44AF"
+    },
+    {
+      "name": "09-unknown-pipe-validation-dialog",
+      "file": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\final\\f3\\screenshots\\09-unknown-pipe-validation-dialog.png",
+      "bytes": 129819,
+      "dimensions": "900x700",
+      "sha256": "C887AD7432FA31D2CFB7B5C3111D4CF9E43BFAAA7032E477DD4CD661AA2B1D26"
+    }
+  ],
+  "deviations": [
+    "Load restores the saved hydraulics snapshot verbatim (canonical Restore(ProjectLoad) -> adapter mirror); the stored fixture values (20480 W / 1172.0 л/ч) are therefore the load-time fixture math. A user-initiated recalculation recomputes from formulas: P=(L/(100/spc)+Lzul/(100/spcZul)*h%)*(qUp+qDown)=5230.44 W at fixture inputs — asserted in S4/S5.",
+    "Recalculation oracles are computed by the harness from data/glycol_data.json replicating GlycolDataService bilinear interpolation (lines 520-600) and CircuitsCalculator power/flow formulas (lines 20-60): P(80m)=(80/(100/25)+8/(100/5)*0.10)*(256+5)=5230.44 W; flow(e30@42.5°C,dT15)=258.4 л/ч; flow(p30)=297,9; flow(p50)=308,9. The saved-file value 1172.0 corresponds to the legacy-characterized fixture result and is replaced on any recalculation.",
+    "Reset leaves ONE ZEROED default-collector summary card on Результаты (Длина труб 0.0 м / Мощность 0 Вт / Расход 0.00 м³/ч) instead of the collapsed empty state: CircuitsViewModel.Reset() -> AddCollector() -> RebuildHydraulicSummaryCards() adds a card per collector regardless of results (CircuitsViewModel.cs:696-711, 670-679). Asserted as the code-faithful defaults-restored observable."
+  ],
+  "unexpectedDialogs": [],
+  "error": "",
+  "result": "PASS"
+}
