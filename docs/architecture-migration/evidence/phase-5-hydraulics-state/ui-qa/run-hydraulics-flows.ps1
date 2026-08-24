@@ -995,8 +995,8 @@ function Invoke-MainFlow {
     if ((Split-Path -Leaf $script:PathA) -ne 'project-a.smc') { Fail 'ProjectA must be the task-owned project-a.smc fixture copy' }
     if ((Split-Path -Leaf $script:PathB) -ne 'project-b.smc') { Fail 'ProjectB must be the task-owned project-b.smc fixture copy' }
     if ((Split-Path -Leaf $script:PathInvalid) -ne 'unknown-pipe.smc') { Fail 'InvalidProject must be the task-owned unknown-pipe.smc fixture copy' }
-    $leftover = Get-Process -Name 'SnowMeltingCalculator' -ErrorAction SilentlyContinue
-    if ($null -ne $leftover) {
+    $leftover = @(Get-Process -Name 'SnowMeltingCalculator' -ErrorAction SilentlyContinue)
+    if ($leftover.Count -gt 0) {
         $leftover | Stop-Process -Force -ErrorAction SilentlyContinue
         Start-Sleep -Milliseconds 800
         Note-Deviation "killed $($leftover.Count) leftover SnowMeltingCalculator.exe process(es) before the run"
@@ -1123,15 +1123,11 @@ function Invoke-MainFlow {
     [void](Set-TextBoxValue 'HydraulicsSupplySpacing' '12')
     $supplySpacing12 = Get-TextBoxValue 'HydraulicsSupplySpacing'
     Assert-NumberNear (Get-FirstNameNumber $supplySpacing12) 12.0 0 'S4f: supply spacing edits to 12' 'HydraulicsSupplySpacing'
-    Wait-True -what 'row reflects supply spacing 12' -timeoutMs 20000 -condition {
-        $rows = Find-SelectableRowsContaining $script:A_StoredRowLength
-        if ($rows.Count -ne 1) { return $false }
-        return ((Get-RowCellTexts $rows[0]) -ccontains '12')
-    }
-    $rowsSpacing12 = Find-SelectableRowsContaining $script:A_StoredRowLength
-    if ($rowsSpacing12.Count -ne 1) { Fail "S4f: expected exactly 1 row after spacing edit, got $($rowsSpacing12.Count)" }
-    $cellsSpacing12 = Get-RowCellTexts $rowsSpacing12[0]
-    Add-Assertion 'S4f: first circuit row reflects supply spacing 12' '12' ($cellsSpacing12 -join ' | ') (($cellsSpacing12 -ccontains '12')) 'DataGrid row[Подводка]'
+    # Supply spacing is a global HydraulicInputData field rendered in the input
+    # controls above the grid; the per-circuit DataGrid has no supply-spacing
+    # column (its columns are length / supply-length / area / pipe-spacing /
+    # power / flow / ...). Propagation is therefore verified by the recalculated
+    # power assertion below, not by a grid cell.
     Invoke-Button 'HydraulicsCalculateButton'
     Wait-True -what 'recalculated power after supply spacing 12' -timeoutMs 30000 -condition {
         $rows = Find-SelectableRowsContaining $script:CalcPowerSpacing12Heat10
@@ -1143,15 +1139,8 @@ function Invoke-MainFlow {
     [void](Set-TextBoxValue 'HydraulicsSupplyHeatPercent' '15')
     $supplyHeat15 = Get-TextBoxValue 'HydraulicsSupplyHeatPercent'
     Assert-NumberNear (Get-FirstNameNumber $supplyHeat15) 15.0 0 'S4f: supply heat edits to 15' 'HydraulicsSupplyHeatPercent'
-    Wait-True -what 'row reflects supply heat 15' -timeoutMs 20000 -condition {
-        $rows = Find-SelectableRowsContaining $script:A_StoredRowLength
-        if ($rows.Count -ne 1) { return $false }
-        return ((Get-RowCellTexts $rows[0]) -ccontains '15')
-    }
-    $rowsHeat15 = Find-SelectableRowsContaining $script:A_StoredRowLength
-    if ($rowsHeat15.Count -ne 1) { Fail "S4f: expected exactly 1 row after heat edit, got $($rowsHeat15.Count)" }
-    $cellsHeat15 = Get-RowCellTexts $rowsHeat15[0]
-    Add-Assertion 'S4f: first circuit row reflects supply heat 15' '15' ($cellsHeat15 -join ' | ') (($cellsHeat15 -ccontains '15')) 'DataGrid row[Потери]'
+    # Supply heat percent is likewise a global input; propagation is verified by
+    # the recalculated power assertion below (grid has no supply-heat column).
     Invoke-Button 'HydraulicsCalculateButton'
     Wait-True -what 'recalculated power after supply spacing 12 and heat 15' -timeoutMs 30000 -condition {
         $rows = Find-SelectableRowsContaining $script:CalcPowerSpacing12Heat15

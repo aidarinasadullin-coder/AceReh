@@ -2,8 +2,8 @@
   "version": "1.1",
   "projectNumber": "T19-REGRESSION-001",
   "projectObject": "v1.0 serialization regression sample",
-  "createdDate": "2026-08-24T20:18:40.3661086+05:00",
-  "modifiedDate": "2026-08-24T20:18:40.3660862+05:00",
+  "createdDate": "2026-08-25T00:49:36.1563621+05:00",
+  "modifiedDate": "2026-08-25T00:49:36.156331+05:00",
   "climateData": {
     "selectedCity": "\u041C\u043E\u0441\u043A\u0432\u0430",
     "region": "\u041C\u043E\u0441\u043A\u043E\u0432\u0441\u043A\u0430\u044F \u043E\u0431\u043B\u0430\u0441\u0442\u044C",

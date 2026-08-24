@@ -1,0 +1,297 @@
+{
+  "executable": "D:\\IA\\3ace v.2\\src\\bin\\Debug\\net8.0-windows\\win-x64\\SnowMeltingCalculator.exe",
+  "generatedUtc": "2026-08-24T19:46:09.5720933Z",
+  "frozenExeSha256": {
+    "beforeFirstFlow": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+    "afterLastFlow": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E",
+    "equal": true
+  },
+  "fixtures": {
+    "manifest": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\fixture-manifest.json",
+    "outputs": [
+      {
+        "name": "project-a.smc",
+        "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\project-a.smc",
+        "sha256": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+        "manifestMatch": true
+      },
+      {
+        "name": "project-b.smc",
+        "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\project-b.smc",
+        "sha256": "8A8A1C9767BF266B90E95D8CCC33FF663736CC69D37D3F5571D5B1B15510BF1A",
+        "manifestMatch": true
+      },
+      {
+        "name": "unknown-pipe.smc",
+        "path": "docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\fixtures\\unknown-pipe.smc",
+        "sha256": "FA0EDAAC71AEAC82AB84A3C119DFA2D1228D61C84B530EB47DE6836210ADB614",
+        "manifestMatch": true
+      }
+    ],
+    "executableShaPreRun": "ECB0AE84B760700C76024F4D5312D6440FE8D4D540775534CB89F57EE4AB164E"
+  },
+  "processes": [],
+  "selectors": [
+    {
+      "id": "HydraulicsGlycolType",
+      "controlType": "ComboBox",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsGlycolConcentration",
+      "controlType": "Edit",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsSupplySpacing",
+      "controlType": "Edit",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "HydraulicsSupplyHeatPercent",
+      "controlType": "Edit",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsCalculateButton",
+      "controlType": "Button",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsValidationMessage",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": true,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "HydraulicsCircuitLengthFirst",
+      "controlType": "Edit",
+      "view": "Hydraulics",
+      "optional": true,
+      "resolvedCount": 0,
+      "lastPresent": false
+    },
+    {
+      "id": "HydraulicsPipeSpacing",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsSupplyTemperature",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    },
+    {
+      "id": "HydraulicsReturnTemperature",
+      "controlType": "Text",
+      "view": "Hydraulics",
+      "optional": false,
+      "resolvedCount": 1,
+      "lastPresent": true
+    }
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "name": "S1 fixtures: manifest + three .smc SHA-256 + frozen exe SHA pre-run",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "fixture project-a.smc SHA matches manifest",
+          "expected": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+          "observed": "E1D02BC006D1EE15304EC3BEC41DE5F68D756BD27324D87A2A0E3D264119397A",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:48.7443134Z"
+        },
+        {
+          "assert": "fixture project-b.smc SHA matches manifest",
+          "expected": "8A8A1C9767BF266B90E95D8CCC33FF663736CC69D37D3F5571D5B1B15510BF1A",
+          "observed": "8A8A1C9767BF266B90E95D8CCC33FF663736CC69D37D3F5571D5B1B15510BF1A",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:48.7547845Z"
+        },
+        {
+          "assert": "fixture unknown-pipe.smc SHA matches manifest",
+          "expected": "FA0EDAAC71AEAC82AB84A3C119DFA2D1228D61C84B530EB47DE6836210ADB614",
+          "observed": "FA0EDAAC71AEAC82AB84A3C119DFA2D1228D61C84B530EB47DE6836210ADB614",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:48.7555898Z"
+        }
+      ],
+      "artifacts": []
+    },
+    {
+      "step": 2,
+      "name": "S2 launch project-a as first .smc argument; clean loaded title",
+      "status": "PASS",
+      "assertions": [
+        {
+          "assert": "launch 'a-load-edit-save': window title carries app suffix",
+          "expected": "*Калькулятор снеготаяния REHAU",
+          "observed": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:50.4811117Z"
+        },
+        {
+          "assert": "S2: clean loaded title (no dirty marker)",
+          "expected": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "observed": "project-a.smc — Калькулятор снеготаяния REHAU",
+          "outcome": "PASS",
+          "selector": "",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:50.5322372Z"
+        }
+      ],
+      "artifacts": []
+    },
+    {
+      "step": 3,
+      "name": "S3 navigate Гидравлический расчёт; outputs match v1-sample.smc stored fixture math; registry",
+      "status": "FAILED",
+      "assertions": [
+        {
+          "assert": "S3: glycol type combo == Этиленгликоль (fixture ethylene)",
+          "expected": "Этиленгликоль",
+          "observed": "Этиленгликоль",
+          "outcome": "PASS",
+          "selector": "HydraulicsGlycolType",
+          "elementRuntimeId": "7:19736:583706",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:51.9974292Z"
+        },
+        {
+          "assert": "S3: glycol concentration == 30 (fixture)",
+          "expected": "30 (+/-1dp)",
+          "observed": "30",
+          "outcome": "PASS",
+          "selector": "HydraulicsGlycolConcentration",
+          "elementRuntimeId": "7:19736:47280229",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:52.1766372Z"
+        },
+        {
+          "assert": "S3: supply heat percent == 10 (fixture)",
+          "expected": "10 (+/-1dp)",
+          "observed": "10",
+          "outcome": "PASS",
+          "selector": "HydraulicsSupplyHeatPercent",
+          "elementRuntimeId": "7:19736:63988077",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:52.3286970Z"
+        },
+        {
+          "assert": "S3: calculate button resolved/enabled",
+          "expected": "enabled Button",
+          "observed": "enabled=True",
+          "outcome": "PASS",
+          "selector": "HydraulicsCalculateButton",
+          "elementRuntimeId": "7:19736:41314614",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:52.4848629Z"
+        },
+        {
+          "assert": "S3: HydraulicsPipeSpacing == 25 cm (fixture pipeSpacing 250 mm / 10)",
+          "expected": "25 (+/-0dp)",
+          "observed": "25",
+          "outcome": "PASS",
+          "selector": "HydraulicsPipeSpacing",
+          "elementRuntimeId": "7:19736:42842654",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:52.6186579Z"
+        },
+        {
+          "assert": "S3: HydraulicsSupplyTemperature == 50.0 (fixture thermal supply)",
+          "expected": "50 (+/-1dp)",
+          "observed": "50",
+          "outcome": "PASS",
+          "selector": "HydraulicsSupplyTemperature",
+          "elementRuntimeId": "7:19736:51565323",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:52.7443735Z"
+        },
+        {
+          "assert": "S3: HydraulicsReturnTemperature == 35.0 (fixture thermal result return)",
+          "expected": "35 (+/-1dp)",
+          "observed": "35",
+          "outcome": "PASS",
+          "selector": "HydraulicsReturnTemperature",
+          "elementRuntimeId": "7:19736:10157186",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:52.8511685Z"
+        },
+        {
+          "assert": "S3: first circuit row length cell == 80 (stored fixture)",
+          "expected": "80",
+          "observed": "1 | 80 | 8.0 | 20.0 | 25 | 20480 | 1172.0 | 0.33 | 1.450 | 0 | 0.0000 | Турбулентный | 0.00 | 15000 | 2500 | 1200 | 18700 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Длина]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:53.1992656Z"
+        },
+        {
+          "assert": "S3: first circuit row power cell == 20480 (stored fixture)",
+          "expected": "20480",
+          "observed": "1 | 80 | 8.0 | 20.0 | 25 | 20480 | 1172.0 | 0.33 | 1.450 | 0 | 0.0000 | Турбулентный | 0.00 | 15000 | 2500 | 1200 | 18700 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Мощность]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:53.1994173Z"
+        },
+        {
+          "assert": "S3: first circuit row flow cell == 1172,0 (stored fixture)",
+          "expected": "1172.0",
+          "observed": "1 | 80 | 8.0 | 20.0 | 25 | 20480 | 1172.0 | 0.33 | 1.450 | 0 | 0.0000 | Турбулентный | 0.00 | 15000 | 2500 | 1200 | 18700 | 0 | 2 ½",
+          "outcome": "PASS",
+          "selector": "DataGrid row[Расход л/ч]",
+          "elementRuntimeId": "",
+          "screenshot": "",
+          "timestampUtc": "2026-08-24T19:45:53.1994949Z"
+        }
+      ],
+      "artifacts": []
+    }
+  ],
+  "screenshots": [],
+  "deviations": [],
+  "unexpectedDialogs": [],
+  "error": "run-hydraulics-flows: timeout after 15000ms waiting for: results hydraulic summary card visible @ At D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\run-hydraulics-flows.ps1:55 char:5 + throw [System.InvalidOperationException]::new(\"run-hydraulics-flo … + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ | STACK: at Fail, D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\run-hydraulics-flows.ps1: line 55\r\nat Wait-True, D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\run-hydraulics-flows.ps1: line 495\r\nat Invoke-MainFlow, D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\run-hydraulics-flows.ps1: line 1047\r\nat <ScriptBlock>, D:\\IA\\3ace v.2\\docs\\architecture-migration\\evidence\\phase-5-hydraulics-state\\ui-qa\\run-hydraulics-flows.ps1: line 1516",
+  "result": "FAIL"
+}
