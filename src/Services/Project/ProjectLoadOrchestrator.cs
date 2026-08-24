@@ -34,6 +34,7 @@ namespace SnowMeltingCalculator.Services.Project
         private readonly IProjectSessionClimateState _climateState;
         private readonly IProjectSessionConstructionState _constructionState;
         private readonly IProjectSessionThermalState _thermalState;
+        private readonly IProjectSessionHydraulicsState _hydraulicsState;
         private readonly ConstructionDefaultStateInitializer _constructionDefaultStateInitializer;
 
         /// <summary>
@@ -61,6 +62,7 @@ namespace SnowMeltingCalculator.Services.Project
             _climateState = session.ClimateState;
             _constructionState = session.ConstructionState;
             _thermalState = session.ThermalState;
+            _hydraulicsState = session.HydraulicsState;
             _constructionDefaultStateInitializer = constructionDefaultStateInitializer
                 ?? throw new ArgumentNullException(nameof(constructionDefaultStateInitializer));
         }
@@ -164,46 +166,10 @@ namespace SnowMeltingCalculator.Services.Project
                     _thermalViewModel.AvailablePipes);
                 _thermalViewModel.PipeSpacing = thermalCandidate.PipeSpacing;
 
-                // Загружаем коллекторы
-                _circuitsViewModel.Collectors.Clear();
-                foreach (var collectorData in data.HydraulicsData.Collectors)
-                {
-                    var collector = new CollectorData(collectorData.CollectorNumber)
-                    {
-                        CollectorType = collectorData.CollectorType,
-                        ValveType = collectorData.ValveType
-                    };
-
-                    foreach (var circuitData in collectorData.Circuits)
-                    {
-                        collector.Circuits.Add(new CircuitRow
-                        {
-                            CircuitNumber = circuitData.CircuitNumber,
-                            CircuitLength = circuitData.CircuitLength,
-                            SupplyLength = circuitData.SupplyLength,
-                            SupplySpacing_cm = circuitData.SupplySpacingCm,
-                            SupplyHeatPercent = circuitData.SupplyHeatPercent,
-                            PipeSpacing_cm = circuitData.PipeSpacingCm
-                        });
-                    }
-
-                    _circuitsViewModel.Collectors.Add(collector);
-                }
-
-                // Загружаем данные гидравлики после восстановления коллекторов,
-                // чтобы присвоения InputData не пометили проект dirty до завершения загрузки.
-                _circuitsViewModel.InputData.GlycolType = data.HydraulicsData.GlycolType;
-                _circuitsViewModel.InputData.GlycolConcentration = data.HydraulicsData.GlycolConcentration;
-                _circuitsViewModel.InputData.SupplySpacing_cm = data.HydraulicsData.SupplySpacingCm;
-                _circuitsViewModel.InputData.SupplyHeatPercent = data.HydraulicsData.SupplyHeatPercent;
-
-                // Выбираем первый загруженный коллектор и обновляем состояние команд
-                if (_circuitsViewModel.Collectors.Count > 0)
-                {
-                    _circuitsViewModel.SelectedCollectorIndex = 0;
-                }
-            _circuitsViewModel.AddCircuitCommand.NotifyCanExecuteChanged();
-            _circuitsViewModel.RemoveCircuitCommand.NotifyCanExecuteChanged();
+                // Restore the complete hydraulics slice atomically, then mirror it into the adapter.
+                var hydraulicsCandidate = HydraulicsPersistenceMapper.BuildRestoreCandidate(data.HydraulicsData);
+                _hydraulicsState.Restore(hydraulicsCandidate, HydraulicsMutationOrigin.ProjectLoad);
+                _circuitsViewModel.ApplyLifecycleSnapshotToAdapter(_hydraulicsState.Snapshot);
 
             // === Детерминированная финализация загрузки проекта ===
             //
@@ -227,107 +193,12 @@ namespace SnowMeltingCalculator.Services.Project
                 await _thermalViewModel.CalculateCommand.ExecuteAsync(null);
             }
 
-            // 2. Восстанавливаем результаты контуров из сохранённых данных
-            RestoreCircuitsResults(data.HydraulicsData.Collectors);
+            // Thermal result publication can trigger the normal hydraulics
+            // recalculation path. Restore the file's hydraulics result last so
+            // a valid persisted project remains a lossless round-trip.
+            _hydraulicsState.Restore(hydraulicsCandidate, HydraulicsMutationOrigin.ProjectLoad);
+            _circuitsViewModel.ApplyLifecycleSnapshotToAdapter(_hydraulicsState.Snapshot);
 
-        }
-
-        /// <summary>
-        /// Восстанавливает результаты контуров из сохранённых данных проекта
-        /// </summary>
-        private void RestoreCircuitsResults(List<CollectorProjectData> collectorsData)
-        {
-            if (collectorsData == null || _circuitsViewModel.Collectors == null) return;
-
-            for (int i = 0; i < collectorsData.Count && i < _circuitsViewModel.Collectors.Count; i++)
-            {
-                var collectorData = collectorsData[i];
-                var collector = _circuitsViewModel.Collectors[i];
-
-                // Восстанавливаем Summary.
-                // Создаём новый экземпляр, чтобы избежать shared-reference/last-write overwrite
-                // между коллекторами, если Summary ранее была перезаписана одним и тем же объектом.
-                if (collectorData.Summary != null)
-                {
-                    collector.Summary = new CollectorSummary
-                    {
-                        CollectorNumber = collector.CollectorNumber,
-                        CollectorType = collectorData.Summary.CollectorType,
-                        CircuitCount = collectorData.Summary.CircuitCount,
-                        TotalPower = collectorData.Summary.TotalPower,
-                        TotalFlowRate = collectorData.Summary.TotalFlowRate,
-                        TotalPipeLength = collectorData.Summary.TotalPipeLength,
-                        PressureLoss_Operating_Pa = collectorData.Summary.PressureLoss_Operating_Pa,
-                        PressureLoss_Cold_Pa = collectorData.Summary.PressureLoss_Cold_Pa,
-                        Kv = collectorData.Summary.Kv,
-                        ValveType = collector.ValveType
-                    };
-                }
-
-                // Восстанавливаем результаты контуров
-                if (collectorData.Circuits != null && collector.Circuits != null)
-                {
-                    for (int j = 0; j < collectorData.Circuits.Count && j < collector.Circuits.Count; j++)
-                    {
-                        var circuitData = collectorData.Circuits[j];
-                        var circuit = collector.Circuits[j];
-
-                        circuit.Power = circuitData.Power;
-                        circuit.FlowRate = circuitData.FlowRate;
-                        circuit.Velocity = circuitData.Velocity;
-                        circuit.Throttling = circuitData.Throttling;
-                        circuit.ValveTurns = circuitData.ValveTurns;
-
-                        // Восстанавливаем OperatingResult
-                        if (circuitData.OperatingResult != null)
-                        {
-                            if (!Enum.TryParse<FlowRegime>(circuitData.OperatingResult.FlowRegimeString, true, out var operatingFlowRegime) &&
-                                !Enum.TryParse<FlowRegime>(circuitData.OperatingResult.FlowRegime, true, out operatingFlowRegime))
-                            {
-                                operatingFlowRegime = FlowRegime.Laminar;
-                            }
-
-                            circuit.OperatingResult = new CircuitTemperatureResult
-                            {
-                                DpRohr = circuitData.OperatingResult.DpRohr,
-                                DpVerteiler = circuitData.OperatingResult.DpVerteiler,
-                                DpVent = circuitData.OperatingResult.DpVent,
-                                ZuDrosseln = circuitData.OperatingResult.Throttling,
-                                FlowRegime = operatingFlowRegime,
-                                Density = circuitData.OperatingResult.Density,
-                                KinematicViscosity = circuitData.OperatingResult.KinematicViscosity,
-                                ReynoldsNumber = circuitData.OperatingResult.ReynoldsNumber,
-                                FrictionFactor = circuitData.OperatingResult.FrictionFactor,
-                                PressureLossPerMeter = circuitData.OperatingResult.PressureLossPerMeter
-                            };
-                        }
-
-                        // Восстанавливаем DesignResult
-                        if (circuitData.DesignResult != null)
-                        {
-                            if (!Enum.TryParse<FlowRegime>(circuitData.DesignResult.FlowRegimeString, true, out var designFlowRegime) &&
-                                !Enum.TryParse<FlowRegime>(circuitData.DesignResult.FlowRegime, true, out designFlowRegime))
-                            {
-                                designFlowRegime = FlowRegime.Laminar;
-                            }
-
-                            circuit.DesignResult = new CircuitTemperatureResult
-                            {
-                                DpRohr = circuitData.DesignResult.DpRohr,
-                                DpVerteiler = circuitData.DesignResult.DpVerteiler,
-                                DpVent = circuitData.DesignResult.DpVent,
-                                ZuDrosseln = circuitData.DesignResult.Throttling,
-                                FlowRegime = designFlowRegime,
-                                Density = circuitData.DesignResult.Density,
-                                KinematicViscosity = circuitData.DesignResult.KinematicViscosity,
-                                ReynoldsNumber = circuitData.DesignResult.ReynoldsNumber,
-                                FrictionFactor = circuitData.DesignResult.FrictionFactor,
-                                PressureLossPerMeter = circuitData.DesignResult.PressureLossPerMeter
-                            };
-                        }
-                    }
-                }
-            }
         }
 
         private ConstructionStateSnapshot BuildConstructionSnapshotFromProjectData(ProjectData data)

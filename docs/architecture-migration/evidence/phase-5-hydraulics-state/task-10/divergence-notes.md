@@ -13,6 +13,13 @@ the current domain model exposes `DpGesamt` as a computed property and stores
 `ValveTurns` on `CircuitRow`; the canonical snapshot and DTO retain both
 values unchanged.
 
+## Commit split note
+
+Task 10 landed as two commits: `34b739e` (tests+evidence) and the follow-up
+production commit created next, because the initial staging pass omitted the
+production write-set. Both commits together form the Todo 10 boundary. Full
+Release `1968 passed, 0 failed, 1 skipped` was verified on the combined tree.
+
 The initial verification attempts hit stale/concurrent WPF build intermediates
 in `src/obj` and test output locks. After terminating the compiler process and
 disabling shared compilation, the focused Release characterization suite passed
