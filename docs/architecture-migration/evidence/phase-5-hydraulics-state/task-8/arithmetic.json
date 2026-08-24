@@ -1,0 +1,30 @@
+{
+  "phase": "phase-5-hydraulics-state",
+  "todo": 8,
+  "planSha256": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
+  "runs": {
+    "run3": {
+      "h3": { "total": 63, "passed": 63, "failed": 0 },
+      "h4": { "total": 24, "passed": 24, "failed": 0 }
+    },
+    "run4": {
+      "h3": { "total": 63, "passed": 63, "failed": 0 },
+      "h4": { "total": 24, "passed": 24, "failed": 0 }
+    }
+  },
+  "rawTrx": {
+    "run3H3": "run-3/H3.trx",
+    "run3H4": "run-3/H4.trx",
+    "run4H3": "run-4/H3.trx",
+    "run4H4": "run-4/H4.trx",
+    "negativeProbe": "double-publish-negative.trx"
+  },
+  "behavioralCounts": {
+    "validThermalResult": "one logical hydraulics calculation",
+    "invalidOrNullThermalResult": "zero hydraulics calculations",
+    "ownSource": "zero recursion",
+    "changedSpacing": "one compatibility event and one consumer update",
+    "noOpSpacing": "zero compatibility events and zero calculations",
+    "climate": "display updates and one CalculateAllCollectors"
+  }
+}
