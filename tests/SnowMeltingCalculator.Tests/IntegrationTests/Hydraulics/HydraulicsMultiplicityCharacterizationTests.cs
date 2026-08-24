@@ -152,16 +152,39 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
         var fixture = CreateFixture();
         await fixture.Orchestrator.RestoreModulesFromProjectAsync(CreateProjectData());
         fixture.Origins.Clear();
+        fixture.DirtyMock.Invocations.Clear();
 
-        var loadedCircuitValues = fixture.ViewModel.Collectors.SelectMany(collector => collector.Circuits)
-            .Select(circuit => (circuit.SupplySpacing_cm, circuit.SupplyHeatPercent)).ToList();
+        var loadedCircuits = fixture.ViewModel.Collectors.SelectMany(collector => collector.Circuits).ToList();
+        var loadedSupplySpacing = fixture.ViewModel.InputData.SupplySpacing_cm;
+        var loadedSupplyHeatPercent = fixture.ViewModel.InputData.SupplyHeatPercent;
+
+        fixture.Session.HydraulicsState.ApplyGlobalInputs(
+            new HydraulicGlobalInputsSnapshot(
+                GlycolType.Propylene,
+                42,
+                9,
+                19),
+            HydraulicsMutationOrigin.SystemApply);
+        var systemApplyOrigins = fixture.Origins.ToList();
+
         fixture.StateMock.Object.ResetHydraulicsState();
         fixture.ViewModel.Reset();
 
         Assert.Multiple(() =>
         {
+            // Loaded global inputs come from the fixture, not the default (0,0) seed.
+            Assert.That(loadedSupplySpacing, Is.EqualTo(7));
+            Assert.That(loadedSupplyHeatPercent, Is.EqualTo(17));
+
+            // Restore rebuilt the adapter from the canonical snapshot: circuits are
+            // non-empty and preserve their loaded per-circuit identity and values.
+            Assert.That(loadedCircuits, Is.Not.Empty);
+            Assert.That(loadedCircuits.Single().CircuitNumber, Is.EqualTo(4));
+            Assert.That(loadedCircuits.Single().CircuitLength, Is.EqualTo(123));
+
+            Assert.That(systemApplyOrigins, Does.Not.Contain(HydraulicsMutationOrigin.User));
             Assert.That(fixture.Origins, Does.Not.Contain(HydraulicsMutationOrigin.User));
-            Assert.That(loadedCircuitValues, Is.Not.Empty);
+            Assert.That(fixture.DirtyCalls, Is.Zero);
         });
     }
 
