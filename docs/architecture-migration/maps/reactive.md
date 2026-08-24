@@ -50,7 +50,7 @@ receipt facts, not inferred from subscription declarations.
 | `RE-005` | `ST-015` | StateChanged | Thermal handler | constructor subscription; unsubscribe not observed | state change | compat refresh surface only (`RecalcMessage`/`NeedsRecalculation` re-notify); canonical completion arrives via coordinator `Completion` | ThermalViewModel.cs:266,438-460 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-006` | `ST-013` | PipeSpacingChanged | Circuits | constructor subscription; unsubscribe not observed | guarded spacing change | compat echo fired only from canonical completions with changed spacing | CalculationStateService.cs:226-235; Circuits :724-726 | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-007` | `ST-013` | PipeSpacingChanged | Thermal/Construction | constructor subscriptions; unsubscribe not observed | guarded spacing change | compat refresh surfaces fed from canonical completions; no independent writer | ThermalViewModel.cs:267; ConstructionViewModel.cs:258; CalculationStateService.cs:226-235 | verified | unknown | unknown | unknown | unknown | unknown |
-| `RE-008` | `ST-016`,`ST-017`,`ST-004`,`ST-018` | HydraulicInputData/Collectors | Circuits handlers | old InputData explicitly unsubscribed; collection unsubscribe not observed | input/collection edit | dirty, propagation, calculate | Circuits :732-739,1113-1180 | verified | unknown | unknown | unknown | unknown | unknown |
+| `RE-008` | `ST-016`,`ST-017`,`ST-004`,`ST-018` | HydraulicInputData/Collectors adapter events | Circuits handlers -> `ProjectSession.HydraulicsState`/coordinator | old InputData explicitly unsubscribed; collection unsubscribe not observed | input/collection edit | adapter forwards edits through canonical `ApplyGlobalInputs`/`ReplaceCollectors` (User origin); the slice raises dirty once per changed commit and the coordinator runs the attempt | Circuits :1024-1319; `HydraulicsStateCoordinator.cs:46-84`; evidence `task-9/divergence-notes.md` | verified | unknown | unknown | unknown | unknown | unknown |
 | `RE-009` | `ST-008`,`ST-009`,`ST-010`,`ST-011`,`ST-004` | `ProjectSessionConstructionState.CompleteChanged` | `CurrentProjection`, CalculationContext, adapter and dirty owner | singleton state/adapter; repeated lifecycle hygiene covered | changed canonical mutation | refresh projection; valid User/Template publishes once; raise one Changed; origin-aware dirty | Tasks 10-12.1; pre-Task 13 correction | verified | at most 1 valid user/template publication | 1 canonical Changed | one Thermal invalidation after correction | Results/save reads canonical snapshot | 1 for changed User/Template; 0 lifecycle/no-op/rejected |
 
 ## Phase 3 Construction completion overlay
@@ -119,3 +119,24 @@ Multiplicity facts are receipt-backed: the Todo 2 characterization suite pins
 duplicate-subscriber detection); the Todo 11 guard suite rejects duplicate
 upstream attaches and non-coordinator context writers; the Todo 12 full Release
 run passed 1943/1946 with zero failures.
+
+## Phase 5 HydraulicsState overlay (Task 14)
+
+The Hydraulics reactive boundary is no longer
+`Circuits handlers -> dirty/propagation/calculate` with the ViewModel as a writer. The sealed
+singleton `HydraulicsStateCoordinator` owns the upstream subscriptions, is the sole production
+writer of `CalculationContext.HydraulicsResults`, and terminates every attempt unconditionally;
+`ProjectSession.HydraulicsState` commits and raises dirty; `CircuitsViewModel` forwards and mirrors.
+
+| Edge ID | State IDs | Publisher | Subscriber | Subscription and unsubscribe/lifetime | Trigger/action | Effect | Evidence | Confidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `RE-P5-HYD-001` | `ST-021`,`ST-013`,`ST-015` | `CalculationContext.ContextChanged`, `PipeSpacingChanged`, `StateChanged` | `HydraulicsStateCoordinator` handlers | singleton ctor subscriptions (`HydraulicsStateCoordinator.cs:31-33`) via `Connect` callbacks; guard-proved single attach per surface | thermal input/result publications, guarded spacing change, status change | notifyThermal refresh; `ApplyPipeSpacing` runs one canonical recalculation pass and mirrors spacing | `HydraulicsStateCoordinator.cs:86-107`; evidence `task-7/trx-coordinator-release.json`, `task-11/trx-guards-release.json` | verified |
+| `RE-P5-HYD-002` | `ST-016`,`ST-017`,`ST-004` | Circuits adapter handlers | `ProjectSession.HydraulicsState` closed mutations | adapter forwards on user edit only (`_isResetting/_isInitializing/_isMirroringHydraulicsState/load-guard` suppressed) | glycol/scalar edits -> `ApplyGlobalInputs(User)`; collection edits -> `ReplaceCollectors(User)` | one canonical commit per changed user action; the slice raises `IMarkDirtyService` exactly once per changed User-origin commit; lifecycle origins never dirty | `CircuitsViewModel.cs:1024-1319`; `ProjectSessionHydraulicsState.cs:92-97`; evidence `task-9/divergence-notes.md` | verified |
+| `RE-P5-HYD-003` | `ST-018`,`ST-019` | coordinator `RunCalculation` | `CalculationContext`, `ICalculationStateService`, slice completions | one attempt = `SetHydraulicsCalculating` -> calculation -> publication -> completion | every calculate attempt (user command or auto-recalc) | sole `UpdateHydraulics` publication per completed attempt (source label `"CircuitsViewModel"`); `CompleteCalculation(FailCalculation)` under Calculation origin; `finally` performs exactly one unconditional `ResetHydraulicsState` per attempt (FIX B) | `HydraulicsStateCoordinator.cs:59-84`; evidence `task-9/divergence-notes.md` | verified |
+| `RE-P5-HYD-004` | `ST-016`,`ST-017`,`ST-018` | slice `Changed` event | `OnHydraulicsStateChanged` adapter mirror | ctor subscription (`CircuitsViewModel.cs:876-892,918`) | ProjectLoad-origin commits only | read-only mirror into UI data (`ApplyLifecycleSnapshotToAdapter`); other origins are ignored by design, so auto-recalculation during load never dirties or double-publishes | `CircuitsViewModel.cs:876-892`; evidence `task-9/divergence-notes.md` (auto-recalc dirty churn eliminated) | verified |
+
+Multiplicity facts are receipt-backed: the Todo 2 characterization suite pins hydraulics
+multiplicity (13 executed cases), the Todo 11 guard suite rejects bypass writers and duplicate
+attaches (8/8 categories), the Todo 12 reconciliation closes the full Release suite at
+1976 passed / 0 failed / 3 accepted NotExecuted identities, and the Todo 13 agent-operated QA
+observed all nine steps PASS including the corrupt-fixture failure branch.

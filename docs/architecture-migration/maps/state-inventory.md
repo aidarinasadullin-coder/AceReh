@@ -37,10 +37,10 @@ limitations:
 | `ST-013` | Thermal pipe spacing `PipeSpacing` member of the canonical Thermal inputs snapshot | `ProjectSession.ThermalState` (`Inputs.PipeSpacing`) | legacy read-through surface `ICalculationStateService.PipeSpacing`/`PipeSpacingChanged` (compat translation, zero backing store); Construction/Thermal/Circuits adapters | canonical mutations only; guarded restore applies spacing before adapter finalization; compat setter is a no-op echo when equal | Construction visualization, Thermal UI, Circuits, Results | compat `PipeSpacingChanged` fires only from canonical completions with changed spacing (`CalculationStateService.cs:226-235`) | `ThermalProjectData.PipeSpacing` unchanged; missing value still defaults to `200` on restore | `ProjectSession.ThermalState.PipeSpacing` | migrated/verified; AMZ-1 compat seam documented | `ProjectSessionThermalState.cs:37-54`; `CalculationStateService.cs:84-103,226-235`; `ProjectLoadOrchestrator.cs:132-155`; evidence `task-6/task-567-merged-boundary.md`, `task-9/task-9-lifecycle-restore.md` | covered |
 | `ST-014` | Thermal last-derived result `Result` / `ThermalResultSnapshot` | `ProjectSession.ThermalState` (sole writable owner; derived value, not an input store) | `CalculationContext.ThermalResult` projection; Results values; adapter display mirror | coordinator `CompleteCalculation`/`FailCalculation` and lifecycle `Restore` only; upstream invalidation clears it once when present | Circuits, Results | valid completion publishes context result once; failure publishes compatible invalid result once | `ThermalProjectData.Result` exact 8-field wire contract via `ThermalPersistenceMapper.BuildResultProjectData` | derived thermal result owned by `ProjectSession.ThermalState` | migrated/verified | `ProjectSessionThermalState.cs:96-136,160-218`; `ThermalStateCoordinator.cs:132-202`; `ThermalPersistenceMapper.cs:79-98`; evidence `task-8/task-8-context-hydraulics.md`, `task-10/task-10-persistence-results.md` | covered |
 | `ST-015` | Thermal status `Phase`/`RecalculationMessage`/`ValidationMessage` (`ThermalStatusSnapshot`) | `ProjectSession.ThermalState` | compat getters `ThermalNeedsRecalculation`/`ThermalIsCalculating`/`ThermalValidationMessage` translated from snapshot; adapter `RecalcMessage`/`NeedsRecalculation` mirrors | state-slice mutations only (inputs apply, calculation begin/complete/fail, upstream invalidation, AMZ-1 `ApplyNeedsRecalculation` bridge) | Thermal/Circuits UI | one canonical `Changed` completion per changed mutation; NoChange/Rejected emit none | not persisted (runtime status) | `ProjectSession.ThermalState.Status` | migrated/verified; AMZ-1 transitional mutation documented | `ThermalStateSnapshots.cs`; `ProjectSessionThermalState.cs:172-195`; `CalculationStateService.cs:56-103`; evidence `task-5/blocker-analysis.md`, `task-6/task-567-merged-boundary.md` | covered |
-| `ST-016` | Hydraulics global inputs `GlycolType`, `GlycolConcentration`, `SupplySpacing_cm`, `SupplyHeatPercent` | Circuits `InputData` | circuit copies, Results | input handler/reset/restore incomplete | calculator, Results/export | dirty, propagation, calculate | `HydraulicsProjectData` fields | `ProjectSession.HydraulicsState.GlobalInputs` | legacy | Circuits `:1113-1180`; Results `:1739-1744` | partial |
-| `ST-017` | Hydraulics collectors, circuits and topology | Circuits `Collectors` | Results lists/cards/export DTO | commands/reset/restore incomplete | calculator, Results/export | collection protocol | serialized collectors/circuits | `ProjectSession.HydraulicsState.Collectors` | legacy | Circuits `:319-404,732-739`; Results `:1745-1814` | partial |
-| `ST-018` | Hydraulics derived circuit/collector results | Circuits/calculator ambiguity | Results cards/summaries/context | calculate paths | Results/export | summary publication | serialized circuit results/summaries | derived hydraulics state | legacy | Circuits `:430-459`; Results `:1764-1813` | partial |
-| `ST-019` | Hydraulics status `HydraulicsIsCalculating`, validation message | CalculationStateService | Circuits IsCalculating UI | state-service methods | Circuits | StateChanged/UI property | not persisted | status seam disposition open | seam | `CalculationStateService.cs:77-104`; Circuits `:430-459,1202-1206` | partial |
+| `ST-016` | Hydraulics global inputs `GlycolType`, `GlycolConcentration`, `SupplySpacing_cm`, `SupplyHeatPercent` | `ProjectSession.HydraulicsState` (`ProjectSessionHydraulicsState`) | adapter `InputData` mirror; `HydraulicsProjectData` DTO via `HydraulicsPersistenceMapper.BuildHydraulicsProjectData`; Results/export projection | canonical mutations only (`ApplyGlobalInputs`, lifecycle `Restore`, reset); no production writer outside the slice (guard suite) | coordinator/calculator, Results/export | user-origin commit raises dirty once through the slice; calculation-origin work never dirties | `HydraulicsProjectData` fields unchanged; mapped by `HydraulicsPersistenceMapper` | `ProjectSession.HydraulicsState.GlobalInputs` | migrated/verified for Hydraulics slice | `ProjectSessionHydraulicsState.cs`; `CircuitsViewModel.cs:1300-1306` (adapter forward); evidence `task-9/divergence-notes.md`, `task-11/trx-guards-release.json` | covered |
+| `ST-017` | Hydraulics collectors, circuits and topology | `ProjectSession.HydraulicsState` (`Collectors` snapshots) | adapter collection mirror captured via `CaptureCanonicalCollectors`; serialized DTO via mapper; Results lists/cards/export | canonical mutations only (`ReplaceCollectors`, lifecycle `Restore(ProjectLoad)`); restore mirrors into the adapter read-only | coordinator/calculator, Results/export | collection edits commit canonically with User origin; load restores atomically then mirrors | serialized collectors/circuits unchanged; `BuildRestoreCandidate` normalizes on load | `ProjectSession.HydraulicsState.Collectors` | migrated/verified for Hydraulics slice | `ProjectSessionHydraulicsState.cs:83-91`; `ProjectLoadOrchestrator.cs:171-173,200-201`; evidence `task-9/divergence-notes.md` | covered |
+| `ST-018` | Hydraulics derived circuit/collector results | `ProjectSession.HydraulicsState` (derived value; sole writable owner via coordinator `CompleteCalculation`) | `CalculationContext.HydraulicsResults` single-writer projection published by `HydraulicsStateCoordinator.PublishHydraulics`; Results summary cards | coordinator calculation completions only; zero `UpdateHydraulics` calls remain in `CircuitsViewModel` | Results/export | one publication per completed attempt; summary cards rebuild from canonical snapshots | serialized circuit results/summaries unchanged; exact wire contract proven by serialized round-trip characterization | derived hydraulics results owned by `ProjectSession.HydraulicsState` | migrated/verified | `HydraulicsStateCoordinator.cs:56-84`; `HydraulicsPersistenceMapper.cs:49-118`; evidence `task-8/writer-authority-updates.md`, `task-6/correction-notes.md` | covered |
+| `ST-019` | Hydraulics status `HydraulicsIsCalculating`, validation message (`HydraulicsStatusSnapshot`) | `ProjectSession.HydraulicsState` (status snapshot) | compat getters/`StateChanged` translation in `CalculationStateService`; Circuits `IsCalculating` UI mirror | slice mutations only (`BeginCalculation`, `CompleteCalculation`, `FailCalculation`, lifecycle); coordinator terminates exactly one `ResetHydraulicsState` per attempt in its `finally` block | Circuits UI | StateChanged/UI property translation from canonical snapshot | not persisted (runtime status) | `ProjectSession.HydraulicsState.Status` | migrated/verified; per-attempt termination contract documented | `HydraulicsStateCoordinator.cs:59-84`; `ProjectSessionHydraulicsState.cs:66-81`; evidence `task-5/blocker-analysis.md`, `task-9/divergence-notes.md` | covered |
 | `ST-020` | CalculationContext `Climate`, `Construction` | CalculationContext | source module objects | `UpdateClimate`, `UpdateConstruction`, `Reset` | Circuits/other consumers | reset thermal/hydraulics results and ContextChanged | not directly persisted | CalculationContext disposition open | seam | `CalculationContext.cs:53-74,142-169,222-230` | partial |
 | `ST-021` | CalculationContext `ThermalInputs` projection | CalculationContext (projection bus; sole production writer is `ThermalStateCoordinator`) | Thermal/Circuits consumers, Results export reads | `ThermalStateCoordinator` publications only (DEC-T05 orchestration and restore finalization); guard suite rejects any other production writer | Circuits | clears hydraulics results, one ContextChanged per publication | not directly persisted | downstream compatibility projection of `ProjectSession.ThermalState` | migrated/verified as single-writer projection | `CalculationContext.cs:192-204`; `ThermalStateCoordinator.cs:147,239`; evidence `task-8/task-8-context-hydraulics.md`, `task-11/task-11-ownership-guards.md` | covered |
 | `ST-022` | CalculationContext `ThermalResult`, `HydraulicsResults` projections | CalculationContext (projection bus; Thermal-side writer is `ThermalStateCoordinator`, Hydraulics writer remains Circuits) | Circuits/Results consumers | coordinator Calculate/failure publications for Thermal results; Circuits calculate for HydraulicsResults | Circuits | invalidation and ContextChanged per publication | not directly persisted | derived context seam fed from canonical owners | migrated/verified single-writer semantics per side | `CalculationContext.cs:176-217`; `ThermalStateCoordinator.cs:147-187,239-240`; evidence `task-8/task-8-context-hydraulics.md` | covered |
@@ -55,8 +55,9 @@ limitations:
 - `ST-014`/`ST-022` thermal-result dual paths are resolved: `ProjectSession.ThermalState` owns the
   canonical last-derived result and `CalculationContext.ThermalResult` is a single-writer projection;
   `ST-020` remains an explicit shared context seam for Climate/Construction.
-- `ST-017`/`ST-018` and `ST-023` retain multi-writer or restore ambiguity; Phase 3 removed the
-  Construction `ST-009`/`ST-010` ambiguity; Phase 4 removed the Thermal `ST-012..ST-015` ambiguity.
+- Phase 5 removed the Hydraulics ambiguity: `ST-016..ST-019` have the sole canonical owner
+  `ProjectSession.HydraulicsState`, `ST-022`'s hydraulics half has the coordinator as its only
+  production writer, and `ST-023` restore applies the slice through `Restore(ProjectLoad)`.
 - File replacement mechanics do not prove atomic persistence or crash recovery.
 
 ## Phase 1 ProjectSession Shell Overlay
@@ -111,3 +112,45 @@ Evidence: `docs/architecture-migration/evidence/phase-4-thermal-state/task-3/tas
 `task-9/task-9-lifecycle-restore.md`, `task-11/task-11-ownership-guards.md`,
 `task-12/task-12-executable-gates.md` (full Release 1946 total / 1943 passed /
 0 failed / 3 accepted NotExecuted).
+
+## Phase 5 HydraulicsState overlay (Task 14)
+
+`ProjectSession.HydraulicsState` (`ProjectSessionHydraulicsState`, owned private instance of
+singleton `ProjectSession`) is the sole writable owner of hydraulics global inputs, the
+collectors/circuits topology, the derived results and the calculation status snapshot. All mutations
+are closed (`ApplyGlobalInputs`, `ReplaceCollectors`, `BeginCalculation`, `CompleteCalculation`,
+`FailCalculation`, `Restore`, `ResetToDefaults`) with immutable snapshots and exhaustive
+`HydraulicsMutationOrigin` values. Dirty ownership lives in the slice: a changed User-origin commit
+raises `IMarkDirtyService.MarkDirty()` through `hydraulicsDirtyService ?? this`
+(`ProjectSessionHydraulicsState.cs:92-97`); load/reset/restore origins never dirty.
+
+`HydraulicsStateCoordinator` (sealed singleton, factory-resolved from the session slice in
+`AddHydraulicsModule`) owns the upstream subscriptions (`ContextChanged`, `PipeSpacingChanged`,
+`StateChanged`), holds the connected adapter callbacks via `Connect`, publishes context results once
+per completed attempt (`PublishHydraulics` — the only remaining production `UpdateHydraulics` call,
+source label `"CircuitsViewModel"`), and terminates every attempt with exactly one unconditional
+`ResetHydraulicsState` in its `finally` block (FIX B per-attempt status contract;
+`task-9/divergence-notes.md`). `CircuitsViewModel` is a WPF adapter with required constructor
+parameters `IHydraulicsStateCoordinator` + `IProjectSession`: it forwards user edits to canonical
+mutations (`ApplyGlobalInputs`/`ReplaceCollectors`, User origin at
+`CircuitsViewModel.cs:1024-1319`), mirrors only ProjectLoad-origin slice events into UI data, and
+holds zero `UpdateHydraulics` calls; its residual `MarkDirty()` calls collapse into the same
+idempotent aggregate-root transition raised by the slice.
+
+Save maps only the canonical snapshot: `data.HydraulicsData =
+HydraulicsPersistenceMapper.BuildHydraulicsProjectData(_projectSession.HydraulicsState.Snapshot)`
+(`ResultsViewModel.cs:1711-1712`). Restore applies `BuildRestoreCandidate` through canonical
+`Restore(ProjectLoad)` and mirrors read-only into the adapter, re-applied after thermal finalization
+for a lossless round-trip (`ProjectLoadOrchestrator.cs:171-173,197-201`). The DI construction-cycle
+deadlock was fixed by an explicit factory registration
+`AddSingleton(sp => new ProjectSession(IClimateData, CalculationContext, hydraulicsDirtyService:
+null))` in `AddResultsModule` (`ServiceCollectionExtensions.cs:190-199`). Wire compat is proven by
+the unmodified `ProjectRoundTripTests` plus the serialized eight-field round-trip characterization
+(`task-6/correction-notes.md`).
+
+Rows `ST-016..ST-019` and the hydraulics half of `ST-022` above are updated to this reality; all
+other rows are unchanged. Evidence: `docs/architecture-migration/evidence/phase-5-hydraulics-state/task-6/correction-notes.md`,
+`task-8/writer-authority-updates.md`, `task-9/divergence-notes.md`,
+`task-11/trx-guards-release.json` (guard suite 8/8 categories),
+`task-12/arithmetic.json` (full Release 1976 passed / 0 failed / 3 accepted NotExecuted identities),
+`ui-qa/observations.json` (nine-step agent-operated QA incl. corrupt-fixture failure branch).

@@ -195,3 +195,32 @@ lane + full Release), `task-12/task-12-executable-gates.md` (frozen full Release
 save/reload/second-load/unknown-pipe steps in
 `task-13/task-13-user-flow-qa.md`. Byte identity, compatibility duration and
 crash atomicity remain deferred exactly as before.
+
+## Phase 5 HydraulicsState persistence overlay (Task 14)
+
+The `.smc` schema, Hydraulics DTO fields and save literal `Version = "1.1"` are unchanged. Phase 5
+changes only the live source/restore boundary for the Hydraulics slice:
+
+- **Save** reads exclusively the canonical snapshot:
+  `data.HydraulicsData = HydraulicsPersistenceMapper.BuildHydraulicsProjectData(_projectSession.HydraulicsState.Snapshot)`
+  (`ResultsViewModel.cs:1711-1712`); it never reads `CircuitsViewModel` collections or service
+  state. The mapper is pure: global inputs plus collectors/circuits/results/summary snapshots map
+  one-to-one onto the existing wire fields (`HydraulicsPersistenceMapper.cs:15-118`); runtime-only
+  status and origins are not persisted.
+- **Restore** goes through canonical `Restore(origin=ProjectLoad)` only
+  (`ProjectSessionHydraulicsState.cs:83-88`; any other origin is rejected atomically with no change
+  event): `BuildRestoreCandidate(data.HydraulicsData)` normalizes the DTO (missing nested results
+  reconstructed from flat circuit fields, legacy FlowRegime fallbacks preserved,
+  `HydraulicsPersistenceMapper.cs:29-47,120-208`), the slice commits under `ProjectLoad`, and the
+  adapter mirrors read-only (`ProjectLoadOrchestrator.cs:171-173`). The restore is re-applied after
+  thermal finalization so a valid persisted project remains a lossless round-trip
+  (`ProjectLoadOrchestrator.cs:197-201`).
+- **Wire compat:** proven by the unmodified `ProjectRoundTripTests` plus the serialized
+  round-trip characterization asserting all eight hydraulics wire groups with value checks
+  (`glycolType`, concentration, spacings, per-circuit results, summaries, `version=1.1`;
+  `task-6/correction-notes.md`). Second load replaces the whole project with zero stale values.
+
+Executable evidence: `task-12/arithmetic.json` (full Release 1976 passed / 0 failed / 3 accepted
+NotExecuted identities) and the UI QA save/reload/second-load/unknown-pipe steps in
+`ui-qa/observations.json`. Byte identity, compatibility duration and crash atomicity remain deferred
+exactly as before.

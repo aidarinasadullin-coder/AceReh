@@ -32,7 +32,7 @@ pre-load reset coverage with canonical seven-layer defaults. The pre-Task 13
 correction adds accepted Construction-to-Thermal invalidation evidence. These
 results supersede only `CF-006`.
 | `CF-007` | thermal edit | `tests/.../Core/CalculationContextInvalidationTests.cs`; `UpdateThermalInputs_RaisesContextChangedEvent`; real context | one ThermalInputs event, source Test | ContextChanged=1; StateChanged=unknown; calculator=unknown; Results=unknown; dirty=unknown | partial | `FG-007` |
-| `CF-008` | hydraulics edit | `tests/.../IntegrationTests/Hydraulics/DoubleCalculationPreventionTests.cs`; `OnGlycolConcentrationChanged_TriggersSingleCalculate`; real Circuits VM, mocks | concentration=40; mocked GetProperties exactly 2 | ContextChanged=unknown; StateChanged=unknown; calculator=1 inferred from two GetProperties calls for one collector calculation; Results=unknown; dirty=unknown | partial | `FG-008` |
+| `CF-008` | hydraulics edit | `tests/.../HydraulicsMultiplicityCharacterizationTests.cs`; `HydraulicsStateLegacyStoreGuardTests` (8/8); `DoubleCalculationPreventionTests.cs`; Todo 13 UI QA steps 2-5; evidence `task-9/divergence-notes.md`, `task-11/trx-guards-release.json`, `task-12/arithmetic.json` | edits commit through `ProjectSession.HydraulicsState` (User origin, slice-raised dirty); one coordinator attempt per action with unconditional per-attempt status termination; serialized round-trip preserves the eight wire fields | ContextChanged=unknown; StateChanged=unknown; calculator=one attempt per edit (coordinator-bounded); Results=one publication per completed attempt; dirty=1 per changed user commit, raised by the slice | covered | none for ownership; Phase 5 overlay below |
 | `CF-009` | invalidation | `tests/.../Core/CalculationContextInvalidationTests.cs`; `UpdateClimate_ResetsThermalAndHydraulicsResults`; seeded context | upstream changes null downstream results; no stale hydraulics | ContextChanged=unknown; StateChanged=unknown; calculator=unknown; Results=unknown; dirty=unknown | partial | `FG-009` |
 | `CF-010` | calculate | `tests/.../IntegrationTests/Hydraulics/DoubleCalculationPreventionTests.cs`; `FullWorkflow_ThermalClimateGlycol_TriggersCorrectNumberOfCalculates`; real VMs/context, mocks | four edits yield GetProperties exactly 8 | ContextChanged=unknown; StateChanged=unknown; calculator=4 inferred from two GetProperties calls per one collector calculation; Results=unknown; dirty=unknown | partial | `FG-010` |
 | `CF-011` | reset | `tests/.../Core/CalculationContextInvalidationTests.cs`; `Reset_RaisesSingleContextChangedEvent`; seeded real context | one Reset event; companion assertion clears four context values | ContextChanged=1; StateChanged=unknown; calculator=0; Results=unknown; dirty=unknown | covered | none: narrow context-reset boundary only; repeated lifecycle is CF-012 |
@@ -82,3 +82,18 @@ Phase 4 adds assertion-backed Thermal coverage without weakening any prior row:
 `CF-007` is covered by this overlay; all other `CF-001..CF-022` rows keep their
 recorded status. The negative-category manifest was extended under owner-approved
 AMZ-3 to CF=4/PF=6/RF=3 with strict lane equality re-proven in Todo 12.
+
+## Phase 5 Hydraulics characterization overlay (Task 14)
+
+Phase 5 adds assertion-backed Hydraulics coverage without weakening any prior row:
+
+| Coverage | Current Phase 5 result | Evidence |
+| --- | --- | --- |
+| canonical state contract | `ProjectSessionHydraulicsStateTests`: closed mutation API, validation/rejection, exhaustive origins, `Restore` accepts only `ProjectLoad` | `task-3/trx-state-debug.json`, `task-3/divergence-notes.md` |
+| multiplicity characterization (13 executed cases) | `HydraulicsMultiplicityCharacterizationTests`: single attempt per action, adapter/coordinator wiring, lifecycle/save shared-session fixtures | `task-2/trx-characterization-release.json`, `task-2/arithmetic.json` |
+| correction lane integrity | serialized eight-field round-trip through the production save boundary (`BuildHydraulicsProjectData`) with exact `System.Text.Json` options; 13/13 characterization green after owner-directed rewrite | `task-6/correction-notes.md` |
+| ownership guards (8 NegativeFixture categories) | `HydraulicsStateLegacyStoreGuardTests`: VM stores, service stores, orchestrator direct assignment, non-canonical save, unapproved context writer, snapshot mutability, duplicate subscriber, independent DI registration | `task-11/trx-guards-release.json`, refreshed post-fix |
+| semantic adjudications | four owner-adjudicated adaptations: slice-raised User dirty, unconditional per-attempt status termination (FIX B), auto-recalc dirty churn eliminated, DI construction-cycle deadlock fix reference | `task-9/divergence-notes.md` |
+| full Release closure | reconciliation: 1979 parser outcome rows = 1976 passed / 0 failed / 3 NotExecuted outcome rows, all within the baseline accepted set {RegenerateBaseline, RegenerateCircuitsBaseline, ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile} | `task-12/arithmetic.json` |
+
+`CF-008` is covered by this overlay; all other `CF-001..CF-022` rows keep their recorded status.

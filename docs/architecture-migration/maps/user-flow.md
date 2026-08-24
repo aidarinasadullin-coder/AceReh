@@ -41,7 +41,7 @@ default snapshot is immediately available to save and Thermal. Owner manual QA
 covers thickness, material, template, groundwater and lambda/override behavior.
 The Climate-labelled ProjectLoad indicator remains a separate open defect.
 | 7 | `CF-007` | Edit thermal | one canonical mutation + one dirty-intent per changed edit; recalculation indicator exact text | `ThermalMultiplicityCharacterizationTests` (41 cases); `ThermalViewModelTests`; `ThermalStateCoordinatorTests`; Task 13 UI QA step 4 | one canonical completion; context inputs published once; no-op/rejected emit nothing | covered; Phase 4 overlay below |
-| 8 | `CF-008` | Edit hydraulics | concentration=40; GetProperties=2 | `OnGlycolConcentrationChanged_TriggersSingleCalculate`; partial | unknown;unknown;1 inferred bounded source-backed;unknown;unknown | `FG-008` |
+| 8 | `CF-008` | Edit hydraulics | glycol/length edits commit through `ProjectSession.HydraulicsState` (User origin) and recalculate once via the coordinator; summary card updates observed | canonical state/coordinator suites (`task-2`, `task-7`, `task-9`); Todo 13 UI QA steps 2-5 PASS | one canonical commit; slice raises dirty for user edits; calculation-origin work never dirties | covered; Phase 5 overlay below |
 | 9 | `CF-009` | Change upstream input | downstream results null; no stale hydraulics | `UpdateClimate_ResetsThermalAndHydraulicsResults`; partial | unknown;unknown;unknown;unknown;unknown | `FG-009` |
 | 10 | `CF-010` | Calculate | four edits cause GetProperties=8 | `FullWorkflow_ThermalClimateGlycol_TriggersCorrectNumberOfCalculates`; partial | unknown;unknown;4 inferred bounded source-backed;unknown;unknown | `FG-010` |
 | 11 | `CF-011` | Reset | one Reset event and cleared context | `Reset_RaisesSingleContextChangedEvent`; covered | 1;unknown;0;unknown;unknown | none |
@@ -114,3 +114,24 @@ fallback pipe/message/status and a cleared restore guard. Evidence:
 ResultsView are contract-tested by `ThermalAutomationIdSelectorContractTests`.
 Executable gates: `task-12/task-12-executable-gates.md` (full Release
 1946/1943/0/3).
+
+## Phase 5 Hydraulics user-flow overlay (Task 14)
+
+Hydraulics user flows now cross the canonical boundary: every edit (`CF-008`) commits through
+`ProjectSession.HydraulicsState` closed mutations with User origin (the slice raises dirty, not the
+VM); Calculate is a coordinator attempt that publishes context results once and terminates the
+status machine unconditionally; reset routes `UserReset` through the slice while load/reset use
+`ProjectLoadReset`/`ProjectLoad` origins; save/reload (`CF-013`) and second load (`CF-004`) read/
+restore canonical state with zero stale project-A values. Results remain consumers.
+
+The Todo 13 agent-operated UI QA exercised the full happy flow in nine numbered steps — all PASS
+(`ui-qa/observations.json`, frozen exe SHA-256 recorded before/after): launch project-a and read
+the hydraulics card; glycol edits recalc per fixture math; validation message appears on an invalid
+concentration without crashing; circuit length edit updates the summary card; Ctrl+S save > reload
+> identical outputs; second load project-b performs a clean replace; reset restores defaults; and
+the corrupt `unknown-pipe.smc` fixture fails gracefully into the validation dialog (failure branch,
+`ui-qa/failure-observations.json`). Nine screenshots `01-launch-project-a-hydraulics-card.png` ..
+`09-unknown-pipe-validation-dialog.png`; accessibility AutomationIds
+`HydraulicsGlycolType`, `HydraulicsGlycolConcentration`, `HydraulicsSupplyHeatPercent`,
+`HydraulicsCalculateButton`, `HydraulicsValidationMessage`. Executable gates:
+`task-12/arithmetic.json` (full Release 1976/0/3 accepted NotExecuted).
