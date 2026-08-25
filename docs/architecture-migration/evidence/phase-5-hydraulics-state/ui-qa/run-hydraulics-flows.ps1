@@ -210,6 +210,8 @@ $script:MainPid        = -1
 $script:MainWindow     = $null
 $script:MainHandle     = [IntPtr]::Zero
 $script:ActiveProc     = $null
+# Harness-owned process IDs; cleanup kills ONLY these (never by process name).
+$script:OwnedPids      = [System.Collections.Generic.List[int]]::new()
 $script:ProcRuns       = [System.Collections.Generic.List[object]]::new()
 $script:Steps          = [System.Collections.Generic.List[object]]::new()
 $script:Shots          = [System.Collections.Generic.List[object]]::new()
@@ -382,6 +384,7 @@ function Assert-NoWindowByTitle([string]$title, [string]$context) {
     }
 }
 function Find-AppDialogByTitle([string]$title) {
+    Refresh-MainWindow
     # Owned modal dialogs may hang off the OWNER window instead of the desktop
     # root; probe both scopes.
     $pidCond = New-Object System.Windows.Automation.PropertyCondition(
@@ -432,6 +435,34 @@ function Find-ByIdAndType([string]$id, [System.Windows.Automation.ControlType]$c
     $list = @()
     for ($i = 0; $i -lt $raw.Count; $i++) { $list += $raw.Item($i) }
     return ,$list
+}
+function Refresh-MainWindow {
+    # The AutomationElement captured at launch goes STALE after in-app WPF
+    # navigation (the framework swaps the visual tree), so every selector query
+    # must re-bind to the live main window by its OWNED window handle. Re-walk
+    # UIA from the HWND (FromHandle) rather than reusing the cached element, and
+    # verify the handle still belongs to the harness-owned PID before adopting it.
+    if ($script:MainPid -le 0 -or $script:MainHandle -eq [IntPtr]::Zero) { return }
+    $el = $null
+    try { $el = [System.Windows.Automation.AutomationElement]::FromHandle($script:MainHandle) } catch { $el = $null }
+    if ($null -eq $el -or $el.Current.ProcessId -ne $script:MainPid) {
+        # Fallback: re-find the owned window under the desktop root by PID+handle.
+        $pidCond = New-Object System.Windows.Automation.PropertyCondition(
+            [System.Windows.Automation.AutomationElement]::ProcessIdProperty, $script:MainPid)
+        $ctCond = New-Object System.Windows.Automation.PropertyCondition(
+        [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
+            [System.Windows.Automation.ControlType]::Window)
+        $and = New-Object System.Windows.Automation.AndCondition($pidCond, $ctCond)
+        $raw = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
+            [System.Windows.Automation.TreeScope]::Children, $and)
+        for ($i = 0; $i -lt $raw.Count; $i++) {
+            $candidate = $raw.Item($i)
+            if ($candidate.Current.NativeWindowHandle -eq [int]$script:MainHandle) { $el = $candidate; break }
+        }
+    }
+    if ($null -ne $el -and $el.Current.ProcessId -eq $script:MainPid) {
+        $script:MainWindow = $el
+    }
 }
 function Register-Resolution([string]$id, [bool]$present) {
     if ($script:SelectorStats.Contains($id)) {
@@ -497,6 +528,11 @@ function Wait-True([scriptblock]$condition, [int]$timeoutMs, [string]$what) {
 
 # ------------------------------------------------------------------ sidebar ---
 function Select-Sidebar([string]$title) {
+    # Rebind to the live main window before querying: WPF navigation rebuilds
+    # the visual tree, so a cached AutomationElement root yields stale/empty
+    # descendants and the sidebar .Select() becomes a no-op (navigation never
+    # fires). Re-resolving by owned PID + window handle fixes the stale root.
+    Refresh-MainWindow
     $liCond = New-Object System.Windows.Automation.PropertyCondition(
         [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
         [System.Windows.Automation.ControlType]::ListItem)
@@ -515,8 +551,42 @@ function Select-Sidebar([string]$title) {
     if ($matched.Count -gt 1) { Fail "sidebar item '${title}': ambiguous, $($matched.Count) ListItems matched" }
     $item = $matched[0]
     if (-not $item.Current.IsEnabled) { Fail "sidebar item '$title': matched ListItem is not enabled" }
-    ($item.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern) -as [System.Windows.Automation.SelectionItemPattern]).Select()
-    Start-Sleep -Milliseconds 900
+    $expectedView = switch ($title) {
+        'Гидравлический расчёт' { 'HydraulicsPipeSpacing' }
+        'Результаты'            { 'ResultsThermalPower' }
+        default                 { Fail "sidebar item '$title': no expected view selector registered" }
+    }
+    $expectedType = if ($expectedView -eq 'HydraulicsPipeSpacing') { 'Text' } else { 'Text' }
+    $activationErrors = [System.Collections.Generic.List[string]]::new()
+    $activated = $false
+    $invoke = $null
+    $select = $null
+    try { $invoke = $item.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern) -as [System.Windows.Automation.InvokePattern] } catch { $activationErrors.Add("InvokePattern lookup: $($_.Exception.Message)") }
+    try { $select = $item.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern) -as [System.Windows.Automation.SelectionItemPattern] } catch { $activationErrors.Add("SelectionItemPattern lookup: $($_.Exception.Message)") }
+    foreach ($attempt in @(
+        @{ name = 'InvokePattern'; pattern = $invoke; action = { param($p) $p.Invoke() } },
+        @{ name = 'SelectionItemPattern'; pattern = $select; action = { param($p) $p.Select() } }
+    )) {
+        if ($null -eq $attempt.pattern -or $activated) { continue }
+        try {
+            & $attempt.action $attempt.pattern
+            Wait-True -condition {
+                try {
+                    Refresh-MainWindow
+                    $null -ne (Find-ByIdAndType $expectedView (Get-ControlTypeByName $expectedType) | Where-Object { $_.Count -ge 1 })
+                } catch { $false }
+            } -timeoutMs 5000 -what "sidebar '$title' navigation selector '$expectedView'"
+            $activated = $true
+        } catch {
+            $activationErrors.Add("$($attempt.name): $($_.Exception.Message)")
+        }
+    }
+    if (-not $activated) {
+        $available = @()
+        if ($null -ne $invoke) { $available += 'InvokePattern' }
+        if ($null -ne $select) { $available += 'SelectionItemPattern' }
+        Fail "sidebar item '$title': activation did not expose expected selector '$expectedView'; supported=[$($available -join ', ')]; errors=[$($activationErrors -join ' | ')]"
+    }
     Scan-Dialogs "sidebar-select:$title"
 }
 
@@ -536,6 +606,29 @@ function Get-ComboItems([System.Windows.Automation.AutomationElement]$combo) {
             if ([string]::IsNullOrEmpty($el.Current.Name)) { continue }
             $supported = $el.GetCurrentPropertyValue([System.Windows.Automation.SelectionItemPattern]::PatternProperty, $false)
             if ($supported) { $list += $el }
+        }
+    }
+    if ($list.Count -eq 0) {
+        # WPF may expose the expanded ComboBox popup as a separate UIA subtree
+        # rather than as descendants of the ComboBox. Restrict the fallback to
+        # enabled ListItems in this process so unrelated desktop items cannot
+        # satisfy the selection oracle.
+        $pidCond = New-Object System.Windows.Automation.PropertyCondition(
+            [System.Windows.Automation.AutomationElement]::ProcessIdProperty,
+            $script:MainPid)
+        $ctCond = New-Object System.Windows.Automation.PropertyCondition(
+        [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
+            [System.Windows.Automation.ControlType]::ListItem)
+        $popupItems = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
+            [System.Windows.Automation.TreeScope]::Descendants,
+            (New-Object System.Windows.Automation.AndCondition($pidCond, $ctCond)))
+        for ($i = 0; $i -lt $popupItems.Count; $i++) {
+            $el = $popupItems.Item($i)
+            if (-not $el.Current.IsEnabled -or [string]::IsNullOrWhiteSpace($el.Current.Name)) { continue }
+            try {
+                $sip = $el.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern) -as [System.Windows.Automation.SelectionItemPattern]
+                if ($null -ne $sip) { $list += $el }
+            } catch { }
         }
     }
     return ,$list
@@ -614,6 +707,7 @@ function Get-TextName([string]$id) {
 
 # ------------------------------------------------------------- grid helpers ---
 function Find-SelectableRowsContaining([string]$exactText) {
+    Refresh-MainWindow
     # Any element whose direct SelectionItemPattern retrieval succeeds (the
     # phase-4-proven method; GetCurrentPropertyValue(PatternProperty) probing
     # proved unreliable under this runtime) and that has a descendant Text
@@ -670,6 +764,7 @@ function Get-RowCellTexts($row) {
     return ,$names
 }
 function Get-ResultsCardValue([string]$label) {
+    Refresh-MainWindow
     # On Результаты view: locate the label TextBlock ('Длина труб', ...), then
     # return the NEXT Text element in document order (the sibling value cell
     # '88.0 м' / '20480 Вт' / '1.17 м³/ч').
@@ -736,6 +831,7 @@ function Send-TextKeys([string]$text) {
 
 # -------------------------------------------------------------- screenshots ---
 function Save-Screenshot([string]$fileBase) {
+    Refresh-MainWindow
     if ($null -eq $script:MainWindow) { Fail "cannot capture '$fileBase': no main window" }
     $rect = $script:MainWindow.Current.BoundingRectangle
     $vs = [System.Windows.Forms.SystemInformation]::VirtualScreen
@@ -774,11 +870,11 @@ function Save-Screenshot([string]$fileBase) {
 # ---------------------------------------------------------- process lifecycle ---
 function Invoke-Launch([string]$tag, [string]$projectPath, [switch]$ExpectErrorDialog) {
     $shaBefore = Test-ExeSha "before-launch-$tag"
-    $stdoutLog = Join-Path $script:OutDir "run-$tag-stdout.log"
-    $stderrLog = Join-Path $script:OutDir "run-$tag-stderr.log"
-    foreach ($l in @($stdoutLog, $stderrLog)) {
-        if (Test-Path -LiteralPath $l) { Remove-Item -LiteralPath $l -Force }
-    }
+    # Start-Process keeps redirected streams open until the child fully exits;
+    # reusing a prior run's log path can therefore fail before UIA startup.
+    $launchId = [Guid]::NewGuid().ToString('N')
+    $stdoutLog = Join-Path $script:OutDir "run-$tag-$launchId-stdout.log"
+    $stderrLog = Join-Path $script:OutDir "run-$tag-$launchId-stderr.log"
     $startedUtc = [DateTime]::UtcNow.ToString('o')
     $proc = Start-Process -FilePath $script:ExePath -ArgumentList @('"' + $projectPath + '"') `
         -PassThru -WorkingDirectory (Split-Path -Parent $script:ExePath) `
@@ -804,6 +900,7 @@ function Invoke-Launch([string]$tag, [string]$projectPath, [switch]$ExpectErrorD
     $script:MainWindow = $win
     $script:MainPid = $proc.Id
     $script:MainHandle = [IntPtr]$win.Current.NativeWindowHandle
+    $script:OwnedPids.Add($proc.Id)
     $title = $win.Current.Name
     if (-not $ExpectErrorDialog) {
         Add-Assertion "launch '$tag': window title carries app suffix" "*$($script:MainTitleSuffix)" $title ($title -like "*$($script:MainTitleSuffix)*")
@@ -897,6 +994,7 @@ function Find-MenuItemsByName([string]$name, [System.Windows.Automation.Automati
     return ,$list
 }
 function Invoke-TopMenuItem([string]$topName, [string]$itemName, [string]$context) {
+    Refresh-MainWindow
     # DEVIATION (carried from phase-4 V9 probes): injected Ctrl+S/Ctrl+N chords
     # never reach the app's Window-level KeyDown handler in this environment.
     # The SAME bound commands are driven through the visible «Файл» menu via
@@ -995,11 +1093,13 @@ function Invoke-MainFlow {
     if ((Split-Path -Leaf $script:PathA) -ne 'project-a.smc') { Fail 'ProjectA must be the task-owned project-a.smc fixture copy' }
     if ((Split-Path -Leaf $script:PathB) -ne 'project-b.smc') { Fail 'ProjectB must be the task-owned project-b.smc fixture copy' }
     if ((Split-Path -Leaf $script:PathInvalid) -ne 'unknown-pipe.smc') { Fail 'InvalidProject must be the task-owned unknown-pipe.smc fixture copy' }
-    $leftover = @(Get-Process -Name 'SnowMeltingCalculator' -ErrorAction SilentlyContinue)
+    $leftover = @(Get-Process -Name 'SnowMeltingCalculator' -ErrorAction SilentlyContinue |
+        Where-Object { $_.Id -ne $PID })
     if ($leftover.Count -gt 0) {
-        $leftover | Stop-Process -Force -ErrorAction SilentlyContinue
-        Start-Sleep -Milliseconds 800
-        Note-Deviation "killed $($leftover.Count) leftover SnowMeltingCalculator.exe process(es) before the run"
+        # Do NOT kill/close by name. The harness rebinds to its own launched
+        # PID/window handle for every query and kills ONLY its own process on
+        # cleanup (ActiveProc / run.proc), so an unrelated instance is left alone.
+        Note-Deviation "pre-existing SnowMeltingCalculator.exe process(es) detected before run (ids: $($leftover.Id -join ', ')); harness rebinds to its own launched PID/window handle and will not kill unrelated processes"
     }
     $script:FixtureInfo = [ordered]@{
         manifest = (Get-RelPath $manifestLocal); outputs = $fxChecks
@@ -1013,6 +1113,9 @@ function Invoke-MainFlow {
     Wait-MainWindowTitleContains 'project-a.smc' 20000 'Project A load reflected in window title (filename appears)'
     $t2 = $script:MainWindow.Current.Name
     Assert-ExactText $t2 ("project-a.smc — $($script:MainTitleSuffix)") 'S2: clean loaded title (no dirty marker)'
+    # The title is updated before the asynchronously restored module tree is
+    # ready; allow the WPF navigation binding to finish before UIA selection.
+    Start-Sleep -Milliseconds 3000
     Complete-Step
 
     # ------------------------------------------- S3 baseline hydraulics ---
@@ -1520,9 +1623,12 @@ catch {
         $script:Steps.Add($script:CurrentStep)
         $script:CurrentStep = $null
     }
-    if ($null -ne $script:ActiveProc) {
+    # Cleanup targets ONLY harness-owned PIDs (never by process name), so any
+    # manual/user app instance is never touched.
+    foreach ($ownedPid in $script:OwnedPids) {
         try {
-            if (-not $script:ActiveProc.HasExited) { $script:ActiveProc.Kill() }
+            $p = Get-Process -Id $ownedPid -ErrorAction SilentlyContinue
+            if ($null -ne $p -and -not $p.HasExited) { $p.Kill() }
         } catch { }
     }
     try { $exeShaAfter = Get-Sha256File $script:ExePath } catch { $exeShaAfter = '' }
