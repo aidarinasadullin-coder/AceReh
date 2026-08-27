@@ -282,9 +282,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                  calculationStateService,
                 new Mock<ICircuitsValidator>().Object,
                 selectorMock.Object,
-                 calculationContext,
-                 markDirtyService,
-                 hydraulicsDependencies.Coordinator,
+                  calculationContext,
+                  hydraulicsDependencies.Coordinator,
                   hydraulicsDependencies.Session);
         }
 

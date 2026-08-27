@@ -503,9 +503,8 @@ public sealed class ClimateThermalInvalidationRegressionTests
             calculationState,
             new Mock<ICircuitsValidator>().Object,
             selector.Object,
-            context,
-             markDirtyService,
-             hydraulicsDependencies.Coordinator,
+             context,
+              hydraulicsDependencies.Coordinator,
                   hydraulicsDependencies.Session);
     }
 

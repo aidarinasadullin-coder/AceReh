@@ -170,9 +170,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                 _calculationStateServiceMock.Object,
                 _validatorMock.Object,
                 _collectorTypeSelectorMock.Object,
-                _calculationContext,
-                 _markDirtyServiceMock.Object,
-                 hydraulicsDependencies.Coordinator,
+                 _calculationContext,
+                  hydraulicsDependencies.Coordinator,
                   hydraulicsDependencies.Session
             );
         }

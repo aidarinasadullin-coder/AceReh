@@ -1702,9 +1702,8 @@ public sealed class ThermalMultiplicityCharacterizationTests
             calculationState,
             new Mock<ICircuitsValidator>().Object,
             selector.Object,
-            context,
-             otherMarkDirty,
-             hydraulicsDependencies.Coordinator,
+             context,
+              hydraulicsDependencies.Coordinator,
                   hydraulicsDependencies.Session);
 
         var orchestrator = new ProjectLoadOrchestrator(
