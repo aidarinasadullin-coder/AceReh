@@ -2977,3 +2977,113 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
     }
 }
+
+        [Test]
+        [Category("PersistenceCharacterization")]
+        public async Task SaveProject_Success_StampsDatesAndClearsDirtyOnce()
+        {
+            _projectStateService.CurrentFilePath = TestFilePath;
+            _projectStateService.MarkDirty();
+
+            var startedAt = DateTime.Now;
+            var previousIsDirty = _projectStateService.IsDirty;
+            var cleanTransitions = 0;
+            _projectStateService.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName != nameof(IProjectStateService.IsDirty))
+                {
+                    return;
+                }
+
+                var isDirty = _projectStateService.IsDirty;
+                if (previousIsDirty && !isDirty)
+                {
+                    cleanTransitions++;
+                }
+
+                previousIsDirty = isDirty;
+            };
+
+            ProjectData? savedData = null;
+            _projectFileServiceMock
+                .Setup(service => service.SaveProjectResultAsync(
+                    TestFilePath,
+                    It.IsAny<ProjectData>(),
+                    It.IsAny<CancellationToken>()))
+                .Callback((string path, ProjectData data, CancellationToken cancellationToken) => savedData = data)
+                .ReturnsAsync(OperationResult<object?>.Success(null));
+
+            await _viewModel.SaveProjectCommand.ExecuteAsync(null);
+
+            var completedAt = DateTime.Now;
+            Assert.Multiple(() =>
+            {
+                Assert.That(savedData, Is.Not.Null);
+                Assert.That(savedData!.CreatedDate, Is.InRange(startedAt, completedAt));
+                Assert.That(savedData.ModifiedDate, Is.InRange(startedAt, completedAt));
+                Assert.That(_projectStateService.IsDirty, Is.False);
+                Assert.That(cleanTransitions, Is.EqualTo(1));
+            });
+
+            _projectFileServiceMock.Verify(
+                service => service.SaveProjectResultAsync(
+                    TestFilePath,
+                    It.IsAny<ProjectData>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+            _dialogServiceMock.Verify(
+                service => service.ShowError(It.IsAny<string>(), It.IsAny<string>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("PersistenceCharacterization")]
+        public async Task SaveProject_Failure_PreservesDirtyStateAndShowsError()
+        {
+            _projectStateService.CurrentFilePath = TestFilePath;
+            _projectStateService.MarkDirty();
+
+            var previousIsDirty = _projectStateService.IsDirty;
+            var cleanTransitions = 0;
+            _projectStateService.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName != nameof(IProjectStateService.IsDirty))
+                {
+                    return;
+                }
+
+                var isDirty = _projectStateService.IsDirty;
+                if (previousIsDirty && !isDirty)
+                {
+                    cleanTransitions++;
+                }
+
+                previousIsDirty = isDirty;
+            };
+
+            const string error = "injected save failure";
+            _projectFileServiceMock
+                .Setup(service => service.SaveProjectResultAsync(
+                    TestFilePath,
+                    It.IsAny<ProjectData>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OperationResult<object?>.Failure(error));
+
+            await _viewModel.SaveProjectCommand.ExecuteAsync(null);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(_projectStateService.IsDirty, Is.True);
+                Assert.That(cleanTransitions, Is.Zero);
+            });
+
+            _projectFileServiceMock.Verify(
+                service => service.SaveProjectResultAsync(
+                    TestFilePath,
+                    It.IsAny<ProjectData>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+            _dialogServiceMock.Verify(
+                service => service.ShowError($"Не удалось сохранить проект: {error}", "Ошибка"),
+                Times.Once);
+        }
