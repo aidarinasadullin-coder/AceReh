@@ -1,0 +1,29 @@
+# Task 6 negative-probe log
+DATE=2026-08-26
+SOURCE_SUITE=Existing NUnit tests; no production or test source was changed.
+PRIOR_TRX=task-6-release.trx
+
+## Required architecture guards
+
+GUARD|VM/WPF source dependency|ProjectSaveServiceSource_RejectsViewModelAndWpfReferences|RESULT=PASS|TRX=task-6-release.trx
+GUARD|ProjectData ownership / DTO boundary|PublicProperties_ExcludeLifecycleRuntimeUiAndDateNames; PublicPropertyTypes_DoNotReferenceViewModelsOrWpf; ProjectSnapshot_IsSealedWithoutWritableStateOrLifecycleMutators|RESULT=PASS|TRX=task-6-release.trx
+GUARD|Concrete ProjectFileService/ViewModel dependency and canonical save slice|ProjectSaveServiceSource_RejectsViewModelAndWpfReferences; SaveToFileSourceSlice_RejectsSaveCurrentProject|RESULT=PASS|TRX=task-6-release.trx
+GUARD|Duplicate snapshot store/owner|DiIndependentStateRegistration_GuardRequiresProjectSessionOwnership; ResultsNonCanonicalSave_GuardRequiresSessionSnapshotMapper; DuplicateUpstreamSubscriber_GuardRequiresOneCoordinatorAttachPerSurface|RESULT=PASS|TRX=task-6-release.trx
+
+## Existing invalid-input / invalid-file probes
+
+PROBE|Missing .smc file|LoadProjectResultAsync_OnMissingFile_ReturnsFailureWithFileNotFound|RESULT=PASS|EXPECTED_FAILURE_RESULT=observed OperationResult failure inside passing test|TRX=task-6-release.trx
+PROBE|Corrupt JSON fixture|LoadProjectResultAsync_OnCorruptJson_ReturnsFailureWithDeserializationError|RESULT=PASS|EXPECTED_FAILURE_RESULT=observed deserialization failure inside passing test|TRX=task-6-release.trx
+PROBE|I/O failure path|SaveProjectResultAsync_OnIoFailure_ReturnsFailureWithMessage|RESULT=PASS|EXPECTED_FAILURE_RESULT=observed OperationResult failure inside passing test|TRX=task-6-release.trx
+PROBE|Unknown persisted pipe / schema drift|PersistenceFailure_UnknownPipe_FallsBackToFirstStandard_NoSchemaDrift|RESULT=PASS|EXPECTED_FAILURE_RESULT=invalid persisted value handled without schema drift|TRX=task-6-release.trx
+PROBE|Missing or invalid saved result|PersistenceFailure_MissingOrCorruptSavedResult_FallbackOnce_InvalidNeverCanonical|RESULT=PASS|EXPECTED_FAILURE_RESULT=invalid saved result rejected from canonical state|TRX=task-6-release.trx
+
+## Standalone nonzero invalid-fixture probe
+
+INVALID_FIXTURE_PROCESS_PROBE|STATUS=NOT_PRESENT|DETAIL=No existing standalone command/script/test process was found that runs an intentionally invalid architecture dependency fixture and asserts a nonzero process exit. The passing source guards above are the valid existing architecture probes; this absence is not represented as a fabricated nonzero result.
+
+## Prior run summary
+
+PRIOR_RELEASE_RESULT=124 passed / 1 skipped / 0 failed / 125 total
+PRIOR_RELEASE_EXIT_CODE=0
+PRIOR_SKIP=ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile; missing external D:\IA\ace\Тест\тест 40.smc
