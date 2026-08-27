@@ -241,3 +241,7 @@ coordinator and the session slice as a WPF adapter; Results maps the canonical s
 restore goes through canonical `Restore`. The existing concrete ViewModel dependencies in
 `ProjectLoadOrchestrator` remain (`INV-008` still open). No new project or package reference was
 introduced.
+
+## Phase 6 Save-Boundary Overlay
+
+The source-backed save boundary is `ProjectSession -> ProjectSnapshot -> ProjectPersistenceMapper -> ProjectData -> IProjectFileService/ProjectFileService`. `ProjectSnapshot` is assembled from the aggregate session, the mapper is pure, and the existing DTO/file-service contract remains unchanged. Evidence: `task-5-save-boundary.md`; model records `PN-P6-SNAPSHOT`, `PN-P6-MAPPER`, `PN-P6-DATA`, `PN-P6-SERVICE`, `PE-P6-SESSION-SNAPSHOT`, `PE-P6-SNAPSHOT-MAPPER`, `PE-P6-MAPPER-DATA`, `PE-P6-SERVICE-DATA`. This overlay does not claim restore migration, Markdown/export completion, calculation completion, or broad ownership cleanup.

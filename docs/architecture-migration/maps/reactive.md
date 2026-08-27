@@ -140,3 +140,7 @@ multiplicity (13 executed cases), the Todo 11 guard suite rejects bypass writers
 attaches (8/8 categories), the Todo 12 reconciliation closes the full Release suite at
 1976 passed / 0 failed / 3 accepted NotExecuted identities, and the Todo 13 agent-operated QA
 observed all nine steps PASS including the corrupt-fixture failure branch.
+
+## Phase 6 Save-Boundary Overlay
+
+Save is modeled as a one-way handoff from the canonical `ProjectSession` snapshot to `ProjectPersistenceMapper`, then to `ProjectData` and the file service. The overlay records the persistence boundary, not a new reactive owner or a restore transaction. Evidence: `task-5-save-boundary.md`; model edge `PE-P6-SESSION-SNAPSHOT` through `PE-P6-SERVICE-DATA`; invariant `INV-P6-SAVE`.
