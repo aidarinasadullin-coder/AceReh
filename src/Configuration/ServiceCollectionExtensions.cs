@@ -208,6 +208,10 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<ICalculationReportMarkdownRenderer, CalculationReportMarkdownRenderer>();
             services.AddSingleton<ICalculationReportExportService, CalculationReportExportService>();
             services.AddSingleton<IProjectFileService, ProjectFileService>();
+            services.AddSingleton<IProjectDisplayModeState, ProjectDisplayModeState>();
+            services.AddSingleton<IProjectSnapshotPersistenceInputs, ProjectSnapshotPersistenceInputs>();
+            services.AddSingleton<IProjectSnapshotFactory, ProjectSnapshotFactory>();
+            services.AddSingleton<IProjectSaveService, ProjectSaveService>();
             services.AddSingleton<IConstructionVisualizationImageService, ConstructionVisualizationImageService>();
             services.AddSingleton<ProjectLoadOrchestrator>();
             services.AddSingleton<ResultsPdfDataBuilder>();

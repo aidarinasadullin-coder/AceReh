@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnowMeltingCalculator.Models.Climate;
@@ -32,6 +33,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly IPdfExportService _pdfExportService;
         private readonly ICalculationReportExportService _calculationReportExportService;
         private readonly IProjectFileService _projectFileService;
+        private readonly IProjectSaveService? _projectSaveService;
+        private readonly IProjectDisplayModeState? _displayModeState;
         private readonly ICalculationStateService _calculationStateService;
         private readonly IMaterialRepository _materialRepository;
         private readonly IConstructionService _constructionService;
@@ -42,6 +45,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly ProjectLoadOrchestrator _projectLoadOrchestrator;
         private readonly ResultsPdfDataBuilder _resultsPdfDataBuilder;
         private readonly HydraulicSummaryBuilder _hydraulicSummaryBuilder;
+        private DateTime _createdDate;
 
         private bool _isResetting;
 
@@ -493,7 +497,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
             CircuitsViewModel circuitsViewModel,
             ProjectLoadOrchestrator projectLoadOrchestrator,
             ResultsPdfDataBuilder resultsPdfDataBuilder,
-            HydraulicSummaryBuilder hydraulicSummaryBuilder)
+            HydraulicSummaryBuilder hydraulicSummaryBuilder,
+            IProjectSaveService? projectSaveService = null,
+            IProjectDisplayModeState? displayModeState = null)
         {
             _projectStateService = projectStateService ?? throw new ArgumentNullException(nameof(projectStateService));
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
@@ -502,6 +508,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _pdfExportService = pdfExportService ?? throw new ArgumentNullException(nameof(pdfExportService));
             _calculationReportExportService = calculationReportExportService ?? throw new ArgumentNullException(nameof(calculationReportExportService));
             _projectFileService = projectFileService ?? throw new ArgumentNullException(nameof(projectFileService));
+            _projectSaveService = projectSaveService;
+            _displayModeState = displayModeState;
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
@@ -512,6 +520,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _projectLoadOrchestrator = projectLoadOrchestrator ?? throw new ArgumentNullException(nameof(projectLoadOrchestrator));
             _resultsPdfDataBuilder = resultsPdfDataBuilder ?? throw new ArgumentNullException(nameof(resultsPdfDataBuilder));
             _hydraulicSummaryBuilder = hydraulicSummaryBuilder ?? throw new ArgumentNullException(nameof(hydraulicSummaryBuilder));
+            if (_displayModeState is not null)
+            {
+                _displayModeState.IsOperatingMode = IsOperatingMode;
+            }
 
             // Загружаем начальные данные
             LoadClimateData();
@@ -543,6 +555,14 @@ namespace SnowMeltingCalculator.ViewModels.Results
             IsOperatingMode = !IsOperatingMode;
             UpdateCircuitsFilter();
             UpdatePumpHead();
+        }
+
+        partial void OnIsOperatingModeChanged(bool value)
+        {
+            if (_displayModeState is not null)
+            {
+                _displayModeState.IsOperatingMode = value;
+            }
         }
 
         /// <summary>
@@ -730,22 +750,22 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// Команда сохранения проекта
         /// </summary>
         [RelayCommand]
-        private async Task SaveProject()
+        private async Task SaveProject(CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(_projectStateService.CurrentFilePath))
             {
-                await SaveProjectAs();
+                await SaveProjectAs(cancellationToken);
                 return;
             }
 
-            await SaveToFile(_projectStateService.CurrentFilePath);
+            await SaveToFile(_projectStateService.CurrentFilePath, cancellationToken);
         }
 
         /// <summary>
         /// Команда сохранения проекта с выбором пути
         /// </summary>
         [RelayCommand]
-        private async Task SaveProjectAs()
+        private async Task SaveProjectAs(CancellationToken cancellationToken)
         {
             var defaultFileName = $"{ProjectNumber}_{DateTime.Now:yyyyMMdd}";
             var filePath = _dialogService.ShowSaveFileDialog(defaultFileName);
@@ -753,7 +773,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             if (string.IsNullOrEmpty(filePath))
                 return;
 
-            if (await SaveToFile(filePath))
+            if (await SaveToFile(filePath, cancellationToken))
             {
                 _projectStateService.CurrentFilePath = filePath;
             }
@@ -945,19 +965,19 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// <summary>
         /// Сохранить данные в файл
         /// </summary>
-        private async Task<bool> SaveToFile(string filePath)
+        private async Task<bool> SaveToFile(string filePath, CancellationToken cancellationToken)
         {
             try
             {
                 StatusMessage = "Сохранение проекта...";
-                var data = SaveCurrentProject();
-                data.ModifiedDate = DateTime.Now;
-                if (data.CreatedDate == default)
-                {
-                    data.CreatedDate = DateTime.Now;
-                }
-
-                var result = await _projectFileService.SaveProjectResultAsync(filePath, data);
+                var dates = new ProjectSaveDates(_createdDate, DateTime.Now);
+                var result = _projectSaveService is not null
+                    ? await _projectSaveService.SaveAsync(
+                        _projectSession,
+                        filePath,
+                        dates,
+                        cancellationToken)
+                    : await SaveLegacyFileAsync(filePath, dates, cancellationToken);
                 if (!result.IsSuccess)
                 {
                     _dialogService.ShowError($"Не удалось сохранить проект: {result.Error}", "Ошибка");
@@ -967,6 +987,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 StatusMessage = $"Проект сохранён: {Path.GetFileName(filePath)}";
                 await Task.Delay(3000);
                 StatusMessage = string.Empty;
+                _createdDate = dates.CreatedDate;
                 _projectStateService.MarkClean();
                 return true;
             }
@@ -977,6 +998,17 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 StatusMessage = string.Empty;
                 return false;
             }
+        }
+
+        private async Task<Core.Results.OperationResult<object?>> SaveLegacyFileAsync(
+            string filePath,
+            ProjectSaveDates dates,
+            CancellationToken cancellationToken)
+        {
+            var data = SaveCurrentProject();
+            data.CreatedDate = dates.CreatedDate;
+            data.ModifiedDate = dates.ModifiedDate;
+            return await _projectFileService.SaveProjectResultAsync(filePath, data, cancellationToken);
         }
 
         #endregion
@@ -1591,6 +1623,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             {
                 // Восстанавливаем режим отображения
                 IsOperatingMode = data.IsOperatingMode;
+                _createdDate = data.CreatedDate;
 
                 // Загружаем информацию о проекте.
                 // Свойства VM — pass-through к IProjectStateService (этап C4):
