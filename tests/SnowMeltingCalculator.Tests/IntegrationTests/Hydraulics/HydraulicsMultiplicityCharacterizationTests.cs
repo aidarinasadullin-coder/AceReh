@@ -33,10 +33,10 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics;
 [TestFixture]
 public sealed class HydraulicsMultiplicityCharacterizationTests
 {
-    [TestCase(nameof(HydraulicInputData.GlycolType), 2, 2)]
-    [TestCase(nameof(HydraulicInputData.GlycolConcentration), 2, 2)]
-    [TestCase(nameof(HydraulicInputData.SupplySpacing_cm), 2, 2)]
-    [TestCase(nameof(HydraulicInputData.SupplyHeatPercent), 2, 2)]
+    [TestCase(nameof(HydraulicInputData.GlycolType), 1, 2)]
+    [TestCase(nameof(HydraulicInputData.GlycolConcentration), 1, 2)]
+    [TestCase(nameof(HydraulicInputData.SupplySpacing_cm), 1, 2)]
+    [TestCase(nameof(HydraulicInputData.SupplyHeatPercent), 1, 2)]
     public void GlobalInputEdit_UsesCurrentDirtyAndCalculationMultiplicity(
         string propertyName,
         int expectedDirtyCalls,
@@ -514,7 +514,6 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
             validator.Object,
             selector.Object,
             context,
-            dirty.Object,
             hydraulicsDependencies.Coordinator,
             hydraulicsDependencies.Session);
         circuits.Collectors[0].Circuits.Add(new CircuitRow { CircuitNumber = 1, CircuitLength = 100 });

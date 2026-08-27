@@ -1389,7 +1389,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 validatorMock.Object,
                 selectorMock.Object,
                  calculationContext,
-                 new Mock<IMarkDirtyService>().Object,
                  hydraulicsDependencies.Coordinator,
                   hydraulicsDependencies.Session);
         }

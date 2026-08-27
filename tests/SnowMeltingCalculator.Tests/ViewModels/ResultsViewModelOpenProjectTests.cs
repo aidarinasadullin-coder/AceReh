@@ -2035,7 +2035,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 validatorMock.Object,
                 selectorMock.Object,
                 calculationContext,
-                new Mock<IMarkDirtyService>().Object,
                 hydraulicsDependencies.Coordinator,
                 hydraulicsDependencies.Session);
         }
@@ -2237,7 +2236,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 validatorMock.Object,
                 selectorMock.Object,
                 calculationContext,
-                markDirtyService,
                 hydraulicsDependencies.Coordinator,
                 hydraulicsDependencies.Session);
         }
@@ -2975,8 +2973,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     "selectedPipe", "supplyTemperature"
                 }));
         }
-    }
-}
 
         [Test]
         [Category("PersistenceCharacterization")]
@@ -3087,3 +3083,5 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 service => service.ShowError($"Не удалось сохранить проект: {error}", "Ошибка"),
                 Times.Once);
         }
+    }
+}

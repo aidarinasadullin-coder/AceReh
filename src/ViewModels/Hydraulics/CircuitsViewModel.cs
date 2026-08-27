@@ -36,7 +36,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         private readonly ICircuitsValidator _validator;
         private readonly ICollectorTypeSelector _collectorTypeSelector;
         private readonly CalculationContext _calculationContext;
-        private readonly IMarkDirtyService _markDirtyService;
         private readonly IHydraulicsStateCoordinator _coordinator;
         private readonly IProjectSessionHydraulicsState _hydraulicsState;
 
@@ -902,7 +901,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             ICircuitsValidator validator,
             ICollectorTypeSelector collectorTypeSelector,
             CalculationContext calculationContext,
-            IMarkDirtyService markDirtyService,
             IHydraulicsStateCoordinator coordinator,
             IProjectSession projectSession)
         {
@@ -912,7 +910,6 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
             _collectorTypeSelector = collectorTypeSelector ?? throw new ArgumentNullException(nameof(collectorTypeSelector));
             _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));
-            _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
             _coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
             _hydraulicsState = (projectSession ?? throw new ArgumentNullException(nameof(projectSession))).HydraulicsState;
             _hydraulicsState.Changed += OnHydraulicsStateChanged;
@@ -1332,13 +1329,11 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     e.PropertyName == nameof(HydraulicInputData.SupplyHeatPercent))
                 {
                     MirrorSupplyInputs(InputData.SupplySpacing_cm, InputData.SupplyHeatPercent);
-                    _markDirtyService.MarkDirty();
                     Calculate();
                 }
                 else if (e.PropertyName == nameof(HydraulicInputData.GlycolType) ||
                          e.PropertyName == nameof(HydraulicInputData.GlycolConcentration))
                 {
-                    _markDirtyService.MarkDirty();
                     CalculateAllCollectors();
                 }
             };
