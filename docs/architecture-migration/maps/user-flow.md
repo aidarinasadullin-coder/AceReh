@@ -135,3 +135,7 @@ the corrupt `unknown-pipe.smc` fixture fails gracefully into the validation dial
 `HydraulicsGlycolType`, `HydraulicsGlycolConcentration`, `HydraulicsSupplyHeatPercent`,
 `HydraulicsCalculateButton`, `HydraulicsValidationMessage`. Executable gates:
 `task-12/arithmetic.json` (full Release 1976/0/3 accepted NotExecuted).
+
+## Phase 6 Save-Boundary Overlay
+
+The supported save flow reaches the persistence boundary through the canonical session snapshot: `ProjectSession -> ProjectSnapshot -> ProjectPersistenceMapper -> ProjectData -> IProjectFileService/ProjectFileService`. Existing Ctrl+S and `.smc` fixture evidence is reused; this overlay does not claim a new restore flow, Markdown/export completion, or calculation completion. Evidence: `task-5-save-boundary.md`, `task-6-persistence-fixtures-and-guards.md`, and model records `PE-P6-SESSION-SNAPSHOT` through `PE-P6-SERVICE-DATA`.

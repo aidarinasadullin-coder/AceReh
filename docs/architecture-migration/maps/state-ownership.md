@@ -122,3 +122,7 @@ factory registration in `AddResultsModule`. Acceptance evidence:
 `task-11/trx-guards-release.json` (8/8 guard categories),
 `task-12/arithmetic.json` (full Release 1976/0/3 accepted NotExecuted),
 `ui-qa/observations.json` (nine-step agent QA PASS).
+
+## Phase 6 Save-Boundary Overlay
+
+`ProjectSession` remains the canonical aggregate owner at the save boundary. `ProjectSnapshot` is an immutable handoff assembled from that owner; `ProjectPersistenceMapper` and `ProjectData` do not become writable state owners. Evidence: `task-5-save-boundary.md`; model records `PN-P6-SNAPSHOT`, `PN-P6-MAPPER`, `PN-P6-DATA`, `PN-P6-SERVICE`, and `INV-P6-SAVE`. No broad ownership cleanup is claimed.

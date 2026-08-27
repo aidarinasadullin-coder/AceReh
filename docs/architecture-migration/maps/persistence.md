@@ -224,3 +224,7 @@ Executable evidence: `task-12/arithmetic.json` (full Release 1976 passed / 0 fai
 NotExecuted identities) and the UI QA save/reload/second-load/unknown-pipe steps in
 `ui-qa/observations.json`. Byte identity, compatibility duration and crash atomicity remain deferred
 exactly as before.
+
+## Phase 6 Save-Boundary Overlay
+
+The confirmed save path is `ProjectSession -> ProjectSnapshot -> ProjectPersistenceMapper -> ProjectData -> IProjectFileService/ProjectFileService`. The existing `.smc` DTO/version contract and fixture behavior are preserved; `ProjectSnapshotPersistenceInputs.Templates` retains the documented sync-over-async residual risk. Evidence: `task-5-save-boundary.md` and `task-6-persistence-fixtures-and-guards.md`; model evidence `EV-P6-SAVE`, `EV-P6-FIXTURES`, invariant `INV-P6-SAVE`. Restore migration, transactional restore, and crash atomicity remain unclaimed.

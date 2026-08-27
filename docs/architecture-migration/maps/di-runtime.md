@@ -350,3 +350,7 @@ Task 11 guard evidence confirms no independent `IProjectSessionHydraulicsState`
 descriptor/instance exists in DI and that the coordinator is attached exactly once per upstream
 surface. The concrete-ViewModel dependencies of `ProjectLoadOrchestrator` remain (see `INV-008`),
 unchanged by Phase 5.
+
+## Phase 6 Save-Boundary Overlay
+
+At save time, `ProjectSaveService` consumes the canonical `ProjectSession` snapshot, maps it through `ProjectPersistenceMapper`, and delegates the resulting `ProjectData` to `IProjectFileService/ProjectFileService`. The overlay records the observed dependency path; it does not claim runtime restore migration or transactional restore. Evidence: `task-5-save-boundary.md`; model records `PN-P6-SERVICE`, `PN-P6-SNAPSHOT`, `PN-P6-MAPPER`, `PN-P6-DATA`, and the four `PE-P6-*` edges.

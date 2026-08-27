@@ -1,9 +1,9 @@
 {
   "metadata": {
     "model_id": "AM-WIDGET-001",
-    "phase": "phase-5-hydraulics-state",
+    "phase": "phase-6-project-snapshot-save-boundary",
     "snapshot_sha": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
-    "source_basis": "phase-5-hydraulics-state-task-14-live-code-and-accepted-evidence",
+    "source_basis": "phase-6-project-snapshot-save-boundary-task-7-live-code-and-accepted-evidence",
     "status": "pass",
     "provenance": {
       "phase_0_model": "docs/architecture-migration/maps/architecture-model.baseline.json",
@@ -13,7 +13,8 @@
       "historical_sources_excluded": true,
       "phase_1_plan": "docs/architecture-migration/plans/phase-1-project-session-shell.md",
       "phase_4_plan": "docs/architecture-migration/plans/phase-4-thermal-state.md",
-      "phase_5_plan": "docs/architecture-migration/plans/phase-5-hydraulics-state.md"
+      "phase_5_plan": "docs/architecture-migration/plans/phase-5-hydraulics-state.md",
+      "phase_6_plan": "docs/architecture-migration/plans/phase-6-project-snapshot-save-boundary.md"
     },
     "v1_source_sha256": "EE9E0069D71F3ABFFA5FA1E9B698A97507694597FBE85B84C272C30D3F55EFBD"
   },
@@ -13924,6 +13925,70 @@
           }
         }
       }
+    },
+    {
+      "id": "PN-P6-SNAPSHOT",
+      "record_kind": "node",
+      "snapshot_states": {
+        "baseline": {"canonical": {"kind": "service", "name": "ProjectSnapshot", "views": ["compile-time", "state-ownership", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
+        "current": {"canonical": {"kind": "service", "name": "ProjectSnapshot", "views": ["compile-time", "state-ownership", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+      }
+    },
+    {
+      "id": "PN-P6-MAPPER",
+      "record_kind": "node",
+      "snapshot_states": {
+        "baseline": {"canonical": {"kind": "service", "name": "ProjectPersistenceMapper", "views": ["compile-time", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
+        "current": {"canonical": {"kind": "service", "name": "ProjectPersistenceMapper", "views": ["compile-time", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+      }
+    },
+    {
+      "id": "PN-P6-DATA",
+      "record_kind": "node",
+      "snapshot_states": {
+        "baseline": {"canonical": {"kind": "dto", "name": "ProjectData", "views": ["compile-time", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
+        "current": {"canonical": {"kind": "dto", "name": "ProjectData", "views": ["compile-time", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+      }
+    },
+    {
+      "id": "PN-P6-SERVICE",
+      "record_kind": "node",
+      "snapshot_states": {
+        "baseline": {"canonical": {"kind": "service", "name": "IProjectFileService/ProjectFileService", "views": ["compile-time", "di-runtime", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
+        "current": {"canonical": {"kind": "service", "name": "IProjectFileService/ProjectFileService", "views": ["compile-time", "di-runtime", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+      }
+    },
+    {
+      "id": "PE-P6-SESSION-SNAPSHOT",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {"canonical": {"kind": "assembly", "name": "ProjectSession snapshot assembly", "from": "PN-P6-SERVICE", "to": "PN-P6-SNAPSHOT", "views": ["state-ownership", "persistence"], "source_kind": "snapshot-assembly", "state_refs": [], "trigger": "save", "effect": "reads canonical ProjectSession snapshots", "participants": ["ProjectSession", "ProjectSnapshot"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
+        "current": {"canonical": {"kind": "assembly", "name": "ProjectSession snapshot assembly", "from": "PN-P6-SERVICE", "to": "PN-P6-SNAPSHOT", "views": ["state-ownership", "persistence"], "source_kind": "snapshot-assembly", "state_refs": [], "trigger": "save", "effect": "reads canonical ProjectSession snapshots", "participants": ["ProjectSession", "ProjectSnapshot"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+      }
+    },
+    {
+      "id": "PE-P6-SNAPSHOT-MAPPER",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {"canonical": {"kind": "mapping", "name": "ProjectSnapshot to ProjectData", "from": "PN-P6-SNAPSHOT", "to": "PN-P6-MAPPER", "views": ["compile-time", "persistence"], "source_kind": "pure-mapper", "state_refs": [], "trigger": "save", "effect": "maps once to persistence DTO", "participants": ["ProjectSnapshot", "ProjectPersistenceMapper"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
+        "current": {"canonical": {"kind": "mapping", "name": "ProjectSnapshot to ProjectData", "from": "PN-P6-SNAPSHOT", "to": "PN-P6-MAPPER", "views": ["compile-time", "persistence"], "source_kind": "pure-mapper", "state_refs": [], "trigger": "save", "effect": "maps once to persistence DTO", "participants": ["ProjectSnapshot", "ProjectPersistenceMapper"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+      }
+    },
+    {
+      "id": "PE-P6-MAPPER-DATA",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {"canonical": {"kind": "mapping", "name": "Mapper produces ProjectData", "from": "PN-P6-MAPPER", "to": "PN-P6-DATA", "views": ["compile-time", "persistence"], "source_kind": "dto-mapping", "state_refs": [], "trigger": "save", "effect": "produces existing version 1.1 DTO", "participants": ["ProjectPersistenceMapper", "ProjectData"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
+        "current": {"canonical": {"kind": "mapping", "name": "Mapper produces ProjectData", "from": "PN-P6-MAPPER", "to": "PN-P6-DATA", "views": ["compile-time", "persistence"], "source_kind": "dto-mapping", "state_refs": [], "trigger": "save", "effect": "produces existing version 1.1 DTO", "participants": ["ProjectPersistenceMapper", "ProjectData"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+      }
+    },
+    {
+      "id": "PE-P6-SERVICE-DATA",
+      "record_kind": "edge",
+      "snapshot_states": {
+        "baseline": {"canonical": {"kind": "persistence-write", "name": "Save service delegates DTO persistence", "from": "PN-P6-DATA", "to": "PN-P6-SERVICE", "views": ["di-runtime", "persistence", "user-flow"], "source_kind": "service-delegation", "state_refs": [], "trigger": "save", "effect": "delegates ProjectData to file service", "participants": ["ProjectSaveService", "ProjectFileService"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE", "EV-P6-FIXTURES"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
+        "current": {"canonical": {"kind": "persistence-write", "name": "Save service delegates DTO persistence", "from": "PN-P6-DATA", "to": "PN-P6-SERVICE", "views": ["di-runtime", "persistence", "user-flow"], "source_kind": "service-delegation", "state_refs": [], "trigger": "save", "effect": "delegates ProjectData to file service", "participants": ["ProjectSaveService", "ProjectFileService"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE", "EV-P6-FIXTURES"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+      }
     }
   ],
   "evidence": [
@@ -14290,6 +14355,20 @@
       "locator": "agent-operated hydraulics UI QA: nine steps PASS including corrupt unknown-pipe failure branch",
       "confidence": "verified",
       "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P6-SAVE",
+      "path": "docs/architecture-migration/evidence/phase-6-project-snapshot-save-boundary/task-5-save-boundary.md",
+      "locator": "Task 5 save service signatures, delegation and source guards",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P6-FIXTURES",
+      "path": "docs/architecture-migration/evidence/phase-6-project-snapshot-save-boundary/task-6-persistence-fixtures-and-guards.md",
+      "locator": "Task 6 Release compatibility/guard result and fixture integrity",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
     }
   ],
   "limitations": [
@@ -14573,6 +14652,14 @@
         "EV-P1-GUARD",
         "EV-P1-FINAL"
       ],
+      "target_status": "partial"
+    },
+    {
+      "id": "INV-P6-SAVE",
+      "statement": "Save assembly SHALL read canonical ProjectSession snapshots, map once to ProjectData, and delegate persistence without making ProjectData or ProjectFileService canonical owners.",
+      "views": ["compile-time", "di-runtime", "state-ownership", "persistence", "user-flow"],
+      "status": "verified",
+      "evidence": ["EV-P6-SAVE", "EV-P6-FIXTURES"],
       "target_status": "partial"
     }
   ],
