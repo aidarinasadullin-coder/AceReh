@@ -235,3 +235,14 @@ The identical failure reproduces byte-for-byte at HEAD `14a8e51`, so it predates
 recorded here without action (same class as the phase-4 dossier historical-QA note). Evidence:
 `task-9/divergence-notes.md`, `task-11/trx-guards-release.json`, `task-12/arithmetic.json`,
 `ui-qa/observations.json`.
+
+
+## Phase 7 Restore Coordinator compatibility overlay (docs-only refresh)
+
+The wire contract and compatibility matrix above are unchanged: no `.smc` field, CLR type, nullability or version-literal change comes from Phase 7. Only the restore boundary semantics are refreshed: the typed load boundary `IProjectFileService.LoadProjectResultAsync` returns `OperationResult<ProjectData>` and stops missing/invalid/deserialization-failed input at the dialog boundary before any restore mutation (`slice-2-load-boundary.md`); Thermal/Hydraulics candidates are preflighted before canonical slice mutation while legacy-empty DTOs retain canonical defaults (`slice-3-validation-order.md`); project open keeps global catalogs read-only and project-local custom records inside `ProjectData` (`slice-6-catalog-boundary.md`). Compatibility duration and version range for legacy `.smc` (`DEC-002`) remain deferred. Model records `EV-P7-SLICE-2`, `EV-P7-SLICE-5`.
+
+Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/phase-7.5-project-restore-coordinator-relaunch.md`, owner-approved 2026-09-03, worktree `D:/IA/ace — копия`); this overlay adds no production or test claim beyond the accepted Phase 7 receipts.
+
+## Phase 8 Results-Derived-Projection Overlay
+
+No wire-contract change: `ProjectData` names/fields/enum/string representations and the serializer behavior are untouched; the compatibility matrix above remains valid. The only persistence-adjacent change is the source of `CustomTemplates` in the legacy/report DTO assembly (repository seam, identical to the Phase 6 file-save source). Evidence: `slice-6` receipt; model record `EV-P8-SLICE-6`.

@@ -97,3 +97,26 @@ Phase 5 adds assertion-backed Hydraulics coverage without weakening any prior ro
 | full Release closure | reconciliation: 1979 parser outcome rows = 1976 passed / 0 failed / 3 NotExecuted outcome rows, all within the baseline accepted set {RegenerateBaseline, RegenerateCircuitsBaseline, ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile} | `task-12/arithmetic.json` |
 
 `CF-008` is covered by this overlay; all other `CF-001..CF-022` rows keep their recorded status.
+
+
+## Phase 7 Restore Coordinator characterization overlay (docs-only refresh)
+
+Phase 7 maps accepted receipts to executable coverage without weakening any prior row and without claiming the missing Excel/preview/print flows:
+
+| Coverage | Current Phase 7 result | Evidence |
+| --- | --- | --- |
+| restore boundary and guard | `ProjectSessionTests` + `ProjectLifecycleFlowCharacterizationTests` + `ProjectSessionLegacyStoreGuardTests`: 38 passed / 0 failed | `slice-1-restore-boundary.md`, `logs/slice-1-restore-boundary.trx` |
+| load boundary | `ProjectFileServiceResultTests` + `ProjectFileServiceMutationTests` + `ResultsViewModelOpenProjectTests`: 46 passed / 1 skipped fixture-gate | `slice-2-load-boundary.md`, `logs/slice-2-load-boundary.trx` |
+| validation before mutation | `RestoreModulesFromProjectAsync_InvalidThermalInput_DoesNotMutatePriorClimateOrThermalSlices` added; focused suite 119 passed / 0 failed | `slice-3-validation-order.md`, `logs/slice-3-validation-order.trx` |
+| calculation publication multiplicity | `HydraulicsMultiplicityCharacterizationTests` incl. `ThermalContextRouting_ValidResultPublishesFreshHydraulicsStateOnce` and `ThermalContextRouting_CalculationFailurePublishesTerminalFailureOnce`: 102 passed / 0 failed | `slice-4-calculation-publication.md`, `logs/slice-4-calculation-publication.trx` |
+| report source of truth | `Build_UsesCurrentProjection_WhenPersistedDtoHasStaleSentinel`, `ExportReportAsync_BuildsAndRendersOnce_WithoutMutatingProject`: 42 passed / 0 failed | `slice-5-report-source-of-truth.md`, `logs/slice-5-report-source-of-truth.trx` |
+| catalog boundary and restore regressions | 57 passed / 1 skipped fixture-gate plus regression-check run (5 named tests passed) | `slice-6-catalog-boundary.md`, `logs/slice-6-catalog-boundary.trx`, `logs/slice-6-regression-check.trx` |
+| DI/UI alignment | `ResultsViewModel_RestorePath_UsesTheSingletonOrchestratorWithCanonicalSessionSlices`, rejected-restore and fresh-UI/PDF assertions: 94 passed / 1 skipped fixture-gate | `slice-7-di-ui-alignment.md`, `logs/slice-7-di-ui-alignment.trx` |
+
+The one repeatedly skipped test is the pre-existing accepted baseline `ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile` (fixture gate), unchanged by Phase 7. Evidence mapping to dossier statements: `slice-8-dossier-alignment.md`; model records `EV-P7-SLICE-7`, `EV-P7-SLICE-8`.
+
+Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/phase-7.5-project-restore-coordinator-relaunch.md`, owner-approved 2026-09-03, worktree `D:/IA/ace — копия`); this overlay adds no production or test claim beyond the accepted Phase 7 receipts.
+
+## Phase 8 Results-Derived-Projection Overlay
+
+Phase 8 receipts: slice 1 baseline 27 passed; slice 2 canonical-source map 69 passed; slice 3 re-sourcing 111 passed/1 known skip; slice 4 thermal/hydraulics 63 passed (frozen adapter-seam contract re-pinned to the canonical `InvalidateFromClimate` equivalent — recorded); slice 5 readiness/display mode 73 passed/1 known skip; slice 6 full regression 2023 passed with 5 pre-existing import-removal baseline failures flagged (outside Phase 8 write-set; owner decision required); slice 7 multiplicity/sentinel 59 passed. New canonical seeding helpers (`ReplaceCollectorsCanonical`) and the `Period0Days` climate tests are part of the frozen write-set. Evidence: `logs/*.trx` under `evidence/phase-8-results-derived-projection/`.

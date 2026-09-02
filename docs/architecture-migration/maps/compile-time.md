@@ -245,3 +245,14 @@ introduced.
 ## Phase 6 Save-Boundary Overlay
 
 The source-backed save boundary is `ProjectSession -> ProjectSnapshot -> ProjectPersistenceMapper -> ProjectData -> IProjectFileService/ProjectFileService`. `ProjectSnapshot` is assembled from the aggregate session, the mapper is pure, and the existing DTO/file-service contract remains unchanged. Evidence: `task-5-save-boundary.md`; model records `PN-P6-SNAPSHOT`, `PN-P6-MAPPER`, `PN-P6-DATA`, `PN-P6-SERVICE`, `PE-P6-SESSION-SNAPSHOT`, `PE-P6-SNAPSHOT-MAPPER`, `PE-P6-MAPPER-DATA`, `PE-P6-SERVICE-DATA`. This overlay does not claim restore migration, Markdown/export completion, calculation completion, or broad ownership cleanup.
+
+
+## Phase 7 Restore Coordinator Overlay (docs-only refresh)
+
+The accepted Phase 7 receipts fix the compile-time restore facts: the single canonical restore path is `ResultsViewModel.LoadProjectFromPathAsync -> ApplyLoadedProjectAsync -> LoadProjectDataAsync`, which acquires the `ProjectSession.BeginProjectRestore()` lease and calls `ProjectLoadOrchestrator.RestoreModulesFromProjectAsync`; `ProjectLoadOrchestrator` captures exactly the four canonical slice interfaces (`ClimateState`, `ConstructionState`, `ThermalState`, `HydraulicsState`) exposed through `IProjectSession`, and no second restore coordinator type was introduced. The read-only negative probe found no restore entrypoint bypassing `BeginProjectRestore`. `INV-008` stays open: the orchestrator's concrete ViewModel dependencies are not removed by Phase 7. Evidence: `slice-1-restore-boundary.md`, `slice-7-di-ui-alignment.md`; model records `EV-P7-SCOPE`, `EV-P7-ACCEPTANCE`.
+
+Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/phase-7.5-project-restore-coordinator-relaunch.md`, owner-approved 2026-09-03, worktree `D:/IA/ace — копия`); this overlay adds no production or test claim beyond the accepted Phase 7 receipts.
+
+## Phase 8 Results-Derived-Projection Overlay
+
+`ResultsViewModel` constructor no longer takes `ClimateViewModel`, `ConstructionViewModel` or `ThermalViewModel`; the public `ConstructionViewModel` exposure was removed (no consumers). Remaining module reference: `CircuitsViewModel` (staged Phase 9 residual). New optional dependency: `IProjectSnapshotPersistenceInputs` (repository-backed, no ViewModel). `ProjectSessionClimateState`/`ClimateStateSnapshot` gained the additive `Period0Days` field (Amendment 1, owner decision B). Evidence: `slice-3`, `slice-6` receipts; model records `EV-P8-SLICE-3`, `EV-P8-SLICE-6`.

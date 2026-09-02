@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="1b1aa73d-1c18-4fa3-9f73-630f83058aa0" name="Admin@DESKTOP-CVGB6OE 2026-09-03 03:53:30" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-09-03T03:53:30.0578407+05:00" queuing="2026-09-03T03:53:30.0578409+05:00" start="2026-09-03T03:53:29.2667155+05:00" finish="2026-09-03T03:53:30.0626535+05:00" />
+  <TestSettings name="default" id="4b4acc21-908b-4388-9a51-b9f24f6967a9">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-09-03_03_53_30" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="6fa8e9e1-035e-467d-91a3-c408f5c2f0f3" testId="1a451851-dd58-5aa6-605a-0f384c6bc6bf" testName="CollectorEquipmentItems_ClearsOnResetOrEmptyState" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0285090" startTime="2026-09-03T03:53:29.9219529+05:00" endTime="2026-09-03T03:53:29.9504615+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6fa8e9e1-035e-467d-91a3-c408f5c2f0f3" />
+    <UnitTestResult executionId="536af98b-931d-4301-aa57-979ca23037a8" testId="06f7b06b-0bbb-246d-8f9a-68ca3dc19050" testName="LoadProjectDataAsync_ThenEdit_MarksDirtyThroughExistingStateService" computerName="DESKTOP-CVGB6OE" duration="00:00:00.1056630" startTime="2026-09-03T03:53:29.7738607+05:00" endTime="2026-09-03T03:53:29.8794936+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="536af98b-931d-4301-aa57-979ca23037a8" />
+    <UnitTestResult executionId="e1564fc3-78ad-4a06-aa30-c6c6a6d20960" testId="068fde29-7f38-6e3f-b9d1-5ce31c98bd79" testName="CollectorEquipmentItems_GroupsMixedValveTypesWithExactQuantityAndCircuitCount" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0023540" startTime="2026-09-03T03:53:29.9588855+05:00" endTime="2026-09-03T03:53:29.9612397+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e1564fc3-78ad-4a06-aa30-c6c6a6d20960" />
+    <UnitTestResult executionId="f65a30eb-d07f-4221-ad4f-2e9208a2b769" testId="5c89b53b-3837-4bdb-d066-daabd46eea5d" testName="CollectorEquipmentItems_GroupsSameValveTypeAndCircuitCount" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0019630" startTime="2026-09-03T03:53:29.9612605+05:00" endTime="2026-09-03T03:53:29.9632232+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f65a30eb-d07f-4221-ad4f-2e9208a2b769" />
+    <UnitTestResult executionId="afe14155-42cc-4498-a685-072142acd260" testId="5c5125e0-f5ec-d1e0-e619-0cc9f73b065d" testName="ProjectData_CustomTemplates_RoundTrip" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0392800" startTime="2026-09-03T03:53:29.8824452+05:00" endTime="2026-09-03T03:53:29.9217245+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="afe14155-42cc-4498-a685-072142acd260">
+      <Output>
+        <ErrorInfo>
+          <Message>  Assert.That(savedData.CustomTemplates[0].MaterialSnapshots.Any(m =&gt; m.Name == "Custom Concrete"), Is.True)&#xD;
+  Expected: True&#xD;
+  But was:  False&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests.ProjectData_CustomTemplates_RoundTrip() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Construction\ConstructionServiceTests.cs:line 1077&#xD;
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.BeforeAndAfterTestCommand.&lt;&gt;c__DisplayClass1_0.&lt;Execute&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.Commands.DelegatingTestCommand.RunTestMethodInThreadAbortSafeZone(TestExecutionContext context, Action action)&#xD;
+
+1)    at SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests.ProjectData_CustomTemplates_RoundTrip() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Construction\ConstructionServiceTests.cs:line 1077&#xD;
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine&amp; stateMachine)&#xD;
+   at SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests.ProjectData_CustomTemplates_RoundTrip()&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="305ffba8-3559-4601-83ae-7980e48205c5" testId="00107849-5229-7ebb-03fa-818954eb3c2a" testName="CollectorEquipmentItems_DoesNotGroupDifferentCircuitCountsOrValveTypes" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0083700" startTime="2026-09-03T03:53:29.9504859+05:00" endTime="2026-09-03T03:53:29.9588557+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="305ffba8-3559-4601-83ae-7980e48205c5" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="LoadProjectDataAsync_ThenEdit_MarksDirtyThroughExistingStateService" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="06f7b06b-0bbb-246d-8f9a-68ca3dc19050">
+      <Execution id="536af98b-931d-4301-aa57-979ca23037a8" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests" name="LoadProjectDataAsync_ThenEdit_MarksDirtyThroughExistingStateService" />
+    </UnitTest>
+    <UnitTest name="CollectorEquipmentItems_GroupsSameValveTypeAndCircuitCount" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="5c89b53b-3837-4bdb-d066-daabd46eea5d">
+      <Execution id="f65a30eb-d07f-4221-ad4f-2e9208a2b769" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelCollectorEquipmentItemsTests" name="CollectorEquipmentItems_GroupsSameValveTypeAndCircuitCount" />
+    </UnitTest>
+    <UnitTest name="CollectorEquipmentItems_GroupsMixedValveTypesWithExactQuantityAndCircuitCount" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="068fde29-7f38-6e3f-b9d1-5ce31c98bd79">
+      <Execution id="e1564fc3-78ad-4a06-aa30-c6c6a6d20960" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelCollectorEquipmentItemsTests" name="CollectorEquipmentItems_GroupsMixedValveTypesWithExactQuantityAndCircuitCount" />
+    </UnitTest>
+    <UnitTest name="CollectorEquipmentItems_ClearsOnResetOrEmptyState" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="1a451851-dd58-5aa6-605a-0f384c6bc6bf">
+      <Execution id="6fa8e9e1-035e-467d-91a3-c408f5c2f0f3" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelCollectorEquipmentItemsTests" name="CollectorEquipmentItems_ClearsOnResetOrEmptyState" />
+    </UnitTest>
+    <UnitTest name="ProjectData_CustomTemplates_RoundTrip" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="5c5125e0-f5ec-d1e0-e619-0cc9f73b065d">
+      <Execution id="afe14155-42cc-4498-a685-072142acd260" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectData_CustomTemplates_RoundTrip" />
+    </UnitTest>
+    <UnitTest name="CollectorEquipmentItems_DoesNotGroupDifferentCircuitCountsOrValveTypes" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="00107849-5229-7ebb-03fa-818954eb3c2a">
+      <Execution id="305ffba8-3559-4601-83ae-7980e48205c5" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelCollectorEquipmentItemsTests" name="CollectorEquipmentItems_DoesNotGroupDifferentCircuitCountsOrValveTypes" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="1a451851-dd58-5aa6-605a-0f384c6bc6bf" executionId="6fa8e9e1-035e-467d-91a3-c408f5c2f0f3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="06f7b06b-0bbb-246d-8f9a-68ca3dc19050" executionId="536af98b-931d-4301-aa57-979ca23037a8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="068fde29-7f38-6e3f-b9d1-5ce31c98bd79" executionId="e1564fc3-78ad-4a06-aa30-c6c6a6d20960" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5c89b53b-3837-4bdb-d066-daabd46eea5d" executionId="f65a30eb-d07f-4221-ad4f-2e9208a2b769" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5c5125e0-f5ec-d1e0-e619-0cc9f73b065d" executionId="afe14155-42cc-4498-a685-072142acd260" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="00107849-5229-7ebb-03fa-818954eb3c2a" executionId="305ffba8-3559-4601-83ae-7980e48205c5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="6" executed="6" passed="5" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 6 of 6 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

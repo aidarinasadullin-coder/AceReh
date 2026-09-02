@@ -354,3 +354,14 @@ unchanged by Phase 5.
 ## Phase 6 Save-Boundary Overlay
 
 At save time, `ProjectSaveService` consumes the canonical `ProjectSession` snapshot, maps it through `ProjectPersistenceMapper`, and delegates the resulting `ProjectData` to `IProjectFileService/ProjectFileService`. The overlay records the observed dependency path; it does not claim runtime restore migration or transactional restore. Evidence: `task-5-save-boundary.md`; model records `PN-P6-SERVICE`, `PN-P6-SNAPSHOT`, `PN-P6-MAPPER`, `PN-P6-DATA`, and the four `PE-P6-*` edges.
+
+
+## Phase 7 Restore Coordinator Overlay (docs-only refresh)
+
+The DI handoff for restore is verified by `DiRegistrationTests.ResultsViewModel_RestorePath_UsesTheSingletonOrchestratorWithCanonicalSessionSlices`: exactly one `ProjectLoadOrchestrator` registration, the DI-wired `ResultsViewModel` consumes that singleton, and the orchestrator fields reference the same session-owned Climate, Construction, Thermal and Hydraulics slices. A rejected restore preserves prior UI values, performs no extra successful refresh, leaves `Session.IsLoadProjectInProgress == false` and dirty false (`LoadProjectData_SecondInvalidProjectPreservesPriorUiAndReleasesRestoreGuard`). `INV-008` is not closed by this evidence. Evidence: `slice-7-di-ui-alignment.md` (TRX `logs/slice-7-di-ui-alignment.trx`, 94 passed / 1 skipped fixture-gate); model records `EV-P7-SLICE-7`, `EV-P7-ACCEPTANCE`.
+
+Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/phase-7.5-project-restore-coordinator-relaunch.md`, owner-approved 2026-09-03, worktree `D:/IA/ace — копия`); this overlay adds no production or test claim beyond the accepted Phase 7 receipts.
+
+## Phase 8 Results-Derived-Projection Overlay
+
+`AddResultsModule` keeps `AddSingleton<ResultsViewModel>()` with constructor auto-resolution: removed module-ViewModel parameters need no registration change; `IProjectSnapshotPersistenceInputs` (already registered in Phase 6) is consumed by the Results save/report path. Legacy alias registrations (`IProjectStateService`/`IProjectInfoService`/`IMarkDirtyService`) untouched. Evidence: `slice-6` receipt; model record `EV-P8-SLICE-6`.

@@ -144,3 +144,14 @@ observed all nine steps PASS including the corrupt-fixture failure branch.
 ## Phase 6 Save-Boundary Overlay
 
 Save is modeled as a one-way handoff from the canonical `ProjectSession` snapshot to `ProjectPersistenceMapper`, then to `ProjectData` and the file service. The overlay records the persistence boundary, not a new reactive owner or a restore transaction. Evidence: `task-5-save-boundary.md`; model edge `PE-P6-SESSION-SNAPSHOT` through `PE-P6-SERVICE-DATA`; invariant `INV-P6-SAVE`.
+
+
+## Phase 7 Restore Coordinator Overlay (docs-only refresh)
+
+Phase 7 establishes exactly-once calculation publication for the accepted write-set: the `HydraulicsStateCoordinator` failure branch no longer double-publishes `PublishHydraulics(null)` and instead performs the canonical terminal transition `_state.FailCalculation(...)` after `BeginCalculation()`; `OnContextChanged` thermal-result routing goes through the full `CalculateAll` path so valid results publish exactly once; `CompleteCalculation` receives the real `summaryByCollector` map; `FailCalculation` clears every collector summary. The intentional residual seam remains recorded: `CircuitsViewModel.ExecuteCalculateAll` catch still calls `SetHydraulicsError` + `PublishHydraulics(null)` (single externally visible null publication plus canonical error transition). The `unknown` multiplicity/order portions of the historical `RE-011`/`RE-012` records are not erased by this overlay. Evidence: `slice-4-calculation-publication.md` (`HydraulicsMultiplicityCharacterizationTests`, 102 passed); model record `EV-P7-ACCEPTANCE`.
+
+Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/phase-7.5-project-restore-coordinator-relaunch.md`, owner-approved 2026-09-03, worktree `D:/IA/ace — копия`); this overlay adds no production or test claim beyond the accepted Phase 7 receipts.
+
+## Phase 8 Results-Derived-Projection Overlay
+
+Projection rebuilds (`RefreshAll` family) now read canonical state; no new subscriptions were introduced and no reactive counters were erased — the `RE-014` unknown lifetime/multiplicity cells remain as recorded. `IsOperatingMode` is a read-through to `IProjectDisplayModeState` with unchanged change-notification surface. Exactly-once calculation/publication contracts are preserved (`ThermalStateCoordinatorTests`, `HydraulicsMultiplicityCharacterizationTests` green). Evidence: `slice-4`, `slice-7` receipts; model records `EV-P8-SLICE-4`, `EV-P8-SLICE-7`.
