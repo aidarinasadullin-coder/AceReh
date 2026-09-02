@@ -1,51 +1,29 @@
 ---
-description: Resume the architecture workflow from validated STATE.json without crossing owner gates.
+description: Resume the architecture workflow from the dossier and current plan without crossing owner gates.
 ---
 
-Resume `$ARGUMENTS` from `docs/architecture-migration/STATE.json`, the sole
-active authority. Normal recovery does not require a full `TASK_CONTEXT.md`
-read; consult targeted history only for provenance, supersession, or recovery.
+Resume `$ARGUMENTS` from the current plan under
+`docs/architecture-migration/plans/` and the latest status/decision context in
+`docs/architecture-migration/TASK_CONTEXT.md`. Consult targeted history only
+for provenance, supersession, or recovery.
 
-When an active frozen plan exists, run before routing:
+Route without crossing owner gates:
 
-```text
-node docs/architecture-migration/workflow/validate-state.mjs validate --check-plan
-```
+- no current decision-complete plan: `/architecture-plan <phase>`;
+- terminal Momus review complete but owner approval absent:
+  `/architecture-approve <phase>`;
+- owner plan approval recorded but execution authorization absent: report that
+  `/architecture-start <phase>` is required;
+- explicitly authorized incomplete work: `/architecture-start <phase>` in
+  resume mode from the first incomplete task, preserving the sequential lane;
+- final three-domain review complete: report the receipt and stop for explicit
+  owner result acceptance;
+- current owner explicitly accepts the result: record it in the dossier and
+  STOP;
+- blocked: report the recorded blocker and only its safe recovery action.
 
-Reconcile state, exact plan SHA/mirror, receipts, write-set, and dirty
-baseline-relative delta. Any stale, missing, malformed, or contradictory
-record fails closed. Never edit a stale plan or Boulder to satisfy a hook; if
-an external hook blocks on Boulder mismatch, report it and stop.
-
-Route without crossing gates:
-
-- planning or no frozen plan: `/architecture-plan <phase>`;
-- frozen plan awaiting owner approval: `/architecture-approve <phase>`;
-- approved but not authorized: report the missing execution authorization;
-- authorized incomplete work: `/architecture-start <phase>` in resume mode
-  from the first incomplete task, preserving authorization and reusing valid
-  evidence;
-- awaiting result acceptance: report the receipt and stop unless the current
-  owner message explicitly accepts or rejects the result; on explicit
-  acceptance set `resultAcceptance=accepted`, `stage=completed`, clear pending
-  gates, set `stop=true`, validate, and STOP; on rejection record `rejected`,
-  set `stage=blocked` with the owner's reason, validate, and STOP;
-- completed: report completion and STOP; never restart completed work;
-- blocked: report the recorded blocker and only its safe, non-owner-gate
-  recovery action.
-
-Do not infer approval or authorization from conversation, session IDs, or old
-Boulder state. Preserve characterization-first verification and the sequential
-implementation lane. Evidence is rerun only when covered inputs changed;
-validator and plan identity are always fresh. LSP has one attempt per session
-on supported source extensions, with compiler/tests fallback when its effective
-workspace root or request cwd is outside the repo; no Markdown LSP without a
-configured server. Manual QA is once per frozen
-write-set for affected user-visible flows, never docs/control-only.
-
-Terminal receipts use exactly `REVIEW_ID`, `SUBJECT`, `RECEIPT`, `VERDICT
-APPROVE|REJECT|BLOCKED`, and `REASON`. Missing or malformed receipt permits one
-same-session correction/materialization retry; the second failure is BLOCKED
-without executable-evidence rerun. Final verification remains one receipt
-covering Conformance/Scope/Provenance, Architecture/Code Quality, and
-Executable QA/User Risk.
+Never infer approval, authorization, or acceptance from conversation history,
+session IDs, hashes, or retired control-plane artifacts. Preserve
+characterization-first verification, six-view/evidence requirements, dirty
+baseline safety, and sequential implementation. Rerun evidence only when a
+covered input changed. Do not restart completed work or cross an owner gate.

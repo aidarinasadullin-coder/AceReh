@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "phase": "phase-6-project-snapshot-save-boundary",
+  "stage": "awaiting-owner-approval",
+  "plan": {
+    "path": "docs/architecture-migration/plans/phase-6-project-snapshot-save-boundary.md",
+    "mirrorPath": ".omo/plans/phase-6-project-snapshot-save-boundary.md",
+    "bytes": 29455,
+    "sha256": "C56E66D2733D65CC56190A7B95B4D87F5F032AA75E83339925CEB23C2E5A4E92",
+    "frozen": true
+  },
+  "reviews": {
+    "planning": "approved",
+    "finalDomains": {
+      "conformance": "pending",
+      "architecture": "pending",
+      "executable": "pending"
+    },
+    "planningReceiptPath": "docs/architecture-migration/evidence/phase-6-project-snapshot-save-boundary/terminal-plan-review-receipt.md",
+    "finalReceiptPath": null,
+    "terminalRetryCount": 0
+  },
+  "ownerGates": {
+    "planApproval": "pending",
+    "executionAuthorization": "pending",
+    "resultAcceptance": "pending"
+  },
+  "lastCompletedTask": null,
+  "pendingGates": [
+    "planApproval"
+  ],
+  "nextAction": "/architecture-approve phase-6-project-snapshot-save-boundary",
+  "stop": true,
+  "blocker": null
+}

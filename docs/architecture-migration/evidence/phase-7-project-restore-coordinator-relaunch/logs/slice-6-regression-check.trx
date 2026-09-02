@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="ea982da5-f5e4-4537-a6c9-0c22f3596103" name="Admin@DESKTOP-CVGB6OE 2026-08-31 23:41:27" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-08-31T23:41:27.3577159+05:00" queuing="2026-08-31T23:41:27.3577161+05:00" start="2026-08-31T23:41:26.6266285+05:00" finish="2026-08-31T23:41:27.3620128+05:00" />
+  <TestSettings name="default" id="63d5ea07-18ce-46aa-93ab-a98a8a652144">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-08-31_23_41_27" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="2f6b1b91-a93d-403f-bb1c-30d6ed8e2d40" testId="a4bb765b-a5ac-699a-3265-ebc14f245c51" testName="OpenProject_WithInvalidCustomCatalogRecords_DoesNotMutateGlobalCatalog" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0026430" startTime="2026-08-31T23:41:27.2632141+05:00" endTime="2026-08-31T23:41:27.2658565+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2f6b1b91-a93d-403f-bb1c-30d6ed8e2d40" />
+    <UnitTestResult executionId="ee83649b-5d46-4db6-af89-e0f794bc8503" testId="556576dc-04d2-b5fd-0867-fb5f6c50b907" testName="RestoreModulesFromProjectAsync_InvalidThermalInput_DoesNotMutatePriorClimateOrThermalSlices" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0870630" startTime="2026-08-31T23:41:27.0970916+05:00" endTime="2026-08-31T23:41:27.1841255+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ee83649b-5d46-4db6-af89-e0f794bc8503" />
+    <UnitTestResult executionId="bc95440b-38ce-4fbe-ae13-2949b2aac409" testId="a01b7098-2614-1bf3-b70e-479159af9e89" testName="ProjectRoundTrip_PipeSelectionRestored" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0037080" startTime="2026-08-31T23:41:27.2658761+05:00" endTime="2026-08-31T23:41:27.2695838+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="bc95440b-38ce-4fbe-ae13-2949b2aac409" />
+    <UnitTestResult executionId="e9772333-4c1b-48d0-ac64-346e0d955f99" testId="b23f9dbc-bde9-0591-320f-5d8221f75bae" testName="LoadProjectData_MissingOrInvalidThermalResult_UsesLoadOnlyFallbackAndRefreshDoesNotRecalculate" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0690690" startTime="2026-08-31T23:41:27.1873294+05:00" endTime="2026-08-31T23:41:27.2563985+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e9772333-4c1b-48d0-ac64-346e0d955f99" />
+    <UnitTestResult executionId="fdfcae61-3b8c-4ab5-909a-f90da4a0dc96" testId="ed2f619f-ae61-a66d-8f39-1d3706d1513c" testName="OpenProject_WithCustomCatalogRecords_LeavesGlobalCatalogReadOnly" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0067660" startTime="2026-08-31T23:41:27.2564271+05:00" endTime="2026-08-31T23:41:27.2631931+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fdfcae61-3b8c-4ab5-909a-f90da4a0dc96" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="RestoreModulesFromProjectAsync_InvalidThermalInput_DoesNotMutatePriorClimateOrThermalSlices" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="556576dc-04d2-b5fd-0867-fb5f6c50b907">
+      <Execution id="ee83649b-5d46-4db6-af89-e0f794bc8503" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests" name="RestoreModulesFromProjectAsync_InvalidThermalInput_DoesNotMutatePriorClimateOrThermalSlices" />
+    </UnitTest>
+    <UnitTest name="LoadProjectData_MissingOrInvalidThermalResult_UsesLoadOnlyFallbackAndRefreshDoesNotRecalculate" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="b23f9dbc-bde9-0591-320f-5d8221f75bae">
+      <Execution id="e9772333-4c1b-48d0-ac64-346e0d955f99" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectData_MissingOrInvalidThermalResult_UsesLoadOnlyFallbackAndRefreshDoesNotRecalculate" />
+    </UnitTest>
+    <UnitTest name="OpenProject_WithInvalidCustomCatalogRecords_DoesNotMutateGlobalCatalog" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="a4bb765b-a5ac-699a-3265-ebc14f245c51">
+      <Execution id="2f6b1b91-a93d-403f-bb1c-30d6ed8e2d40" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="OpenProject_WithInvalidCustomCatalogRecords_DoesNotMutateGlobalCatalog" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_PipeSelectionRestored" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="a01b7098-2614-1bf3-b70e-479159af9e89">
+      <Execution id="bc95440b-38ce-4fbe-ae13-2949b2aac409" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectRoundTrip_PipeSelectionRestored" />
+    </UnitTest>
+    <UnitTest name="OpenProject_WithCustomCatalogRecords_LeavesGlobalCatalogReadOnly" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="ed2f619f-ae61-a66d-8f39-1d3706d1513c">
+      <Execution id="fdfcae61-3b8c-4ab5-909a-f90da4a0dc96" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="OpenProject_WithCustomCatalogRecords_LeavesGlobalCatalogReadOnly" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="a4bb765b-a5ac-699a-3265-ebc14f245c51" executionId="2f6b1b91-a93d-403f-bb1c-30d6ed8e2d40" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="556576dc-04d2-b5fd-0867-fb5f6c50b907" executionId="ee83649b-5d46-4db6-af89-e0f794bc8503" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a01b7098-2614-1bf3-b70e-479159af9e89" executionId="bc95440b-38ce-4fbe-ae13-2949b2aac409" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b23f9dbc-bde9-0591-320f-5d8221f75bae" executionId="e9772333-4c1b-48d0-ac64-346e0d955f99" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ed2f619f-ae61-a66d-8f39-1d3706d1513c" executionId="fdfcae61-3b8c-4ab5-909a-f90da4a0dc96" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="5" executed="5" passed="5" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 5 of 5 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

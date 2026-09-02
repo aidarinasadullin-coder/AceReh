@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="73ba206d-c247-4d40-906e-0d7e88616080" name="Admin@DESKTOP-CVGB6OE 2026-08-31 10:57:39" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-08-31T10:57:39.4903466+05:00" queuing="2026-08-31T10:57:39.4903469+05:00" start="2026-08-31T10:57:38.6112959+05:00" finish="2026-08-31T10:57:39.5453933+05:00" />
+  <TestSettings name="default" id="99163502-38c9-43e5-b554-acbdfdf5dae1">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-08-31_10_57_39" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="219819a3-7dd4-4fab-b768-15c63121a9ad" testId="a4de551f-f8a0-f3b7-5373-a4226115864d" testName="SaveThenLoad_ClimateFields_RoundTrip" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0039790" startTime="2026-08-31T10:57:39.4012043+05:00" endTime="2026-08-31T10:57:39.4051824+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="219819a3-7dd4-4fab-b768-15c63121a9ad" />
+    <UnitTestResult executionId="71e08782-ff9d-4830-945b-8da08bab8b96" testId="cf04865b-c2f3-7d61-7472-db4b8987078e" testName="ThermalRoundTrip_DefaultSession_PersistsExactDefaultWireShape" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0082690" startTime="2026-08-31T10:57:39.4497242+05:00" endTime="2026-08-31T10:57:39.4579934+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="71e08782-ff9d-4830-945b-8da08bab8b96" />
+    <UnitTestResult executionId="fbfac0c4-18e1-4ed2-b1cf-da8f023854da" testId="54b9a5ae-6f1e-86a8-2aea-51e3c8ed9004" testName="Load_v1_Fixture_PreservesCanonicalFields" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0038960" startTime="2026-08-31T10:57:39.3680687+05:00" endTime="2026-08-31T10:57:39.3719645+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fbfac0c4-18e1-4ed2-b1cf-da8f023854da" />
+    <UnitTestResult executionId="3a2bd442-9b33-4a06-9cef-af80a56e518d" testId="e92069f5-e8fb-f0aa-ff23-d42b602312ff" testName="FullProject_RoundTrip_PreservesAllCircuitResultDetails" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0079050" startTime="2026-08-31T10:57:39.3518908+05:00" endTime="2026-08-31T10:57:39.3597957+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3a2bd442-9b33-4a06-9cef-af80a56e518d" />
+    <UnitTestResult executionId="ee8ef06f-6888-47dd-9085-4ee2fd67d485" testId="6c008f19-b26a-0186-9e3f-fe1e808f51cb" testName="ThermalRoundTrip_V10_SemanticEquality" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0059930" startTime="2026-08-31T10:57:39.4598328+05:00" endTime="2026-08-31T10:57:39.4658258+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ee8ef06f-6888-47dd-9085-4ee2fd67d485" />
+    <UnitTestResult executionId="86354c95-15b6-4f0a-9110-3f81ffae1d9f" testId="c381ccf4-6fc6-fdc0-4bff-d77ed047e5ac" testName="Load_MissingPipeSpacing_FallsBackToDefault" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0082130" startTime="2026-08-31T10:57:39.3598295+05:00" endTime="2026-08-31T10:57:39.3680423+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="86354c95-15b6-4f0a-9110-3f81ffae1d9f" />
+    <UnitTestResult executionId="e282b4b0-905c-4173-b3b3-ddf19f8a7533" testId="c8bc92d0-287a-e649-954b-b72ba73e91aa" testName="ThermalRoundTrip_CanonicalSaveLoad_RestoresSemanticEquality_WithoutSchemaDrift" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0310410" startTime="2026-08-31T10:57:39.4172156+05:00" endTime="2026-08-31T10:57:39.4482567+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e282b4b0-905c-4173-b3b3-ddf19f8a7533" />
+    <UnitTestResult executionId="a9badb25-2a56-44d5-b741-d4d59e7a1cda" testId="121fc9a3-27c1-ad56-3e98-ab1bdacfeed5" testName="ProjectRoundTrip_TwoCollectors_PreservesPerCollectorSummaries" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0063130" startTime="2026-08-31T10:57:39.3948662+05:00" endTime="2026-08-31T10:57:39.4011788+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a9badb25-2a56-44d5-b741-d4d59e7a1cda" />
+    <UnitTestResult executionId="1ffe8d69-3074-4228-9ad5-648cbbf467d1" testId="191cad2c-d91b-21df-f86a-91070a3f1ff8" testName="SaveThenLoad_NewProject_RoundTripsFields" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0062860" startTime="2026-08-31T10:57:39.4109046+05:00" endTime="2026-08-31T10:57:39.4171903+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1ffe8d69-3074-4228-9ad5-648cbbf467d1" />
+    <UnitTestResult executionId="3ccf7d32-3e32-4575-a287-b81d351fed3a" testId="db05a08b-2d40-ae1e-ae88-c49db33d0c20" testName="FullProject_RoundTrip_BackwardCompatible_OldFileLoadsWithDefaults" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0684280" startTime="2026-08-31T10:57:39.2825149+05:00" endTime="2026-08-31T10:57:39.3508994+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3ccf7d32-3e32-4575-a287-b81d351fed3a" />
+    <UnitTestResult executionId="3871d87e-7afa-43fb-9ce1-c0bfbee14c38" testId="697bbdf9-5b78-c1aa-c646-5b3eb88d2717" testName="ProjectRoundTrip_PipeSpacingPerCircuitPreserved" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0052630" startTime="2026-08-31T10:57:39.3895795+05:00" endTime="2026-08-31T10:57:39.3948427+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3871d87e-7afa-43fb-9ce1-c0bfbee14c38" />
+    <UnitTestResult executionId="e6c88729-129a-41d1-b62e-781f248c2c4f" testId="3d29950a-1ea4-9476-a24b-815e9277ea33" testName="ProjectRoundTrip_FlowRegimeRestored" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0165100" startTime="2026-08-31T10:57:39.3719849+05:00" endTime="2026-08-31T10:57:39.3884950+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e6c88729-129a-41d1-b62e-781f248c2c4f" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ProjectRoundTrip_FlowRegimeRestored" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="3d29950a-1ea4-9476-a24b-815e9277ea33">
+      <Execution id="e6c88729-129a-41d1-b62e-781f248c2c4f" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="ProjectRoundTrip_FlowRegimeRestored" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_TwoCollectors_PreservesPerCollectorSummaries" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="121fc9a3-27c1-ad56-3e98-ab1bdacfeed5">
+      <Execution id="a9badb25-2a56-44d5-b741-d4d59e7a1cda" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="ProjectRoundTrip_TwoCollectors_PreservesPerCollectorSummaries" />
+    </UnitTest>
+    <UnitTest name="ThermalRoundTrip_DefaultSession_PersistsExactDefaultWireShape" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="cf04865b-c2f3-7d61-7472-db4b8987078e">
+      <Execution id="71e08782-ff9d-4830-945b-8da08bab8b96" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="ThermalRoundTrip_DefaultSession_PersistsExactDefaultWireShape" />
+    </UnitTest>
+    <UnitTest name="Load_MissingPipeSpacing_FallsBackToDefault" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="c381ccf4-6fc6-fdc0-4bff-d77ed047e5ac">
+      <Execution id="86354c95-15b6-4f0a-9110-3f81ffae1d9f" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="Load_MissingPipeSpacing_FallsBackToDefault" />
+    </UnitTest>
+    <UnitTest name="SaveThenLoad_NewProject_RoundTripsFields" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="191cad2c-d91b-21df-f86a-91070a3f1ff8">
+      <Execution id="1ffe8d69-3074-4228-9ad5-648cbbf467d1" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="SaveThenLoad_NewProject_RoundTripsFields" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_PipeSpacingPerCircuitPreserved" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="697bbdf9-5b78-c1aa-c646-5b3eb88d2717">
+      <Execution id="3871d87e-7afa-43fb-9ce1-c0bfbee14c38" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="ProjectRoundTrip_PipeSpacingPerCircuitPreserved" />
+    </UnitTest>
+    <UnitTest name="ThermalRoundTrip_V10_SemanticEquality" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="6c008f19-b26a-0186-9e3f-fe1e808f51cb">
+      <Execution id="ee8ef06f-6888-47dd-9085-4ee2fd67d485" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="ThermalRoundTrip_V10_SemanticEquality" />
+    </UnitTest>
+    <UnitTest name="FullProject_RoundTrip_PreservesAllCircuitResultDetails" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="e92069f5-e8fb-f0aa-ff23-d42b602312ff">
+      <Execution id="3a2bd442-9b33-4a06-9cef-af80a56e518d" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="FullProject_RoundTrip_PreservesAllCircuitResultDetails" />
+    </UnitTest>
+    <UnitTest name="Load_v1_Fixture_PreservesCanonicalFields" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="54b9a5ae-6f1e-86a8-2aea-51e3c8ed9004">
+      <Execution id="fbfac0c4-18e1-4ed2-b1cf-da8f023854da" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="Load_v1_Fixture_PreservesCanonicalFields" />
+    </UnitTest>
+    <UnitTest name="FullProject_RoundTrip_BackwardCompatible_OldFileLoadsWithDefaults" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="db05a08b-2d40-ae1e-ae88-c49db33d0c20">
+      <Execution id="3ccf7d32-3e32-4575-a287-b81d351fed3a" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="FullProject_RoundTrip_BackwardCompatible_OldFileLoadsWithDefaults" />
+    </UnitTest>
+    <UnitTest name="SaveThenLoad_ClimateFields_RoundTrip" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="a4de551f-f8a0-f3b7-5373-a4226115864d">
+      <Execution id="219819a3-7dd4-4fab-b768-15c63121a9ad" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="SaveThenLoad_ClimateFields_RoundTrip" />
+    </UnitTest>
+    <UnitTest name="ThermalRoundTrip_CanonicalSaveLoad_RestoresSemanticEquality_WithoutSchemaDrift" storage="d:\ia\ace\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="c8bc92d0-287a-e649-954b-b72ba73e91aa">
+      <Execution id="e282b4b0-905c-4173-b3b3-ddf19f8a7533" />
+      <TestMethod codeBase="D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Project.ProjectRoundTripTests" name="ThermalRoundTrip_CanonicalSaveLoad_RestoresSemanticEquality_WithoutSchemaDrift" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="a4de551f-f8a0-f3b7-5373-a4226115864d" executionId="219819a3-7dd4-4fab-b768-15c63121a9ad" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cf04865b-c2f3-7d61-7472-db4b8987078e" executionId="71e08782-ff9d-4830-945b-8da08bab8b96" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="54b9a5ae-6f1e-86a8-2aea-51e3c8ed9004" executionId="fbfac0c4-18e1-4ed2-b1cf-da8f023854da" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e92069f5-e8fb-f0aa-ff23-d42b602312ff" executionId="3a2bd442-9b33-4a06-9cef-af80a56e518d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6c008f19-b26a-0186-9e3f-fe1e808f51cb" executionId="ee8ef06f-6888-47dd-9085-4ee2fd67d485" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c381ccf4-6fc6-fdc0-4bff-d77ed047e5ac" executionId="86354c95-15b6-4f0a-9110-3f81ffae1d9f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c8bc92d0-287a-e649-954b-b72ba73e91aa" executionId="e282b4b0-905c-4173-b3b3-ddf19f8a7533" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="121fc9a3-27c1-ad56-3e98-ab1bdacfeed5" executionId="a9badb25-2a56-44d5-b741-d4d59e7a1cda" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="191cad2c-d91b-21df-f86a-91070a3f1ff8" executionId="1ffe8d69-3074-4228-9ad5-648cbbf467d1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="db05a08b-2d40-ae1e-ae88-c49db33d0c20" executionId="3ccf7d32-3e32-4575-a287-b81d351fed3a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="697bbdf9-5b78-c1aa-c646-5b3eb88d2717" executionId="3871d87e-7afa-43fb-9ce1-c0bfbee14c38" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3d29950a-1ea4-9476-a24b-815e9277ea33" executionId="e6c88729-129a-41d1-b62e-781f248c2c4f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="12" executed="12" passed="12" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\ace\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 12 of 12 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

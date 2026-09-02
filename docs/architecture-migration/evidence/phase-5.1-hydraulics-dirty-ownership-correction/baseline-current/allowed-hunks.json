@@ -1,0 +1,24 @@
+{
+  "allowedHunks": [
+    "src/ViewModels/Hydraulics/CircuitsViewModel.cs",
+    "tests/SnowMeltingCalculator.Tests/Construction/ConstructionServiceTests.cs",
+    "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CalculationContextWriterAuthorityTests.cs",
+    "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CircuitsViewModelColdStartTests.cs",
+    "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs",
+    "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/DoubleCalculationPreventionTests.cs",
+    "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/GlycolAutoRecalculationTests.cs",
+    "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/HydraulicsMultiplicityCharacterizationTests.cs",
+    "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/PipeSpacingSynchronizationTests.cs",
+    "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ThermalToHydraulicsIntegrationTests.cs",
+    "tests/SnowMeltingCalculator.Tests/Services/Navigation/DialogServiceThreadAffinityTests.cs",
+    "tests/SnowMeltingCalculator.Tests/Services/Project/ClimateThermalInvalidationRegressionTests.cs",
+    "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectLifecycleFlowCharacterizationTests.cs",
+    "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalMultiplicityCharacterizationTests.cs",
+    "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelEventLeakTests.cs",
+    "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelTests.cs",
+    "tests/SnowMeltingCalculator.Tests/ViewModels/MainViewModelTests.cs",
+    "tests/SnowMeltingCalculator.Tests/ViewModels/ResetOrchestrationTests.cs",
+    "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelOpenProjectTests.cs",
+    "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelTestHelpers.cs"
+  ]
+}

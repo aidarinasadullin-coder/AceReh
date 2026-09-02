@@ -58,6 +58,22 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         }
 
         [Test]
+        public void Build_UsesCurrentProjection_WhenPersistedDtoHasStaleSentinel()
+        {
+            var persistedProject = CreateProjectWithCircuitResults();
+            persistedProject.HydraulicsData.Collectors[0].Circuits[0].OperatingResult!.Power = 999999.0;
+            var currentProject = CreateProjectWithCircuitResults();
+            var builder = new CalculationReportDataBuilder();
+
+            var report = builder.Build(currentProject, CalculationReportMode.Operating, FixedDate);
+
+            var circuit = report.HydraulicsSection.Collectors[0].Circuits[0];
+            Assert.That(circuit.Power.Value, Is.EqualTo(1200.0));
+            Assert.That(circuit.Power.Value, Is.Not.EqualTo(
+                persistedProject.HydraulicsData.Collectors[0].Circuits[0].OperatingResult!.Power));
+        }
+
+        [Test]
         public void Build_MissingDesignResult_ProducesWarning()
         {
             var project = CreateProjectWithCircuitResults();

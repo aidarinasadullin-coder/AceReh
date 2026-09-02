@@ -259,6 +259,59 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
     }
 
     [Test]
+    public void ThermalContextRouting_ValidResultPublishesFreshHydraulicsStateOnce()
+    {
+        var fixture = CreateFixture();
+        fixture.ResetCounters();
+        var publications = 0;
+        fixture.Context.ContextChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(CalculationContext.HydraulicsResults))
+                publications++;
+        };
+
+        fixture.Context.UpdateThermal(new ThermalCalculationResult { IsValid = true }, "Thermal");
+
+        var canonical = fixture.Session.HydraulicsState.Snapshot;
+        Assert.Multiple(() =>
+        {
+            Assert.That(fixture.SummaryCalls, Is.EqualTo(2));
+            Assert.That(publications, Is.EqualTo(1));
+            Assert.That(canonical.Collectors.Single().Summary, Is.Not.Null);
+            Assert.That(canonical.Collectors.Single().Summary!.TotalPower, Is.EqualTo(200));
+        });
+    }
+
+    [Test]
+    public void ThermalContextRouting_CalculationFailurePublishesTerminalFailureOnce()
+    {
+        var fixture = CreateFixture();
+        fixture.ResetCounters();
+        fixture.GlycolServiceMock
+            .Setup(service => service.GetProperties(It.IsAny<GlycolType>(), It.IsAny<double>(), It.IsAny<double>()))
+            .Throws(new ArgumentOutOfRangeException("temperature", "injected hydraulics failure"));
+        var publications = 0;
+        fixture.Context.ContextChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(CalculationContext.HydraulicsResults))
+                publications++;
+        };
+
+        fixture.Context.UpdateThermal(new ThermalCalculationResult { IsValid = true }, "Thermal");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(publications, Is.EqualTo(1));
+            Assert.That(fixture.Context.HydraulicsResults, Is.Null);
+            Assert.That(fixture.SummaryCalls, Is.Zero);
+            Assert.That(fixture.Session.HydraulicsState.Snapshot.Status.Phase, Is.EqualTo(HydraulicsCalculationPhase.Error));
+            Assert.That(fixture.Session.HydraulicsState.Snapshot.Status.ValidationMessage, Does.Contain("injected hydraulics failure"));
+            Assert.That(fixture.Session.HydraulicsState.Snapshot.Collectors, Is.Not.Empty);
+            Assert.That(fixture.Session.HydraulicsState.Snapshot.Collectors.All(collector => collector.Summary is null), Is.True);
+        });
+    }
+
+    [Test]
     public void OwnHydraulicsPublication_DoesNotReenterCalculation()
     {
         var fixture = CreateFixture();
@@ -523,22 +576,27 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
         var construction = new ConstructionViewModelTestFactory().Create(session);
         var thermal = new ThermalViewModel(new Mock<IThermalCalculator>().Object, new ClimateData(), new ConstructionData(), state.Object, context, new ThermalValidator(new ThermalCalculator(), new ClimateData(), new ConstructionData()), new ThermalResultValidator(), dirty.Object);
         var orchestrator = new ProjectLoadOrchestrator(climate, construction, thermal, circuits, state.Object, new Mock<IConstructionService>().Object, context, session, new ConstructionDefaultStateInitializer(new Mock<IMaterialRepository>().Object, session.ConstructionState));
-        return new Fixture(circuits, calculator, state, dirty, context, orchestrator, session, calculatedSupplyInputs);
+        return new Fixture(circuits, calculator, state, dirty, glycol, context, orchestrator, session, calculatedSupplyInputs);
     }
 
     private sealed class Fixture
     {
-        public Fixture(CircuitsViewModel viewModel, Mock<ICircuitsCalculator> calculatorMock, Mock<ICalculationStateService> stateMock, Mock<IMarkDirtyService> dirtyMock, CalculationContext context, ProjectLoadOrchestrator orchestrator, ProjectSession session, List<(double Spacing, double HeatPercent)> calculatedSupplyInputs)
+        public Fixture(CircuitsViewModel viewModel, Mock<ICircuitsCalculator> calculatorMock, Mock<ICalculationStateService> stateMock, Mock<IMarkDirtyService> dirtyMock, Mock<IGlycolDataService> glycolServiceMock, CalculationContext context, ProjectLoadOrchestrator orchestrator, ProjectSession session, List<(double Spacing, double HeatPercent)> calculatedSupplyInputs)
         {
-            ViewModel = viewModel; CalculatorMock = calculatorMock; StateMock = stateMock; DirtyMock = dirtyMock; Context = context; Orchestrator = orchestrator; Session = session; CalculatedSupplyInputs = calculatedSupplyInputs;
+            ViewModel = viewModel; CalculatorMock = calculatorMock; StateMock = stateMock; DirtyMock = dirtyMock; GlycolServiceMock = glycolServiceMock; Context = context; Orchestrator = orchestrator; Session = session; CalculatedSupplyInputs = calculatedSupplyInputs;
             Session.HydraulicsState.Changed += (_, args) => Origins.Add(args.Origin);
             StateMock.Setup(s => s.SetHydraulicsCalculating()).Callback(() => { });
             StateMock.Setup(s => s.ResetHydraulicsState()).Callback(() => { });
+            var hydraulicsValidationMessage = string.Empty;
+            StateMock.SetupGet(s => s.HydraulicsValidationMessage).Returns(() => hydraulicsValidationMessage);
+            StateMock.Setup(s => s.SetHydraulicsError(It.IsAny<string>()))
+                .Callback<string>(message => hydraulicsValidationMessage = message);
         }
         public CircuitsViewModel ViewModel { get; }
         public Mock<ICircuitsCalculator> CalculatorMock { get; }
         public Mock<ICalculationStateService> StateMock { get; }
         public Mock<IMarkDirtyService> DirtyMock { get; }
+        public Mock<IGlycolDataService> GlycolServiceMock { get; }
         public CalculationContext Context { get; }
         public ProjectLoadOrchestrator Orchestrator { get; }
         public ProjectSession Session { get; }
