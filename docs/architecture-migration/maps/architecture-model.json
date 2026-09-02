@@ -1,9 +1,9 @@
 {
   "metadata": {
     "model_id": "AM-WIDGET-001",
-    "phase": "phase-6-project-snapshot-save-boundary",
-    "snapshot_sha": "0D48A757DDD1B98384D131D76C7AF5220206260BF853FADF12BA859329FC8D38",
-    "source_basis": "phase-6-project-snapshot-save-boundary-task-7-live-code-and-accepted-evidence",
+    "phase": "phase-8-results-derived-projection",
+    "snapshot_sha": "EC762434820E87EA92B9A37A4FD694DCABD81181F93C1B6EA035FFF5674F5C67",
+    "source_basis": "phase-8-results-derived-projection-executed-live-code-and-evidence",
     "status": "pass",
     "provenance": {
       "phase_0_model": "docs/architecture-migration/maps/architecture-model.baseline.json",
@@ -14,7 +14,11 @@
       "phase_1_plan": "docs/architecture-migration/plans/phase-1-project-session-shell.md",
       "phase_4_plan": "docs/architecture-migration/plans/phase-4-thermal-state.md",
       "phase_5_plan": "docs/architecture-migration/plans/phase-5-hydraulics-state.md",
-      "phase_6_plan": "docs/architecture-migration/plans/phase-6-project-snapshot-save-boundary.md"
+      "phase_6_plan": "docs/architecture-migration/plans/phase-6-project-snapshot-save-boundary.md",
+      "phase_7_plan": "docs/architecture-migration/plans/phase-7-project-restore-coordinator-relaunch.md",
+      "phase_7_owner_acceptance": "docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/owner-result-acceptance.md",
+      "phase_7_final_scope": "docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/final-f1-scope-provenance.md",
+      "phase_7_final_stop": "docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/final-f4-consolidated-stop.md"
     },
     "v1_source_sha256": "EE9E0069D71F3ABFFA5FA1E9B698A97507694597FBE85B84C272C30D3F55EFBD"
   },
@@ -10323,10 +10327,10 @@
         "baseline": {
           "canonical": {
             "name": "Display mode",
-            "current_owner": "ResultsViewModel",
+            "current_owner": "IProjectDisplayModeState (read-through) with derived Results projection",
             "target_owner": "ProjectSession.Lifecycle.DisplayMode",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10334,6 +10338,7 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P8-SLICE-5",
             "EV-ST"
           ],
           "limitation_refs": [],
@@ -10347,10 +10352,10 @@
         "current": {
           "canonical": {
             "name": "Display mode",
-            "current_owner": "ResultsViewModel",
+            "current_owner": "IProjectDisplayModeState (read-through) with derived Results projection",
             "target_owner": "ProjectSession.Lifecycle.DisplayMode",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -10358,6 +10363,7 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P8-SLICE-5",
             "EV-ST"
           ],
           "limitation_refs": [],
@@ -11560,10 +11566,10 @@
         "baseline": {
           "canonical": {
             "name": "Results identity/status",
-            "current_owner": "ResultsViewModel",
+            "current_owner": "derived Results projection (canonical pass-through/read)",
             "target_owner": "derived Results projection",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -11571,6 +11577,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P8-SLICE-5",
+            "EV-P8-SLICE-4",
             "EV-ST"
           ],
           "limitation_refs": [],
@@ -11584,10 +11592,10 @@
         "current": {
           "canonical": {
             "name": "Results identity/status",
-            "current_owner": "ResultsViewModel",
+            "current_owner": "derived Results projection (canonical pass-through/read)",
             "target_owner": "derived Results projection",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -11595,6 +11603,8 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P8-SLICE-5",
+            "EV-P8-SLICE-4",
             "EV-ST"
           ],
           "limitation_refs": [],
@@ -11614,10 +11624,10 @@
         "baseline": {
           "canonical": {
             "name": "Results numeric projection",
-            "current_owner": "ResultsViewModel",
+            "current_owner": "derived Results projection (canonical KPI aggregation)",
             "target_owner": "derived Results projection",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -11625,6 +11635,7 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P8-SLICE-4",
             "EV-ST"
           ],
           "limitation_refs": [],
@@ -11638,10 +11649,10 @@
         "current": {
           "canonical": {
             "name": "Results numeric projection",
-            "current_owner": "ResultsViewModel",
+            "current_owner": "derived Results projection (canonical KPI aggregation)",
             "target_owner": "derived Results projection",
-            "migration_status": "legacy",
-            "coverage_status": "partial",
+            "migration_status": "migrated/verified",
+            "coverage_status": "covered",
             "views": [
               "state-ownership"
             ]
@@ -11649,6 +11660,7 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P8-SLICE-4",
             "EV-ST"
           ],
           "limitation_refs": [],
@@ -11670,7 +11682,7 @@
             "name": "Results collections",
             "current_owner": "ResultsViewModel",
             "target_owner": "derived Results projection",
-            "migration_status": "legacy",
+            "migration_status": "partial: Layers/Collectors canonical; Circuits/Specifications/EquipmentItems/SummaryCards via shared HydraulicSummaryBuilder(CollectorData) — Phase 9 residual",
             "coverage_status": "partial",
             "views": [
               "state-ownership"
@@ -11679,6 +11691,7 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P8-SLICE-4",
             "EV-ST"
           ],
           "limitation_refs": [],
@@ -11694,7 +11707,7 @@
             "name": "Results collections",
             "current_owner": "ResultsViewModel",
             "target_owner": "derived Results projection",
-            "migration_status": "legacy",
+            "migration_status": "partial: Layers/Collectors canonical; Circuits/Specifications/EquipmentItems/SummaryCards via shared HydraulicSummaryBuilder(CollectorData) — Phase 9 residual",
             "coverage_status": "partial",
             "views": [
               "state-ownership"
@@ -11703,6 +11716,7 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P8-SLICE-4",
             "EV-ST"
           ],
           "limitation_refs": [],
@@ -11724,7 +11738,7 @@
             "name": "Results selection",
             "current_owner": "ResultsViewModel",
             "target_owner": "derived Results projection",
-            "migration_status": "legacy",
+            "migration_status": "partial: selection projection Results-owned; UpdateCollectorSummary still reads CircuitsViewModel selection — Phase 9 residual",
             "coverage_status": "partial",
             "views": [
               "state-ownership"
@@ -11733,6 +11747,7 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P8-SLICE-4",
             "EV-ST"
           ],
           "limitation_refs": [],
@@ -11748,7 +11763,7 @@
             "name": "Results selection",
             "current_owner": "ResultsViewModel",
             "target_owner": "derived Results projection",
-            "migration_status": "legacy",
+            "migration_status": "partial: selection projection Results-owned; UpdateCollectorSummary still reads CircuitsViewModel selection — Phase 9 residual",
             "coverage_status": "partial",
             "views": [
               "state-ownership"
@@ -11757,6 +11772,7 @@
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P8-SLICE-4",
             "EV-ST"
           ],
           "limitation_refs": [],
@@ -11936,11 +11952,13 @@
               "user-flow"
             ]
           },
-          "status": "missing",
+          "status": "covered",
           "confidence": "verified",
           "evidence_refs": [
             "EV-CF",
-            "EV-UF"
+            "EV-UF",
+            "EV-P7-SLICE-2",
+            "EV-P7-SLICE-7"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -11958,11 +11976,13 @@
               "user-flow"
             ]
           },
-          "status": "missing",
+          "status": "covered",
           "confidence": "verified",
           "evidence_refs": [
             "EV-CF",
-            "EV-UF"
+            "EV-UF",
+            "EV-P7-SLICE-2",
+            "EV-P7-SLICE-7"
           ],
           "limitation_refs": [],
           "invariant_refs": [],
@@ -13930,64 +13950,520 @@
       "id": "PN-P6-SNAPSHOT",
       "record_kind": "node",
       "snapshot_states": {
-        "baseline": {"canonical": {"kind": "service", "name": "ProjectSnapshot", "views": ["compile-time", "state-ownership", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
-        "current": {"canonical": {"kind": "service", "name": "ProjectSnapshot", "views": ["compile-time", "state-ownership", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+        "baseline": {
+          "canonical": {
+            "kind": "service",
+            "name": "ProjectSnapshot",
+            "views": [
+              "compile-time",
+              "state-ownership",
+              "persistence"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "service",
+            "name": "ProjectSnapshot",
+            "views": [
+              "compile-time",
+              "state-ownership",
+              "persistence"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
       }
     },
     {
       "id": "PN-P6-MAPPER",
       "record_kind": "node",
       "snapshot_states": {
-        "baseline": {"canonical": {"kind": "service", "name": "ProjectPersistenceMapper", "views": ["compile-time", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
-        "current": {"canonical": {"kind": "service", "name": "ProjectPersistenceMapper", "views": ["compile-time", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+        "baseline": {
+          "canonical": {
+            "kind": "service",
+            "name": "ProjectPersistenceMapper",
+            "views": [
+              "compile-time",
+              "persistence"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "service",
+            "name": "ProjectPersistenceMapper",
+            "views": [
+              "compile-time",
+              "persistence"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
       }
     },
     {
       "id": "PN-P6-DATA",
       "record_kind": "node",
       "snapshot_states": {
-        "baseline": {"canonical": {"kind": "dto", "name": "ProjectData", "views": ["compile-time", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
-        "current": {"canonical": {"kind": "dto", "name": "ProjectData", "views": ["compile-time", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+        "baseline": {
+          "canonical": {
+            "kind": "dto",
+            "name": "ProjectData",
+            "views": [
+              "compile-time",
+              "persistence"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "dto",
+            "name": "ProjectData",
+            "views": [
+              "compile-time",
+              "persistence"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
       }
     },
     {
       "id": "PN-P6-SERVICE",
       "record_kind": "node",
       "snapshot_states": {
-        "baseline": {"canonical": {"kind": "service", "name": "IProjectFileService/ProjectFileService", "views": ["compile-time", "di-runtime", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
-        "current": {"canonical": {"kind": "service", "name": "IProjectFileService/ProjectFileService", "views": ["compile-time", "di-runtime", "persistence"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+        "baseline": {
+          "canonical": {
+            "kind": "service",
+            "name": "IProjectFileService/ProjectFileService",
+            "views": [
+              "compile-time",
+              "di-runtime",
+              "persistence"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "service",
+            "name": "IProjectFileService/ProjectFileService",
+            "views": [
+              "compile-time",
+              "di-runtime",
+              "persistence"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
       }
     },
     {
       "id": "PE-P6-SESSION-SNAPSHOT",
       "record_kind": "edge",
       "snapshot_states": {
-        "baseline": {"canonical": {"kind": "assembly", "name": "ProjectSession snapshot assembly", "from": "PN-P6-SERVICE", "to": "PN-P6-SNAPSHOT", "views": ["state-ownership", "persistence"], "source_kind": "snapshot-assembly", "state_refs": [], "trigger": "save", "effect": "reads canonical ProjectSession snapshots", "participants": ["ProjectSession", "ProjectSnapshot"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
-        "current": {"canonical": {"kind": "assembly", "name": "ProjectSession snapshot assembly", "from": "PN-P6-SERVICE", "to": "PN-P6-SNAPSHOT", "views": ["state-ownership", "persistence"], "source_kind": "snapshot-assembly", "state_refs": [], "trigger": "save", "effect": "reads canonical ProjectSession snapshots", "participants": ["ProjectSession", "ProjectSnapshot"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+        "baseline": {
+          "canonical": {
+            "kind": "assembly",
+            "name": "ProjectSession snapshot assembly",
+            "from": "PN-P6-SERVICE",
+            "to": "PN-P6-SNAPSHOT",
+            "views": [
+              "state-ownership",
+              "persistence"
+            ],
+            "source_kind": "snapshot-assembly",
+            "state_refs": [],
+            "trigger": "save",
+            "effect": "reads canonical ProjectSession snapshots",
+            "participants": [
+              "ProjectSession",
+              "ProjectSnapshot"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "assembly",
+            "name": "ProjectSession snapshot assembly",
+            "from": "PN-P6-SERVICE",
+            "to": "PN-P6-SNAPSHOT",
+            "views": [
+              "state-ownership",
+              "persistence"
+            ],
+            "source_kind": "snapshot-assembly",
+            "state_refs": [],
+            "trigger": "save",
+            "effect": "reads canonical ProjectSession snapshots",
+            "participants": [
+              "ProjectSession",
+              "ProjectSnapshot"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
       }
     },
     {
       "id": "PE-P6-SNAPSHOT-MAPPER",
       "record_kind": "edge",
       "snapshot_states": {
-        "baseline": {"canonical": {"kind": "mapping", "name": "ProjectSnapshot to ProjectData", "from": "PN-P6-SNAPSHOT", "to": "PN-P6-MAPPER", "views": ["compile-time", "persistence"], "source_kind": "pure-mapper", "state_refs": [], "trigger": "save", "effect": "maps once to persistence DTO", "participants": ["ProjectSnapshot", "ProjectPersistenceMapper"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
-        "current": {"canonical": {"kind": "mapping", "name": "ProjectSnapshot to ProjectData", "from": "PN-P6-SNAPSHOT", "to": "PN-P6-MAPPER", "views": ["compile-time", "persistence"], "source_kind": "pure-mapper", "state_refs": [], "trigger": "save", "effect": "maps once to persistence DTO", "participants": ["ProjectSnapshot", "ProjectPersistenceMapper"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+        "baseline": {
+          "canonical": {
+            "kind": "mapping",
+            "name": "ProjectSnapshot to ProjectData",
+            "from": "PN-P6-SNAPSHOT",
+            "to": "PN-P6-MAPPER",
+            "views": [
+              "compile-time",
+              "persistence"
+            ],
+            "source_kind": "pure-mapper",
+            "state_refs": [],
+            "trigger": "save",
+            "effect": "maps once to persistence DTO",
+            "participants": [
+              "ProjectSnapshot",
+              "ProjectPersistenceMapper"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "mapping",
+            "name": "ProjectSnapshot to ProjectData",
+            "from": "PN-P6-SNAPSHOT",
+            "to": "PN-P6-MAPPER",
+            "views": [
+              "compile-time",
+              "persistence"
+            ],
+            "source_kind": "pure-mapper",
+            "state_refs": [],
+            "trigger": "save",
+            "effect": "maps once to persistence DTO",
+            "participants": [
+              "ProjectSnapshot",
+              "ProjectPersistenceMapper"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
       }
     },
     {
       "id": "PE-P6-MAPPER-DATA",
       "record_kind": "edge",
       "snapshot_states": {
-        "baseline": {"canonical": {"kind": "mapping", "name": "Mapper produces ProjectData", "from": "PN-P6-MAPPER", "to": "PN-P6-DATA", "views": ["compile-time", "persistence"], "source_kind": "dto-mapping", "state_refs": [], "trigger": "save", "effect": "produces existing version 1.1 DTO", "participants": ["ProjectPersistenceMapper", "ProjectData"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
-        "current": {"canonical": {"kind": "mapping", "name": "Mapper produces ProjectData", "from": "PN-P6-MAPPER", "to": "PN-P6-DATA", "views": ["compile-time", "persistence"], "source_kind": "dto-mapping", "state_refs": [], "trigger": "save", "effect": "produces existing version 1.1 DTO", "participants": ["ProjectPersistenceMapper", "ProjectData"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+        "baseline": {
+          "canonical": {
+            "kind": "mapping",
+            "name": "Mapper produces ProjectData",
+            "from": "PN-P6-MAPPER",
+            "to": "PN-P6-DATA",
+            "views": [
+              "compile-time",
+              "persistence"
+            ],
+            "source_kind": "dto-mapping",
+            "state_refs": [],
+            "trigger": "save",
+            "effect": "produces existing version 1.1 DTO",
+            "participants": [
+              "ProjectPersistenceMapper",
+              "ProjectData"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "mapping",
+            "name": "Mapper produces ProjectData",
+            "from": "PN-P6-MAPPER",
+            "to": "PN-P6-DATA",
+            "views": [
+              "compile-time",
+              "persistence"
+            ],
+            "source_kind": "dto-mapping",
+            "state_refs": [],
+            "trigger": "save",
+            "effect": "produces existing version 1.1 DTO",
+            "participants": [
+              "ProjectPersistenceMapper",
+              "ProjectData"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
       }
     },
     {
       "id": "PE-P6-SERVICE-DATA",
       "record_kind": "edge",
       "snapshot_states": {
-        "baseline": {"canonical": {"kind": "persistence-write", "name": "Save service delegates DTO persistence", "from": "PN-P6-DATA", "to": "PN-P6-SERVICE", "views": ["di-runtime", "persistence", "user-flow"], "source_kind": "service-delegation", "state_refs": [], "trigger": "save", "effect": "delegates ProjectData to file service", "participants": ["ProjectSaveService", "ProjectFileService"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE", "EV-P6-FIXTURES"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}},
-        "current": {"canonical": {"kind": "persistence-write", "name": "Save service delegates DTO persistence", "from": "PN-P6-DATA", "to": "PN-P6-SERVICE", "views": ["di-runtime", "persistence", "user-flow"], "source_kind": "service-delegation", "state_refs": [], "trigger": "save", "effect": "delegates ProjectData to file service", "participants": ["ProjectSaveService", "ProjectFileService"]}, "status": "observed", "confidence": "verified", "evidence_refs": ["EV-P6-SAVE", "EV-P6-FIXTURES"], "limitation_refs": [], "invariant_refs": ["INV-P6-SAVE"], "decision_refs": [], "comparison": {"status": "comparable", "reasons": []}}
+        "baseline": {
+          "canonical": {
+            "kind": "persistence-write",
+            "name": "Save service delegates DTO persistence",
+            "from": "PN-P6-DATA",
+            "to": "PN-P6-SERVICE",
+            "views": [
+              "di-runtime",
+              "persistence",
+              "user-flow"
+            ],
+            "source_kind": "service-delegation",
+            "state_refs": [],
+            "trigger": "save",
+            "effect": "delegates ProjectData to file service",
+            "participants": [
+              "ProjectSaveService",
+              "ProjectFileService"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE",
+            "EV-P6-FIXTURES"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        },
+        "current": {
+          "canonical": {
+            "kind": "persistence-write",
+            "name": "Save service delegates DTO persistence",
+            "from": "PN-P6-DATA",
+            "to": "PN-P6-SERVICE",
+            "views": [
+              "di-runtime",
+              "persistence",
+              "user-flow"
+            ],
+            "source_kind": "service-delegation",
+            "state_refs": [],
+            "trigger": "save",
+            "effect": "delegates ProjectData to file service",
+            "participants": [
+              "ProjectSaveService",
+              "ProjectFileService"
+            ]
+          },
+          "status": "observed",
+          "confidence": "verified",
+          "evidence_refs": [
+            "EV-P6-SAVE",
+            "EV-P6-FIXTURES"
+          ],
+          "limitation_refs": [],
+          "invariant_refs": [
+            "INV-P6-SAVE"
+          ],
+          "decision_refs": [],
+          "comparison": {
+            "status": "comparable",
+            "reasons": []
+          }
+        }
       }
     }
   ],
@@ -14369,6 +14845,90 @@
       "locator": "Task 6 Release compatibility/guard result and fixture integrity",
       "confidence": "verified",
       "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P7-ACCEPTANCE",
+      "path": "docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/owner-result-acceptance.md",
+      "locator": "Owner accepted Phase 7 result after F1-F4 APPROVE",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P7-SCOPE",
+      "path": "docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/final-f1-scope-provenance.md",
+      "locator": "Approved narrowed restore/report/UI scope and D403860 plan identity",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P7-SLICE-2",
+      "path": "docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/slice-2-load-boundary.md",
+      "locator": "Typed load boundary, rejected-input dialog stop, and second-load lifecycle evidence",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P7-SLICE-5",
+      "path": "docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/slice-5-report-source-of-truth.md",
+      "locator": "Fresh current-session projection is report/PDF source of truth",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P7-SLICE-7",
+      "path": "docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/slice-7-di-ui-alignment.md",
+      "locator": "Singleton orchestrator DI/UI handoff and rejected restore guard release",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P7-SLICE-8",
+      "path": "docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/slice-8-dossier-alignment.md",
+      "locator": "Accepted dossier alignment statements and receipt trace",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P8-PLAN",
+      "path": "docs/architecture-migration/plans/phase-8-results-derived-projection.md",
+      "locator": "Frozen Phase 8 plan (SHA-256 EC762434820E87EA92B9A37A4FD694DCABD81181F93C1B6EA035FFF5674F5C67), terminal review TERMINAL-PLAN-REVIEW-P8-ZCODE-1 APPROVE",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P8-SLICE-3",
+      "path": "docs/architecture-migration/evidence/phase-8-results-derived-projection/slice-3-climate-construction-resourcing.md",
+      "locator": "Climate/Construction projection re-sourcing; Period0Days canonicalization (owner decision B, Amendment 1); 111 passed",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P8-SLICE-4",
+      "path": "docs/architecture-migration/evidence/phase-8-results-derived-projection/slice-4-thermal-hydraulics-resourcing.md",
+      "locator": "Thermal result, glycol inputs, KPI aggregates and collector list re-sourced from canonical state; staged residuals named; 63 passed",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P8-SLICE-5",
+      "path": "docs/architecture-migration/evidence/phase-8-results-derived-projection/slice-5-readiness-display-mode.md",
+      "locator": "Canonical readiness and IProjectDisplayModeState read-through (ST-003); 73 passed",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P8-SLICE-6",
+      "path": "docs/architecture-migration/evidence/phase-8-results-derived-projection/slice-6-module-vm-decoupling.md",
+      "locator": "Module-ViewModel decoupling: climate/construction/thermal references removed; save-path templates via persistence seam (branch a); full regression 2023 passed; 5 pre-existing import failures flagged",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
+    },
+    {
+      "id": "EV-P8-SLICE-7",
+      "path": "docs/architecture-migration/evidence/phase-8-results-derived-projection/slice-7-multiplicity-sentinel.md",
+      "locator": "Multiplicity, rejected-restore preservation and fresh-vs-stale sentinel evidence mapping; 59 passed",
+      "confidence": "verified",
+      "freshness": "current-at-snapshot"
     }
   ],
   "limitations": [
@@ -14386,6 +14946,16 @@
       "id": "LIM-003",
       "statement": "ProjectSession lifecycle shell plus ClimateState, ConstructionState, ThermalState and HydraulicsState slices are implemented; every module input, derived-result and status group has one writable canonical owner.",
       "status": "degraded"
+    },
+    {
+      "id": "LIM-P8-1",
+      "statement": "Results still shares mutable CircuitRow objects with CircuitsViewModel and rebuilds Specifications/EquipmentItems/SummaryCards via HydraulicSummaryBuilder(CollectorData); UpdateCollectorSummary reads the module selection. Named Phase 9 residual (INV-016 legacy-cleanup clause).",
+      "status": "open"
+    },
+    {
+      "id": "LIM-P8-2",
+      "statement": "Pre-existing dirty-baseline anomaly (outside Phase 8 write-set): restore no longer imports custom materials/templates (ProjectLoadOrchestrator import calls removed before Phase 8); 5 characterization tests expect the removed import and fail. Owner decision required.",
+      "status": "open"
     }
   ],
   "invariants": [
@@ -14396,15 +14966,16 @@
         "state-ownership",
         "di-runtime"
       ],
-      "status": "unverified",
+      "status": "verified",
       "evidence": [
+        "EV-P7-ACCEPTANCE",
         "EV-ST",
         "EV-P1-CONTRACT",
         "EV-P1-ADAPT",
         "EV-P1-GUARD",
         "EV-P1-FINAL"
       ],
-      "target_status": "unimplemented"
+      "target_status": "implemented"
     },
     {
       "id": "INV-002",
@@ -14536,14 +15107,17 @@
         "state-ownership",
         "reactive"
       ],
-      "status": "unverified",
+      "status": "verified",
       "evidence": [
+        "EV-P8-SLICE-4",
+        "EV-P8-SLICE-6",
+        "EV-P8-SLICE-7",
         "EV-CT",
         "EV-DR",
         "EV-ST",
         "EV-RE"
       ],
-      "target_status": "unimplemented"
+      "target_status": "implemented"
     },
     {
       "id": "INV-010",
@@ -14567,13 +15141,14 @@
         "user-flow",
         "state-ownership"
       ],
-      "status": "unverified",
+      "status": "verified",
       "evidence": [
+        "EV-P7-SLICE-7",
         "EV-RE",
         "EV-UF",
         "EV-ST"
       ],
-      "target_status": "unimplemented"
+      "target_status": "implemented"
     },
     {
       "id": "INV-012",
@@ -14582,13 +15157,14 @@
         "persistence",
         "user-flow"
       ],
-      "status": "unverified",
+      "status": "verified",
       "evidence": [
+        "EV-P7-SLICE-2",
         "EV-PN",
         "EV-PP",
         "EV-SMC"
       ],
-      "target_status": "unimplemented"
+      "target_status": "implemented"
     },
     {
       "id": "INV-013",
@@ -14598,13 +15174,15 @@
         "reactive",
         "user-flow"
       ],
-      "status": "unverified",
+      "status": "verified",
       "evidence": [
+        "EV-P7-SCOPE",
+        "EV-P7-SLICE-7",
         "EV-PN",
         "EV-RE",
         "EV-UF"
       ],
-      "target_status": "unimplemented"
+      "target_status": "implemented"
     },
     {
       "id": "INV-014",
@@ -14657,9 +15235,18 @@
     {
       "id": "INV-P6-SAVE",
       "statement": "Save assembly SHALL read canonical ProjectSession snapshots, map once to ProjectData, and delegate persistence without making ProjectData or ProjectFileService canonical owners.",
-      "views": ["compile-time", "di-runtime", "state-ownership", "persistence", "user-flow"],
+      "views": [
+        "compile-time",
+        "di-runtime",
+        "state-ownership",
+        "persistence",
+        "user-flow"
+      ],
       "status": "verified",
-      "evidence": ["EV-P6-SAVE", "EV-P6-FIXTURES"],
+      "evidence": [
+        "EV-P6-SAVE",
+        "EV-P6-FIXTURES"
+      ],
       "target_status": "partial"
     }
   ],

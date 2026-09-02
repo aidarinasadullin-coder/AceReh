@@ -228,3 +228,14 @@ exactly as before.
 ## Phase 6 Save-Boundary Overlay
 
 The confirmed save path is `ProjectSession -> ProjectSnapshot -> ProjectPersistenceMapper -> ProjectData -> IProjectFileService/ProjectFileService`. The existing `.smc` DTO/version contract and fixture behavior are preserved; `ProjectSnapshotPersistenceInputs.Templates` retains the documented sync-over-async residual risk. Evidence: `task-5-save-boundary.md` and `task-6-persistence-fixtures-and-guards.md`; model evidence `EV-P6-SAVE`, `EV-P6-FIXTURES`, invariant `INV-P6-SAVE`. Restore migration, transactional restore, and crash atomicity remain unclaimed.
+
+
+## Phase 7 Restore Coordinator Overlay (docs-only refresh)
+
+The accepted restore order is deterministic: Thermal and Hydraulics restore candidates are built and preflighted (`ProjectSessionThermalState.Restore` / `ProjectSessionHydraulicsState.Restore`) before any Climate or Construction snapshot is applied, and successful restore applies Climate -> Construction -> Thermal -> Hydraulics followed by deterministic finalization. Legacy-empty Thermal/Hydraulics DTOs keep canonical default behavior before preflight, and the existing `.smc` DTO/version contract is unchanged. Project open imports nothing into global catalogs (project-local custom records stay in `ProjectData`), and report/PDF values derive from the fresh session/current projection with a single fallback calculation when the persisted result is invalid. Transactional in-memory rollback (DEC-003) and crash atomicity remain deferred. Evidence: `slice-2-load-boundary.md`, `slice-3-validation-order.md`, `slice-5-report-source-of-truth.md`, `slice-6-catalog-boundary.md`; model records `EV-P7-SLICE-2`, `EV-P7-SLICE-5`.
+
+Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/phase-7.5-project-restore-coordinator-relaunch.md`, owner-approved 2026-09-03, worktree `D:/IA/ace — копия`); this overlay adds no production or test claim beyond the accepted Phase 7 receipts.
+
+## Phase 8 Results-Derived-Projection Overlay
+
+`SaveCurrentProject` (report/legacy DTO assembly) now reads custom templates from the canonical template repository via `IProjectSnapshotPersistenceInputs` — the same source as the Phase 6 `IProjectSaveService` file-save path; the `.smc` wire shape (`Version = "1.1"`, DTO fields) is unchanged. `ClimateStateSnapshot.Period0Days` is in-memory only and never persisted. Evidence: `slice-3`, `slice-6` receipts; model records `EV-P8-SLICE-3`, `EV-P8-SLICE-6`.

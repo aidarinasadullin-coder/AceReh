@@ -1,15 +1,20 @@
 # Контекст архитектурной миграции
 
-> С 2026-08-20 `docs/architecture-migration/STATE.json` является единственным
-> authoritative active workflow state. Этот файл сохраняется как append-only
-> history и provenance: читать только релевантные разделы при recovery,
-> supersession или историческом аудите. Существующие Workflow State, status и
-> next-action записи ниже являются историческими snapshots и не переопределяют
-> `STATE.json`.
+> 2026-08-25: восстановлен единый линейный workflow. Активная authority -
+> текущий план в `docs/architecture-migration/plans/` вместе со статусом и
+> decision log этого файла: primary Prometheus plan -> terminal Momus review ->
+> explicit owner `/architecture-approve` -> explicit `/architecture-start` ->
+> sequential implementation -> three-domain final review -> explicit owner
+> result acceptance. Прежний `STATE.json` сохранён без изменений в
+> `docs/architecture-migration/archive/STATE.json` как provenance-only; active
+> machine control plane retired. Phase 6 is completed and explicitly accepted
+> by the owner. Phase 7 has not started; a new relaunch plan requires a separate
+> planning workflow, terminal review, owner plan approval, and execution
+> authorization.
 
 ## Репозиторий
 
-- Рабочая директория: `D:\IA\ace v.2`
+- Рабочая директория: `D:\IA\ace`
 - Git root подтверждён командой `git rev-parse --show-toplevel`.
 - Ветка на момент создания контекста: `master`, tracking `origin/master`.
 - Аудит из `architecture_audit.md` первоначально выполнялся для
@@ -653,11 +658,14 @@ Production-срезы выполняются последовательно од
   bug, the lease implementation is minimally fixed, targeted/affected/
   persistence/build gates pass again, and Tasks 4-9 are re-evaluated.
 
+> **Demotion note (2026-08-25).** Следующая таблица является историческим
+> snapshot/provenance и не определяет active status. Активный статус задаётся
+> последним контекстом dossier и явными owner messages; старые поля `stage`,
+> `ownerGates` и `pendingGates` ниже не являются действующими воротами.
+
 ## Workflow State
 
-Этот раздел является каноническим состоянием управляющей цепочки. Команды
-OpenCode обязаны обновлять его после каждого завершённого шага и читать перед
-продолжением работы.
+Этот раздел сохранён как историческое состояние управляющей цепочки.
 
 | Поле | Значение |
 |---|---|
@@ -773,6 +781,38 @@ Approval gates:
 - Принятие результата Phase 0 остаётся отдельным решением владельца.
 
 ## Принятые решения
+
+- 2026-08-25: machine-enforced architecture migration control plane retired;
+  active authority restored to the primary Prometheus plan plus this dossier's
+  latest status/decision context. At the restoration point Phase 6 was
+  unapproved and unexecuted.
+  The frozen plan remains exactly 29455 bytes with SHA-256
+  `C56E66D2733D65CC56190A7B95B4D87F5F032AA75E83339925CEB23C2E5A4E92`; terminal
+  Momus receipt is `APPROVE` at
+  `docs/architecture-migration/evidence/phase-6-project-snapshot-save-boundary/terminal-plan-review-receipt.md`.
+  Canonical `docs/architecture-migration/plans/` and `.omo/plans/` identities
+  remain preserved, as does the existing receipt. The archived `STATE.json` is
+  provenance only. The former Phase 6 plan clauses that require
+  `validate-state.mjs`, active `STATE.json` materialization, or machine state
+  transitions are superseded by this restored workflow and are not executable;
+  the frozen plan bytes remain unchanged. This is a control/docs-only change;
+  retired validator/registration tests are control-plane artifacts, not
+  application-test changes. The next action is
+  `/architecture-approve phase-6-project-snapshot-save-boundary`; approval does
+  not authorize execution, and `/architecture-start` remains a separate
+  explicit authorization.
+
+- 2026-08-25: owner explicitly approved the Phase 6 frozen plan
+  `phase-6-project-snapshot-save-boundary` through the owner approval command.
+  The approved plan is
+  `docs/architecture-migration/plans/phase-6-project-snapshot-save-boundary.md`
+  with the unchanged `.omo` mirror, exactly 29455 bytes, SHA-256
+  `C56E66D2733D65CC56190A7B95B4D87F5F032AA75E83339925CEB23C2E5A4E92`, and
+  terminal Momus receipt
+  `docs/architecture-migration/evidence/phase-6-project-snapshot-save-boundary/terminal-plan-review-receipt.md`
+  with `VERDICT: APPROVE`. This records plan approval only: execution
+  authorization and result acceptance remain pending. The next action is
+  `/architecture-start phase-6-project-snapshot-save-boundary`.
 
 - 2026-08-20 (superseded by the acceptance decision immediately below): Phase 3.1 F1-F4 technical verification is complete: all four
   materialized receipts returned terminal `APPROVE` and their reviewer sessions
@@ -1183,10 +1223,10 @@ Approval gates:
 ## Следующее действие
 
 Текущий authoritative next action: отдельный owner-directed planning workflow
-для Phase 4 может быть инициирован только новым явным запросом владельца.
-Phase 3.1 Task 12 и result acceptance завершены exact owner statement
-`принимаю результат Phase 3.1` от 2026-08-20; Stage = `completed`. Phase 4 не
-начата, не утверждена, не авторизована и не исполнена.
+для нового Phase 7 relaunch plan может быть инициирован только новым явным
+запросом владельца. Phase 6 завершена и принята владельцем exact owner
+statement `Принимаю результат Phase 6` от 2026-08-26. Phase 7 не начата, не
+утверждена, не авторизована и не исполнена.
 
 Historical/superseded next-action checkpoint: Task 12 owner result acceptance checkpoint.
 Владелец должен осмотреть четыре F1-F4 receipts и technical evidence и явно
@@ -2824,3 +2864,234 @@ on 2026-08-01. Failed receipt
   `completed`; resultAcceptance recorded as accepted; stop remains true; no
   subsequent phase starts automatically — a new explicit owner direction is
   required to begin any separate planning workflow.
+
+- 2026-08-26: Phase 6 plan-identity blocker (the F1 REJECT recorded 2026-08-26) is resolved as a documented, auditable exception without editing the frozen canonical plan. The active authority remains `docs/architecture-migration/plans/phase-6-project-snapshot-save-boundary.md` (exactly 29455 bytes, SHA-256 `C56E66D2733D65CC56190A7B95B4D87F5F032AA75E83339925CEB23C2E5A4E92`); the `.omo/plans/phase-6-project-snapshot-save-boundary.md` mirror is NOT a second authority. It is an operational execution ledger whose Tasks 1-5 checkboxes are intentionally checked to track already-executed Tasks 1-5 (baseline capture, characterization, snapshot contract, snapshot/mapper implementation, save-boundary service), while the canonical frozen plan correctly keeps Tasks 1-5 unchecked as the immutable approved baseline. This divergence is a resolved, recorded exception, not a hidden edit: no canonical plan byte, `STATE.json`, workflow file, or canonical/`.omo` plan identity was changed by this resolution. Read-only hash check (2026-08-26, PowerShell `Get-FileHash -Algorithm SHA256`) confirmed canonical plan SHA-256 `C56E66D2733D65CC56190A7B95B4D87F5F032AA75E83339925CEB23C2E5A4E92` unchanged; `Test-Path docs/architecture-migration/STATE.json` returned `False` (absent/unchanged), and `docs/architecture-migration/archive/STATE.json` remains provenance-only. The prior final-wave receipts `docs/architecture-migration/evidence/phase-6-project-snapshot-save-boundary/final/f1-conformance.md` (VERDICT: REJECT), `final/f2-architecture.md` (VERDICT: APPROVE), and `final/f3-executable-qa.md` (VERDICT: APPROVE) are retained as informational historical artifacts only; they do NOT constitute phase acceptance and are invalid for Phase 6 acceptance until Tasks 6-8 are executed and a fresh phase-wide F1-F4 final verification wave is completed and separately accepted by the owner. No production/test/map/widget change, no new final reviewer receipt, and no Task 6-8 work was started in this call. Phase 6 remains unexecuted past Task 5, with execution authorization and result acceptance still pending.
+
+- 2026-08-26: Phase 6 Task 8 (append-only migration context and consolidated receipt) executed as a docs/evidence bookkeeping lane only; it does not change active workflow authority. Tasks 1-7 are verified and Task 7 is checked in the operational ledger (`.omo/plans/phase-6-project-snapshot-save-boundary.md` has Tasks 1-7 `[x]`, Task 8 `[ ]`; the canonical frozen plan `docs/architecture-migration/plans/phase-6-project-snapshot-save-boundary.md` keeps all Tasks 1-8 `[ ]` and is byte-identical to the frozen SHA-256 `C56E66D2733D65CC56190A7B95B4D87F5F032AA75E83339925CEB23C2E5A4E92`, confirmed by read-only `Get-FileHash`). The new consolidated receipt is `docs/architecture-migration/evidence/phase-6-project-snapshot-save-boundary/phase-6-consolidated-receipt.md`.
+
+  Closed save-side claims (evidence-backed): one immutable `ProjectSnapshot` is the only save snapshot boundary with no runtime-only or UI state; save data for all four modules is read from canonical `ProjectSession` snapshots; custom materials/templates are preserved from approved persistence sources; `ResultsViewModel` no longer constructs canonical module state for save (delegates to `IProjectSaveService`); `ProjectFileService` remains a ViewModel-free serializer/I/O boundary; `ProjectData` remains DTO-only with unchanged `Version = "1.1"` wire shape; existing `.smc` wire compatibility, save-failure semantics, clean transition and user-visible save/reload behavior are preserved. Task 6 exact Release filter: `124 passed / 1 skipped / 0 failed / 125 total`; the single skip is the external `D:\IA\ace\Тест\тест 40.smc` fixture dependency (recorded, not converted to a pass); all `28` tracked `.smc` fixture hashes valid (`MISSING_COUNT=0`, `HASH_INVALID_COUNT=0`, `SMC_DIFF_COUNT=0`); standalone invalid-architecture process probe `NOT_PRESENT` (honest absence, not fabricated). Task 7 six-view/widget gates: `model-v2` 33 assertions / 21 mutations, `runtime-v2` 47 assertions / 20 mutations, `generate-widget.mjs --check` 14/14, two sequential generations byte-identical at 15,945,248 bytes with SHA-256 `2b9d48ed6dc3e15ff6622f3d56737ab31c2b3e67f20f2f95af061c0ebd472c3b`; each of the six maps contains exactly one `## Phase 6 Save-Boundary Overlay` section.
+
+  Partial identifiers (do not mark complete): `INV-001` partial (save boundary reads canonical session snapshots, but aggregate-wide ownership cleanup remains later); `INV-006`, `INV-007`, `INV-009`, `INV-012` only the save-boundary portions proven by guards; `INV-014` partial (sequential persistence boundary only, not restore); lifecycle `ST-001..ST-005` persisted metadata inclusion/exclusion and clean/path semantics only (runtime guard/dirty ownership remains existing behavior); `ST-006..ST-019` save projections for four slices only; `CF-013`, `CF-014` save and save-failure flows; `CF-020`, `CF-021` failure preserves dirty, successful save transitions clean; `PN-*`, `PP-*`, `SMC-*` only save-side nodes/edges and fixture rows; `EV-P2..P5` reused or superseded with phase-6 evidence, never rewritten.
+
+  Deferred (Phase 7+; not claimed complete): full restore coordinator, transactional restore, restore order, Results derived projection, calculation redesign, broad legacy-owner removal, export behavior changes, Markdown removal, and any IDs whose definition includes these. Markdown decision: existing Markdown buttons, their UI and AutomationId remain; removal is a separate future owner-approved change, not part of Phase 6. Wire compatibility: unchanged `.smc` schema/version/DTO/serializer; no wire contract change. Dirty semantics: save success invokes the existing clean transition exactly once as characterized; save failure does not clean; no new dirty event, recalculation, invalidation or restore event introduced.
+
+  Residual risks: `ProjectSnapshotPersistenceInputs.Templates` uses sync-over-async (`GetAllAsync().GetAwaiter().GetResult()`), deadlock-prone on the UI thread, safe only on the cache-hit fast path; standalone invalid-ID and missing-evidence-edge process probes remain `NOT_PRESENT`; headless environment prevents manual WPF button/dialog QA (user-flow coverage is partial); the external legacy fixture skip remains a test-environment limitation for the named F5 smoke test only.
+
+  Exact Task 8 write-set (this lane only): this dated `TASK_CONTEXT.md` append; the new `phase-6-consolidated-receipt.md`; append-only `.omo/notepads/phase-6-project-snapshot-save-boundary/learnings.md` and `decisions.md` entries. No production code, tests, fixtures, maps, model, widget, frozen canonical plan, `.omo` plan checkbox, `STATE.json`, archive STATE, workflow scripts, or unrelated dirty paths were changed. Pre-existing unrelated dirty paths (e.g. `.opencode/commands/*`, `docs/architecture-migration/AGENTS.md`, `docs/architecture-migration/STATE.json` deletion, `docs/architecture-migration/workflow/validate-state*.mjs` deletion, `src/ViewModels/Hydraulics/CircuitsViewModel.cs`, pre-existing unrelated tests, `docs/architecture-migration/archive/STATE.json`, phase-5.1 evidence/plans) are excluded from the Task 8 write-set and were not attributed to it.
+
+  Fresh final verification wave status: the prior `final/f1-conformance.md` (VERDICT: REJECT on plan identity, now resolved as a documented exception), `final/f2-architecture.md` (VERDICT: APPROVE) and `final/f3-executable-qa.md` (VERDICT: APPROVE) are retained as informational historical artifacts only and are invalid for Phase 6 acceptance. Fresh F1-F4 reviewers have NOT run for the current Tasks 1-7 + Task 8 state; therefore final acceptance (FINAL WAVE) and owner result acceptance (OWNER RESULT ACCEPTANCE) remain PENDING and must run only after Task 8 is independently verified. This Task 8 bookkeeping lane ends with `TASK 8: PASS` for its own scope; it does not claim F1-F4 APPROVE, owner result acceptance, or Phase 7+ completion.
+
+- 2026-08-26: Phase 6 Tasks 1-7 evidence consolidated (Task 8 bookkeeping/evidence lane only). This entry is append-only context; it does not change active workflow authority, the frozen canonical plan, `STATE.json`, or any production/test/map/widget artifact. Canonical plan authority and identity are unchanged: `docs/architecture-migration/plans/phase-6-project-snapshot-save-boundary.md` is exactly 29455 bytes with SHA-256 `C56E66D2733D65CC56190A7B95B4D87F5F032AA75E83339925CEB23C2E5A4E92` (read-only `Get-FileHash -Algorithm SHA256` reconfirmed 2026-08-26). The `.omo/plans/phase-6-project-snapshot-save-boundary.md` mirror is an operational execution ledger only; it now carries Tasks 1-7 checked to record the already-executed Tasks 1-7, while the canonical frozen plan correctly keeps Tasks 1-7 unchecked as the immutable approved baseline. `docs/architecture-migration/STATE.json` is absent (`Test-Path` = False); `docs/architecture-migration/archive/STATE.json` remains provenance-only. No canonical import or state validation was run because it is not authorized.
+  - Closed save-side claims (evidence passed): one immutable `ProjectSnapshot` (`src/Services/Project/ProjectSnapshot.cs`, sealed, get-only, defensive copies, no dates/paths/dirty/UI/ViewModel) assembled from canonical `ProjectSession` snapshots; pure `ProjectPersistenceMapper` (`ProjectSnapshot -> ProjectData`, `Version = "1.1"`, delegates existing module mappers); `IProjectSaveService`/`ProjectSaveService` delegating exactly one snapshot create, one map, one `IProjectFileService.SaveProjectResultAsync`; `ResultsViewModel` save adapter wired to the new boundary in the `SaveToFile` slice; minimal DI registration; six architecture maps, shared `architecture-model.json`, and deterministic `architecture-widget.html` regenerated for the save boundary only.
+  - Partial identifiers (do NOT mark complete): `INV-001` partial (save boundary reads canonical session snapshots; aggregate-wide ownership cleanup remains later); `INV-006`, `INV-007`, `INV-009`, `INV-012` only the save-boundary portions proven by guards; `INV-014` partial (sequential persistence boundary only, not restore); lifecycle `ST-001..ST-005` (persisted metadata inclusion/exclusion and clean/path semantics only; runtime guard/dirty ownership remains existing behavior); `ST-006..ST-019` (save projections for four slices only); `INvers` `INV-014` noted; `CF-013`, `CF-014` (save and save-failure flows); `CF-020`, `CF-021` (failure preserves dirty; successful save transitions clean); `PN-*`, `PP-*`, `SMC-*` (only save-side nodes/edges and fixture rows); `EV-P2`, `EV-P3`, `EV-P4`, `EV-P5` (reused or superseded with phase-6 evidence, never rewritten).
+  - Deferred to Phase 7+ (not claimed complete): full `ProjectData -> ProjectSession` restore coordinator, transactional restore, restore order, `ProjectLoadOrchestrator` changes, Results derived projection migration, `CalculationContext` redesign, formula/invalidation/dirty multiplicity changes, PDF/Excel/Preview/Print behavior changes, broad legacy-owner removal, and Markdown generation removal. Any identifier whose definition includes these remains deferred.
+  - Wire compatibility: existing `.smc` wire schema (`Version = "1.1"`, DTO names/fields, enum/string representation, serializer behavior) is unchanged. Task 6 enumerated all 28 tracked `.smc` fixtures, recorded sizes and SHA-256 hashes, and verified zero missing and zero invalid hashes; `git diff --name-only -- '*.smc'` returned no paths. The only skip is the external legacy fixture `D:\IA\ace\Тест\тест 40.smc` (absent in this worktree), recorded as an explicit skip, not a pass.
+  - Dirty semantics: save success invokes the existing clean transition exactly once as characterized; save failure does not clean and preserves dirty state and existing error behavior. No new dirty event, recalculation, invalidation, or restore event was introduced by the save boundary.
+  - Markdown decision: Markdown generation removal is a separate future owner-approved change; existing Markdown buttons, their UI, and AutomationId remain. Not claimed complete in Phase 6.
+  - Residual risks: `ProjectSnapshotPersistenceInputs.Templates` uses sync-over-async (`GetAllAsync().GetAwaiter().GetResult()`), deadlock-prone on the UI thread, safe only on the cache-hit fast path (documented, non-gating); the environment is headless so no manual WPF button/dialog/print QA was executed (manual-QA gap, not a gate failure); standalone invalid-ID and missing-evidence-edge process probes are `NOT_PRESENT` (honest absence, not a fabricated nonzero result); the `.omo` mirror diverges from the canonical plan by design (operational ledger) and is not a second authority.
+  - Exact write-set (Phase 6 Tasks 1-7): production `src/Services/Project/{ProjectSnapshot,ProjectSnapshotFactory,IProjectSnapshotFactory,ProjectPersistenceMapper,IProjectSaveService,ProjectSaveService,ProjectSaveDates,IProjectSnapshotPersistenceInputs,ProjectSnapshotPersistenceInputs,IProjectDisplayModeState,ProjectDisplayModeState}.cs`; `src/ViewModels/Results/ResultsViewModel.cs` minimal adapter; `src/Configuration/ServiceCollectionExtensions.cs` minimal registration; tests `tests/SnowMeltingCalculator.Tests/Services/Project/{ProjectSnapshotContractTests,ProjectSnapshotFactoryTests,ProjectPersistenceMapperTests,ProjectSaveServiceTests}.cs` plus characterization additions to `ResultsViewModelOpenProjectTests.cs`; six maps `docs/architecture-migration/maps/{compile-time,di-runtime,state-ownership,reactive,persistence,user-flow}.md`, `docs/architecture-migration/maps/architecture-model.json`, widget `docs/architecture-migration/architecture-widget.html`; evidence under `docs/architecture-migration/evidence/phase-6-project-snapshot-save-boundary/`; append-only `.omo/notepads/phase-6-project-snapshot-save-boundary/{learnings,decisions}.md`. Pre-existing unrelated dirty paths (`.opencode/commands/*`, `docs/architecture-migration/AGENTS.md`, `docs/architecture-migration/STATE.json` deletion, `src/ViewModels/Hydraulics/CircuitsViewModel.cs`, phase-5.1 evidence/plans, etc.) are protected baseline and excluded from the Task 8 write-set.
+   - Fresh final verification: the phase-wide F1-F4 final verification wave (conformance/scope/provenance, architecture/code-quality, executable QA/user-risk, six-view/widget deterministic verification) remains REQUIRED and has NOT run as a fresh wave after Tasks 6-8. The prior `final/f1-conformance.md` (VERDICT: REJECT on plan identity, since resolved as a documented exception), `final/f2-architecture.md` (VERDICT: APPROVE), and `final/f3-executable-qa.md` (VERDICT: APPROVE) are retained as informational historical artifacts only and are invalid for Phase 6 acceptance until the fresh F1-F4 wave completes. Owner result acceptance is a separate gate and remains PENDING. Task 8 itself is bookkeeping/evidence only and ends `TASK 8: PASS` for this lane; it does not assert `FINAL WAVE: APPROVE` or owner acceptance.
+
+- 2026-08-26: Phase 6 result acceptance completed. The owner stated exactly
+  `Принимаю результат Phase 6`, accepting the whole Phase 6 result after the
+  fresh F1/F2/F3/F4 final verification wave all returned APPROVE (Conformance/
+  Scope/Provenance, Architecture/Code Quality, Executable QA/User Risk, and the
+  consolidated F4 gate, the last with `FINAL WAVE: APPROVE`) and the dedicated
+  owner-acceptance receipt
+  `docs/architecture-migration/evidence/phase-6-project-snapshot-save-boundary/owner-result-acceptance.md`
+  (REVIEW_ID: OWNER-RESULT-ACCEPTANCE, VERDICT: APPROVE). Canonical frozen plan
+  identity is unchanged: `docs/architecture-migration/plans/phase-6-project-snapshot-save-boundary.md`
+  is exactly 29455 bytes with SHA-256
+  `C56E66D2733D65CC56190A7B95B4D87F5F032AA75E83339925CEB23C2E5A4E92`; the
+  `.omo/plans/phase-6-project-snapshot-save-boundary.md` mirror remains an
+  operational execution ledger only, not a second authority. The authoritative
+  workflow transitioned from `awaiting-owner-acceptance` to `completed`;
+  resultAcceptance recorded as accepted; stop remains true; no subsequent phase
+  starts automatically. This acceptance is result acceptance only: it is separate
+  from the earlier plan approval and does not infer or grant execution
+  authorization, and it does not start Phase 7+. Phase 7+ was not started; a new
+  explicit owner direction is required to begin any separate planning or
+  execution workflow. Residual risks (sync-over-async `Templates`, headless WPF
+  manual QA gap, `NOT_PRESENT` standalone negative probes, `.omo` ledger
+  divergence) and deferred Phase 7+ identifiers (full restore coordinator,
+  transactional restore, Results derived projection, `CalculationContext`
+  redesign, broad legacy-owner removal, Markdown removal, export behavior
+  changes) are preserved and remain open. The frozen canonical plan and all
+  review receipts (F1-F4, Task 8 consolidated receipt) remain unchanged; F4's
+  review-time `OWNER RESULT ACCEPTANCE: PENDING` is retained as historical
+  review-time state, while this acceptance records the later owner decision.
+
+- 2026-08-26: Owner decisions for the next restore/projection planning boundary
+  are recorded. `DEC-001 = A`: keep `CalculationContext` as the existing
+  downstream compatibility/read-projection seam; the Thermal and Hydraulics
+  coordinators remain its only production writers, and no replacement or
+  removal is planned now. `DEC-002`: the unreleased application has no
+  backward-compatibility obligation for old `.smc` files; the next restore
+  design may target only the current project format, without carrying legacy
+  version branches. `DEC-003 = C`: restore uses validate-first semantics; all
+  module candidates are built and validated before canonical mutation, then
+  committed through one ordered boundary. If an unexpected commit failure
+  occurs, the canonical module state is brought to clean/default state and the
+  operation fails; mixed partial project state is not retained. External catalog
+  imports are not claimed to be transactionally reversible. These decisions
+   authorize planning of the next boundary only; they do not authorize Phase 7
+   implementation. The Phase 6 model/widget and frozen plan remain unchanged as
+   historical Phase 6 snapshots; the decision overlay is authoritative for
+   future planning. Session/regression/tool analysis is tracked separately in
+   `docs/architecture-migration/evidence/roadmap-and-bug-backlog/`.
+
+- 2026-08-26: Read-only OpenCode session, regression, failure, and tooling
+  analysis completed. The dated non-authoritative dossier is
+  `docs/architecture-migration/evidence/roadmap-and-bug-backlog/session-regression-tool-analysis-2026-08-26.md`.
+  It records a reproducible SQLite inventory of `339` repository sessions
+  (`16` roots, `323` children), `9,758` messages, and `45,373` raw parts;
+  distinguishes intentional RED runs from product regressions; records a
+  resolved sampled red-to-green regression cycle; and confirms API timeout,
+  LSP request-cwd mismatch, workflow-control blockers, and continuation
+  duplication as separate classes. It does not claim a root cause for the
+  `40.1 -> 39.9 kW` symptom, does not quantify token/cost efficiency, and does
+  not authorize OpenCode configuration/tool changes. The only write-set is
+  docs/evidence navigation; production/test/frozen architecture artifacts and
+  owner gates remain unchanged.
+
+- 2026-08-31: Owner plan approval recorded for
+  `phase-7-project-restore-coordinator-relaunch`. The frozen canonical plan is
+  `docs/architecture-migration/plans/phase-7-project-restore-coordinator-relaunch.md`,
+  exactly `65608` UTF-8 bytes with SHA-256
+  `1135F95CBA913499904BF655F5BE08F92F45B02CAFAFB171D40F6BF7F51C88D5`,
+  byte-identical to the terminally reviewed `.omo` candidate. Terminal Momus
+  provenance is recorded in
+  `docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/terminal-plan-review-receipt.md`
+  with `VERDICT: APPROVE`; explicit owner plan approval is recorded in
+  `docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/owner-plan-approval.md`
+  with `VERDICT: APPROVE`. This gate approves the plan only. Phase 7 execution,
+  R0, production/test changes, canonical state mutation, and result acceptance
+  remain unauthorized. The next explicit gate is
+  `/architecture-start phase-7-project-restore-coordinator-relaunch`.
+
+- 2026-09-01: Owner provenance reconciliation recorded for
+  `phase-7-project-restore-coordinator-relaunch`. The owner explicitly
+  recognizes the current executed canonical plan identity
+  `D403860BA03A52B96CACD43D993743A0D7B4E2B23F1F83DA7923E553A029E86A`
+  as the approved successor/supersession of the previously reviewed and
+  approved identity
+  `1135F95CBA913499904BF655F5BE08F92F45B02CAFAFB171D40F6BF7F51C88D5`.
+  The owner also confirms that their execution authorization for
+  `/architecture-start phase-7-project-restore-coordinator-relaunch` covers the
+  executed `D403860...` plan identity. This is provenance/control evidence only:
+  it does not edit the frozen plan file, does not reopen implementation slices
+  1-8, and does not authorize scope expansion beyond the current Phase 7
+  restore/report/UI objective. Receipt:
+  `docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/owner-provenance-reconciliation.md`.
+
+- 2026-09-01: Owner explicitly accepted the final result of
+  `phase-7-project-restore-coordinator-relaunch` with the statement
+  `Принимаю результат Phase 7`. This acceptance follows the completed final
+  verification wave: F1 scope/provenance/invariant review APPROVE after owner
+  reconciliation, F2 code-boundary/architecture review APPROVE, F3 executable QA
+  review APPROVE, and F4 consolidated stop APPROVE. Receipt:
+  `docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/owner-result-acceptance.md`.
+  Phase 7 is complete and accepted. No next phase starts implicitly.
+
+- 2026-09-03: Phase 7.5 `phase-7.5-project-restore-coordinator-relaunch` (docs-only
+  dossier refresh) executed and completed in the owner-designated worktree
+  `D:/IA/ace — копия`. Authorization: explicit owner plan approval and execution
+  approval recorded in-session on 2026-09-03 (the plan stops at owner plan approval
+  and does not include `/architecture-start`). Write-set: Phase 7 overlay sections
+  appended to the ten allow-listed overlay maps; `EV-P7-SLICE-2` evidence reference
+  corrected to the real receipt `slice-2-load-boundary.md`; `architecture-widget.html`
+  regenerated deterministically; `generation-hash-receipt.md` written. Owner-directed
+  invariant adjudication: `INV-001`, `INV-011`, `INV-012`, `INV-013` updated to
+  `verified / implemented` in `maps/architecture-model.json`; the INV-001 flip required
+  an owner-authorized companion amendment to `widget/verify-widget.mjs` (runtime
+  unverified-invariant exemplar `INV-001` -> genuinely open `INV-008`, two assertions,
+  runtime semantics unchanged). Verification: `model-v2` PASS (33 assertions),
+  `runtime-v2` PASS (47 assertions / 20 mutations), `generate-widget.mjs --check`
+  PASS 14/14, widget reproducible. Final hashes: model `6CAB34B757F4627276325AD620B08E1E357AC748C221151C025162BFEDD41A97`,
+  widget `369D36AA5DD39604CF3B31383EA5FC2D15A15BC3BCD04B6AF4EA7124087236CD`,
+  verifier `C9EA25D6B2C7190F1B067033C38A3AA36E05610C72C0279EC6EA9DE771D6D6C6`.
+  Receipt: `docs/architecture-migration/evidence/phase-7-project-restore-coordinator-relaunch/generation-hash-receipt.md`.
+  Remaining open items are unchanged: `INV-006`, `INV-007` (global), `INV-008`,
+  `INV-009`, `INV-010`, `DEC-001..DEC-006`. Production code, tests, historical
+  evidence snapshots, `architecture-model.baseline.json` and frozen plans were not
+  changed. Phase 7.5 is complete. No next phase starts implicitly.
+
+- 2026-09-03: Phase 8 (`phase-8-results-derived-projection`) planning gates
+  completed in a ZCode session under the amended
+  `AGENTS.md` environment-adaptive rules (no OpenCode Prometheus/Momus agents).
+  The acting agent performed the terminal plan review cross-checked by one
+  read-only independent subagent pass; receipt:
+  `docs/architecture-migration/evidence/phase-8-results-derived-projection/terminal-plan-review-receipt.md`
+  (`REVIEW_ID: TERMINAL-PLAN-REVIEW-P8-ZCODE-1`, `VERDICT: APPROVE`; candidate
+  identity at freeze: exactly `34593` bytes, SHA-256
+  `EC762434820E87EA92B9A37A4FD694DCABD81181F93C1B6EA035FFF5674F5C67`; three
+  minor review notes incorporated before freeze: `UpdateCircuitsFilter`/
+  `UpdateCollectorSpecifications` named in the Todo 1 inventory, the
+  `ColdPeriodDays`/`Period_0_Days` canonical gap recorded as the expected
+  `OWNER_DECISION_REQUIRED` candidate, `DEC-001 = A` wording acknowledging the
+  characterized `CalculationContext.Reset()` null-writers). The owner then gave
+  explicit in-session direction to execute the plan and run the required checks
+  (`нужно выполнить план, провести необходимые проверки` followed by
+  `продолжай`), which under the environment-adaptive rules is recorded as owner
+  plan approval and explicit execution authorization for this phase only. The
+  sequential execution lane has started at Slice 1 (projection baseline lock);
+  result acceptance remains a separate future owner decision.
+
+- 2026-09-03: Phase 8 slice 2 closed `69/69` PASS with one
+  `OWNER_DECISION_REQUIRED`: `ColdPeriodDays` reads `CityInfo.Period_0_Days`
+  through `ClimateViewModel.SelectedCity` and has no canonical field. The owner
+  explicitly chose option `B: Канонизировать в slice` (add `Period0Days` to the
+  climate slice). Amendment 1
+  (`plans/phase-8-results-derived-projection.amendment-1-coldperioddays-canonicalization.md`)
+  records the expanded slice 3 write-set (`ClimateStateSnapshot.cs` additive
+  12th positional parameter with default, `ProjectSessionClimateState.cs`
+  extraction at existing `CityInfo` intake points, climate tests) and the
+  Layers reconstruction design (`CalculatedR` is computed by the identical
+  canonical formula; `Material` resolved via `IMaterialRepository` with a
+  name-stub fallback; reconstruction order mirrors `Layer.Clone()`). Terminal
+  amendment review `TERMINAL-AMENDMENT-P8-ZCODE-1`: `VERDICT: APPROVE`.
+  `ProjectLoadOrchestrator` is not touched: the restore path already resolves
+  the city by name (`ProjectLoadOrchestrator.cs:147-149`).
+
+- 2026-09-03: Phase 8 (`phase-8-results-derived-projection`) sequential
+  execution completed in the ZCode session. All 8 slices executed with
+  executable evidence (receipts `slice-1..slice-8`, TRX logs, full-suite
+  regression 2023 passed / 5 pre-existing import-removal failures / 1 known
+  external-fixture skip) under the frozen plan
+  (`EC762434820E87EA92B9A37A4FD694DCABD81181F93C1B6EA035FFF5674F5C67`) and
+  Amendment 1 (owner decision B: `ClimateStateSnapshot.Period0Days`
+  canonicalization). `INV-009` verified/implemented in the canonical model with
+  `EV-P8-*` evidence; `ST-003`/`ST-024`/`ST-025` covered; `ST-026`/`ST-027`
+  partial with named Phase 9 residuals; deterministic widget regenerated
+  (sha256 `0601835D18A6464A580B24FCAD7396FCBBD340B032ABDCC614CD786B17B6E34C`),
+  `model-v2` (33/21) and `runtime-v2` (47/20) verifier suites PASS. Final
+  verification wave F1-F4 all APPROVE
+  (`final-f4-consolidated-stop.md`): the phase STOPS for explicit owner result
+  acceptance. Three owner decisions are pending: (1) result acceptance;
+  (2) confirmation of the staged hydraulics fallback (slice 4 residuals →
+  Phase 9); (3) direction on the pre-existing import-removal baseline anomaly
+  (`LIM-P8-2`, 5 failing characterization tests expect the import removed from
+  restore by a pre-existing dirty delta before this session).
+
+- 2026-09-03: Phase 8 result acceptance completed. The owner stated exactly
+  `Принимаю результат Phase 8`, accepting the whole Phase 8 result after the
+  final verification wave returned APPROVE in all domains (F1 scope/provenance,
+  F2 architecture, F3 executable QA, F4 consolidated stop). Receipt:
+  `docs/architecture-migration/evidence/phase-8-results-derived-projection/owner-result-acceptance.md`
+  (REVIEW_ID: OWNER-RESULT-ACCEPTANCE-PHASE-8, VERDICT: APPROVE). The
+  acceptance confirms the staged hydraulics fallback (slice 4 residuals move to
+  Phase 9 legacy cleanup together with the other shared-seam work). Preserved
+  open items: the pre-existing import-removal baseline anomaly (`LIM-P8-2`,
+  5 characterization tests outside the Phase 8 write-set) and the external
+  fixture skip (RR-004). The Phase 8 workflow is completed; stop remains true;
+  no subsequent phase starts automatically — a new explicit owner direction is
+  required to begin any separate planning or execution workflow.
+
+- 2026-09-03: Docs-only navigation correction (post-acceptance, owner question):
+  `widget-spec.md` gained a dated "Current State" addendum separating the
+  canonical generated widget (`architecture-widget.html`, hyphen — Phase 8
+  state, hashes in
+  `evidence/phase-8-results-derived-projection/generation-hash-receipt.md`)
+  from the frozen Phase 0.5 historical artifact
+  (`architecture_widget.html`, underscore, never regenerated). No production,
+  test, model, widget-html or plan changes; historical spec text untouched.

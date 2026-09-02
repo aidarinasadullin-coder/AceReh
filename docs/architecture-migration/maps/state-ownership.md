@@ -126,3 +126,14 @@ factory registration in `AddResultsModule`. Acceptance evidence:
 ## Phase 6 Save-Boundary Overlay
 
 `ProjectSession` remains the canonical aggregate owner at the save boundary. `ProjectSnapshot` is an immutable handoff assembled from that owner; `ProjectPersistenceMapper` and `ProjectData` do not become writable state owners. Evidence: `task-5-save-boundary.md`; model records `PN-P6-SNAPSHOT`, `PN-P6-MAPPER`, `PN-P6-DATA`, `PN-P6-SERVICE`, and `INV-P6-SAVE`. No broad ownership cleanup is claimed.
+
+
+## Phase 7 Restore Coordinator Overlay (docs-only refresh)
+
+At restore, `ProjectSession` remains the canonical aggregate owner: the singleton `ProjectLoadOrchestrator` applies the four session-owned canonical slices under the `BeginProjectRestore()` lease, and `ResultsViewModel` remains the UI adapter that refreshes only after a successful restore. Restore candidates are preflighted before canonical mutation: rejected Thermal/Hydraulics candidates return before any project-slice mutation. This overlay does not claim Results ownership cleanup: the derived Results projection and `ST-023..ST-027` legacy DTO debt remain open. Evidence: `slice-1-restore-boundary.md`, `slice-3-validation-order.md`, `slice-8-dossier-alignment.md`; model records `EV-P7-SCOPE`, `EV-P7-SLICE-8`.
+
+Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/phase-7.5-project-restore-coordinator-relaunch.md`, owner-approved 2026-09-03, worktree `D:/IA/ace — копия`); this overlay adds no production or test claim beyond the accepted Phase 7 receipts.
+
+## Phase 8 Results-Derived-Projection Overlay
+
+Accepted Phase 8 result: `ResultsViewModel` values are re-sourced from canonical state — `ProjectSession` slice snapshots and the approved `CalculationContext` read projection (`DEC-001 = A` intact; no new production writers). Climate/Construction/Thermal projection reads, KPI aggregates, readiness and the persisted display mode (`IProjectDisplayModeState` read-through, ST-003) are canonical. `INV-009` is verified for state ownership; the save-path custom-templates read now uses the `IProjectSnapshotPersistenceInputs` repository seam — the same source as the Phase 6 file-save boundary. Named Phase 9 residuals (not claimed): shared mutable `CircuitRow` objects with `CircuitsViewModel`, `HydraulicSummaryBuilder(CollectorData)` input, VM selection read in `UpdateCollectorSummary`. Evidence: `slice-3..slice-7` receipts under `evidence/phase-8-results-derived-projection/`; model records `EV-P8-SLICE-3..7`.

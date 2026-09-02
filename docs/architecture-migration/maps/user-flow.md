@@ -139,3 +139,14 @@ the corrupt `unknown-pipe.smc` fixture fails gracefully into the validation dial
 ## Phase 6 Save-Boundary Overlay
 
 The supported save flow reaches the persistence boundary through the canonical session snapshot: `ProjectSession -> ProjectSnapshot -> ProjectPersistenceMapper -> ProjectData -> IProjectFileService/ProjectFileService`. Existing Ctrl+S and `.smc` fixture evidence is reused; this overlay does not claim a new restore flow, Markdown/export completion, or calculation completion. Evidence: `task-5-save-boundary.md`, `task-6-persistence-fixtures-and-guards.md`, and model records `PE-P6-SESSION-SNAPSHOT` through `PE-P6-SERVICE-DATA`.
+
+
+## Phase 7 Restore Coordinator Overlay (docs-only refresh)
+
+The historical `CF-001..CF-022` rows above are not rewritten; this overlay records the accepted Phase 7 restore/report/UI flow facts. Restore (`CF-002`/`CF-003`/`CF-004`/`CF-021`) crosses the single `ProjectLoadOrchestrator` boundary under the `BeginProjectRestore()` lease. Rejected restore: loading an invalid-thermal project B preserves project A's KPI values (`TotalPowerDensity == 100`, `SupplyTemperature == 45`), raises `ProjectChanged` exactly once, leaves the restore guard false and dirty false (`LoadProjectData_SecondInvalidProjectPreservesPriorUiAndReleasesRestoreGuard`). Report/export (`CF-015`/`CF-016`) is sourced from the fresh session/current projection, not a stale persisted sentinel (`Build_UsesCurrentProjection_WhenPersistedDtoHasStaleSentinel`; `LoadProjectData_InvalidSavedResultPublishesFreshUiAndPdfValuesOnce` with calculator invoked exactly once). Catalog boundary: open never imports project-local records into global catalogs. Excel/preview/print (`CF-017`..`CF-019`) remain without evidence. Evidence: `slice-2-load-boundary.md`, `slice-5-report-source-of-truth.md`, `slice-6-catalog-boundary.md`, `slice-7-di-ui-alignment.md`; model records `EV-P7-SLICE-2`, `EV-P7-SLICE-5`, `EV-P7-SLICE-7`.
+
+Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/phase-7.5-project-restore-coordinator-relaunch.md`, owner-approved 2026-09-03, worktree `D:/IA/ace — копия`); this overlay adds no production or test claim beyond the accepted Phase 7 receipts.
+
+## Phase 8 Results-Derived-Projection Overlay
+
+Open/save/report flows now project canonical values: readiness (`MissingModules`/`IsDataReady`), KPI, collector list and the persisted display mode derive from `ProjectSession` slices and the app-owned display-mode seam; rejected restore still leaves the prior projection intact and releases the guard. The headless-environment manual WPF button/dialog QA gap remains recorded (as in Phase 6/7). Evidence: `slice-5`, `slice-7` receipts; model records `EV-P8-SLICE-5`, `EV-P8-SLICE-7`.

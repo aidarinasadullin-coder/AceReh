@@ -230,3 +230,30 @@ deterministic diff/freshness/error behavior, keyboard and screen-reader
 requirements, reduced-motion, responsive and offline contracts, and a 37-row
 acceptance matrix containing every mode/view pair exactly once. No widget
 implementation artifact was created or modified.
+
+---
+
+## Current State (2026-09-03, Phase 8) — navigation addendum
+
+The sections above are the preserved Phase 0.5 historical specification and do
+not describe the current widget. Current facts:
+
+- **Canonical generated widget**: `docs/architecture-migration/architecture-widget.html`
+  (hyphen). Regenerated deterministically from `maps/architecture-model.json` by
+  `widget/generate-widget.mjs`; verified by `widget/verify-widget.mjs`
+  (`--suite model-v2`, `--suite runtime-v2`). Phase 8 state: 15,970,676 bytes,
+  SHA-256 `0601835D18A6464A580B24FCAD7396FCBBD340B032ABDCC614CD786B17B6E34C`,
+  `model-v2` 33/21 and `runtime-v2` 47/20 PASS; contains the Phase 8 model
+  state (`INV-009` verified, `EV-P8-*` evidence, Phase 8 overlays).
+- **Historical artifact**: `docs/architecture-migration/architecture_widget.html`
+  (underscore, 37,294 bytes, 2026-08-18 bytes) is the frozen Phase 0.5 MVP
+  widget preserved verbatim per
+  `evidence/phase-0.5-historical-widget-preservation.md` (archived copy:
+  `archive/architecture_widget.phase-0-historical.html`). It is NOT the current
+  widget and is never regenerated.
+- **Per-phase provenance**: generation inputs/outputs/hashes are recorded in the
+  phase generation-hash receipts
+  (`evidence/phase-7-project-restore-coordinator-relaunch/generation-hash-receipt.md`,
+  `evidence/phase-8-results-derived-projection/generation-hash-receipt.md`).
+- Any change to the widget pipeline remains a separate owner-approved change
+  (scripts are hash-pinned by the verifier).

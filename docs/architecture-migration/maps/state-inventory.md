@@ -154,3 +154,14 @@ other rows are unchanged. Evidence: `docs/architecture-migration/evidence/phase-
 `task-11/trx-guards-release.json` (guard suite 8/8 categories),
 `task-12/arithmetic.json` (full Release 1976 passed / 0 failed / 3 accepted NotExecuted identities),
 `ui-qa/observations.json` (nine-step agent-operated QA incl. corrupt-fixture failure branch).
+
+
+## Phase 7 Restore Coordinator Overlay (docs-only refresh)
+
+Baseline rows `ST-001..ST-005` remain historically correct and remain superseded by the Phase 1 ProjectSession Shell Overlay above; the accepted Phase 7 receipts add no new state-record owner. Restore ownership is fixed at the canonical boundary: `ProjectLoadOrchestrator` applies the four session-owned slices under the `BeginProjectRestore()` lease with validation before mutation. `ST-023..ST-027` remain Results/DTO legacy debt: Phase 7 did not fully close Results derived-projection cleanup (`INV-009`) and no Results ownership cleanup is claimed. Evidence: `slice-1-restore-boundary.md`, `slice-3-validation-order.md`, `slice-8-dossier-alignment.md`; model records `EV-P7-SCOPE`, `EV-P7-SLICE-8`.
+
+Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/phase-7.5-project-restore-coordinator-relaunch.md`, owner-approved 2026-09-03, worktree `D:/IA/ace — копия`); this overlay adds no production or test claim beyond the accepted Phase 7 receipts.
+
+## Phase 8 Results-Derived-Projection Overlay
+
+`ST-003`, `ST-024`, `ST-025` → covered (canonical read-through; `Period0Days` canonicalized in the climate slice per owner decision B, Amendment 1). `ST-026`, `ST-027` → partial with named residuals (shared `CircuitRow` objects, builder input `CollectorData`, VM selection read — Phase 9). `ST-023` (`CalculationContext` seam) unchanged per `DEC-001 = A`. Save-path custom templates read the template repository via `ProjectSnapshotPersistenceInputs`. Evidence: `slice-3..slice-7` receipts; model records `EV-P8-SLICE-3..7`.
