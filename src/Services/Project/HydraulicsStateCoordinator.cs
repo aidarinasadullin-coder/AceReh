@@ -59,6 +59,7 @@ namespace SnowMeltingCalculator.Services.Project
         private void RunCalculation(Func<List<CollectorSummary>?> calculation, Action? beforeComplete = null)
         {
             _calculationStateService.SetHydraulicsCalculating();
+            _state.BeginCalculation();
             try
             {
                 var summaries = calculation();
@@ -66,7 +67,8 @@ namespace SnowMeltingCalculator.Services.Project
                 {
                     if (summaries is null)
                     {
-                        PublishHydraulics(null);
+                        _state.FailCalculation(
+                            _calculationStateService.HydraulicsValidationMessage);
                     }
 
                     return;
@@ -74,8 +76,19 @@ namespace SnowMeltingCalculator.Services.Project
 
                 PublishHydraulics(summaries);
                 beforeComplete?.Invoke();
+                var summaryByCollector = summaries.ToDictionary(
+                    summary => summary.CollectorNumber,
+                    summary => new HydraulicCollectorSummarySnapshot(
+                        summary.CircuitCount,
+                        summary.TotalPipeLength,
+                        summary.TotalPower,
+                        summary.TotalFlowRate,
+                        summary.PressureLoss_Operating_Pa,
+                        summary.PressureLoss_Cold_Pa,
+                        summary.Kv,
+                        summary.CollectorType));
                 _state.CompleteCalculation(_captureCollectors!(),
-                    new Dictionary<int, HydraulicCollectorSummarySnapshot>());
+                    summaryByCollector);
             }
             finally
             {
@@ -93,7 +106,10 @@ namespace SnowMeltingCalculator.Services.Project
                     break;
                 case nameof(CalculationContext.ThermalResult):
                     _notifyThermal?.Invoke();
-                    if (_calculationContext.ThermalResult?.IsValid == true) _calculateAll?.Invoke();
+                    if (_calculationContext.ThermalResult?.IsValid == true)
+                    {
+                        CalculateAll(_calculateAll!);
+                    }
                     break;
                 case nameof(CalculationContext.Climate):
                     _notifyClimate?.Invoke();

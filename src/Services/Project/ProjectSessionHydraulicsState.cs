@@ -77,7 +77,15 @@ namespace SnowMeltingCalculator.Services.Project
         {
             if (_snapshot.Status.Phase != HydraulicsCalculationPhase.Calculating)
                 return Reject(HydraulicsMutationOrigin.Calculation, new[] { "FailCalculation requires an active calculation." });
-            return Commit(new(_snapshot.GlobalInputs, _snapshot.Collectors, new(HydraulicsCalculationPhase.Error, message)), HydraulicsMutationOrigin.Calculation);
+            var collectors = _snapshot.Collectors
+                .Select(collector => new HydraulicCollectorSnapshot(
+                    collector.CollectorNumber,
+                    collector.CollectorType,
+                    collector.ValveType,
+                    collector.Circuits,
+                    null))
+                .ToArray();
+            return Commit(new(_snapshot.GlobalInputs, collectors, new(HydraulicsCalculationPhase.Error, message)), HydraulicsMutationOrigin.Calculation);
         }
 
         public HydraulicsMutationResult Restore(HydraulicsStateSnapshot snapshot, HydraulicsMutationOrigin origin)

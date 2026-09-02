@@ -97,29 +97,62 @@ namespace SnowMeltingCalculator.Services.Project
         /// restore circuit results. Единый refresh снимка Results выполняет
         /// вызывающая сторона после завершения этого метода.
         /// </summary>
-        public async Task RestoreModulesFromProjectAsync(ProjectData data)
+        /// <returns>true, если все модули восстановлены; false, если preflight отклонён.</returns>
+        public async Task<bool> RestoreModulesFromProjectAsync(ProjectData data)
         {
-            if (data == null) return;
+            if (data == null) return false;
+
+            var thermalCandidate = ThermalPersistenceMapper.BuildInputsCandidate(
+                data.ThermalData,
+                _thermalViewModel.AvailablePipes);
+            if (IsEmptyThermalData(data.ThermalData))
+            {
+                thermalCandidate = ThermalInputsSnapshot.Default;
+            }
+            else if (HasUnsetThermalScalarInputs(data.ThermalData))
+            {
+                // Legacy-partial .smc: scalar thermal inputs were never persisted
+                // (CLR defaults). Canonical DEC-T01 defaults apply to the scalars
+                // while the persisted pipe selection is preserved, so the adapter
+                // keeps the user's pipe and the open flow continues (no early abort).
+                thermalCandidate = new ThermalInputsSnapshot(
+                    ThermalInputsSnapshot.Default.Mode,
+                    ThermalInputsSnapshot.Default.SupplyTemperature,
+                    ThermalInputsSnapshot.Default.GroundTemperature,
+                    thermalCandidate.Pipe,
+                    ThermalInputsSnapshot.Default.PipeSpacing);
+            }
+            var savedThermalResult = ThermalPersistenceMapper.BuildSavedResult(data.ThermalData?.Result);
+            var thermalPreflight = new ProjectSessionThermalState().Restore(
+                thermalCandidate,
+                savedThermalResult);
+            if (thermalPreflight.IsRejected)
+            {
+                return false;
+            }
+
+            var hydraulicsCandidate = HydraulicsPersistenceMapper.BuildRestoreCandidate(data.HydraulicsData);
+            if (IsEmptyHydraulicsData(data.HydraulicsData))
+            {
+                hydraulicsCandidate = HydraulicsStateSnapshot.Default;
+            }
+            var hydraulicsPreflight = new ProjectSessionHydraulicsState().Restore(
+                hydraulicsCandidate,
+                HydraulicsMutationOrigin.ProjectLoad);
+            if (hydraulicsPreflight.IsRejected)
+            {
+                return false;
+            }
 
             var city = _climateViewModel.FindCityByName(data.ClimateData.SelectedCity);
             _climateViewModel.SearchQuery = data.ClimateData.SelectedCity;
             _climateState.ApplyProjectSnapshot(data.ClimateData, city, ClimateMutationOrigin.Load);
 
-            // Импортируем пользовательские материалы проекта перед загрузкой слоёв
-                if (data.CustomMaterials.Any())
-                {
-                    await _constructionService.ImportProjectMaterialsAsync(data.CustomMaterials);
-                    await _constructionViewModel.ReloadMaterialsAsync();
-                }
+            // Каталоги материалов и шаблонов являются глобальными read-only
+            // источниками при открытии проекта. Пользовательские записи из
+            // ProjectData остаются project-local и не импортируются в каталоги.
 
-                // Импортируем пользовательские шаблоны конструкций проекта
-                if (data.CustomTemplates.Any())
-                {
-                    await _constructionService.ImportProjectTemplatesAsync(data.CustomTemplates);
-                    await _constructionViewModel.ReloadMaterialsAsync();
-                }
-
-                // Загружаем данные конструкции
+            // Загружаем данные конструкции
                 // Сначала восстанавливаем УГВ и признак нагрузок, чтобы UpdateLambda при загрузке слоёв
                 // использовал корректный уровень грунтовых вод (λБ при УГВ < 1 м, λА при УГВ >= 1 м).
                 var result = _constructionState.ApplySnapshot(
@@ -132,12 +165,9 @@ namespace SnowMeltingCalculator.Services.Project
                 // результата из DTO; Restore атомарно заменяет ВСЕ компоненты
                 // состояния предыдущего проекта (входы/результат/статус) — вторая
                 // загрузка не оставляет stale-значений проекта A.
-                var thermalCandidate = ThermalPersistenceMapper.BuildInputsCandidate(
-                    data.ThermalData,
-                    _thermalViewModel.AvailablePipes);
                 var restoreMutation = _thermalState.Restore(
                     thermalCandidate,
-                    ThermalPersistenceMapper.BuildSavedResult(data.ThermalData?.Result));
+                    savedThermalResult);
                 if (restoreMutation.IsRejected)
                 {
                     // Повреждённый/вне-диапазона кандидат отклонён атомарно
@@ -150,7 +180,7 @@ namespace SnowMeltingCalculator.Services.Project
                     // ровно один fallback-расчёт.
                     _thermalState.Restore(
                         ThermalInputsSnapshot.Default,
-                        ThermalPersistenceMapper.BuildSavedResult(data.ThermalData?.Result));
+                        savedThermalResult);
                 }
 
                 // Совместимая поверхность шага укладки: после канонического Restore
@@ -168,7 +198,6 @@ namespace SnowMeltingCalculator.Services.Project
                 _thermalViewModel.PipeSpacing = thermalCandidate.PipeSpacing;
 
                 // Restore the complete hydraulics slice atomically, then mirror it into the adapter.
-                var hydraulicsCandidate = HydraulicsPersistenceMapper.BuildRestoreCandidate(data.HydraulicsData);
                 _hydraulicsState.Restore(hydraulicsCandidate, HydraulicsMutationOrigin.ProjectLoad);
                 _circuitsViewModel.ApplyLifecycleSnapshotToAdapter(_hydraulicsState.Snapshot);
 
@@ -200,6 +229,7 @@ namespace SnowMeltingCalculator.Services.Project
             _hydraulicsState.Restore(hydraulicsCandidate, HydraulicsMutationOrigin.ProjectLoad);
             _circuitsViewModel.ApplyLifecycleSnapshotToAdapter(_hydraulicsState.Snapshot);
 
+            return true;
         }
 
         private ConstructionStateSnapshot BuildConstructionSnapshotFromProjectData(ProjectData data)
@@ -224,6 +254,37 @@ namespace SnowMeltingCalculator.Services.Project
                 data.ConstructionData.HasLoads,
                 BuildLayerSnapshots(aboveLayers, data.ConstructionData.GroundwaterLevel),
                 BuildLayerSnapshots(belowLayers, data.ConstructionData.GroundwaterLevel));
+        }
+
+        private static bool IsEmptyThermalData(ThermalProjectData? data)
+        {
+            return data is not null
+                && (data.SelectedMode == default || data.SelectedMode == OperatingMode.Melting)
+                && data.SupplyTemperature == 0.0
+                && data.GroundTemperature == 0.0
+                && data.SelectedPipe is null;
+        }
+
+        private static bool HasUnsetThermalScalarInputs(ThermalProjectData? data)
+        {
+            // Legacy-partial .smc: the scalar thermal inputs were never persisted
+            // (CLR defaults) while a pipe selection is present. Treat the scalars as
+            // unset so the open flow applies canonical DEC-T01 defaults and keeps the
+            // user's pipe, instead of aborting the whole restore on a rejected candidate.
+            return data is not null
+                && (data.SelectedMode == default || data.SelectedMode == OperatingMode.Melting)
+                && data.SupplyTemperature == 0.0
+                && data.GroundTemperature == 0.0;
+        }
+
+        private static bool IsEmptyHydraulicsData(HydraulicsProjectData? data)
+        {
+            return data is not null
+                && data.GlycolType == GlycolType.Ethylene
+                && data.GlycolConcentration == 0.0
+                && data.SupplySpacingCm == 0.0
+                && data.SupplyHeatPercent == 0.0
+                && (data.Collectors is null || data.Collectors.Count == 0);
         }
 
         private List<ConstructionLayerSnapshot> BuildLayerSnapshots(

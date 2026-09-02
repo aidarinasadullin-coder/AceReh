@@ -139,6 +139,28 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         }
 
         [Test]
+        public async Task ExportReportAsync_BuildsAndRendersOnce_WithoutMutatingProject()
+        {
+            var builder = new CountingBuilder();
+            var renderer = new CountingRenderer();
+            var service = new CalculationReportExportService(builder, renderer);
+            var filePath = Path.Combine(_testDir, "single-pass.md");
+            var project = CreateMinimalProject();
+            var projectNumber = project.ProjectNumber;
+            var projectObject = project.ProjectObject;
+
+            var result = await service.ExportReportAsync(filePath, project, CalculationReportMode.Operating);
+
+            Assert.That(result, Is.True);
+            Assert.That(builder.BuildCount, Is.EqualTo(1));
+            Assert.That(renderer.RenderCount, Is.EqualTo(1));
+            Assert.That(project.ProjectNumber, Is.EqualTo(projectNumber));
+            Assert.That(project.ProjectObject, Is.EqualTo(projectObject));
+            Assert.That(project.ThermalData.Result, Is.Null);
+            Assert.That(project.HydraulicsData.Collectors, Is.Empty);
+        }
+
+        [Test]
         public async Task ExportReportAsync_CancellationBeforeBuild_ThrowsOperationCanceledException()
         {
             var service = CreateService();
@@ -217,6 +239,46 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     SourcesAppendix = new SourcesAppendix(),
                     FormulasAppendix = new FormulasAppendix()
                 };
+            }
+        }
+
+        private sealed class CountingBuilder : ICalculationReportDataBuilder
+        {
+            public int BuildCount { get; private set; }
+
+            public CalculationReportData Build(ProjectData project, CalculationReportMode mode, DateTime? reportDate = null)
+            {
+                BuildCount++;
+                return new CalculationReportData
+                {
+                    Mode = mode,
+                    ReportDate = reportDate ?? DateTime.MinValue,
+                    Methodology = "Расчёт по методике REHAU",
+                    ProjectSection = new ProjectSection
+                    {
+                        ProjectNumber = project.ProjectNumber,
+                        ProjectObject = project.ProjectObject
+                    },
+                    ClimateSection = new ClimateSection(),
+                    ConstructionSection = new ConstructionSection(),
+                    ThermalSection = new ThermalSection(),
+                    HydraulicsSection = new HydraulicsSection(),
+                    EquipmentSection = new EquipmentSection(),
+                    Warnings = new System.Collections.Generic.List<CalculationReportWarning>(),
+                    SourcesAppendix = new SourcesAppendix(),
+                    FormulasAppendix = new FormulasAppendix()
+                };
+            }
+        }
+
+        private sealed class CountingRenderer : ICalculationReportMarkdownRenderer
+        {
+            public int RenderCount { get; private set; }
+
+            public string Render(CalculationReportData data)
+            {
+                RenderCount++;
+                return "# report";
             }
         }
 

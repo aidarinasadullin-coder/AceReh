@@ -1,0 +1,384 @@
+{
+    "phase":  "phase-5-hydraulics-state",
+    "capturedAt":  "execution-time",
+    "worktreeClean":  false,
+    "gitStatusPorcelain":  [
+                               " M docs/architecture-migration/STATE.json",
+                               " M docs/architecture-migration/evidence/phase-0.5-acceptance-v2.json",
+                               " M src/ViewModels/Hydraulics/CircuitsViewModel.cs",
+                               " M tests/SnowMeltingCalculator.Tests/Construction/ConstructionServiceTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CalculationContextWriterAuthorityTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CircuitsViewModelColdStartTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/DoubleCalculationPreventionTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/GlycolAutoRecalculationTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/HydraulicsMultiplicityCharacterizationTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/PipeSpacingSynchronizationTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ThermalToHydraulicsIntegrationTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/Services/Navigation/DialogServiceThreadAffinityTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/Services/Project/ClimateThermalInvalidationRegressionTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/Services/Project/ProjectLifecycleFlowCharacterizationTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/Services/Project/ThermalMultiplicityCharacterizationTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelEventLeakTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/ViewModels/MainViewModelTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/ViewModels/ResetOrchestrationTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelOpenProjectTests.cs",
+                               " M tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelTestHelpers.cs",
+                               "?? docs/architecture-migration/evidence/phase-5.1-hydraulics-dirty-ownership-correction/",
+                               "?? docs/architecture-migration/plans/phase-5.1-hydraulics-dirty-ownership-correction.draft.md",
+                               "?? docs/architecture-migration/plans/phase-5.1-hydraulics-dirty-ownership-correction.md",
+                               "?? docs/architecture-migration/workflow/register-state.mjs",
+                               "?? docs/architecture-migration/workflow/register-state.test.mjs"
+                           ],
+    "status":  [
+                   {
+                       "code":  " M",
+                       "path":  "docs/architecture-migration/STATE.json"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "docs/architecture-migration/evidence/phase-0.5-acceptance-v2.json"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "src/ViewModels/Hydraulics/CircuitsViewModel.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionServiceTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CalculationContextWriterAuthorityTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CircuitsViewModelColdStartTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/DoubleCalculationPreventionTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/GlycolAutoRecalculationTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/HydraulicsMultiplicityCharacterizationTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/PipeSpacingSynchronizationTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ThermalToHydraulicsIntegrationTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/Services/Navigation/DialogServiceThreadAffinityTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ClimateThermalInvalidationRegressionTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectLifecycleFlowCharacterizationTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalMultiplicityCharacterizationTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelEventLeakTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/MainViewModelTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResetOrchestrationTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelOpenProjectTests.cs"
+                   },
+                   {
+                       "code":  " M",
+                       "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelTestHelpers.cs"
+                   },
+                   {
+                       "code":  "??",
+                       "path":  "docs/architecture-migration/evidence/phase-5.1-hydraulics-dirty-ownership-correction/"
+                   },
+                   {
+                       "code":  "??",
+                       "path":  "docs/architecture-migration/plans/phase-5.1-hydraulics-dirty-ownership-correction.draft.md"
+                   },
+                   {
+                       "code":  "??",
+                       "path":  "docs/architecture-migration/plans/phase-5.1-hydraulics-dirty-ownership-correction.md"
+                   },
+                   {
+                       "code":  "??",
+                       "path":  "docs/architecture-migration/workflow/register-state.mjs"
+                   },
+                   {
+                       "code":  "??",
+                       "path":  "docs/architecture-migration/workflow/register-state.test.mjs"
+                   }
+               ],
+    "protectedDirtyPreimages":  [
+                                    {
+                                        "code":  " M",
+                                        "path":  "docs/architecture-migration/STATE.json"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "src/ViewModels/Hydraulics/CircuitsViewModel.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionServiceTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CalculationContextWriterAuthorityTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CircuitsViewModelColdStartTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/DoubleCalculationPreventionTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/GlycolAutoRecalculationTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/HydraulicsMultiplicityCharacterizationTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/PipeSpacingSynchronizationTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ThermalToHydraulicsIntegrationTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/Services/Navigation/DialogServiceThreadAffinityTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ClimateThermalInvalidationRegressionTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectLifecycleFlowCharacterizationTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalMultiplicityCharacterizationTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelEventLeakTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/MainViewModelTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResetOrchestrationTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelOpenProjectTests.cs"
+                                    },
+                                    {
+                                        "code":  " M",
+                                        "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelTestHelpers.cs"
+                                    }
+                                ],
+    "dirtyPreimages":  [
+                           {
+                               "path":  "docs/architecture-migration/STATE.json",
+                               "code":  " M",
+                               "sha256":  "17FEF2329E006C54ADA4958779EA74C8164D2274FAF4CC95B9763810965C0959"
+                           },
+                           {
+                               "path":  "docs/architecture-migration/evidence/phase-0.5-acceptance-v2.json",
+                               "code":  " M",
+                               "sha256":  "0332F574A321C0648189CC8A1557F53DF5BCD85C287480AE28DE47DC0587C801"
+                           },
+                           {
+                               "path":  "src/ViewModels/Hydraulics/CircuitsViewModel.cs",
+                               "code":  " M",
+                               "sha256":  "C51C09449F71B5B38D98D14FFDD1168A4111C2B2E1C32C78961076AC2E98CF4F"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/Construction/ConstructionServiceTests.cs",
+                               "code":  " M",
+                               "sha256":  "60362C54078D44520D7F931AB93A999757674615A00E4B6759C9770CC72F2B99"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CalculationContextWriterAuthorityTests.cs",
+                               "code":  " M",
+                               "sha256":  "7CE42EDADB6A427A8B6058DB6FF9D6736204AC3B5DA3FC43358C9F8FC680239C"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/CircuitsViewModelColdStartTests.cs",
+                               "code":  " M",
+                               "sha256":  "129D44AD948805934EF41BA923F395D39888B69228B72429F3F2F1ECC9269DAC"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ClimateToHydraulicsIntegrationTests.cs",
+                               "code":  " M",
+                               "sha256":  "861CFDACEB8A364C6CAB84FC157D251C66572704DB463C7911E635B34F1EE29D"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/DoubleCalculationPreventionTests.cs",
+                               "code":  " M",
+                               "sha256":  "86C95D204F356B9067C3EA90436BE1CB6C0E8DABE31D60CEC91C0DB2D76F5ED6"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/GlycolAutoRecalculationTests.cs",
+                               "code":  " M",
+                               "sha256":  "CD22380E40EBA22E6FE6FDD32BC6CA5F04C28851F1E63EE49F8E4398CF203838"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/HydraulicsMultiplicityCharacterizationTests.cs",
+                               "code":  " M",
+                               "sha256":  "795913BB3AF33AA8B2C9499608FF6D35CEFE41672E0D8110DDD7979DE5213140"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/PipeSpacingSynchronizationTests.cs",
+                               "code":  " M",
+                               "sha256":  "90311016DFF4338B70CDACF29C65FE04FB91DDF734A628945E5CC75D0D97F66A"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/IntegrationTests/Hydraulics/ThermalToHydraulicsIntegrationTests.cs",
+                               "code":  " M",
+                               "sha256":  "A6892CB7AB8AF810E750AD116214675DBE80D96B017D34B2B90D02F0A0845689"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/Services/Navigation/DialogServiceThreadAffinityTests.cs",
+                               "code":  " M",
+                               "sha256":  "C9D880FE0C4E8D468E2E08A5EEB305550167D4499259EFA8B2837B25D45D3ED9"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ClimateThermalInvalidationRegressionTests.cs",
+                               "code":  " M",
+                               "sha256":  "AB15BDA9305AB746D1271BC543C86C83C04599856AD505476C1D1C1904105FF0"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ProjectLifecycleFlowCharacterizationTests.cs",
+                               "code":  " M",
+                               "sha256":  "D7AD66593B0E8775005DA44A1B2575CD7FA11EB0B784D1A8B5613EF28CFDD0F9"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/Services/Project/ThermalMultiplicityCharacterizationTests.cs",
+                               "code":  " M",
+                               "sha256":  "2F1ADCE84F09B3CBB73A093FED16032D9609E04B4505894E4A2AE8FF80BACE79"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelEventLeakTests.cs",
+                               "code":  " M",
+                               "sha256":  "522F9B5000D2EDAED7F16C466F5467B4917A5C458CC929107045D416A2B485C0"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/Hydraulics/CircuitsViewModelTests.cs",
+                               "code":  " M",
+                               "sha256":  "AFD70813227265D02D9027935BF140CF04026DE1870C82EDDF1ACD36A403F941"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/MainViewModelTests.cs",
+                               "code":  " M",
+                               "sha256":  "0870E08829EA03D0D51A3B66F20E20436FA93BBE1B32416AF409609D5D284B0B"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResetOrchestrationTests.cs",
+                               "code":  " M",
+                               "sha256":  "B6F8C73830A2F95BB1F87038A3C20E6E9EA698CEFD2EA3E046B03E77214B579F"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelOpenProjectTests.cs",
+                               "code":  " M",
+                               "sha256":  "C7CE2E5BDF50C5CCB020AFC5AC15C65AAF897CBCD97ADF9A4EA4F43DD17ACD3C"
+                           },
+                           {
+                               "path":  "tests/SnowMeltingCalculator.Tests/ViewModels/ResultsViewModelTestHelpers.cs",
+                               "code":  " M",
+                               "sha256":  "562DB8BA9E8294023E10A210176145A2D43B77C5614048D777DF7EBA9349EE7C"
+                           },
+                           {
+                               "path":  "docs/architecture-migration/evidence/phase-5.1-hydraulics-dirty-ownership-correction/",
+                               "code":  "??",
+                               "sha256":  null
+                           },
+                           {
+                               "path":  "docs/architecture-migration/plans/phase-5.1-hydraulics-dirty-ownership-correction.draft.md",
+                               "code":  "??",
+                               "sha256":  "34E0F349DE4DFBA023D9DC3D86392BEE91ABE13CE10004BCCB35DE4B1890DA19"
+                           },
+                           {
+                               "path":  "docs/architecture-migration/plans/phase-5.1-hydraulics-dirty-ownership-correction.md",
+                               "code":  "??",
+                               "sha256":  "65999B8FF9008157ADAADC57D85138AF610829F70E57C6E9B0269F98C72EE46C"
+                           },
+                           {
+                               "path":  "docs/architecture-migration/workflow/register-state.mjs",
+                               "code":  "??",
+                               "sha256":  "1DCA46452612231C4A6F28FC0CBB930648331A8061728374DC951C40D979E9E3"
+                           },
+                           {
+                               "path":  "docs/architecture-migration/workflow/register-state.test.mjs",
+                               "code":  "??",
+                               "sha256":  "0027B6F1564D60B3ECD1F6562038E9D8B7C97AAA8BE2C69C3DE41E77F21EEFC7"
+                           }
+                       ],
+    "protectedPatterns":  [
+                              "src/Services/Project/**",
+                              "src/Services/Navigation/CalculationStateService.cs",
+                              "src/Services/Navigation/ICalculationStateService.cs",
+                              "src/Models/Navigation/CalculationContext.cs",
+                              "src/ViewModels/Hydraulics/CircuitsViewModel.cs",
+                              "src/ViewModels/Results/ResultsViewModel.cs",
+                              "src/Configuration/ServiceCollectionExtensions.cs",
+                              "src/Models/Project/ProjectData.cs",
+                              "src/Views/Hydraulics/*.xaml",
+                              "tests/SnowMeltingCalculator.Tests/**",
+                              "docs/architecture-migration/maps/**",
+                              "docs/architecture-migration/widget/**",
+                              "docs/architecture-migration/workflow/validate-state.mjs",
+                              "docs/architecture-migration/STATE.json"
+                          ],
+    "note":  "pre-existing dirty paths recorded verbatim; no files were overwritten"
+}
