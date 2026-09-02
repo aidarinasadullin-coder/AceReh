@@ -1735,9 +1735,6 @@ public sealed class ThermalMultiplicityCharacterizationTests
             calculationState,
             materialRepository.Object,
             effectiveConstructionService,
-            climateViewModel,
-            constructionViewModel,
-            thermalViewModel,
             circuitsViewModel,
             orchestrator,
             new ResultsPdfDataBuilder(

@@ -37,9 +37,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var projectStateService = new ProjectStateService();
             var results = ResultsViewModelTestHelpers.CreateResultsViewModel(
                 projectStateService,
-                ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors());
+                ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors(),
+                out var climate,
+                out var construction,
+                out var thermal);
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(results);
-            var window = CreateUninitializedMainWindow(results, projectStateService);
+            var window = CreateUninitializedMainWindow(results, projectStateService, climate, construction, thermal);
             var cachedView = new ContentControl { DataContext = results };
             SetCachedView(window, NavigationTarget.Results, cachedView);
             var refreshCount = 0;
@@ -74,8 +77,11 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var projectStateService = new ProjectStateService();
             var results = ResultsViewModelTestHelpers.CreateResultsViewModel(
                 projectStateService,
-                ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors());
-            var window = CreateUninitializedMainWindow(results, projectStateService, out var dialog);
+                ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors(),
+                out var climate,
+                out var construction,
+                out var thermal);
+            var window = CreateUninitializedMainWindow(results, projectStateService, climate, construction, thermal, out var dialog);
             var fallbackView = new object();
             SetCachedView(window, NavigationTarget.Climate, fallbackView);
             SetField(window, "_refreshResultsOnNavigate", (Action)(() => throw new InvalidOperationException("refresh failed")));
@@ -99,8 +105,11 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var projectStateService = new ProjectStateService();
             var results = ResultsViewModelTestHelpers.CreateResultsViewModel(
                 projectStateService,
-                ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors());
-            var window = CreateUninitializedMainWindow(results, projectStateService);
+                ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors(),
+                out var climate,
+                out var construction,
+                out var thermal);
+            var window = CreateUninitializedMainWindow(results, projectStateService, climate, construction, thermal);
             var cachedView = new object();
             SetCachedView(window, NavigationTarget.Climate, cachedView);
 
@@ -251,22 +260,25 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
         private static MainWindow CreateUninitializedMainWindow(
             ResultsViewModel results,
-            ProjectStateService projectStateService)
+            ProjectStateService projectStateService,
+            ClimateViewModel climate,
+            SnowMeltingCalculator.ViewModels.Construction.ConstructionViewModel construction,
+            ThermalViewModel thermal)
         {
-            return CreateUninitializedMainWindow(results, projectStateService, out _);
+            return CreateUninitializedMainWindow(results, projectStateService, climate, construction, thermal, out _);
         }
 
         private static MainWindow CreateUninitializedMainWindow(
             ResultsViewModel results,
             ProjectStateService projectStateService,
+            ClimateViewModel climate,
+            SnowMeltingCalculator.ViewModels.Construction.ConstructionViewModel construction,
+            ThermalViewModel thermal,
             out Moq.Mock<SnowMeltingCalculator.Services.Navigation.IDialogService> dialog)
         {
 #pragma warning disable SYSLIB0050
             var window = (MainWindow)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(MainWindow));
 #pragma warning restore SYSLIB0050
-            var climate = GetField<ClimateViewModel>(results, "_climateViewModel");
-            var construction = GetField<SnowMeltingCalculator.ViewModels.Construction.ConstructionViewModel>(results, "_constructionViewModel");
-            var thermal = GetField<ThermalViewModel>(results, "_thermalViewModel");
             var circuits = GetField<CircuitsViewModel>(results, "_circuitsViewModel");
             var calculationState = GetField<SnowMeltingCalculator.Services.Navigation.ICalculationStateService>(results, "_calculationStateService");
             dialog = new Moq.Mock<SnowMeltingCalculator.Services.Navigation.IDialogService>();

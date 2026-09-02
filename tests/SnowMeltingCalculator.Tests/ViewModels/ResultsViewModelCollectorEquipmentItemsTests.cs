@@ -31,7 +31,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             // When
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
-            ResultsViewModelTestHelpers.ReplaceCollectors(circuitsVm,
+            ResultsViewModelTestHelpers.ReplaceCollectorsCanonical(_projectStateService.Session, circuitsVm,
                 ResultsViewModelTestHelpers.CreateCollector(1, ValveType.HKV_D, circuitCount: 2),
                 ResultsViewModelTestHelpers.CreateCollector(2, ValveType.HKV_D, circuitCount: 2));
             viewModel.LoadHydraulicsDataOnNavigate();
@@ -57,7 +57,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             // When
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
-            ResultsViewModelTestHelpers.ReplaceCollectors(circuitsVm,
+            ResultsViewModelTestHelpers.ReplaceCollectorsCanonical(_projectStateService.Session, circuitsVm,
                 ResultsViewModelTestHelpers.CreateCollector(1, ValveType.HKV_D, circuitCount: 2),
                 ResultsViewModelTestHelpers.CreateCollector(2, ValveType.HKV_D, circuitCount: 3),
                 ResultsViewModelTestHelpers.CreateCollector(3, ValveType.IV_1_25, circuitCount: 2));
@@ -90,7 +90,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             // When
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
-            ResultsViewModelTestHelpers.ReplaceCollectors(circuitsVm,
+            ResultsViewModelTestHelpers.ReplaceCollectorsCanonical(_projectStateService.Session, circuitsVm,
                 firstHkvD, firstIv125, secondIv125, thirdIv125);
             viewModel.LoadHydraulicsDataOnNavigate();
 
@@ -119,7 +119,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 ResultsViewModelTestHelpers.CreateCollector(2, ValveType.HKV_D, circuitCount: 2));
             var viewModel = ResultsViewModelTestHelpers.CreateResultsViewModel(_projectStateService, circuitsVm);
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
-            ResultsViewModelTestHelpers.ReplaceCollectors(circuitsVm,
+            ResultsViewModelTestHelpers.ReplaceCollectorsCanonical(_projectStateService.Session, circuitsVm,
                 ResultsViewModelTestHelpers.CreateCollector(1, ValveType.HKV_D, circuitCount: 2),
                 ResultsViewModelTestHelpers.CreateCollector(2, ValveType.HKV_D, circuitCount: 2));
             viewModel.LoadHydraulicsDataOnNavigate();

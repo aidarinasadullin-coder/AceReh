@@ -47,6 +47,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         private ProjectStateService _projectStateService = null!;
         private Mock<IDialogService> _dialogServiceMock = null!;
         private Mock<IProjectFileService> _projectFileServiceMock = null!;
+        private Mock<IConstructionService> _constructionServiceMock = null!;
         private ResultsViewModel _viewModel = null!;
 
         private const string TestFilePath = @"C:\temp\test-project.smc";
@@ -57,7 +58,84 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             _projectStateService = new ProjectStateService();
             _dialogServiceMock = new Mock<IDialogService>();
             _projectFileServiceMock = new Mock<IProjectFileService>();
+            _constructionServiceMock = new Mock<IConstructionService>();
             _viewModel = CreateViewModel();
+        }
+
+        [Test]
+        public async Task OpenProject_WithCustomCatalogRecords_LeavesGlobalCatalogReadOnly()
+        {
+            // Given: project-local custom records and a wired construction service.
+            var customMaterial = new MaterialSnapshot { Id = 7001, Name = "Project-only material" };
+            var customTemplate = new ConstructionTemplate { Id = 7002, Name = "Project-only template" };
+            var projectData = new ProjectData
+            {
+                ProjectNumber = "CATALOG-READ-ONLY",
+                ClimateData = new ClimateProjectData(),
+                ConstructionData = new ConstructionProjectData(),
+                ThermalData = new ThermalProjectData
+                {
+                    Result = new ThermalResultProjectData { IsValid = true }
+                },
+                HydraulicsData = new HydraulicsProjectData(),
+                CustomMaterials = new List<MaterialSnapshot> { customMaterial },
+                CustomTemplates = new List<ConstructionTemplate> { customTemplate }
+            };
+
+            var viewModel = CreateViewModel();
+
+            // When: opening the project through the existing restore boundary.
+            await viewModel.LoadProjectDataAsync(projectData);
+
+            // Then: no global catalog CRUD/import operation is invoked, and the
+            // project-local records remain only in the loaded DTO.
+            _constructionServiceMock.Verify(
+                service => service.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()),
+                Times.Never);
+            _constructionServiceMock.Verify(
+                service => service.ImportProjectTemplatesAsync(It.IsAny<IEnumerable<ConstructionTemplate>>()),
+                Times.Never);
+            _constructionServiceMock.Verify(
+                service => service.ImportMissingMaterialAsync(It.IsAny<MaterialSnapshot>()),
+                Times.Never);
+            Assert.That(projectData.CustomMaterials, Has.Count.EqualTo(1));
+            Assert.That(projectData.CustomMaterials[0].Name, Is.EqualTo(customMaterial.Name));
+            Assert.That(projectData.CustomTemplates, Has.Count.EqualTo(1));
+            Assert.That(projectData.CustomTemplates[0].Name, Is.EqualTo(customTemplate.Name));
+        }
+
+        [Test]
+        public async Task OpenProject_WithInvalidCustomCatalogRecords_DoesNotMutateGlobalCatalog()
+        {
+            // Given: an otherwise valid project carrying an invalid custom record.
+            var projectData = new ProjectData
+            {
+                ProjectNumber = "CATALOG-INVALID",
+                ClimateData = new ClimateProjectData(),
+                ConstructionData = new ConstructionProjectData(),
+                ThermalData = new ThermalProjectData
+                {
+                    Result = new ThermalResultProjectData { IsValid = true }
+                },
+                HydraulicsData = new HydraulicsProjectData(),
+                CustomMaterials = new List<MaterialSnapshot> { null! }
+            };
+
+            var viewModel = CreateViewModel();
+
+            // When: opening the project with the invalid project-local record.
+            await viewModel.LoadProjectDataAsync(projectData);
+
+            // Then: invalid project-local catalog data is not routed to global CRUD.
+            _constructionServiceMock.Verify(
+                service => service.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()),
+                Times.Never);
+            _constructionServiceMock.Verify(
+                service => service.ImportProjectTemplatesAsync(It.IsAny<IEnumerable<ConstructionTemplate>>()),
+                Times.Never);
+            _constructionServiceMock.Verify(
+                service => service.ImportMissingMaterialAsync(It.IsAny<MaterialSnapshot>()),
+                Times.Never);
         }
 
         [Test]
@@ -883,6 +961,26 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 DeltaT = 10,
                 IsValid = true
             };
+
+            // Phase 8: ThermalViewModel.Result — адаптерное зеркало (канон не пишет).
+            // Канонический эквивалент «живой» мутации результата — публикация через
+            // ThermalState (как делает координатор при расчёте): иначе save/restore
+            // и готовность по канону не увидят результат.
+            var liveSession = _projectStateService.Session;
+            liveSession.ThermalState.CompleteCalculation(
+                liveSession.ThermalState.Snapshot.Inputs,
+                ThermalResultSnapshot.FromResult(new ThermalCalculationResult
+                {
+                    PowerUp = 50,
+                    PowerDown = 50,
+                    PowerTotal = 100,
+                    SupplyTemperature = 45,
+                    ReturnTemperature = 35,
+                    MeanTemperature = 40,
+                    DeltaT = 10,
+                    IsValid = true
+                })!,
+                string.Empty);
 
             var circuitsVm = CreateCircuitsViewModel(
                 calculationStateService,
@@ -1820,8 +1918,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(new List<Material>());
             materialRepositoryMock.Setup(r => r.GetAllMaterials()).Returns(new List<Material>());
 
-            var constructionServiceMock = new Mock<IConstructionService>();
-            constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
+            _constructionServiceMock.Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
+                .Returns(Task.CompletedTask);
+            _constructionServiceMock.Setup(s => s.ImportProjectTemplatesAsync(It.IsAny<IEnumerable<ConstructionTemplate>>()))
                 .Returns(Task.CompletedTask);
 
             var calculationStateService = new CalculationStateService(_projectStateService.Session);
@@ -1837,10 +1936,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 _projectFileServiceMock.Object,
                 calculationStateService,
                 materialRepositoryMock.Object,
-                constructionServiceMock.Object,
-                climateVm,
-                constructionVm,
-                thermalVm,
+                _constructionServiceMock.Object,
                 circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
@@ -1848,7 +1944,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     thermalVm,
                     circuitsVm,
                     calculationStateService,
-                    constructionServiceMock.Object,
+                    _constructionServiceMock.Object,
                     calculationContext,
                     _projectStateService.Session,
                     CreateDefaultConstructionInitializer(_projectStateService.Session)),
@@ -2067,9 +2163,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
-                climateVm,
-                constructionVm,
-                thermalVm,
                 circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
@@ -2343,6 +2436,125 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 Times.Once);
             Assert.That(_projectStateService.CurrentFilePath, Is.EqualTo(TestFilePath));
             Assert.That(_projectStateService.IsDirty, Is.False);
+        }
+
+        [Test]
+        public async Task LoadProjectData_WhenRestorePreflightRejects_DoesNotPublishSuccessOrPath()
+        {
+            var projectChangedCount = 0;
+            _viewModel.ProjectChanged += (_, _) => projectChangedCount++;
+            var projectData = new ProjectData
+            {
+                ProjectNumber = "REJECTED",
+                ProjectObject = "Rejected restore",
+                ClimateData = new ClimateProjectData(),
+                ConstructionData = new ConstructionProjectData(),
+                ThermalData = new ThermalProjectData
+                {
+                    SelectedMode = OperatingMode.Melting,
+                    SupplyTemperature = 10.0,
+                    GroundTemperature = 5.0,
+                    PipeSpacing = 200,
+                    SelectedPipe = new PipeTypeProjectData
+                    {
+                        Name = "RAUTHERM S 20x2,0",
+                        OuterDiameter = 20.0,
+                        InnerDiameter = 16.0,
+                        WallThickness = 2.0
+                    }
+                },
+                HydraulicsData = new HydraulicsProjectData()
+            };
+
+            await _viewModel.LoadProjectDataAsync(projectData);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(projectChangedCount, Is.Zero);
+                Assert.That(_projectStateService.CurrentFilePath, Is.Null);
+                Assert.That(_projectStateService.Session.IsLoadProjectInProgress, Is.False);
+                Assert.That(_projectStateService.IsDirty, Is.False);
+            });
+        }
+
+        [Test]
+        public async Task LoadProjectData_SecondInvalidProjectPreservesPriorUiAndReleasesRestoreGuard()
+        {
+            var projectChangedCount = 0;
+            _viewModel.ProjectChanged += (_, _) => projectChangedCount++;
+            var projectA = ResultsViewModelTestHelpers.CreateReadyProjectData();
+            projectA.ProjectNumber = "PROJECT-A";
+            var projectB = ResultsViewModelTestHelpers.CreateReadyProjectData();
+            projectB.ProjectNumber = "PROJECT-B";
+            projectB.ThermalData.SupplyTemperature = 10.0;
+
+            await _viewModel.LoadProjectDataAsync(projectA);
+            await _viewModel.LoadProjectDataAsync(projectB);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(_viewModel.TotalPowerDensity, Is.EqualTo(100));
+                Assert.That(_viewModel.SupplyTemperature, Is.EqualTo(45));
+                Assert.That(projectChangedCount, Is.EqualTo(1));
+                Assert.That(_projectStateService.Session.IsLoadProjectInProgress, Is.False);
+                Assert.That(_projectStateService.IsDirty, Is.False);
+            });
+        }
+
+        [Test]
+        public async Task LoadProjectData_InvalidSavedResultPublishesFreshUiAndPdfValuesOnce()
+        {
+            var calculationStateService = new CalculationStateService(_projectStateService.Session);
+            var thermalCalculatorMock = new Mock<IThermalCalculator>();
+            thermalCalculatorMock
+                .Setup(calculator => calculator.Calculate(
+                    It.IsAny<ThermalInputs>(),
+                    It.IsAny<IClimateData>(),
+                    It.IsAny<IConstructionData>()))
+                .Returns(new ThermalCalculationResult
+                {
+                    PowerUp = 111,
+                    PowerDown = 222,
+                    PowerTotal = 333,
+                    SupplyTemperature = 55,
+                    ReturnTemperature = 44,
+                    MeanTemperature = 49.5,
+                    DeltaT = 11,
+                    IsValid = true
+                });
+            var thermalVm = CreateThermalViewModel(calculationStateService, _projectStateService, thermalCalculatorMock.Object);
+            var viewModel = CreateViewModel(
+                CreateClimateViewModelWithCity("Тестовый город", "Тестовый регион", -25, 3, 70),
+                CreateConstructionViewModel(_projectStateService.Session),
+                thermalVm,
+                CreateCircuitsViewModel(calculationStateService, _projectStateService),
+                calculationStateService);
+            var projectData = ResultsViewModelTestHelpers.CreateReadyProjectData();
+            projectData.ThermalData.SupplyTemperature = 45.0;
+            projectData.ThermalData.GroundTemperature = 5.0;
+            projectData.ThermalData.Result = new ThermalResultProjectData
+            {
+                PowerTotal = 999999,
+                SupplyTemperature = 45,
+                IsValid = false
+            };
+
+            await viewModel.LoadProjectDataAsync(projectData);
+            var pdfData = GetField<ResultsPdfDataBuilder>(viewModel, "_resultsPdfDataBuilder").Build(viewModel);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(viewModel.TotalPowerDensity, Is.EqualTo(333));
+                Assert.That(viewModel.SupplyTemperature, Is.EqualTo(55));
+                Assert.That(pdfData.TotalPowerDensity, Is.EqualTo(333));
+                Assert.That(pdfData.SupplyTemperature, Is.EqualTo(55));
+            });
+            thermalCalculatorMock.Verify(
+                calculator => calculator.Calculate(
+                    It.IsAny<ThermalInputs>(),
+                    It.IsAny<IClimateData>(),
+                    It.IsAny<IConstructionData>()),
+                Times.Once);
         }
 
         [Test]

@@ -36,6 +36,21 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             ProjectStateService projectStateService,
             CircuitsViewModel circuitsVm)
         {
+            return CreateResultsViewModel(
+                projectStateService,
+                circuitsVm,
+                out _,
+                out _,
+                out _);
+        }
+
+        public static ResultsViewModel CreateResultsViewModel(
+            ProjectStateService projectStateService,
+            CircuitsViewModel circuitsVm,
+            out ClimateViewModel climateVmOut,
+            out ConstructionViewModel constructionVmOut,
+            out ThermalViewModel thermalVmOut)
+        {
             var materials = Material.GetDefaultMaterials().ToList();
             var materialsById = materials.ToDictionary(material => material.Id);
             var materialRepositoryMock = new Mock<IMaterialRepository>();
@@ -55,6 +70,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 projectStateService.Session,
                 materialRepositoryMock.Object);
             var thermalVm = CreateThermalViewModel();
+            climateVmOut = climateVm;
+            constructionVmOut = constructionVm;
+            thermalVmOut = thermalVm;
             var constructionDefaultStateInitializer = CreateDefaultConstructionInitializer(
                 projectStateService.Session,
                 materialRepositoryMock.Object);
@@ -70,9 +88,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
-                climateVm,
-                constructionVm,
-                thermalVm,
                 circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
@@ -283,6 +298,43 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             {
                 viewModel.Collectors.Add(collector);
             }
+        }
+
+        /// <summary>
+        /// Phase 8: зеркалит сеяние коллекторов в канонический HydraulicsState
+        /// (готовность/KPI читаются из канона, карточки оборудования — из VM).
+        /// </summary>
+        public static void ReplaceCollectorsCanonical(
+            IProjectSession session,
+            CircuitsViewModel viewModel,
+            params CollectorData[] collectors)
+        {
+            ReplaceCollectors(viewModel, collectors);
+
+            session.HydraulicsState.ReplaceCollectors(
+                collectors.Where(c => c != null).Select(c => new HydraulicCollectorSnapshot(
+                    c.CollectorNumber,
+                    c.CollectorType,
+                    c.ValveType,
+                    c.Circuits?.Select(row => new HydraulicCircuitSnapshot(
+                        row.CircuitNumber,
+                        row.CircuitLength,
+                        row.SupplyLength,
+                        row.SupplySpacing_cm,
+                        row.SupplyHeatPercent,
+                        row.PipeSpacing_cm)) ?? System.Array.Empty<HydraulicCircuitSnapshot>(),
+                    c.Summary == null
+                        ? null
+                        : new HydraulicCollectorSummarySnapshot(
+                            c.Summary.CircuitCount,
+                            c.Summary.TotalPipeLength,
+                            c.Summary.TotalPower,
+                            c.Summary.TotalFlowRate,
+                            c.Summary.PressureLoss_Operating_Pa,
+                            c.Summary.PressureLoss_Cold_Pa,
+                            c.Summary.Kv,
+                            c.Summary.CollectorType))),
+                HydraulicsMutationOrigin.Calculation);
         }
 
         public static Task LoadReadyModulesAsync(ResultsViewModel viewModel)

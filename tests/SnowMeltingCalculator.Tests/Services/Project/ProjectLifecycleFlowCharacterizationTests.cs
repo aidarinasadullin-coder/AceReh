@@ -90,8 +90,12 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             Assert.That(projectState.IsDirty, Is.False,
                 "Sanity: load must leave the project clean.");
 
-            var climateVm = GetField<ClimateViewModel>(viewModel, "_climateViewModel");
-            climateVm.AirTemperature = -20.0;
+            // Phase 8: Results больше не держит адаптер климата; канонический эквивалент
+            // пользовательской правки — ApplyIndividualEdit (dirty через тот же
+            // IProjectStateService/IMarkDirtyService seam — ProjectSession).
+            projectState.Session.ClimateState.ApplyIndividualEdit(
+                new ClimateEdit(ClimateEditField.AirTemperature, -20.0),
+                ClimateMutationOrigin.User);
 
             Assert.That(projectState.IsDirty, Is.True,
                 "A post-load edit must mark the project dirty through the existing IProjectStateService/IMarkDirtyService seam.");
@@ -521,6 +525,52 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             });
         }
 
+        [Test]
+        public async Task RestoreModulesFromProjectAsync_InvalidThermalInput_DoesNotMutatePriorClimateOrThermalSlices()
+        {
+            // Given: a session with established prior Climate and Thermal slices
+            // that differ from any value the restored project would apply.
+            var fixture = CreateCanonicalThermalOrchestrator();
+            var session = fixture.Session;
+
+            session.ClimateState.ApplyIndividualEdit(
+                new ClimateEdit(ClimateEditField.AirTemperature, -10.0),
+                ClimateMutationOrigin.User);
+            var priorClimate = session.ClimateState.Snapshot;
+
+            session.ThermalState.Restore(
+                new ThermalInputsSnapshot(OperatingMode.Intensive, 60.0, 5.0, null, 300),
+                null);
+            var priorThermal = session.ThermalState.Snapshot;
+
+            // When: restoring a project whose thermal input is invalid
+            // (out-of-range pipe spacing) under a project-restore lease.
+            var data = CreateThermalProjectData(
+                OperatingMode.Melting,
+                55.0,
+                8.0,
+                9999,
+                null,
+                new ThermalResultProjectData { PowerTotal = 777.0, IsValid = true });
+            data.ClimateData.AirTemperature = -25.0;
+            data.ClimateData.SelectedCity = "RestoredCity";
+
+            using (session.BeginProjectRestore())
+            {
+                await fixture.Orchestrator.RestoreModulesFromProjectAsync(data);
+            }
+
+            // Then: validation must occur before any canonical slice mutation —
+            // the prior Climate and Thermal slices must remain unchanged.
+            Assert.Multiple(() =>
+            {
+                Assert.That(session.ClimateState.Snapshot, Is.EqualTo(priorClimate),
+                    "Climate slice must not be mutated before an invalid thermal restore candidate is rejected.");
+                Assert.That(session.ThermalState.Snapshot, Is.EqualTo(priorThermal),
+                    "Thermal slice must not be mutated before its own invalid candidate is rejected.");
+            });
+        }
+
         #endregion
 
         #region Helpers
@@ -554,9 +604,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 calcState,
                 new Mock<IMaterialRepository>().Object,
                 constructionSvc,
-                climateVm,
-                constructionVm,
-                thermalVm,
                 circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
