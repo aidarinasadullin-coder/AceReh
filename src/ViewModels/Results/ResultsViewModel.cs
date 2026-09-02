@@ -38,9 +38,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly ICalculationStateService _calculationStateService;
         private readonly IMaterialRepository _materialRepository;
         private readonly IConstructionService _constructionService;
-        private readonly ClimateViewModel _climateViewModel;
-        private readonly ConstructionViewModel _constructionViewModel;
-        private readonly ThermalViewModel _thermalViewModel;
+        private readonly IProjectSnapshotPersistenceInputs? _persistenceInputs;
         private readonly CircuitsViewModel _circuitsViewModel;
         private readonly ProjectLoadOrchestrator _projectLoadOrchestrator;
         private readonly ResultsPdfDataBuilder _resultsPdfDataBuilder;
@@ -299,11 +297,33 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// <summary>
         /// Признак рабочего режима (true = рабочая температура, false = расчётная)
         /// </summary>
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(CurrentModeText))]
-        [NotifyPropertyChangedFor(nameof(IsDesignMode))]
-        [NotifyPropertyChangedFor(nameof(MaxPressureLoss))]
+        /// <remarks>
+        /// Phase 8 / ST-003: источник истины — app-owned
+        /// <see cref="IProjectDisplayModeState"/> (когда зарегистрирован);
+        /// VM-поле остаётся fallback для legacy-сборки без seam.
+        /// </remarks>
         private bool _isOperatingMode = true;
+
+        public bool IsOperatingMode
+        {
+            get => _displayModeState?.IsOperatingMode ?? _isOperatingMode;
+            set
+            {
+                if (IsOperatingMode == value) return;
+                if (_displayModeState is not null)
+                {
+                    _displayModeState.IsOperatingMode = value;
+                }
+                else
+                {
+                    _isOperatingMode = value;
+                }
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CurrentModeText));
+                OnPropertyChanged(nameof(IsDesignMode));
+                OnPropertyChanged(nameof(MaxPressureLoss));
+            }
+        }
 
         /// <summary>
         /// Признак расчётного режима
@@ -316,11 +336,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
         public string CurrentModeText => IsOperatingMode
             ? "Рабочий режим"
             : "Расчётный режим (холодный пуск)";
-
-        /// <summary>
-        /// ViewModel конструкции (для визуализации)
-        /// </summary>
-        public ConstructionViewModel ConstructionViewModel => _constructionViewModel;
 
         /// <summary>
         /// Сервис состояния расчёта (канонический источник шага укладки)
@@ -491,15 +506,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
             ICalculationStateService calculationStateService,
             IMaterialRepository materialRepository,
             IConstructionService constructionService,
-            ClimateViewModel climateViewModel,
-            ConstructionViewModel constructionViewModel,
-            ThermalViewModel thermalViewModel,
             CircuitsViewModel circuitsViewModel,
             ProjectLoadOrchestrator projectLoadOrchestrator,
             ResultsPdfDataBuilder resultsPdfDataBuilder,
             HydraulicSummaryBuilder hydraulicSummaryBuilder,
             IProjectSaveService? projectSaveService = null,
-            IProjectDisplayModeState? displayModeState = null)
+            IProjectDisplayModeState? displayModeState = null,
+            IProjectSnapshotPersistenceInputs? persistenceInputs = null)
         {
             _projectStateService = projectStateService ?? throw new ArgumentNullException(nameof(projectStateService));
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
@@ -513,9 +526,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
-            _climateViewModel = climateViewModel ?? throw new ArgumentNullException(nameof(climateViewModel));
-            _constructionViewModel = constructionViewModel ?? throw new ArgumentNullException(nameof(constructionViewModel));
-            _thermalViewModel = thermalViewModel ?? throw new ArgumentNullException(nameof(thermalViewModel));
+            _persistenceInputs = persistenceInputs;
             _circuitsViewModel = circuitsViewModel ?? throw new ArgumentNullException(nameof(circuitsViewModel));
             _projectLoadOrchestrator = projectLoadOrchestrator ?? throw new ArgumentNullException(nameof(projectLoadOrchestrator));
             _resultsPdfDataBuilder = resultsPdfDataBuilder ?? throw new ArgumentNullException(nameof(resultsPdfDataBuilder));
@@ -555,14 +566,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
             IsOperatingMode = !IsOperatingMode;
             UpdateCircuitsFilter();
             UpdatePumpHead();
-        }
-
-        partial void OnIsOperatingModeChanged(bool value)
-        {
-            if (_displayModeState is not null)
-            {
-                _displayModeState.IsOperatingMode = value;
-            }
         }
 
         /// <summary>
@@ -1020,12 +1023,18 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         private void LoadClimateData()
         {
-            SelectedCity = _climateViewModel.SelectedCity?.Name ?? string.Empty;
-            DesignTemperature = _climateViewModel.AirTemperature;
-            ClimateZone = _climateViewModel.SelectedZone;
-            ColdPeriodDays = _climateViewModel.SelectedCity?.Period_0_Days ?? 150;
-            WindSpeed = _climateViewModel.WindSpeed;
-            SnowfallIntensity = _climateViewModel.SnowfallIntensity;
+            // Phase 8: проекция Results читает канонический ClimateState snapshot,
+            // а не кэши ClimateViewModel. ColdPeriodDays канонизирован как
+            // ClimateStateSnapshot.Period0Days (Amendment 1, owner decision B).
+            var climateSnapshot = _projectSession.ClimateState.Snapshot;
+            SelectedCity = climateSnapshot.SelectedCity ?? string.Empty;
+            DesignTemperature = climateSnapshot.AirTemperature;
+            ClimateZone = climateSnapshot.Zone;
+            ColdPeriodDays = string.IsNullOrEmpty(climateSnapshot.SelectedCity)
+                ? 150
+                : climateSnapshot.Period0Days;
+            WindSpeed = climateSnapshot.WindSpeed;
+            SnowfallIntensity = climateSnapshot.SnowfallIntensity;
         }
 
         /// <summary>
@@ -1033,25 +1042,36 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         private void LoadConstructionData()
         {
-            R1 = _constructionViewModel.R1Total;
-            R2 = _constructionViewModel.R2Total;
-            LambdaE = _constructionViewModel.LambdaE;
+            // Phase 8: R1/R2/LambdaE читаются из канонической проекции ConstructionState
+            // (формулы идентичны модели Construction), слои реконструируются из канонического
+            // снапшота в порядке присваиваний Layer.Clone(), чтобы сеттер Material не
+            // перезаписал снапшотную λ.
+            var constructionState = _projectSession.ConstructionState;
+            var projection = constructionState.CurrentProjection;
+            R1 = projection.R1Total;
+            R2 = projection.R2Total;
+            LambdaE = projection.LambdaE;
 
-            // Загружаем слои
             Layers.Clear();
-            if (_constructionViewModel.LayersAbovePipe != null)
+            AppendLayers(constructionState.Snapshot.LayersAbovePipe);
+            AppendLayers(constructionState.Snapshot.LayersBelowPipe);
+        }
+
+        private void AppendLayers(IReadOnlyList<ConstructionLayerSnapshot> layerSnapshots)
+        {
+            foreach (var layerSnapshot in layerSnapshots)
             {
-                foreach (var layer in _constructionViewModel.LayersAbovePipe)
+                Layers.Add(new Layer
                 {
-                    Layers.Add(layer);
-                }
-            }
-            if (_constructionViewModel.LayersBelowPipe != null)
-            {
-                foreach (var layer in _constructionViewModel.LayersBelowPipe)
-                {
-                    Layers.Add(layer);
-                }
+                    Id = layerSnapshot.Id,
+                    Material = _materialRepository.GetMaterialById(layerSnapshot.MaterialId)
+                        ?? new Material { Id = layerSnapshot.MaterialId, Name = layerSnapshot.MaterialName ?? "Не указан" },
+                    Thickness = layerSnapshot.Thickness,
+                    CalculatedLambda = layerSnapshot.CalculatedLambda,
+                    IsLambdaOverridden = layerSnapshot.IsLambdaOverridden,
+                    Position = layerSnapshot.Position,
+                    Order = layerSnapshot.Order
+                });
             }
         }
 
@@ -1075,7 +1095,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             // Surface temperature from mode: +3, +5, +7
             SurfaceTemperature = (int)thermalSnapshot.Inputs.Mode;
 
-            var result = _thermalViewModel.Result;
+            var result = _projectSession.ThermalState.Snapshot.Result;
             if (result != null)
             {
                 PowerUp = result.PowerUp;
@@ -1102,11 +1122,12 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         private void LoadHydraulicsData()
         {
-            // Тип гликоля
-            GlycolType = _circuitsViewModel.InputData?.GlycolType ?? GlycolType.Ethylene;
-
-            // Концентрация гликоля с null-check
-            GlycolConcentration = _circuitsViewModel.InputData?.GlycolConcentration ?? 50.0;
+            // Phase 8: тип гликоля и концентрация читаются из канонического
+            // HydraulicsState.GlobalInputs (Default = Ethylene/50 — те же значения,
+            // что давал fallback адаптера).
+            var globalInputs = _projectSession.HydraulicsState.Snapshot.GlobalInputs;
+            GlycolType = globalInputs.GlycolType;
+            GlycolConcentration = globalInputs.GlycolConcentration;
 
             // Обновляем список коллекторов
             UpdateCollectorsList();
@@ -1179,14 +1200,12 @@ namespace SnowMeltingCalculator.ViewModels.Results
             // из предыдущего проекта, а должно быть 0.
             double totalPower_W = 0;
 
-            if (_circuitsViewModel.Collectors != null)
+            // Phase 8: KPI-агрегаты читаются из канонического HydraulicsState snapshot.
+            foreach (var collector in _projectSession.HydraulicsState.Snapshot.Collectors)
             {
-                foreach (var collector in _circuitsViewModel.Collectors)
+                if (collector?.Summary != null)
                 {
-                    if (collector?.Summary != null)
-                    {
-                        totalPower_W += collector.Summary.TotalPower;
-                    }
+                    totalPower_W += collector.Summary.TotalPower;
                 }
             }
 
@@ -1209,16 +1228,14 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 innerDiameter_m = canonicalPipe.InnerDiameter / 1000.0; // мм → м
             }
 
-            // Суммируем длины всех контуров
-            if (_circuitsViewModel.Collectors != null)
+            // Суммируем длины всех контуров из канонического HydraulicsState snapshot;
+            // TotalLength контура = CircuitLength + SupplyLength (как CircuitRow.TotalLength).
+            foreach (var collector in _projectSession.HydraulicsState.Snapshot.Collectors)
             {
-                foreach (var collector in _circuitsViewModel.Collectors)
+                if (collector?.Circuits == null) continue;
+                foreach (var circuit in collector.Circuits)
                 {
-                    if (collector?.Circuits == null) continue;
-                    foreach (var circuit in collector.Circuits)
-                    {
-                        totalLength += circuit.TotalLength;
-                    }
+                    totalLength += circuit.CircuitLength + circuit.SupplyLength;
                 }
             }
 
@@ -1243,7 +1260,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
             double totalFlowRate_Lh = 0;
             double maxPressureLoss_Pa = 0;
 
-            if (_circuitsViewModel.Collectors == null)
+            var pumpCollectors = _projectSession.HydraulicsState.Snapshot.Collectors;
+            if (pumpCollectors.Count == 0)
             {
                 PumpFlowRate_m3h = 0;
                 PumpQ = 0;
@@ -1252,7 +1270,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 return;
             }
 
-            foreach (var collector in _circuitsViewModel.Collectors)
+            foreach (var collector in pumpCollectors)
             {
                 if (collector?.Summary != null)
                 {
@@ -1286,14 +1304,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         {
             double maxPressureLoss_Pa = 0;
 
-            if (_circuitsViewModel.Collectors == null)
-            {
-                PumpHead_kPa = 0;
-                PumpH = 0;
-                return;
-            }
-
-            foreach (var collector in _circuitsViewModel.Collectors)
+            foreach (var collector in _projectSession.HydraulicsState.Snapshot.Collectors)
             {
                 if (collector?.Summary != null)
                 {
@@ -1335,16 +1346,15 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
             Collectors.Clear();
 
-            if (_circuitsViewModel.Collectors == null)
-            {
-                RzsCount = 0;
-                SelectedCollectorIndex = -1;
-                return;
-            }
+            // Phase 8: список коллекторов строится из канонического HydraulicsState snapshot.
+            // Пустой канон: общий путь ниже сбрасывает RzsCount, выбор и обновляет
+            // summary/filter (ранний return здесь оставил бы stale-итоги выбранного
+            // коллектора от предыдущего проекта).
+            var canonicalCollectors = _projectSession.HydraulicsState.Snapshot.Collectors;
 
-            for (int i = 0; i < _circuitsViewModel.Collectors.Count; i++)
+            for (int i = 0; i < canonicalCollectors.Count; i++)
             {
-                var collectorData = _circuitsViewModel.Collectors[i];
+                var collectorData = canonicalCollectors[i];
                 if (collectorData == null) continue;
 
                 var collectorInfo = new CollectorInfo
@@ -1352,7 +1362,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     Number = collectorData.CollectorNumber,
                     DisplayName = $"Коллектор №{collectorData.CollectorNumber} ({collectorData.Circuits?.Count ?? 0} {GetContourWord(collectorData.Circuits?.Count ?? 0)})",
                     CircuitCount = collectorData.Circuits?.Count ?? 0,
-                    TotalFlowRate = collectorData.Summary?.TotalFlowRate_m3h ?? 0,
+                    TotalFlowRate = (collectorData.Summary?.TotalFlowRate ?? 0) / 1000.0,
                     IsSelected = (i == 0) // Первый коллектор выбран по умолчанию
                 };
                 collectorInfo.SetParent(this);
@@ -1478,41 +1488,34 @@ namespace SnowMeltingCalculator.ViewModels.Results
         {
             MissingModules.Clear();
 
-            // Проверка климатических данных
-            if (_climateViewModel.SelectedCity == null)
+            // Проверка климатических данных (Phase 8: канонический ClimateState;
+            // IsCitySelected выставляется в ApplyCitySelection/ApplyProjectSnapshot)
+            if (!_projectSession.ClimateState.Snapshot.IsCitySelected)
             {
                 MissingModules.Add("Климат - не выбран город");
             }
 
-            // Проверка конструкции
-            if (!_constructionViewModel.IsValid)
+            // Проверка конструкции (Phase 8: каноническая проекция ConstructionState)
+            if (!_projectSession.ConstructionState.CurrentProjection.IsValid)
             {
                 MissingModules.Add("Конструкция - невалидные данные");
             }
 
-            // Проверка теплового расчёта
-            if (_thermalViewModel.Result == null || !_thermalViewModel.Result.IsValid)
+            // Проверка теплового расчёта — из канонического ThermalState (Phase 8:
+            // тот же источник, что и проекция значений)
+            var thermalResult = _projectSession.ThermalState.Snapshot.Result;
+            if (thermalResult == null || !thermalResult.IsValid)
             {
                 MissingModules.Add("Тепловой расчёт - нет результата");
             }
-            else if (_thermalViewModel.SelectedPipe == null)
+            else if (_projectSession.ThermalState.Snapshot.Inputs.Pipe == null)
             {
                 MissingModules.Add("Тепловой расчёт - не выбрана труба");
             }
 
-            // Проверка гидравлического расчёта
-            bool hasValidCircuits = false;
-            if (_circuitsViewModel.Collectors != null)
-            {
-                foreach (var collector in _circuitsViewModel.Collectors)
-                {
-                    if (collector?.Circuits != null && collector.Circuits.Any(c => c.CircuitLength > 0))
-                    {
-                        hasValidCircuits = true;
-                        break;
-                    }
-                }
-            }
+            // Проверка гидравлического расчёта (Phase 8: канонический HydraulicsState)
+            var hasValidCircuits = _projectSession.HydraulicsState.Snapshot.Collectors
+                .Any(c => c?.Circuits != null && c.Circuits.Any(circuit => circuit.CircuitLength > 0));
 
             if (!hasValidCircuits)
             {
@@ -1634,7 +1637,11 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 // Восстанавливаем состояние модулей (климат, конструкция,
                 // тепловой расчёт, гидравлика) — оркестрация вынесена в
                 // ProjectLoadOrchestrator (этап C1). Файл — источник истины.
-                await _projectLoadOrchestrator.RestoreModulesFromProjectAsync(data);
+                var restored = await _projectLoadOrchestrator.RestoreModulesFromProjectAsync(data);
+                if (!restored)
+                {
+                    return;
+                }
 
                 // Единственное обновление снимка Results — ПОСЛЕ финального теплового
                 // результата, чтобы KPI не оставались снимком, снятым до расчёта.
@@ -1685,9 +1692,11 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 .Select(MaterialSnapshot.FromMaterial)
                 .ToList();
 
-            // Сохраняем пользовательские шаблоны конструкций с полными снимками материалов
+            // Сохраняем пользовательские шаблоны конструкций с полными снимками материалов.
+            // Phase 8: источник — канонический persistence-seam (репозиторий шаблонов, тот же,
+            // что использует Phase 6 file-save через ProjectSnapshotFactory), а не зеркало VM.
             var allMaterials = _materialRepository.GetAllMaterials().ToList();
-            data.CustomTemplates = _constructionViewModel.Templates
+            data.CustomTemplates = (_persistenceInputs?.Templates ?? new List<ConstructionTemplate>())
                 .Where(t => !t.IsBuiltIn)
                 .Select(t => new ConstructionTemplate
                 {
@@ -1745,20 +1754,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 _projectSession.HydraulicsState.Snapshot);
 
             return data;
-        }
-
-        /// <summary>
-        /// Проверить наличие несохранённых данных
-        /// </summary>
-        [Obsolete("Use IProjectStateService.IsDirty instead.")]
-        private bool HasUnsavedData()
-        {
-            // Проверяем, есть ли данные для сохранения
-            return !string.IsNullOrEmpty(ProjectNumber) ||
-                   !string.IsNullOrEmpty(ProjectObject) ||
-                   _climateViewModel.SelectedCity != null ||
-                   _thermalViewModel.SelectedPipe != null ||
-                   _circuitsViewModel.Collectors.Any(c => c.Circuits.Any());
         }
 
         #endregion

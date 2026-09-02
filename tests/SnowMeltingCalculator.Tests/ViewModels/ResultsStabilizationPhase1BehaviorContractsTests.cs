@@ -7,6 +7,7 @@ using NUnit.Framework;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Hydraulics;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Services.Visualization;
@@ -23,6 +24,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
     public sealed class ResultsStabilizationPhase1BehaviorContractsTests
     {
         private ProjectStateService _projectStateService = null!;
+        private ClimateViewModel _climateVm = null!;
+        private ConstructionViewModel _constructionVm = null!;
+        private ThermalViewModel _thermalVm = null!;
 
         [SetUp]
         public void SetUp()
@@ -35,10 +39,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         {
             var viewModel = CreateReadyViewModel();
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
-            var thermalViewModel = GetField<ThermalViewModel>(viewModel, "_thermalViewModel");
+            var projectSession = GetField<IProjectSession>(viewModel, "_projectSession");
             Assert.That(viewModel.TotalPowerDensity, Is.EqualTo(100));
 
-            thermalViewModel.Result = null;
+            // Phase 8: источник проекции — канонический ThermalState.Snapshot.Result.
+            // Эквивалент прежней очистки адаптерной копии — upstream-инвалидация
+            // канонического результата (DEC-T04: существующий результат очищается).
+            projectSession.ThermalState.InvalidateFromClimate("canonical result cleared");
             viewModel.RefreshAll();
 
             Assert.Multiple(() =>
@@ -55,8 +62,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         {
             var viewModel = CreateReadyViewModel();
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
-            var climateViewModel = GetField<ClimateViewModel>(viewModel, "_climateViewModel");
-            var thermalViewModel = GetField<ThermalViewModel>(viewModel, "_thermalViewModel");
+            var climateViewModel = _climateVm;
+            var thermalViewModel = _thermalVm;
             // AMZ-1: калькулятор переехал из ThermalViewModel в канонический координатор.
             var calculator = GetField<IThermalCalculator>(thermalViewModel.Coordinator, "_calculator");
             var retainedPower = viewModel.TotalPowerDensity;
@@ -100,6 +107,23 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             };
             ResultsViewModelTestHelpers.ReplaceCollectors(circuitsViewModel, collector);
 
+            // Phase 8: KPI и список коллекторов читаются из канонического HydraulicsState;
+            // сеем канонический эквивалент коллектора, сеянного в VM (TotalPipeLength 180,
+            // TotalPower 12000 → 12 kW).
+            var projectSession = GetField<IProjectSession>(viewModel, "_projectSession");
+            projectSession.HydraulicsState.ReplaceCollectors(new[]
+            {
+                new HydraulicCollectorSnapshot(
+                    7, "IV", ValveType.IV_1_25,
+                    new[]
+                    {
+                        new HydraulicCircuitSnapshot(1, 60, 0, 5, 10, 15),
+                        new HydraulicCircuitSnapshot(2, 60, 0, 5, 10, 15),
+                        new HydraulicCircuitSnapshot(3, 60, 0, 5, 10, 15)
+                    },
+                    new HydraulicCollectorSummarySnapshot(3, 180, 12000, 720, 24000, 0, 1.45, "IV"))
+            }, HydraulicsMutationOrigin.Calculation);
+
             viewModel.RefreshAll();
 
             Assert.Multiple(() =>
@@ -121,7 +145,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 ResultsViewModelTestHelpers.CreateCollector(1, ValveType.HKV_D, 2));
             var viewModel = ResultsViewModelTestHelpers.CreateResultsViewModel(_projectStateService, circuitsViewModel);
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
-            var thermalViewModel = GetField<ThermalViewModel>(viewModel, "_thermalViewModel");
+            var thermalViewModel = _thermalVm;
             // AMZ-1: калькулятор переехал из ThermalViewModel в канонический координатор.
             var thermalCalculator = GetField<IThermalCalculator>(thermalViewModel.Coordinator, "_calculator");
             var circuitsCalculator = GetField<SnowMeltingCalculator.Services.Hydraulics.ICircuitsCalculator>(
@@ -171,7 +195,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         {
             var viewModel = CreateReadyViewModel();
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
-            var climateViewModel = GetField<ClimateViewModel>(viewModel, "_climateViewModel");
+            var climateViewModel = _climateVm;
             var circuitsViewModel = GetField<CircuitsViewModel>(viewModel, "_circuitsViewModel");
             var builder = GetField<ResultsPdfDataBuilder>(viewModel, "_resultsPdfDataBuilder");
             climateViewModel.SelectedCity = new CityInfo { Name = "PDF current city", Region = "PDF region" };
@@ -179,6 +203,17 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var collector = ResultsViewModelTestHelpers.CreateCollector(9, ValveType.IV_1_5, 1);
             collector.Summary = new CollectorSummary { CollectorNumber = 9, CircuitCount = 1, TotalPower = 9000, TotalPipeLength = 70 };
             ResultsViewModelTestHelpers.ReplaceCollectors(circuitsViewModel, collector);
+
+            // Phase 8: TotalThermalPower читается из канонического HydraulicsState;
+            // сеем канонический эквивалент (TotalPower 9000 → 9 kW).
+            var projectSession = GetField<IProjectSession>(viewModel, "_projectSession");
+            projectSession.HydraulicsState.ReplaceCollectors(new[]
+            {
+                new HydraulicCollectorSnapshot(
+                    9, "IV", ValveType.IV_1_5,
+                    new[] { new HydraulicCircuitSnapshot(1, 60, 10, 5, 10, 15) },
+                    new HydraulicCollectorSummarySnapshot(1, 70, 9000, 0, 0, 0, 0, "IV"))
+            }, HydraulicsMutationOrigin.Calculation);
 
             var pdfData = builder.Build(viewModel);
 
@@ -199,7 +234,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var viewModel = CreateReadyViewModel();
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
             var builder = GetField<ResultsPdfDataBuilder>(viewModel, "_resultsPdfDataBuilder");
-            var constructionViewModel = GetField<ConstructionViewModel>(viewModel, "_constructionViewModel");
+            var constructionViewModel = _constructionVm;
             var imageService = GetField<IConstructionVisualizationImageService>(builder, "_constructionVisualizationImageService");
             SnowMeltingCalculator.Services.Visualization.ConstructionVisualizationParameters? captured = null;
             constructionViewModel.LayersAbovePipe.Clear();
@@ -255,7 +290,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         {
             var viewModel = CreateReadyViewModel();
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
-            var climateViewModel = GetField<ClimateViewModel>(viewModel, "_climateViewModel");
+            var climateViewModel = _climateVm;
             climateViewModel.SelectedCity = new CityInfo { Name = "Live save city", Region = "Live region" };
             climateViewModel.WindSpeed = 11;
 
@@ -310,10 +345,14 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
         private ResultsViewModel CreateReadyViewModel()
         {
-            return ResultsViewModelTestHelpers.CreateResultsViewModel(
+            var viewModel = ResultsViewModelTestHelpers.CreateResultsViewModel(
                 _projectStateService,
                 ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors(
-                    ResultsViewModelTestHelpers.CreateCollector(1, ValveType.HKV_D, 2)));
+                    ResultsViewModelTestHelpers.CreateCollector(1, ValveType.HKV_D, 2)),
+                out _climateVm,
+                out _constructionVm,
+                out _thermalVm);
+            return viewModel;
         }
 
         private static T GetField<T>(object instance, string fieldName) where T : class

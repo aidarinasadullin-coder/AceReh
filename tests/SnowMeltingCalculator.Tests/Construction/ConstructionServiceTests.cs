@@ -1052,7 +1052,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var constructionVm = CreateConstructionViewModel(repo);
             await constructionVm.InitializeCommand.ExecuteAsync(null);
 
-            constructionVm.Templates.Add(new ConstructionTemplate
+            await templateRepo.AddAsync(new ConstructionTemplate
             {
                 Name = "Custom Project Template",
                 Description = "User template",
@@ -1066,16 +1066,19 @@ namespace SnowMeltingCalculator.Tests.Construction
                 LayersBelowPipe = new List<LayerTemplate>()
             });
 
-            var viewModel = CreateResultsViewModel(constructionVm, service, repo);
+            var viewModel = CreateResultsViewModel(constructionVm, service, repo, templateRepo);
 
             // Act
             var savedData = viewModel.SaveCurrentProject();
 
             // Assert
             Assert.That(savedData.CustomTemplates, Is.Not.Empty);
-            Assert.That(savedData.CustomTemplates.Any(t => t.Name == "Custom Project Template"), Is.True);
-            Assert.That(savedData.CustomTemplates[0].MaterialSnapshots.Any(m => m.Name == "Custom Concrete"), Is.True);
-            Assert.That(savedData.CustomTemplates[0].IsBuiltIn, Is.False);
+            // Phase 8: источник шаблонов — канонический репозиторий; дефолтные шаблоны
+            // не помечены IsBuiltIn и потому тоже попадают в CustomTemplates, поэтому
+            // кастомный ищется по имени, а не по индексу [0].
+            var savedCustom = savedData.CustomTemplates.Single(t => t.Name == "Custom Project Template");
+            Assert.That(savedCustom.MaterialSnapshots.Any(m => m.Name == "Custom Concrete"), Is.True);
+            Assert.That(savedCustom.IsBuiltIn, Is.False);
         }
 
         [Test]
@@ -1101,7 +1104,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var constructionVm = CreateConstructionViewModel(repo, templateRepo);
             await constructionVm.InitializeCommand.ExecuteAsync(null);
 
-            constructionVm.Templates.Add(new ConstructionTemplate
+            await templateRepo.AddAsync(new ConstructionTemplate
             {
                 Name = "Custom Project Template",
                 Description = "User template",
@@ -1115,7 +1118,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                 LayersBelowPipe = new List<LayerTemplate>()
             });
 
-            var viewModel = CreateResultsViewModel(constructionVm, service, repo);
+            var viewModel = CreateResultsViewModel(constructionVm, service, repo, templateRepo);
             var savedData = viewModel.SaveCurrentProject();
 
             // Act — load into a fresh construction view model sharing the same repositories
@@ -1144,7 +1147,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             Assert.That(data.CustomTemplates, Is.Empty);
         }
 
-        private ResultsViewModel CreateResultsViewModel(ConstructionViewModel constructionVm, IConstructionService service, IMaterialRepository repo)
+        private ResultsViewModel CreateResultsViewModel(ConstructionViewModel constructionVm, IConstructionService service, IMaterialRepository repo, IConstructionTemplateRepository? templateRepo = null)
         {
             var calculationStateService = new CalculationStateService(_projectStateService.Session);
             var calculationContext = new CalculationContext();
@@ -1166,9 +1169,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 calculationStateService,
                 repo,
                 service,
-                climateVm,
-                constructionVm,
-                thermalVm,
                 circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
@@ -1185,7 +1185,13 @@ namespace SnowMeltingCalculator.Tests.Construction
                     calculationStateService,
                     constructionVm,
                     circuitsVm),
-                new HydraulicSummaryBuilder());
+                new HydraulicSummaryBuilder(),
+                persistenceInputs: templateRepo == null
+                    ? null
+                    : new ProjectSnapshotPersistenceInputs(
+                        new ProjectDisplayModeState(),
+                        repo,
+                        templateRepo));
         }
 
         private ConstructionViewModel CreateConstructionViewModel(IMaterialRepository repo)
@@ -1257,9 +1263,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 calculationStateService,
                 materialRepositoryMock.Object,
                 _service,
-                climateVm,
-                constructionVm,
-                thermalVm,
                 circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,

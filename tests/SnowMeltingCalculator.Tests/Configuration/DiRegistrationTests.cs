@@ -460,6 +460,56 @@ namespace SnowMeltingCalculator.Tests.Configuration
             });
         }
 
+        [Test]
+        public void ResultsViewModel_RestorePath_UsesTheSingletonOrchestratorWithCanonicalSessionSlices()
+        {
+            var services = CreateApplicationServices();
+
+            // Exactly one restore-coordinator registration exists: no second
+            // restore service or parallel restore path is introduced.
+            Assert.That(
+                services.Count(descriptor => descriptor.ServiceType == typeof(ProjectLoadOrchestrator)),
+                Is.EqualTo(1),
+                "The composition must register exactly one ProjectLoadOrchestrator restore boundary.");
+
+            using var provider = services.BuildServiceProvider();
+
+            var session = provider.GetRequiredService<IProjectSession>();
+            var orchestrator = provider.GetRequiredService<ProjectLoadOrchestrator>();
+            var resultsViewModel = provider.GetRequiredService<ResultsViewModel>();
+
+            var vmOrchestrator = GetInstanceField(resultsViewModel, "_projectLoadOrchestrator");
+            var orchestratorClimateState = GetInstanceField(orchestrator, "_climateState");
+            var orchestratorConstructionState = GetInstanceField(orchestrator, "_constructionState");
+            var orchestratorThermalState = GetInstanceField(orchestrator, "_thermalState");
+            var orchestratorHydraulicsState = GetInstanceField(orchestrator, "_hydraulicsState");
+
+            Assert.Multiple(() =>
+            {
+                // The DI-wired ResultsViewModel adapter calls the same singleton
+                // ProjectLoadOrchestrator restore path that open-project tests
+                // construct directly with the session slices.
+                Assert.That(vmOrchestrator, Is.SameAs(orchestrator),
+                    "ResultsViewModel must use the DI singleton ProjectLoadOrchestrator restore path.");
+                // The wired orchestrator restores into the canonical slices owned
+                // by the one application session (no parallel restore state path).
+                Assert.That(orchestratorClimateState, Is.SameAs(session.ClimateState));
+                Assert.That(orchestratorConstructionState, Is.SameAs(session.ConstructionState));
+                Assert.That(orchestratorThermalState, Is.SameAs(session.ThermalState));
+                Assert.That(orchestratorHydraulicsState, Is.SameAs(session.HydraulicsState));
+            });
+        }
+
+        private static object GetInstanceField(object instance, string fieldName)
+        {
+            var field = instance.GetType().GetField(
+                fieldName,
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            return field?.GetValue(instance)
+                ?? throw new InvalidOperationException(
+                    $"Field '{fieldName}' was not found on {instance.GetType().Name}.");
+        }
+
         private static int CountIndependentThermalStateDescriptors(IServiceCollection services)
         {
             return services.Count(descriptor =>

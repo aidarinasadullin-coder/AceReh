@@ -427,9 +427,6 @@ public sealed class ClimateThermalInvalidationRegressionTests
             calculationState,
             materialRepository.Object,
             constructionService.Object,
-            climateViewModel,
-            constructionViewModel,
-            thermalViewModel,
             circuitsViewModel,
             orchestrator,
             new ResultsPdfDataBuilder(

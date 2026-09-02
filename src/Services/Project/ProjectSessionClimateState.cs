@@ -29,6 +29,7 @@ namespace SnowMeltingCalculator.Services.Project
         private bool _isHighRequirements;
         private bool _isCitySelected;
         private bool _hasUserModifications;
+        private int _period0Days;
 
         public ProjectSessionClimateState(
             IMarkDirtyService? markDirtyService = null,
@@ -51,7 +52,8 @@ namespace SnowMeltingCalculator.Services.Project
             _zone,
             _isHighRequirements,
             _isCitySelected,
-            _hasUserModifications);
+            _hasUserModifications,
+            _period0Days);
 
         public event EventHandler<ClimateStateChangedEventArgs>? Changed;
 
@@ -69,6 +71,7 @@ namespace SnowMeltingCalculator.Services.Project
             var newSnowfallIntensity = 0.0;
             var newZone = DetermineZone(t5Days, isHighRequirements);
             var newIsCitySelected = city != null;
+            var newPeriod0Days = city?.Period_0_Days ?? 0;
             var newHasUserModifications = origin == ClimateMutationOrigin.User;
 
             var anyChange = false;
@@ -82,6 +85,7 @@ namespace SnowMeltingCalculator.Services.Project
             anyChange |= SetProperty(ref _zone, newZone);
             anyChange |= SetProperty(ref _isHighRequirements, isHighRequirements);
             anyChange |= SetProperty(ref _isCitySelected, newIsCitySelected);
+            anyChange |= SetProperty(ref _period0Days, newPeriod0Days);
             anyChange |= SetProperty(ref _hasUserModifications, newHasUserModifications);
 
             return CompleteMutation(oldSnapshot, origin, true, anyChange);
@@ -157,6 +161,7 @@ namespace SnowMeltingCalculator.Services.Project
             var newHasUserModifications = origin == ClimateMutationOrigin.User;
             var newIsCitySelected = !string.IsNullOrEmpty(data.SelectedCity);
             var coldFiveDay = city?.T5Days092 ?? data.AirTemperature;
+            var newPeriod0Days = city?.Period_0_Days ?? 0;
             var newZone = data.SelectedZone;
 
             var anyChange = false;
@@ -170,6 +175,7 @@ namespace SnowMeltingCalculator.Services.Project
             anyChange |= SetProperty(ref _zone, newZone);
             anyChange |= SetProperty(ref _isHighRequirements, data.IsHighRequirements);
             anyChange |= SetProperty(ref _isCitySelected, newIsCitySelected);
+            anyChange |= SetProperty(ref _period0Days, newPeriod0Days);
             anyChange |= SetProperty(ref _hasUserModifications, newHasUserModifications);
 
             return CompleteMutation(oldSnapshot, origin, true, anyChange);
@@ -190,6 +196,7 @@ namespace SnowMeltingCalculator.Services.Project
             anyChange |= SetProperty(ref _zone, ClimateZone.Zone_M15);
             anyChange |= SetProperty(ref _isHighRequirements, false);
             anyChange |= SetProperty(ref _isCitySelected, false);
+            anyChange |= SetProperty(ref _period0Days, 0);
             anyChange |= SetProperty(ref _hasUserModifications, newHasUserModifications);
 
             return CompleteMutation(oldSnapshot, origin, true, anyChange);
@@ -220,6 +227,7 @@ namespace SnowMeltingCalculator.Services.Project
             anyChange |= SetProperty(ref _humidity, city.Humidity15hCold);
             anyChange |= SetProperty(ref _snowfallIntensity, 0.0);
             anyChange |= SetProperty(ref _zone, newZone);
+            anyChange |= SetProperty(ref _period0Days, city.Period_0_Days);
             anyChange |= SetProperty(ref _hasUserModifications, newHasUserModifications);
 
             return CompleteMutation(oldSnapshot, origin, true, anyChange);
