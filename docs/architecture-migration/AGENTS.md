@@ -1,5 +1,17 @@
 # Architecture Migration Instructions
 
+> **Status 2026-09-04 — frozen provenance.** The architecture migration is
+> complete; phases 1–11 are owner-accepted. The workflow, gates, review
+> contract, and stop rules below are the historical process record and
+> apply only if the owner explicitly directs a new migration-style phase.
+> Standing architecture rules live in the root `AGENTS.md` and are enforced
+> by `tests/SnowMeltingCalculator.Tests/Architecture/ArchitectureRulesTests.cs`;
+> the living architecture view and decision log live in `docs/architecture/`.
+> The widget and the machine model were retired to `archive/` after
+> acceptance (ADR-001 in `docs/architecture/README.md`); § Invariants below
+> is preserved verbatim as the migration's final word and is superseded,
+> for day-to-day authority, by the root `AGENTS.md`.
+
 These instructions govern migration artifacts and related production or test
 work. The active authority is the combination of the current plan under
 `docs/architecture-migration/plans/` and the status and decision log in

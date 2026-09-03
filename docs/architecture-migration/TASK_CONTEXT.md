@@ -3618,3 +3618,48 @@ on 2026-08-01. Failed receipt
   `evidence/phase-11-migration-tails-closure/logs/`) — identical to the
   accepted Phase 11 result. The relocation is proven behavior-neutral; all
   Phase 11 receipts and hashes stand.
+
+- 2026-09-04: Post-migration architecture contour established (owner-directed
+  and owner-approved in-session: full-package approval, then a Review-rule
+  amendment, then execution after the owner committed the Phase 10/11
+  working set). Control/docs-only + test write-set; zero production source
+  changes (`src/` untouched). Content: (1) root `AGENTS.md` rewritten — six
+  standing architecture invariants, dossier-as-provenance, and a graduated
+  Review rule (no commit without owner review on a green uncommitted tree;
+  one independent read-only pass for material changes; migration-scale work
+  reopens the dossier). (2) New machine gate
+  `tests/SnowMeltingCalculator.Tests/Architecture/ArchitectureRulesTests.cs`
+  — 11 tests R1–R6, dependency-free (reflection + source scan); R2/R3/R5
+  sanction lists ported verbatim from the accepted Phase 10
+  writer-inventory; R4's single exception is the two sanctioned Results
+  builders (`ResultsPdfDataBuilder.cs`, `HydraulicSummaryBuilder.cs`,
+  `ViewModels.Results`; ADR-002); first focused run 11/11 PASS.
+  (3) New living view `docs/architecture/` — README with the ADR-001..003
+  log and three Mermaid diagrams (overview, project-session,
+  persistence-flow). (4) Widget retired: `architecture-widget.html`
+  (15.3 MB) and `widget/` (5 scripts) deleted; root `architecture_widget.html`
+  (37 KB phase-0) deleted as byte-identical to
+  `archive/architecture_widget.phase-0-historical.html` (SHA-256
+  `d6f1925e…2930ca` verified before deletion); `widget-spec.md` moved to
+  `archive/`. (5) Machine model moved to `archive/`
+  (`architecture-model{,.baseline,.schema,.widget.schema}.json`); frozen
+  markdown maps remain in `maps/`; historical receipt paths stay
+  point-in-time per the recorded relocation convention. (6) Dossier frozen:
+  status banner prepended to `docs/architecture-migration/AGENTS.md`; this
+  entry closes the dossier log — it reopens only by explicit owner
+  direction (recorded residuals stay as recorded: audit-P1/P2 program,
+  RR-002, RR-004, `CollectorRepository.cs:99` sync-over-async, the two
+  Results-builder usings hygiene). Evidence: solution build 0 errors /
+  1 pre-existing warning (`ReactiveSubscriptionLifecycleTests.cs` CS8714);
+  full regression on the final tree **2050 passed / 0 failed / exactly 1
+  known RR-004 skip**. Delta accounting vs the committed HEAD's true
+  baseline (2039 passed / 1 skip, measured with
+  `FullyQualifiedName!~ArchitectureRulesTests`): exactly the 11 new
+  architecture tests. Provenance nuance recorded: the committed post-move
+  TRX (2040 passed) predates the owner's own visualization/construction
+  commits (`cf1f84d`, `2f78c2b`), which swapped 5 renderer tests
+  (`Bounded_*`, `UpperLayer_*`, `TooSmallMaxHeight_*`) for 4 `FixedDepth_*`
+  tests (net −1, `ConstructionVisualizationRendererTests.cs`); that swap is
+  part of the committed accepted tree and is untouched by this write-set.
+  `git diff --check` clean; no live-document references to the retired
+  widget remain. The uncommitted write-set awaits owner review and commit.
