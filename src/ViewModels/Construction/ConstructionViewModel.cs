@@ -190,15 +190,35 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         public ObservableCollection<string> GroundwaterLevelOptions { get; } = new ObservableCollection<string>
         {
-            "УГВ < 1 м (влажные условия)",
-            "УГВ >= 1 м (сухие условия)"
+            WetGroundwaterOption,
+            DryGroundwaterOption
         };
 
         /// <summary>
         /// Выбранный вариант УГВ
         /// </summary>
         [ObservableProperty]
-        private string _selectedGroundwaterOption = "УГВ >= 1 м (сухие условия)";
+        private string _selectedGroundwaterOption = DryGroundwaterOption;
+
+        /// <summary>
+        /// Порог влажных условий: при УГВ ниже него слои под трубой используют λБ.
+        /// </summary>
+        private const double GroundwaterLambdaThreshold = 1.0;
+
+        private const string WetGroundwaterOption = "УГВ < 1 м (влажные условия)";
+        private const string DryGroundwaterOption = "УГВ >= 1 м (сухие условия)";
+
+        /// <summary>
+        /// Отобразить скалярный УГВ на двухпозиционный вариант комбобокса.
+        /// Единственная точка маппинга: порог совпадает с семантикой
+        /// <see cref="Layer.UpdateLambda"/>.
+        /// </summary>
+        private static string MapGroundwaterOption(double groundwaterLevel)
+        {
+            return groundwaterLevel < GroundwaterLambdaThreshold
+                ? WetGroundwaterOption
+                : DryGroundwaterOption;
+        }
 
         #endregion
 
@@ -478,6 +498,10 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private void ApplyTemplateCore(ConstructionTemplate template)
         {
             var newConstruction = _constructionService.CreateFromTemplate(template, AvailableMaterials);
+            // Шаблон задаёт состав и толщины слоёв; λА/λБ определяет УГВ проекта.
+            // Сеттер Construction.GroundwaterLevel сам пересчитывает λ всех слоёв
+            // (план 2026-09-04, D2).
+            newConstruction.GroundwaterLevel = GroundwaterLevel;
             var candidate = new ConstructionStateSnapshot(
                 GroundwaterLevel,
                 template.HasLoads,
@@ -519,9 +543,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 }
 
                 HasLoads = template.HasLoads;
-                SelectedGroundwaterOption = GroundwaterLevel < 1.0
-                    ? "УГВ < 1 м (влажные условия)"
-                    : "УГВ >= 1 м (сухие условия)";
             }
             finally
             {
@@ -886,6 +907,10 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             try
             {
                 GroundwaterLevel = snapshot.GroundwaterLevel;
+                // Комбобокс всегда отражает фактический УГВ; guard в
+                // OnSelectedGroundwaterOptionChanged удерживает обработчик
+                // от мутации скаляра (план 2026-09-04, D4).
+                SelectedGroundwaterOption = MapGroundwaterOption(GroundwaterLevel);
                 HasLoads = snapshot.HasLoads;
 
                 LayersAbovePipe.Clear();
@@ -963,6 +988,11 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// </summary>
         partial void OnSelectedGroundwaterOptionChanged(string value)
         {
+            // Программные присваивания опции (жизненный цикл, синхронизация)
+            // не должны мутировать скаляр УГВ — только выбор пользователя
+            // (план 2026-09-04, D4).
+            if (_isResetting || _isRefreshing || _isSyncing) return;
+
             // Устанавливаем УГВ в зависимости от выбора
             GroundwaterLevel = value.Contains("< 1") ? 0.5 : 2.0;
         }
@@ -993,6 +1023,9 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             try
             {
                 var previewConstruction = _constructionService.CreateFromTemplate(value, AvailableMaterials);
+                // Превью считается по тем же правилам, что и применение:
+                // λ по текущему УГВ проекта (план 2026-09-04, D2).
+                previewConstruction.GroundwaterLevel = GroundwaterLevel;
 
                 // Коллекции заменяются целиком: одна замена = одно уведомление = одна перерисовка превью
                 TemplatePreviewLayersAbovePipe = new ObservableCollection<Layer>(previewConstruction.LayersAbovePipe);

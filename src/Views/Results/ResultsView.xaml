@@ -752,7 +752,11 @@
 
                             <!-- Схема конструкции -->
                             <Border BorderBrush="{DynamicResource RehauGrayBrush}" BorderThickness="1" CornerRadius="4" Padding="4">
-                                <shared:ConstructionVisualizationView DataContext="{Binding ConstructionViewModel}"
+                                <!-- DataContext вкладки — ResultsViewModel; ConstructionViewModel
+                                     берём у MainViewModel (DataContext окна): прямая привязка
+                                     к несуществующему свойству тихо падала и схема не рисовалась
+                                     (план 2026-09-04, D3). -->
+                                <shared:ConstructionVisualizationView DataContext="{Binding DataContext.ConstructionViewModel, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                       CompactMode="True"
                                                                       ShowDimensionLine="True"
                                                                       MaxVisualizationHeight="190"

@@ -69,8 +69,9 @@ namespace SnowMeltingCalculator.Services.Project
         /// </summary>
         public void ResetModules()
         {
+            // Сброс перед загрузкой — на заводской УГВ; открываемый файл всё
+            // равно восстанавливает свой УГВ следом (план 2026-09-04, D1).
             var constructionResult = _constructionDefaultStateInitializer.Apply(
-                _constructionState.Snapshot.GroundwaterLevel,
                 ConstructionMutationOrigin.Reset);
 
             _calculationContext.Reset();
@@ -303,7 +304,9 @@ namespace SnowMeltingCalculator.Services.Project
                     material.Name,
                     layerData.Thickness,
                     calculatedLambda,
-                    false,
+                    // Ручное переопределение λ переживает закрытие/открытие
+                    // проекта (план 2026-09-04, D5): флаг идёт из файла.
+                    layerData.IsLambdaOverridden,
                     layerData.Position,
                     index);
             }).ToList();

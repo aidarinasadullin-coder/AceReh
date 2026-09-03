@@ -792,8 +792,11 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     Assert.That(roundTrippedA.LayersBelowPipe.Select(layer => layer.MaterialName), Is.EqualTo(new[] { "Soil", "Concrete" }));
                     Assert.That(roundTrippedA.LayersBelowPipe.Select(layer => layer.Thickness), Is.EqualTo(new[] { 133d, 244d }));
                     Assert.That(roundTrippedA.LayersBelowPipe.Select(layer => layer.CalculatedLambda), Is.EqualTo(new[] { 1.12, 1.63 }));
-                    Assert.That(roundTrippedA.LayersAbovePipe.Concat(roundTrippedA.LayersBelowPipe).All(layer => !layer.IsLambdaOverridden), Is.True,
-                        ".smc stores override flags, while project restore intentionally resets them after preserving lambda values.");
+                    // Ручные переопределения λ переживают загрузку: флаги из
+                    // .smc восстанавливаются как есть (план 2026-09-04, D5;
+                    // отменяет прежнее P0-7 «restore resets override flags»).
+                    Assert.That(roundTrippedA.LayersAbovePipe.Concat(roundTrippedA.LayersBelowPipe).All(layer => layer.IsLambdaOverridden), Is.True,
+                        ".smc stores override flags, and project restore preserves them together with the lambda values.");
                     Assert.That(roundTrippedA.LayersAbovePipe.Concat(roundTrippedA.LayersBelowPipe).All(layer => layer.Id != Guid.Empty), Is.True);
                     Assert.That(roundTrippedA.LayersAbovePipe.Concat(roundTrippedA.LayersBelowPipe).Select(layer => layer.Id), Is.Unique);
                     Assert.That(roundTrippedA.LayersAbovePipe.Concat(roundTrippedA.LayersBelowPipe).Select(layer => layer.Id), Is.Not.EquivalentTo(sourceAIds),
@@ -837,9 +840,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     Assert.That(roundTrippedB.GroundwaterLevel, Is.EqualTo(3.75).Within(1e-9));
                     Assert.That(roundTrippedB.HasLoads, Is.False);
                     Assert.That(roundTrippedB.LayersAbovePipe.Select(layer => (layer.Order, layer.MaterialId, layer.MaterialName, layer.Thickness, layer.CalculatedLambda, layer.IsLambdaOverridden)),
-                        Is.EqualTo(new[] { (0, 2, "Soil", 17d, 1.07, false) }));
+                        Is.EqualTo(new[] { (0, 2, "Soil", 17d, 1.07, true) }));
                     Assert.That(roundTrippedB.LayersBelowPipe.Select(layer => (layer.Order, layer.MaterialId, layer.MaterialName, layer.Thickness, layer.CalculatedLambda, layer.IsLambdaOverridden)),
-                        Is.EqualTo(new[] { (0, 1, "Sand", 318d, 0.93, false) }));
+                        Is.EqualTo(new[] { (0, 1, "Sand", 318d, 0.93, true) }));
                     Assert.That(roundTrippedB.LayersAbovePipe.Concat(roundTrippedB.LayersBelowPipe).All(layer => layer.Id != Guid.Empty), Is.True);
                     Assert.That(roundTrippedB.LayersAbovePipe.Concat(roundTrippedB.LayersBelowPipe).Select(layer => layer.Id), Is.Unique);
                     Assert.That(roundTrippedB.LayersAbovePipe.Concat(roundTrippedB.LayersBelowPipe).Select(layer => layer.MaterialName),
@@ -1117,7 +1120,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
 
         [Test]
-        public async Task ProjectRoundTrip_PreservesLambdaValueButResetsOverrideFlag()
+        public async Task ProjectRoundTrip_PreservesLambdaValueAndOverrideFlag()
         {
             // Arrange
             var constructionVm = await CreateInitializedConstructionViewModelAsync();
@@ -1142,15 +1145,16 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 CreateCircuitsViewModel());
             await viewModel2.LoadProjectDataAsync(data);
 
-            // Assert: значение λ сохранено из файла, но флаг сброшен,
-            // чтобы последующее изменение УГВ могло пересчитать λ (P0-7).
+            // Assert: ручное переопределение λ переживает round-trip —
+            // сохранены и значение, и флаг (план 2026-09-04, D5; отменяет
+            // прежнее поведение P0-7 «флаг сбрасывается при загрузке»).
             var loadedLayer = constructionVm2.LayersBelowPipe.First();
-            Assert.That(loadedLayer.IsLambdaOverridden, Is.False);
+            Assert.That(loadedLayer.IsLambdaOverridden, Is.True);
             Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(9.999).Within(1e-9));
         }
 
         [Test]
-        public async Task ProjectRoundTrip_LambdaUpdatesWhenGroundwaterLevelChanges_AfterOverride()
+        public async Task ProjectRoundTrip_OverrideLambdaSurvivesGroundwaterLevelChange_AfterLoad()
         {
             // Arrange
             var constructionVm = await CreateInitializedConstructionViewModelAsync();
@@ -1176,12 +1180,14 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 CreateCircuitsViewModel());
             await viewModel2.LoadProjectDataAsync(data);
 
-            // After loading, changing groundwater level should update lambda (P0-7)
+            // После загрузки ручная λ защищена флагом: переключение УГВ
+            // её НЕ пересчитывает (план 2026-09-04, D5).
             constructionVm2.GroundwaterLevel = 0.5; // wet
 
             // Assert
             var loadedLayer = constructionVm2.LayersBelowPipe.First();
-            Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(loadedLayer.Material.LambdaB).Within(1e-9));
+            Assert.That(loadedLayer.IsLambdaOverridden, Is.True);
+            Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(loadedLayer.Material.LambdaA).Within(1e-9));
         }
 
         [Test]
