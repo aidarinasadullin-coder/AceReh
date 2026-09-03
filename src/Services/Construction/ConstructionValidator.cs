@@ -209,7 +209,7 @@ namespace SnowMeltingCalculator.Services.Construction
             if (construction.GroundwaterLevel < GroundwaterThresholdForLambdaB)
             {
                 result.AddWarning(
-                    $"Уровень грунтовых вод ({construction.GroundwaterLevel:F1} м) < {GroundwaterThresholdForLambdaB} м. " +
+                    $"Уровень грунтовых вод < {GroundwaterThresholdForLambdaB} м. " +
                     $"Для слоёв под трубой используется λБ (влажные условия).");
 
                 // Проверяем, что слои под трубой используют правильную λ
