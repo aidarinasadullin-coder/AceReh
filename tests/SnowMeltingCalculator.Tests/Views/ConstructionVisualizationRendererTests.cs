@@ -1,6 +1,9 @@
 // ================================================================================
-// REHAU Снеготаяние - Тесты ConstructionVisualizationRenderer (task 9)
-// Проверка bounded/unbounded поведения рендерера схемы "пирога" конструкции.
+// REHAU Снеготаяние - Тесты ConstructionVisualizationRenderer
+// Проверка режимов рендерера схемы "пирога" конструкции:
+// None (полная схема без ограничения) и FixedDepthWindow (константный бокс = окно 1 м).
+// Ключевой инвариант FixedDepthWindow: высота canvas НЕ зависит от данных —
+// регрессия на "пляшущую" карточку шаблона (цикл перерисовки по SizeChanged).
 // ================================================================================
 
 using System;
@@ -33,7 +36,6 @@ namespace SnowMeltingCalculator.Tests.Views
         private const double NormalLabelsHeight = 40.0;
 
         // Компактный режим
-        private const double CompactMinLayerHeight = 6.0;
         private const double CompactCanvasMargin = 10.0;
         private const double CompactLabelsHeight = 30.0;
 
@@ -76,6 +78,23 @@ namespace SnowMeltingCalculator.Tests.Views
         }
 
         /// <summary>
+        /// Проверить, есть ли на canvas подпись линии среза.
+        /// </summary>
+        private static bool HasCutCaption(Canvas canvas)
+        {
+            return canvas.Children.OfType<TextBlock>()
+                .Any(tb => !string.IsNullOrEmpty(tb.Text) && tb.Text.Contains("срез"));
+        }
+
+        /// <summary>
+        /// Нижняя кромка прямоугольника (Canvas.Top + Height).
+        /// </summary>
+        private static double BottomOf(Rectangle rectangle)
+        {
+            return Canvas.GetTop(rectangle) + rectangle.Height;
+        }
+
+        /// <summary>
         /// Создать Canvas и вызвать Render с заданными параметрами.
         /// </summary>
         private Canvas Render(ConstructionVisualizationParameters parameters)
@@ -85,10 +104,10 @@ namespace SnowMeltingCalculator.Tests.Views
             return canvas;
         }
 
-        // === Тесты ===
+        // === Режим None (неограниченный) ===
 
         /// <summary>
-        /// 1. Без MaxVisualizationHeight — неограниченное поведение.
+        /// Без MaxVisualizationHeight — неограниченное поведение.
         /// Слои рендерятся в нормальном масштабе, canvas.Height = сумма слоёв + поля + подписи.
         /// Маркер "не в масштабе" отсутствует.
         /// </summary>
@@ -96,7 +115,7 @@ namespace SnowMeltingCalculator.Tests.Views
         public void NoMaxHeight_UnboundedBehavior()
         {
             // Arrange: above = [100мм (order 1), 50мм (order 0)], below = [200мм (order 0)]
-            // baseScale = NormalMaxScale = 0.5 (CanvasAvailableHeight не задан → maxScale)
+            // baseScale = NormalMaxScale = 0.5 (FixedScaleFactor не задан → maxScale)
             // above rendered: max(100*0.5, 8)=50, max(50*0.5, 8)=25 → totalAbove = 75
             // below rendered: max(200*0.5, 8)=100 → totalBelow = 100
             // totalHeight = 75 + 100 + 2*20 + 40 = 255
@@ -126,154 +145,8 @@ namespace SnowMeltingCalculator.Tests.Views
         }
 
         /// <summary>
-        /// 2. Bounded-режим с толстым нижним слоем — высота ограничена,
-        /// маркер сжатия присутствует.
-        /// </summary>
-        [Test]
-        public void Bounded_HugeLowerLayer_CapsHeight()
-        {
-            // Arrange: above = [100мм], below = [2000мм]
-            // baseScale = 0.5, normalBelow = max(2000*0.5, 8) = 1000
-            // normalTotalHeight = 50 + 1000 + 40 + 40 = 1130 > 300 → сжатие
-            // lowerBudget = 300 - 50 - 40 - 40 = 170; 1000 > 170 → все нижние сжаты до 8
-            // totalHeight = 50 + 8 + 40 + 40 = 138 <= 300
-            var parameters = new ConstructionVisualizationParameters
-            {
-                LayersAbovePipe = new[]
-                {
-                    MakeLayer(100, 5, "Бетон", LayerPosition.AbovePipe, 0)
-                },
-                LayersBelowPipe = new[]
-                {
-                    MakeLayer(2000, 1, "Песок", LayerPosition.BelowPipe, 0)
-                },
-                MaxVisualizationHeight = 300,
-                OverflowMode = ScaleOverflowMode.CompressLowerLayers
-            };
-
-            // Act
-            var canvas = Render(parameters);
-
-            // Assert
-            Assert.That(canvas.Height, Is.LessThanOrEqualTo(300),
-                "canvas.Height не должен превышать MaxVisualizationHeight");
-            Assert.That(HasScaleMarker(canvas), Is.True,
-                "Маркер «не в масштабе» должен присутствовать при сжатии нижних слоёв");
-        }
-
-        /// <summary>
-        /// 3. Bounded-режим с нормальными слоями — сжатие не требуется,
-        /// высота в пределах лимита, маркер отсутствует.
-        /// </summary>
-        [Test]
-        public void Bounded_NormalLayers_NoCompression()
-        {
-            // Arrange: above = [100мм], below = [200мм]
-            // baseScale = 0.5, totalAbove = 50, totalBelow = 100
-            // normalTotalHeight = 50 + 100 + 40 + 40 = 230 <= 300 → без сжатия
-            var parameters = new ConstructionVisualizationParameters
-            {
-                LayersAbovePipe = new[]
-                {
-                    MakeLayer(100, 5, "Бетон", LayerPosition.AbovePipe, 0)
-                },
-                LayersBelowPipe = new[]
-                {
-                    MakeLayer(200, 1, "Песок", LayerPosition.BelowPipe, 0)
-                },
-                MaxVisualizationHeight = 300,
-                OverflowMode = ScaleOverflowMode.CompressLowerLayers
-            };
-
-            // Act
-            var canvas = Render(parameters);
-
-            // Assert
-            Assert.That(canvas.Height, Is.LessThanOrEqualTo(300),
-                "canvas.Height не должен превышать MaxVisualizationHeight");
-            Assert.That(HasScaleMarker(canvas), Is.False,
-                "Маркер «не в масштабе» не должен присутствовать, если сжатие не требуется");
-        }
-
-        /// <summary>
-        /// 4. Bounded-режим с FixedScaleFactor — ограничение высоты
-        /// перекрывает фиксированный масштаб, сжатие применяется.
-        /// </summary>
-        [Test]
-        public void Bounded_FixedScaleFactor_Overridden()
-        {
-            // Arrange: compact, FixedScaleFactor=0.25, MaxHeight=190
-            // above = [100мм] → max(100*0.25, 6) = 25, totalAbove = 25
-            // below = [2000мм] → normal = max(2000*0.25, 6) = 500
-            // normalTotalHeight = 25 + 500 + 20 + 30 = 575 > 190 → сжатие
-            // lowerBudget = 190 - 25 - 20 - 30 = 115; 500 > 115 → сжатие до 6
-            // totalHeight = 25 + 6 + 20 + 30 = 81 <= 190
-            var parameters = new ConstructionVisualizationParameters
-            {
-                CompactMode = true,
-                FixedScaleFactor = 0.25,
-                LayersAbovePipe = new[]
-                {
-                    MakeLayer(100, 5, "Бетон", LayerPosition.AbovePipe, 0)
-                },
-                LayersBelowPipe = new[]
-                {
-                    MakeLayer(2000, 1, "Песок", LayerPosition.BelowPipe, 0)
-                },
-                MaxVisualizationHeight = 190,
-                OverflowMode = ScaleOverflowMode.CompressLowerLayers
-            };
-
-            // Act
-            var canvas = Render(parameters);
-
-            // Assert
-            Assert.That(canvas.Height, Is.LessThanOrEqualTo(190),
-                "canvas.Height не должен превышать MaxVisualizationHeight даже при FixedScaleFactor");
-            Assert.That(HasScaleMarker(canvas), Is.True,
-                "Маркер «не в масштабе» должен присутствовать при сжатии");
-        }
-
-        /// <summary>
-        /// 5. При сжатии нижних слоёв верхний слой сохраняет нормальный масштаб,
-        /// а хотя бы один нижний слой сжат до MinLayerHeight.
-        /// </summary>
-        [Test]
-        public void UpperLayer_RemainsScaled_WhenLowerCompressed()
-        {
-            // Arrange: above = [100мм] → rendered 50 (нормальный масштаб)
-            // below = [2000мм] → сжат до NormalMinLayerHeight = 8
-            var parameters = new ConstructionVisualizationParameters
-            {
-                LayersAbovePipe = new[]
-                {
-                    MakeLayer(100, 5, "Бетон", LayerPosition.AbovePipe, 0)
-                },
-                LayersBelowPipe = new[]
-                {
-                    MakeLayer(2000, 1, "Песок", LayerPosition.BelowPipe, 0)
-                },
-                MaxVisualizationHeight = 300,
-                OverflowMode = ScaleOverflowMode.CompressLowerLayers
-            };
-
-            // Act
-            var canvas = Render(parameters);
-            var rectangles = canvas.Children.OfType<Rectangle>().ToList();
-
-            // Assert: есть прямоугольник с высотой > MinLayerHeight (верхний слой в нормальном масштабе)
-            var maxRectHeight = rectangles.Max(r => r.Height);
-            Assert.That(maxRectHeight, Is.GreaterThan(NormalMinLayerHeight),
-                "Верхний слой должен сохранять нормальный масштаб (Height > MinLayerHeight)");
-
-            // Assert: есть прямоугольник с высотой == MinLayerHeight (сжатый нижний слой)
-            Assert.That(rectangles.Any(r => Math.Abs(r.Height - NormalMinLayerHeight) < 0.001),
-                Is.True,
-                "Хотя бы один нижний слой должен быть сжат до MinLayerHeight");
-        }
-
-        /// <summary>
-        /// 6. Пустые списки слоёв — рендер не падает, canvas.Height = 2*margin + labelsHeight.
+        /// Пустые списки слоёв (режим None) — рендер не падает,
+        /// canvas.Height = 2*margin + labelsHeight.
         /// </summary>
         [Test]
         public void EmptyLayers_DoesNotThrow()
@@ -298,29 +171,154 @@ namespace SnowMeltingCalculator.Tests.Views
                 $"canvas.Height должен быть {expectedHeight} (2*margin + labelsHeight, без слоёв)");
         }
 
+        // === Режим FixedDepthWindow (константный бокс = окно 1 м) ===
+
         /// <summary>
-        /// 7. Слишком маленький MaxVisualizationHeight — минимальный пол не вызывает крах,
-        /// canvas.Height конечен и положителен.
+        /// Ключевой инвариант режима: canvas.Height ровно MaxVisualizationHeight
+        /// для любых данных (тонкий пирог, толстый пирог, с FixedScaleFactor).
+        /// Регрессия на цикл перерисовки "пляшущей" карточки шаблона.
         /// </summary>
         [Test]
-        public void TooSmallMaxHeight_MinimumFloor_DoesNotCrash()
+        public void FixedDepth_HeightIsConstant_RegardlessOfData()
         {
-            // Arrange: MaxVisualizationHeight=10, один слой над и один под трубой
-            // lowerBudget = 10 - 50 - 40 - 40 = -120 (отрицательный)
-            // Все нижние слои сжаты до MinLayerHeight=8, но totalHeight всё равно > 10
-            // (минимальный пол не позволяет уложиться в 10px)
-            var parameters = new ConstructionVisualizationParameters
+            // Arrange: три принципиально разных набора данных
+            var thickPie = new ConstructionVisualizationParameters
             {
-                LayersAbovePipe = new[]
-                {
-                    MakeLayer(100, 5, "Бетон", LayerPosition.AbovePipe, 0)
-                },
+                CompactMode = true,
+                LayersAbovePipe = new[] { MakeLayer(100, 5, "Бетон", LayerPosition.AbovePipe, 0) },
                 LayersBelowPipe = new[]
                 {
-                    MakeLayer(200, 1, "Песок", LayerPosition.BelowPipe, 0)
+                    MakeLayer(10, 5, "Бетон", LayerPosition.BelowPipe, 0),
+                    MakeLayer(80, 10, "ЭППС", LayerPosition.BelowPipe, 1),
+                    MakeLayer(1000, 2, "Грунт", LayerPosition.BelowPipe, 2),
+                    MakeLayer(570, 2, "Грунт", LayerPosition.BelowPipe, 3)
                 },
+                MaxVisualizationHeight = 180,
+                OverflowMode = ScaleOverflowMode.FixedDepthWindow
+            };
+
+            var shallowPie = new ConstructionVisualizationParameters
+            {
+                CompactMode = true,
+                LayersAbovePipe = new[] { MakeLayer(50, 5, "Бетон", LayerPosition.AbovePipe, 0) },
+                LayersBelowPipe = new[] { MakeLayer(50, 1, "Песок", LayerPosition.BelowPipe, 0) },
+                MaxVisualizationHeight = 180,
+                OverflowMode = ScaleOverflowMode.FixedDepthWindow
+            };
+
+            var withFixedScale = new ConstructionVisualizationParameters
+            {
+                CompactMode = true,
+                FixedScaleFactor = 0.25, // в режиме окна игнорируется
+                LayersAbovePipe = new[] { MakeLayer(120, 6, "Бетон с сеткой", LayerPosition.AbovePipe, 0) },
+                LayersBelowPipe = new[] { MakeLayer(2000, 2, "Грунт", LayerPosition.BelowPipe, 0) },
+                MaxVisualizationHeight = 180,
+                OverflowMode = ScaleOverflowMode.FixedDepthWindow
+            };
+
+            // Act
+            var canvasThick = Render(thickPie);
+            var canvasShallow = Render(shallowPie);
+            var canvasFixedScale = Render(withFixedScale);
+
+            // Assert: бокс всегда ровно 180 — высота не зависит от данных
+            Assert.That(canvasThick.Height, Is.EqualTo(180),
+                "canvas.Height должен быть ровно MaxVisualizationHeight (толстый пирог)");
+            Assert.That(canvasShallow.Height, Is.EqualTo(180),
+                "canvas.Height должен быть ровно MaxVisualizationHeight (тонкий пирог)");
+            Assert.That(canvasFixedScale.Height, Is.EqualTo(180),
+                "canvas.Height должен быть ровно MaxVisualizationHeight (FixedScaleFactor игнорируется в режиме окна)");
+        }
+
+        /// <summary>
+        /// Слой, пересекающий линию среза, обрезается по нижней кромке окна;
+        /// верхний слой — в истинном едином масштабе; подпись среза присутствует,
+        /// маркер «не в масштабе» отсутствует (обрезка — честное окно, не сжатие).
+        /// </summary>
+        [Test]
+        public void FixedDepth_CrossingCut_ClippedAtBottom_TrueScaleAbove()
+        {
+            // Arrange: above = [100мм], below = [2000мм], MaxHeight = 300 (обычный режим)
+            // contentHeight = 300 - 2*20 - 40 = 220; scale = 220 / (100 + 1000) = 0.2
+            // baseY = 20 + 100*0.2 = 40; cutY = 40 + 1000*0.2 = 240
+            // above rect = 20 (истинный масштаб), below clipped = 240 - 40 = 200
+            var parameters = new ConstructionVisualizationParameters
+            {
+                LayersAbovePipe = new[] { MakeLayer(100, 5, "Бетон", LayerPosition.AbovePipe, 0) },
+                LayersBelowPipe = new[] { MakeLayer(2000, 2, "Грунт", LayerPosition.BelowPipe, 0) },
+                MaxVisualizationHeight = 300,
+                OverflowMode = ScaleOverflowMode.FixedDepthWindow
+            };
+
+            // Act
+            var canvas = Render(parameters);
+            var rectangles = canvas.Children.OfType<Rectangle>().ToList();
+
+            // Assert: верхний слой в истинном масштабе (100мм * 0.2 = 20px)
+            Assert.That(rectangles.Any(r => Math.Abs(r.Height - 20.0) < 0.01), Is.True,
+                "Слой над трубой должен быть в истинном масштабе (20px)");
+
+            // Assert: нижний слой обрезан ровно по линии среза
+            var cutY = 300 - NormalCanvasMargin - NormalLabelsHeight; // 240
+            Assert.That(rectangles.Any(r => Math.Abs(BottomOf(r) - cutY) < 0.01), Is.True,
+                $"Нижний слой должен быть обрезан по линии среза (низ = {cutY})");
+
+            // Assert: подпись среза есть, маркер сжатия — нет
+            Assert.That(HasCutCaption(canvas), Is.True, "Должна присутствовать подпись линии среза");
+            Assert.That(HasScaleMarker(canvas), Is.False,
+                "Обрезка по окну — не сжатие: маркер «не в масштабе» не нужен");
+        }
+
+        /// <summary>
+        /// Пирог «не дорос» до среза — последний слой дотягивается до низа окна,
+        /// на границе истинного масштаба ставится маркер «не в масштабе».
+        /// </summary>
+        [Test]
+        public void FixedDepth_ShallowPie_LastLayerStretched_WithMarker()
+        {
+            // Arrange: above = [100мм], below = [200мм], compact, MaxHeight = 180
+            // contentHeight = 180 - 2*10 - 30 = 130; scale = 130 / 1100 ≈ 0.11818
+            // baseY ≈ 21.82; cutY = 140; ниже трубы помещается только 200*0.118 ≈ 23.6px из 118.2
+            var parameters = new ConstructionVisualizationParameters
+            {
+                CompactMode = true,
+                LayersAbovePipe = new[] { MakeLayer(100, 5, "Бетон", LayerPosition.AbovePipe, 0) },
+                LayersBelowPipe = new[] { MakeLayer(200, 1, "Песок", LayerPosition.BelowPipe, 0) },
+                MaxVisualizationHeight = 180,
+                OverflowMode = ScaleOverflowMode.FixedDepthWindow
+            };
+
+            // Act
+            var canvas = Render(parameters);
+            var rectangles = canvas.Children.OfType<Rectangle>().ToList();
+
+            // Assert: последний слой дотянут до линии среза
+            var cutY = 180 - CompactCanvasMargin - CompactLabelsHeight; // 140
+            Assert.That(rectangles.Any(r => Math.Abs(BottomOf(r) - cutY) < 0.01), Is.True,
+                $"Последний слой должен быть дотянут до линии среза (низ = {cutY})");
+
+            // Assert: маркер «не в масштабе» на границе дотяжки присутствует
+            Assert.That(HasScaleMarker(canvas), Is.True,
+                "На границе дотяжки должен присутствовать маркер «не в масштабе»");
+
+            // Assert: подпись среза присутствует
+            Assert.That(HasCutCaption(canvas), Is.True, "Должна присутствовать подпись линии среза");
+        }
+
+        /// <summary>
+        /// Слишком маленький MaxVisualizationHeight (контент не помещается) —
+        /// рендер не падает, canvas.Height остаётся константным и положительным.
+        /// </summary>
+        [Test]
+        public void FixedDepth_TooSmallBox_DoesNotCrash()
+        {
+            // Arrange: MaxVisualizationHeight=10 < 2*margin + labelsHeight = 80 (обычный режим)
+            var parameters = new ConstructionVisualizationParameters
+            {
+                LayersAbovePipe = new[] { MakeLayer(100, 5, "Бетон", LayerPosition.AbovePipe, 0) },
+                LayersBelowPipe = new[] { MakeLayer(200, 1, "Песок", LayerPosition.BelowPipe, 0) },
                 MaxVisualizationHeight = 10,
-                OverflowMode = ScaleOverflowMode.CompressLowerLayers
+                OverflowMode = ScaleOverflowMode.FixedDepthWindow
             };
 
             // Act
@@ -329,13 +327,11 @@ namespace SnowMeltingCalculator.Tests.Views
                 "Рендер с слишком маленьким MaxVisualizationHeight не должен падать");
             canvas = Render(parameters);
 
-            // Assert
-            Assert.That(canvas.Height, Is.GreaterThan(0),
-                "canvas.Height должен быть положительным даже при экстремально малом MaxVisualizationHeight");
-            Assert.That(double.IsInfinity(canvas.Height), Is.False,
-                "canvas.Height должен быть конечным");
-            Assert.That(double.IsNaN(canvas.Height), Is.False,
-                "canvas.Height не должен быть NaN");
+            // Assert: инвариант константного бокса сохраняется
+            Assert.That(canvas.Height, Is.EqualTo(10),
+                "canvas.Height должен оставаться ровно MaxVisualizationHeight");
+            Assert.That(double.IsInfinity(canvas.Height), Is.False, "canvas.Height должен быть конечным");
+            Assert.That(double.IsNaN(canvas.Height), Is.False, "canvas.Height не должен быть NaN");
         }
     }
 }

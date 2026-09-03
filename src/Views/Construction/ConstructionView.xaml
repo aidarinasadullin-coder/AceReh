@@ -272,7 +272,7 @@
                                 SourceLayersBelowPipe="{Binding TemplatePreviewLayersBelowPipe}"
                                 CompactMode="True"
                                 MaxVisualizationHeight="180"
-                                OverflowMode="CompressLowerLayers"/>
+                                OverflowMode="FixedDepthWindow"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -428,7 +428,7 @@
                                Margin="0,0,0,8"/>
                     <shared:ConstructionVisualizationView DataContext="{Binding}"
                                                            MaxVisualizationHeight="300"
-                                                           OverflowMode="CompressLowerLayers"/>
+                                                           OverflowMode="FixedDepthWindow"/>
                 </StackPanel>
             </Border>
 

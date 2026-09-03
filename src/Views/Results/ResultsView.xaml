@@ -756,7 +756,7 @@
                                                                       CompactMode="True"
                                                                       ShowDimensionLine="True"
                                                                       MaxVisualizationHeight="190"
-                                                                      OverflowMode="CompressLowerLayers"
+                                                                      OverflowMode="FixedDepthWindow"
                                                                       HorizontalAlignment="Stretch"
                                                                       VerticalAlignment="Stretch"/>
                             </Border>

@@ -15,14 +15,16 @@ namespace SnowMeltingCalculator.Services.Visualization
     public enum ScaleOverflowMode
     {
         /// <summary>
-        /// Без ограничения — поведение как раньше (неограниченная высота canvas)
+        /// Без ограничения — полная схема в масштабе (офскрин-рендер и резервное поведение)
         /// </summary>
         None,
 
         /// <summary>
-        /// Сжимать нижние слои при превышении MaxVisualizationHeight
+        /// Фиксированное окно глубины: canvas всегда ровно MaxVisualizationHeight независимо от данных.
+        /// Показывается всё над трубой + 1 м под трубой в едином масштабе; слой, пересекающий линию среза,
+        /// обрезается по кромке; «недоросший» до среза пирог дотягивается последним слоем с маркером «не в масштабе».
         /// </summary>
-        CompressLowerLayers
+        FixedDepthWindow
     }
 
     /// <summary>
@@ -67,17 +69,13 @@ namespace SnowMeltingCalculator.Services.Visualization
 
         /// <summary>
         /// Фиксированный масштаб. Если null — масштаб вычисляется автоматически по высоте.
+        /// В режиме FixedDepthWindow игнорируется: масштаб выводится из высоты бокса и окна глубины.
         /// </summary>
         public double? FixedScaleFactor { get; set; }
 
         /// <summary>
-        /// Доступная высота для автомасштабирования. Используется, если FixedScaleFactor не задан.
-        /// </summary>
-        public double? CanvasAvailableHeight { get; set; }
-
-        /// <summary>
-        /// Максимальная высота визуализации в пикселях. Если задана и OverflowMode = CompressLowerLayers,
-        /// нижние слои сжимаются чтобы уложиться в лимит. Верхние слои и зона трубы не сжимаются.
+        /// Высота бокса визуализации в пикселях. В режиме FixedDepthWindow canvas всегда ровно этой высоты
+        /// (константный бокс, инвариант режима). Если не задана — бокс определяется данными.
         /// </summary>
         public double? MaxVisualizationHeight { get; set; }
 
@@ -128,14 +126,162 @@ namespace SnowMeltingCalculator.Services.Visualization
         private double LabelsHeight(bool compact) => compact ? CompactLabelsHeight : NormalLabelsHeight;
 
         /// <summary>
-        /// Информация о распределении высоты для одного слоя при bounded-режиме
+        /// Глубина фиксированного окна под осью трубы, мм
+        /// </summary>
+        private const double FixedWindowDepthMm = 1000.0;
+
+        /// <summary>
+        /// Отступ от слоя до границы «истинный масштаб / дотяжка», px
+        /// </summary>
+        private const double CutEpsilon = 0.5;
+
+        /// <summary>
+        /// Информация о высоте отрисовки одного слоя
         /// </summary>
         private struct LayerRenderInfo
         {
             public Layer Layer;
             public double RenderedHeight;
-            public double Thickness;
-            public bool IsCompressed;
+        }
+
+        /// <summary>
+        /// Режим фиксированного окна глубины: бокс всегда ровно <paramref name="boxHeight"/> px.
+        /// Единый масштаб k = контент / (всё над трубой + окно 1 м под трубой).
+        /// Слой, пересекающий линию среза, обрезается по кромке; «недоросший» пирог
+        /// дотягивается последним слоем до среза с маркером «не в масштабе».
+        /// </summary>
+        private void RenderFixedDepthWindow(Canvas canvas, double width,
+            List<Layer> layersAbove, List<Layer> layersBelow,
+            ConstructionVisualizationParameters parameters,
+            double boxHeight, bool compact)
+        {
+            var margin = CanvasMargin(compact);
+            var labelsHeight = LabelsHeight(compact);
+
+            // Инвариант режима: высота бокса не зависит от данных
+            canvas.Height = boxHeight;
+
+            var contentHeight = boxHeight - 2 * margin - labelsHeight;
+            if (contentHeight <= 0)
+                return;
+
+            var aboveMm = layersAbove.Sum(l => l.Thickness);
+            var scale = contentHeight / (aboveMm + FixedWindowDepthMm);
+
+            var baseY = margin + aboveMm * scale;      // ось труб
+            var cutY = baseY + FixedWindowDepthMm * scale; // нижняя полоса подписей начинается здесь
+
+            // === Фаза 1: слои над трубой — истинный масштаб ===
+            var currentY = baseY;
+            foreach (var layer in layersAbove)
+            {
+                var h = layer.Thickness * scale;
+                DrawLayer(canvas, width, currentY - h, h, layer.Material, layer.Thickness, compact);
+                currentY -= h;
+            }
+
+            // Подпись "Поверхность"
+            if (parameters.ShowSurfaceLabel && width >= MinWidthForLabels(compact) && !compact)
+            {
+                var surfaceLabel = new TextBlock
+                {
+                    Text = "← Поверхность",
+                    FontSize = 10,
+                    Foreground = Brushes.Black,
+                    FontWeight = FontWeights.Bold
+                };
+                Canvas.SetLeft(surfaceLabel, width - 100);
+                Canvas.SetTop(surfaceLabel, baseY - aboveMm * scale - 5);
+                canvas.Children.Add(surfaceLabel);
+            }
+
+            // === Фаза 2: слои под трубой до линии среза ===
+            var stretchMarkerY = DrawBelowLayersToCut(canvas, width, layersBelow, baseY, cutY, scale, compact);
+            if (stretchMarkerY.HasValue)
+            {
+                DrawCompressionMarker(canvas, width, stretchMarkerY.Value, compact);
+            }
+
+            // Линия и подпись среза в нижней полосе бокса
+            DrawCutLine(canvas, width, cutY, compact);
+
+            // === Фаза 3: трубы и размерная линия ===
+            var centerX = width / 2;
+            DrawPipesAndDimension(canvas, width, centerX, baseY, parameters.PipeSpacing, scale, compact, parameters.ShowDimensionLine);
+        }
+
+        /// <summary>
+        /// Отрисовать слои под трубой в пределах окна. Возвращает Y-координату границы дотяжки
+        /// (если пирог «не дорос» до среза и последний слой был растянут), иначе null.
+        /// </summary>
+        private double? DrawBelowLayersToCut(Canvas canvas, double width,
+            List<Layer> layersBelow, double baseY, double cutY, double scale, bool compact)
+        {
+            var y = baseY;
+
+            for (var i = 0; i < layersBelow.Count; i++)
+            {
+                var layer = layersBelow[i];
+                var h = layer.Thickness * scale;
+                var isLast = i == layersBelow.Count - 1;
+
+                if (y + h > cutY)
+                {
+                    // Слой пересекает линию среза — обрезаем по кромке бокса
+                    var clipped = cutY - y;
+                    if (clipped > 0)
+                    {
+                        DrawLayer(canvas, width, y, clipped, layer.Material, layer.Thickness, compact);
+                    }
+                    return null;
+                }
+
+                if (isLast && cutY - (y + h) > CutEpsilon)
+                {
+                    // Пирог «не дорос» до среза — дотягиваем последний слой до низа
+                    DrawLayer(canvas, width, y, cutY - y, layer.Material, layer.Thickness, compact);
+                    return y + h;
+                }
+
+                DrawLayer(canvas, width, y, h, layer.Material, layer.Thickness, compact);
+                y += h;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Пунктирная линия среза и подпись глубины окна в нижней полосе бокса
+        /// </summary>
+        private void DrawCutLine(Canvas canvas, double canvasWidth, double y, bool compact)
+        {
+            var margin = CanvasMargin(compact);
+            var fontSize = compact ? 7 : 9;
+
+            var cutLine = new Line
+            {
+                X1 = margin,
+                Y1 = y,
+                X2 = canvasWidth - margin,
+                Y2 = y,
+                Stroke = Brushes.DimGray,
+                StrokeThickness = 1,
+                StrokeDashArray = new DoubleCollection { 4, 2 }
+            };
+            canvas.Children.Add(cutLine);
+
+            var caption = new TextBlock
+            {
+                Text = $"срез · {FixedWindowDepthMm / 1000.0:F1} м от оси трубы",
+                FontSize = fontSize,
+                Foreground = Brushes.DimGray,
+                Background = new SolidColorBrush(Color.FromArgb(200, 255, 255, 255)),
+                Padding = new Thickness(3, 1, 3, 1)
+            };
+
+            Canvas.SetLeft(caption, margin + 2);
+            Canvas.SetTop(caption, y + 1);
+            canvas.Children.Add(caption);
         }
 
         /// <summary>
@@ -173,11 +319,6 @@ namespace SnowMeltingCalculator.Services.Visualization
                 fixedScale = null;
             }
 
-            // Preferred base scale — FixedScaleFactor is only a starting point;
-            // bounded height policy can still override it (task 4).
-            var baseScale = fixedScale
-                ?? CalculateScaleFactor(layersAbove, layersBelow, parameters.CanvasAvailableHeight, margin, labelsHeight, compact);
-
             // Defensive: reject non-finite or non-positive MaxVisualizationHeight — treat as null (no-op)
             var maxVisHeight = parameters.MaxVisualizationHeight;
             if (maxVisHeight.HasValue &&
@@ -186,43 +327,27 @@ namespace SnowMeltingCalculator.Services.Visualization
                 maxVisHeight = null;
             }
 
-            // Determine if bounded mode is active
-            var boundedMode = maxVisHeight is not null
-                              && parameters.OverflowMode == ScaleOverflowMode.CompressLowerLayers;
-
-            // Allocate layer heights
-            List<LayerRenderInfo> aboveInfos;
-            List<LayerRenderInfo> belowInfos;
-            double totalAbove;
-            double totalBelow;
-            bool anyCompressed;
-
-            if (maxVisHeight is not null && boundedMode)
+            // Фиксированное окно глубины: константный бокс, детерминированная высота
+            if (maxVisHeight is not null && parameters.OverflowMode == ScaleOverflowMode.FixedDepthWindow)
             {
-                AllocateBoundedHeights(layersAbove, layersBelow, baseScale, minLayerHeight,
-                    margin, labelsHeight, maxVisHeight.Value,
-                    out aboveInfos, out belowInfos, out totalAbove, out totalBelow, out anyCompressed);
+                RenderFixedDepthWindow(canvas, width, layersAbove, layersBelow, parameters, maxVisHeight.Value, compact);
+                return;
             }
-            else
+
+            var baseScale = fixedScale ?? MaxScale(compact);
+
+            var aboveInfos = layersAbove.Select(l => new LayerRenderInfo
             {
-                aboveInfos = layersAbove.Select(l => new LayerRenderInfo
-                {
-                    Layer = l,
-                    RenderedHeight = Math.Max(l.Thickness * baseScale, minLayerHeight),
-                    Thickness = l.Thickness,
-                    IsCompressed = false
-                }).ToList();
-                belowInfos = layersBelow.Select(l => new LayerRenderInfo
-                {
-                    Layer = l,
-                    RenderedHeight = Math.Max(l.Thickness * baseScale, minLayerHeight),
-                    Thickness = l.Thickness,
-                    IsCompressed = false
-                }).ToList();
-                totalAbove = aboveInfos.Sum(i => i.RenderedHeight);
-                totalBelow = belowInfos.Sum(i => i.RenderedHeight);
-                anyCompressed = false;
-            }
+                Layer = l,
+                RenderedHeight = Math.Max(l.Thickness * baseScale, minLayerHeight)
+            }).ToList();
+            var belowInfos = layersBelow.Select(l => new LayerRenderInfo
+            {
+                Layer = l,
+                RenderedHeight = Math.Max(l.Thickness * baseScale, minLayerHeight)
+            }).ToList();
+            var totalAbove = aboveInfos.Sum(i => i.RenderedHeight);
+            var totalBelow = belowInfos.Sum(i => i.RenderedHeight);
 
             var totalHeight = totalAbove + totalBelow + 2 * margin + labelsHeight;
 
@@ -266,25 +391,16 @@ namespace SnowMeltingCalculator.Services.Visualization
                 canvas.Children.Add(surfaceLabel);
             }
 
-            // === Фаза 2: Слои под трубой (возможно сжатие нижних) ===
+            // === Фаза 2: Слои под трубой ===
             currentY = baseY;
-            var firstCompressedY = -1.0;
             foreach (var info in belowInfos)
             {
-                if (info.IsCompressed && firstCompressedY < 0)
-                {
-                    firstCompressedY = currentY;
-                }
                 DrawLayer(canvas, width, currentY, info.RenderedHeight,
                     info.Layer.Material, info.Layer.Thickness, compact);
                 currentY += info.RenderedHeight;
             }
 
-            // Маркер сжатия "не в масштабе"
-            if (anyCompressed && firstCompressedY >= 0)
-            {
-                DrawCompressionMarker(canvas, width, firstCompressedY, compact);
-            }
+            // Маркер сжатия "не в масштабе" — только в режиме фиксированного окна (дотяжка последнего слоя)
 
             // Подпись "Грунт"
             if (parameters.ShowGroundLabel && width >= MinWidthForLabels(compact) && !compact)
@@ -303,106 +419,6 @@ namespace SnowMeltingCalculator.Services.Visualization
 
             // === Фаза 3: Трубы и размерная линия (нормальный масштаб) ===
             DrawPipesAndDimension(canvas, width, centerX, baseY, parameters.PipeSpacing, baseScale, compact, parameters.ShowDimensionLine);
-        }
-
-        private double CalculateScaleFactor(
-            List<Layer> layersAbove,
-            List<Layer> layersBelow,
-            double? availableHeight,
-            double margin,
-            double labelsHeight,
-            bool compact)
-        {
-            var maxScale = MaxScale(compact);
-
-            if (availableHeight is not > 0)
-                return maxScale;
-
-            var desiredAbove = layersAbove.Sum(l => l.Thickness * maxScale);
-            var desiredBelow = layersBelow.Sum(l => l.Thickness * maxScale);
-            var desiredHeight = desiredAbove + desiredBelow + 2 * margin + labelsHeight;
-
-            if (desiredHeight <= availableHeight.Value)
-                return maxScale;
-
-            return maxScale * (availableHeight.Value / desiredHeight);
-        }
-
-        /// <summary>
-        /// Детерминированное распределение высот слоёв при ограниченной высоте canvas.
-        /// Верхние слои — всегда нормальный масштаб. Нижние слои — нормальный масштаб
-        /// пока хватает бюджета, затем сжатие до MinLayerHeight.
-        /// </summary>
-        private void AllocateBoundedHeights(
-            List<Layer> layersAbove, List<Layer> layersBelow,
-            double baseScale, double minLayerHeight,
-            double margin, double labelsHeight, double maxHeight,
-            out List<LayerRenderInfo> aboveInfos, out List<LayerRenderInfo> belowInfos,
-            out double totalAbove, out double totalBelow, out bool anyCompressed)
-        {
-            // Верхние слои — всегда нормальный масштаб
-            aboveInfos = layersAbove.Select(l => new LayerRenderInfo
-            {
-                Layer = l,
-                RenderedHeight = Math.Max(l.Thickness * baseScale, minLayerHeight),
-                Thickness = l.Thickness,
-                IsCompressed = false
-            }).ToList();
-            totalAbove = aboveInfos.Sum(i => i.RenderedHeight);
-
-            // Нормальные высоты нижних слоёв
-            var normalBelow = layersBelow.Select(l => Math.Max(l.Thickness * baseScale, minLayerHeight)).ToList();
-            var normalTotalBelow = normalBelow.Sum();
-            var normalTotalHeight = totalAbove + normalTotalBelow + 2 * margin + labelsHeight;
-
-            if (normalTotalHeight <= maxHeight)
-            {
-                // Сжатие не требуется
-                belowInfos = layersBelow.Select((l, i) => new LayerRenderInfo
-                {
-                    Layer = l,
-                    RenderedHeight = normalBelow[i],
-                    Thickness = l.Thickness,
-                    IsCompressed = false
-                }).ToList();
-                totalBelow = normalTotalBelow;
-                anyCompressed = false;
-                return;
-            }
-
-            // Сжатие требуется — найти точку раздела k:
-            // слои 0..k-1 нормальный масштаб, слои k..n-1 сжатые (MinLayerHeight)
-            var compressedHeight = minLayerHeight;
-            var lowerBudget = maxHeight - totalAbove - 2 * margin - labelsHeight;
-            var n = normalBelow.Count;
-
-            // Найти наибольшее k, где sum(normalBelow[0..k-1]) + (n-k)*compressedHeight <= lowerBudget
-            int bestK = 0;
-            double prefixSum = 0;
-            for (int k = 0; k <= n; k++)
-            {
-                var total = prefixSum + (n - k) * compressedHeight;
-                if (total <= lowerBudget)
-                    bestK = k;
-                if (k < n)
-                    prefixSum += normalBelow[k];
-            }
-
-            // Построить belowInfos: первые bestK слоёв нормальные, остальные сжатые
-            belowInfos = new List<LayerRenderInfo>();
-            for (int i = 0; i < n; i++)
-            {
-                var isCompressed = i >= bestK;
-                belowInfos.Add(new LayerRenderInfo
-                {
-                    Layer = layersBelow[i],
-                    RenderedHeight = isCompressed ? compressedHeight : normalBelow[i],
-                    Thickness = layersBelow[i].Thickness,
-                    IsCompressed = isCompressed
-                });
-            }
-            totalBelow = belowInfos.Sum(i => i.RenderedHeight);
-            anyCompressed = bestK < n;
         }
 
         /// <summary>
