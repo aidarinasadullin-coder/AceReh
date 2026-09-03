@@ -63,11 +63,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
 
         [Test]
-        public async Task OpenProject_WithCustomCatalogRecords_LeavesGlobalCatalogReadOnly()
+        public async Task OpenProject_LeavesGlobalCatalogReadOnly_AndCarriesNoCatalogs()
         {
-            // Given: project-local custom records and a wired construction service.
-            var customMaterial = new MaterialSnapshot { Id = 7001, Name = "Project-only material" };
-            var customTemplate = new ConstructionTemplate { Id = 7002, Name = "Project-only template" };
+            // Given: a project on the existing restore boundary and a wired
+            // construction service. DEC-006 (2026-09-03): catalogs live only
+            // globally — the wire DTO cannot carry custom catalogs at all, so
+            // opening a project must never route anything to global CRUD.
             var projectData = new ProjectData
             {
                 ProjectNumber = "CATALOG-READ-ONLY",
@@ -77,56 +78,23 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 {
                     Result = new ThermalResultProjectData { IsValid = true }
                 },
-                HydraulicsData = new HydraulicsProjectData(),
-                CustomMaterials = new List<MaterialSnapshot> { customMaterial },
-                CustomTemplates = new List<ConstructionTemplate> { customTemplate }
+                HydraulicsData = new HydraulicsProjectData()
             };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(typeof(ProjectData).GetProperty("CustomMaterials"), Is.Null,
+                    "DEC-006: the wire DTO must not carry CustomMaterials.");
+                Assert.That(typeof(ProjectData).GetProperty("CustomTemplates"), Is.Null,
+                    "DEC-006: the wire DTO must not carry CustomTemplates.");
+            });
 
             var viewModel = CreateViewModel();
 
             // When: opening the project through the existing restore boundary.
             await viewModel.LoadProjectDataAsync(projectData);
 
-            // Then: no global catalog CRUD/import operation is invoked, and the
-            // project-local records remain only in the loaded DTO.
-            _constructionServiceMock.Verify(
-                service => service.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()),
-                Times.Never);
-            _constructionServiceMock.Verify(
-                service => service.ImportProjectTemplatesAsync(It.IsAny<IEnumerable<ConstructionTemplate>>()),
-                Times.Never);
-            _constructionServiceMock.Verify(
-                service => service.ImportMissingMaterialAsync(It.IsAny<MaterialSnapshot>()),
-                Times.Never);
-            Assert.That(projectData.CustomMaterials, Has.Count.EqualTo(1));
-            Assert.That(projectData.CustomMaterials[0].Name, Is.EqualTo(customMaterial.Name));
-            Assert.That(projectData.CustomTemplates, Has.Count.EqualTo(1));
-            Assert.That(projectData.CustomTemplates[0].Name, Is.EqualTo(customTemplate.Name));
-        }
-
-        [Test]
-        public async Task OpenProject_WithInvalidCustomCatalogRecords_DoesNotMutateGlobalCatalog()
-        {
-            // Given: an otherwise valid project carrying an invalid custom record.
-            var projectData = new ProjectData
-            {
-                ProjectNumber = "CATALOG-INVALID",
-                ClimateData = new ClimateProjectData(),
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData
-                {
-                    Result = new ThermalResultProjectData { IsValid = true }
-                },
-                HydraulicsData = new HydraulicsProjectData(),
-                CustomMaterials = new List<MaterialSnapshot> { null! }
-            };
-
-            var viewModel = CreateViewModel();
-
-            // When: opening the project with the invalid project-local record.
-            await viewModel.LoadProjectDataAsync(projectData);
-
-            // Then: invalid project-local catalog data is not routed to global CRUD.
+            // Then: no global catalog CRUD/import operation is invoked.
             _constructionServiceMock.Verify(
                 service => service.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()),
                 Times.Never);

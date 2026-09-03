@@ -1,6 +1,5 @@
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Services.Navigation;
-using SnowMeltingCalculator.ViewModels.Hydraulics;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
 {

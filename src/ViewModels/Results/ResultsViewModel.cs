@@ -36,7 +36,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly ICalculationStateService _calculationStateService;
         private readonly IMaterialRepository _materialRepository;
         private readonly IConstructionService _constructionService;
-        private readonly IProjectSnapshotPersistenceInputs? _persistenceInputs;
         private readonly ProjectLoadOrchestrator _projectLoadOrchestrator;
         private readonly ResultsPdfDataBuilder _resultsPdfDataBuilder;
         private readonly HydraulicSummaryBuilder _hydraulicSummaryBuilder;
@@ -505,8 +504,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             ResultsPdfDataBuilder resultsPdfDataBuilder,
             HydraulicSummaryBuilder hydraulicSummaryBuilder,
             IProjectSaveService? projectSaveService = null,
-            IProjectDisplayModeState? displayModeState = null,
-            IProjectSnapshotPersistenceInputs? persistenceInputs = null)
+            IProjectDisplayModeState? displayModeState = null)
         {
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
@@ -518,7 +516,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
-            _persistenceInputs = persistenceInputs;
             _projectLoadOrchestrator = projectLoadOrchestrator ?? throw new ArgumentNullException(nameof(projectLoadOrchestrator));
             _resultsPdfDataBuilder = resultsPdfDataBuilder ?? throw new ArgumentNullException(nameof(resultsPdfDataBuilder));
             _hydraulicSummaryBuilder = hydraulicSummaryBuilder ?? throw new ArgumentNullException(nameof(hydraulicSummaryBuilder));
@@ -1717,53 +1714,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 IsHighRequirements = climateSnapshot.IsHighRequirements
             };
 
-            // Сохраняем пользовательские материалы
-            data.CustomMaterials = _materialRepository.GetAllMaterials()
-                .Where(m => !m.IsBuiltIn)
-                .Select(MaterialSnapshot.FromMaterial)
-                .ToList();
-
-            // Сохраняем пользовательские шаблоны конструкций с полными снимками материалов.
-            // Phase 8: источник — канонический persistence-seam (репозиторий шаблонов, тот же,
-            // что использует Phase 6 file-save через ProjectSnapshotFactory), а не зеркало VM.
-            var allMaterials = _materialRepository.GetAllMaterials().ToList();
-            data.CustomTemplates = (_persistenceInputs?.Templates ?? new List<ConstructionTemplate>())
-                .Where(t => !t.IsBuiltIn)
-                .Select(t => new ConstructionTemplate
-                {
-                    Name = t.Name,
-                    Description = t.Description,
-                    HasLoads = t.HasLoads,
-                    DefaultGroundwaterLevel = t.DefaultGroundwaterLevel,
-                    IsBuiltIn = false,
-                    LayersAbovePipe = t.LayersAbovePipe
-                        .Select(l => new LayerTemplate
-                        {
-                            MaterialId = l.MaterialId,
-                            Thickness = l.Thickness,
-                            Position = l.Position,
-                            Order = l.Order
-                        })
-                        .ToList(),
-                    LayersBelowPipe = t.LayersBelowPipe
-                        .Select(l => new LayerTemplate
-                        {
-                            MaterialId = l.MaterialId,
-                            Thickness = l.Thickness,
-                            Position = l.Position,
-                            Order = l.Order
-                        })
-                        .ToList(),
-                    MaterialSnapshots = t.LayersAbovePipe
-                        .Concat(t.LayersBelowPipe)
-                        .Select(l => l.MaterialId)
-                        .Distinct()
-                        .Select(id => allMaterials.FirstOrDefault(m => m.Id == id))
-                        .Where(m => m != null)
-                        .Select(m => MaterialSnapshot.FromMaterial(m!))
-                        .ToList()
-                })
-                .ToList();
+            // DEC-006 (2026-09-03): каталоги живут только глобально — кастомные
+            // материалы/шаблоны больше не встраиваются в сохраняемый проект,
+            // import-less restore их и не читал.
 
             // Сохраняем данные конструкции из канонического ConstructionState snapshot.
             // Совместимость с .smc форматом изолирована на границе persistence DTO <-> snapshot.

@@ -1,17 +1,13 @@
-using System.Collections.Generic;
-using SnowMeltingCalculator.Models.Construction;
-
 namespace SnowMeltingCalculator.Services.Project
 {
     /// <summary>
-    /// Narrow, persistence-only source for the records that are not owned by a
-    /// project-state slice. Implementations may adapt a repository-backed
-    /// catalog, but must not expose a ViewModel to the snapshot boundary.
+    /// Narrow, persistence-only source for the display mode that is not owned
+    /// by a project-state slice. DEC-006 (2026-09-03): catalogs live only
+    /// globally, so the persistence seam no longer exposes materials or
+    /// templates and must never expose a ViewModel to the snapshot boundary.
     /// </summary>
     public interface IProjectSnapshotPersistenceInputs
     {
         bool IsOperatingMode { get; }
-        IReadOnlyList<Material> Materials { get; }
-        IReadOnlyList<ConstructionTemplate> Templates { get; }
     }
 }

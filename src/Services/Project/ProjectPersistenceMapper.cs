@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using SnowMeltingCalculator.Models.Project;
 using SnowMeltingCalculator.Repositories.Construction;
 
@@ -8,6 +7,8 @@ namespace SnowMeltingCalculator.Services.Project
     /// <summary>
     /// Pure ProjectSnapshot-to-ProjectData mapper. It owns no lifecycle, file,
     /// dirty, WPF or Results state and preserves the existing Version 1.1 DTO.
+    /// DEC-006 (2026-09-03): custom catalogs live only globally — the mapper
+    /// no longer carries custom catalog records into the wire DTO.
     /// </summary>
     public static class ProjectPersistenceMapper
     {
@@ -39,8 +40,6 @@ namespace SnowMeltingCalculator.Services.Project
                     SelectedZone = climate.Zone,
                     IsHighRequirements = climate.IsHighRequirements
                 },
-                CustomMaterials = snapshot.CustomMaterials.Select(ToMaterialSnapshot).ToList(),
-                CustomTemplates = snapshot.CustomTemplates.Select(ToTemplate).ToList(),
                 ConstructionData = ConstructionPersistenceMapper.ToProjectData(
                     snapshot.ConstructionStateSnapshot,
                     materialRepository),
@@ -50,42 +49,5 @@ namespace SnowMeltingCalculator.Services.Project
                     snapshot.HydraulicsStateSnapshot)
             };
         }
-
-        private static Models.Construction.MaterialSnapshot ToMaterialSnapshot(
-            ProjectCustomMaterialRecord material) => new()
-        {
-            Id = material.Id,
-            Name = material.Name,
-            Category = material.Category,
-            LambdaA = material.LambdaA,
-            LambdaB = material.LambdaB,
-            MaxSupplyTemp = material.MaxSupplyTemp,
-            MinOutdoorTemp = material.MinOutdoorTemp,
-            Notes = material.Notes,
-            IsBuiltIn = material.IsBuiltIn
-        };
-
-        private static Models.Construction.ConstructionTemplate ToTemplate(
-            ProjectTemplateRecord template) => new()
-        {
-            Id = template.Id,
-            Name = template.Name,
-            Description = template.Description,
-            HasLoads = template.HasLoads,
-            DefaultGroundwaterLevel = template.DefaultGroundwaterLevel,
-            IsBuiltIn = template.IsBuiltIn,
-            LayersAbovePipe = template.LayersAbovePipe.Select(ToLayer).ToList(),
-            LayersBelowPipe = template.LayersBelowPipe.Select(ToLayer).ToList(),
-            MaterialSnapshots = template.MaterialSnapshots.Select(ToMaterialSnapshot).ToList()
-        };
-
-        private static Models.Construction.LayerTemplate ToLayer(
-            ProjectTemplateLayerRecord layer) => new()
-        {
-            MaterialId = layer.MaterialId,
-            Thickness = layer.Thickness,
-            Position = layer.Position,
-            Order = layer.Order
-        };
     }
 }

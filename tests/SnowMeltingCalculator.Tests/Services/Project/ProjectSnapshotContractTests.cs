@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -12,23 +11,17 @@ namespace SnowMeltingCalculator.Tests.Services.Project
     /// <summary>
     /// Phase 6 Task 3 contract tests for the immutable project snapshot
     /// (src/Services/Project/ProjectSnapshot.cs): required null rejection,
-    /// defensive-copy isolation at every collection level, get-only property
-    /// shape, exclusion of runtime/UI/date state, canonical module snapshot
-    /// types and absence of a second writable owner.
+    /// get-only property shape, exclusion of runtime/UI/date state, canonical
+    /// module snapshot types and absence of a second writable owner.
     /// Dates are intentionally NOT part of ProjectSnapshot; they remain
     /// explicit save-operation inputs for later save tasks (4/5).
+    /// DEC-006 (2026-09-03): catalogs live only globally — the snapshot no
+    /// longer carries custom materials/templates at all, and this contract
+    /// pins their absence.
     /// </summary>
     [TestFixture]
     public class ProjectSnapshotContractTests
     {
-        private static readonly Type[] SnapshotContractTypes =
-        {
-            typeof(ProjectSnapshot),
-            typeof(ProjectCustomMaterialRecord),
-            typeof(ProjectTemplateRecord),
-            typeof(ProjectTemplateLayerRecord),
-        };
-
         private static readonly string[] ForbiddenPropertyNamePatterns =
         {
             "CurrentFilePath",
@@ -38,6 +31,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             "Restore",
             "CreatedDate",
             "ModifiedDate",
+            "CustomMaterial",
+            "CustomTemplate",
         };
 
         // ------------------------------------------------------------------
@@ -72,36 +67,14 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             return new ConstructionStateSnapshot(1.5, hasLoads: false, above, below);
         }
 
-        private static ProjectCustomMaterialRecord CreateMaterialRecord(int id = 100) =>
-            new(id, $"Тестовый материал {id}", MaterialCategory.Insulation, 0.35, 0.41, null, null, null, isBuiltIn: false);
-
-        private static ProjectTemplateLayerRecord CreateTemplateLayerRecord(
-            double thickness = 50.0,
-            LayerPosition position = LayerPosition.AbovePipe,
-            int order = 0) =>
-            new(5, thickness, position, order);
-
-        private static ProjectTemplateRecord CreateTemplateRecord(
-            IEnumerable<ProjectTemplateLayerRecord> layersAbovePipe,
-            IEnumerable<ProjectTemplateLayerRecord> layersBelowPipe,
-            IEnumerable<ProjectCustomMaterialRecord> materialSnapshots) =>
-            new(1, "Тестовый шаблон", "Описание шаблона", layersAbovePipe, layersBelowPipe, hasLoads: false, 1.2, isBuiltIn: false, materialSnapshots);
-
-        private static ProjectSnapshot CreateSnapshot(
-            IEnumerable<ProjectCustomMaterialRecord>? customMaterials = null,
-            IEnumerable<ProjectTemplateRecord>? customTemplates = null)
-        {
-            return new ProjectSnapshot(
-                "ПР-001",
-                "Тестовый объект",
-                isOperatingMode: true,
-                CreateClimateSnapshot(),
-                CreateConstructionSnapshot(),
-                ThermalStateSnapshot.Default,
-                HydraulicsStateSnapshot.Default,
-                customMaterials ?? Array.Empty<ProjectCustomMaterialRecord>(),
-                customTemplates ?? Array.Empty<ProjectTemplateRecord>());
-        }
+        private static ProjectSnapshot CreateSnapshot() => new(
+            "ПР-001",
+            "Тестовый объект",
+            isOperatingMode: true,
+            CreateClimateSnapshot(),
+            CreateConstructionSnapshot(),
+            ThermalStateSnapshot.Default,
+            HydraulicsStateSnapshot.Default);
 
         // ------------------------------------------------------------------
         // Required null rejection.
@@ -111,7 +84,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void Constructor_WhenProjectNumberIsNull_ThrowsArgumentNullException()
         {
             Assert.That(
-                () => new ProjectSnapshot(null, "Объект", true, CreateClimateSnapshot(), CreateConstructionSnapshot(), ThermalStateSnapshot.Default, HydraulicsStateSnapshot.Default, Array.Empty<ProjectCustomMaterialRecord>(), Array.Empty<ProjectTemplateRecord>()),
+                () => new ProjectSnapshot(null, "Объект", true, CreateClimateSnapshot(), CreateConstructionSnapshot(), ThermalStateSnapshot.Default, HydraulicsStateSnapshot.Default),
                 Throws.TypeOf<ArgumentNullException>().With.Property(nameof(ArgumentNullException.ParamName)).EqualTo("projectNumber"));
         }
 
@@ -119,7 +92,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void Constructor_WhenProjectObjectIsNull_ThrowsArgumentNullException()
         {
             Assert.That(
-                () => new ProjectSnapshot("ПР-001", null, true, CreateClimateSnapshot(), CreateConstructionSnapshot(), ThermalStateSnapshot.Default, HydraulicsStateSnapshot.Default, Array.Empty<ProjectCustomMaterialRecord>(), Array.Empty<ProjectTemplateRecord>()),
+                () => new ProjectSnapshot("ПР-001", null, true, CreateClimateSnapshot(), CreateConstructionSnapshot(), ThermalStateSnapshot.Default, HydraulicsStateSnapshot.Default),
                 Throws.TypeOf<ArgumentNullException>().With.Property(nameof(ArgumentNullException.ParamName)).EqualTo("projectObject"));
         }
 
@@ -127,7 +100,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void Constructor_WhenClimateSnapshotIsNull_ThrowsArgumentNullException()
         {
             Assert.That(
-                () => new ProjectSnapshot("ПР-001", "Объект", true, null, CreateConstructionSnapshot(), ThermalStateSnapshot.Default, HydraulicsStateSnapshot.Default, Array.Empty<ProjectCustomMaterialRecord>(), Array.Empty<ProjectTemplateRecord>()),
+                () => new ProjectSnapshot("ПР-001", "Объект", true, null, CreateConstructionSnapshot(), ThermalStateSnapshot.Default, HydraulicsStateSnapshot.Default),
                 Throws.TypeOf<ArgumentNullException>().With.Property(nameof(ArgumentNullException.ParamName)).EqualTo("climateStateSnapshot"));
         }
 
@@ -135,7 +108,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void Constructor_WhenConstructionSnapshotIsNull_ThrowsArgumentNullException()
         {
             Assert.That(
-                () => new ProjectSnapshot("ПР-001", "Объект", true, CreateClimateSnapshot(), null, ThermalStateSnapshot.Default, HydraulicsStateSnapshot.Default, Array.Empty<ProjectCustomMaterialRecord>(), Array.Empty<ProjectTemplateRecord>()),
+                () => new ProjectSnapshot("ПР-001", "Объект", true, CreateClimateSnapshot(), null, ThermalStateSnapshot.Default, HydraulicsStateSnapshot.Default),
                 Throws.TypeOf<ArgumentNullException>().With.Property(nameof(ArgumentNullException.ParamName)).EqualTo("constructionStateSnapshot"));
         }
 
@@ -143,7 +116,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void Constructor_WhenThermalSnapshotIsNull_ThrowsArgumentNullException()
         {
             Assert.That(
-                () => new ProjectSnapshot("ПР-001", "Объект", true, CreateClimateSnapshot(), CreateConstructionSnapshot(), null, HydraulicsStateSnapshot.Default, Array.Empty<ProjectCustomMaterialRecord>(), Array.Empty<ProjectTemplateRecord>()),
+                () => new ProjectSnapshot("ПР-001", "Объект", true, CreateClimateSnapshot(), CreateConstructionSnapshot(), null, HydraulicsStateSnapshot.Default),
                 Throws.TypeOf<ArgumentNullException>().With.Property(nameof(ArgumentNullException.ParamName)).EqualTo("thermalStateSnapshot"));
         }
 
@@ -151,143 +124,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void Constructor_WhenHydraulicsSnapshotIsNull_ThrowsArgumentNullException()
         {
             Assert.That(
-                () => new ProjectSnapshot("ПР-001", "Объект", true, CreateClimateSnapshot(), CreateConstructionSnapshot(), ThermalStateSnapshot.Default, null, Array.Empty<ProjectCustomMaterialRecord>(), Array.Empty<ProjectTemplateRecord>()),
+                () => new ProjectSnapshot("ПР-001", "Объект", true, CreateClimateSnapshot(), CreateConstructionSnapshot(), ThermalStateSnapshot.Default, null),
                 Throws.TypeOf<ArgumentNullException>().With.Property(nameof(ArgumentNullException.ParamName)).EqualTo("hydraulicsStateSnapshot"));
-        }
-
-        [Test]
-        public void Constructor_WhenMaterialsCollectionIsNull_ThrowsArgumentNullException()
-        {
-            Assert.That(
-                () => new ProjectSnapshot("ПР-001", "Объект", true, CreateClimateSnapshot(), CreateConstructionSnapshot(), ThermalStateSnapshot.Default, HydraulicsStateSnapshot.Default, null, Array.Empty<ProjectTemplateRecord>()),
-                Throws.TypeOf<ArgumentNullException>().With.Property(nameof(ArgumentNullException.ParamName)).EqualTo("customMaterials"));
-        }
-
-        [Test]
-        public void Constructor_WhenTemplatesCollectionIsNull_ThrowsArgumentNullException()
-        {
-            Assert.That(
-                () => new ProjectSnapshot("ПР-001", "Объект", true, CreateClimateSnapshot(), CreateConstructionSnapshot(), ThermalStateSnapshot.Default, HydraulicsStateSnapshot.Default, Array.Empty<ProjectCustomMaterialRecord>(), null),
-                Throws.TypeOf<ArgumentNullException>().With.Property(nameof(ArgumentNullException.ParamName)).EqualTo("customTemplates"));
-        }
-
-        [Test]
-        public void Constructor_WhenMaterialsContainsNullElement_ThrowsArgumentException()
-        {
-            var materials = new List<ProjectCustomMaterialRecord> { CreateMaterialRecord(101), null! };
-
-            Assert.That(
-                () => CreateSnapshot(customMaterials: materials),
-                Throws.ArgumentException.With.Message.Contains("customMaterials"));
-        }
-
-        [Test]
-        public void Constructor_WhenTemplatesContainsNullElement_ThrowsArgumentException()
-        {
-            var templates = new List<ProjectTemplateRecord> { null! };
-
-            Assert.That(
-                () => CreateSnapshot(customTemplates: templates),
-                Throws.ArgumentException.With.Message.Contains("customTemplates"));
-        }
-
-        // ------------------------------------------------------------------
-        // Defensive-copy isolation.
-        // ------------------------------------------------------------------
-
-        [Test]
-        public void CustomMaterials_SourceListMutatedAfterConstruction_SnapshotStaysUnchanged()
-        {
-            var source = new List<ProjectCustomMaterialRecord> { CreateMaterialRecord(101), CreateMaterialRecord(102) };
-            var snapshot = CreateSnapshot(customMaterials: source);
-            var expected = snapshot.CustomMaterials.ToArray();
-
-            source.Add(CreateMaterialRecord(103));
-            source.RemoveAt(0);
-            source.Clear();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(snapshot.CustomMaterials.Count, Is.EqualTo(2));
-                Assert.That(snapshot.CustomMaterials, Is.EqualTo(expected));
-                Assert.That(((ICollection<ProjectCustomMaterialRecord>)snapshot.CustomMaterials).IsReadOnly, Is.True);
-                Assert.That(
-                    () => ((ICollection<ProjectCustomMaterialRecord>)snapshot.CustomMaterials).Add(CreateMaterialRecord(999)),
-                    Throws.TypeOf<NotSupportedException>());
-            });
-        }
-
-        [Test]
-        public void CustomTemplates_SourceListMutatedAfterConstruction_SnapshotStaysUnchanged()
-        {
-            var template = CreateTemplateRecord(
-                new[] { CreateTemplateLayerRecord() },
-                Array.Empty<ProjectTemplateLayerRecord>(),
-                Array.Empty<ProjectCustomMaterialRecord>());
-            var source = new List<ProjectTemplateRecord> { template };
-            var snapshot = CreateSnapshot(customTemplates: source);
-            var expected = snapshot.CustomTemplates.ToArray();
-
-            source.Add(template);
-            source.Clear();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(snapshot.CustomTemplates.Count, Is.EqualTo(1));
-                Assert.That(snapshot.CustomTemplates, Is.EqualTo(expected));
-                Assert.That(((ICollection<ProjectTemplateRecord>)snapshot.CustomTemplates).IsReadOnly, Is.True);
-                Assert.That(
-                    () => ((ICollection<ProjectTemplateRecord>)snapshot.CustomTemplates).Add(template),
-                    Throws.TypeOf<NotSupportedException>());
-            });
-        }
-
-        [Test]
-        public void CustomTemplates_NestedLayerSourcesMutatedAfterConstruction_SnapshotStaysUnchanged()
-        {
-            var nestedAbove = new List<ProjectTemplateLayerRecord> { CreateTemplateLayerRecord(order: 0) };
-            var templatesSource = new List<ProjectTemplateRecord>
-            {
-                CreateTemplateRecord(nestedAbove, Array.Empty<ProjectTemplateLayerRecord>(), Array.Empty<ProjectCustomMaterialRecord>()),
-            };
-            var snapshot = CreateSnapshot(customTemplates: templatesSource);
-
-            nestedAbove.Add(CreateTemplateLayerRecord(thickness: 77.0, order: 5));
-            templatesSource.Add(CreateTemplateRecord(Array.Empty<ProjectTemplateLayerRecord>(), Array.Empty<ProjectTemplateLayerRecord>(), Array.Empty<ProjectCustomMaterialRecord>()));
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(snapshot.CustomTemplates.Count, Is.EqualTo(1));
-                Assert.That(snapshot.CustomTemplates[0].LayersAbovePipe.Count, Is.EqualTo(1));
-                Assert.That(snapshot.CustomTemplates[0].LayersAbovePipe[0].Thickness, Is.EqualTo(50.0));
-            });
-        }
-
-        [Test]
-        public void TemplateRecord_SourceCollectionsMutatedAfterConstruction_RecordStaysUnchanged()
-        {
-            var above = new List<ProjectTemplateLayerRecord> { CreateTemplateLayerRecord(position: LayerPosition.AbovePipe, order: 0) };
-            var below = new List<ProjectTemplateLayerRecord> { CreateTemplateLayerRecord(position: LayerPosition.BelowPipe, order: 0) };
-            var materials = new List<ProjectCustomMaterialRecord> { CreateMaterialRecord(201) };
-
-            var template = CreateTemplateRecord(above, below, materials);
-            var aboveExpected = template.LayersAbovePipe.ToArray();
-            var belowExpected = template.LayersBelowPipe.ToArray();
-            var materialsExpected = template.MaterialSnapshots.ToArray();
-
-            above.Add(CreateTemplateLayerRecord(order: 1));
-            below.Clear();
-            materials.Add(CreateMaterialRecord(202));
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(template.LayersAbovePipe, Is.EqualTo(aboveExpected));
-                Assert.That(template.LayersBelowPipe, Is.EqualTo(belowExpected));
-                Assert.That(template.MaterialSnapshots, Is.EqualTo(materialsExpected));
-                Assert.That(
-                    () => ((ICollection<ProjectTemplateLayerRecord>)template.LayersAbovePipe).Add(CreateTemplateLayerRecord()),
-                    Throws.TypeOf<NotSupportedException>());
-            });
         }
 
         // ------------------------------------------------------------------
@@ -297,16 +135,13 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         [Test]
         public void PublicProperties_AllContractTypes_AreGetOnly()
         {
-            foreach (var type in SnapshotContractTypes)
-            {
-                var writable = type
-                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                    .Where(p => p.CanWrite)
-                    .Select(p => $"{type.Name}.{p.Name}")
-                    .ToArray();
+            var writable = typeof(ProjectSnapshot)
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanWrite)
+                .Select(p => $"{typeof(ProjectSnapshot).Name}.{p.Name}")
+                .ToArray();
 
-                Assert.That(writable, Is.Empty, $"{type.Name} must expose only get-only public properties.");
-            }
+            Assert.That(writable, Is.Empty, "ProjectSnapshot must expose only get-only public properties.");
         }
 
         [Test]
@@ -336,7 +171,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             Assert.That(
                 violations,
                 Is.Empty,
-                "ProjectSnapshot must exclude paths, dirty flags, restore guards and dates; found: " + string.Join(", ", violations));
+                "ProjectSnapshot must exclude paths, dirty flags, restore guards, dates and embedded catalogs; found: " + string.Join(", ", violations));
         }
 
         [Test]
@@ -387,6 +222,29 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         }
 
         // ------------------------------------------------------------------
+        // DEC-006: catalogs live only globally — no catalog members anywhere
+        // in the snapshot contract (properties, fields or nested types).
+        // ------------------------------------------------------------------
+
+        [Test]
+        public void ProjectSnapshot_CarriesNoCustomCatalogMembers()
+        {
+            var type = typeof(ProjectSnapshot);
+            var memberNames = type
+                .GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .Select(m => m.Name)
+                .ToArray();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(memberNames.Where(n => n.Contains("CustomMaterial", StringComparison.Ordinal)), Is.Empty,
+                    "ProjectSnapshot must not carry CustomMaterial members (DEC-006).");
+                Assert.That(memberNames.Where(n => n.Contains("CustomTemplate", StringComparison.Ordinal)), Is.Empty,
+                    "ProjectSnapshot must not carry CustomTemplate members (DEC-006).");
+            });
+        }
+
+        // ------------------------------------------------------------------
         // Value round-trip with the four canonical snapshots as provided.
         // ------------------------------------------------------------------
 
@@ -405,9 +263,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 climate,
                 construction,
                 thermal,
-                hydraulics,
-                Array.Empty<ProjectCustomMaterialRecord>(),
-                Array.Empty<ProjectTemplateRecord>());
+                hydraulics);
 
             Assert.Multiple(() =>
             {
@@ -418,18 +274,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 Assert.That(snapshot.ConstructionStateSnapshot, Is.SameAs(construction));
                 Assert.That(snapshot.ThermalStateSnapshot, Is.SameAs(thermal));
                 Assert.That(snapshot.HydraulicsStateSnapshot, Is.SameAs(hydraulics));
-            });
-        }
-
-        [Test]
-        public void Constructor_EmptyCollections_ProduceEmptyLists()
-        {
-            var snapshot = CreateSnapshot();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(snapshot.CustomMaterials, Is.Empty);
-                Assert.That(snapshot.CustomTemplates, Is.Empty);
             });
         }
 

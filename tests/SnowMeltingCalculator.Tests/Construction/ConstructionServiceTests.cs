@@ -940,36 +940,6 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
-        public async Task ProjectData_CustomMaterials_RoundTrip()
-        {
-            // Arrange
-            var repo = new TestMaterialRepository();
-            repo.Seed(Material.GetDefaultMaterials());
-            repo.AddAsync(new Material
-            {
-                Name = "Custom Project Material",
-                Category = MaterialCategory.Concrete,
-                LambdaA = 1.23,
-                LambdaB = 1.45,
-                IsBuiltIn = false
-            }).Wait();
-
-            var service = new ConstructionService(new ConstructionValidator(), repo, new Mock<IConstructionTemplateRepository>().Object);
-            var constructionVm = CreateConstructionViewModel(repo);
-            await constructionVm.InitializeCommand.ExecuteAsync(null);
-
-            var viewModel = CreateResultsViewModel(constructionVm, service, repo);
-
-            // Act — сохраняем
-            var savedData = viewModel.SaveCurrentProject();
-
-            // Assert — пользовательские материалы сохранены
-            Assert.That(savedData.CustomMaterials, Is.Not.Empty);
-            Assert.That(savedData.CustomMaterials.Any(m => m.Name == "Custom Project Material"), Is.True);
-            Assert.That(savedData.CustomMaterials.All(m => !m.IsBuiltIn), Is.True);
-        }
-
-        [Test]
         public async Task ProjectData_Load_KeepsCatalogsReadOnly_CustomMaterialsStayProjectLocal()
         {
             // LIM-P8-2 re-pin (owner decision B, 2026-09-03): custom materials
@@ -1010,19 +980,9 @@ namespace SnowMeltingCalculator.Tests.Construction
                     }
                 },
                 ThermalData = new ThermalProjectData(),
-                HydraulicsData = new HydraulicsProjectData(),
-                CustomMaterials = new List<MaterialSnapshot>
-                {
-                    new MaterialSnapshot
-                    {
-                        Id = 500,
-                        Name = "Imported Material",
-                        Category = MaterialCategory.Concrete,
-                        LambdaA = 1.5,
-                        LambdaB = 1.6,
-                        IsBuiltIn = false
-                    }
-                }
+                HydraulicsData = new HydraulicsProjectData()
+                // DEC-006 (2026-09-03): CustomMaterials left the wire — old
+                // files carrying them deserialize with the member ignored.
             };
 
             // Act
@@ -1036,60 +996,11 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
-        public async Task ProjectData_CustomTemplates_RoundTrip()
-        {
-            // Arrange
-            var repo = new TestMaterialRepository();
-            repo.Seed(Material.GetDefaultMaterials());
-            await repo.AddAsync(new Material
-            {
-                Name = "Custom Concrete",
-                Category = MaterialCategory.Concrete,
-                LambdaA = 1.5,
-                LambdaB = 1.5,
-                IsBuiltIn = false
-            });
-            var customConcrete = repo.GetAllMaterials().First(m => m.Name == "Custom Concrete");
-
-            var templateRepo = new TestTemplateRepository();
-            templateRepo.Seed(ConstructionTemplate.GetDefaultTemplates());
-
-            var service = new ConstructionService(new ConstructionValidator(), repo, templateRepo);
-            var constructionVm = CreateConstructionViewModel(repo);
-            await constructionVm.InitializeCommand.ExecuteAsync(null);
-
-            await templateRepo.AddAsync(new ConstructionTemplate
-            {
-                Name = "Custom Project Template",
-                Description = "User template",
-                HasLoads = false,
-                DefaultGroundwaterLevel = 2.0,
-                IsBuiltIn = false,
-                LayersAbovePipe = new List<LayerTemplate>
-                {
-                    new LayerTemplate { MaterialId = customConcrete.Id, Thickness = 80, Position = LayerPosition.AbovePipe, Order = 0 }
-                },
-                LayersBelowPipe = new List<LayerTemplate>()
-            });
-
-            var viewModel = CreateResultsViewModel(constructionVm, service, repo, templateRepo);
-
-            // Act
-            var savedData = viewModel.SaveCurrentProject();
-
-            // Assert
-            Assert.That(savedData.CustomTemplates, Is.Not.Empty);
-            // Phase 8: источник шаблонов — канонический репозиторий; дефолтные шаблоны
-            // не помечены IsBuiltIn и потому тоже попадают в CustomTemplates, поэтому
-            // кастомный ищется по имени, а не по индексу [0].
-            var savedCustom = savedData.CustomTemplates.Single(t => t.Name == "Custom Project Template");
-            Assert.That(savedCustom.MaterialSnapshots.Any(m => m.Name == "Custom Concrete"), Is.True);
-            Assert.That(savedCustom.IsBuiltIn, Is.False);
-        }
-
-        [Test]
         public async Task ProjectRoundTrip_CustomTemplateSurvives()
         {
+            // DEC-006 (2026-09-03): templates live only in the global catalog;
+            // a loaded project shows global templates — no project-carried
+            // catalogs are involved in the round trip anymore.
             // Arrange
             var repo = new TestMaterialRepository();
             repo.Seed(Material.GetDefaultMaterials());
@@ -1140,8 +1051,11 @@ namespace SnowMeltingCalculator.Tests.Construction
         [Test]
         public void ProjectData_DeserializesOldFileWithoutCustomTemplates()
         {
-            // Arrange
-            var json = "{\"version\":\"1.1\",\"project_number\":\"P-OLD\",\"project_object\":\"Old\",\"created_date\":\"2026-01-01T00:00:00\",\"modified_date\":\"2026-01-01T00:00:00\",\"climate_data\":{},\"construction_data\":{},\"thermal_data\":{},\"hydraulics_data\":{},\"custom_materials\":[],\"is_operating_mode\":true}";
+            // DEC-006 re-pin (2026-09-03): old files may still carry
+            // "custom_materials"/"custom_templates" JSON members; the DTO no
+            // longer has them and default deserialization ignores unknown
+            // members, so pre-decision files keep loading.
+            var json = "{\"version\":\"1.1\",\"project_number\":\"P-OLD\",\"project_object\":\"Old\",\"created_date\":\"2026-01-01T00:00:00\",\"modified_date\":\"2026-01-01T00:00:00\",\"climate_data\":{},\"construction_data\":{},\"thermal_data\":{},\"hydraulics_data\":{},\"custom_materials\":[{\"id\":500,\"name\":\"Imported Material\",\"is_built_in\":false}],\"custom_templates\":[],\"is_operating_mode\":true}";
             var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower };
 
             // Act
@@ -1149,8 +1063,9 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             // Assert
             Assert.That(data, Is.Not.Null);
-            Assert.That(data!.CustomTemplates, Is.Not.Null);
-            Assert.That(data.CustomTemplates, Is.Empty);
+            Assert.That(data!.ProjectNumber, Is.EqualTo("P-OLD"));
+            Assert.That(typeof(ProjectData).GetProperty("CustomMaterials"), Is.Null);
+            Assert.That(typeof(ProjectData).GetProperty("CustomTemplates"), Is.Null);
         }
 
         private ResultsViewModel CreateResultsViewModel(ConstructionViewModel constructionVm, IConstructionService service, IMaterialRepository repo, IConstructionTemplateRepository? templateRepo = null)
@@ -1188,13 +1103,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                     calculationStateService,
                     constructionVm,
                     circuitsVm),
-                new HydraulicSummaryBuilder(),
-                persistenceInputs: templateRepo == null
-                    ? null
-                    : new ProjectSnapshotPersistenceInputs(
-                        new ProjectDisplayModeState(),
-                        repo,
-                        templateRepo));
+                new HydraulicSummaryBuilder());
         }
 
         private ConstructionViewModel CreateConstructionViewModel(IMaterialRepository repo)

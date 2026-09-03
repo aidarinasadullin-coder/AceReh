@@ -61,9 +61,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 climate,
                 construction,
                 thermal,
-                hydraulics,
-                Array.Empty<ProjectCustomMaterialRecord>(),
-                Array.Empty<ProjectTemplateRecord>());
+                hydraulics);
         }
 
         // ---- behavioral tests ------------------------------------------
