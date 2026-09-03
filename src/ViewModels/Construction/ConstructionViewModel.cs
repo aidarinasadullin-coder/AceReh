@@ -982,8 +982,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         {
             if (value == null)
             {
-                TemplatePreviewLayersAbovePipe.Clear();
-                TemplatePreviewLayersBelowPipe.Clear();
+                TemplatePreviewLayersAbovePipe = new ObservableCollection<Layer>();
+                TemplatePreviewLayersBelowPipe = new ObservableCollection<Layer>();
                 IsTemplatePreviewExpanded = false;
                 CanApplySelectedTemplate = false;
                 TemplatePreviewErrorMessage = string.Empty;
@@ -994,17 +994,9 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             {
                 var previewConstruction = _constructionService.CreateFromTemplate(value, AvailableMaterials);
 
-                TemplatePreviewLayersAbovePipe.Clear();
-                foreach (var layer in previewConstruction.LayersAbovePipe)
-                {
-                    TemplatePreviewLayersAbovePipe.Add(layer);
-                }
-
-                TemplatePreviewLayersBelowPipe.Clear();
-                foreach (var layer in previewConstruction.Layers)
-                {
-                    TemplatePreviewLayersBelowPipe.Add(layer);
-                }
+                // Коллекции заменяются целиком: одна замена = одно уведомление = одна перерисовка превью
+                TemplatePreviewLayersAbovePipe = new ObservableCollection<Layer>(previewConstruction.LayersAbovePipe);
+                TemplatePreviewLayersBelowPipe = new ObservableCollection<Layer>(previewConstruction.Layers);
 
                 CanApplySelectedTemplate = true;
                 TemplatePreviewErrorMessage = string.Empty;
@@ -1013,8 +1005,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             {
                 CanApplySelectedTemplate = false;
                 TemplatePreviewErrorMessage = $"Материал '{ex.MaterialId}' не найден в справочнике. Применение шаблона невозможно.";
-                TemplatePreviewLayersAbovePipe.Clear();
-                TemplatePreviewLayersBelowPipe.Clear();
+                TemplatePreviewLayersAbovePipe = new ObservableCollection<Layer>();
+                TemplatePreviewLayersBelowPipe = new ObservableCollection<Layer>();
             }
         }
 
