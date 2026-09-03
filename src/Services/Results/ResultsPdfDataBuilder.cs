@@ -104,7 +104,8 @@ namespace SnowMeltingCalculator.Services.Results
                 });
             }
 
-            // Изображение схемы конструкции для PDF
+            // Изображение схемы конструкции для PDF — то же фиксированное окно глубины,
+            // что и на экране: схема в документе идентична экранной, с подписанным срезом
             pdfData.ConstructionImageBytes = _constructionVisualizationImageService.GenerateImage(
                 new ConstructionVisualizationParameters
                 {
@@ -113,7 +114,8 @@ namespace SnowMeltingCalculator.Services.Results
                     PipeSpacing = _calculationStateService.PipeSpacing,
                     CompactMode = true,
                     ShowDimensionLine = true,
-                    FixedScaleFactor = 0.25
+                    OverflowMode = ScaleOverflowMode.FixedDepthWindow,
+                    MaxVisualizationHeight = 300
                 },
                 width: 400,
                 height: 300);

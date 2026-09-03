@@ -303,8 +303,7 @@ namespace SnowMeltingCalculator.Views.Shared
                     ShowDimensionLine = ShowDimensionLine ?? !CompactMode,
                     FixedScaleFactor = SanitizeNullableDouble(FixedScaleFactor),
                     MaxVisualizationHeight = SanitizeMaxVisualizationHeight(MaxVisualizationHeight),
-                    OverflowMode = OverflowMode,
-                    CanvasAvailableHeight = ActualHeight > 0 ? ActualHeight : null
+                    OverflowMode = OverflowMode
                 };
 
                 _renderer.Render(ConstructionCanvas, parameters);
