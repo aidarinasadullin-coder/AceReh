@@ -4,25 +4,22 @@ using SnowMeltingCalculator.Services.Project;
 namespace SnowMeltingCalculator.Services.Results
 {
     /// <summary>
-    /// Forwarding-only compatibility adapter over <see cref="IProjectSession"/>.
-    /// Holds no lifecycle state of its own; all reads and writes are delegated to
-    /// the canonical session instance.
+    /// Phase 9 test support: the legacy forwarding adapter over
+    /// <see cref="IProjectSession"/> moved out of production (slice 6) and is
+    /// kept here only as a test seam. Behavior is identical to the removed
+    /// production class: no lifecycle state of its own; all reads and writes
+    /// delegate to the canonical session instance. Implements the internal
+    /// <see cref="IMarkDirtyService"/> seam exactly as before.
     /// </summary>
-    public class ProjectStateService : IProjectStateService, IMarkDirtyService
+    public class ProjectStateService : IMarkDirtyService
     {
         private readonly IProjectSession _session;
 
-        /// <summary>
-        /// Creates a new adapter backed by its own <see cref="ProjectSession"/>.
-        /// </summary>
         public ProjectStateService()
             : this(new ProjectSession())
         {
         }
 
-        /// <summary>
-        /// Creates an adapter that forwards to the specified canonical session.
-        /// </summary>
         public ProjectStateService(IProjectSession session)
         {
             _session = session;
@@ -34,37 +31,30 @@ namespace SnowMeltingCalculator.Services.Results
         /// </summary>
         public IProjectSession Session => _session;
 
-        /// <inheritdoc />
         public string ProjectNumber
         {
             get => _session.ProjectNumber;
             set => _session.ProjectNumber = value;
         }
 
-        /// <inheritdoc />
         public string ProjectObject
         {
             get => _session.ProjectObject;
             set => _session.ProjectObject = value;
         }
 
-        /// <inheritdoc />
         public string? CurrentFilePath
         {
             get => _session.CurrentFilePath;
             set => _session.CurrentFilePath = value;
         }
 
-        /// <inheritdoc />
         public bool IsDirty => _session.IsDirty;
 
-        /// <inheritdoc />
         public void MarkDirty() => _session.MarkDirty();
 
-        /// <inheritdoc />
         public void MarkClean() => _session.MarkClean();
 
-        /// <inheritdoc />
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private void OnSessionPropertyChanged(object? sender, PropertyChangedEventArgs e)

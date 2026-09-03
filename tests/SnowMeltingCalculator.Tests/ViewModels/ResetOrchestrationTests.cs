@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -312,9 +312,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 projectStateService.Session.ConstructionState);
 
             return new ResultsViewModel(
-                projectStateService,
                 projectStateService.Session,
-                markDirtyService,
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
                 new Mock<ICalculationReportExportService>().Object,
@@ -322,7 +320,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
-                circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
                     constructionVm,
@@ -344,13 +341,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         private static string? GetCurrentFilePath(ResultsViewModel vm)
         {
             var field = typeof(ResultsViewModel).GetField("_projectStateService", BindingFlags.NonPublic | BindingFlags.Instance);
-            return ((IProjectStateService?)field?.GetValue(vm))?.CurrentFilePath;
+            return ((IProjectSession?)field?.GetValue(vm))?.CurrentFilePath;
         }
 
         private static void SetCurrentFilePath(ResultsViewModel vm, string? value)
         {
             var field = typeof(ResultsViewModel).GetField("_projectStateService", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (field?.GetValue(vm) is IProjectStateService service)
+            if (field?.GetValue(vm) is IProjectSession service)
             {
                 service.CurrentFilePath = value;
             }

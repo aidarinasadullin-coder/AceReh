@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -1927,9 +1927,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var calculationContext = new CalculationContext();
 
             return new ResultsViewModel(
-                _projectStateService,
                 _projectStateService.Session,
-                _projectStateService,
                 _dialogServiceMock.Object,
                 new Mock<IPdfExportService>().Object,
                 new Mock<ICalculationReportExportService>().Object,
@@ -1937,7 +1935,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 calculationStateService,
                 materialRepositoryMock.Object,
                 _constructionServiceMock.Object,
-                circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
                     constructionVm,
@@ -2153,9 +2150,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var calculationContext = new CalculationContext();
 
             return new ResultsViewModel(
-                _projectStateService,
                 _projectStateService.Session,
-                _projectStateService,
                 _dialogServiceMock.Object,
                 new Mock<IPdfExportService>().Object,
                 new Mock<ICalculationReportExportService>().Object,
@@ -2163,7 +2158,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
-                circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
                     constructionVm,
@@ -3198,7 +3192,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var cleanTransitions = 0;
             _projectStateService.PropertyChanged += (_, args) =>
             {
-                if (args.PropertyName != nameof(IProjectStateService.IsDirty))
+                if (args.PropertyName != nameof(IProjectSession.IsDirty))
                 {
                     return;
                 }
@@ -3255,7 +3249,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var cleanTransitions = 0;
             _projectStateService.PropertyChanged += (_, args) =>
             {
-                if (args.PropertyName != nameof(IProjectStateService.IsDirty))
+                if (args.PropertyName != nameof(IProjectSession.IsDirty))
                 {
                     return;
                 }

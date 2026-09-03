@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -13,7 +13,7 @@ namespace SnowMeltingCalculator.Services.Project
     /// Единственный writable owner состояния жизненного цикла проекта:
     /// идентификация, путь, dirty-флаг и guard восстановления.
     /// </summary>
-    public class ProjectSession : IProjectSession, IProjectStateService, IMarkDirtyService
+    public class ProjectSession : IProjectSession, IMarkDirtyService
     {
         private string _projectNumber = string.Empty;
         private string _projectObject = string.Empty;

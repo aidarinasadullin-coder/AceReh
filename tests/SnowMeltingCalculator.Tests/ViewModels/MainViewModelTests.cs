@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -92,7 +92,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 circuitsVm,
                 resultsVm,
                 _calculationStateServiceMock.Object,
-                _projectStateService,
+                _projectStateService.Session,
                 _dialogServiceMock.Object,
                 _calculationContext,
                 _projectStateService.Session,
@@ -566,7 +566,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question))
                 .Returns(DialogResult.Cancel);
 
-            var args = await InvokeClosingAsync(_dialogServiceMock.Object, _projectStateService, _viewModel);
+            var args = await InvokeClosingAsync(_dialogServiceMock.Object, _projectStateService.Session, _viewModel);
 
             _dialogServiceMock.Verify(
                 d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question),
@@ -582,7 +582,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 .Setup(d => d.Show(It.IsAny<string>(), It.IsAny<string>(), DialogButtons.YesNoCancel, DialogIcon.Question))
                 .Returns(DialogResult.No);
 
-            var args = await InvokeClosingAsync(_dialogServiceMock.Object, _projectStateService, _viewModel);
+            var args = await InvokeClosingAsync(_dialogServiceMock.Object, _projectStateService.Session, _viewModel);
 
             Assert.That(args.Cancel, Is.False);
         }
@@ -602,7 +602,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 .ReturnsAsync(OperationResult<object?>.Success(null));
 
             var window = CreateUninitializedMainWindow();
-            SetField(window, "_projectStateService", _projectStateService);
+            SetField(window, "_projectStateService", _projectStateService.Session);
             SetField(window, "_dialogService", _dialogServiceMock.Object);
             SetField(window, "_viewModel", _viewModel);
 
@@ -704,7 +704,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     CreateCircuitsViewModel(_projectStateService),
                     CreateResultsViewModel(_projectStateService, _projectFileServiceMock.Object, _dialogServiceMock.Object),
                     _calculationStateServiceMock.Object,
-                    _projectStateService,
+                    _projectStateService.Session,
                     _dialogServiceMock.Object,
                     _calculationContext,
                     _projectStateService.Session,
@@ -725,7 +725,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
         #region Helpers
 
-        private async Task<CancelEventArgs> InvokeClosingAsync(IDialogService dialogService, IProjectStateService projectStateService, MainViewModel viewModel)
+        private async Task<CancelEventArgs> InvokeClosingAsync(IDialogService dialogService, IProjectSession projectStateService, MainViewModel viewModel)
         {
             var window = CreateUninitializedMainWindow();
             SetField(window, "_projectStateService", projectStateService);
@@ -907,9 +907,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var calculationContext = new CalculationContext();
 
             return new ResultsViewModel(
-                projectStateService,
                 projectStateService.Session,
-                projectStateService,
                 dialogService,
                 new Mock<IPdfExportService>().Object,
                 new Mock<ICalculationReportExportService>().Object,
@@ -917,7 +915,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
-                circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
                     constructionVm,

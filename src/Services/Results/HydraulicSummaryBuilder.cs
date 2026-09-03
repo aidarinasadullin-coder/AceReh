@@ -1,4 +1,5 @@
 using SnowMeltingCalculator.Models.Hydraulics;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.ViewModels.Results;
 
 namespace SnowMeltingCalculator.Services.Results
@@ -8,13 +9,15 @@ namespace SnowMeltingCalculator.Services.Results
     /// спецификации и сгруппированное оборудование.
     /// Чистый маппинг состояния коллекторов — без собственного состояния.
     /// Вынесен из ResultsViewModel (архитектурный долг, этап C3).
+    /// Phase 9 (ST-026/ST-027): вход — канонические снимки HydraulicsState,
+    /// не модель модуля.
     /// </summary>
     public class HydraulicSummaryBuilder
     {
         /// <summary>
         /// Построить канонический read-model карточек итогов гидравлики по всем коллекторам.
         /// </summary>
-        public List<CollectorHydraulicSummaryCard> BuildSummaryCards(IEnumerable<CollectorData>? collectors)
+        public List<CollectorHydraulicSummaryCard> BuildSummaryCards(IReadOnlyList<HydraulicCollectorSnapshot>? collectors)
         {
             var cards = new List<CollectorHydraulicSummaryCard>();
             if (collectors == null) return cards;
@@ -22,7 +25,7 @@ namespace SnowMeltingCalculator.Services.Results
             foreach (var collector in collectors)
             {
                 if (collector == null) continue;
-                cards.Add(new CollectorHydraulicSummaryCard(collector));
+                cards.Add(BuildCard(collector));
             }
 
             return cards;
@@ -31,7 +34,7 @@ namespace SnowMeltingCalculator.Services.Results
         /// <summary>
         /// Построить спецификации коллекторов
         /// </summary>
-        public List<CollectorSpecification> BuildSpecifications(IEnumerable<CollectorData>? collectors, bool isOperatingMode)
+        public List<CollectorSpecification> BuildSpecifications(IReadOnlyList<HydraulicCollectorSnapshot>? collectors, bool isOperatingMode)
         {
             var specifications = new List<CollectorSpecification>();
             if (collectors == null) return specifications;
@@ -39,18 +42,19 @@ namespace SnowMeltingCalculator.Services.Results
             foreach (var collector in collectors)
             {
                 if (collector?.Summary == null) continue;
+                var summary = collector.Summary;
 
                 specifications.Add(new CollectorSpecification
                 {
                     Number = collector.CollectorNumber,
-                    Type = collector.CollectorTypeDisplayWithCount,
-                    CircuitCount = collector.Circuits?.Count ?? 0,
-                    TotalPower_kW = collector.Summary.TotalPower / 1000.0,
-                    TotalFlowRate_m3h = collector.Summary.TotalFlowRate_m3h,
+                    Type = FormatCollectorTypeDisplay(collector.ValveType, collector.Circuits.Count),
+                    CircuitCount = collector.Circuits.Count,
+                    TotalPower_kW = summary.TotalPower / 1000.0,
+                    TotalFlowRate_m3h = summary.TotalFlowRate / 1000.0,
                     PressureLoss_mbar = isOperatingMode
-                        ? collector.Summary.PressureLoss_Operating_mbar
-                        : collector.Summary.PressureLoss_Cold_mbar,
-                    Kv = collector.Summary.Kv
+                        ? summary.PressureLoss_Operating_Pa / 100.0
+                        : summary.PressureLoss_Cold_Pa / 100.0,
+                    Kv = summary.Kv
                 });
             }
 
@@ -63,7 +67,7 @@ namespace SnowMeltingCalculator.Services.Results
         /// <remarks>
         /// Группирует коллекторы по (ValveType, CircuitCount), сохраняя порядок первого появления.
         /// </remarks>
-        public List<CollectorEquipmentItem> BuildEquipmentItems(IEnumerable<CollectorData>? collectors)
+        public List<CollectorEquipmentItem> BuildEquipmentItems(IReadOnlyList<HydraulicCollectorSnapshot>? collectors)
         {
             var items = new List<CollectorEquipmentItem>();
             if (collectors == null) return items;
@@ -75,7 +79,7 @@ namespace SnowMeltingCalculator.Services.Results
             {
                 if (collector == null) continue;
 
-                int circuitCount = collector.Circuits?.Count ?? 0;
+                int circuitCount = collector.Circuits.Count;
                 var key = (collector.ValveType, circuitCount);
 
                 if (groupMap.TryGetValue(key, out var existingItem))
@@ -92,7 +96,7 @@ namespace SnowMeltingCalculator.Services.Results
                         {
                             ValveType.HKV_D => $"HKV-D ({FormatCircuitCount(circuitCount)})",
                             ValveType.IV_1_25 or ValveType.IV_1_5 => $"IV ({FormatCircuitCount(circuitCount)})",
-                            _ => collector.CollectorTypeDisplayWithCount
+                            _ => FormatCollectorTypeDisplay(collector.ValveType, circuitCount)
                         },
                         CollectorQuantity = 1
                     };
@@ -105,6 +109,34 @@ namespace SnowMeltingCalculator.Services.Results
             items.AddRange(orderedGroups);
             return items;
         }
+
+        private static CollectorHydraulicSummaryCard BuildCard(HydraulicCollectorSnapshot collector)
+        {
+            var summary = collector.Summary;
+            return new CollectorHydraulicSummaryCard
+            {
+                CollectorNumber = collector.CollectorNumber,
+                CollectorTypeDisplay = FormatCollectorTypeDisplay(collector.ValveType, collector.Circuits.Count),
+                CircuitCount = summary?.CircuitCount ?? 0,
+                TotalPipeLength = summary?.TotalPipeLength ?? 0,
+                TotalPower = summary?.TotalPower ?? 0,
+                TotalFlowRate = summary?.TotalFlowRate ?? 0,
+                OperatingPressureLossPa = summary?.PressureLoss_Operating_Pa ?? 0,
+                ColdPressureLossPa = summary?.PressureLoss_Cold_Pa ?? 0,
+                Kv = summary?.Kv ?? 0
+            };
+        }
+
+        private static string FormatCollectorTypeDisplay(ValveType valveType, int circuitCount) =>
+            $"{FormatCollectorTypeName(valveType)} ({FormatCircuitCount(circuitCount)})";
+
+        private static string FormatCollectorTypeName(ValveType valveType) => valveType switch
+        {
+            ValveType.HKV_D => "HKV-D",
+            ValveType.IV_1_25 => "IV 1¼\"",
+            ValveType.IV_1_5 => "IV 1½\"",
+            _ => "Unknown"
+        };
 
         private static string FormatCircuitCount(int count) => count switch
         {

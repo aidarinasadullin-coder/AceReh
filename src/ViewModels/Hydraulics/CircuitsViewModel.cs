@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -16,7 +16,7 @@ using SnowMeltingCalculator.Services.Project;
 
 namespace SnowMeltingCalculator.ViewModels.Hydraulics
 {
-    public partial class CircuitsViewModel : ObservableObject
+    public partial class CircuitsViewModel : ObservableObject, Services.Project.IProjectLoadHydraulicsAdapter, Services.Results.IReportCollectorDataSource
     {
         #region Constants
 

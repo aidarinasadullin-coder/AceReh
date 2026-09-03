@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +15,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
     /// <summary>
     /// ViewModel для экрана климатических данных
     /// </summary>
-    public partial class ClimateViewModel : ObservableObject
+    public partial class ClimateViewModel : ObservableObject, Services.Project.IProjectLoadClimateAdapter
     {
         private readonly IClimateDataService _climateService;
         private readonly IClimateData _climateData;

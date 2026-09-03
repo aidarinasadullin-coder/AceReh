@@ -1,4 +1,4 @@
-// ================================================================================
+﻿// ================================================================================
 // Phase 4 Todo 2 - Thermal multiplicity characterization suite.
 // ================================================================================
 //
@@ -1277,15 +1277,24 @@ public sealed class ThermalMultiplicityCharacterizationTests
     [Category("RestoreFailure")]
     public async Task LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults()
     {
-        var constructionService = new Mock<IConstructionService>();
-        constructionService
-            .Setup(service => service.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
+        // LIM-P8-2 re-pin (owner decision B, 2026-09-03): the catalog-import
+        // boundary no longer exists in restore (custom entries stay
+        // project-local; catalogs are read-only on open per the accepted
+        // Phase 7 contract). The failure is injected at the nearest live
+        // restore boundary — the compatible pipe-spacing step, which runs
+        // after the canonical restores but before the thermal adapter
+        // mirroring, hydraulics restore, and result publication.
+        var orchestratorCalcState = new Mock<ICalculationStateService>();
+        orchestratorCalcState
+            .Setup(service => service.SetPipeSpacing(It.IsAny<int>(), It.IsAny<string>()))
             .Throws(new InvalidOperationException("injected early boundary failure"));
-        var fixture = CreateFixture(constructionService.Object);
+        var fixture = CreateFixture(orchestratorCalculationState: orchestratorCalcState.Object);
 
         var project = CreateProject(
             OperatingMode.Intensive, 55.0, 8.0, 250, 1,
             new ThermalResultProjectData { PowerTotal = 777.0, IsValid = true });
+        // Custom materials are no longer imported on load (owner decision B);
+        // the entry stays project-local and does not affect the load flow.
         project.CustomMaterials = new List<MaterialSnapshot> { new MaterialSnapshot { Name = "Custom material" } };
 
         var exception = Assert.ThrowsAsync<InvalidOperationException>(
@@ -1297,10 +1306,13 @@ public sealed class ThermalMultiplicityCharacterizationTests
             Assert.That(fixture.CalculationStateService.IsLoadProjectInProgress, Is.False,
                 "Restore lease must be cleared even when restore throws.");
             Assert.That(fixture.ThermalViewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting),
-                "Thermal restore happens after the early failure point and retains defaults.");
+                "Thermal adapter mirroring happens after the injected boundary and retains defaults.");
             Assert.That(fixture.ThermalViewModel.SupplyTemperature, Is.EqualTo(50.0));
             Assert.That(fixture.ThermalViewModel.Result, Is.Null);
-            Assert.That(fixture.CalculationStateService.PipeSpacing, Is.EqualTo(200));
+            // The canonical thermal restore runs before the injected failure and
+            // is not rolled back (non-transactional restore); the read-through
+            // CalculationStateService.PipeSpacing reflects the restored value.
+            Assert.That(fixture.CalculationStateService.PipeSpacing, Is.EqualTo(250));
             Assert.That(CalculatorInvocations(fixture), Is.Zero);
             Assert.That(fixture.Session.IsDirty, Is.False,
                 "Non-user lifecycle origins must not mark the partial project dirty.");
@@ -1311,18 +1323,22 @@ public sealed class ThermalMultiplicityCharacterizationTests
     [Category("RestoreFailure")]
     public async Task LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults()
     {
-        var constructionService = new Mock<IConstructionService>();
-        constructionService
-            .Setup(service => service.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
-            .Returns(Task.CompletedTask);
-        constructionService
-            .Setup(service => service.ImportProjectTemplatesAsync(It.IsAny<IEnumerable<ConstructionTemplate>>()))
+        // LIM-P8-2 re-pin (owner decision B, 2026-09-03): with the catalog
+        // import gone, the late restore failure is injected at the same live
+        // pipe-spacing boundary as the early case; the characterized
+        // non-transactional semantics (lease cleared, adapter defaults, no
+        // user-dirty) are unchanged.
+        var orchestratorCalcState = new Mock<ICalculationStateService>();
+        orchestratorCalcState
+            .Setup(service => service.SetPipeSpacing(It.IsAny<int>(), It.IsAny<string>()))
             .Throws(new InvalidOperationException("injected late boundary failure"));
-        var fixture = CreateFixture(constructionService.Object);
+        var fixture = CreateFixture(orchestratorCalculationState: orchestratorCalcState.Object);
 
         var project = CreateProject(
             OperatingMode.Intensive, 55.0, 8.0, 250, 1,
             new ThermalResultProjectData { PowerTotal = 777.0, IsValid = true });
+        // Custom templates are no longer imported on load (owner decision B);
+        // the entry stays project-local and does not affect the load flow.
         project.CustomTemplates = new List<ConstructionTemplate> { new ConstructionTemplate { Name = "Custom template" } };
 
         var exception = Assert.ThrowsAsync<InvalidOperationException>(
@@ -1334,10 +1350,13 @@ public sealed class ThermalMultiplicityCharacterizationTests
             Assert.That(fixture.CalculationStateService.IsLoadProjectInProgress, Is.False,
                 "Late restore failure must also clear the lease.");
             Assert.That(fixture.ThermalViewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting),
-                "Characterized non-transactional behavior: thermal inputs are restored after the late failure point.");
+                "Characterized non-transactional behavior: the adapter mirroring happens after the injected boundary and retains defaults.");
             Assert.That(fixture.ThermalViewModel.SupplyTemperature, Is.EqualTo(50.0));
             Assert.That(fixture.ThermalViewModel.Result, Is.Null);
-            Assert.That(fixture.CalculationStateService.PipeSpacing, Is.EqualTo(200));
+            // The canonical thermal restore runs before the injected failure and
+            // is not rolled back (non-transactional restore); the read-through
+            // CalculationStateService.PipeSpacing reflects the restored value.
+            Assert.That(fixture.CalculationStateService.PipeSpacing, Is.EqualTo(250));
             Assert.That(fixture.Session.IsDirty, Is.False);
         });
     }
@@ -1592,7 +1611,8 @@ public sealed class ThermalMultiplicityCharacterizationTests
 
     private static ThermalFixture CreateFixture(
         IConstructionService? constructionService = null,
-        IProjectFileService? projectFileService = null)
+        IProjectFileService? projectFileService = null,
+        ICalculationStateService? orchestratorCalculationState = null)
     {
         var context = new CalculationContext();
         var climateData = new ClimateData();
@@ -1711,7 +1731,7 @@ public sealed class ThermalMultiplicityCharacterizationTests
             constructionViewModel,
             thermalViewModel,
             circuitsViewModel,
-            calculationState,
+            orchestratorCalculationState ?? calculationState,
             effectiveConstructionService,
             context,
             session,
@@ -1725,9 +1745,7 @@ public sealed class ThermalMultiplicityCharacterizationTests
             .Callback<string, string>((message, title) => shownError = message);
 
         var resultsViewModel = new ResultsViewModel(
-            projectState,
             session,
-            otherMarkDirty,
             dialogService.Object,
             new Mock<IPdfExportService>().Object,
             new Mock<ICalculationReportExportService>().Object,
@@ -1735,7 +1753,6 @@ public sealed class ThermalMultiplicityCharacterizationTests
             calculationState,
             materialRepository.Object,
             effectiveConstructionService,
-            circuitsViewModel,
             orchestrator,
             new ResultsPdfDataBuilder(
                 new Mock<IConstructionVisualizationImageService>().Object,

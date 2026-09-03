@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -22,7 +22,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
     /// <summary>
     /// ViewModel для модуля "Конструктор конструкции"
     /// </summary>
-    public partial class ConstructionViewModel : ObservableObject
+    public partial class ConstructionViewModel : ObservableObject, Services.Project.IProjectLoadConstructionAdapter, Services.Results.IReportConstructionLayerSource
     {
         private readonly IConstructionService _constructionService;
         private readonly IMaterialRepository _materialRepository;

@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -25,6 +25,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
     {
         private ProjectStateService _projectStateService = null!;
         private ClimateViewModel _climateVm = null!;
+        private SnowMeltingCalculator.ViewModels.Hydraulics.CircuitsViewModel _circuitsVm = null!;
         private ConstructionViewModel _constructionVm = null!;
         private ThermalViewModel _thermalVm = null!;
 
@@ -196,7 +197,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var viewModel = CreateReadyViewModel();
             await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
             var climateViewModel = _climateVm;
-            var circuitsViewModel = GetField<CircuitsViewModel>(viewModel, "_circuitsViewModel");
+            // Phase 9: Results no longer holds the module VM; the PDF builder seam is pinned via the fixture module VM.
+            var circuitsViewModel = _circuitsVm;
             var builder = GetField<ResultsPdfDataBuilder>(viewModel, "_resultsPdfDataBuilder");
             climateViewModel.SelectedCity = new CityInfo { Name = "PDF current city", Region = "PDF region" };
             climateViewModel.WindSpeed = 8.5;
@@ -336,8 +338,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             {
                 // Todo 9 (DEC-T08): финализация читает результат из канонического
                 // ThermalState вместо VM-поля; fallback-вызов сохранён как был.
+                // Phase 9 re-pin: единственный CalculateCommand запуск перенесён в
+                // ThermalViewModel.CalculateFromRestoreAsync (IProjectLoadThermalAdapter)
+                // при том же exactly-once контракте (slice-5 receipt).
                 Assert.That(source, Does.Contain("_thermalState.Snapshot.Result is { IsValid: true }"));
-                Assert.That(source, Does.Contain("await _thermalViewModel.CalculateCommand.ExecuteAsync(null);"));
+                Assert.That(source, Does.Contain("await _thermalViewModel.CalculateFromRestoreAsync();"));
+                Assert.That(File.ReadAllText(FindRepositoryFile("src/ViewModels/Thermal/ThermalViewModel.cs")),
+                    Does.Contain("CalculateCommand.ExecuteAsync(null)"));
                 Assert.That(File.ReadAllText(FindRepositoryFile("src/ViewModels/Results/ResultsViewModel.cs")),
                     Does.Not.Contain("RefreshAll()\r\n        {\r\n            await _thermalViewModel.CalculateCommand"));
             });
@@ -345,10 +352,11 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
         private ResultsViewModel CreateReadyViewModel()
         {
+            _circuitsVm = ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors(
+                ResultsViewModelTestHelpers.CreateCollector(1, ValveType.HKV_D, 2));
             var viewModel = ResultsViewModelTestHelpers.CreateResultsViewModel(
                 _projectStateService,
-                ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors(
-                    ResultsViewModelTestHelpers.CreateCollector(1, ValveType.HKV_D, 2)),
+                _circuitsVm,
                 out _climateVm,
                 out _constructionVm,
                 out _thermalVm);

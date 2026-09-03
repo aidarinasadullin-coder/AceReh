@@ -1,4 +1,4 @@
-// ================================================================================
+﻿// ================================================================================
 // REHAU Снеготаяние - Тесты привязки диалогов к UI-потоку (T3)
 // ================================================================================
 
@@ -144,9 +144,7 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
             var calculationContext = new CalculationContext();
 
             return new ResultsViewModel(
-                projectStateService,
                 projectStateService.Session,
-                projectStateService,
                 dialogService,
                 new Mock<IPdfExportService>().Object,
                 new Mock<ICalculationReportExportService>().Object,
@@ -154,7 +152,6 @@ namespace SnowMeltingCalculator.Tests.Services.Navigation
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
-                circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
                     constructionVm,

@@ -1,8 +1,6 @@
-using SnowMeltingCalculator.Models.Construction;
+﻿using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Visualization;
-using SnowMeltingCalculator.ViewModels.Construction;
-using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Results;
 
 namespace SnowMeltingCalculator.Services.Results
@@ -17,8 +15,8 @@ namespace SnowMeltingCalculator.Services.Results
     {
         private readonly IConstructionVisualizationImageService _constructionVisualizationImageService;
         private readonly ICalculationStateService _calculationStateService;
-        private readonly ConstructionViewModel _constructionViewModel;
-        private readonly CircuitsViewModel _circuitsViewModel;
+        private readonly IReportConstructionLayerSource _constructionViewModel;
+        private readonly IReportCollectorDataSource _circuitsViewModel;
 
         /// <summary>
         /// Конструктор строителя PDF-данных
@@ -26,8 +24,8 @@ namespace SnowMeltingCalculator.Services.Results
         public ResultsPdfDataBuilder(
             IConstructionVisualizationImageService constructionVisualizationImageService,
             ICalculationStateService calculationStateService,
-            ConstructionViewModel constructionViewModel,
-            CircuitsViewModel circuitsViewModel)
+            IReportConstructionLayerSource constructionViewModel,
+            IReportCollectorDataSource circuitsViewModel)
         {
             _constructionVisualizationImageService = constructionVisualizationImageService ?? throw new ArgumentNullException(nameof(constructionVisualizationImageService));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
