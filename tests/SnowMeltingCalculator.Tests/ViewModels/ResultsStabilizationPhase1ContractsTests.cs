@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -194,7 +194,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var restoreIndex = methodBody.IndexOf("await _projectLoadOrchestrator.RestoreModulesFromProjectAsync(data);", StringComparison.Ordinal);
             var refreshIndex = methodBody.IndexOf("RefreshAll();", StringComparison.Ordinal);
             var projectChangedIndex = methodBody.IndexOf("ProjectChanged?.Invoke(this, data);", StringComparison.Ordinal);
-            var markCleanIndex = methodBody.IndexOf("_projectStateService.MarkClean();", StringComparison.Ordinal);
+            // Phase 9 re-pin: the legacy _projectStateService field is gone; MarkClean is the session boundary.
+            var markCleanIndex = methodBody.IndexOf("_projectSession.MarkClean();", StringComparison.Ordinal);
 
             Assert.Multiple(() =>
             {
@@ -279,7 +280,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 #pragma warning disable SYSLIB0050
             var window = (MainWindow)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(MainWindow));
 #pragma warning restore SYSLIB0050
-            var circuits = GetField<CircuitsViewModel>(results, "_circuitsViewModel");
+            // Phase 9: ResultsViewModel больше не держит CircuitsViewModel;
+            // для графа MainViewModel создаётся отдельный адаптер модуля.
+            var circuits = ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors();
             var calculationState = GetField<SnowMeltingCalculator.Services.Navigation.ICalculationStateService>(results, "_calculationStateService");
             dialog = new Moq.Mock<SnowMeltingCalculator.Services.Navigation.IDialogService>();
             var constructionDefaultStateInitializer = ResultsViewModelTestHelpers.CreateDefaultConstructionInitializer(
@@ -291,13 +294,13 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 circuits,
                 results,
                 calculationState,
-                projectStateService,
+                projectStateService.Session,
                 dialog.Object,
                 new SnowMeltingCalculator.Core.CalculationContext(),
                 projectStateService.Session,
                 constructionDefaultStateInitializer);
             SetField(window, "_viewModel", mainViewModel);
-            SetField(window, "_projectStateService", projectStateService);
+            SetField(window, "_projectStateService", projectStateService.Session);
             SetField(window, "_dialogService", dialog.Object);
             SetField(window, "_moduleViewCache", new System.Collections.Generic.Dictionary<NavigationTarget, object>());
             return window;

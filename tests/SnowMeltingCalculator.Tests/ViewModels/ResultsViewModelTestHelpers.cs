@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -78,9 +78,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 materialRepositoryMock.Object);
 
             return new ResultsViewModel(
-                projectStateService,
                 projectStateService.Session,
-                projectStateService,
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
                 new Mock<ICalculationReportExportService>().Object,
@@ -88,7 +86,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
-                circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
                     constructionVm,

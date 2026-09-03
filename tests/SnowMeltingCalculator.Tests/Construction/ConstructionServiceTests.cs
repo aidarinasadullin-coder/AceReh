@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -970,8 +970,13 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
-        public async Task ProjectData_Load_ImportsCustomMaterialsBeforeLayers()
+        public async Task ProjectData_Load_KeepsCatalogsReadOnly_CustomMaterialsStayProjectLocal()
         {
+            // LIM-P8-2 re-pin (owner decision B, 2026-09-03): custom materials
+            // from ProjectData are no longer imported into the global catalog
+            // on load (catalogs are read-only on open per the accepted Phase 7
+            // contract; custom entries stay project-local). A layer referencing
+            // a project-local material still loads via the catalog fallback.
             // Arrange
             var repo = new TestMaterialRepository();
             repo.Seed(Material.GetDefaultMaterials());
@@ -1023,9 +1028,10 @@ namespace SnowMeltingCalculator.Tests.Construction
             // Act
             await viewModel.LoadProjectDataAsync(projectData);
 
-            // Assert — материал импортирован и доступен
-            Assert.That(repo.GetAllMaterials().Any(m => m.Name == "Imported Material"), Is.True);
-            // Слой загружен с импортированным материалом
+            // Assert — каталог остался read-only: пользовательский материал
+            // НЕ импортирован (owner decision B)
+            Assert.That(repo.GetAllMaterials().Any(m => m.Name == "Imported Material"), Is.False);
+            // Слой загружен через каталоговый fallback (Material.GetDefaultMaterial)
             Assert.That(constructionVm.LayersAbovePipe.Count, Is.EqualTo(1));
         }
 
@@ -1159,9 +1165,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                 _projectStateService.Session.ConstructionState);
 
             return new ResultsViewModel(
-                _projectStateService,
                 _projectStateService.Session,
-                _projectStateService,
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
                 new Mock<ICalculationReportExportService>().Object,
@@ -1169,7 +1173,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 calculationStateService,
                 repo,
                 service,
-                circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
                     constructionVm,
@@ -1253,9 +1256,7 @@ namespace SnowMeltingCalculator.Tests.Construction
                 _projectStateService.Session.ConstructionState);
 
             return new ResultsViewModel(
-                _projectStateService,
                 _projectStateService.Session,
-                _projectStateService,
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
                 new Mock<ICalculationReportExportService>().Object,
@@ -1263,7 +1264,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 calculationStateService,
                 materialRepositoryMock.Object,
                 _service,
-                circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
                     constructionVm,

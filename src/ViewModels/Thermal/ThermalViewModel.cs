@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -21,7 +21,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
     /// расчёт и восстановление идут через координатор. ViewModel не хранит
     /// dirty/context/status политики и не подписан на upstream-события.
     /// </summary>
-    public partial class ThermalViewModel : ObservableObject
+    public partial class ThermalViewModel : ObservableObject, Services.Project.IProjectLoadThermalAdapter
     {
         private readonly IConstructionData _constructionData;
         private readonly ICalculationStateService _calculationStateService;
@@ -385,6 +385,13 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             _coordinator.LoadResult(result, thermalInputs);
             Result = result;
         }
+
+        /// <summary>
+        /// Restore-time fallback-расчёт (IProjectLoadThermalAdapter): ровно один
+        /// запуск той же команды расчёта, что и пользовательская кнопка
+        /// (Phase 7 exactly-once контракт сохранён).
+        /// </summary>
+        public Task CalculateFromRestoreAsync() => CalculateCommand.ExecuteAsync(null);
 
         #endregion
 

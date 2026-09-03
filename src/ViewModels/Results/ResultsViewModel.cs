@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -26,9 +26,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
     /// </summary>
     public partial class ResultsViewModel : ObservableObject
     {
-        private readonly IProjectStateService _projectStateService;
         private readonly IProjectSession _projectSession;
-        private readonly IMarkDirtyService _markDirtyService;
         private readonly IDialogService _dialogService;
         private readonly IPdfExportService _pdfExportService;
         private readonly ICalculationReportExportService _calculationReportExportService;
@@ -39,7 +37,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly IMaterialRepository _materialRepository;
         private readonly IConstructionService _constructionService;
         private readonly IProjectSnapshotPersistenceInputs? _persistenceInputs;
-        private readonly CircuitsViewModel _circuitsViewModel;
         private readonly ProjectLoadOrchestrator _projectLoadOrchestrator;
         private readonly ResultsPdfDataBuilder _resultsPdfDataBuilder;
         private readonly HydraulicSummaryBuilder _hydraulicSummaryBuilder;
@@ -57,19 +54,19 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// Номер проекта
         /// </summary>
         /// <remarks>
-        /// Источник истины — <see cref="IProjectStateService"/>; свойство VM — pass-through
+        /// Источник истины — <see cref="IProjectSession"/>; свойство VM — pass-through
         /// с уведомлением UI и пометкой dirty при изменении вне сброса/загрузки проекта.
         /// </remarks>
         public string ProjectNumber
         {
-            get => _projectStateService.ProjectNumber;
+            get => _projectSession.ProjectNumber;
             set
             {
-                if (_projectStateService.ProjectNumber == value) return;
-                _projectStateService.ProjectNumber = value;
+                if (_projectSession.ProjectNumber == value) return;
+                _projectSession.ProjectNumber = value;
                 OnPropertyChanged();
                 if (_isResetting || _projectSession.IsLoadProjectInProgress) return;
-                _markDirtyService.MarkDirty();
+                _projectSession.MarkDirty();
             }
         }
 
@@ -77,19 +74,19 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// Наименование объекта
         /// </summary>
         /// <remarks>
-        /// Источник истины — <see cref="IProjectStateService"/>; свойство VM — pass-through
+        /// Источник истины — <see cref="IProjectSession"/>; свойство VM — pass-through
         /// с уведомлением UI и пометкой dirty при изменении вне сброса/загрузки проекта.
         /// </remarks>
         public string ProjectObject
         {
-            get => _projectStateService.ProjectObject;
+            get => _projectSession.ProjectObject;
             set
             {
-                if (_projectStateService.ProjectObject == value) return;
-                _projectStateService.ProjectObject = value;
+                if (_projectSession.ProjectObject == value) return;
+                _projectSession.ProjectObject = value;
                 OnPropertyChanged();
                 if (_isResetting || _projectSession.IsLoadProjectInProgress) return;
-                _markDirtyService.MarkDirty();
+                _projectSession.MarkDirty();
             }
         }
 
@@ -419,7 +416,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// Карточки итогов коллекторов (для отображения в Results)
         /// </summary>
         /// <remarks>
-        /// Заполняется через RebuildHydraulicSummaryCards() из _circuitsViewModel.Collectors.
+        /// Заполняется через RebuildHydraulicSummaryCards() из канонического HydraulicsState.
         /// Каждая карточка — снимок CollectorData.Summary + CollectorNumber + CollectorTypeDisplayWithCount.
         /// </remarks>
         [ObservableProperty]
@@ -496,9 +493,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// Конструктор ViewModel результатов
         /// </summary>
         public ResultsViewModel(
-            IProjectStateService projectStateService,
             IProjectSession projectSession,
-            IMarkDirtyService markDirtyService,
             IDialogService dialogService,
             IPdfExportService pdfExportService,
             ICalculationReportExportService calculationReportExportService,
@@ -506,7 +501,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
             ICalculationStateService calculationStateService,
             IMaterialRepository materialRepository,
             IConstructionService constructionService,
-            CircuitsViewModel circuitsViewModel,
             ProjectLoadOrchestrator projectLoadOrchestrator,
             ResultsPdfDataBuilder resultsPdfDataBuilder,
             HydraulicSummaryBuilder hydraulicSummaryBuilder,
@@ -514,9 +508,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             IProjectDisplayModeState? displayModeState = null,
             IProjectSnapshotPersistenceInputs? persistenceInputs = null)
         {
-            _projectStateService = projectStateService ?? throw new ArgumentNullException(nameof(projectStateService));
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
-            _markDirtyService = markDirtyService ?? throw new ArgumentNullException(nameof(markDirtyService));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _pdfExportService = pdfExportService ?? throw new ArgumentNullException(nameof(pdfExportService));
             _calculationReportExportService = calculationReportExportService ?? throw new ArgumentNullException(nameof(calculationReportExportService));
@@ -527,7 +519,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
             _persistenceInputs = persistenceInputs;
-            _circuitsViewModel = circuitsViewModel ?? throw new ArgumentNullException(nameof(circuitsViewModel));
             _projectLoadOrchestrator = projectLoadOrchestrator ?? throw new ArgumentNullException(nameof(projectLoadOrchestrator));
             _resultsPdfDataBuilder = resultsPdfDataBuilder ?? throw new ArgumentNullException(nameof(resultsPdfDataBuilder));
             _hydraulicSummaryBuilder = hydraulicSummaryBuilder ?? throw new ArgumentNullException(nameof(hydraulicSummaryBuilder));
@@ -755,13 +746,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
         [RelayCommand]
         private async Task SaveProject(CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(_projectStateService.CurrentFilePath))
+            if (string.IsNullOrEmpty(_projectSession.CurrentFilePath))
             {
                 await SaveProjectAs(cancellationToken);
                 return;
             }
 
-            await SaveToFile(_projectStateService.CurrentFilePath, cancellationToken);
+            await SaveToFile(_projectSession.CurrentFilePath, cancellationToken);
         }
 
         /// <summary>
@@ -778,7 +769,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
             if (await SaveToFile(filePath, cancellationToken))
             {
-                _projectStateService.CurrentFilePath = filePath;
+                _projectSession.CurrentFilePath = filePath;
             }
         }
 
@@ -824,7 +815,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private async Task ApplyLoadedProjectAsync(string filePath, ProjectData data)
         {
             // Подтверждение загрузки, если есть несохранённые данные
-            if (_projectStateService.IsDirty)
+            if (_projectSession.IsDirty)
             {
                 var confirmation = _dialogService.Show(
                     "Текущий проект будет заменён. Продолжить?",
@@ -840,11 +831,11 @@ namespace SnowMeltingCalculator.ViewModels.Results
             // чтобы избежать "залипания" старых результатов и ошибок.
             Reset();
             _projectLoadOrchestrator.ResetModules();
-            _projectStateService.MarkClean();
+            _projectSession.MarkClean();
 
             await LoadProjectDataAsync(data);
-            _projectStateService.CurrentFilePath = filePath;
-            _projectStateService.MarkClean();
+            _projectSession.CurrentFilePath = filePath;
+            _projectSession.MarkClean();
 
             StatusMessage = $"Проект загружен: {Path.GetFileName(filePath)}";
             await Task.Delay(3000);
@@ -991,7 +982,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 await Task.Delay(3000);
                 StatusMessage = string.Empty;
                 _createdDate = dates.CreatedDate;
-                _projectStateService.MarkClean();
+                _projectSession.MarkClean();
                 return true;
             }
             catch (Exception ex)
@@ -1393,24 +1384,60 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// <summary>
         /// Обновить итоги по выбранному коллектору
         /// </summary>
+        /// <remarks>
+        /// Phase 9 (ST-027): сводка строится из канонического снапшота по
+        /// выбору Results; выбор модульного ViewModel не читается.
+        /// </remarks>
         private void UpdateCollectorSummary()
         {
             // Проверяем валидность индекса
-            if (_circuitsViewModel.SelectedCollectorIndex < 0 ||
-                _circuitsViewModel.Collectors == null ||
-                _circuitsViewModel.SelectedCollectorIndex >= _circuitsViewModel.Collectors.Count)
+            if (SelectedCollectorIndex < 0 || SelectedCollectorIndex >= Collectors.Count)
             {
                 CollectorSummary = null;
                 return;
             }
 
-            var collector = _circuitsViewModel.SelectedCollector;
-            CollectorSummary = collector?.Summary;
+            var canonicalCollectors = _projectSession.HydraulicsState.Snapshot.Collectors;
+            if (SelectedCollectorIndex >= canonicalCollectors.Count)
+            {
+                CollectorSummary = null;
+                return;
+            }
+
+            CollectorSummary = CreateCollectorSummary(canonicalCollectors[SelectedCollectorIndex]);
+        }
+
+        /// <summary>
+        /// Собрать сводку выбранного коллектора из канонического снапшота
+        /// (инверсия адаптерного зеркала <c>CircuitsViewModel</c>).
+        /// </summary>
+        private static CollectorSummary? CreateCollectorSummary(HydraulicCollectorSnapshot collector)
+        {
+            var summary = collector.Summary;
+            if (summary == null) return null;
+
+            return new CollectorSummary
+            {
+                CollectorNumber = collector.CollectorNumber,
+                CollectorType = summary.CollectorType,
+                CircuitCount = summary.CircuitCount,
+                TotalPipeLength = summary.TotalPipeLength,
+                TotalPower = summary.TotalPower,
+                TotalFlowRate = summary.TotalFlowRate,
+                PressureLoss_Operating_Pa = summary.PressureLoss_Operating_Pa,
+                PressureLoss_Cold_Pa = summary.PressureLoss_Cold_Pa,
+                Kv = summary.Kv
+            };
         }
 
         /// <summary>
         /// Обновить фильтр контуров по режиму
         /// </summary>
+        /// <remarks>
+        /// Phase 9 (ST-026): строки реконструируются из канонического
+        /// HydraulicsState-снапшота и принадлежат Results; модульные объекты
+        /// CircuitRow не читаются и не мутируются.
+        /// </remarks>
         private void UpdateCircuitsFilter()
         {
             Circuits.Clear();
@@ -1419,13 +1446,17 @@ namespace SnowMeltingCalculator.ViewModels.Results
             if (SelectedCollectorIndex < 0 || SelectedCollectorIndex >= Collectors.Count)
                 return;
 
-            var collectorData = _circuitsViewModel.Collectors?[SelectedCollectorIndex];
-            if (collectorData?.Circuits == null) return;
+            var canonicalCollectors = _projectSession.HydraulicsState.Snapshot.Collectors;
+            if (SelectedCollectorIndex >= canonicalCollectors.Count)
+                return;
 
-            foreach (var circuit in collectorData.Circuits)
+            foreach (var circuitSnapshot in canonicalCollectors[SelectedCollectorIndex].Circuits)
             {
-                if (circuit == null) continue;
-                // Устанавливаем режим отображения
+                if (circuitSnapshot == null) continue;
+
+                var circuit = HydraulicCircuitRowProjection.CreateRow(circuitSnapshot);
+
+                // Устанавливаем режим отображения на Results-owned копии
                 circuit.DisplayMode = IsOperatingMode
                     ? HydraulicMode.OperatingTemperature
                     : HydraulicMode.DesignTemperature;
@@ -1442,7 +1473,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             CollectorSpecifications.Clear();
 
             foreach (var spec in _hydraulicSummaryBuilder.BuildSpecifications(
-                _circuitsViewModel.Collectors, IsOperatingMode))
+                _projectSession.HydraulicsState.Snapshot.Collectors, IsOperatingMode))
             {
                 CollectorSpecifications.Add(spec);
             }
@@ -1461,7 +1492,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             if (!IsDataReady) return;
 
             foreach (var item in _hydraulicSummaryBuilder.BuildEquipmentItems(
-                _circuitsViewModel.Collectors))
+                _projectSession.HydraulicsState.Snapshot.Collectors))
             {
                 CollectorEquipmentItems.Add(item);
             }
@@ -1475,7 +1506,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             HydraulicSummaryCards.Clear();
 
             foreach (var card in _hydraulicSummaryBuilder.BuildSummaryCards(
-                _circuitsViewModel.Collectors))
+                _projectSession.HydraulicsState.Snapshot.Collectors))
             {
                 HydraulicSummaryCards.Add(card);
             }
@@ -1560,7 +1591,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             {
                 ProjectNumber = string.Empty;
                 ProjectObject = string.Empty;
-                _projectStateService.CurrentFilePath = null;
+                _projectSession.CurrentFilePath = null;
                 StatusMessage = string.Empty;
                 IsOperatingMode = true;
 
@@ -1594,10 +1625,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 Circuits.Clear();
                 CollectorSpecifications.Clear();
                 CollectorEquipmentItems.Clear();
-                // Очищаем карточки, а не перестраиваем: в момент Reset() _circuitsViewModel.Collectors
-                // ещё не сброшен (в PerformNewCalculationReset и ApplyLoadedProjectAsync
-                // CircuitsViewModel.Reset() вызывается позже), иначе RebuildHydraulicSummaryCards()
-                // оставит stale-снимки из предыдущего проекта. Карточки пересоберутся при следующем
+                // Очищаем карточки, а не перестраиваем: в момент Reset() канонический
+                // HydraulicsState ещё не сброшен (координатор модуля сбрасывается позже),
+                // иначе RebuildHydraulicSummaryCards() оставит stale-снимки из
+                // предыдущего проекта. Карточки пересоберутся при следующем
                 // LoadHydraulicsDataOnNavigate() / RefreshAll().
                 HydraulicSummaryCards.Clear();
                 SelectedCollectorIndex = 0;
@@ -1605,7 +1636,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 MissingModules.Clear();
                 IsDataReady = false;
 
-                _projectStateService.MarkClean();
+                _projectSession.MarkClean();
             }
             finally
             {
@@ -1629,7 +1660,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 _createdDate = data.CreatedDate;
 
                 // Загружаем информацию о проекте.
-                // Свойства VM — pass-through к IProjectStateService (этап C4):
+                // Свойства VM — pass-through к IProjectSession (этап C4):
                 // присвоение обновляет и сервис; dirty не ставится — активен guard загрузки.
                 ProjectNumber = data.ProjectNumber;
                 ProjectObject = data.ProjectObject;
@@ -1650,7 +1681,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 // Уведомляем об изменении проекта
                 ProjectChanged?.Invoke(this, data);
 
-                _projectStateService.MarkClean();
+                _projectSession.MarkClean();
             }
             finally
             {

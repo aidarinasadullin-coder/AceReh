@@ -1,14 +1,10 @@
-using SnowMeltingCalculator.Core;
+﻿using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Models.Project;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Navigation;
-using SnowMeltingCalculator.ViewModels.Climate;
-using SnowMeltingCalculator.ViewModels.Construction;
-using SnowMeltingCalculator.ViewModels.Hydraulics;
-using SnowMeltingCalculator.ViewModels.Thermal;
 
 namespace SnowMeltingCalculator.Services.Project
 {
@@ -24,10 +20,10 @@ namespace SnowMeltingCalculator.Services.Project
     /// </remarks>
     public class ProjectLoadOrchestrator
     {
-        private readonly ClimateViewModel _climateViewModel;
-        private readonly ConstructionViewModel _constructionViewModel;
-        private readonly ThermalViewModel _thermalViewModel;
-        private readonly CircuitsViewModel _circuitsViewModel;
+        private readonly IProjectLoadClimateAdapter _climateViewModel;
+        private readonly IProjectLoadConstructionAdapter _constructionViewModel;
+        private readonly IProjectLoadThermalAdapter _thermalViewModel;
+        private readonly IProjectLoadHydraulicsAdapter _circuitsViewModel;
         private readonly ICalculationStateService _calculationStateService;
         private readonly IConstructionService _constructionService;
         private readonly CalculationContext _calculationContext;
@@ -41,10 +37,10 @@ namespace SnowMeltingCalculator.Services.Project
         /// Конструктор оркестратора загрузки проекта
         /// </summary>
         public ProjectLoadOrchestrator(
-            ClimateViewModel climateViewModel,
-            ConstructionViewModel constructionViewModel,
-            ThermalViewModel thermalViewModel,
-            CircuitsViewModel circuitsViewModel,
+            IProjectLoadClimateAdapter climateViewModel,
+            IProjectLoadConstructionAdapter constructionViewModel,
+            IProjectLoadThermalAdapter thermalViewModel,
+            IProjectLoadHydraulicsAdapter circuitsViewModel,
             ICalculationStateService calculationStateService,
             IConstructionService constructionService,
             CalculationContext calculationContext,
@@ -220,7 +216,7 @@ namespace SnowMeltingCalculator.Services.Project
             {
                 // Сохранённого валидного результата нет — считаем из входных данных,
                 // чтобы пользователю не пришлось нажимать "Расчёт" вручную.
-                await _thermalViewModel.CalculateCommand.ExecuteAsync(null);
+                await _thermalViewModel.CalculateFromRestoreAsync();
             }
 
             // Thermal result publication can trigger the normal hydraulics
@@ -313,85 +309,6 @@ namespace SnowMeltingCalculator.Services.Project
             }).ToList();
         }
 
-        /// <summary>
-        /// Загрузить слои конструкции из данных проекта
-        /// </summary>
-        private void LoadLayersFromProjectDataLegacy(List<LayerProjectData> layerDataList, string version)
-        {
-            // До v1.1 слои AbovePipe сохранялись в хронологическом порядке (Add в конец),
-            // т.е. [у трубы, поверхность]. С v1.1 физический top-to-bottom: [поверхность, ..., у трубы].
-            var needsAbovePipeReverse = string.Compare(version, "1.1", StringComparison.OrdinalIgnoreCase) < 0;
 
-            var aboveLayers = layerDataList
-                .Where(l => l.Position == LayerPosition.AbovePipe)
-                .Reverse();
-            if (!needsAbovePipeReverse)
-                aboveLayers = aboveLayers.Reverse();
-            aboveLayers = aboveLayers.ToList();
-
-            var belowLayers = layerDataList
-                .Where(l => l.Position == LayerPosition.BelowPipe)
-                .ToList(); // порядок below не менялся
-
-            // Clear + Add по мигрированным коллекциям
-            _constructionViewModel.LayersAbovePipe.Clear();
-            _constructionViewModel.LayersBelowPipe.Clear();
-
-            foreach (var layerData in aboveLayers)
-            {
-                var material = _constructionViewModel.AvailableMaterials
-                    .FirstOrDefault(m => m.Name == layerData.MaterialName)
-                    ?? Material.GetDefaultMaterial();
-
-                var layer = new Layer
-                {
-                    Position = layerData.Position,
-                    Material = material,
-                    Thickness = layerData.Thickness,
-                    CalculatedLambda = layerData.CalculatedLambda,
-                    IsLambdaOverridden = layerData.IsLambdaOverridden,
-                    Order = layerData.Order
-                };
-
-                _constructionViewModel.LayersAbovePipe.Add(layer);
-            }
-
-            foreach (var layerData in belowLayers)
-            {
-                var material = _constructionViewModel.AvailableMaterials
-                    .FirstOrDefault(m => m.Name == layerData.MaterialName)
-                    ?? Material.GetDefaultMaterial();
-
-                var layer = new Layer
-                {
-                    Position = layerData.Position,
-                    Material = material,
-                    Thickness = layerData.Thickness,
-                    CalculatedLambda = layerData.CalculatedLambda,
-                    IsLambdaOverridden = layerData.IsLambdaOverridden,
-                    Order = layerData.Order
-                };
-
-                _constructionViewModel.LayersBelowPipe.Add(layer);
-            }
-
-            // Обновляем λ для слоёв под трубой в соответствии с восстановленным УГВ.
-            // Метод UpdateLambda учитывает флаг IsLambdaOverridden и оставляет ручные значения нетронутыми.
-            foreach (var layer in _constructionViewModel.LayersBelowPipe)
-            {
-                layer.UpdateLambda(_constructionViewModel.GroundwaterLevel);
-            }
-
-            // После загрузки проекта сбрасываем флаг ручного переопределения λ.
-            // Значение λ сохранено из файла, но дальнейшее изменение УГВ должно
-            // пересчитывать λ по каталогу (P0-7).
-            foreach (var layer in _constructionViewModel.LayersAbovePipe
-                .Concat(_constructionViewModel.LayersBelowPipe))
-            {
-                layer.IsLambdaOverridden = false;
-            }
-
-            _constructionViewModel.UpdateCalculations();
-        }
     }
 }

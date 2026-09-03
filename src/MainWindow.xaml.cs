@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -18,6 +18,7 @@ using SnowMeltingCalculator.Views.Thermal;
 using SnowMeltingCalculator.Views.Hydraulics;
 using SnowMeltingCalculator.Views.Results;
 using SnowMeltingCalculator.Services.Navigation;
+using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Models.Enums;
 using SnowMeltingCalculator.Models.Navigation;
@@ -32,7 +33,7 @@ namespace SnowMeltingCalculator
     {
         public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
         private readonly MainViewModel _viewModel;
-        private readonly IProjectStateService _projectStateService;
+        private readonly IProjectSession _projectStateService;
         private readonly IDialogService _dialogService;
         private Action? _refreshResultsOnNavigate = null;
         private bool _isClosingAfterSave;
@@ -52,7 +53,7 @@ namespace SnowMeltingCalculator
 
         public MainWindow(
             MainViewModel viewModel,
-            IProjectStateService projectStateService,
+            IProjectSession projectStateService,
             IDialogService dialogService)
         {
             _viewModel = viewModel;

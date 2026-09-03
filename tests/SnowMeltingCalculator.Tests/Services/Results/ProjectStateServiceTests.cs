@@ -1,4 +1,4 @@
-// ================================================================================
+﻿// ================================================================================
 // REHAU Снеготаяние - Тесты для ProjectStateService
 // ================================================================================
 
@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using SnowMeltingCalculator.Configuration;
 using SnowMeltingCalculator.Services.Results;
+using SnowMeltingCalculator.Services.Project;
 
 namespace SnowMeltingCalculator.Tests.Services.Results
 {
@@ -184,17 +185,18 @@ namespace SnowMeltingCalculator.Tests.Services.Results
         public void DependencyInjection_ResolvesSameInstance_ForProjectInfoServiceAndProjectStateService()
         {
             // Arrange
+            // Phase 9 re-pin: the IProjectInfoService/IProjectStateService forwarding
+            // registrations were removed from production DI; the legacy adapter now
+            // serves only as the internal IMarkDirtyService test seam.
             var services = new ServiceCollection();
             services.AddSingleton<ProjectStateService>();
-            services.AddSingleton<IProjectInfoService>(sp => sp.GetRequiredService<ProjectStateService>());
-            services.AddSingleton<IProjectStateService>(sp => sp.GetRequiredService<ProjectStateService>());
             services.AddSingleton<IMarkDirtyService>(sp => sp.GetRequiredService<ProjectStateService>());
 
             var serviceProvider = services.BuildServiceProvider();
 
             // Act
-            var projectInfoService = serviceProvider.GetRequiredService<IProjectInfoService>();
-            var projectStateService = serviceProvider.GetRequiredService<IProjectStateService>();
+            var projectInfoService = serviceProvider.GetRequiredService<IMarkDirtyService>();
+            var projectStateService = serviceProvider.GetRequiredService<IMarkDirtyService>();
 
             // Assert
             Assert.That(projectInfoService, Is.SameAs(projectStateService));
@@ -206,14 +208,12 @@ namespace SnowMeltingCalculator.Tests.Services.Results
             // Arrange
             var services = new ServiceCollection();
             services.AddSingleton<ProjectStateService>();
-            services.AddSingleton<IProjectInfoService>(sp => sp.GetRequiredService<ProjectStateService>());
-            services.AddSingleton<IProjectStateService>(sp => sp.GetRequiredService<ProjectStateService>());
             services.AddSingleton<IMarkDirtyService>(sp => sp.GetRequiredService<ProjectStateService>());
 
             var serviceProvider = services.BuildServiceProvider();
 
             // Act
-            var projectStateService = serviceProvider.GetRequiredService<IProjectStateService>();
+            var projectStateService = serviceProvider.GetRequiredService<ProjectStateService>();
             var markDirtyService = serviceProvider.GetRequiredService<IMarkDirtyService>();
 
             // Assert
@@ -230,7 +230,9 @@ namespace SnowMeltingCalculator.Tests.Services.Results
             var serviceProvider = services.BuildServiceProvider();
 
             // Act
-            var projectStateService = serviceProvider.GetRequiredService<IProjectStateService>();
+            // Phase 9 re-pin: the IProjectStateService registration is removed;
+            // the session itself is the resolved project state surface.
+            var projectStateService = serviceProvider.GetRequiredService<IProjectSession>();
 
             // Assert
             Assert.That(projectStateService, Is.Not.Null);

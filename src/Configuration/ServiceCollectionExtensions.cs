@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Construction;
@@ -80,7 +80,7 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<IThermalStateCoordinator>(sp => new ThermalStateCoordinator(
                 sp.GetRequiredService<ProjectSession>().ThermalState,
                 sp.GetRequiredService<CalculationContext>(),
-                sp.GetRequiredService<IMarkDirtyService>(),
+                sp.GetRequiredService<ProjectSession>(),
                 sp.GetRequiredService<IThermalCalculator>(),
                 sp.GetRequiredService<IClimateData>(),
                 sp.GetRequiredService<IConstructionData>(),
@@ -198,8 +198,12 @@ namespace SnowMeltingCalculator.Configuration
                 sp.GetRequiredService<CalculationContext>(),
                 hydraulicsDirtyService: null));
             services.AddSingleton<IProjectSession>(sp => sp.GetRequiredService<ProjectSession>());
-            services.AddSingleton<IProjectInfoService>(sp => sp.GetRequiredService<ProjectSession>());
-            services.AddSingleton<IProjectStateService>(sp => sp.GetRequiredService<ProjectSession>());
+
+            // Phase 9: forwarding aliases IProjectInfoService/IProjectStateService removed —
+            // consumers depend on IProjectSession. IMarkDirtyService is retained as the
+            // internal session dirty seam (ProjectSession : IMarkDirtyService): module
+            // adapters and the thermal coordinator receive the session itself, which is
+            // the canonical dirty owner.
             services.AddSingleton<IMarkDirtyService>(sp => sp.GetRequiredService<ProjectSession>());
             services.AddSingleton<IProjectSessionConstructionState>(sp => (IProjectSessionConstructionState)sp.GetRequiredService<ProjectSession>().ConstructionState);
             services.AddSingleton<ConstructionDefaultStateInitializer>();
@@ -213,6 +217,14 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<IProjectSnapshotFactory, ProjectSnapshotFactory>();
             services.AddSingleton<IProjectSaveService, ProjectSaveService>();
             services.AddSingleton<IConstructionVisualizationImageService, ConstructionVisualizationImageService>();
+            // Phase 9 (INV-008): application-сервисы зависят от adapter-интерфейсов;
+            // DI связывает интерфейсы с теми же singleton-экземплярами адаптеров модулей.
+            services.AddSingleton<IProjectLoadClimateAdapter>(sp => sp.GetRequiredService<ClimateViewModel>());
+            services.AddSingleton<IProjectLoadConstructionAdapter>(sp => sp.GetRequiredService<ConstructionViewModel>());
+            services.AddSingleton<IProjectLoadThermalAdapter>(sp => sp.GetRequiredService<ThermalViewModel>());
+            services.AddSingleton<IProjectLoadHydraulicsAdapter>(sp => sp.GetRequiredService<CircuitsViewModel>());
+            services.AddSingleton<IReportConstructionLayerSource>(sp => sp.GetRequiredService<ConstructionViewModel>());
+            services.AddSingleton<IReportCollectorDataSource>(sp => sp.GetRequiredService<CircuitsViewModel>());
             services.AddSingleton<ProjectLoadOrchestrator>();
             services.AddSingleton<ResultsPdfDataBuilder>();
             services.AddSingleton<HydraulicSummaryBuilder>();

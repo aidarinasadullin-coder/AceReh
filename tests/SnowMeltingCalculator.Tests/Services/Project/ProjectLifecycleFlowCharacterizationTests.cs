@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -35,7 +35,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
     /// <summary>
     /// Phase 1 Task 3 RED characterization tests for lifecycle flows, repeated
     /// reset/load cycles, and restore failures. Tests use current public seams
-    /// (IProjectStateService, ICalculationStateService, ProjectLoadOrchestrator,
+    /// (IProjectSession, ICalculationStateService, ProjectLoadOrchestrator,
     /// ResultsViewModel) and do not reference the future IProjectSession contract.
     /// </summary>
     [TestFixture]
@@ -98,7 +98,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 ClimateMutationOrigin.User);
 
             Assert.That(projectState.IsDirty, Is.True,
-                "A post-load edit must mark the project dirty through the existing IProjectStateService/IMarkDirtyService seam.");
+                "A post-load edit must mark the project dirty through the existing IProjectSession/IMarkDirtyService seam.");
         }
 
         #endregion
@@ -287,17 +287,24 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             };
             var calcState = new CalculationStateService(projectState.Session);
 
-            var constructionMock = new Mock<IConstructionService>();
-            constructionMock
-                .Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
+            // LIM-P8-2 re-pin (owner decision B, 2026-09-03): the catalog-import
+            // boundary no longer exists in restore (custom entries stay
+            // project-local; catalogs are read-only on open per the accepted
+            // Phase 7 contract). The failure is injected at the nearest live
+            // restore boundary — the compatible pipe-spacing step.
+            var orchestratorCalcState = new Mock<ICalculationStateService>();
+            orchestratorCalcState
+                .Setup(s => s.SetPipeSpacing(It.IsAny<int>(), It.IsAny<string>()))
                 .Throws(new InvalidOperationException("injected early boundary failure"));
 
             var viewModel = CreateResultsViewModel(
                 projectState,
-                constructionService: constructionMock.Object,
-                calculationStateService: calcState);
+                calculationStateService: calcState,
+                orchestratorCalculationState: orchestratorCalcState.Object);
 
             var data = CreateMinimalProjectData("NEW", "New Project");
+            // Custom materials are no longer imported on load (owner decision B);
+            // the entry stays project-local and does not affect the load flow.
             data.CustomMaterials = new List<MaterialSnapshot>
             {
                 new MaterialSnapshot { Name = "Custom material" }
@@ -331,22 +338,26 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             };
             var calcState = new CalculationStateService(projectState.Session);
 
-            var constructionMock = new Mock<IConstructionService>();
-            constructionMock
-                .Setup(s => s.ImportProjectMaterialsAsync(It.IsAny<IEnumerable<MaterialSnapshot>>()))
-                .Returns(Task.CompletedTask);
-            constructionMock
-                .Setup(s => s.ImportProjectTemplatesAsync(It.IsAny<IEnumerable<ConstructionTemplate>>()))
+            // LIM-P8-2 re-pin (owner decision B, 2026-09-03): with the catalog
+            // import gone, the late restore failure is injected at the same
+            // live pipe-spacing boundary. Climate, construction and the
+            // canonical thermal restore happen before it; the thermal adapter
+            // mirroring and hydraulics restore happen after it.
+            var orchestratorCalcState = new Mock<ICalculationStateService>();
+            orchestratorCalcState
+                .Setup(s => s.SetPipeSpacing(It.IsAny<int>(), It.IsAny<string>()))
                 .Throws(new InvalidOperationException("injected late boundary failure"));
 
             var viewModel = CreateResultsViewModel(
                 projectState,
-                constructionService: constructionMock.Object,
-                calculationStateService: calcState);
+                calculationStateService: calcState,
+                orchestratorCalculationState: orchestratorCalcState.Object);
 
             var data = CreateMinimalProjectData("LATE", "Late Failure");
             data.ClimateData.AirTemperature = -25.0;
             data.ConstructionData.GroundwaterLevel = 0.5;
+            // Custom templates are no longer imported on load (owner decision B);
+            // the entry stays project-local and does not affect the load flow.
             data.CustomTemplates = new List<ConstructionTemplate>
             {
                 new ConstructionTemplate { Name = "Custom template" }
@@ -359,21 +370,25 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             Assert.That(calcState.IsLoadProjectInProgress, Is.False,
                 "Guard must be false after a late restore failure.");
 
-            var climateVm = GetField<ClimateViewModel>(viewModel, "_climateViewModel");
-
             // Identity and climate are mutated before the late exception; current behavior keeps them.
             Assert.That(projectState.ProjectNumber, Is.EqualTo("LATE"));
             Assert.That(projectState.ProjectObject, Is.EqualTo("Late Failure"));
-            Assert.That(climateVm.AirTemperature, Is.EqualTo(-25.0),
+            // Phase 8 removed the adapter field from ResultsViewModel; the
+            // canonical climate snapshot is the equivalent source.
+            Assert.That(projectState.Session.ClimateState.Snapshot.AirTemperature, Is.EqualTo(-25.0),
                 "Climate restore happened before the late failure and is not rolled back.");
             Assert.That(projectState.CurrentFilePath, Is.EqualTo(@"C:\old.smc"),
                 "Path is set only after LoadProjectDataAsync returns; it must remain from the prior project.");
             Assert.That(projectState.IsDirty, Is.False,
                 "Climate restore uses a non-user origin and must not mark the partial project dirty.");
 
-            // Thermal and construction data are restored after the failure point, so they retain their defaults.
+            // The canonical thermal restore runs before the injected failure and
+            // is not rolled back; the minimal project carries no thermal data,
+            // so the restored canonical value is ThermalInputsSnapshot.Default
+            // (200), which the read-through CalculationStateService.PipeSpacing
+            // reflects.
             Assert.That(calcState.PipeSpacing, Is.EqualTo(200),
-                "PipeSpacing default is unchanged because thermal restore happens after the late failure.");
+                "Canonical thermal restore applied its default (200) before the injected failure; partial state is retained without rollback.");
         }
 
         #endregion
@@ -578,7 +593,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         private static ResultsViewModel CreateResultsViewModel(
             ProjectStateService projectStateService,
             IConstructionService? constructionService = null,
-            ICalculationStateService? calculationStateService = null)
+            ICalculationStateService? calculationStateService = null,
+            ICalculationStateService? orchestratorCalculationState = null)
         {
             var calcState = calculationStateService ?? new CalculationStateService(projectStateService.Session);
             var calcContext = new CalculationContext();
@@ -594,9 +610,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 constructionVm.AvailableMaterials);
 
             return new ResultsViewModel(
-                projectStateService,
                 projectStateService.Session,
-                projectStateService,
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
                 new Mock<ICalculationReportExportService>().Object,
@@ -604,13 +618,12 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 calcState,
                 new Mock<IMaterialRepository>().Object,
                 constructionSvc,
-                circuitsVm,
                 new ProjectLoadOrchestrator(
                     climateVm,
                     constructionVm,
                     thermalVm,
                     circuitsVm,
-                    calcState,
+                    orchestratorCalculationState ?? calcState,
                     constructionSvc,
                     calcContext,
                     projectStateService.Session,

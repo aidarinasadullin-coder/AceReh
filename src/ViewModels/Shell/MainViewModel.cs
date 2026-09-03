@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Enums;
@@ -26,7 +26,7 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         private readonly CircuitsViewModel _circuitsViewModel;
         private readonly ResultsViewModel _resultsViewModel;
         private readonly ICalculationStateService _calculationStateService;
-        private readonly IProjectStateService _projectStateService;
+        private readonly IProjectSession _projectStateService;
         private readonly IDialogService _dialogService;
         private readonly CalculationContext _calculationContext;
         private readonly IProjectSessionClimateState _climateState;
@@ -48,7 +48,7 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             CircuitsViewModel circuitsViewModel,
             ResultsViewModel resultsViewModel,
             ICalculationStateService calculationStateService,
-            IProjectStateService projectStateService,
+            IProjectSession projectStateService,
             IDialogService dialogService,
             CalculationContext calculationContext,
             IProjectSession? projectSession = null,
@@ -179,8 +179,8 @@ namespace SnowMeltingCalculator.ViewModels.Shell
 
         private void OnProjectStateChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IProjectStateService.IsDirty) ||
-                e.PropertyName == nameof(IProjectStateService.CurrentFilePath))
+            if (e.PropertyName == nameof(IProjectSession.IsDirty) ||
+                e.PropertyName == nameof(IProjectSession.CurrentFilePath))
             {
                 UpdateWindowTitle();
             }

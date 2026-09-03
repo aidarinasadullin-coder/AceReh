@@ -1,4 +1,4 @@
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Climate;
@@ -417,9 +417,7 @@ public sealed class ClimateThermalInvalidationRegressionTests
             defaultInitializer);
         var projectState = new ProjectStateService(session);
         var resultsViewModel = new ResultsViewModel(
-            projectState,
             session,
-            projectState,
             new Mock<global::SnowMeltingCalculator.Services.Navigation.IDialogService>().Object,
             new Mock<IPdfExportService>().Object,
             new Mock<ICalculationReportExportService>().Object,
@@ -427,7 +425,6 @@ public sealed class ClimateThermalInvalidationRegressionTests
             calculationState,
             materialRepository.Object,
             constructionService.Object,
-            circuitsViewModel,
             orchestrator,
             new ResultsPdfDataBuilder(
                 new Mock<IConstructionVisualizationImageService>().Object,

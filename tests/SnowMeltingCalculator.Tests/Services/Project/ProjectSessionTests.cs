@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -342,8 +342,9 @@ namespace SnowMeltingCalculator.Tests.Services.Project
 
             var provider = services.BuildServiceProvider();
             var session = provider.GetRequiredService<IProjectSession>();
-            var info = provider.GetRequiredService<IProjectInfoService>();
-            var state = provider.GetRequiredService<IProjectStateService>();
+            // Phase 9 re-pin: forwarding aliases removed; the session resolves directly.
+            var info = provider.GetRequiredService<IProjectSession>();
+            var state = provider.GetRequiredService<IProjectSession>();
             var markDirty = provider.GetRequiredService<IMarkDirtyService>();
 
             Assert.That(info, Is.SameAs(session));
@@ -359,8 +360,9 @@ namespace SnowMeltingCalculator.Tests.Services.Project
 
             var provider = services.BuildServiceProvider();
             var session = provider.GetRequiredService<IProjectSession>();
-            var state = provider.GetRequiredService<IProjectStateService>();
-            var info = provider.GetRequiredService<IProjectInfoService>();
+            // Phase 9 re-pin: forwarding aliases removed.
+            var state = provider.GetRequiredService<IProjectSession>();
+            var info = provider.GetRequiredService<IProjectSession>();
 
             state.CurrentFilePath = "C:\\via-state.smc";
             session.MarkDirty();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -87,10 +87,12 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 Assert.That(GetDirectConstructionViewModelWrites(orchestratorSource),
                     Is.Empty,
                     "ProjectLoadOrchestrator must apply canonical lifecycle snapshots instead of direct scalar writes.");
-                Assert.That(orchestratorSource, Does.Contain("_constructionViewModel.LayersAbovePipe.Clear();"));
-                Assert.That(orchestratorSource, Does.Contain("_constructionViewModel.LayersBelowPipe.Clear();"));
-                Assert.That(orchestratorSource, Does.Contain("_constructionViewModel.LayersAbovePipe.Add(layer);"));
-                Assert.That(orchestratorSource, Does.Contain("_constructionViewModel.LayersBelowPipe.Add(layer);"));
+                // Phase 9 re-pin: the dead legacy layer loader was removed from the
+                // orchestrator (slice 5); direct VM collection writes no longer exist.
+                Assert.That(orchestratorSource, Does.Not.Contain("_constructionViewModel.LayersAbovePipe.Clear();"));
+                Assert.That(orchestratorSource, Does.Not.Contain("_constructionViewModel.LayersBelowPipe.Clear();"));
+                Assert.That(orchestratorSource, Does.Not.Contain("_constructionViewModel.LayersAbovePipe.Add(layer);"));
+                Assert.That(orchestratorSource, Does.Not.Contain("_constructionViewModel.LayersBelowPipe.Add(layer);"));
                 Assert.That(orchestratorSource, Does.Not.Contain("_constructionViewModel.Reset();"));
                 Assert.That(mainViewModelSource, Does.Not.Contain("_constructionViewModel.Reset();"));
                 Assert.That(orchestratorSource, Does.Not.Contain("BuildResetConstructionSnapshot"));

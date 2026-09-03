@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -77,7 +77,7 @@ namespace SnowMeltingCalculator.Tests.Configuration
                 var calculationContext = provider.GetRequiredService<CalculationContext>();
                 var projectLoadOrchestrator = provider.GetRequiredService<ProjectLoadOrchestrator>();
                 var resultsViewModel = provider.GetRequiredService<ResultsViewModel>();
-                var markDirty = provider.GetRequiredService<IMarkDirtyService>();
+                var markDirty = provider.GetRequiredService<ProjectSession>();
 
                 Assert.Multiple(() =>
                 {
@@ -143,8 +143,8 @@ namespace SnowMeltingCalculator.Tests.Configuration
             Assert.Multiple(() =>
             {
                 Assert.That(session, Is.SameAs(concreteSession));
-                Assert.That(provider.GetRequiredService<IMarkDirtyService>(), Is.SameAs(concreteSession));
-                Assert.That(provider.GetRequiredService<IProjectStateService>(), Is.SameAs(concreteSession));
+                Assert.That(provider.GetRequiredService<ProjectSession>(), Is.SameAs(concreteSession));
+                Assert.That(provider.GetRequiredService<IProjectSession>(), Is.SameAs(concreteSession));
                 Assert.That(state, Is.SameAs(session.ConstructionState));
                 Assert.That(constructionData, Is.SameAs(state.CurrentProjection));
                 Assert.That(constructionData, Is.Not.SameAs(compatibilityModel));
@@ -207,9 +207,10 @@ namespace SnowMeltingCalculator.Tests.Configuration
 
             var concreteSession = provider.GetRequiredService<ProjectSession>();
             var session = provider.GetRequiredService<IProjectSession>();
-            var projectInfo = provider.GetRequiredService<IProjectInfoService>();
-            var projectState = provider.GetRequiredService<IProjectStateService>();
-            var markDirty = provider.GetRequiredService<IMarkDirtyService>();
+            // Phase 9 re-pin: forwarding aliases removed; the session resolves directly.
+            var projectInfo = provider.GetRequiredService<IProjectSession>();
+            var projectState = provider.GetRequiredService<IProjectSession>();
+            var markDirty = provider.GetRequiredService<ProjectSession>();
 
             Assert.Multiple(() =>
             {
@@ -261,7 +262,7 @@ namespace SnowMeltingCalculator.Tests.Configuration
 
             var concreteSession = provider.GetRequiredService<ProjectSession>();
             var session = provider.GetRequiredService<IProjectSession>();
-            var markDirty = provider.GetRequiredService<IMarkDirtyService>();
+            var markDirty = provider.GetRequiredService<ProjectSession>();
 
             Assert.Multiple(() =>
             {
@@ -412,9 +413,8 @@ namespace SnowMeltingCalculator.Tests.Configuration
                 Assert.That(constructionData, Is.SameAs(constructionState.CurrentProjection));
 
                 // Legacy lifecycle aliases: unchanged identity with the session.
-                Assert.That(provider.GetRequiredService<IMarkDirtyService>(), Is.SameAs(concreteSession));
-                Assert.That(provider.GetRequiredService<IProjectStateService>(), Is.SameAs(concreteSession));
-                Assert.That(provider.GetRequiredService<IProjectInfoService>(), Is.SameAs(concreteSession));
+                Assert.That(provider.GetRequiredService<ProjectSession>(), Is.SameAs(concreteSession));
+                Assert.That(provider.GetRequiredService<IProjectSession>(), Is.SameAs(concreteSession));
 
                 // The new Thermal slice follows the same ownership pattern.
                 Assert.That(session.ThermalState, Is.SameAs(concreteSession.ThermalState));

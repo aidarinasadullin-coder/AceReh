@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SnowMeltingCalculator.Models.Hydraulics
 {
@@ -71,6 +71,14 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// </summary>
         [ObservableProperty]
         private double _kv;
+
+        /// <summary>
+        /// Phase 9: построение из канонического снапшота через object initializer
+        /// (HydraulicSummaryBuilder); модель не зависит от Services.
+        /// </summary>
+        public CollectorHydraulicSummaryCard()
+        {
+        }
 
         public CollectorHydraulicSummaryCard(CollectorData collector)
         {
