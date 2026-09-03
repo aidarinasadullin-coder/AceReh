@@ -303,12 +303,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 orchestratorCalculationState: orchestratorCalcState.Object);
 
             var data = CreateMinimalProjectData("NEW", "New Project");
-            // Custom materials are no longer imported on load (owner decision B);
-            // the entry stays project-local and does not affect the load flow.
-            data.CustomMaterials = new List<MaterialSnapshot>
-            {
-                new MaterialSnapshot { Name = "Custom material" }
-            };
+            // Custom catalogs are no longer imported on load (owner decision B);
+            // since DEC-006 they are not even carried by the wire DTO.
 
             var ex = Assert.ThrowsAsync<InvalidOperationException>(
                 async () => await viewModel.LoadProjectDataAsync(data));
@@ -356,12 +352,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var data = CreateMinimalProjectData("LATE", "Late Failure");
             data.ClimateData.AirTemperature = -25.0;
             data.ConstructionData.GroundwaterLevel = 0.5;
-            // Custom templates are no longer imported on load (owner decision B);
-            // the entry stays project-local and does not affect the load flow.
-            data.CustomTemplates = new List<ConstructionTemplate>
-            {
-                new ConstructionTemplate { Name = "Custom template" }
-            };
+            // Custom catalogs are no longer imported on load (owner decision B);
+            // since DEC-006 they are not even carried by the wire DTO.
 
             var ex = Assert.ThrowsAsync<InvalidOperationException>(
                 async () => await viewModel.LoadProjectDataAsync(data));

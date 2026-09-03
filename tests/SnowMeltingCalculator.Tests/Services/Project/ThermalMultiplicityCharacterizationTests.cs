@@ -1293,10 +1293,6 @@ public sealed class ThermalMultiplicityCharacterizationTests
         var project = CreateProject(
             OperatingMode.Intensive, 55.0, 8.0, 250, 1,
             new ThermalResultProjectData { PowerTotal = 777.0, IsValid = true });
-        // Custom materials are no longer imported on load (owner decision B);
-        // the entry stays project-local and does not affect the load flow.
-        project.CustomMaterials = new List<MaterialSnapshot> { new MaterialSnapshot { Name = "Custom material" } };
-
         var exception = Assert.ThrowsAsync<InvalidOperationException>(
             async () => await fixture.ResultsViewModel.LoadProjectDataAsync(project));
 
@@ -1337,10 +1333,6 @@ public sealed class ThermalMultiplicityCharacterizationTests
         var project = CreateProject(
             OperatingMode.Intensive, 55.0, 8.0, 250, 1,
             new ThermalResultProjectData { PowerTotal = 777.0, IsValid = true });
-        // Custom templates are no longer imported on load (owner decision B);
-        // the entry stays project-local and does not affect the load flow.
-        project.CustomTemplates = new List<ConstructionTemplate> { new ConstructionTemplate { Name = "Custom template" } };
-
         var exception = Assert.ThrowsAsync<InvalidOperationException>(
             async () => await fixture.ResultsViewModel.LoadProjectDataAsync(project));
 

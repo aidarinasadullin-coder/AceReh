@@ -1,9 +1,12 @@
 using System;
-using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using Moq;
 using NUnit.Framework;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Construction;
+using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Project;
 
 namespace SnowMeltingCalculator.Tests.Services.Project
@@ -12,7 +15,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
     public sealed class ProjectSnapshotFactoryTests
     {
         [Test]
-        public void Create_ReadsEachCanonicalSessionValueOnceAndFiltersBuiltIns()
+        public void Create_ReadsEachCanonicalSessionValueOnce_AndCarriesNoCatalogs()
         {
             var climate = new ClimateStateSnapshot("City", "Region", -1, -2, 3, 4, 5, ClimateZone.Zone_M15, true, true, false);
             var construction = new ConstructionStateSnapshot(1, false, Array.Empty<ConstructionLayerSnapshot>(), Array.Empty<ConstructionLayerSnapshot>());
@@ -20,10 +23,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var hydraulics = HydraulicsStateSnapshot.Default;
             var session = new Mock<IProjectSession>(MockBehavior.Strict);
             var inputs = new Mock<IProjectSnapshotPersistenceInputs>(MockBehavior.Strict);
-            var material = new Material { Id = 7, Name = "Custom", IsBuiltIn = false };
-            var builtInMaterial = new Material { Id = 8, Name = "Built-in", IsBuiltIn = true };
-            var template = new ConstructionTemplate { Id = 21, Name = "Custom template", IsBuiltIn = false };
-            var builtInTemplate = new ConstructionTemplate { Id = 22, Name = "Built-in template", IsBuiltIn = true };
             var climateState = new Mock<IProjectSessionClimateState>(MockBehavior.Strict);
             var constructionState = new Mock<IProjectSessionConstructionState>(MockBehavior.Strict);
             var thermalState = new Mock<IProjectSessionThermalState>(MockBehavior.Strict);
@@ -40,8 +39,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             thermalState.SetupGet(x => x.Snapshot).Returns(thermal);
             hydraulicsState.SetupGet(x => x.Snapshot).Returns(hydraulics);
             inputs.SetupGet(x => x.IsOperatingMode).Returns(false);
-            inputs.SetupGet(x => x.Materials).Returns(new[] { material, builtInMaterial });
-            inputs.SetupGet(x => x.Templates).Returns(new[] { template, builtInTemplate });
 
             var snapshot = new ProjectSnapshotFactory(inputs.Object).Create(session.Object);
 
@@ -54,8 +51,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 Assert.That(snapshot.ConstructionStateSnapshot, Is.SameAs(construction));
                 Assert.That(snapshot.ThermalStateSnapshot, Is.SameAs(thermal));
                 Assert.That(snapshot.HydraulicsStateSnapshot, Is.SameAs(hydraulics));
-                Assert.That(snapshot.CustomMaterials, Has.Count.EqualTo(1));
-                Assert.That(snapshot.CustomTemplates, Has.Count.EqualTo(1));
             });
             session.VerifyGet(x => x.ProjectNumber, Times.Once);
             session.VerifyGet(x => x.ProjectObject, Times.Once);
@@ -80,6 +75,55 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 Assert.That(() => factory.Create(null!), Throws.ArgumentNullException);
                 Assert.That(() => new ProjectSnapshotFactory(null!), Throws.ArgumentNullException);
             });
+        }
+
+        [Test]
+        public void Create_ToProjectData_HashPinStaysStable_AcrossCatalogEmbeddingRemoval()
+        {
+            // Phase 11 / DEC-006: pins the exact ProjectData bytes produced
+            // through the save chain after custom catalogs left the wire. Any
+            // shape/value drift in the snapshot or the mapper changes this
+            // hash and fails the pin.
+            var climate = new ClimateStateSnapshot("Пин-Сити", "Region", -20, -35, 5, 70, 2, ClimateZone.Zone_M15, true, true, false);
+            var layersAbove = new[]
+            {
+                new ConstructionLayerSnapshot(Guid.NewGuid(), 5, "Асфальт", 80, 0.81, true, LayerPosition.AbovePipe, 0)
+            };
+            var construction = new ConstructionStateSnapshot(0.9, true, layersAbove, Array.Empty<ConstructionLayerSnapshot>());
+            var session = new Mock<IProjectSession>(MockBehavior.Strict);
+            var inputs = new Mock<IProjectSnapshotPersistenceInputs>(MockBehavior.Strict);
+            var climateState = new Mock<IProjectSessionClimateState>(MockBehavior.Strict);
+            var constructionState = new Mock<IProjectSessionConstructionState>(MockBehavior.Strict);
+            var thermalState = new Mock<IProjectSessionThermalState>(MockBehavior.Strict);
+            var hydraulicsState = new Mock<IProjectSessionHydraulicsState>(MockBehavior.Strict);
+
+            session.SetupGet(x => x.ProjectNumber).Returns("PIN-1");
+            session.SetupGet(x => x.ProjectObject).Returns("Hash pin object");
+            session.SetupGet(x => x.ClimateState).Returns(climateState.Object);
+            session.SetupGet(x => x.ConstructionState).Returns(constructionState.Object);
+            session.SetupGet(x => x.ThermalState).Returns(thermalState.Object);
+            session.SetupGet(x => x.HydraulicsState).Returns(hydraulicsState.Object);
+            climateState.SetupGet(x => x.Snapshot).Returns(climate);
+            constructionState.SetupGet(x => x.Snapshot).Returns(construction);
+            thermalState.SetupGet(x => x.Snapshot).Returns(ThermalStateSnapshot.Default);
+            hydraulicsState.SetupGet(x => x.Snapshot).Returns(HydraulicsStateSnapshot.Default);
+            inputs.SetupGet(x => x.IsOperatingMode).Returns(true);
+
+            var snapshot = new ProjectSnapshotFactory(inputs.Object).Create(session.Object);
+            var catalog = new Mock<IMaterialRepository>();
+            catalog.Setup(r => r.GetAllMaterials()).Returns(Array.Empty<global::SnowMeltingCalculator.Models.Construction.Material>);
+            var dates = new ProjectSaveDates(
+                new DateTime(2026, 9, 3, 10, 0, 0, DateTimeKind.Utc),
+                new DateTime(2026, 9, 3, 11, 0, 0, DateTimeKind.Utc));
+
+            var data = ProjectPersistenceMapper.ToProjectData(snapshot, dates, catalog.Object);
+
+            var json = JsonSerializer.Serialize(data);
+            using var sha256 = SHA256.Create();
+            var hash = Convert.ToHexString(sha256.ComputeHash(Encoding.UTF8.GetBytes(json)));
+
+            Assert.That(hash, Is.EqualTo(
+                "FBD2010C0C8BF0F1552BE48F4CFAFF30A35ACFA57CA42D7DA0F39A2729B1B7B5"));
         }
     }
 }

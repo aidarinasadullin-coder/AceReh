@@ -1,6 +1,5 @@
 using System.Globalization;
 using SnowMeltingCalculator.Models.Hydraulics;
-using SnowMeltingCalculator.ViewModels.Hydraulics;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
 {
