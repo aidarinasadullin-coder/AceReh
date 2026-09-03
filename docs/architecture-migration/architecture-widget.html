@@ -1163,11 +1163,11 @@ h3 {
           </div>
           <div>
             <dt>SHA снимка</dt>
-            <dd data-field="snapshot-sha">EC762434820E87EA92B9A37A4FD694DCABD81181F93C1B6EA035FFF5674F5C67</dd>
+            <dd data-field="snapshot-sha">745DC19637A9B367453242060FF2D01EA13197E9F44C83D50F5F865D583E0193</dd>
           </div>
           <div>
             <dt>Основание источника</dt>
-            <dd data-field="source-basis">phase-8-results-derived-projection-executed-live-code-and-evidence</dd>
+            <dd data-field="source-basis">phase-11-migration-tails-closure-executed-live-code-and-evidence</dd>
           </div>
         </dl>
       </section>
@@ -1337,8 +1337,8 @@ h3 {
   <script id="architecture-explorer-payload" type="application/json">{
   "metadata": {
     "model_id": "AM-WIDGET-001",
-    "snapshot_sha": "EC762434820E87EA92B9A37A4FD694DCABD81181F93C1B6EA035FFF5674F5C67",
-    "source_basis": "phase-8-results-derived-projection-executed-live-code-and-evidence",
+    "snapshot_sha": "745DC19637A9B367453242060FF2D01EA13197E9F44C83D50F5F865D583E0193",
+    "source_basis": "phase-11-migration-tails-closure-executed-live-code-and-evidence",
     "accepted_views": [
       "compile-time",
       "di-runtime",
@@ -1357,9 +1357,9 @@ h3 {
   "model": {
     "metadata": {
       "model_id": "AM-WIDGET-001",
-      "phase": "phase-8-results-derived-projection",
-      "snapshot_sha": "EC762434820E87EA92B9A37A4FD694DCABD81181F93C1B6EA035FFF5674F5C67",
-      "source_basis": "phase-8-results-derived-projection-executed-live-code-and-evidence",
+      "phase": "phase-11-migration-tails-closure",
+      "snapshot_sha": "745DC19637A9B367453242060FF2D01EA13197E9F44C83D50F5F865D583E0193",
+      "source_basis": "phase-11-migration-tails-closure-executed-live-code-and-evidence",
       "status": "pass",
       "provenance": {
         "phase_0_model": "docs/architecture-migration/maps/architecture-model.baseline.json",
@@ -16333,6 +16333,90 @@ h3 {
         "locator": "Full regression 2032 passed / 0 failed / 1 known skip; multiplicity, dirty semantics, save/report fixtures unchanged; .smc fixtures untouched",
         "confidence": "verified",
         "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P10-CENSUS",
+        "path": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-1-reactive-census.md",
+        "locator": "Full production subscription census: 28 domain rows each with owner, lifetime class, unsubscribe rule and multiplicity expectation; baseline stabilization suites 79/79 pass unmodified",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P10-HARNESS",
+        "path": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-2-baseline-counts.md",
+        "locator": "Counting harness frozen; per-scenario measured counters (ContextChanged/StateChanged/calculator/Results projection/dirty) deterministic across consecutive identical runs; lifecycle origins Dirty+=0",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P10-RED",
+        "path": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/logs/slice-3-lifecycle-RED.trx",
+        "locator": "RED probe: injected duplicate subscription fails 3/11 assertions (3 failed / 8 passed) - harness sensitivity proven before GREEN",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P10-GREEN",
+        "path": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/logs/slice-3-lifecycle-GREEN.trx",
+        "locator": "GREEN 11/11: handler-count snapshots equal census expectations and stable across four post-warmup load/reset cycles; exactly-once publication per completed logical change",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P10-HYGIENE",
+        "path": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-4-leak-hygiene.md",
+        "locator": "Leak hygiene justified no-op: combined suites 94/94; zero production edits; every census row application-lifetime-by-design or symmetric per-item attach/detach",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P10-MB",
+        "path": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-5-mutation-boundaries.md",
+        "locator": "Consolidated INV-016 mutation-boundary proofs across Climate/Construction/Thermal/Hydraulics/Results/Shell-Save: one completion boundary per logical action, multi-field single actions, lifecycle/system origins distinguishable and dirty-free, public surfaces only, no undo/redo; plan-exact filter 36/36",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P10-REGRESSION",
+        "path": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-6-full-regression.md",
+        "locator": "Full regression 2050 passed / 0 failed / exactly 1 known RR-004 external-fixture skip; +18 tests = this plan's additions; .smc fixtures untouched",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P10-WRITERS",
+        "path": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/writer-inventory-output.txt",
+        "locator": "Machine-checked writer inventory SUMMARY 8/8 PASS: single writable canonical owners across ST-001..ST-027; CalculationContext ST-020..ST-022 projection writers exactly the four sanctioned DEC-001=A non-owning sites; zero ViewModel foreign-slice writes",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P11-LIMP81",
+        "path": "docs/architecture-migration/evidence/phase-11-migration-tails-closure/slice-1-lim-p8-1-closure.md",
+        "locator": "LIM-P8-1 closed on live-code facts (CreateRow :1457; snapshot-typed builder signatures; canonical selection summary; grep gate comment-only CircuitsViewModel) plus 50/50 targeted suites unmodified",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P11-DEC006",
+        "path": "docs/architecture-migration/evidence/phase-11-migration-tails-closure/slice-2-save-catalog-decoupling.md",
+        "locator": "DEC-006 executed: catalogs live only globally; CustomMaterials/CustomTemplates removed from ProjectData wire, snapshot and persistence seam; sync-over-async Templates read deleted with its code path; hash-pin FBD2010C…7B5; 37/37",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P11-REGRESSION",
+        "path": "docs/architecture-migration/evidence/phase-11-migration-tails-closure/slice-3-full-regression.md",
+        "locator": "Full regression 2040 passed / 0 failed / exactly 1 known RR-004 skip; −10 tests = DEC-006 outdated-test removals (21→13, 34→32, 45→44) + factory rewrite (+1); .smc fixtures untouched",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P11-HYGIENE",
+        "path": "docs/architecture-migration/evidence/phase-11-migration-tails-closure/slice-4-dossier-hygiene.md",
+        "locator": "Dossier/model hygiene: state-inventory Phase 11 overlay (ST-001..005 historical ownership, ST-003 live owner IProjectDisplayModeState, ST-023 wire annotation), dead ViewModels usings removed from src/Services/Hydraulics, metadata refreshed, widget regenerated deterministically",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
       }
     ],
     "limitations": [
@@ -16353,8 +16437,8 @@ h3 {
       },
       {
         "id": "LIM-P8-1",
-        "statement": "Results still shares mutable CircuitRow objects with CircuitsViewModel and rebuilds Specifications/EquipmentItems/SummaryCards via HydraulicSummaryBuilder(CollectorData); UpdateCollectorSummary reads the module selection. Named Phase 9 residual (INV-016 legacy-cleanup clause).",
-        "status": "open"
+        "statement": "CLOSED 2026-09-03 (Phase 11, EV-P11-LIMP81): the Phase 8 residual was substantively closed by Phase 9 and verified against live code — Results builds its display rows via HydraulicCircuitRowProjection.CreateRow from canonical HydraulicCircuitSnapshots (ResultsViewModel.UpdateCircuitsFilter), HydraulicSummaryBuilder consumes IReadOnlyList\u003CHydraulicCollectorSnapshot\u003E (not CollectorData), and UpdateCollectorSummary reads the canonical snapshot by Results-owned selection; ResultsViewModel holds no CircuitsViewModel reference (comment-only mention). Historical statement: Results still shares mutable CircuitRow objects with CircuitsViewModel and rebuilds Specifications/EquipmentItems/SummaryCards via HydraulicSummaryBuilder(CollectorData); UpdateCollectorSummary reads the module selection. Named Phase 9 residual (INV-016 legacy-cleanup clause).",
+        "status": "closed"
       },
       {
         "id": "LIM-P8-2",
@@ -16466,8 +16550,9 @@ h3 {
         "views": [
           "state-ownership"
         ],
-        "status": "unverified",
+        "status": "verified",
         "evidence": [
+          "EV-P10-WRITERS",
           "EV-ST"
         ],
         "target_status": "unimplemented"
@@ -16480,10 +16565,12 @@ h3 {
           "di-runtime",
           "state-ownership"
         ],
-        "status": "unverified",
+        "status": "verified",
         "evidence": [
           "EV-CT",
           "EV-DR",
+          "EV-P10-MB",
+          "EV-P10-WRITERS",
           "EV-ST"
         ],
         "target_status": "unimplemented"
@@ -16532,10 +16619,16 @@ h3 {
           "reactive",
           "di-runtime"
         ],
-        "status": "unverified",
+        "status": "verified",
         "evidence": [
-          "EV-RE",
-          "EV-DR"
+          "EV-DR",
+          "EV-P10-CENSUS",
+          "EV-P10-GREEN",
+          "EV-P10-HARNESS",
+          "EV-P10-HYGIENE",
+          "EV-P10-RED",
+          "EV-P10-REGRESSION",
+          "EV-RE"
         ],
         "target_status": "unimplemented"
       },
@@ -16652,6 +16745,21 @@ h3 {
         "evidence": [
           "EV-P6-SAVE",
           "EV-P6-FIXTURES"
+        ],
+        "target_status": "partial"
+      },
+      {
+        "id": "INV-016",
+        "statement": "Every migrated state slice SHALL expose explicit state/application mutation boundaries and an identifiable logical-change completion boundary suitable for future Undo/Redo recording; user mutations SHALL be distinguishable from load/reset/restore/system-apply paths and multiple internal changes MAY form one user action; no undo/redo stacks are required.",
+        "views": [
+          "state-ownership",
+          "reactive",
+          "persistence",
+          "user-flow"
+        ],
+        "status": "verified",
+        "evidence": [
+          "EV-P10-MB"
         ],
         "target_status": "partial"
       }
@@ -18211,13 +18319,21 @@ h3 {
           "views": [
             "state-ownership"
           ],
-          "status": "unverified",
+          "status": "verified",
           "evidence": [
+            "EV-P10-WRITERS",
             "EV-ST"
           ],
           "target_status": "unimplemented",
           "evidence_missing": false,
           "references": [
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-WRITERS",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/writer-inventory-output.txt — Machine-checked writer inventory SUMMARY 8/8 PASS: single writable canonical owners across ST-001..ST-027; CalculationContext ST-020..ST-022 projection writers exactly the four sanctioned DEC-001=A non-owning sites; zero ViewModel foreign-slice writes",
+              "detail": "verified / current-at-snapshot"
+            },
             {
               "kind": "evidence",
               "kind_label": "Доказательство",
@@ -18235,10 +18351,12 @@ h3 {
             "di-runtime",
             "state-ownership"
           ],
-          "status": "unverified",
+          "status": "verified",
           "evidence": [
             "EV-CT",
             "EV-DR",
+            "EV-P10-MB",
+            "EV-P10-WRITERS",
             "EV-ST"
           ],
           "target_status": "unimplemented",
@@ -18256,6 +18374,20 @@ h3 {
               "kind_label": "Доказательство",
               "id": "EV-DR",
               "summary": "docs/architecture-migration/maps/di-runtime.md — provisional nodes and DRE-001..DRE-057",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-MB",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-5-mutation-boundaries.md — Consolidated INV-016 mutation-boundary proofs across Climate/Construction/Thermal/Hydraulics/Results/Shell-Save: one completion boundary per logical action, multi-field single actions, lifecycle/system origins distinguishable and dirty-free, public surfaces only, no undo/redo; plan-exact filter 36/36",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-WRITERS",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/writer-inventory-output.txt — Machine-checked writer inventory SUMMARY 8/8 PASS: single writable canonical owners across ST-001..ST-027; CalculationContext ST-020..ST-022 projection writers exactly the four sanctioned DEC-001=A non-owning sites; zero ViewModel foreign-slice writes",
               "detail": "verified / current-at-snapshot"
             },
             {
@@ -19831,6 +19963,90 @@ h3 {
             "id": "EV-P9-SLICE-7",
             "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-7-full-regression.md — Full regression 2032 passed / 0 failed / 1 known skip; multiplicity, dirty semantics, save/report fixtures unchanged; .smc fixtures untouched",
             "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P10-CENSUS",
+            "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-1-reactive-census.md — Full production subscription census: 28 domain rows each with owner, lifetime class, unsubscribe rule and multiplicity expectation; baseline stabilization suites 79/79 pass unmodified",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P10-HARNESS",
+            "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-2-baseline-counts.md — Counting harness frozen; per-scenario measured counters (ContextChanged/StateChanged/calculator/Results projection/dirty) deterministic across consecutive identical runs; lifecycle origins Dirty+=0",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P10-RED",
+            "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/logs/slice-3-lifecycle-RED.trx — RED probe: injected duplicate subscription fails 3/11 assertions (3 failed / 8 passed) - harness sensitivity proven before GREEN",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P10-GREEN",
+            "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/logs/slice-3-lifecycle-GREEN.trx — GREEN 11/11: handler-count snapshots equal census expectations and stable across four post-warmup load/reset cycles; exactly-once publication per completed logical change",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P10-HYGIENE",
+            "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-4-leak-hygiene.md — Leak hygiene justified no-op: combined suites 94/94; zero production edits; every census row application-lifetime-by-design or symmetric per-item attach/detach",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P10-MB",
+            "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-5-mutation-boundaries.md — Consolidated INV-016 mutation-boundary proofs across Climate/Construction/Thermal/Hydraulics/Results/Shell-Save: one completion boundary per logical action, multi-field single actions, lifecycle/system origins distinguishable and dirty-free, public surfaces only, no undo/redo; plan-exact filter 36/36",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P10-REGRESSION",
+            "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-6-full-regression.md — Full regression 2050 passed / 0 failed / exactly 1 known RR-004 external-fixture skip; +18 tests = this plan's additions; .smc fixtures untouched",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P10-WRITERS",
+            "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/writer-inventory-output.txt — Machine-checked writer inventory SUMMARY 8/8 PASS: single writable canonical owners across ST-001..ST-027; CalculationContext ST-020..ST-022 projection writers exactly the four sanctioned DEC-001=A non-owning sites; zero ViewModel foreign-slice writes",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P11-LIMP81",
+            "summary": "docs/architecture-migration/evidence/phase-11-migration-tails-closure/slice-1-lim-p8-1-closure.md — LIM-P8-1 closed on live-code facts (CreateRow :1457; snapshot-typed builder signatures; canonical selection summary; grep gate comment-only CircuitsViewModel) plus 50/50 targeted suites unmodified",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P11-DEC006",
+            "summary": "docs/architecture-migration/evidence/phase-11-migration-tails-closure/slice-2-save-catalog-decoupling.md — DEC-006 executed: catalogs live only globally; CustomMaterials/CustomTemplates removed from ProjectData wire, snapshot and persistence seam; sync-over-async Templates read deleted with its code path; hash-pin FBD2010C…7B5; 37/37",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P11-REGRESSION",
+            "summary": "docs/architecture-migration/evidence/phase-11-migration-tails-closure/slice-3-full-regression.md — Full regression 2040 passed / 0 failed / exactly 1 known RR-004 skip; −10 tests = DEC-006 outdated-test removals (21→13, 34→32, 45→44) + factory rewrite (+1); .smc fixtures untouched",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P11-HYGIENE",
+            "summary": "docs/architecture-migration/evidence/phase-11-migration-tails-closure/slice-4-dossier-hygiene.md — Dossier/model hygiene: state-inventory Phase 11 overlay (ST-001..005 historical ownership, ST-003 live owner IProjectDisplayModeState, ST-023 wire annotation), dead ViewModels usings removed from src/Services/Hydraulics, metadata refreshed, widget regenerated deterministically",
+            "detail": "verified / current-at-snapshot"
           }
         ],
         "limitations": [
@@ -19859,8 +20075,8 @@ h3 {
             "kind": "limitations",
             "kind_label": "Ограничение",
             "id": "LIM-P8-1",
-            "summary": "Results still shares mutable CircuitRow objects with CircuitsViewModel and rebuilds Specifications/EquipmentItems/SummaryCards via HydraulicSummaryBuilder(CollectorData); UpdateCollectorSummary reads the module selection. Named Phase 9 residual (INV-016 legacy-cleanup clause).",
-            "detail": "open"
+            "summary": "CLOSED 2026-09-03 (Phase 11, EV-P11-LIMP81): the Phase 8 residual was substantively closed by Phase 9 and verified against live code — Results builds its display rows via HydraulicCircuitRowProjection.CreateRow from canonical HydraulicCircuitSnapshots (ResultsViewModel.UpdateCircuitsFilter), HydraulicSummaryBuilder consumes IReadOnlyList\u003CHydraulicCollectorSnapshot\u003E (not CollectorData), and UpdateCollectorSummary reads the canonical snapshot by Results-owned selection; ResultsViewModel holds no CircuitsViewModel reference (comment-only mention). Historical statement: Results still shares mutable CircuitRow objects with CircuitsViewModel and rebuilds Specifications/EquipmentItems/SummaryCards via HydraulicSummaryBuilder(CollectorData); UpdateCollectorSummary reads the module selection. Named Phase 9 residual (INV-016 legacy-cleanup clause).",
+            "detail": "closed"
           },
           {
             "kind": "limitations",
@@ -19911,14 +20127,14 @@ h3 {
             "kind_label": "Инвариант",
             "id": "INV-006",
             "summary": "Every migrated value SHALL have exactly one writable canonical owner.",
-            "detail": "unverified / target: unimplemented"
+            "detail": "verified / target: unimplemented"
           },
           {
             "kind": "invariants",
             "kind_label": "Инвариант",
             "id": "INV-007",
             "summary": "ViewModels SHALL be WPF adapters and not shared canonical state stores.",
-            "detail": "unverified / target: unimplemented"
+            "detail": "verified / target: unimplemented"
           },
           {
             "kind": "invariants",
@@ -19939,7 +20155,7 @@ h3 {
             "kind_label": "Инвариант",
             "id": "INV-010",
             "summary": "Every reactive subscription SHALL have explicit owner, lifetime, unsubscribe rule, and multiplicity expectation.",
-            "detail": "unverified / target: unimplemented"
+            "detail": "verified / target: unimplemented"
           },
           {
             "kind": "invariants",
@@ -19988,6 +20204,13 @@ h3 {
             "kind_label": "Инвариант",
             "id": "INV-P6-SAVE",
             "summary": "Save assembly SHALL read canonical ProjectSession snapshots, map once to ProjectData, and delegate persistence without making ProjectData or ProjectFileService canonical owners.",
+            "detail": "verified / target: partial"
+          },
+          {
+            "kind": "invariants",
+            "kind_label": "Инвариант",
+            "id": "INV-016",
+            "summary": "Every migrated state slice SHALL expose explicit state/application mutation boundaries and an identifiable logical-change completion boundary suitable for future Undo/Redo recording; user mutations SHALL be distinguishable from load/reset/restore/system-apply paths and multiple internal changes MAY form one user action; no undo/redo stacks are required.",
             "detail": "verified / target: partial"
           }
         ],
@@ -24291,13 +24514,20 @@ h3 {
           "kind_label": "Инвариант",
           "id": "INV-006",
           "summary": "Every migrated value SHALL have exactly one writable canonical owner.",
-          "detail": "unverified / target: unimplemented",
+          "detail": "verified / target: unimplemented",
           "views": [
             "state-ownership"
           ],
-          "status": "unverified",
+          "status": "verified",
           "target_status": "unimplemented",
           "references": [
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-WRITERS",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/writer-inventory-output.txt — Machine-checked writer inventory SUMMARY 8/8 PASS: single writable canonical owners across ST-001..ST-027; CalculationContext ST-020..ST-022 projection writers exactly the four sanctioned DEC-001=A non-owning sites; zero ViewModel foreign-slice writes",
+              "detail": "verified / current-at-snapshot"
+            },
             {
               "kind": "evidence",
               "kind_label": "Доказательство",
@@ -24312,13 +24542,13 @@ h3 {
           "kind_label": "Инвариант",
           "id": "INV-007",
           "summary": "ViewModels SHALL be WPF adapters and not shared canonical state stores.",
-          "detail": "unverified / target: unimplemented",
+          "detail": "verified / target: unimplemented",
           "views": [
             "compile-time",
             "di-runtime",
             "state-ownership"
           ],
-          "status": "unverified",
+          "status": "verified",
           "target_status": "unimplemented",
           "references": [
             {
@@ -24333,6 +24563,20 @@ h3 {
               "kind_label": "Доказательство",
               "id": "EV-DR",
               "summary": "docs/architecture-migration/maps/di-runtime.md — provisional nodes and DRE-001..DRE-057",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-MB",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-5-mutation-boundaries.md — Consolidated INV-016 mutation-boundary proofs across Climate/Construction/Thermal/Hydraulics/Results/Shell-Save: one completion boundary per logical action, multi-field single actions, lifecycle/system origins distinguishable and dirty-free, public surfaces only, no undo/redo; plan-exact filter 36/36",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-WRITERS",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/writer-inventory-output.txt — Machine-checked writer inventory SUMMARY 8/8 PASS: single writable canonical owners across ST-001..ST-027; CalculationContext ST-020..ST-022 projection writers exactly the four sanctioned DEC-001=A non-owning sites; zero ViewModel foreign-slice writes",
               "detail": "verified / current-at-snapshot"
             },
             {
@@ -24458,26 +24702,68 @@ h3 {
           "kind_label": "Инвариант",
           "id": "INV-010",
           "summary": "Every reactive subscription SHALL have explicit owner, lifetime, unsubscribe rule, and multiplicity expectation.",
-          "detail": "unverified / target: unimplemented",
+          "detail": "verified / target: unimplemented",
           "views": [
             "reactive",
             "di-runtime"
           ],
-          "status": "unverified",
+          "status": "verified",
           "target_status": "unimplemented",
           "references": [
             {
               "kind": "evidence",
               "kind_label": "Доказательство",
-              "id": "EV-RE",
-              "summary": "docs/architecture-migration/maps/reactive.md — RE-001..RE-014 reactive rows",
+              "id": "EV-DR",
+              "summary": "docs/architecture-migration/maps/di-runtime.md — provisional nodes and DRE-001..DRE-057",
               "detail": "verified / current-at-snapshot"
             },
             {
               "kind": "evidence",
               "kind_label": "Доказательство",
-              "id": "EV-DR",
-              "summary": "docs/architecture-migration/maps/di-runtime.md — provisional nodes and DRE-001..DRE-057",
+              "id": "EV-P10-CENSUS",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-1-reactive-census.md — Full production subscription census: 28 domain rows each with owner, lifetime class, unsubscribe rule and multiplicity expectation; baseline stabilization suites 79/79 pass unmodified",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-GREEN",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/logs/slice-3-lifecycle-GREEN.trx — GREEN 11/11: handler-count snapshots equal census expectations and stable across four post-warmup load/reset cycles; exactly-once publication per completed logical change",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-HARNESS",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-2-baseline-counts.md — Counting harness frozen; per-scenario measured counters (ContextChanged/StateChanged/calculator/Results projection/dirty) deterministic across consecutive identical runs; lifecycle origins Dirty+=0",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-HYGIENE",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-4-leak-hygiene.md — Leak hygiene justified no-op: combined suites 94/94; zero production edits; every census row application-lifetime-by-design or symmetric per-item attach/detach",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-RED",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/logs/slice-3-lifecycle-RED.trx — RED probe: injected duplicate subscription fails 3/11 assertions (3 failed / 8 passed) - harness sensitivity proven before GREEN",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-REGRESSION",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-6-full-regression.md — Full regression 2050 passed / 0 failed / exactly 1 known RR-004 external-fixture skip; +18 tests = this plan's additions; .smc fixtures untouched",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-RE",
+              "summary": "docs/architecture-migration/maps/reactive.md — RE-001..RE-014 reactive rows",
               "detail": "verified / current-at-snapshot"
             }
           ]
@@ -24741,6 +25027,30 @@ h3 {
               "kind_label": "Доказательство",
               "id": "EV-P6-FIXTURES",
               "summary": "docs/architecture-migration/evidence/phase-6-project-snapshot-save-boundary/task-6-persistence-fixtures-and-guards.md — Task 6 Release compatibility/guard result and fixture integrity",
+              "detail": "verified / current-at-snapshot"
+            }
+          ]
+        },
+        {
+          "kind": "invariants",
+          "kind_label": "Инвариант",
+          "id": "INV-016",
+          "summary": "Every migrated state slice SHALL expose explicit state/application mutation boundaries and an identifiable logical-change completion boundary suitable for future Undo/Redo recording; user mutations SHALL be distinguishable from load/reset/restore/system-apply paths and multiple internal changes MAY form one user action; no undo/redo stacks are required.",
+          "detail": "verified / target: partial",
+          "views": [
+            "state-ownership",
+            "reactive",
+            "persistence",
+            "user-flow"
+          ],
+          "status": "verified",
+          "target_status": "partial",
+          "references": [
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P10-MB",
+              "summary": "docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/slice-5-mutation-boundaries.md — Consolidated INV-016 mutation-boundary proofs across Climate/Construction/Thermal/Hydraulics/Results/Shell-Save: one completion boundary per logical action, multi-field single actions, lifecycle/system origins distinguishable and dirty-free, public surfaces only, no undo/redo; plan-exact filter 36/36",
               "detail": "verified / current-at-snapshot"
             }
           ]

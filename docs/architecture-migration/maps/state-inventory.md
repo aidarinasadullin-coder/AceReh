@@ -169,3 +169,38 @@ Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/pha
 ## Phase 9 Legacy-Seams-Cleanup Overlay
 
 `ST-026`, `ST-027` → covered (Results-owned circuit rows/selection/builder from canonical snapshots; model `current` states updated). `ST-020`, `ST-021`, `ST-022` unchanged per `DEC-001 = A` — no `CalculationContext` writer touched in Phase 9. LIM-P8-2: owner decision B accepted the import-less restore as the new characterized behavior (catalogs read-only on open; custom materials/templates stay project-local). Evidence: `slice-2..slice-4` receipts; model records `EV-P9-SLICE-2..4`.
+
+## Phase 11 Migration-Tails Overlay (2026-09-03)
+
+Interpretation note for the historical first block: the `ST-001`..`ST-005`
+rows at the top of this file are the Phase 1 baseline wording and are
+**historical** — their "current canonical owner" cells name
+`ProjectStateService`, a class removed from production in Phase 9 (its copy
+survives only as a test fixture). Canonical live ownership since Phase 4+ is
+recorded in the addendum rows further below and machine-proven by the Phase 10
+writer inventory (`evidence/phase-10-reactive-ownership-multiplicity-closure/writer-inventory-output.txt`,
+8/8 checks PASS):
+
+- `ST-001`/`ST-002`/`ST-004` — `ProjectSession` (identity, path, dirty);
+  `MainViewModel` subscribes `IProjectSession.PropertyChanged`
+  (`MainViewModel.cs:78`); Results' identity properties are pass-throughs to
+  the session (`ResultsViewModel.ProjectNumber/:60-70`, `ProjectObject/:81-91`).
+- `ST-003` — live owner since Phase 6: `IProjectDisplayModeState`
+  (`ProjectDisplayModeState`, DI singleton); `ResultsViewModel.IsOperatingMode`
+  is a read-through write-through (`ResultsViewModel.cs:304-312`);
+  `ProjectSnapshotFactory`/`ProjectSaveService` read the same source on save.
+- `ST-005` — `ProjectSession` restore guard; `CalculationStateService` is the
+  translation adapter (see the Phase 4/7 overlays).
+
+`ST-023` wire annotation (DEC-006, 2026-09-03): `ProjectData` no longer
+carries `CustomMaterials`/`CustomTemplates` — catalogs live only globally
+(global repositories remain the single source of truth; the template editor
+keeps using `IConstructionTemplateRepository`). Old `.smc` files carrying
+those JSON members keep loading (unknown members are ignored by the default
+`System.Text.Json` deserialization; re-pinned in
+`ConstructionServiceTests.ProjectData_DeserializesOldFileWithoutCustomTemplates`).
+The save-path custom-template read through
+`ProjectSnapshotPersistenceInputs` (Phase 8 note above) is removed together
+with the seam member; the recorded Phase 6 sync-over-async risk
+(`GetAwaiter().GetResult()`) is gone with that code path. Evidence: Phase 11
+`slice-1..slice-4` receipts; model records `EV-P11-*`.

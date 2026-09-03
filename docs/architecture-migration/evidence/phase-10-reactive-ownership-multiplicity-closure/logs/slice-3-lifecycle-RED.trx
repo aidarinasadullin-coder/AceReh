@@ -1,0 +1,214 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="9b80deae-0813-421b-b633-a6fc6709f5d6" name="Admin@DESKTOP-CVGB6OE 2026-09-03 11:13:49" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-09-03T11:13:49.2213453+05:00" queuing="2026-09-03T11:13:49.2213456+05:00" start="2026-09-03T11:13:48.5341936+05:00" finish="2026-09-03T11:13:49.2435243+05:00" />
+  <TestSettings name="default" id="689168bb-5571-4401-9c0d-0eb192e18afe">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-09-03_11_13_49" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="1d795963-bc6e-4204-adc6-5df9c566e91f" testId="bb003b9a-c638-8f80-98dd-67e488ef3818" testName="HandlerCounts_MatchPhase10Census_OnProductionShapedGraph" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0022480" startTime="2026-09-03T11:13:49.1690216+05:00" endTime="2026-09-03T11:13:49.1712692+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1d795963-bc6e-4204-adc6-5df9c566e91f">
+      <Output>
+        <ErrorInfo>
+          <Message>  Handler count on ProjectSessionThermalState.Changed drifted from the Phase 10 census (CalculationStateService legacy translation) [census=1, harness probes=1].&#xD;
+Assert.That(HandlerCount(publisher, field), Is.EqualTo(census + probes))&#xD;
+  Expected: 2&#xD;
+  But was:  3&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests.HandlerCounts_MatchPhase10Census_OnProductionShapedGraph() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ReactiveSubscriptionLifecycleTests.cs:line 96&#xD;
+
+1)    at SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests.HandlerCounts_MatchPhase10Census_OnProductionShapedGraph() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ReactiveSubscriptionLifecycleTests.cs:line 96&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="da593fcf-bed6-4415-9790-c0f75f4fd6b6" testId="cb229647-baab-f4d7-f6eb-403a0735f8bc" testName="LifecycleOrigins_NeverRaiseUserDirty_AcrossLoadResetRestore" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0023490" startTime="2026-09-03T11:13:49.1761436+05:00" endTime="2026-09-03T11:13:49.1784923+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="da593fcf-bed6-4415-9790-c0f75f4fd6b6" />
+    <UnitTestResult executionId="72df43bb-6ddb-4b9c-acaa-733029958160" testId="a45c9ca9-0f75-0c0f-fe9c-33d9d7c40261" testName="ExactlyOnce_ThermalUserEdit_OneLogicalActionOneRecalculationChain" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0022880" startTime="2026-09-03T11:13:49.1667191+05:00" endTime="2026-09-03T11:13:49.1690067+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="72df43bb-6ddb-4b9c-acaa-733029958160">
+      <Output>
+        <ErrorInfo>
+          <Message>  One user input edit = exactly one User-origin canonical completion.&#xD;
+Assert.That(edit.ThermalCompletions, Is.EqualTo(1))&#xD;
+  Expected: 1&#xD;
+  But was:  2&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests.ExactlyOnce_ThermalUserEdit_OneLogicalActionOneRecalculationChain() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ReactiveSubscriptionLifecycleTests.cs:line 251&#xD;
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.BeforeAndAfterTestCommand.&lt;&gt;c__DisplayClass1_0.&lt;Execute&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.Commands.DelegatingTestCommand.RunTestMethodInThreadAbortSafeZone(TestExecutionContext context, Action action)&#xD;
+
+1)    at SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests.ExactlyOnce_ThermalUserEdit_OneLogicalActionOneRecalculationChain() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ReactiveSubscriptionLifecycleTests.cs:line 251&#xD;
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine&amp; stateMachine)&#xD;
+   at SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests.ExactlyOnce_ThermalUserEdit_OneLogicalActionOneRecalculationChain()&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="a717c4c0-1e40-497d-ab85-f2f228ffca63" testId="ff9ddb3b-72ca-bb3d-21b2-fda243dd7314" testName="Baseline_RepeatedReset_PerCycleCountersIdenticalAfterWarmup" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0105910" startTime="2026-09-03T11:13:49.1322765+05:00" endTime="2026-09-03T11:13:49.1428669+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a717c4c0-1e40-497d-ab85-f2f228ffca63">
+      <Output>
+        <StdOut>[phase-10 counters] repeated-reset: Context[Climate=0,Construction=0,ThermalInputs=0,ThermalResult=0,Hydraulics=0,Other=1] StateChanged=0 PipeSpacing=0 Completions[Climate=0,Construction=1,Thermal=0(U=0,C=0),Hydraulics=0,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=0 SessionPC=0 Dirty+=0 Clean=0 Origins[C=,Con=Reset=1,T=,H=]</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="fc5aa2b2-bd6a-4a0f-aa0f-3deeda9ae3cd" testId="737e825b-8b0e-e15d-6891-d76e314e06c7" testName="Lifecycle_LoadResetCycles_HandlerCountsAndPerCycleDeltasRemainStable" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0048459" startTime="2026-09-03T11:13:49.1712861+05:00" endTime="2026-09-03T11:13:49.1761318+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fc5aa2b2-bd6a-4a0f-aa0f-3deeda9ae3cd">
+      <Output>
+        <StdOut>[phase-10 counters] load-reset-cycle: Context[Climate=2,Construction=0,ThermalInputs=1,ThermalResult=1,Hydraulics=3,Other=1] StateChanged=6 PipeSpacing=0 Completions[Climate=2,Construction=2,Thermal=4(U=0,C=0),Hydraulics=7,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=2] Results=1 SessionPC=2 Dirty+=0 Clean=0 Origins[C=Load=1,ProjectLoadReset=1,Con=ProjectLoad=1,Reset=1,T=ProjectLoad=2,ProjectLoadReset=2,H=Calculation=6,ProjectLoad=1]</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="faf032e3-fcca-4282-8e3f-f38585058a78" testId="f8f226a6-fddd-bc9e-b734-42f5f07c1b52" testName="Baseline_SecondLoad_TwoConsecutiveRunsProduceIdenticalCounters" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0026790" startTime="2026-09-03T11:13:49.1451941+05:00" endTime="2026-09-03T11:13:49.1478730+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="faf032e3-fcca-4282-8e3f-f38585058a78">
+      <Output>
+        <StdOut>[phase-10 counters] second-load: Context[Climate=0,Construction=0,ThermalInputs=1,ThermalResult=1,Hydraulics=2,Other=0] StateChanged=4 PipeSpacing=1 Completions[Climate=0,Construction=0,Thermal=2(U=0,C=0),Hydraulics=4,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=1 SessionPC=2 Dirty+=0 Clean=0 Origins[C=,Con=,T=ProjectLoad=2,H=Calculation=4]</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="1a91c130-6821-4cce-9101-8926564e8838" testId="a8ef7fa7-2305-b987-7b4e-661ace9ba7c2" testName="Baseline_Reset_TwoConsecutiveRunsProduceIdenticalCounters" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0022900" startTime="2026-09-03T11:13:49.1428894+05:00" endTime="2026-09-03T11:13:49.1451792+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1a91c130-6821-4cce-9101-8926564e8838">
+      <Output>
+        <StdOut>[phase-10 counters] reset: Context[Climate=1,Construction=0,ThermalInputs=0,ThermalResult=0,Hydraulics=1,Other=1] StateChanged=2 PipeSpacing=0 Completions[Climate=1,Construction=1,Thermal=2(U=0,C=0),Hydraulics=2,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=0 SessionPC=0 Dirty+=0 Clean=0 Origins[C=ProjectLoadReset=1,Con=Reset=1,T=ProjectLoadReset=2,H=Calculation=2]</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f3fa5b57-2c39-4a8d-95dc-6f60ed7fd91c" testId="5f2d0967-56a9-a74b-7867-2fa2a7375024" testName="ExactlyOnce_ClimateUserEdit_PublishesOneCompletionOneProjectionAndOneDirty" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0159079" startTime="2026-09-03T11:13:49.1478876+05:00" endTime="2026-09-03T11:13:49.1637953+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f3fa5b57-2c39-4a8d-95dc-6f60ed7fd91c">
+      <Output>
+        <ErrorInfo>
+          <Message>  Upstream climate invalidation completes Thermal exactly once.&#xD;
+Assert.That(delta.ThermalCompletions, Is.EqualTo(1))&#xD;
+  Expected: 1&#xD;
+  But was:  2&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests.ExactlyOnce_ClimateUserEdit_PublishesOneCompletionOneProjectionAndOneDirty() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ReactiveSubscriptionLifecycleTests.cs:line 237&#xD;
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.BeforeAndAfterTestCommand.&lt;&gt;c__DisplayClass1_0.&lt;Execute&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.Commands.DelegatingTestCommand.RunTestMethodInThreadAbortSafeZone(TestExecutionContext context, Action action)&#xD;
+
+1)    at SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests.ExactlyOnce_ClimateUserEdit_PublishesOneCompletionOneProjectionAndOneDirty() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ReactiveSubscriptionLifecycleTests.cs:line 237&#xD;
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine&amp; stateMachine)&#xD;
+   at SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests.ExactlyOnce_ClimateUserEdit_PublishesOneCompletionOneProjectionAndOneDirty()&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8c366bfc-096b-4cfe-87d2-8ac2a0673abf" testId="46f31e7b-afe3-5430-6fda-b332d0083b27" testName="Baseline_NewCalculation_TwoConsecutiveRunsProduceIdenticalCounters" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0122700" startTime="2026-09-03T11:13:49.1199814+05:00" endTime="2026-09-03T11:13:49.1322514+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8c366bfc-096b-4cfe-87d2-8ac2a0673abf">
+      <Output>
+        <StdOut>[phase-10 counters] new-calculation: Context[Climate=0,Construction=0,ThermalInputs=0,ThermalResult=0,Hydraulics=0,Other=1] StateChanged=0 PipeSpacing=0 Completions[Climate=0,Construction=1,Thermal=0(U=0,C=0),Hydraulics=0,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=1 SessionPC=0 Dirty+=0 Clean=0 Origins[C=,Con=Reset=1,T=,H=]</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e09a5bac-722a-470b-9723-5465aba59844" testId="4742eaa0-85f7-e025-7cda-963b1955536f" testName="ExactlyOnce_HydraulicsUserEdit_ProducesOneCanonicalCommitOneDirtyOnePass" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0028350" startTime="2026-09-03T11:13:49.1638697+05:00" endTime="2026-09-03T11:13:49.1667045+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e09a5bac-722a-470b-9723-5465aba59844">
+      <Output>
+        <StdOut>[phase-10 counters] hydraulics-user-edit: Context[Climate=0,Construction=0,ThermalInputs=0,ThermalResult=0,Hydraulics=0,Other=0] StateChanged=0 PipeSpacing=0 Completions[Climate=0,Construction=0,Thermal=0(U=0,C=0),Hydraulics=1,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=0 SessionPC=1 Dirty+=1 Clean=0 Origins[C=,Con=,T=,H=User=1]</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f523f857-5538-4e16-a3a6-fc1744cc3c1c" testId="fd28f887-825a-694f-7a8a-cc6c223078d0" testName="Baseline_Load_TwoConsecutiveRunsProduceIdenticalCounters" computerName="DESKTOP-CVGB6OE" duration="00:00:00.1259100" startTime="2026-09-03T11:13:48.9934853+05:00" endTime="2026-09-03T11:13:49.1193669+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f523f857-5538-4e16-a3a6-fc1744cc3c1c">
+      <Output>
+        <StdOut>[phase-10 counters] load: Context[Climate=0,Construction=0,ThermalInputs=1,ThermalResult=1,Hydraulics=2,Other=0] StateChanged=4 PipeSpacing=1 Completions[Climate=0,Construction=0,Thermal=2(U=0,C=0),Hydraulics=4,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=1 SessionPC=2 Dirty+=0 Clean=0 Origins[C=,Con=,T=ProjectLoad=2,H=Calculation=4]</StdOut>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Baseline_NewCalculation_TwoConsecutiveRunsProduceIdenticalCounters" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="46f31e7b-afe3-5430-6fda-b332d0083b27">
+      <Execution id="8c366bfc-096b-4cfe-87d2-8ac2a0673abf" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests" name="Baseline_NewCalculation_TwoConsecutiveRunsProduceIdenticalCounters" />
+    </UnitTest>
+    <UnitTest name="Baseline_Load_TwoConsecutiveRunsProduceIdenticalCounters" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="fd28f887-825a-694f-7a8a-cc6c223078d0">
+      <Execution id="f523f857-5538-4e16-a3a6-fc1744cc3c1c" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests" name="Baseline_Load_TwoConsecutiveRunsProduceIdenticalCounters" />
+    </UnitTest>
+    <UnitTest name="ExactlyOnce_HydraulicsUserEdit_ProducesOneCanonicalCommitOneDirtyOnePass" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="4742eaa0-85f7-e025-7cda-963b1955536f">
+      <Execution id="e09a5bac-722a-470b-9723-5465aba59844" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests" name="ExactlyOnce_HydraulicsUserEdit_ProducesOneCanonicalCommitOneDirtyOnePass" />
+    </UnitTest>
+    <UnitTest name="HandlerCounts_MatchPhase10Census_OnProductionShapedGraph" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="bb003b9a-c638-8f80-98dd-67e488ef3818">
+      <Execution id="1d795963-bc6e-4204-adc6-5df9c566e91f" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests" name="HandlerCounts_MatchPhase10Census_OnProductionShapedGraph" />
+    </UnitTest>
+    <UnitTest name="ExactlyOnce_ThermalUserEdit_OneLogicalActionOneRecalculationChain" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="a45c9ca9-0f75-0c0f-fe9c-33d9d7c40261">
+      <Execution id="72df43bb-6ddb-4b9c-acaa-733029958160" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests" name="ExactlyOnce_ThermalUserEdit_OneLogicalActionOneRecalculationChain" />
+    </UnitTest>
+    <UnitTest name="ExactlyOnce_ClimateUserEdit_PublishesOneCompletionOneProjectionAndOneDirty" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="5f2d0967-56a9-a74b-7867-2fa2a7375024">
+      <Execution id="f3fa5b57-2c39-4a8d-95dc-6f60ed7fd91c" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests" name="ExactlyOnce_ClimateUserEdit_PublishesOneCompletionOneProjectionAndOneDirty" />
+    </UnitTest>
+    <UnitTest name="Baseline_RepeatedReset_PerCycleCountersIdenticalAfterWarmup" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="ff9ddb3b-72ca-bb3d-21b2-fda243dd7314">
+      <Execution id="a717c4c0-1e40-497d-ab85-f2f228ffca63" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests" name="Baseline_RepeatedReset_PerCycleCountersIdenticalAfterWarmup" />
+    </UnitTest>
+    <UnitTest name="Lifecycle_LoadResetCycles_HandlerCountsAndPerCycleDeltasRemainStable" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="737e825b-8b0e-e15d-6891-d76e314e06c7">
+      <Execution id="fc5aa2b2-bd6a-4a0f-aa0f-3deeda9ae3cd" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests" name="Lifecycle_LoadResetCycles_HandlerCountsAndPerCycleDeltasRemainStable" />
+    </UnitTest>
+    <UnitTest name="LifecycleOrigins_NeverRaiseUserDirty_AcrossLoadResetRestore" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="cb229647-baab-f4d7-f6eb-403a0735f8bc">
+      <Execution id="da593fcf-bed6-4415-9790-c0f75f4fd6b6" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests" name="LifecycleOrigins_NeverRaiseUserDirty_AcrossLoadResetRestore" />
+    </UnitTest>
+    <UnitTest name="Baseline_SecondLoad_TwoConsecutiveRunsProduceIdenticalCounters" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="f8f226a6-fddd-bc9e-b734-42f5f07c1b52">
+      <Execution id="faf032e3-fcca-4282-8e3f-f38585058a78" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests" name="Baseline_SecondLoad_TwoConsecutiveRunsProduceIdenticalCounters" />
+    </UnitTest>
+    <UnitTest name="Baseline_Reset_TwoConsecutiveRunsProduceIdenticalCounters" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="a8ef7fa7-2305-b987-7b4e-661ace9ba7c2">
+      <Execution id="1a91c130-6821-4cce-9101-8926564e8838" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ReactiveSubscriptionLifecycleTests" name="Baseline_Reset_TwoConsecutiveRunsProduceIdenticalCounters" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="bb003b9a-c638-8f80-98dd-67e488ef3818" executionId="1d795963-bc6e-4204-adc6-5df9c566e91f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cb229647-baab-f4d7-f6eb-403a0735f8bc" executionId="da593fcf-bed6-4415-9790-c0f75f4fd6b6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a45c9ca9-0f75-0c0f-fe9c-33d9d7c40261" executionId="72df43bb-6ddb-4b9c-acaa-733029958160" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ff9ddb3b-72ca-bb3d-21b2-fda243dd7314" executionId="a717c4c0-1e40-497d-ab85-f2f228ffca63" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="737e825b-8b0e-e15d-6891-d76e314e06c7" executionId="fc5aa2b2-bd6a-4a0f-aa0f-3deeda9ae3cd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f8f226a6-fddd-bc9e-b734-42f5f07c1b52" executionId="faf032e3-fcca-4282-8e3f-f38585058a78" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a8ef7fa7-2305-b987-7b4e-661ace9ba7c2" executionId="1a91c130-6821-4cce-9101-8926564e8838" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5f2d0967-56a9-a74b-7867-2fa2a7375024" executionId="f3fa5b57-2c39-4a8d-95dc-6f60ed7fd91c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="46f31e7b-afe3-5430-6fda-b332d0083b27" executionId="8c366bfc-096b-4cfe-87d2-8ac2a0673abf" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4742eaa0-85f7-e025-7cda-963b1955536f" executionId="e09a5bac-722a-470b-9723-5465aba59844" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fd28f887-825a-694f-7a8a-cc6c223078d0" executionId="f523f857-5538-4e16-a3a6-fc1744cc3c1c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="11" executed="11" passed="8" failed="3" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 11 of 11 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="DESKTOP-CVGB6OE" outcome="Warning" timestamp="2026-09-03T11:13:49.1275409+05:00">
+        <Text>[phase-10 counters] load: Context[Climate=0,Construction=0,ThermalInputs=1,ThermalResult=1,Hydraulics=2,Other=0] StateChanged=4 PipeSpacing=1 Completions[Climate=0,Construction=0,Thermal=2(U=0,C=0),Hydraulics=4,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=1 SessionPC=2 Dirty+=0 Clean=0 Origins[C=,Con=,T=ProjectLoad=2,H=Calculation=4]&#xD;
+</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-CVGB6OE" outcome="Warning" timestamp="2026-09-03T11:13:49.1328212+05:00">
+        <Text>[phase-10 counters] new-calculation: Context[Climate=0,Construction=0,ThermalInputs=0,ThermalResult=0,Hydraulics=0,Other=1] StateChanged=0 PipeSpacing=0 Completions[Climate=0,Construction=1,Thermal=0(U=0,C=0),Hydraulics=0,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=1 SessionPC=0 Dirty+=0 Clean=0 Origins[C=,Con=Reset=1,T=,H=]&#xD;
+</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-CVGB6OE" outcome="Warning" timestamp="2026-09-03T11:13:49.1434687+05:00">
+        <Text>[phase-10 counters] repeated-reset: Context[Climate=0,Construction=0,ThermalInputs=0,ThermalResult=0,Hydraulics=0,Other=1] StateChanged=0 PipeSpacing=0 Completions[Climate=0,Construction=1,Thermal=0(U=0,C=0),Hydraulics=0,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=0 SessionPC=0 Dirty+=0 Clean=0 Origins[C=,Con=Reset=1,T=,H=]&#xD;
+</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-CVGB6OE" outcome="Warning" timestamp="2026-09-03T11:13:49.1457284+05:00">
+        <Text>[phase-10 counters] reset: Context[Climate=1,Construction=0,ThermalInputs=0,ThermalResult=0,Hydraulics=1,Other=1] StateChanged=2 PipeSpacing=0 Completions[Climate=1,Construction=1,Thermal=2(U=0,C=0),Hydraulics=2,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=0 SessionPC=0 Dirty+=0 Clean=0 Origins[C=ProjectLoadReset=1,Con=Reset=1,T=ProjectLoadReset=2,H=Calculation=2]&#xD;
+</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-CVGB6OE" outcome="Warning" timestamp="2026-09-03T11:13:49.1482745+05:00">
+        <Text>[phase-10 counters] second-load: Context[Climate=0,Construction=0,ThermalInputs=1,ThermalResult=1,Hydraulics=2,Other=0] StateChanged=4 PipeSpacing=1 Completions[Climate=0,Construction=0,Thermal=2(U=0,C=0),Hydraulics=4,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=1 SessionPC=2 Dirty+=0 Clean=0 Origins[C=,Con=,T=ProjectLoad=2,H=Calculation=4]&#xD;
+</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-CVGB6OE" outcome="Warning" timestamp="2026-09-03T11:13:49.1672656+05:00">
+        <Text>[phase-10 counters] hydraulics-user-edit: Context[Climate=0,Construction=0,ThermalInputs=0,ThermalResult=0,Hydraulics=0,Other=0] StateChanged=0 PipeSpacing=0 Completions[Climate=0,Construction=0,Thermal=0(U=0,C=0),Hydraulics=1,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=0] Results=0 SessionPC=1 Dirty+=1 Clean=0 Origins[C=,Con=,T=,H=User=1]&#xD;
+</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-CVGB6OE" outcome="Warning" timestamp="2026-09-03T11:13:49.2270620+05:00">
+        <Text>[phase-10 counters] load-reset-cycle: Context[Climate=2,Construction=0,ThermalInputs=1,ThermalResult=1,Hydraulics=3,Other=1] StateChanged=6 PipeSpacing=0 Completions[Climate=2,Construction=2,Thermal=4(U=0,C=0),Hydraulics=7,Coord=0,Upstream=0] Calc[Thermal=0,Hydraulics=2] Results=1 SessionPC=2 Dirty+=0 Clean=0 Origins[C=Load=1,ProjectLoadReset=1,Con=ProjectLoad=1,Reset=1,T=ProjectLoad=2,ProjectLoadReset=2,H=Calculation=6,ProjectLoad=1]&#xD;
+</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>
