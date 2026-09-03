@@ -165,3 +165,7 @@ Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/pha
 ## Phase 8 Results-Derived-Projection Overlay
 
 `ST-003`, `ST-024`, `ST-025` → covered (canonical read-through; `Period0Days` canonicalized in the climate slice per owner decision B, Amendment 1). `ST-026`, `ST-027` → partial with named residuals (shared `CircuitRow` objects, builder input `CollectorData`, VM selection read — Phase 9). `ST-023` (`CalculationContext` seam) unchanged per `DEC-001 = A`. Save-path custom templates read the template repository via `ProjectSnapshotPersistenceInputs`. Evidence: `slice-3..slice-7` receipts; model records `EV-P8-SLICE-3..7`.
+
+## Phase 9 Legacy-Seams-Cleanup Overlay
+
+`ST-026`, `ST-027` → covered (Results-owned circuit rows/selection/builder from canonical snapshots; model `current` states updated). `ST-020`, `ST-021`, `ST-022` unchanged per `DEC-001 = A` — no `CalculationContext` writer touched in Phase 9. LIM-P8-2: owner decision B accepted the import-less restore as the new characterized behavior (catalogs read-only on open; custom materials/templates stay project-local). Evidence: `slice-2..slice-4` receipts; model records `EV-P9-SLICE-2..4`.
