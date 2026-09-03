@@ -8,6 +8,13 @@ namespace SnowMeltingCalculator.Services.Project
 {
     public sealed class ConstructionDefaultStateInitializer
     {
+        /// <summary>
+        /// Заводской УГВ нового расчёта («сухие условия»): жизненный цикл
+        /// нового расчёта и сброса перед загрузкой не наследует УГВ
+        /// предыдущего проекта (план 2026-09-04, D1).
+        /// </summary>
+        public const double DefaultGroundwaterLevel = 2.0;
+
         private static readonly int[] RequiredMaterialIds = { 2, 5, 6, 10, 13 };
 
         private readonly IMaterialRepository _materialRepository;
@@ -19,6 +26,14 @@ namespace SnowMeltingCalculator.Services.Project
         {
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
             _constructionState = constructionState ?? throw new ArgumentNullException(nameof(constructionState));
+        }
+
+        /// <summary>
+        /// Применить канонические дефолты с заводским УГВ.
+        /// </summary>
+        public ConstructionMutationResult Apply(ConstructionMutationOrigin origin)
+        {
+            return Apply(DefaultGroundwaterLevel, origin);
         }
 
         public ConstructionMutationResult Apply(
@@ -44,16 +59,16 @@ namespace SnowMeltingCalculator.Services.Project
                 groundwaterLevel,
                 new[]
                 {
-                    CreateLayer(materialsById[5], 100.0, LayerPosition.AbovePipe, 0)
+                    CreateLayer(materialsById[5], 100.0, LayerPosition.AbovePipe, 0, groundwaterLevel)
                 },
                 new[]
                 {
-                    CreateLayer(materialsById[5], 10.0, LayerPosition.BelowPipe, 0),
-                    CreateLayer(materialsById[6], 10.0, LayerPosition.BelowPipe, 1),
-                    CreateLayer(materialsById[10], 80.0, LayerPosition.BelowPipe, 2),
-                    CreateLayer(materialsById[13], 200.0, LayerPosition.BelowPipe, 3),
-                    CreateLayer(materialsById[2], 1000.0, LayerPosition.BelowPipe, 4),
-                    CreateLayer(materialsById[2], 570.0, LayerPosition.BelowPipe, 5)
+                    CreateLayer(materialsById[5], 10.0, LayerPosition.BelowPipe, 0, groundwaterLevel),
+                    CreateLayer(materialsById[6], 10.0, LayerPosition.BelowPipe, 1, groundwaterLevel),
+                    CreateLayer(materialsById[10], 80.0, LayerPosition.BelowPipe, 2, groundwaterLevel),
+                    CreateLayer(materialsById[13], 200.0, LayerPosition.BelowPipe, 3, groundwaterLevel),
+                    CreateLayer(materialsById[2], 1000.0, LayerPosition.BelowPipe, 4, groundwaterLevel),
+                    CreateLayer(materialsById[2], 570.0, LayerPosition.BelowPipe, 5, groundwaterLevel)
                 });
 
             return _constructionState.ResetToDefaults(defaults, origin);
@@ -63,14 +78,21 @@ namespace SnowMeltingCalculator.Services.Project
             Material material,
             double thickness,
             LayerPosition position,
-            int order)
+            int order,
+            double groundwaterLevel)
         {
+            // Семантика Layer.UpdateLambda: λА над трубой всегда; под трубой
+            // λБ при УГВ < 1 м, иначе λА — дефолты согласованы с УГВ (D6).
+            var lambda = position == LayerPosition.AbovePipe || groundwaterLevel >= 1.0
+                ? material.LambdaA
+                : material.LambdaB;
+
             return new ConstructionLayerSnapshot(
                 Guid.NewGuid(),
                 material.Id,
                 material.Name,
                 thickness,
-                material.LambdaA,
+                lambda,
                 false,
                 position,
                 order);

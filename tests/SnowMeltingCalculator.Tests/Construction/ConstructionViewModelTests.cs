@@ -695,6 +695,99 @@ namespace SnowMeltingCalculator.Tests.Construction
             Assert.That(origins, Is.EqualTo(new[] { ConstructionMutationOrigin.Template }));
         }
 
+        [Test]
+        public async Task ApplyTemplate_WetGroundwaterLevel_BelowPipeLayersUseLambdaB()
+        {
+            // Arrange: УГВ — влажный, шаблон несёт «сухие» λ по умолчанию (2.0).
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            _viewModel.GroundwaterLevel = 0.5;
+            var template = _viewModel.Templates.First(t => t.Id == 1);
+
+            // Act
+            _viewModel.SelectedTemplate = template;
+            _viewModel.ApplyTemplateCommand.Execute(null);
+
+            // Assert: λА/λБ определяет УГВ проекта, а не шаблон (D2) —
+            // послойных предупреждений валидатора нет.
+            Assert.That(
+                _viewModel.LayersBelowPipe.Select(l => l.CalculatedLambda),
+                Is.EqualTo(_viewModel.LayersBelowPipe.Select(l => l.Material!.LambdaB)));
+            Assert.That(_viewModel.ValidationMessage, Does.Not.Contain("должен использовать λБ"));
+            Assert.That(
+                _constructionState.Snapshot.LayersBelowPipe.Select(l => l.CalculatedLambda),
+                Is.EqualTo(_constructionState.Snapshot.LayersBelowPipe.Select(
+                    l => _viewModel.AvailableMaterials.First(m => m.Id == l.MaterialId).LambdaB)));
+        }
+
+        [Test]
+        public async Task ApplyTemplate_CustomGroundwaterLevel_DoesNotSnapScalar()
+        {
+            // Arrange: кастомный УГВ из файла (0.8) не должен снапиться к 0.5/2.0.
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            _viewModel.GroundwaterLevel = 0.8;
+            var template = _viewModel.Templates.First(t => t.Id == 1);
+
+            // Act
+            _viewModel.SelectedTemplate = template;
+            _viewModel.ApplyTemplateCommand.Execute(null);
+
+            // Assert (D2+D4): скаляр согласован в адаптере и каноническом состоянии.
+            Assert.That(_viewModel.GroundwaterLevel, Is.EqualTo(0.8).Within(1e-9));
+            Assert.That(_constructionState.Snapshot.GroundwaterLevel, Is.EqualTo(0.8).Within(1e-9));
+        }
+
+        [Test]
+        public async Task SelectedTemplate_WetGroundwater_PreviewUsesLambdaB()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            _viewModel.GroundwaterLevel = 0.5;
+
+            // Act
+            _viewModel.SelectedTemplate = _viewModel.Templates.First(t => t.Id == 1);
+
+            // Assert: превью считается по тем же правилам, что и применение (D2).
+            Assert.That(
+                _viewModel.TemplatePreviewLayersBelowPipe.Select(l => l.CalculatedLambda),
+                Is.EqualTo(_viewModel.TemplatePreviewLayersBelowPipe.Select(l => l.Material!.LambdaB)));
+        }
+
+        #endregion
+
+        #region Groundwater Option Sync Tests
+
+        [Test]
+        public async Task ApplyLifecycleSnapshotToAdapter_KeepsGroundwaterOptionInSync()
+        {
+            // Arrange
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            var wet = new ConstructionStateSnapshot(
+                0.5,
+                false,
+                new[] { new ConstructionLayerSnapshot(Guid.NewGuid(), 5, "Бетон", 100.0, 1.74, false, LayerPosition.AbovePipe, 0) },
+                Array.Empty<ConstructionLayerSnapshot>());
+
+            // Act + Assert: опция следует за скаляром, скаляр не снапится (D4).
+            _viewModel.ApplyLifecycleSnapshotToAdapter(wet);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_viewModel.GroundwaterLevel, Is.EqualTo(0.5).Within(1e-9));
+                Assert.That(_viewModel.SelectedGroundwaterOption, Is.EqualTo("УГВ < 1 м (влажные условия)"));
+            });
+
+            var dry = new ConstructionStateSnapshot(
+                2.0,
+                false,
+                new[] { new ConstructionLayerSnapshot(Guid.NewGuid(), 5, "Бетон", 100.0, 1.74, false, LayerPosition.AbovePipe, 0) },
+                Array.Empty<ConstructionLayerSnapshot>());
+            _viewModel.ApplyLifecycleSnapshotToAdapter(dry);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_viewModel.GroundwaterLevel, Is.EqualTo(2.0).Within(1e-9));
+                Assert.That(_viewModel.SelectedGroundwaterOption, Is.EqualTo("УГВ >= 1 м (сухие условия)"));
+            });
+        }
+
         #endregion
 
         #region Reset Tests

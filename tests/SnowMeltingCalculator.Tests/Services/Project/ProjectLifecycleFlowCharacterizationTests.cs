@@ -122,8 +122,10 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             fixture.Orchestrator.ResetModules();
 
             Assert.That(origins, Is.EqualTo(new[] { ConstructionMutationOrigin.Reset }));
-            Assert.That(fixture.Session.ConstructionState.Snapshot.GroundwaterLevel, Is.EqualTo(0.45));
-            Assert.That(fixture.ConstructionViewModel.GroundwaterLevel, Is.EqualTo(0.45));
+            // Новый расчёт/сброс перед загрузкой использует заводской УГВ 2.0,
+            // а не УГВ предыдущего проекта (план 2026-09-04, D1).
+            Assert.That(fixture.Session.ConstructionState.Snapshot.GroundwaterLevel, Is.EqualTo(2.0));
+            Assert.That(fixture.ConstructionViewModel.GroundwaterLevel, Is.EqualTo(2.0));
             Assert.That(fixture.ConstructionViewModel.HasLoads, Is.False);
             Assert.That(fixture.ConstructionViewModel.LayersAbovePipe.Select(layer => layer.Material.Id).ToArray(), Is.EqualTo(new[] { 5 }));
             Assert.That(fixture.ConstructionViewModel.LayersBelowPipe.Select(layer => layer.Material.Id).ToArray(), Is.EqualTo(new[] { 5, 6, 10, 13, 2, 2 }));
@@ -169,7 +171,9 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             Assert.That(fixture.ConstructionViewModel.HasLoads, Is.True);
             Assert.That(fixture.ConstructionViewModel.LayersAbovePipe.Single().Material.Name, Is.EqualTo("Асфальт"));
             Assert.That(fixture.ConstructionViewModel.LayersAbovePipe.Single().CalculatedLambda, Is.EqualTo(0.81));
-            Assert.That(fixture.ConstructionViewModel.LayersAbovePipe.Single().IsLambdaOverridden, Is.False);
+            // Ручное переопределение λ переживает загрузку проекта
+            // (план 2026-09-04, D5; отменяет закреплённое ранее P0-7).
+            Assert.That(fixture.ConstructionViewModel.LayersAbovePipe.Single().IsLambdaOverridden, Is.True);
             Assert.That(fixture.ConstructionViewModel.LayersAbovePipe.Single().Order, Is.Zero);
             Assert.That(fixture.ConstructionViewModel.LayersBelowPipe.Single().CalculatedLambda, Is.EqualTo(1.5));
             Assert.That(fixture.ConstructionViewModel.LayersBelowPipe.Single().Order, Is.Zero);

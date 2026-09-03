@@ -229,8 +229,9 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         /// </summary>
         private void PerformNewCalculationReset()
         {
+            // Новый расчёт — чистый бланк: заводской УГВ, а не УГВ предыдущего
+            // проекта (план 2026-09-04, D1).
             var constructionResult = _constructionDefaultStateInitializer.Apply(
-                _constructionState.Snapshot.GroundwaterLevel,
                 ConstructionMutationOrigin.Reset);
 
             _calculationContext.Reset();
