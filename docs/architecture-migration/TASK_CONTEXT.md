@@ -3095,3 +3095,144 @@ on 2026-08-01. Failed receipt
   from the frozen Phase 0.5 historical artifact
   (`architecture_widget.html`, underscore, never regenerated). No production,
   test, model, widget-html or plan changes; historical spec text untouched.
+
+- 2026-09-03: Phase 9 (`phase-9-legacy-seams-cleanup`) planning gates completed
+  in a ZCode session under the environment-adaptive `AGENTS.md` rules. Scope is
+  taken from the named Phase 9 debts recorded at Phase 8 acceptance: the staged
+  Results/Circuits shared seams (shared mutable `CircuitRow` objects,
+  `HydraulicSummaryBuilder(CollectorData)` input, `UpdateCollectorSummary` VM
+  selection read — `ST-026`/`ST-027`, the `INV-016` Results clause), `INV-008`
+  (`ProjectLoadOrchestrator` concrete-ViewModel decoupling with a static
+  architecture test), removal of the legacy forwarding aliases
+  (`IProjectStateService` / `IProjectInfoService` / `IMarkDirtyService` and the
+  legacy `ProjectStateService` class), and the LIM-P8-2 owner direction
+  (reinstating custom material/template import inside the restore boundary vs
+  re-pinning the 5 failing characterization tests) recorded as an explicit
+  in-plan stop. `INV-010` global closure, `CalculationContext` writer
+  disposition (`DEC-001 = A`), Markdown removal and export behavior changes
+  stay out of scope. The candidate plan
+  `docs/architecture-migration/plans/phase-9-legacy-seams-cleanup.md` is
+  exactly `41017` UTF-8 bytes with SHA-256
+  `59A2409624901C8167C4D43D40B2F9280D6D5E869D38F56FA66BABF210D1A6BB` at
+  terminal review freeze. The acting agent performed the terminal plan review
+  cross-checked by one read-only independent subagent pass; receipt:
+  `docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/terminal-plan-review-receipt.md`
+  (`REVIEW_ID: TERMINAL-PLAN-REVIEW-P9-ZCODE-1`, `VERDICT: APPROVE`; three
+  minor cross-check findings incorporated before freeze: the 2+2 split of the
+  restore-failure test cluster across
+  `ProjectLifecycleFlowCharacterizationTests` and
+  `ThermalMultiplicityCharacterizationTests` with the slice-2 filter widened,
+  the corrected climate/hydraulics dirty-param attribution in the alias
+  removal set, and the fixed static-test name
+  `ApplicationServiceViewModelDecouplingTests`). This gate authorizes plan
+  writing only. Owner plan approval, execution authorization, and result
+  acceptance are separate owner decisions and remain PENDING; no next step
+  starts implicitly.
+
+- 2026-09-03: Owner plan approval recorded for
+  `phase-9-legacy-seams-cleanup`. The owner stated exactly
+  `одобряю план Phase 9`, approving the frozen candidate after the terminal
+  review receipt `TERMINAL-PLAN-REVIEW-P9-ZCODE-1` (`VERDICT: APPROVE`). The
+  canonical frozen plan is
+  `docs/architecture-migration/plans/phase-9-legacy-seams-cleanup.md`, exactly
+  `41017` UTF-8 bytes with SHA-256
+  `59A2409624901C8167C4D43D40B2F9280D6D5E869D38F56FA66BABF210D1A6BB`,
+  byte-identical to the terminally reviewed candidate. Receipt:
+  `docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/owner-plan-approval.md`
+  (`REVIEW_ID: OWNER-PLAN-APPROVAL-PHASE-9`, `VERDICT: APPROVE`). This gate
+  approves the plan only. It does not authorize execution, does not
+  pre-answer the in-plan `LIM-P8-2` stop (option A: reinstate custom
+  material/template import inside the restore boundary; option B: re-pin the
+  5 named characterization tests), and does not authorize the
+  widget-verifier exemplar amendment. The next explicit gate is the separate
+  execution authorization (`/architecture-start phase-9-legacy-seams-cleanup`
+  or an equivalent explicit owner direction in-session).
+
+- 2026-09-03: Owner execution authorization and LIM-P8-2 decision recorded for
+  `phase-9-legacy-seams-cleanup`. The owner issued exactly
+  `/architecture-start phase-9-legacy-seams-cleanup` (explicit execution
+  authorization under the environment-adaptive rules) and explicitly chose
+  option `B` for the in-plan LIM-P8-2 stop: re-pin the 5 named
+  characterization tests (`LoadProjectDataAsync_{Early,Late}RestoreFailure_*`
+  x4 and `ProjectData_Load_ImportsCustomMaterialsBeforeLayers`) and accept the
+  import-less restore as the new characterized behavior, recording the
+  user-visible consequence (projects with custom materials/templates no longer
+  re-import them on load) as an owner-approved behavior change. The sequential
+  execution lane has started at Slice 1 (legacy-seam baseline lock). Result
+  acceptance remains a separate future owner decision.
+
+- 2026-09-03: Phase 9 (`phase-9-legacy-seams-cleanup`) sequential execution
+  completed in the ZCode session under the frozen plan (41017 bytes, SHA-256
+  `59A2409624901C8167C4D43D40B2F9280D6D5E869D38F56FA66BABF210D1A6BB`). All 8
+  slices executed with executable evidence (receipts `slice-1..slice-8` + TRX
+  logs under `evidence/phase-9-legacy-seams-cleanup/logs/`). Results: shared
+  Results/Circuits seams closed (Results-owned `CircuitRow` projection,
+  canonical `HydraulicSummaryBuilder`, Results-owned selection — ST-026/ST-027
+  covered); `ProjectLoadOrchestrator` decoupled from concrete ViewModels via
+  application-owned `IProjectLoad*Adapter` interfaces with a static
+  architecture test proven RED-then-GREEN (`ApplicationServiceViewModelDecouplingTests`);
+  `ResultsPdfDataBuilder` re-sourced via `IReport*Source` on the same
+  singletons (report content unchanged); legacy forwarding aliases
+  `IProjectStateService`/`IProjectInfoService` and the legacy
+  `ProjectStateService` production class removed (test-support copy retained);
+  `IMarkDirtyService` retained as the internal session dirty seam only —
+  recorded deviation: the plan's "dead params" premise was disproven by live
+  code (the parameters feed session-slice constructors and the thermal
+  coordinator's dirty-intent path pinned by counting harnesses); LIM-P8-2
+  resolved by owner decision B — restore is import-less, catalogs read-only on
+  open, 5 characterization tests re-pinned. Dead legacy layer loader removed
+  from the orchestrator (guard suite re-pinned). Full regression: 2032 passed /
+  0 failed / 1 known external-fixture skip (RR-004); `.smc` fixtures untouched
+  (`git diff --name-only -- '*.smc'` empty). Model updated: `INV-008` →
+  `verified`/`implemented` with `EV-P9-SLICE-5/6`; `ST-026`/`ST-027` →
+  `covered` with `EV-P9-SLICE-3/4`; new evidence records `EV-P9-SLICE-2..7`;
+  seven maps gained dated Phase 9 overlays; widget regenerated deterministically
+  (sha256 `C2A74404E1BA35A03F6C7FE91FE23098D657EA5ADD1B891C51E441B05EB4FD97`;
+  model `FDDF315226EB07DA7A980FFDC2823E33E06746F583AD88223B8D4400C5529C34`;
+  verifier unchanged `C9EA25D6B2C7190F1B067033C38A3AA36E05610C72C0279EC6EA9DE771D6D6C6`),
+  `model-v2` PASS 33/21, `runtime-v2` PASS 47/20, `generate-widget.mjs --check`
+  PASS 14/14. PENDING owner authorization (non-blocking): verifier exemplar
+  re-point `INV-008` → `INV-010` in `widget/verify-widget.mjs` lines 33-34
+  (Phase 7.5 precedent; suites PASS without it). Preserved open items: `INV-006`,
+  `INV-007` (global; progress recorded), `INV-010`, broader `INV-016`
+  mutation-boundary portions, `DEC-001 = A` seam disposition, RR-002/RR-004.
+  The phase STOPS here for the F1-F4 final verification wave and then for
+  explicit owner result acceptance; no subsequent phase starts automatically.
+
+- 2026-09-03: Phase 9 result acceptance completed. The owner stated exactly
+  `Принимаю результат Phase 9`, accepting the whole Phase 9 result after the
+  final verification wave returned APPROVE in all domains (F1 scope/provenance,
+  F2 architecture, F3 executable QA, F4 consolidated stop). Receipt:
+  `docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/owner-result-acceptance.md`
+  (REVIEW_ID: OWNER-RESULT-ACCEPTANCE-PHASE-9, VERDICT: APPROVE). The
+  acceptance implicitly confirms the slice-5 interface-fallback design and the
+  slice-6 IMarkDirtyService internal-seam retention recorded in the receipts.
+  Preserved open items: the verifier exemplar re-point (`INV-008` → `INV-010`
+  in `widget/verify-widget.mjs` lines 33-34) still PENDING explicit owner
+  authorization; `INV-006`/`INV-007` (global), `INV-010`, broader `INV-016`
+  mutation-boundary portions; RR-002/RR-004; `DEC-001 = A` seam disposition;
+  Markdown removal and export behavior changes as separate owner-approved
+  changes. The Phase 9 workflow is completed; stop remains true; no subsequent
+  phase starts automatically — a new explicit owner direction is required to
+  begin any separate planning or execution workflow.
+
+- 2026-09-03: Owner-authorized verifier exemplar amendment + model consistency
+  fix (Phase 9, post-acceptance). The owner explicitly directed the exemplar
+  re-point (`переткнуть exemplar в verify-widget.mjs с INV-008 ... на INV-010
+  по прецеденту фазы 7.5`). While executing it, a slice-8 defect was found and
+  fixed: the INV-008 status flip had silently missed the model's `invariants`
+  array (the update script iterated `records` only), so the model still showed
+  `unverified` while slice-8 receipts and the owner acceptance declared
+  `verified`. Corrected: `invariants[INV-008]` → `verified`/`implemented` with
+  `EV-P9-SLICE-5/6` (the declared slice-8 state); exemplar re-pointed to
+  `INV-010` (verified genuinely open). Verification after the amendment:
+  `model-v2` PASS 33/21, `runtime-v2` PASS 47/20, `generate-widget.mjs --check`
+  PASS 14/14. Final hashes supersede all earlier Phase 9 hash records: model
+  `EE5C8DD95F4F80D5F17720D877FDD37C1A42E80B4489467CED9C6794FDCAB9C6`, widget
+  `DA21FAB79778AD06474AB013CB58D2CEEF90535F59AED9C38539120073F023FA`, verifier
+  `2DB68012E1FC37DD67887B36612587D19F94BA0EF6EB5613E70C41B98626A8C5`. Receipt:
+  `docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/verifier-exemplar-amendment.md`
+  (records the supersession explicitly). EV-P9 evidence records and the
+  ST-026/ST-027 covered states were re-verified as correctly landed. The
+  Phase 9 dossier is now internally consistent; the workflow remains completed
+  and stopped — no subsequent phase starts automatically.

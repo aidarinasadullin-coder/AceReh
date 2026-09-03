@@ -365,3 +365,7 @@ Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/pha
 ## Phase 8 Results-Derived-Projection Overlay
 
 `AddResultsModule` keeps `AddSingleton<ResultsViewModel>()` with constructor auto-resolution: removed module-ViewModel parameters need no registration change; `IProjectSnapshotPersistenceInputs` (already registered in Phase 6) is consumed by the Results save/report path. Legacy alias registrations (`IProjectStateService`/`IProjectInfoService`/`IMarkDirtyService`) untouched. Evidence: `slice-6` receipt; model record `EV-P8-SLICE-6`.
+
+## Phase 9 Legacy-Seams-Cleanup Overlay
+
+`DRE-032..DRE-035` (orchestrator concrete-VM constructor dependencies) closed via interface bindings: `IProjectLoad*Adapter` and `IReport*Source` are registered as factories resolving the same singleton module adapters (`ServiceCollectionExtensions.AddResultsModule`). Forwarding registrations `IProjectInfoService`/`IProjectStateService` removed; `IMarkDirtyService → ProjectSession` retained as the internal dirty-seam registration (module adapters/coordinator receive the session itself). The legacy `ProjectStateService` class left production DI (it was never registered there); a test-support copy lives under `tests/.../Fixtures/`. Evidence: `slice-5`, `slice-6` receipts; model records `EV-P9-SLICE-5`, `EV-P9-SLICE-6`.

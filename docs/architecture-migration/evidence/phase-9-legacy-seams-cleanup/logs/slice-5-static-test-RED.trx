@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="4bc76dfa-21d0-4358-b3d5-10b5c996bd74" name="Admin@DESKTOP-CVGB6OE 2026-09-03 08:33:04" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-09-03T08:33:04.9311412+05:00" queuing="2026-09-03T08:33:04.9311416+05:00" start="2026-09-03T08:33:04.3232829+05:00" finish="2026-09-03T08:33:04.9359448+05:00" />
+  <TestSettings name="default" id="ba3d480a-48a1-49c4-90ba-27cda4b77415">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-09-03_08_33_04" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="72a0a29d-0679-4c83-8109-cbba0586773b" testId="c0c5211b-ccf8-afee-006c-534037414cff" testName="ApplicationServices_HaveNoConcreteViewModelConstructorDependencies" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0255890" startTime="2026-09-03T08:33:04.8062166+05:00" endTime="2026-09-03T08:33:04.8317755+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="72a0a29d-0679-4c83-8109-cbba0586773b">
+      <Output>
+        <ErrorInfo>
+          <Message>  INV-008: application services must not depend on concrete ViewModels. Use the application-owned adapter interfaces (IProjectLoad*Adapter / IReport*Source). Violations:&#xD;
+SnowMeltingCalculator.Services.Results.ResultsPdfDataBuilder(4 params): parameter 'circuitsViewModel' is concrete ViewModel type 'SnowMeltingCalculator.ViewModels.Hydraulics.CircuitsViewModel'&#xD;
+Assert.That(violations, Is.Empty)&#xD;
+  Expected: &lt;empty&gt;&#xD;
+  But was:  &lt; "SnowMeltingCalculator.Services.Results.ResultsPdfDataBuilder(4 params): parameter 'circuitsViewModel' is concrete ViewModel type 'SnowMeltingCalculator.ViewModels.Hydraulics.CircuitsViewModel'" &gt;&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.Architecture.ApplicationServiceViewModelDecouplingTests.ApplicationServices_HaveNoConcreteViewModelConstructorDependencies() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Architecture\ApplicationServiceViewModelDecouplingTests.cs:line 51&#xD;
+
+1)    at SnowMeltingCalculator.Tests.Architecture.ApplicationServiceViewModelDecouplingTests.ApplicationServices_HaveNoConcreteViewModelConstructorDependencies() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Architecture\ApplicationServiceViewModelDecouplingTests.cs:line 51&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ApplicationServices_HaveNoConcreteViewModelConstructorDependencies" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="c0c5211b-ccf8-afee-006c-534037414cff">
+      <Execution id="72a0a29d-0679-4c83-8109-cbba0586773b" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Architecture.ApplicationServiceViewModelDecouplingTests" name="ApplicationServices_HaveNoConcreteViewModelConstructorDependencies" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="c0c5211b-ccf8-afee-006c-534037414cff" executionId="72a0a29d-0679-4c83-8109-cbba0586773b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" passed="0" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

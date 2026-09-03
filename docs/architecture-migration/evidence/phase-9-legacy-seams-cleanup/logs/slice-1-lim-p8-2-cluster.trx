@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="0ebe1d07-602c-4ab1-bc2f-88aeafd5b000" name="Admin@DESKTOP-CVGB6OE 2026-09-03 06:18:43" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-09-03T06:18:43.3632483+05:00" queuing="2026-09-03T06:18:43.3632485+05:00" start="2026-09-03T06:18:42.6143059+05:00" finish="2026-09-03T06:18:43.3683814+05:00" />
+  <TestSettings name="default" id="6012de09-044b-4b5d-b99a-dfcf4984a2ea">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-09-03_06_18_43" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="c5343760-39d8-4fe1-a206-78b6f0b5ce6e" testId="30d3c1ec-8edb-b753-1621-f72edc6fe9c9" testName="ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0064040" startTime="2026-09-03T06:18:43.2587354+05:00" endTime="2026-09-03T06:18:43.2651393+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c5343760-39d8-4fe1-a206-78b6f0b5ce6e">
+      <Output>
+        <StdOut>F5 smoke fixture не найден: D:\IA\ace\Тест\тест 40.smc. Положите файл «тест 40.smc» в «D:\IA\ace\Тест\», и тест начнёт проверять реальные значения.</StdOut>
+        <ErrorInfo>
+          <Message>F5 smoke fixture не найден: D:\IA\ace\Тест\тест 40.smc. Положите файл «тест 40.smc» в «D:\IA\ace\Тест\», и тест начнёт проверять реальные значения.</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="a9bc4a93-cdf8-47bb-990f-d31a7aafbd4b" testId="11d86eed-02b5-b0c9-0b39-27d73c7a50b4" testName="LoadProjectDataAsync_LateRestoreFailure_LeavesPartialStateAndClearsGuard" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0040679" startTime="2026-09-03T06:18:43.1955405+05:00" endTime="2026-09-03T06:18:43.1996079+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a9bc4a93-cdf8-47bb-990f-d31a7aafbd4b">
+      <Output>
+        <ErrorInfo>
+          <Message>  Assert.That(caughtException, expression)&#xD;
+  Expected: &lt;System.InvalidOperationException&gt;&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests.LoadProjectDataAsync_LateRestoreFailure_LeavesPartialStateAndClearsGuard() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ProjectLifecycleFlowCharacterizationTests.cs:line 355&#xD;
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.&lt;&gt;c__DisplayClass3_0.&lt;PerformWork&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.ContextUtils.&lt;&gt;c__DisplayClass1_0`1.&lt;DoIsolated&gt;b__0(Object _)&#xD;
+
+1)    at SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests.LoadProjectDataAsync_LateRestoreFailure_LeavesPartialStateAndClearsGuard() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ProjectLifecycleFlowCharacterizationTests.cs:line 355&#xD;
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine&amp; stateMachine)&#xD;
+   at SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests.LoadProjectDataAsync_LateRestoreFailure_LeavesPartialStateAndClearsGuard()&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="edb0d220-ecbd-4151-b88b-5b4fae3f790b" testId="b26accaa-4092-07d3-a79b-6df5270c11f6" testName="ProjectData_Load_ImportsCustomMaterialsBeforeLayers" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0190780" startTime="2026-09-03T06:18:43.2395240+05:00" endTime="2026-09-03T06:18:43.2586015+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="edb0d220-ecbd-4151-b88b-5b4fae3f790b">
+      <Output>
+        <ErrorInfo>
+          <Message>  Assert.That(repo.GetAllMaterials().Any(m =&gt; m.Name == "Imported Material"), Is.True)&#xD;
+  Expected: True&#xD;
+  But was:  False&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests.ProjectData_Load_ImportsCustomMaterialsBeforeLayers() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Construction\ConstructionServiceTests.cs:line 1027&#xD;
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.BeforeAndAfterTestCommand.&lt;&gt;c__DisplayClass1_0.&lt;Execute&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.Commands.DelegatingTestCommand.RunTestMethodInThreadAbortSafeZone(TestExecutionContext context, Action action)&#xD;
+
+1)    at SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests.ProjectData_Load_ImportsCustomMaterialsBeforeLayers() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Construction\ConstructionServiceTests.cs:line 1027&#xD;
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine&amp; stateMachine)&#xD;
+   at SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests.ProjectData_Load_ImportsCustomMaterialsBeforeLayers()&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="53bfc8bb-5417-405e-9325-4817f8fc2673" testId="dd1df67f-d8ad-3a44-99e1-e5855c6ab914" testName="LoadProjectDataAsync_EarlyRestoreFailure_LeavesPartialStateAndClearsGuard" computerName="DESKTOP-CVGB6OE" duration="00:00:00.1139030" startTime="2026-09-03T06:18:43.0810013+05:00" endTime="2026-09-03T06:18:43.1948744+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="53bfc8bb-5417-405e-9325-4817f8fc2673">
+      <Output>
+        <ErrorInfo>
+          <Message>  Assert.That(caughtException, expression)&#xD;
+  Expected: &lt;System.InvalidOperationException&gt;&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests.LoadProjectDataAsync_EarlyRestoreFailure_LeavesPartialStateAndClearsGuard() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ProjectLifecycleFlowCharacterizationTests.cs:line 306&#xD;
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.&lt;&gt;c__DisplayClass3_0.&lt;PerformWork&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.ContextUtils.&lt;&gt;c__DisplayClass1_0`1.&lt;DoIsolated&gt;b__0(Object _)&#xD;
+
+1)    at SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests.LoadProjectDataAsync_EarlyRestoreFailure_LeavesPartialStateAndClearsGuard() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ProjectLifecycleFlowCharacterizationTests.cs:line 306&#xD;
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine&amp; stateMachine)&#xD;
+   at SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests.LoadProjectDataAsync_EarlyRestoreFailure_LeavesPartialStateAndClearsGuard()&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="9dc1c30f-0bf1-4065-87ba-71ffee2fcd66" testId="68f33dfd-f08f-f73c-0262-6befc31b7ea9" testName="LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0027090" startTime="2026-09-03T06:18:43.2352774+05:00" endTime="2026-09-03T06:18:43.2379860+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9dc1c30f-0bf1-4065-87ba-71ffee2fcd66">
+      <Output>
+        <ErrorInfo>
+          <Message>  Assert.That(caughtException, expression)&#xD;
+  Expected: &lt;System.InvalidOperationException&gt;&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ThermalMultiplicityCharacterizationTests.cs:line 1328&#xD;
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.&lt;&gt;c__DisplayClass3_0.&lt;PerformWork&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.ContextUtils.&lt;&gt;c__DisplayClass1_0`1.&lt;DoIsolated&gt;b__0(Object _)&#xD;
+
+1)    at SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ThermalMultiplicityCharacterizationTests.cs:line 1328&#xD;
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine&amp; stateMachine)&#xD;
+   at SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults()&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="3f572fa2-5bf9-4b14-98b7-2b98caf460e8" testId="e1409d2c-c0b3-e19c-20ac-70db63c2f2fa" testName="LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0344050" startTime="2026-09-03T06:18:43.2008505+05:00" endTime="2026-09-03T06:18:43.2352556+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3f572fa2-5bf9-4b14-98b7-2b98caf460e8">
+      <Output>
+        <ErrorInfo>
+          <Message>  Assert.That(caughtException, expression)&#xD;
+  Expected: &lt;System.InvalidOperationException&gt;&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ThermalMultiplicityCharacterizationTests.cs:line 1291&#xD;
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.&lt;&gt;c__DisplayClass3_0.&lt;PerformWork&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.ContextUtils.&lt;&gt;c__DisplayClass1_0`1.&lt;DoIsolated&gt;b__0(Object _)&#xD;
+
+1)    at SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\Services\Project\ThermalMultiplicityCharacterizationTests.cs:line 1291&#xD;
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine](TStateMachine&amp; stateMachine)&#xD;
+   at SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests.LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults()&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="30d3c1ec-8edb-b753-1621-f72edc6fe9c9">
+      <Execution id="c5343760-39d8-4fe1-a206-78b6f0b5ce6e" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile" />
+    </UnitTest>
+    <UnitTest name="LoadProjectDataAsync_EarlyRestoreFailure_LeavesPartialStateAndClearsGuard" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="dd1df67f-d8ad-3a44-99e1-e5855c6ab914">
+      <Execution id="53bfc8bb-5417-405e-9325-4817f8fc2673" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests" name="LoadProjectDataAsync_EarlyRestoreFailure_LeavesPartialStateAndClearsGuard" />
+    </UnitTest>
+    <UnitTest name="LoadProjectDataAsync_LateRestoreFailure_LeavesPartialStateAndClearsGuard" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="11d86eed-02b5-b0c9-0b39-27d73c7a50b4">
+      <Execution id="a9bc4a93-cdf8-47bb-990f-d31a7aafbd4b" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests" name="LoadProjectDataAsync_LateRestoreFailure_LeavesPartialStateAndClearsGuard" />
+    </UnitTest>
+    <UnitTest name="LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="e1409d2c-c0b3-e19c-20ac-70db63c2f2fa">
+      <Execution id="3f572fa2-5bf9-4b14-98b7-2b98caf460e8" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults" />
+    </UnitTest>
+    <UnitTest name="ProjectData_Load_ImportsCustomMaterialsBeforeLayers" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="b26accaa-4092-07d3-a79b-6df5270c11f6">
+      <Execution id="edb0d220-ecbd-4151-b88b-5b4fae3f790b" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectData_Load_ImportsCustomMaterialsBeforeLayers" />
+    </UnitTest>
+    <UnitTest name="LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="68f33dfd-f08f-f73c-0262-6befc31b7ea9">
+      <Execution id="9dc1c30f-0bf1-4065-87ba-71ffee2fcd66" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="30d3c1ec-8edb-b753-1621-f72edc6fe9c9" executionId="c5343760-39d8-4fe1-a206-78b6f0b5ce6e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="11d86eed-02b5-b0c9-0b39-27d73c7a50b4" executionId="a9bc4a93-cdf8-47bb-990f-d31a7aafbd4b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b26accaa-4092-07d3-a79b-6df5270c11f6" executionId="edb0d220-ecbd-4151-b88b-5b4fae3f790b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dd1df67f-d8ad-3a44-99e1-e5855c6ab914" executionId="53bfc8bb-5417-405e-9325-4817f8fc2673" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="68f33dfd-f08f-f73c-0262-6befc31b7ea9" executionId="9dc1c30f-0bf1-4065-87ba-71ffee2fcd66" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e1409d2c-c0b3-e19c-20ac-70db63c2f2fa" executionId="3f572fa2-5bf9-4b14-98b7-2b98caf460e8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="6" executed="5" passed="0" failed="5" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 6 of 6 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile: F5 smoke fixture не найден: D:\IA\ace\Тест\тест 40.smc. Положите файл «тест 40.smc» в «D:\IA\ace\Тест\», и тест начнёт проверять реальные значения.&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+Тест "ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile" пропущен в тестовом запуске.&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

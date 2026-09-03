@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="e0b9d4b6-a0e4-4497-98d4-1559202d2575" name="Admin@DESKTOP-CVGB6OE 2026-09-03 06:42:32" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-09-03T06:42:32.2799923+05:00" queuing="2026-09-03T06:42:32.2799925+05:00" start="2026-09-03T06:42:31.4638362+05:00" finish="2026-09-03T06:42:32.2845033+05:00" />
+  <TestSettings name="default" id="435be61e-d91c-4652-951f-1114e3f89bff">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-09-03_06_42_32" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="35cbbb7d-7025-4cce-97c8-d15f4a90c5e3" testId="ac264356-96ba-a237-8c87-cafc9af28c5c" testName="ProjectData_Load_KeepsCatalogsReadOnly_CustomMaterialsStayProjectLocal" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0237619" startTime="2026-09-03T06:42:32.1604112+05:00" endTime="2026-09-03T06:42:32.1841730+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="35cbbb7d-7025-4cce-97c8-d15f4a90c5e3" />
+    <UnitTestResult executionId="df69f16f-e912-4e8f-be02-4310979e56e8" testId="11d86eed-02b5-b0c9-0b39-27d73c7a50b4" testName="LoadProjectDataAsync_LateRestoreFailure_LeavesPartialStateAndClearsGuard" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0071360" startTime="2026-09-03T06:42:32.1037353+05:00" endTime="2026-09-03T06:42:32.1108716+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="df69f16f-e912-4e8f-be02-4310979e56e8" />
+    <UnitTestResult executionId="09ab687c-4628-4aa4-8a4a-50bfa3dba771" testId="e1409d2c-c0b3-e19c-20ac-70db63c2f2fa" testName="LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0324399" startTime="2026-09-03T06:42:32.1121641+05:00" endTime="2026-09-03T06:42:32.1446030+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="09ab687c-4628-4aa4-8a4a-50bfa3dba771" />
+    <UnitTestResult executionId="5794082a-63ea-43af-b58a-a00298521d82" testId="68f33dfd-f08f-f73c-0262-6befc31b7ea9" testName="LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0144480" startTime="2026-09-03T06:42:32.1446502+05:00" endTime="2026-09-03T06:42:32.1590975+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5794082a-63ea-43af-b58a-a00298521d82" />
+    <UnitTestResult executionId="6631720b-2073-4266-97d2-e6be42f6d089" testId="dd1df67f-d8ad-3a44-99e1-e5855c6ab914" testName="LoadProjectDataAsync_EarlyRestoreFailure_LeavesPartialStateAndClearsGuard" computerName="DESKTOP-CVGB6OE" duration="00:00:00.1603910" startTime="2026-09-03T06:42:31.9424214+05:00" endTime="2026-09-03T06:42:32.1027713+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6631720b-2073-4266-97d2-e6be42f6d089" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="LoadProjectDataAsync_EarlyRestoreFailure_LeavesPartialStateAndClearsGuard" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="dd1df67f-d8ad-3a44-99e1-e5855c6ab914">
+      <Execution id="6631720b-2073-4266-97d2-e6be42f6d089" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests" name="LoadProjectDataAsync_EarlyRestoreFailure_LeavesPartialStateAndClearsGuard" />
+    </UnitTest>
+    <UnitTest name="LoadProjectDataAsync_LateRestoreFailure_LeavesPartialStateAndClearsGuard" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="11d86eed-02b5-b0c9-0b39-27d73c7a50b4">
+      <Execution id="df69f16f-e912-4e8f-be02-4310979e56e8" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectLifecycleFlowCharacterizationTests" name="LoadProjectDataAsync_LateRestoreFailure_LeavesPartialStateAndClearsGuard" />
+    </UnitTest>
+    <UnitTest name="LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="e1409d2c-c0b3-e19c-20ac-70db63c2f2fa">
+      <Execution id="09ab687c-4628-4aa4-8a4a-50bfa3dba771" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="LoadProjectDataAsync_EarlyRestoreFailure_ClearsLeasePreservesPartialThermalDefaults" />
+    </UnitTest>
+    <UnitTest name="LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="68f33dfd-f08f-f73c-0262-6befc31b7ea9">
+      <Execution id="5794082a-63ea-43af-b58a-a00298521d82" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ThermalMultiplicityCharacterizationTests" name="LoadProjectDataAsync_LateRestoreFailure_ClearsLeaseThermalRetainsPreFailureDefaults" />
+    </UnitTest>
+    <UnitTest name="ProjectData_Load_KeepsCatalogsReadOnly_CustomMaterialsStayProjectLocal" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="ac264356-96ba-a237-8c87-cafc9af28c5c">
+      <Execution id="35cbbb7d-7025-4cce-97c8-d15f4a90c5e3" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectData_Load_KeepsCatalogsReadOnly_CustomMaterialsStayProjectLocal" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="ac264356-96ba-a237-8c87-cafc9af28c5c" executionId="35cbbb7d-7025-4cce-97c8-d15f4a90c5e3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="11d86eed-02b5-b0c9-0b39-27d73c7a50b4" executionId="df69f16f-e912-4e8f-be02-4310979e56e8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e1409d2c-c0b3-e19c-20ac-70db63c2f2fa" executionId="09ab687c-4628-4aa4-8a4a-50bfa3dba771" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="68f33dfd-f08f-f73c-0262-6befc31b7ea9" executionId="5794082a-63ea-43af-b58a-a00298521d82" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dd1df67f-d8ad-3a44-99e1-e5855c6ab914" executionId="6631720b-2073-4266-97d2-e6be42f6d089" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="5" executed="5" passed="5" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 5 of 5 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

@@ -1,0 +1,1086 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="ee371516-69b5-415d-b162-b3992347deb4" name="Admin@DESKTOP-CVGB6OE 2026-09-03 08:36:21" runUser="DESKTOP-CVGB6OE\Admin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-09-03T08:36:21.1815163+05:00" queuing="2026-09-03T08:36:21.1815166+05:00" start="2026-09-03T08:36:20.4998285+05:00" finish="2026-09-03T08:36:33.7111425+05:00" />
+  <TestSettings name="default" id="477e3c28-6c06-48cc-a5f8-8aa2805a2ec8">
+    <Deployment runDeploymentRoot="Admin_DESKTOP-CVGB6OE_2026-09-03_08_36_21" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="7b29a1b2-3573-437c-8baf-85a2f2e6921a" testId="a91c30e5-eef5-141b-9bcf-30c96b1c38ce" testName="SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0016660" startTime="2026-09-03T08:36:21.3687652+05:00" endTime="2026-09-03T08:36:21.3704316+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7b29a1b2-3573-437c-8baf-85a2f2e6921a" />
+    <UnitTestResult executionId="d13806b9-594b-41c1-818b-5754f1b5f204" testId="dafabb9d-f919-ece9-2299-4da1c29a1566" testName="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportDesignColdMarkdownReport&quot;)" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0003110" startTime="2026-09-03T08:36:21.2315377+05:00" endTime="2026-09-03T08:36:21.2318484+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d13806b9-594b-41c1-818b-5754f1b5f204" />
+    <UnitTestResult executionId="72ba9f7b-aa4e-4df0-9fa8-a17a839966fe" testId="dbb98544-ec01-e59f-8b36-4acbd4332765" testName="LoadProjectData_SecondInvalidProjectPreservesPriorUiAndReleasesRestoreGuard" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0018970" startTime="2026-09-03T08:36:21.4247343+05:00" endTime="2026-09-03T08:36:21.4266313+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="72ba9f7b-aa4e-4df0-9fa8-a17a839966fe" />
+    <UnitTestResult executionId="b234d2ae-fc13-48c1-86b0-210723c49655" testId="f7ea8e72-9e81-1bab-e86c-d4380bdd93bc" testName="ResultsViewModel_LoadProjectData_RestoresCityAndClimateParameters" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0024870" startTime="2026-09-03T08:36:30.6189635+05:00" endTime="2026-09-03T08:36:30.6214508+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b234d2ae-fc13-48c1-86b0-210723c49655" />
+    <UnitTestResult executionId="0073f40f-327c-4241-8746-a03a997484fc" testId="2028b32f-4b49-3551-0e23-3c2e0c410193" testName="SaveAsync_PassesCancellationTokenUnchanged" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0565760" startTime="2026-09-03T08:36:20.9908324+05:00" endTime="2026-09-03T08:36:21.0474086+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0073f40f-327c-4241-8746-a03a997484fc" />
+    <UnitTestResult executionId="b318fb1a-5ff6-45fa-9631-cafa336b5a84" testId="701461ba-b815-61ad-4cf3-73edbc0b0040" testName="ImportProjectTemplatesAsync_SkipsExistingName" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0005680" startTime="2026-09-03T08:36:21.2516499+05:00" endTime="2026-09-03T08:36:21.2522182+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b318fb1a-5ff6-45fa-9631-cafa336b5a84" />
+    <UnitTestResult executionId="b7ad0182-61a3-4f5e-860f-66f23ba26ee5" testId="00107849-5229-7ebb-03fa-818954eb3c2a" testName="CollectorEquipmentItems_DoesNotGroupDifferentCircuitCountsOrValveTypes" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0037650" startTime="2026-09-03T08:36:21.3730817+05:00" endTime="2026-09-03T08:36:21.3768461+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b7ad0182-61a3-4f5e-860f-66f23ba26ee5" />
+    <UnitTestResult executionId="67a52b76-9ea2-42a0-a2f8-a2c673cd8ee4" testId="107aa2e2-fe3a-215d-6290-3ae8bc03f865" testName="UpdateCircuitsFilter_RowsAreNotSharedWithModuleViewModel" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0057160" startTime="2026-09-03T08:36:21.3213416+05:00" endTime="2026-09-03T08:36:21.3270574+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="67a52b76-9ea2-42a0-a2f8-a2c673cd8ee4" />
+    <UnitTestResult executionId="3d74f1e6-e436-4b6c-b0eb-dabe39fa9f1d" testId="766d1b2f-b6db-6898-c1a3-826da3004bbb" testName="ResolveView_ResultsRefreshRemainsInsideExistingFailureBoundaryAndHasOneCallSite" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0008960" startTime="2026-09-03T08:36:21.2284700+05:00" endTime="2026-09-03T08:36:21.2293659+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3d74f1e6-e436-4b6c-b0eb-dabe39fa9f1d" />
+    <UnitTestResult executionId="58359437-9597-44e5-b887-4e3e35edf673" testId="c008c76c-aa49-286d-a675-a574f80d6008" testName="CreateFromTemplate_InvalidMaterialId_ThrowsMaterialNotFoundException" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0012510" startTime="2026-09-03T08:36:21.2390289+05:00" endTime="2026-09-03T08:36:21.2402798+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="58359437-9597-44e5-b887-4e3e35edf673" />
+    <UnitTestResult executionId="f21056ee-12a8-46f3-a45a-7f87e4a14ed8" testId="63e55650-4856-0fb9-1578-a00e9506faf0" testName="Reset_ClearsResultsProjectionAndMarksProjectClean" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0015720" startTime="2026-09-03T08:36:21.3588044+05:00" endTime="2026-09-03T08:36:21.3603759+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f21056ee-12a8-46f3-a45a-7f87e4a14ed8" />
+    <UnitTestResult executionId="5940e502-51bb-4ea6-a1f9-120a2bcee34f" testId="8d421899-006f-bf4b-f2af-5fed09704780" testName="ResultsPdfDataBuilder_UsesConstructionLayersAndImageParametersFromSameCurrentSource" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0030090" startTime="2026-09-03T08:36:21.3657326+05:00" endTime="2026-09-03T08:36:21.3687420+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5940e502-51bb-4ea6-a1f9-120a2bcee34f" />
+    <UnitTestResult executionId="eea7ec58-75ff-4a76-8f05-496d0b5c4edd" testId="f0e9480e-64d9-0663-0e2b-3a37ffa4e8b9" testName="ResolveView_NonResultsNavigationReturnsCachedNonResultsView" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0017790" startTime="2026-09-03T08:36:21.2162738+05:00" endTime="2026-09-03T08:36:21.2180529+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="eea7ec58-75ff-4a76-8f05-496d0b5c4edd" />
+    <UnitTestResult executionId="ba4c68fd-ee69-4dca-86f2-0f5515a7c92c" testId="239b55af-470b-0a85-a950-2f5f062f8710" testName="ResolveView_ResultsRefreshFailureUsesExistingFallbackWithoutCachingResultsView" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0047100" startTime="2026-09-03T08:36:21.2186612+05:00" endTime="2026-09-03T08:36:21.2233707+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ba4c68fd-ee69-4dca-86f2-0f5515a7c92c" />
+    <UnitTestResult executionId="a120bbab-8f50-4c02-bde1-2846962cb23c" testId="340541ee-5b35-3a15-d215-32966ef95dda" testName="CalculateR1_EmptyCollection_ReturnsZero" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0022120" startTime="2026-09-03T08:36:21.2326697+05:00" endTime="2026-09-03T08:36:21.2348817+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a120bbab-8f50-4c02-bde1-2846962cb23c" />
+    <UnitTestResult executionId="25a46b1d-7991-462e-80ae-bc674d49edcd" testId="c12ce9f3-25cb-2e14-7c73-39d23ac07298" testName="ResultsViewModel_EmptyHydraulics_ZeroesKpisAndCards" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0032770" startTime="2026-09-03T08:36:30.6103266+05:00" endTime="2026-09-03T08:36:30.6136027+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="25a46b1d-7991-462e-80ae-bc674d49edcd" />
+    <UnitTestResult executionId="81d50b66-d1ca-4cb0-b87e-fce207dadc0a" testId="03c11344-6edf-1d48-f5e5-646084d98319" testName="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;PreviewPdf&quot;)" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0004980" startTime="2026-09-03T08:36:21.2303376+05:00" endTime="2026-09-03T08:36:21.2308358+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="81d50b66-d1ca-4cb0-b87e-fce207dadc0a" />
+    <UnitTestResult executionId="9f7c3cd5-c574-42a1-a6a7-3e7e5aa17616" testId="1a451851-dd58-5aa6-605a-0f384c6bc6bf" testName="CollectorEquipmentItems_ClearsOnResetOrEmptyState" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0025230" startTime="2026-09-03T08:36:21.3705448+05:00" endTime="2026-09-03T08:36:21.3730678+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9f7c3cd5-c574-42a1-a6a7-3e7e5aa17616" />
+    <UnitTestResult executionId="4a2888aa-756f-4491-a9fb-3d2f7cc7659d" testId="8824a3c6-0b3c-55b1-29e2-48930f4ee090" testName="ProjectLoadOrchestrator_PreservesLoadOnlyThermalFallbackBoundary" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0148290" startTime="2026-09-03T08:36:21.3293295+05:00" endTime="2026-09-03T08:36:21.3441578+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4a2888aa-756f-4491-a9fb-3d2f7cc7659d">
+      <Output>
+        <ErrorInfo>
+          <Message>  Assert.That(source, Does.Contain("await _thermalViewModel.CalculateCommand.ExecuteAsync(null);"))&#xD;
+  Expected: String containing "await _thermalViewModel.CalculateCommand.ExecuteAsync(null);"&#xD;
+  But was:  "using SnowMeltingCalculator.Core;&#xD;
+using SnowMeltingCalculator.Models.Construction;&#xD;
+using SnowMeltingCalculator.Models.Hydraulics;&#xD;
+using SnowMeltingCalculator.Models.Project;&#xD;
+using SnowMeltingCalculator.Models.Thermal;&#xD;
+using SnowMeltingCalculator.Services.Construction;&#xD;
+using SnowMeltingCalculator.Services.Navigation;&#xD;
+&#xD;
+namespace SnowMeltingCalculator.Services.Project&#xD;
+{&#xD;
+    /// &lt;summary&gt;&#xD;
+    /// Оркестратор загрузки проекта: восстанавливает состояние модулей&#xD;
+    /// (климат, конструкция, тепловой расчёт, гидравлика) из модели &lt;see cref="ProjectData"/&gt;&#xD;
+    /// и сбрасывает модули перед загрузкой нового проекта.&#xD;
+    /// Вынесен из ResultsViewModel (архитектурный долг, этап C1).&#xD;
+    /// &lt;/summary&gt;&#xD;
+    /// &lt;remarks&gt;&#xD;
+    /// Вызывается под guard &lt;see cref="ICalculationStateService.IsLoadProjectInProgress"/&gt;,&#xD;
+    /// который устанавливает вызывающая сторона (ResultsViewModel.LoadProjectDataAsync).&#xD;
+    /// &lt;/remarks&gt;&#xD;
+    public class ProjectLoadOrchestrator&#xD;
+    {&#xD;
+        private readonly IProjectLoadClimateAdapter _climateViewModel;&#xD;
+        private readonly IProjectLoadConstructionAdapter _constructionViewModel;&#xD;
+        private readonly IProjectLoadThermalAdapter _thermalViewModel;&#xD;
+        private readonly IProjectLoadHydraulicsAdapter _circuitsViewModel;&#xD;
+        private readonly ICalculationStateService _calculationStateService;&#xD;
+        private readonly IConstructionService _constructionService;&#xD;
+        private readonly CalculationContext _calculationContext;&#xD;
+        private readonly IProjectSessionClimateState _climateState;&#xD;
+        private readonly IProjectSessionConstructionState _constructionState;&#xD;
+        private readonly IProjectSessionThermalState _thermalState;&#xD;
+        private readonly IProjectSessionHydraulicsState _hydraulicsState;&#xD;
+        private readonly ConstructionDefaultStateInitializer _constructionDefaultStateInitializer;&#xD;
+&#xD;
+        /// &lt;summary&gt;&#xD;
+        /// Конструктор оркестратора загрузки проекта&#xD;
+        /// &lt;/summary&gt;&#xD;
+        public ProjectLoadOrchestrator(&#xD;
+            IProjectLoadClimateAdapter climateViewModel,&#xD;
+            IProjectLoadConstructionAdapter constructionViewModel,&#xD;
+            IProjectLoadThermalAdapter thermalViewModel,&#xD;
+            IProjectLoadHydraulicsAdapter circuitsViewModel,&#xD;
+            ICalculationStateService calculationStateService,&#xD;
+            IConstructionService constructionService,&#xD;
+            CalculationContext calculationContext,&#xD;
+            IProjectSession? projectSession = null,&#xD;
+            ConstructionDefaultStateInitializer? constructionDefaultStateInitializer = null)&#xD;
+        {&#xD;
+            _climateViewModel = climateViewModel ?? throw new ArgumentNullException(nameof(climateViewModel));&#xD;
+            _constructionViewModel = constructionViewModel ?? throw new ArgumentNullException(nameof(constructionViewModel));&#xD;
+            _thermalViewModel = thermalViewModel ?? throw new ArgumentNullException(nameof(thermalViewModel));&#xD;
+            _circuitsViewModel = circuitsViewModel ?? throw new ArgumentNullException(nameof(circuitsViewModel));&#xD;
+            _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));&#xD;
+            _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));&#xD;
+            _calculationContext = calculationContext ?? throw new ArgumentNullException(nameof(calculationContext));&#xD;
+            var session = projectSession ?? throw new ArgumentNullException(nameof(projectSession));&#xD;
+            _climateState = session.ClimateState;&#xD;
+            _constructionState = session.ConstructionState;&#xD;
+            _thermalState = session.ThermalState;&#xD;
+            _hydraulicsState = session.HydraulicsState;&#xD;
+            _constructionDefaultStateInitializer = constructionDefaultStateInitializer&#xD;
+                ?? throw new ArgumentNullException(nameof(constructionDefaultStateInitializer));&#xD;
+        }&#xD;
+&#xD;
+        /// &lt;summary&gt;&#xD;
+        /// Сбросить все модули перед загрузкой нового проекта,&#xD;
+        /// чтобы избежать "залипания" старых результатов и ошибок.&#xD;
+        /// &lt;/summary&gt;&#xD;
+        public void ResetModules()&#xD;
+        {&#xD;
+            var constructionResult = _constructionDefaultStateInitializer.Apply(&#xD;
+                _constructionState.Snapshot.GroundwaterLevel,&#xD;
+                ConstructionMutationOrigin.Reset);&#xD;
+&#xD;
+            _calculationContext.Reset();&#xD;
+            _climateState.ResetToDefaults(ClimateMutationOrigin.ProjectLoadReset);&#xD;
+            _climateViewModel.SearchQuery = string.Empty;&#xD;
+            _constructionViewModel.ApplyLifecycleSnapshotToAdapter(constructionResult.After);&#xD;
+            // Канонический сброс теплового состояния жизненным циклом проекта&#xD;
+            // (не пользователем): результат/статус очищаются без user-dirty&#xD;
+            // (DEC-T08, Todo 9); адаптер ниже зеркалит дефолты без мутаций.&#xD;
+            _thermalState.ResetToDefaults(ThermalMutationOrigin.ProjectLoadReset);&#xD;
+            _thermalViewModel.Reset();&#xD;
+            _hydraulicsState.ResetToDefaults(HydraulicsMutationOrigin.ProjectLoadReset);&#xD;
+            _circuitsViewModel.Reset();&#xD;
+        }&#xD;
+&#xD;
+        /// &lt;summary&gt;&#xD;
+        /// Восстановить состояние модулей из модели проекта.&#xD;
+        /// Файл — источник истины. Порядок:&#xD;
+        /// restore inputs -&gt; sync climate -&gt; ensure thermal result -&gt;&#xD;
+        /// restore circuit results. Единый refresh снимка Results выполняет&#xD;
+        /// вызывающая сторона после завершения этого метода.&#xD;
+        /// &lt;/summary&gt;&#xD;
+        /// &lt;returns&gt;true, если все модули восстановлены; false, если preflight отклонён.&lt;/returns&gt;&#xD;
+        public async Task&lt;bool&gt; RestoreModulesFromProjectAsync(ProjectData data)&#xD;
+        {&#xD;
+            if (data == null) return false;&#xD;
+&#xD;
+            var thermalCandidate = ThermalPersistenceMapper.BuildInputsCandidate(&#xD;
+                data.ThermalData,&#xD;
+                _thermalViewModel.AvailablePipes);&#xD;
+            if (IsEmptyThermalData(data.ThermalData))&#xD;
+            {&#xD;
+                thermalCandidate = ThermalInputsSnapshot.Default;&#xD;
+            }&#xD;
+            else if (HasUnsetThermalScalarInputs(data.ThermalData))&#xD;
+            {&#xD;
+                // Legacy-partial .smc: scalar thermal inputs were never persisted&#xD;
+                // (CLR defaults). Canonical DEC-T01 defaults apply to the scalars&#xD;
+                // while the persisted pipe selection is preserved, so the adapter&#xD;
+                // keeps the user's pipe and the open flow continues (no early abort).&#xD;
+                thermalCandidate = new ThermalInputsSnapshot(&#xD;
+                    ThermalInputsSnapshot.Default.Mode,&#xD;
+                    ThermalInputsSnapshot.Default.SupplyTemperature,&#xD;
+                    ThermalInputsSnapshot.Default.GroundTemperature,&#xD;
+                    thermalCandidate.Pipe,&#xD;
+                    ThermalInputsSnapshot.Default.PipeSpacing);&#xD;
+            }&#xD;
+            var savedThermalResult = ThermalPersistenceMapper.BuildSavedResult(data.ThermalData?.Result);&#xD;
+            var thermalPreflight = new ProjectSessionThermalState().Restore(&#xD;
+                thermalCandidate,&#xD;
+                savedThermalResult);&#xD;
+            if (thermalPreflight.IsRejected)&#xD;
+            {&#xD;
+                return false;&#xD;
+            }&#xD;
+&#xD;
+            var hydraulicsCandidate = HydraulicsPersistenceMapper.BuildRestoreCandidate(data.HydraulicsData);&#xD;
+            if (IsEmptyHydraulicsData(data.HydraulicsData))&#xD;
+            {&#xD;
+                hydraulicsCandidate = HydraulicsStateSnapshot.Default;&#xD;
+            }&#xD;
+            var hydraulicsPreflight = new ProjectSessionHydraulicsState().Restore(&#xD;
+                hydraulicsCandidate,&#xD;
+                HydraulicsMutationOrigin.ProjectLoad);&#xD;
+            if (hydraulicsPreflight.IsRejected)&#xD;
+            {&#xD;
+                return false;&#xD;
+            }&#xD;
+&#xD;
+            var city = _climateViewModel.FindCityByName(data.ClimateData.SelectedCity);&#xD;
+            _climateViewModel.SearchQuery = data.ClimateData.SelectedCity;&#xD;
+            _climateState.ApplyProjectSnapshot(data.ClimateData, city, ClimateMutationOrigin.Load);&#xD;
+&#xD;
+            // Каталоги материалов и шаблонов являются глобальными read-only&#xD;
+            // источниками при открытии проекта. Пользовательские записи из&#xD;
+            // ProjectData остаются project-local и не импортируются в каталоги.&#xD;
+&#xD;
+            // Загружаем данные конструкции&#xD;
+                // Сначала восстанавливаем УГВ и признак нагрузок, чтобы UpdateLambda при загрузке слоёв&#xD;
+                // использовал корректный уровень грунтовых вод (λБ при УГВ &lt; 1 м, λА при УГВ &gt;= 1 м).&#xD;
+                var result = _constructionState.ApplySnapshot(&#xD;
+                    BuildConstructionSnapshotFromProjectData(data),&#xD;
+                    ConstructionMutationOrigin.ProjectLoad);&#xD;
+                _constructionViewModel.ApplyLifecycleSnapshotToAdapter(result.After);&#xD;
+&#xD;
+                // Загружаем данные теплового расчёта через канонический Restore&#xD;
+                // (DEC-T08, Todo 9): маппер строит кандидата входов и сохранённого&#xD;
+                // результата из DTO; Restore атомарно заменяет ВСЕ компоненты&#xD;
+                // состояния предыдущего проекта (входы/результат/статус) — вторая&#xD;
+                // загрузка не оставляет stale-значений проекта A.&#xD;
+                var restoreMutation = _thermalState.Restore(&#xD;
+                    thermalCandidate,&#xD;
+                    savedThermalResult);&#xD;
+                if (restoreMutation.IsRejected)&#xD;
+                {&#xD;
+                    // Повреждённый/вне-диапазона кандидат отклонён атомарно&#xD;
+                    // (замороженная валидация не ослабляется). Гарантируем ноль&#xD;
+                    // stale-значений проекта A (DEC-T08) повторным Restore с&#xD;
+                    // каноническими дефолтами входов; валидный сохранённый&#xD;
+                    // результат файла при этом сохраняется (legacy-наблюдаемое:&#xD;
+                    // файловый результат публикуется без пересчёта), а при&#xD;
+                    // отсутствии/невалидности результата финализация выполнит&#xD;
+                    // ровно один fallback-расчёт.&#xD;
+                    _thermalState.Restore(&#xD;
+                        ThermalInputsSnapshot.Default,&#xD;
+                        savedThermalResult);&#xD;
+                }&#xD;
+&#xD;
+                // Совместимая поверхность шага укладки: после канонического Restore&#xD;
+                // значение совпадает, вызов гарантированно no-op (ноль событий).&#xD;
+                _calculationStateService.SetPipeSpacing(thermalCandidate.PipeSpacing, "ProjectLoadOrchestrator.RestoreModules");&#xD;
+&#xD;
+                // Обновляем адаптер ViewModel из канонического кандидата (привязки UI);&#xD;
+                // под guard загрузки присвоения не создают пользовательских мутаций.&#xD;
+                _thermalViewModel.SelectedMode = thermalCandidate.Mode;&#xD;
+                _thermalViewModel.SupplyTemperature = thermalCandidate.SupplyTemperature;&#xD;
+                _thermalViewModel.GroundTemperature = thermalCandidate.GroundTemperature;&#xD;
+                _thermalViewModel.SelectedPipe = ThermalPersistenceMapper.ResolveStandardPipe(&#xD;
+                    thermalCandidate.Pipe,&#xD;
+                    _thermalViewModel.AvailablePipes);&#xD;
+                _thermalViewModel.PipeSpacing = thermalCandidate.PipeSpacing;&#xD;
+&#xD;
+                // Restore the complete hydraulics slice atomically, then mirror it into the adapter.&#xD;
+                _hydraulicsState.Restore(hydraulicsCandidate, HydraulicsMutationOrigin.ProjectLoad);&#xD;
+                _circuitsViewModel.ApplyLifecycleSnapshotToAdapter(_hydraulicsState.Snapshot);&#xD;
+&#xD;
+            // === Детерминированная финализация загрузки проекта ===&#xD;
+            //&#xD;
+            // 1. Тепловой результат читается ТОЛЬКО из канонического состояния&#xD;
+            //    (DEC-T08, Todo 9): валидный сохранённый результат уже восстановлен&#xD;
+            //    через Restore — публикуем его ровно один раз через адаптер&#xD;
+            //    (LoadResult); иначе выполняем РОВНО ОДИН полный расчёт из&#xD;
+            //    восстановленных входных данных (fallback для отсутствующего или&#xD;
+            //    невалидного сохранённого результата). CircuitsViewModel — чистый&#xD;
+            //    потребитель контекста: пересчёт гидравлики срабатывает через&#xD;
+            //    OnCalculationContextChanged.&#xD;
+            if (_thermalState.Snapshot.Result is { IsValid: true })&#xD;
+            {&#xD;
+                _thermalViewModel.LoadResult(&#xD;
+                    ThermalPersistenceMapper.ToDomainResult(_thermalState.Snapshot.Result));&#xD;
+            }&#xD;
+            else&#xD;
+            {&#xD;
+                // Сохранённого валидного результата нет — считаем из входных данных,&#xD;
+                // чтобы пользователю не пришлось нажимать "Расчёт" вручную.&#xD;
+                await _thermalViewModel.CalculateFromRestoreAsync();&#xD;
+            }&#xD;
+&#xD;
+            // Thermal result publication can trigger the normal hydraulics&#xD;
+            // recalculation path. Restore the file's hydraulics result last so&#xD;
+            // a valid persisted project remains a lossless round-trip.&#xD;
+            _hydraulicsState.Restore(hydraulicsCandidate, HydraulicsMutationOrigin.ProjectLoad);&#xD;
+            _circuitsViewModel.ApplyLifecycleSnapshotToAdapter(_hydraulicsState.Snapshot);&#xD;
+&#xD;
+            return true;&#xD;
+        }&#xD;
+&#xD;
+        private ConstructionStateSnapshot BuildConstructionSnapshotFromProjectData(ProjectData data)&#xD;
+        {&#xD;
+            var needsAbovePipeReverse = string.Compare(&#xD;
+                data.Version,&#xD;
+                "1.1",&#xD;
+                StringComparison.OrdinalIgnoreCase) &lt; 0;&#xD;
+&#xD;
+            IEnumerable&lt;LayerProjectData&gt; aboveLayers = data.ConstructionData.Layers&#xD;
+                .Where(layer =&gt; layer.Position == LayerPosition.AbovePipe);&#xD;
+            if (needsAbovePipeReverse)&#xD;
+            {&#xD;
+                aboveLayers = aboveLayers.Reverse();&#xD;
+            }&#xD;
+&#xD;
+            var belowLayers = data.ConstructionData.Layers&#xD;
+                .Where(layer =&gt; layer.Position == LayerPosition.BelowPipe);&#xD;
+&#xD;
+            return new ConstructionStateSnapshot(&#xD;
+                data.ConstructionData.GroundwaterLevel,&#xD;
+                data.ConstructionData.HasLoads,&#xD;
+                BuildLayerSnapshots(aboveLayers, data.ConstructionData.GroundwaterLevel),&#xD;
+                BuildLayerSnapshots(belowLayers, data.ConstructionData.GroundwaterLevel));&#xD;
+        }&#xD;
+&#xD;
+        private static bool IsEmptyThermalData(ThermalProjectData? data)&#xD;
+        {&#xD;
+            return data is not null&#xD;
+                &amp;&amp; (data.SelectedMode == default || data.SelectedMode == OperatingMode.Melting)&#xD;
+                &amp;&amp; data.SupplyTemperature == 0.0&#xD;
+                &amp;&amp; data.GroundTemperature == 0.0&#xD;
+                &amp;&amp; data.SelectedPipe is null;&#xD;
+        }&#xD;
+&#xD;
+        private static bool HasUnsetThermalScalarInputs(ThermalProjectData? data)&#xD;
+        {&#xD;
+            // Legacy-partial .smc: the scalar thermal inputs were never persisted&#xD;
+            // (CLR defaults) while a pipe selection is present. Treat the scalars as&#xD;
+            // unset so the open flow applies canonical DEC-T01 defaults and keeps the&#xD;
+            // user's pipe, instead of aborting the whole restore on a rejected candidate.&#xD;
+            return data is not null&#xD;
+                &amp;&amp; (data.SelectedMode == default || data.SelectedMode == OperatingMode.Melting)&#xD;
+                &amp;&amp; data.SupplyTemperature == 0.0&#xD;
+                &amp;&amp; data.GroundTemperature == 0.0;&#xD;
+        }&#xD;
+&#xD;
+        private static bool IsEmptyHydraulicsData(HydraulicsProjectData? data)&#xD;
+        {&#xD;
+            return data is not null&#xD;
+                &amp;&amp; data.GlycolType == GlycolType.Ethylene&#xD;
+                &amp;&amp; data.GlycolConcentration == 0.0&#xD;
+                &amp;&amp; data.SupplySpacingCm == 0.0&#xD;
+                &amp;&amp; data.SupplyHeatPercent == 0.0&#xD;
+                &amp;&amp; (data.Collectors is null || data.Collectors.Count == 0);&#xD;
+        }&#xD;
+&#xD;
+        private List&lt;ConstructionLayerSnapshot&gt; BuildLayerSnapshots(&#xD;
+            IEnumerable&lt;LayerProjectData&gt; layerDataList,&#xD;
+            double groundwaterLevel)&#xD;
+        {&#xD;
+            return layerDataList.Select((layerData, index) =&gt;&#xD;
+            {&#xD;
+                var material = _constructionViewModel.AvailableMaterials&#xD;
+                    .FirstOrDefault(candidate =&gt; candidate.Name == layerData.MaterialName)&#xD;
+                    ?? Material.GetDefaultMaterial();&#xD;
+                var calculatedLambda = layerData.Position == LayerPosition.BelowPipe&#xD;
+                    &amp;&amp; !layerData.IsLambdaOverridden&#xD;
+                        ? groundwaterLevel &lt; 1.0 ? material.LambdaB : material.LambdaA&#xD;
+                        : layerData.CalculatedLambda;&#xD;
+&#xD;
+                return new ConstructionLayerSnapshot(&#xD;
+                    Guid.NewGuid(),&#xD;
+                    material.Id,&#xD;
+                    material.Name,&#xD;
+                    layerData.Thickness,&#xD;
+                    calculatedLambda,&#xD;
+                    false,&#xD;
+                    layerData.Position,&#xD;
+                    index);&#xD;
+            }).ToList();&#xD;
+        }&#xD;
+&#xD;
+&#xD;
+    }&#xD;
+}&#xD;
+"&#xD;
+</Message>
+          <StackTrace>   at SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests.ProjectLoadOrchestrator_PreservesLoadOnlyThermalFallbackBoundary() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\ViewModels\ResultsStabilizationPhase1BehaviorContractsTests.cs:line 337&#xD;
+
+1)    at SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests.&lt;&gt;c__DisplayClass15_0.&lt;ProjectLoadOrchestrator_PreservesLoadOnlyThermalFallbackBoundary&gt;b__0() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\ViewModels\ResultsStabilizationPhase1BehaviorContractsTests.cs:line 342&#xD;
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)&#xD;
+   at SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests.ProjectLoadOrchestrator_PreservesLoadOnlyThermalFallbackBoundary() in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\ViewModels\ResultsStabilizationPhase1BehaviorContractsTests.cs:line 337&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="5e1c9d8d-c743-45ea-b824-0fe7f0162c0c" testId="46a40d61-efc3-1931-0d41-b5a0c6239c21" testName="ProjectSaveServiceSource_RejectsViewModelAndWpfReferences" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0030550" startTime="2026-09-03T08:36:20.9871986+05:00" endTime="2026-09-03T08:36:20.9902254+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5e1c9d8d-c743-45ea-b824-0fe7f0162c0c" />
+    <UnitTestResult executionId="1ba13c6f-13f3-4071-9bbf-8267d745b8ba" testId="3bac974d-48cc-8aeb-25b2-6b1f6ed831fb" testName="ProjectRoundTrip_DoesNotMarkDirtyOnLoad" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0056530" startTime="2026-09-03T08:36:30.5525000+05:00" endTime="2026-09-03T08:36:30.5581526+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1ba13c6f-13f3-4071-9bbf-8267d745b8ba" />
+    <UnitTestResult executionId="d70b1355-d564-444c-b0ab-de52f83b075c" testId="63e702e5-8b61-7665-ebb2-9dd2a085ba4e" testName="CalculateR2_HighGroundwater_UsesLambdaB" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0006370" startTime="2026-09-03T08:36:21.2374141+05:00" endTime="2026-09-03T08:36:21.2380506+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d70b1355-d564-444c-b0ab-de52f83b075c" />
+    <UnitTestResult executionId="b6165016-5ae3-47cb-9809-9832b8234150" testId="5890bd22-c0ba-0fab-c174-aee786470204" testName="PersistenceFailure_MissingOrCorruptSavedResult_FallbackOnce_InvalidNeverCanonical" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0046190" startTime="2026-09-03T08:36:30.5163406+05:00" endTime="2026-09-03T08:36:30.5209589+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b6165016-5ae3-47cb-9809-9832b8234150" />
+    <UnitTestResult executionId="9ae74fe9-1900-4072-b7cf-da04c141fc9b" testId="85c49155-00a7-b891-c3f4-acc28d4c85ef" testName="ProjectData_LayerOrder_RoundTrip_PreservesLambdaE" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0072080" startTime="2026-09-03T08:36:21.2853223+05:00" endTime="2026-09-03T08:36:21.2925297+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9ae74fe9-1900-4072-b7cf-da04c141fc9b" />
+    <UnitTestResult executionId="7e0c71f4-0063-4b83-aaaf-8fd1a978beb9" testId="3ece84c0-3977-aacd-ca4b-87120862662c" testName="SaveProject_Success_StampsDatesAndClearsDirtyOnce" computerName="DESKTOP-CVGB6OE" duration="00:00:03.0034990" startTime="2026-09-03T08:36:30.6496065+05:00" endTime="2026-09-03T08:36:33.6531053+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7e0c71f4-0063-4b83-aaaf-8fd1a978beb9" />
+    <UnitTestResult executionId="b9f313f8-9e26-4db1-a2b4-38c404cece6f" testId="f523b7ad-a7cb-93b9-8c3d-dae4293f5bfb" testName="ConstructionViewModel_Reset_ReturnsToDefaultsAndDoesNotMarkDirty" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0266530" startTime="2026-09-03T08:36:21.0991456+05:00" endTime="2026-09-03T08:36:21.1257979+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b9f313f8-9e26-4db1-a2b4-38c404cece6f" />
+    <UnitTestResult executionId="d76991b5-dda6-41c9-b23d-d0155ebc42c4" testId="81ca68c3-40b2-c43f-6044-e96861102e28" testName="ResultsPdfDataBuilder_AfterInputMutation_RequiresCurrentScalarAndDerivedGeneration" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0053200" startTime="2026-09-03T08:36:21.3603922+05:00" endTime="2026-09-03T08:36:21.3657119+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d76991b5-dda6-41c9-b23d-d0155ebc42c4" />
+    <UnitTestResult executionId="9be2fd89-db39-406d-a5d1-b986cf74f8d6" testId="29fc3f08-c31e-c019-2456-d5643d033dc1" testName="CalculateR1_MultipleLayers_ReturnsSum" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0006540" startTime="2026-09-03T08:36:21.2348985+05:00" endTime="2026-09-03T08:36:21.2355526+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9be2fd89-db39-406d-a5d1-b986cf74f8d6" />
+    <UnitTestResult executionId="dcc4c09b-1cac-4bf7-8697-75e52d611092" testId="134cd579-b457-5d4b-7f56-ba05d390e44e" testName="LoadProjectData_SecondLoadWithoutSavedResult_ReplacesAllThermalStaleValues" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0089789" startTime="2026-09-03T08:36:21.4266471+05:00" endTime="2026-09-03T08:36:21.4356257+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dcc4c09b-1cac-4bf7-8697-75e52d611092" />
+    <UnitTestResult executionId="e1bae9ff-5818-4784-a47d-256c79fe1b9e" testId="a6e1cce5-161c-e6a1-6c55-426b83b6e9c5" testName="RefreshAll_WhenSourceStateIsUnchanged_IsValueIdempotentWithoutDuplicateRowsOrCalculation" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0043090" startTime="2026-09-03T08:36:21.3544768+05:00" endTime="2026-09-03T08:36:21.3587858+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e1bae9ff-5818-4784-a47d-256c79fe1b9e" />
+    <UnitTestResult executionId="4916063c-992c-4396-a719-129e96db45ca" testId="e44264e1-37d7-4765-8347-8b56bd36e397" testName="ProjectData_Load_ReindexesOrder" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0029370" startTime="2026-09-03T08:36:21.2947457+05:00" endTime="2026-09-03T08:36:21.2976823+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4916063c-992c-4396-a719-129e96db45ca" />
+    <UnitTestResult executionId="4b024fae-4be8-4ee1-98fb-f98b833f86fd" testId="c060fba7-b3b9-8245-920d-6de61a2cc7dd" testName="ResultsViewModel_Reset_ClearsProjectInfoAndDoesNotMarkDirty" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0158250" startTime="2026-09-03T08:36:21.1258235+05:00" endTime="2026-09-03T08:36:21.1416484+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4b024fae-4be8-4ee1-98fb-f98b833f86fd" />
+    <UnitTestResult executionId="e8a257e9-135c-4bb5-9059-78606bea797a" testId="ffd53392-7fcb-02fc-2b89-00d1879db7c5" testName="GroundwaterLevelChange_AfterProjectLoad_UpdatesLambdaForBelowPipeLayers" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0113370" startTime="2026-09-03T08:36:21.3859332+05:00" endTime="2026-09-03T08:36:21.3972696+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e8a257e9-135c-4bb5-9059-78606bea797a" />
+    <UnitTestResult executionId="4df7d4fa-28a3-4697-8f9c-de6e1e834422" testId="931a7d43-8241-d237-56c8-0ba8ca4d4b88" testName="LoadProjectFromPathAsync_WhenFileNotFound_ShowsError" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0018480" startTime="2026-09-03T08:36:21.4396560+05:00" endTime="2026-09-03T08:36:21.4415039+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4df7d4fa-28a3-4697-8f9c-de6e1e834422" />
+    <UnitTestResult executionId="cc2b5c82-0b70-42ac-a821-cedf10c819f5" testId="4b48bfa2-cb48-ea00-97b0-9de9a3b80fa3" testName="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportExcel&quot;)" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0002420" startTime="2026-09-03T08:36:21.2318631+05:00" endTime="2026-09-03T08:36:21.2321046+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cc2b5c82-0b70-42ac-a821-cedf10c819f5" />
+    <UnitTestResult executionId="875cf7a8-c064-44bd-8e0b-7cf3ff4a134d" testId="d900c6df-8ed8-6e8f-6975-753e31adb8fa" testName="CalculateR2_NegativeGroundwater_ThrowsArgumentException" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0003089" startTime="2026-09-03T08:36:21.2383992+05:00" endTime="2026-09-03T08:36:21.2387083+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="875cf7a8-c064-44bd-8e0b-7cf3ff4a134d" />
+    <UnitTestResult executionId="2c458fb5-d90b-497e-a965-dc962453a729" testId="8105df19-b695-2413-6d6f-7c58fcd793c3" testName="ImportProjectMaterialsAsync_NewMaterials_AddsToRepository" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0014330" startTime="2026-09-03T08:36:21.2462780+05:00" endTime="2026-09-03T08:36:21.2477113+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2c458fb5-d90b-497e-a965-dc962453a729" />
+    <UnitTestResult executionId="690475ba-5349-42c1-a0cd-9d738f800fdb" testId="3c7c00b8-152e-58a4-b7dc-0c2163dbdba2" testName="LoadHydraulicsDataOnNavigate_DelegatesToExactlyOneCanonicalRefreshAll" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0014820" startTime="2026-09-03T08:36:21.1453519+05:00" endTime="2026-09-03T08:36:21.1468337+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="690475ba-5349-42c1-a0cd-9d738f800fdb" />
+    <UnitTestResult executionId="cddb8540-e2f9-4158-a258-62f7b956666b" testId="f050388a-2ad9-acf3-f49f-327e905e4103" testName="ProjectData_Load_v1_0_MigratesAbovePipeOrder" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0019760" startTime="2026-09-03T08:36:21.2976963+05:00" endTime="2026-09-03T08:36:21.2996720+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cddb8540-e2f9-4158-a258-62f7b956666b" />
+    <UnitTestResult executionId="e341da00-ee5d-4fc3-8ee7-afe34621ec8d" testId="ed2f619f-ae61-a66d-8f39-1d3706d1513c" testName="OpenProject_WithCustomCatalogRecords_LeavesGlobalCatalogReadOnly" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0033170" startTime="2026-09-03T08:36:30.4875727+05:00" endTime="2026-09-03T08:36:30.4908892+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e341da00-ee5d-4fc3-8ee7-afe34621ec8d" />
+    <UnitTestResult executionId="c3a308f8-5416-46cc-a35d-bf2626c63794" testId="b9bad301-50c0-8b2f-89c1-0dec91a75935" testName="RefreshAll_WhenSourceResultIsCleared_ZerosOutputAndMarksNotReady" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0033750" startTime="2026-09-03T08:36:21.3510835+05:00" endTime="2026-09-03T08:36:21.3544586+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c3a308f8-5416-46cc-a35d-bf2626c63794" />
+    <UnitTestResult executionId="15db4df8-8deb-4b5d-91e2-997aa4d4601b" testId="5d3cfc95-017c-3b15-a04b-8057d1dd0db7" testName="ProjectRoundTrip_LambdaUpdatesWhenGroundwaterLevelChanges_AfterOverride" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0034560" startTime="2026-09-03T08:36:30.5829286+05:00" endTime="2026-09-03T08:36:30.5863842+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="15db4df8-8deb-4b5d-91e2-997aa4d4601b" />
+    <UnitTestResult executionId="90dd56ec-0985-4d64-bebb-e80943d428b1" testId="bce91b22-1909-2ade-b75e-218ba6bf9750" testName="RefreshAll_UsesCanonicalSynchronizationOrderExactlyOnce" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0004250" startTime="2026-09-03T08:36:21.1475517+05:00" endTime="2026-09-03T08:36:21.1479762+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="90dd56ec-0985-4d64-bebb-e80943d428b1" />
+    <UnitTestResult executionId="517293a8-6f37-4cac-a09d-6904565564a7" testId="5c5125e0-f5ec-d1e0-e619-0cc9f73b065d" testName="ProjectData_CustomTemplates_RoundTrip" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0034210" startTime="2026-09-03T08:36:21.2581485+05:00" endTime="2026-09-03T08:36:21.2615690+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="517293a8-6f37-4cac-a09d-6904565564a7" />
+    <UnitTestResult executionId="9acf68a6-6c1a-475e-b083-11233fbcc558" testId="628d71cb-37bb-786c-ede6-dce59cf17659" testName="ProjectData_CustomMaterials_RoundTrip" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0048240" startTime="2026-09-03T08:36:21.2533011+05:00" endTime="2026-09-03T08:36:21.2581248+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9acf68a6-6c1a-475e-b083-11233fbcc558" />
+    <UnitTestResult executionId="afac5bca-91a7-4ff0-bdaa-bab798ba463a" testId="ccf8e5ab-128e-d80b-9e18-8a5112a605af" testName="PersistenceFailure_FailedFileOperation_PreservesErrorStateWithoutSchemaDrift" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0232080" startTime="2026-09-03T08:36:30.4930709+05:00" endTime="2026-09-03T08:36:30.5162783+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="afac5bca-91a7-4ff0-bdaa-bab798ba463a" />
+    <UnitTestResult executionId="dee41cb1-2091-432a-8c0e-792bb41d936b" testId="b15187f7-89e2-b76b-482c-e49ab9ba4fef" testName="LoadAndReopen_RefreshesProjectionAndLeavesProjectClean" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0020870" startTime="2026-09-03T08:36:21.3272256+05:00" endTime="2026-09-03T08:36:21.3293124+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dee41cb1-2091-432a-8c0e-792bb41d936b" />
+    <UnitTestResult executionId="2918e7a6-3887-4ee0-8c1b-aa43a8fd712a" testId="53894312-25f0-84d3-2d84-12ddcd438a37" testName="UpdateCircuitsFilter_ReconstructsResultsOwnedRows_FromCanonicalSnapshot" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0032800" startTime="2026-09-03T08:36:21.3180389+05:00" endTime="2026-09-03T08:36:21.3213187+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2918e7a6-3887-4ee0-8c1b-aa43a8fd712a" />
+    <UnitTestResult executionId="b8505b0c-4860-40bb-9247-2c59bea369b2" testId="bcf1c5a5-3c5f-c8a2-0803-4e228c747e16" testName="LoadProjectFromPathAsync_WhenNullPath_DoesNothing" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0015169" startTime="2026-09-03T08:36:21.4415185+05:00" endTime="2026-09-03T08:36:21.4430354+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b8505b0c-4860-40bb-9247-2c59bea369b2" />
+    <UnitTestResult executionId="ec54a53c-2249-48ea-9751-6e3c79da4b0e" testId="16fa3364-dd0b-1bb8-5197-59186be100d3" testName="ProjectRoundTrip_PreservesHasLoads" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0028690" startTime="2026-09-03T08:36:30.6023886+05:00" endTime="2026-09-03T08:36:30.6052576+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ec54a53c-2249-48ea-9751-6e3c79da4b0e" />
+    <UnitTestResult executionId="e4dfdba6-1769-492e-9e64-7e115f16242d" testId="a4bb765b-a5ac-699a-3265-ebc14f245c51" testName="OpenProject_WithInvalidCustomCatalogRecords_DoesNotMutateGlobalCatalog" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0021440" startTime="2026-09-03T08:36:30.4909091+05:00" endTime="2026-09-03T08:36:30.4930525+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e4dfdba6-1769-492e-9e64-7e115f16242d" />
+    <UnitTestResult executionId="1e1fbdb6-6288-468a-8332-f9eadbe8808d" testId="d6b84075-6f90-568a-304d-ffa02d063113" testName="ValidateConstruction_WithLoads_RequiresThickerLayer" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0002900" startTime="2026-09-03T08:36:21.3093332+05:00" endTime="2026-09-03T08:36:21.3096230+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1e1fbdb6-6288-468a-8332-f9eadbe8808d" />
+    <UnitTestResult executionId="05e1efa3-8863-45e7-b65d-ec700b4c3d0f" testId="b46f1e31-a26c-0d25-7d1d-3e1de67cc6b4" testName="ProjectData_DeserializesOldFileWithoutCustomTemplates" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0237110" startTime="2026-09-03T08:36:21.2615859+05:00" endTime="2026-09-03T08:36:21.2852962+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="05e1efa3-8863-45e7-b65d-ec700b4c3d0f" />
+    <UnitTestResult executionId="e5f3f6f7-8383-422e-856e-76ffb4caaf0a" testId="84bcfe85-4fc6-c9c1-14b1-961a421f5fcc" testName="ProjectFileService_RoundTripPreservesSchemaVersionAndJsonShape" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0168390" startTime="2026-09-03T08:36:30.5249604+05:00" endTime="2026-09-03T08:36:30.5417989+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e5f3f6f7-8383-422e-856e-76ffb4caaf0a" />
+    <UnitTestResult executionId="0b090e14-6970-471c-8e8d-b724a64b9f98" testId="900ca637-b1e5-5a90-256a-d58904f9b2fb" testName="PersistenceFailure_UnknownPipe_FallsBackToFirstStandard_NoSchemaDrift" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0039569" startTime="2026-09-03T08:36:30.5209794+05:00" endTime="2026-09-03T08:36:30.5249360+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0b090e14-6970-471c-8e8d-b724a64b9f98" />
+    <UnitTestResult executionId="c2af3e4a-ba99-41fb-b3d9-0deea1fa6294" testId="18d8f9d3-fd7f-59ac-688c-9e31e5755e59" testName="SaveAsync_WithValidSession_MapsSnapshotFieldsAndCallsServicesExactlyOnce" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0043160" startTime="2026-09-03T08:36:21.0530608+05:00" endTime="2026-09-03T08:36:21.0573761+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c2af3e4a-ba99-41fb-b3d9-0deea1fa6294" />
+    <UnitTestResult executionId="6511f56d-b3e4-44d3-bedf-adc6f0ad9c31" testId="db223345-1394-a150-4a9c-89566008ccd4" testName="GetTotalThicknessBelowPipe_MultipleLayers_ReturnsSum" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0006460" startTime="2026-09-03T08:36:21.2424652+05:00" endTime="2026-09-03T08:36:21.2431113+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6511f56d-b3e4-44d3-bedf-adc6f0ad9c31" />
+    <UnitTestResult executionId="f0c19c9d-3e1b-4f1c-ba6f-43091eb07eef" testId="634e20de-ff09-ff3b-18e4-830f3eda5390" testName="SaveCurrentProject_AndPdfExport_TriggerZeroThermalCalculatorCalls" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0023930" startTime="2026-09-03T08:36:30.6351471+05:00" endTime="2026-09-03T08:36:30.6375397+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f0c19c9d-3e1b-4f1c-ba6f-43091eb07eef" />
+    <UnitTestResult executionId="0563cbad-55b3-432c-9df0-4e55f734eb72" testId="5d7d9748-5207-ccae-1d99-28d9c3729bbc" testName="OpenProject_WhenDirty_ShowsReplacePrompt" computerName="DESKTOP-CVGB6OE" duration="00:00:03.0072230" startTime="2026-09-03T08:36:27.4693522+05:00" endTime="2026-09-03T08:36:30.4765751+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0563cbad-55b3-432c-9df0-4e55f734eb72" />
+    <UnitTestResult executionId="884e9285-eee7-4fee-9cf1-c04bb0c99825" testId="4c440843-9391-f379-4b9a-dde9241318ca" testName="CalculateR1_ZeroLambda_ThrowsInvalidOperationException" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0003810" startTime="2026-09-03T08:36:21.2370242+05:00" endTime="2026-09-03T08:36:21.2374049+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="884e9285-eee7-4fee-9cf1-c04bb0c99825" />
+    <UnitTestResult executionId="d9479bef-0e26-4d02-ab96-0359e4db1101" testId="48e23a5f-15b9-dd2f-b242-e972ab9a37a9" testName="SaveAsync_WhenFileServiceThrows_ExceptionPropagates" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0036890" startTime="2026-09-03T08:36:21.0493550+05:00" endTime="2026-09-03T08:36:21.0530437+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d9479bef-0e26-4d02-ab96-0359e4db1101" />
+    <UnitTestResult executionId="faad8ef1-ba0e-4530-b732-2d922e601c6a" testId="5a9ca12e-9ed5-7302-3425-d972e45deb44" testName="GetTotalThicknessAbovePipe_MultipleLayers_ReturnsSum" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0005530" startTime="2026-09-03T08:36:21.2418951+05:00" endTime="2026-09-03T08:36:21.2424480+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="faad8ef1-ba0e-4530-b732-2d922e601c6a" />
+    <UnitTestResult executionId="a70870cd-d59a-4071-b220-c9b138dcfd81" testId="14d0a155-4e0d-af37-2437-8a902a3bdc09" testName="LoadProjectData_WhenRestorePreflightRejects_DoesNotPublishSuccessOrPath" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0014070" startTime="2026-09-03T08:36:21.4356461+05:00" endTime="2026-09-03T08:36:21.4370531+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a70870cd-d59a-4071-b220-c9b138dcfd81" />
+    <UnitTestResult executionId="e060bdfb-704f-471a-aac9-310291252c0d" testId="0f4f021c-c8fc-1f23-786b-c5b6c4539b9f" testName="CalculateR1_SingleLayer_ReturnsCorrectValue" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0003320" startTime="2026-09-03T08:36:21.2366823+05:00" endTime="2026-09-03T08:36:21.2370141+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e060bdfb-704f-471a-aac9-310291252c0d" />
+    <UnitTestResult executionId="4a71aa2b-a2ca-4cc1-82c1-63714d2a193f" testId="c6ec8cfe-bca1-c57f-bcca-0b8a8b35cd47" testName="SaveProject_Failure_PreservesDirtyStateAndShowsError" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0035580" startTime="2026-09-03T08:36:30.6460224+05:00" endTime="2026-09-03T08:36:30.6495800+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4a71aa2b-a2ca-4cc1-82c1-63714d2a193f" />
+    <UnitTestResult executionId="3f0e4d59-985f-450f-9d5d-c1581f2a2919" testId="09ba8c26-dfc0-3644-178f-c51c6fdcd1c9" testName="ResultsViewModel_LoadProjectData_SyncsClimateToSingletonData" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0050029" startTime="2026-09-03T08:36:30.6242268+05:00" endTime="2026-09-03T08:36:30.6292293+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3f0e4d59-985f-450f-9d5d-c1581f2a2919" />
+    <UnitTestResult executionId="6c07679b-15bd-48f7-bcc5-6f00d6e8e103" testId="443d3503-65c0-c1c2-0e1f-a143c16ef872" testName="ImportProjectMaterialsAsync_ExistingId_Skips" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0024340" startTime="2026-09-03T08:36:21.2431215+05:00" endTime="2026-09-03T08:36:21.2455550+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6c07679b-15bd-48f7-bcc5-6f00d6e8e103" />
+    <UnitTestResult executionId="462207c9-19cd-4de7-b95c-c1ea16c6583f" testId="9fc34cc5-3b49-20cb-8ff0-252c9693852f" testName="ImportProjectTemplatesAsync_RemapsMaterialIdByName" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0009700" startTime="2026-09-03T08:36:21.2506655+05:00" endTime="2026-09-03T08:36:21.2516349+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="462207c9-19cd-4de7-b95c-c1ea16c6583f" />
+    <UnitTestResult executionId="7de9ba0b-cd1a-44cb-87e1-c74b4d0da43e" testId="ac264356-96ba-a237-8c87-cafc9af28c5c" testName="ProjectData_Load_KeepsCatalogsReadOnly_CustomMaterialsStayProjectLocal" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0021760" startTime="2026-09-03T08:36:21.2925537+05:00" endTime="2026-09-03T08:36:21.2947297+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7de9ba0b-cd1a-44cb-87e1-c74b4d0da43e" />
+    <UnitTestResult executionId="30dcdbb1-2d20-459e-a0b7-14c4a76b2496" testId="d75b8a3d-4069-fb20-ab80-f7a241b9cb65" testName="LoadProjectFromPathAsync_WhenEmptyPath_DoesNothing" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0025660" startTime="2026-09-03T08:36:21.4370742+05:00" endTime="2026-09-03T08:36:21.4396404+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="30dcdbb1-2d20-459e-a0b7-14c4a76b2496" />
+    <UnitTestResult executionId="8d3a1974-129d-4d48-af5d-0b890d97e61f" testId="7b2b29da-65e4-0a58-0254-af5c6a79beba" testName="ImportProjectTemplatesAsync_SkipsWhenMaterialUnresolved" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0005770" startTime="2026-09-03T08:36:21.2522323+05:00" endTime="2026-09-03T08:36:21.2528091+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8d3a1974-129d-4d48-af5d-0b890d97e61f" />
+    <UnitTestResult executionId="2ebc13bd-e77a-4247-8738-a9924bb44389" testId="7b3de05a-9b52-2a02-200d-43a25ab10e0e" testName="ProjectRoundTrip_LambdaUpdatesWhenGroundwaterLevelChanges" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0066600" startTime="2026-09-03T08:36:30.5762428+05:00" endTime="2026-09-03T08:36:30.5829026+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2ebc13bd-e77a-4247-8738-a9924bb44389" />
+    <UnitTestResult executionId="92a590e8-26f8-4da6-87fc-e1f95ba71135" testId="e4efa3c4-1133-cb50-18cc-a911f3a0b72e" testName="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportPdf&quot;)" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0008930" startTime="2026-09-03T08:36:21.2294299+05:00" endTime="2026-09-03T08:36:21.2303222+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="92a590e8-26f8-4da6-87fc-e1f95ba71135" />
+    <UnitTestResult executionId="508bc136-4137-4a60-9ca9-43df705bc038" testId="e8ff6de3-8bc1-3a86-d880-9ada5f143f18" testName="CreateFromTemplate_ValidTemplate_ReturnsConstruction" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0015810" startTime="2026-09-03T08:36:21.2402969+05:00" endTime="2026-09-03T08:36:21.2418782+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="508bc136-4137-4a60-9ca9-43df705bc038" />
+    <UnitTestResult executionId="9f1c4079-d77c-45f8-9dbf-78eb34e81a8a" testId="5c367de0-08e2-77fe-acf1-2c8b0a23e7cc" testName="ImportProjectMaterialsAsync_ExistingNameCaseInsensitive_Skips" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0006900" startTime="2026-09-03T08:36:21.2455735+05:00" endTime="2026-09-03T08:36:21.2462632+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9f1c4079-d77c-45f8-9dbf-78eb34e81a8a" />
+    <UnitTestResult executionId="2feef8db-9a85-4063-a303-8b8080e86a57" testId="cf27b96b-5aa7-0448-965d-cc999e612ba1" testName="CalculateR1_NegativeLambda_ThrowsInvalidOperationException" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0010950" startTime="2026-09-03T08:36:21.2355709+05:00" endTime="2026-09-03T08:36:21.2366660+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2feef8db-9a85-4063-a303-8b8080e86a57" />
+    <UnitTestResult executionId="5d94d893-6cf8-4050-b3f2-913a39cee51e" testId="4a07ac4a-e457-bd53-0712-26ddeb1758e4" testName="SaveCurrentProject_PersistsThermalStateSnapshot_NotThermalViewModelMirror" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0025450" startTime="2026-09-03T08:36:30.6434591+05:00" endTime="2026-09-03T08:36:30.6460042+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5d94d893-6cf8-4050-b3f2-913a39cee51e" />
+    <UnitTestResult executionId="8d6331d1-64dd-4263-89c9-ced018a119cf" testId="d189edb4-d62a-e98f-e9b4-30b0e52ca47a" testName="LoadProjectData_KpiReflectSavedThermalResult_WithoutCityReselection" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0030420" startTime="2026-09-03T08:36:21.4138840+05:00" endTime="2026-09-03T08:36:21.4169261+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8d6331d1-64dd-4263-89c9-ced018a119cf" />
+    <UnitTestResult executionId="4f1a39fc-f52e-4850-9cb8-f36b03fff414" testId="c99f619f-47fd-7a10-880f-1ed892a17354" testName="ResolveView_CachedResultsEntryRefreshesProjectionBeforeReturningSameView" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0657360" startTime="2026-09-03T08:36:21.1494606+05:00" endTime="2026-09-03T08:36:21.2151960+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4f1a39fc-f52e-4850-9cb8-f36b03fff414" />
+    <UnitTestResult executionId="fc397d27-ba17-47a0-9427-649145d6c75b" testId="01baccce-3192-1710-181b-5946b1582529" testName="ThermalViewModel_Reset_ReturnsToDefaultsAndDoesNotMarkDirty" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0035780" startTime="2026-09-03T08:36:21.1416673+05:00" endTime="2026-09-03T08:36:21.1452449+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fc397d27-ba17-47a0-9427-649145d6c75b" />
+    <UnitTestResult executionId="41227d29-5504-4340-b2a9-f30576d0cae0" testId="23d37f00-93db-b37d-471a-f40f0e2ccfae" testName="ResultsViewModel_LoadProjectData_SelectsFirstCollectorAndEnablesCommands" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0027399" startTime="2026-09-03T08:36:30.6214703+05:00" endTime="2026-09-03T08:36:30.6242097+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="41227d29-5504-4340-b2a9-f30576d0cae0" />
+    <UnitTestResult executionId="ba1a3083-c6e6-4ad7-b4f5-3887a262d739" testId="8c3e9570-53c8-851b-3943-d201b871fbc7" testName="LoadProjectDataAsync_RefreshesAfterModuleRestoreBeforeProjectChangedAndMarkClean" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0006890" startTime="2026-09-03T08:36:21.1468494+05:00" endTime="2026-09-03T08:36:21.1475382+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ba1a3083-c6e6-4ad7-b4f5-3887a262d739" />
+    <UnitTestResult executionId="93c68d6f-4c45-46ef-ae76-d1267ec12496" testId="46a273e3-5d5d-c30d-e92b-d7bde076f5b8" testName="ProjectRoundTrip_PreservesLambdaValueButResetsOverrideFlag" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0031230" startTime="2026-09-03T08:36:30.6052777+05:00" endTime="2026-09-03T08:36:30.6084007+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="93c68d6f-4c45-46ef-ae76-d1267ec12496" />
+    <UnitTestResult executionId="49641ef3-58d7-454d-b7e3-9ebcdf9463c8" testId="0d764722-03ae-44ed-9304-8d0708ccb6c6" testName="RefreshAll_WhenInputsChangeButValidResultIsRetained_PreservesOutputWithoutCalculation" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0042900" startTime="2026-09-03T08:36:21.3467785+05:00" endTime="2026-09-03T08:36:21.3510679+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="49641ef3-58d7-454d-b7e3-9ebcdf9463c8" />
+    <UnitTestResult executionId="53d7497c-2dca-498f-8f2a-64c4f3d5845b" testId="c845647b-4379-4f1a-00a9-24db45f5252a" testName="LoadProjectData_ClimateIsNotMarkedAsUserModified" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0022280" startTime="2026-09-03T08:36:21.3972927+05:00" endTime="2026-09-03T08:36:21.3995208+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="53d7497c-2dca-498f-8f2a-64c4f3d5845b" />
+    <UnitTestResult executionId="3ae5f2b5-fd58-4f3a-9dfd-bd294d9e9112" testId="b23f9dbc-bde9-0591-320f-5d8221f75bae" testName="LoadProjectData_MissingOrInvalidThermalResult_UsesLoadOnlyFallbackAndRefreshDoesNotRecalculate" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0077680" startTime="2026-09-03T08:36:21.4169434+05:00" endTime="2026-09-03T08:36:21.4247112+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3ae5f2b5-fd58-4f3a-9dfd-bd294d9e9112" />
+    <UnitTestResult executionId="8b2a3b6f-df0d-45da-9b89-051d7a62bea0" testId="6a9780a6-2698-cd4e-24ef-ed9ec7bab147" testName="MaterialAroundPipe_IsLastAbovePipeLayer" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0004640" startTime="2026-09-03T08:36:21.2528233+05:00" endTime="2026-09-03T08:36:21.2532872+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8b2a3b6f-df0d-45da-9b89-051d7a62bea0" />
+    <UnitTestResult executionId="b5410115-dd8a-462f-8dd5-06ab6966e92b" testId="17b8c735-a1bc-22c4-9ffa-9afe2543199d" testName="ValidateConstruction_ThinLayerAbovePipe_ReturnsInvalidResult" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0007870" startTime="2026-09-03T08:36:21.3082102+05:00" endTime="2026-09-03T08:36:21.3089970+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b5410115-dd8a-462f-8dd5-06ab6966e92b" />
+    <UnitTestResult executionId="da20c596-99e7-4367-ae10-29e5a92ffa28" testId="8c81b2a8-df7a-c63c-20fd-9c0b06330cd4" testName="ProjectRoundTrip_CustomTemplateSurvives" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0034360" startTime="2026-09-03T08:36:21.3044377+05:00" endTime="2026-09-03T08:36:21.3078734+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="da20c596-99e7-4367-ae10-29e5a92ffa28" />
+    <UnitTestResult executionId="29253faf-5d88-4333-964a-6e8ff2f9189f" testId="bf152f44-9e78-ea55-ccf6-44ec2358c98a" testName="LoadProjectFromPathAsync_WhenSuccess_LoadsDataAndSetsCurrentFilePath" computerName="DESKTOP-CVGB6OE" duration="00:00:03.0155420" startTime="2026-09-03T08:36:21.4430495+05:00" endTime="2026-09-03T08:36:24.4585913+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="29253faf-5d88-4333-964a-6e8ff2f9189f" />
+    <UnitTestResult executionId="fcf6b16d-a3df-44e8-a826-4cedc27abe9e" testId="bca05f08-f85b-b9dd-202e-0a6dd436f917" testName="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportOperatingMarkdownReport&quot;)" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0003180" startTime="2026-09-03T08:36:21.2312060+05:00" endTime="2026-09-03T08:36:21.2315236+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fcf6b16d-a3df-44e8-a826-4cedc27abe9e" />
+    <UnitTestResult executionId="08afeda8-bfe8-478a-a670-57a242b04761" testId="6d38ff0a-6551-ec9c-d4bc-3ea5f415bf84" testName="LoadProjectData_InvalidSavedResultPublishesFreshUiAndPdfValuesOnce" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0143260" startTime="2026-09-03T08:36:21.3995359+05:00" endTime="2026-09-03T08:36:21.4138620+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="08afeda8-bfe8-478a-a670-57a242b04761" />
+    <UnitTestResult executionId="53884e94-e9ec-4cab-8e2a-d94f99b37439" testId="d635569a-ab93-2d0a-40c2-f1a17cf8668a" testName="ProjectData_Save_v1_1_SetsVersion" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0047300" startTime="2026-09-03T08:36:21.2996923+05:00" endTime="2026-09-03T08:36:21.3044218+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="53884e94-e9ec-4cab-8e2a-d94f99b37439" />
+    <UnitTestResult executionId="9b96cf87-a90d-49cb-8ec1-d40ddec5ef93" testId="189095cd-1474-7ea8-12a7-a0d7fe681a4d" testName="SaveAsync_WhenFileServiceReturnsFailure_ReturnsOperationResultUnchanged" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0018840" startTime="2026-09-03T08:36:21.0474474+05:00" endTime="2026-09-03T08:36:21.0493307+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9b96cf87-a90d-49cb-8ec1-d40ddec5ef93" />
+    <UnitTestResult executionId="b2b0a2ec-4366-4ef2-87d8-ffae49e0e20a" testId="14324a37-0558-90d1-8efa-3293b26b7511" testName="ProjectRoundTrip_PreservesGroundwaterLevel" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0030000" startTime="2026-09-03T08:36:30.5993691+05:00" endTime="2026-09-03T08:36:30.6023686+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b2b0a2ec-4366-4ef2-87d8-ffae49e0e20a" />
+    <UnitTestResult executionId="37dfe418-867a-4486-b1f6-98df068243ac" testId="ee3d6833-054d-227f-08ad-d87d97139672" testName="OpenProject_WhenDirtyAndUserPicksNo_DoesNotLoad" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0109290" startTime="2026-09-03T08:36:30.4766012+05:00" endTime="2026-09-03T08:36:30.4875296+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="37dfe418-867a-4486-b1f6-98df068243ac" />
+    <UnitTestResult executionId="7f457699-126d-4140-8418-cb3f30944e8d" testId="036fcdd4-85ae-69ac-1dfa-21ead4164680" testName="ResultsViewModel_LoadProject_TwoCollectors_RestoresIndependentSummaryCards" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0052710" startTime="2026-09-03T08:36:30.6136717+05:00" endTime="2026-09-03T08:36:30.6189432+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7f457699-126d-4140-8418-cb3f30944e8d" />
+    <UnitTestResult executionId="0345f46d-f2df-48bf-840f-bf4a0fe21ffe" testId="068fde29-7f38-6e3f-b9d1-5ce31c98bd79" testName="CollectorEquipmentItems_GroupsMixedValveTypesWithExactQuantityAndCircuitCount" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0062360" startTime="2026-09-03T08:36:21.3768694+05:00" endTime="2026-09-03T08:36:21.3831053+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0345f46d-f2df-48bf-840f-bf4a0fe21ffe" />
+    <UnitTestResult executionId="e7ee7e09-c3de-4037-b8c4-7597ff670799" testId="85d9d9d0-8b8f-44e5-167a-325077f24ce4" testName="ImportProjectTemplatesAsync_AddsNewTemplate" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0029180" startTime="2026-09-03T08:36:21.2477260+05:00" endTime="2026-09-03T08:36:21.2506436+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e7ee7e09-c3de-4037-b8c4-7597ff670799" />
+    <UnitTestResult executionId="345d95ca-1886-4bcc-a3a1-396bc3e198e0" testId="1278c02a-4c5e-758b-e534-1cf58d14f7b0" testName="SaveCurrentProject_PersistsClimateStateSnapshot_NotClimateViewModelMirror" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0025620" startTime="2026-09-03T08:36:30.6375582+05:00" endTime="2026-09-03T08:36:30.6401195+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="345d95ca-1886-4bcc-a3a1-396bc3e198e0" />
+    <UnitTestResult executionId="d91c3ff4-39c0-4f68-9cbe-bced8b9a3a80" testId="30d3c1ec-8edb-b753-1621-f72edc6fe9c9" testName="ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0023580" startTime="2026-09-03T08:36:30.6292549+05:00" endTime="2026-09-03T08:36:30.6316130+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d91c3ff4-39c0-4f68-9cbe-bced8b9a3a80">
+      <Output>
+        <StdOut>F5 smoke fixture не найден: D:\IA\ace\Тест\тест 40.smc. Положите файл «тест 40.smc» в «D:\IA\ace\Тест\», и тест начнёт проверять реальные значения.</StdOut>
+        <ErrorInfo>
+          <Message>F5 smoke fixture не найден: D:\IA\ace\Тест\тест 40.smc. Положите файл «тест 40.smc» в «D:\IA\ace\Тест\», и тест начнёт проверять реальные значения.</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="ff7a4ada-a654-43e1-ba19-ea05f54bee67" testId="df4a4d30-fb96-6170-ab1f-a1b6febb3cf6" testName="CircuitsViewModel_Reset_ReturnsToOneCollectorWithTwoCircuitsAndDoesNotMarkDirty" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0203030" startTime="2026-09-03T08:36:21.0678253+05:00" endTime="2026-09-03T08:36:21.0881281+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ff7a4ada-a654-43e1-ba19-ea05f54bee67" />
+    <UnitTestResult executionId="c5a25a7e-e37e-4574-a739-d156fdab2cf0" testId="02b404db-98c3-9e10-ed8f-f03a370db4c2" testName="ValidateConstruction_ValidConstruction_ReturnsValidResult" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0002990" startTime="2026-09-03T08:36:21.3090119+05:00" endTime="2026-09-03T08:36:21.3093104+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c5a25a7e-e37e-4574-a739-d156fdab2cf0" />
+    <UnitTestResult executionId="db208ba3-e189-4c14-b986-6e9d73993994" testId="6177a9e1-d8b2-a6e4-f7b0-3c07a35a016c" testName="ProjectRoundTrip_FieldCompleteRoundTrip_SecondLoadReplacesProjectA" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0180430" startTime="2026-09-03T08:36:30.5581757+05:00" endTime="2026-09-03T08:36:30.5762186+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="db208ba3-e189-4c14-b986-6e9d73993994" />
+    <UnitTestResult executionId="b0a82347-e318-411b-9519-7dc094bc41b5" testId="729efd80-556a-adb1-ec37-7034b346d87e" testName="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;PrintPdf&quot;)" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0003420" startTime="2026-09-03T08:36:21.2308490+05:00" endTime="2026-09-03T08:36:21.2311910+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b0a82347-e318-411b-9519-7dc094bc41b5" />
+    <UnitTestResult executionId="a3215b3a-7c91-48cb-aa68-d0fa992ae985" testId="95e243aa-045e-fbec-a5c6-4b2c541d2407" testName="ToggleMode_WritesDisplayModeOnlyOnResultsOwnedRows" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0082869" startTime="2026-09-03T08:36:21.3097280+05:00" endTime="2026-09-03T08:36:21.3180144+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a3215b3a-7c91-48cb-aa68-d0fa992ae985" />
+    <UnitTestResult executionId="b988954b-e4cd-47ed-b6ef-adfe8dc2d2a2" testId="19dbed00-a4c2-c0b7-8b71-9ee9b7215697" testName="SaveCurrentProject_PersistsConstructionStateSnapshot_NotConstructionViewModelMirror" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0032840" startTime="2026-09-03T08:36:30.6401547+05:00" endTime="2026-09-03T08:36:30.6434390+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b988954b-e4cd-47ed-b6ef-adfe8dc2d2a2" />
+    <UnitTestResult executionId="7ce0e056-6668-4987-884f-a7d4637e143a" testId="0940f7b0-d3ef-ce63-449e-e46dfcaaf803" testName="OpenProject_WhenClean_DoesNotShowPrompt" computerName="DESKTOP-CVGB6OE" duration="00:00:03.0106850" startTime="2026-09-03T08:36:24.4586309+05:00" endTime="2026-09-03T08:36:27.4693152+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7ce0e056-6668-4987-884f-a7d4637e143a" />
+    <UnitTestResult executionId="b22638e4-5e83-42ba-ae89-abc287207f53" testId="536a0a44-a47b-390b-5b5f-67b4c2ef7939" testName="ProjectRoundTrip_CitySurvivesRealSaveLoad" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0106440" startTime="2026-09-03T08:36:30.5418306+05:00" endTime="2026-09-03T08:36:30.5524744+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b22638e4-5e83-42ba-ae89-abc287207f53" />
+    <UnitTestResult executionId="bd988e18-0be9-4b80-b646-e61809ef9213" testId="e3c2f7c1-c74d-7665-9367-ea3fee19fb0d" testName="ClimateViewModel_UserReset_ReturnsToDefaultsAndMarksDirty" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0109620" startTime="2026-09-03T08:36:21.0881584+05:00" endTime="2026-09-03T08:36:21.0991200+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="bd988e18-0be9-4b80-b646-e61809ef9213" />
+    <UnitTestResult executionId="bfc26c7f-5d5a-499a-9fc4-41442819fed6" testId="f33f4333-77c6-ebe4-5886-fee811f80897" testName="CalculateR2_SingleLayer_ReturnsCorrectValue" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0002950" startTime="2026-09-03T08:36:21.2387209+05:00" endTime="2026-09-03T08:36:21.2390155+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="bfc26c7f-5d5a-499a-9fc4-41442819fed6" />
+    <UnitTestResult executionId="1eda2e2b-80a8-4091-a3d8-f4ad30d121b9" testId="2fa672d0-1e38-1145-6480-b85e958dbde2" testName="RefreshAll_ProjectsCollectorCircuitSpecificationsEquipmentCardsAndKpi" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0025370" startTime="2026-09-03T08:36:21.3442252+05:00" endTime="2026-09-03T08:36:21.3467624+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1eda2e2b-80a8-4091-a3d8-f4ad30d121b9" />
+    <UnitTestResult executionId="455cc050-e4c0-425b-858a-4fa43338e63a" testId="b152a265-bf50-5376-260d-4ade075b8364" testName="ResultsViewModel_Reset_ClearsHydraulicSummaryCards" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0034900" startTime="2026-09-03T08:36:30.6316324+05:00" endTime="2026-09-03T08:36:30.6351225+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="455cc050-e4c0-425b-858a-4fa43338e63a" />
+    <UnitTestResult executionId="4a43adba-0dbe-4041-b15a-01e8b854b4a6" testId="2d6c5771-5de9-5620-c027-768262bd725a" testName="ValidateConstruction_NoLayers_ReturnsInvalidResult" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0003089" startTime="2026-09-03T08:36:21.3078919+05:00" endTime="2026-09-03T08:36:21.3082006+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4a43adba-0dbe-4041-b15a-01e8b854b4a6" />
+    <UnitTestResult executionId="3500ccde-fc8b-4e3b-b5ab-b9c5d84fab6c" testId="f2041192-ea82-d1c4-9e07-3a78c5761d5c" testName="ProjectRoundTrip_LiveMutationsAreSavedLoadedAndExportedWithoutResultsCalculation" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0104650" startTime="2026-09-03T08:36:30.5864129+05:00" endTime="2026-09-03T08:36:30.5968777+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3500ccde-fc8b-4e3b-b5ab-b9c5d84fab6c" />
+    <UnitTestResult executionId="161ff0e1-2f74-4423-95a1-fb4de1b5394a" testId="a01b7098-2614-1bf3-b70e-479159af9e89" testName="ProjectRoundTrip_PipeSelectionRestored" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0024450" startTime="2026-09-03T08:36:30.5969012+05:00" endTime="2026-09-03T08:36:30.5993464+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="161ff0e1-2f74-4423-95a1-fb4de1b5394a" />
+    <UnitTestResult executionId="fb69f57d-8b28-493b-8fed-3a7fd3af4dfd" testId="96333010-c421-cf78-6774-413dc7fa01e8" testName="SaveToFileSourceSlice_RejectsSaveCurrentProject" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0090350" startTime="2026-09-03T08:36:21.0573993+05:00" endTime="2026-09-03T08:36:21.0664342+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fb69f57d-8b28-493b-8fed-3a7fd3af4dfd" />
+    <UnitTestResult executionId="bd16e4b2-3213-4c9c-8573-3d529d29248b" testId="5c89b53b-3837-4bdb-d066-daabd46eea5d" testName="CollectorEquipmentItems_GroupsSameValveTypeAndCircuitCount" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0026720" startTime="2026-09-03T08:36:21.3831305+05:00" endTime="2026-09-03T08:36:21.3858026+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="bd16e4b2-3213-4c9c-8573-3d529d29248b" />
+    <UnitTestResult executionId="48768f00-d8f8-42eb-a13b-061be624b82f" testId="c9dbe549-0191-579c-b6ef-8db7e1d60e12" testName="CalculateR2_LowGroundwater_UsesLambdaA" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0003210" startTime="2026-09-03T08:36:21.2380654+05:00" endTime="2026-09-03T08:36:21.2383859+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="48768f00-d8f8-42eb-a13b-061be624b82f" />
+    <UnitTestResult executionId="6348c297-2376-4afa-b74e-c126534ff5e6" testId="8d13f955-24fc-5e9e-b22e-149bdc3c6a27" testName="ResultsPdfData_UsesCircuitRowThrottling_ForZuDrosseln" computerName="DESKTOP-CVGB6OE" duration="00:00:00.0018880" startTime="2026-09-03T08:36:30.6084197+05:00" endTime="2026-09-03T08:36:30.6103072+05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6348c297-2376-4afa-b74e-c126534ff5e6" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="UpdateCircuitsFilter_ReconstructsResultsOwnedRows_FromCanonicalSnapshot" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="53894312-25f0-84d3-2d84-12ddcd438a37">
+      <Execution id="2918e7a6-3887-4ee0-8c1b-aa43a8fd712a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsOwnedCircuitProjectionTests" name="UpdateCircuitsFilter_ReconstructsResultsOwnedRows_FromCanonicalSnapshot" />
+    </UnitTest>
+    <UnitTest name="ValidateConstruction_WithLoads_RequiresThickerLayer" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="d6b84075-6f90-568a-304d-ffa02d063113">
+      <Execution id="1e1fbdb6-6288-468a-8332-f9eadbe8808d" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ValidateConstruction_WithLoads_RequiresThickerLayer" />
+    </UnitTest>
+    <UnitTest name="ProjectFileService_RoundTripPreservesSchemaVersionAndJsonShape" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="84bcfe85-4fc6-c9c1-14b1-961a421f5fcc">
+      <Execution id="e5f3f6f7-8383-422e-856e-76ffb4caaf0a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectFileService_RoundTripPreservesSchemaVersionAndJsonShape" />
+    </UnitTest>
+    <UnitTest name="LoadProjectData_KpiReflectSavedThermalResult_WithoutCityReselection" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="d189edb4-d62a-e98f-e9b4-30b0e52ca47a">
+      <Execution id="8d6331d1-64dd-4263-89c9-ced018a119cf" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectData_KpiReflectSavedThermalResult_WithoutCityReselection" />
+    </UnitTest>
+    <UnitTest name="ResolveView_ResultsRefreshRemainsInsideExistingFailureBoundaryAndHasOneCallSite" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="766d1b2f-b6db-6898-c1a3-826da3004bbb">
+      <Execution id="3d74f1e6-e436-4b6c-b0eb-dabe39fa9f1d" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="ResolveView_ResultsRefreshRemainsInsideExistingFailureBoundaryAndHasOneCallSite" />
+    </UnitTest>
+    <UnitTest name="ImportProjectTemplatesAsync_SkipsExistingName" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="701461ba-b815-61ad-4cf3-73edbc0b0040">
+      <Execution id="b318fb1a-5ff6-45fa-9631-cafa336b5a84" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ImportProjectTemplatesAsync_SkipsExistingName" />
+    </UnitTest>
+    <UnitTest name="SaveAsync_WhenFileServiceReturnsFailure_ReturnsOperationResultUnchanged" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="189095cd-1474-7ea8-12a7-a0d7fe681a4d">
+      <Execution id="9b96cf87-a90d-49cb-8ec1-d40ddec5ef93" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectSaveServiceTests" name="SaveAsync_WhenFileServiceReturnsFailure_ReturnsOperationResultUnchanged" />
+    </UnitTest>
+    <UnitTest name="GroundwaterLevelChange_AfterProjectLoad_UpdatesLambdaForBelowPipeLayers" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="ffd53392-7fcb-02fc-2b89-00d1879db7c5">
+      <Execution id="e8a257e9-135c-4bb5-9059-78606bea797a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="GroundwaterLevelChange_AfterProjectLoad_UpdatesLambdaForBelowPipeLayers" />
+    </UnitTest>
+    <UnitTest name="ResultsViewModel_LoadProjectData_SyncsClimateToSingletonData" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="09ba8c26-dfc0-3644-178f-c51c6fdcd1c9">
+      <Execution id="3f0e4d59-985f-450f-9d5d-c1581f2a2919" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ResultsViewModel_LoadProjectData_SyncsClimateToSingletonData" />
+    </UnitTest>
+    <UnitTest name="OpenProject_WithInvalidCustomCatalogRecords_DoesNotMutateGlobalCatalog" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="a4bb765b-a5ac-699a-3265-ebc14f245c51">
+      <Execution id="e4dfdba6-1769-492e-9e64-7e115f16242d" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="OpenProject_WithInvalidCustomCatalogRecords_DoesNotMutateGlobalCatalog" />
+    </UnitTest>
+    <UnitTest name="LoadProjectData_SecondInvalidProjectPreservesPriorUiAndReleasesRestoreGuard" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="dbb98544-ec01-e59f-8b36-4acbd4332765">
+      <Execution id="72ba9f7b-aa4e-4df0-9fa8-a17a839966fe" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectData_SecondInvalidProjectPreservesPriorUiAndReleasesRestoreGuard" />
+    </UnitTest>
+    <UnitTest name="CollectorEquipmentItems_ClearsOnResetOrEmptyState" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="1a451851-dd58-5aa6-605a-0f384c6bc6bf">
+      <Execution id="9f7c3cd5-c574-42a1-a6a7-3e7e5aa17616" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelCollectorEquipmentItemsTests" name="CollectorEquipmentItems_ClearsOnResetOrEmptyState" />
+    </UnitTest>
+    <UnitTest name="SaveToFileSourceSlice_RejectsSaveCurrentProject" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="96333010-c421-cf78-6774-413dc7fa01e8">
+      <Execution id="fb69f57d-8b28-493b-8fed-3a7fd3af4dfd" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectSaveServiceTests" name="SaveToFileSourceSlice_RejectsSaveCurrentProject" />
+    </UnitTest>
+    <UnitTest name="SaveProject_Success_StampsDatesAndClearsDirtyOnce" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="3ece84c0-3977-aacd-ca4b-87120862662c">
+      <Execution id="7e0c71f4-0063-4b83-aaaf-8fd1a978beb9" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="SaveProject_Success_StampsDatesAndClearsDirtyOnce" />
+    </UnitTest>
+    <UnitTest name="SaveCurrentProject_AndPdfExport_TriggerZeroThermalCalculatorCalls" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="634e20de-ff09-ff3b-18e4-830f3eda5390">
+      <Execution id="f0c19c9d-3e1b-4f1c-ba6f-43091eb07eef" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="SaveCurrentProject_AndPdfExport_TriggerZeroThermalCalculatorCalls" />
+    </UnitTest>
+    <UnitTest name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportOperatingMarkdownReport&quot;)" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="bca05f08-f85b-b9dd-202e-0a6dd436f917">
+      <Execution id="fcf6b16d-a3df-44e8-a826-4cedc27abe9e" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportOperatingMarkdownReport&quot;)" />
+    </UnitTest>
+    <UnitTest name="ImportProjectTemplatesAsync_AddsNewTemplate" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="85d9d9d0-8b8f-44e5-167a-325077f24ce4">
+      <Execution id="e7ee7e09-c3de-4037-b8c4-7597ff670799" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ImportProjectTemplatesAsync_AddsNewTemplate" />
+    </UnitTest>
+    <UnitTest name="CalculateR2_SingleLayer_ReturnsCorrectValue" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="f33f4333-77c6-ebe4-5886-fee811f80897">
+      <Execution id="bfc26c7f-5d5a-499a-9fc4-41442819fed6" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="CalculateR2_SingleLayer_ReturnsCorrectValue" />
+    </UnitTest>
+    <UnitTest name="SaveCurrentProject_PersistsConstructionStateSnapshot_NotConstructionViewModelMirror" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="19dbed00-a4c2-c0b7-8b71-9ee9b7215697">
+      <Execution id="b988954b-e4cd-47ed-b6ef-adfe8dc2d2a2" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="SaveCurrentProject_PersistsConstructionStateSnapshot_NotConstructionViewModelMirror" />
+    </UnitTest>
+    <UnitTest name="PersistenceFailure_MissingOrCorruptSavedResult_FallbackOnce_InvalidNeverCanonical" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="5890bd22-c0ba-0fab-c174-aee786470204">
+      <Execution id="b6165016-5ae3-47cb-9809-9832b8234150" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="PersistenceFailure_MissingOrCorruptSavedResult_FallbackOnce_InvalidNeverCanonical" />
+    </UnitTest>
+    <UnitTest name="SaveCurrentProject_PersistsThermalStateSnapshot_NotThermalViewModelMirror" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="4a07ac4a-e457-bd53-0712-26ddeb1758e4">
+      <Execution id="5d94d893-6cf8-4050-b3f2-913a39cee51e" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="SaveCurrentProject_PersistsThermalStateSnapshot_NotThermalViewModelMirror" />
+    </UnitTest>
+    <UnitTest name="ThermalViewModel_Reset_ReturnsToDefaultsAndDoesNotMarkDirty" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="01baccce-3192-1710-181b-5946b1582529">
+      <Execution id="fc397d27-ba17-47a0-9427-649145d6c75b" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResetOrchestrationTests" name="ThermalViewModel_Reset_ReturnsToDefaultsAndDoesNotMarkDirty" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_CitySurvivesRealSaveLoad" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="536a0a44-a47b-390b-5b5f-67b4c2ef7939">
+      <Execution id="b22638e4-5e83-42ba-ae89-abc287207f53" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectRoundTrip_CitySurvivesRealSaveLoad" />
+    </UnitTest>
+    <UnitTest name="LoadAndReopen_RefreshesProjectionAndLeavesProjectClean" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="b15187f7-89e2-b76b-482c-e49ab9ba4fef">
+      <Execution id="dee41cb1-2091-432a-8c0e-792bb41d936b" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="LoadAndReopen_RefreshesProjectionAndLeavesProjectClean" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_LambdaUpdatesWhenGroundwaterLevelChanges_AfterOverride" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="5d3cfc95-017c-3b15-a04b-8057d1dd0db7">
+      <Execution id="15db4df8-8deb-4b5d-91e2-997aa4d4601b" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectRoundTrip_LambdaUpdatesWhenGroundwaterLevelChanges_AfterOverride" />
+    </UnitTest>
+    <UnitTest name="SaveCurrentProject_PersistsClimateStateSnapshot_NotClimateViewModelMirror" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="1278c02a-4c5e-758b-e534-1cf58d14f7b0">
+      <Execution id="345d95ca-1886-4bcc-a3a1-396bc3e198e0" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="SaveCurrentProject_PersistsClimateStateSnapshot_NotClimateViewModelMirror" />
+    </UnitTest>
+    <UnitTest name="ResultsViewModel_EmptyHydraulics_ZeroesKpisAndCards" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="c12ce9f3-25cb-2e14-7c73-39d23ac07298">
+      <Execution id="25a46b1d-7991-462e-80ae-bc674d49edcd" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ResultsViewModel_EmptyHydraulics_ZeroesKpisAndCards" />
+    </UnitTest>
+    <UnitTest name="RefreshAll_WhenSourceResultIsCleared_ZerosOutputAndMarksNotReady" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="b9bad301-50c0-8b2f-89c1-0dec91a75935">
+      <Execution id="c3a308f8-5416-46cc-a35d-bf2626c63794" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="RefreshAll_WhenSourceResultIsCleared_ZerosOutputAndMarksNotReady" />
+    </UnitTest>
+    <UnitTest name="ResultsViewModel_Reset_ClearsHydraulicSummaryCards" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="b152a265-bf50-5376-260d-4ade075b8364">
+      <Execution id="455cc050-e4c0-425b-858a-4fa43338e63a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ResultsViewModel_Reset_ClearsHydraulicSummaryCards" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_PreservesLambdaValueButResetsOverrideFlag" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="46a273e3-5d5d-c30d-e92b-d7bde076f5b8">
+      <Execution id="93c68d6f-4c45-46ef-ae76-d1267ec12496" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectRoundTrip_PreservesLambdaValueButResetsOverrideFlag" />
+    </UnitTest>
+    <UnitTest name="ValidateConstruction_ValidConstruction_ReturnsValidResult" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="02b404db-98c3-9e10-ed8f-f03a370db4c2">
+      <Execution id="c5a25a7e-e37e-4574-a739-d156fdab2cf0" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ValidateConstruction_ValidConstruction_ReturnsValidResult" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_PipeSelectionRestored" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="a01b7098-2614-1bf3-b70e-479159af9e89">
+      <Execution id="161ff0e1-2f74-4423-95a1-fb4de1b5394a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectRoundTrip_PipeSelectionRestored" />
+    </UnitTest>
+    <UnitTest name="SaveAsync_WhenFileServiceThrows_ExceptionPropagates" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="48e23a5f-15b9-dd2f-b242-e972ab9a37a9">
+      <Execution id="d9479bef-0e26-4d02-ab96-0359e4db1101" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectSaveServiceTests" name="SaveAsync_WhenFileServiceThrows_ExceptionPropagates" />
+    </UnitTest>
+    <UnitTest name="CalculateR1_EmptyCollection_ReturnsZero" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="340541ee-5b35-3a15-d215-32966ef95dda">
+      <Execution id="a120bbab-8f50-4c02-bde1-2846962cb23c" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="CalculateR1_EmptyCollection_ReturnsZero" />
+    </UnitTest>
+    <UnitTest name="ResultsPdfData_UsesCircuitRowThrottling_ForZuDrosseln" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="8d13f955-24fc-5e9e-b22e-149bdc3c6a27">
+      <Execution id="6348c297-2376-4afa-b74e-c126534ff5e6" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ResultsPdfData_UsesCircuitRowThrottling_ForZuDrosseln" />
+    </UnitTest>
+    <UnitTest name="ValidateConstruction_NoLayers_ReturnsInvalidResult" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="2d6c5771-5de9-5620-c027-768262bd725a">
+      <Execution id="4a43adba-0dbe-4041-b15a-01e8b854b4a6" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ValidateConstruction_NoLayers_ReturnsInvalidResult" />
+    </UnitTest>
+    <UnitTest name="OpenProject_WhenDirty_ShowsReplacePrompt" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="5d7d9748-5207-ccae-1d99-28d9c3729bbc">
+      <Execution id="0563cbad-55b3-432c-9df0-4e55f734eb72" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="OpenProject_WhenDirty_ShowsReplacePrompt" />
+    </UnitTest>
+    <UnitTest name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportExcel&quot;)" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="4b48bfa2-cb48-ea00-97b0-9de9a3b80fa3">
+      <Execution id="cc2b5c82-0b70-42ac-a821-cedf10c819f5" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportExcel&quot;)" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_DoesNotMarkDirtyOnLoad" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="3bac974d-48cc-8aeb-25b2-6b1f6ed831fb">
+      <Execution id="1ba13c6f-13f3-4071-9bbf-8267d745b8ba" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectRoundTrip_DoesNotMarkDirtyOnLoad" />
+    </UnitTest>
+    <UnitTest name="OpenProject_WhenDirtyAndUserPicksNo_DoesNotLoad" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="ee3d6833-054d-227f-08ad-d87d97139672">
+      <Execution id="37dfe418-867a-4486-b1f6-98df068243ac" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="OpenProject_WhenDirtyAndUserPicksNo_DoesNotLoad" />
+    </UnitTest>
+    <UnitTest name="CalculateR1_SingleLayer_ReturnsCorrectValue" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="0f4f021c-c8fc-1f23-786b-c5b6c4539b9f">
+      <Execution id="e060bdfb-704f-471a-aac9-310291252c0d" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="CalculateR1_SingleLayer_ReturnsCorrectValue" />
+    </UnitTest>
+    <UnitTest name="ImportProjectMaterialsAsync_ExistingNameCaseInsensitive_Skips" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="5c367de0-08e2-77fe-acf1-2c8b0a23e7cc">
+      <Execution id="9f1c4079-d77c-45f8-9dbf-78eb34e81a8a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ImportProjectMaterialsAsync_ExistingNameCaseInsensitive_Skips" />
+    </UnitTest>
+    <UnitTest name="LoadProjectFromPathAsync_WhenSuccess_LoadsDataAndSetsCurrentFilePath" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="bf152f44-9e78-ea55-ccf6-44ec2358c98a">
+      <Execution id="29253faf-5d88-4333-964a-6e8ff2f9189f" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectFromPathAsync_WhenSuccess_LoadsDataAndSetsCurrentFilePath" />
+    </UnitTest>
+    <UnitTest name="SaveAsync_PassesCancellationTokenUnchanged" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="2028b32f-4b49-3551-0e23-3c2e0c410193">
+      <Execution id="0073f40f-327c-4241-8746-a03a997484fc" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectSaveServiceTests" name="SaveAsync_PassesCancellationTokenUnchanged" />
+    </UnitTest>
+    <UnitTest name="LoadProjectData_MissingOrInvalidThermalResult_UsesLoadOnlyFallbackAndRefreshDoesNotRecalculate" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="b23f9dbc-bde9-0591-320f-5d8221f75bae">
+      <Execution id="3ae5f2b5-fd58-4f3a-9dfd-bd294d9e9112" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectData_MissingOrInvalidThermalResult_UsesLoadOnlyFallbackAndRefreshDoesNotRecalculate" />
+    </UnitTest>
+    <UnitTest name="PersistenceFailure_FailedFileOperation_PreservesErrorStateWithoutSchemaDrift" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="ccf8e5ab-128e-d80b-9e18-8a5112a605af">
+      <Execution id="afac5bca-91a7-4ff0-bdaa-bab798ba463a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="PersistenceFailure_FailedFileOperation_PreservesErrorStateWithoutSchemaDrift" />
+    </UnitTest>
+    <UnitTest name="CircuitsViewModel_Reset_ReturnsToOneCollectorWithTwoCircuitsAndDoesNotMarkDirty" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="df4a4d30-fb96-6170-ab1f-a1b6febb3cf6">
+      <Execution id="ff7a4ada-a654-43e1-ba19-ea05f54bee67" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResetOrchestrationTests" name="CircuitsViewModel_Reset_ReturnsToOneCollectorWithTwoCircuitsAndDoesNotMarkDirty" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_LambdaUpdatesWhenGroundwaterLevelChanges" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="7b3de05a-9b52-2a02-200d-43a25ab10e0e">
+      <Execution id="2ebc13bd-e77a-4247-8738-a9924bb44389" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectRoundTrip_LambdaUpdatesWhenGroundwaterLevelChanges" />
+    </UnitTest>
+    <UnitTest name="ProjectSaveServiceSource_RejectsViewModelAndWpfReferences" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="46a40d61-efc3-1931-0d41-b5a0c6239c21">
+      <Execution id="5e1c9d8d-c743-45ea-b824-0fe7f0162c0c" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectSaveServiceTests" name="ProjectSaveServiceSource_RejectsViewModelAndWpfReferences" />
+    </UnitTest>
+    <UnitTest name="MaterialAroundPipe_IsLastAbovePipeLayer" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="6a9780a6-2698-cd4e-24ef-ed9ec7bab147">
+      <Execution id="8b2a3b6f-df0d-45da-9b89-051d7a62bea0" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="MaterialAroundPipe_IsLastAbovePipeLayer" />
+    </UnitTest>
+    <UnitTest name="ResultsPdfDataBuilder_UsesConstructionLayersAndImageParametersFromSameCurrentSource" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="8d421899-006f-bf4b-f2af-5fed09704780">
+      <Execution id="5940e502-51bb-4ea6-a1f9-120a2bcee34f" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="ResultsPdfDataBuilder_UsesConstructionLayersAndImageParametersFromSameCurrentSource" />
+    </UnitTest>
+    <UnitTest name="CreateFromTemplate_ValidTemplate_ReturnsConstruction" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="e8ff6de3-8bc1-3a86-d880-9ada5f143f18">
+      <Execution id="508bc136-4137-4a60-9ca9-43df705bc038" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="CreateFromTemplate_ValidTemplate_ReturnsConstruction" />
+    </UnitTest>
+    <UnitTest name="ResolveView_NonResultsNavigationReturnsCachedNonResultsView" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="f0e9480e-64d9-0663-0e2b-3a37ffa4e8b9">
+      <Execution id="eea7ec58-75ff-4a76-8f05-496d0b5c4edd" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="ResolveView_NonResultsNavigationReturnsCachedNonResultsView" />
+    </UnitTest>
+    <UnitTest name="CreateFromTemplate_InvalidMaterialId_ThrowsMaterialNotFoundException" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="c008c76c-aa49-286d-a675-a574f80d6008">
+      <Execution id="58359437-9597-44e5-b887-4e3e35edf673" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="CreateFromTemplate_InvalidMaterialId_ThrowsMaterialNotFoundException" />
+    </UnitTest>
+    <UnitTest name="ProjectData_Load_v1_0_MigratesAbovePipeOrder" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="f050388a-2ad9-acf3-f49f-327e905e4103">
+      <Execution id="cddb8540-e2f9-4158-a258-62f7b956666b" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectData_Load_v1_0_MigratesAbovePipeOrder" />
+    </UnitTest>
+    <UnitTest name="LoadProjectData_InvalidSavedResultPublishesFreshUiAndPdfValuesOnce" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="6d38ff0a-6551-ec9c-d4bc-3ea5f415bf84">
+      <Execution id="08afeda8-bfe8-478a-a670-57a242b04761" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectData_InvalidSavedResultPublishesFreshUiAndPdfValuesOnce" />
+    </UnitTest>
+    <UnitTest name="ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="30d3c1ec-8edb-b753-1621-f72edc6fe9c9">
+      <Execution id="d91c3ff4-39c0-4f68-9cbe-bced8b9a3a80" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile" />
+    </UnitTest>
+    <UnitTest name="LoadProjectFromPathAsync_WhenNullPath_DoesNothing" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="bcf1c5a5-3c5f-c8a2-0803-4e228c747e16">
+      <Execution id="b8505b0c-4860-40bb-9247-2c59bea369b2" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectFromPathAsync_WhenNullPath_DoesNothing" />
+    </UnitTest>
+    <UnitTest name="CalculateR2_HighGroundwater_UsesLambdaB" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="63e702e5-8b61-7665-ebb2-9dd2a085ba4e">
+      <Execution id="d70b1355-d564-444c-b0ab-de52f83b075c" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="CalculateR2_HighGroundwater_UsesLambdaB" />
+    </UnitTest>
+    <UnitTest name="CollectorEquipmentItems_GroupsMixedValveTypesWithExactQuantityAndCircuitCount" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="068fde29-7f38-6e3f-b9d1-5ce31c98bd79">
+      <Execution id="0345f46d-f2df-48bf-840f-bf4a0fe21ffe" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelCollectorEquipmentItemsTests" name="CollectorEquipmentItems_GroupsMixedValveTypesWithExactQuantityAndCircuitCount" />
+    </UnitTest>
+    <UnitTest name="SaveProject_Failure_PreservesDirtyStateAndShowsError" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="c6ec8cfe-bca1-c57f-bcca-0b8a8b35cd47">
+      <Execution id="4a71aa2b-a2ca-4cc1-82c1-63714d2a193f" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="SaveProject_Failure_PreservesDirtyStateAndShowsError" />
+    </UnitTest>
+    <UnitTest name="CalculateR1_NegativeLambda_ThrowsInvalidOperationException" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="cf27b96b-5aa7-0448-965d-cc999e612ba1">
+      <Execution id="2feef8db-9a85-4063-a303-8b8080e86a57" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="CalculateR1_NegativeLambda_ThrowsInvalidOperationException" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_PreservesHasLoads" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="16fa3364-dd0b-1bb8-5197-59186be100d3">
+      <Execution id="ec54a53c-2249-48ea-9751-6e3c79da4b0e" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectRoundTrip_PreservesHasLoads" />
+    </UnitTest>
+    <UnitTest name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportDesignColdMarkdownReport&quot;)" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="dafabb9d-f919-ece9-2299-4da1c29a1566">
+      <Execution id="d13806b9-594b-41c1-818b-5754f1b5f204" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportDesignColdMarkdownReport&quot;)" />
+    </UnitTest>
+    <UnitTest name="ConstructionViewModel_Reset_ReturnsToDefaultsAndDoesNotMarkDirty" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="f523b7ad-a7cb-93b9-8c3d-dae4293f5bfb">
+      <Execution id="b9f313f8-9e26-4db1-a2b4-38c404cece6f" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResetOrchestrationTests" name="ConstructionViewModel_Reset_ReturnsToDefaultsAndDoesNotMarkDirty" />
+    </UnitTest>
+    <UnitTest name="CalculateR1_MultipleLayers_ReturnsSum" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="29fc3f08-c31e-c019-2456-d5643d033dc1">
+      <Execution id="9be2fd89-db39-406d-a5d1-b986cf74f8d6" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="CalculateR1_MultipleLayers_ReturnsSum" />
+    </UnitTest>
+    <UnitTest name="ResultsViewModel_LoadProjectData_RestoresCityAndClimateParameters" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="f7ea8e72-9e81-1bab-e86c-d4380bdd93bc">
+      <Execution id="b234d2ae-fc13-48c1-86b0-210723c49655" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ResultsViewModel_LoadProjectData_RestoresCityAndClimateParameters" />
+    </UnitTest>
+    <UnitTest name="SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="a91c30e5-eef5-141b-9bcf-30c96b1c38ce">
+      <Execution id="7b29a1b2-3573-437c-8baf-85a2f2e6921a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="SaveCurrentProject_ProjectsLiveModuleStateInsteadOfResultsCache" />
+    </UnitTest>
+    <UnitTest name="OpenProject_WithCustomCatalogRecords_LeavesGlobalCatalogReadOnly" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="ed2f619f-ae61-a66d-8f39-1d3706d1513c">
+      <Execution id="e341da00-ee5d-4fc3-8ee7-afe34621ec8d" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="OpenProject_WithCustomCatalogRecords_LeavesGlobalCatalogReadOnly" />
+    </UnitTest>
+    <UnitTest name="LoadProjectDataAsync_RefreshesAfterModuleRestoreBeforeProjectChangedAndMarkClean" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="8c3e9570-53c8-851b-3943-d201b871fbc7">
+      <Execution id="ba1a3083-c6e6-4ad7-b4f5-3887a262d739" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="LoadProjectDataAsync_RefreshesAfterModuleRestoreBeforeProjectChangedAndMarkClean" />
+    </UnitTest>
+    <UnitTest name="ResultsViewModel_Reset_ClearsProjectInfoAndDoesNotMarkDirty" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="c060fba7-b3b9-8245-920d-6de61a2cc7dd">
+      <Execution id="4b024fae-4be8-4ee1-98fb-f98b833f86fd" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResetOrchestrationTests" name="ResultsViewModel_Reset_ClearsProjectInfoAndDoesNotMarkDirty" />
+    </UnitTest>
+    <UnitTest name="ImportProjectTemplatesAsync_RemapsMaterialIdByName" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="9fc34cc5-3b49-20cb-8ff0-252c9693852f">
+      <Execution id="462207c9-19cd-4de7-b95c-c1ea16c6583f" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ImportProjectTemplatesAsync_RemapsMaterialIdByName" />
+    </UnitTest>
+    <UnitTest name="LoadProjectData_WhenRestorePreflightRejects_DoesNotPublishSuccessOrPath" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="14d0a155-4e0d-af37-2437-8a902a3bdc09">
+      <Execution id="a70870cd-d59a-4071-b220-c9b138dcfd81" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectData_WhenRestorePreflightRejects_DoesNotPublishSuccessOrPath" />
+    </UnitTest>
+    <UnitTest name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;PreviewPdf&quot;)" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="03c11344-6edf-1d48-f5e5-646084d98319">
+      <Execution id="81d50b66-d1ca-4cb0-b87e-fce207dadc0a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;PreviewPdf&quot;)" />
+    </UnitTest>
+    <UnitTest name="CalculateR2_LowGroundwater_UsesLambdaA" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="c9dbe549-0191-579c-b6ef-8db7e1d60e12">
+      <Execution id="48768f00-d8f8-42eb-a13b-061be624b82f" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="CalculateR2_LowGroundwater_UsesLambdaA" />
+    </UnitTest>
+    <UnitTest name="LoadProjectData_ClimateIsNotMarkedAsUserModified" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="c845647b-4379-4f1a-00a9-24db45f5252a">
+      <Execution id="53d7497c-2dca-498f-8f2a-64c4f3d5845b" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectData_ClimateIsNotMarkedAsUserModified" />
+    </UnitTest>
+    <UnitTest name="ProjectData_CustomTemplates_RoundTrip" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="5c5125e0-f5ec-d1e0-e619-0cc9f73b065d">
+      <Execution id="517293a8-6f37-4cac-a09d-6904565564a7" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectData_CustomTemplates_RoundTrip" />
+    </UnitTest>
+    <UnitTest name="ProjectData_Load_ReindexesOrder" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="e44264e1-37d7-4765-8347-8b56bd36e397">
+      <Execution id="4916063c-992c-4396-a719-129e96db45ca" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectData_Load_ReindexesOrder" />
+    </UnitTest>
+    <UnitTest name="ResultsViewModel_LoadProjectData_SelectsFirstCollectorAndEnablesCommands" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="23d37f00-93db-b37d-471a-f40f0e2ccfae">
+      <Execution id="41227d29-5504-4340-b2a9-f30576d0cae0" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ResultsViewModel_LoadProjectData_SelectsFirstCollectorAndEnablesCommands" />
+    </UnitTest>
+    <UnitTest name="LoadHydraulicsDataOnNavigate_DelegatesToExactlyOneCanonicalRefreshAll" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="3c7c00b8-152e-58a4-b7dc-0c2163dbdba2">
+      <Execution id="690475ba-5349-42c1-a0cd-9d738f800fdb" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="LoadHydraulicsDataOnNavigate_DelegatesToExactlyOneCanonicalRefreshAll" />
+    </UnitTest>
+    <UnitTest name="ClimateViewModel_UserReset_ReturnsToDefaultsAndMarksDirty" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="e3c2f7c1-c74d-7665-9367-ea3fee19fb0d">
+      <Execution id="bd988e18-0be9-4b80-b646-e61809ef9213" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResetOrchestrationTests" name="ClimateViewModel_UserReset_ReturnsToDefaultsAndMarksDirty" />
+    </UnitTest>
+    <UnitTest name="LoadProjectFromPathAsync_WhenFileNotFound_ShowsError" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="931a7d43-8241-d237-56c8-0ba8ca4d4b88">
+      <Execution id="4df7d4fa-28a3-4697-8f9c-de6e1e834422" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectFromPathAsync_WhenFileNotFound_ShowsError" />
+    </UnitTest>
+    <UnitTest name="ProjectData_CustomMaterials_RoundTrip" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="628d71cb-37bb-786c-ede6-dce59cf17659">
+      <Execution id="9acf68a6-6c1a-475e-b083-11233fbcc558" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectData_CustomMaterials_RoundTrip" />
+    </UnitTest>
+    <UnitTest name="RefreshAll_ProjectsCollectorCircuitSpecificationsEquipmentCardsAndKpi" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="2fa672d0-1e38-1145-6480-b85e958dbde2">
+      <Execution id="1eda2e2b-80a8-4091-a3d8-f4ad30d121b9" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="RefreshAll_ProjectsCollectorCircuitSpecificationsEquipmentCardsAndKpi" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_FieldCompleteRoundTrip_SecondLoadReplacesProjectA" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="6177a9e1-d8b2-a6e4-f7b0-3c07a35a016c">
+      <Execution id="db208ba3-e189-4c14-b986-6e9d73993994" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectRoundTrip_FieldCompleteRoundTrip_SecondLoadReplacesProjectA" />
+    </UnitTest>
+    <UnitTest name="OpenProject_WhenClean_DoesNotShowPrompt" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="0940f7b0-d3ef-ce63-449e-e46dfcaaf803">
+      <Execution id="7ce0e056-6668-4987-884f-a7d4637e143a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="OpenProject_WhenClean_DoesNotShowPrompt" />
+    </UnitTest>
+    <UnitTest name="ToggleMode_WritesDisplayModeOnlyOnResultsOwnedRows" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="95e243aa-045e-fbec-a5c6-4b2c541d2407">
+      <Execution id="a3215b3a-7c91-48cb-aa68-d0fa992ae985" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsOwnedCircuitProjectionTests" name="ToggleMode_WritesDisplayModeOnlyOnResultsOwnedRows" />
+    </UnitTest>
+    <UnitTest name="UpdateCircuitsFilter_RowsAreNotSharedWithModuleViewModel" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="107aa2e2-fe3a-215d-6290-3ae8bc03f865">
+      <Execution id="67a52b76-9ea2-42a0-a2f8-a2c673cd8ee4" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsOwnedCircuitProjectionTests" name="UpdateCircuitsFilter_RowsAreNotSharedWithModuleViewModel" />
+    </UnitTest>
+    <UnitTest name="LoadProjectFromPathAsync_WhenEmptyPath_DoesNothing" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="d75b8a3d-4069-fb20-ab80-f7a241b9cb65">
+      <Execution id="30dcdbb1-2d20-459e-a0b7-14c4a76b2496" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectFromPathAsync_WhenEmptyPath_DoesNothing" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_PreservesGroundwaterLevel" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="14324a37-0558-90d1-8efa-3293b26b7511">
+      <Execution id="b2b0a2ec-4366-4ef2-87d8-ffae49e0e20a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectRoundTrip_PreservesGroundwaterLevel" />
+    </UnitTest>
+    <UnitTest name="ProjectData_DeserializesOldFileWithoutCustomTemplates" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="b46f1e31-a26c-0d25-7d1d-3e1de67cc6b4">
+      <Execution id="05e1efa3-8863-45e7-b65d-ec700b4c3d0f" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectData_DeserializesOldFileWithoutCustomTemplates" />
+    </UnitTest>
+    <UnitTest name="ValidateConstruction_ThinLayerAbovePipe_ReturnsInvalidResult" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="17b8c735-a1bc-22c4-9ffa-9afe2543199d">
+      <Execution id="b5410115-dd8a-462f-8dd5-06ab6966e92b" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ValidateConstruction_ThinLayerAbovePipe_ReturnsInvalidResult" />
+    </UnitTest>
+    <UnitTest name="ResolveView_CachedResultsEntryRefreshesProjectionBeforeReturningSameView" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="c99f619f-47fd-7a10-880f-1ed892a17354">
+      <Execution id="4f1a39fc-f52e-4850-9cb8-f36b03fff414" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="ResolveView_CachedResultsEntryRefreshesProjectionBeforeReturningSameView" />
+    </UnitTest>
+    <UnitTest name="LoadProjectData_SecondLoadWithoutSavedResult_ReplacesAllThermalStaleValues" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="134cd579-b457-5d4b-7f56-ba05d390e44e">
+      <Execution id="dcc4c09b-1cac-4bf7-8697-75e52d611092" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="LoadProjectData_SecondLoadWithoutSavedResult_ReplacesAllThermalStaleValues" />
+    </UnitTest>
+    <UnitTest name="RefreshAll_WhenSourceStateIsUnchanged_IsValueIdempotentWithoutDuplicateRowsOrCalculation" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="a6e1cce5-161c-e6a1-6c55-426b83b6e9c5">
+      <Execution id="e1bae9ff-5818-4784-a47d-256c79fe1b9e" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="RefreshAll_WhenSourceStateIsUnchanged_IsValueIdempotentWithoutDuplicateRowsOrCalculation" />
+    </UnitTest>
+    <UnitTest name="CalculateR1_ZeroLambda_ThrowsInvalidOperationException" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="4c440843-9391-f379-4b9a-dde9241318ca">
+      <Execution id="884e9285-eee7-4fee-9cf1-c04bb0c99825" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="CalculateR1_ZeroLambda_ThrowsInvalidOperationException" />
+    </UnitTest>
+    <UnitTest name="GetTotalThicknessAbovePipe_MultipleLayers_ReturnsSum" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="5a9ca12e-9ed5-7302-3425-d972e45deb44">
+      <Execution id="faad8ef1-ba0e-4530-b732-2d922e601c6a" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="GetTotalThicknessAbovePipe_MultipleLayers_ReturnsSum" />
+    </UnitTest>
+    <UnitTest name="ProjectData_Save_v1_1_SetsVersion" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="d635569a-ab93-2d0a-40c2-f1a17cf8668a">
+      <Execution id="53884e94-e9ec-4cab-8e2a-d94f99b37439" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectData_Save_v1_1_SetsVersion" />
+    </UnitTest>
+    <UnitTest name="ProjectData_LayerOrder_RoundTrip_PreservesLambdaE" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="85c49155-00a7-b891-c3f4-acc28d4c85ef">
+      <Execution id="9ae74fe9-1900-4072-b7cf-da04c141fc9b" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectData_LayerOrder_RoundTrip_PreservesLambdaE" />
+    </UnitTest>
+    <UnitTest name="CalculateR2_NegativeGroundwater_ThrowsArgumentException" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="d900c6df-8ed8-6e8f-6975-753e31adb8fa">
+      <Execution id="875cf7a8-c064-44bd-8e0b-7cf3ff4a134d" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="CalculateR2_NegativeGroundwater_ThrowsArgumentException" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_LiveMutationsAreSavedLoadedAndExportedWithoutResultsCalculation" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="f2041192-ea82-d1c4-9e07-3a78c5761d5c">
+      <Execution id="3500ccde-fc8b-4e3b-b5ab-b9c5d84fab6c" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ProjectRoundTrip_LiveMutationsAreSavedLoadedAndExportedWithoutResultsCalculation" />
+    </UnitTest>
+    <UnitTest name="CollectorEquipmentItems_DoesNotGroupDifferentCircuitCountsOrValveTypes" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="00107849-5229-7ebb-03fa-818954eb3c2a">
+      <Execution id="b7ad0182-61a3-4f5e-860f-66f23ba26ee5" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelCollectorEquipmentItemsTests" name="CollectorEquipmentItems_DoesNotGroupDifferentCircuitCountsOrValveTypes" />
+    </UnitTest>
+    <UnitTest name="RefreshAll_UsesCanonicalSynchronizationOrderExactlyOnce" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="bce91b22-1909-2ade-b75e-218ba6bf9750">
+      <Execution id="90dd56ec-0985-4d64-bebb-e80943d428b1" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="RefreshAll_UsesCanonicalSynchronizationOrderExactlyOnce" />
+    </UnitTest>
+    <UnitTest name="ImportProjectTemplatesAsync_SkipsWhenMaterialUnresolved" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="7b2b29da-65e4-0a58-0254-af5c6a79beba">
+      <Execution id="8d3a1974-129d-4d48-af5d-0b890d97e61f" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ImportProjectTemplatesAsync_SkipsWhenMaterialUnresolved" />
+    </UnitTest>
+    <UnitTest name="ImportProjectMaterialsAsync_ExistingId_Skips" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="443d3503-65c0-c1c2-0e1f-a143c16ef872">
+      <Execution id="6c07679b-15bd-48f7-bcc5-6f00d6e8e103" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ImportProjectMaterialsAsync_ExistingId_Skips" />
+    </UnitTest>
+    <UnitTest name="RefreshAll_WhenInputsChangeButValidResultIsRetained_PreservesOutputWithoutCalculation" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="0d764722-03ae-44ed-9304-8d0708ccb6c6">
+      <Execution id="49641ef3-58d7-454d-b7e3-9ebcdf9463c8" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="RefreshAll_WhenInputsChangeButValidResultIsRetained_PreservesOutputWithoutCalculation" />
+    </UnitTest>
+    <UnitTest name="SaveAsync_WithValidSession_MapsSnapshotFieldsAndCallsServicesExactlyOnce" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="18d8f9d3-fd7f-59ac-688c-9e31e5755e59">
+      <Execution id="c2af3e4a-ba99-41fb-b3d9-0deea1fa6294" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Services.Project.ProjectSaveServiceTests" name="SaveAsync_WithValidSession_MapsSnapshotFieldsAndCallsServicesExactlyOnce" />
+    </UnitTest>
+    <UnitTest name="GetTotalThicknessBelowPipe_MultipleLayers_ReturnsSum" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="db223345-1394-a150-4a9c-89566008ccd4">
+      <Execution id="6511f56d-b3e4-44d3-bedf-adc6f0ad9c31" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="GetTotalThicknessBelowPipe_MultipleLayers_ReturnsSum" />
+    </UnitTest>
+    <UnitTest name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;PrintPdf&quot;)" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="729efd80-556a-adb1-ec37-7034b346d87e">
+      <Execution id="b0a82347-e318-411b-9519-7dc094bc41b5" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;PrintPdf&quot;)" />
+    </UnitTest>
+    <UnitTest name="ProjectData_Load_KeepsCatalogsReadOnly_CustomMaterialsStayProjectLocal" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="ac264356-96ba-a237-8c87-cafc9af28c5c">
+      <Execution id="7de9ba0b-cd1a-44cb-87e1-c74b4d0da43e" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectData_Load_KeepsCatalogsReadOnly_CustomMaterialsStayProjectLocal" />
+    </UnitTest>
+    <UnitTest name="ImportProjectMaterialsAsync_NewMaterials_AddsToRepository" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="8105df19-b695-2413-6d6f-7c58fcd793c3">
+      <Execution id="2c458fb5-d90b-497e-a965-dc962453a729" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ImportProjectMaterialsAsync_NewMaterials_AddsToRepository" />
+    </UnitTest>
+    <UnitTest name="CollectorEquipmentItems_GroupsSameValveTypeAndCircuitCount" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="5c89b53b-3837-4bdb-d066-daabd46eea5d">
+      <Execution id="bd16e4b2-3213-4c9c-8573-3d529d29248b" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelCollectorEquipmentItemsTests" name="CollectorEquipmentItems_GroupsSameValveTypeAndCircuitCount" />
+    </UnitTest>
+    <UnitTest name="PersistenceFailure_UnknownPipe_FallsBackToFirstStandard_NoSchemaDrift" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="900ca637-b1e5-5a90-256a-d58904f9b2fb">
+      <Execution id="0b090e14-6970-471c-8e8d-b724a64b9f98" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="PersistenceFailure_UnknownPipe_FallsBackToFirstStandard_NoSchemaDrift" />
+    </UnitTest>
+    <UnitTest name="ProjectRoundTrip_CustomTemplateSurvives" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="8c81b2a8-df7a-c63c-20fd-9c0b06330cd4">
+      <Execution id="da20c596-99e7-4367-ae10-29e5a92ffa28" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.Construction.ConstructionServiceTests" name="ProjectRoundTrip_CustomTemplateSurvives" />
+    </UnitTest>
+    <UnitTest name="Reset_ClearsResultsProjectionAndMarksProjectClean" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="63e55650-4856-0fb9-1578-a00e9506faf0">
+      <Execution id="f21056ee-12a8-46f3-a45a-7f87e4a14ed8" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="Reset_ClearsResultsProjectionAndMarksProjectClean" />
+    </UnitTest>
+    <UnitTest name="ResolveView_ResultsRefreshFailureUsesExistingFallbackWithoutCachingResultsView" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="239b55af-470b-0a85-a950-2f5f062f8710">
+      <Execution id="ba4c68fd-ee69-4dca-86f2-0f5515a7c92c" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="ResolveView_ResultsRefreshFailureUsesExistingFallbackWithoutCachingResultsView" />
+    </UnitTest>
+    <UnitTest name="ProjectLoadOrchestrator_PreservesLoadOnlyThermalFallbackBoundary" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="8824a3c6-0b3c-55b1-29e2-48930f4ee090">
+      <Execution id="4a2888aa-756f-4491-a9fb-3d2f7cc7659d" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="ProjectLoadOrchestrator_PreservesLoadOnlyThermalFallbackBoundary" />
+    </UnitTest>
+    <UnitTest name="ResultsViewModel_LoadProject_TwoCollectors_RestoresIndependentSummaryCards" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="036fcdd4-85ae-69ac-1dfa-21ead4164680">
+      <Execution id="7f457699-126d-4140-8418-cb3f30944e8d" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsViewModelOpenProjectTests" name="ResultsViewModel_LoadProject_TwoCollectors_RestoresIndependentSummaryCards" />
+    </UnitTest>
+    <UnitTest name="ResultsPdfDataBuilder_AfterInputMutation_RequiresCurrentScalarAndDerivedGeneration" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="81ca68c3-40b2-c43f-6044-e96861102e28">
+      <Execution id="d76991b5-dda6-41c9-b23d-d0155ebc42c4" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1BehaviorContractsTests" name="ResultsPdfDataBuilder_AfterInputMutation_RequiresCurrentScalarAndDerivedGeneration" />
+    </UnitTest>
+    <UnitTest name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportPdf&quot;)" storage="d:\ia\ace — копия\tests\snowmeltingcalculator.tests\bin\debug\net8.0-windows\snowmeltingcalculator.tests.dll" id="e4efa3c4-1133-cb50-18cc-a911f3a0b72e">
+      <Execution id="92a590e8-26f8-4da6-87fc-e1f95ba71135" />
+      <TestMethod codeBase="D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SnowMeltingCalculator.Tests.ViewModels.ResultsStabilizationPhase1ContractsTests" name="ResultsCommands_RefreshBeforeConsumingOrExportingData(&quot;ExportPdf&quot;)" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="a91c30e5-eef5-141b-9bcf-30c96b1c38ce" executionId="7b29a1b2-3573-437c-8baf-85a2f2e6921a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dafabb9d-f919-ece9-2299-4da1c29a1566" executionId="d13806b9-594b-41c1-818b-5754f1b5f204" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dbb98544-ec01-e59f-8b36-4acbd4332765" executionId="72ba9f7b-aa4e-4df0-9fa8-a17a839966fe" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f7ea8e72-9e81-1bab-e86c-d4380bdd93bc" executionId="b234d2ae-fc13-48c1-86b0-210723c49655" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2028b32f-4b49-3551-0e23-3c2e0c410193" executionId="0073f40f-327c-4241-8746-a03a997484fc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="701461ba-b815-61ad-4cf3-73edbc0b0040" executionId="b318fb1a-5ff6-45fa-9631-cafa336b5a84" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="00107849-5229-7ebb-03fa-818954eb3c2a" executionId="b7ad0182-61a3-4f5e-860f-66f23ba26ee5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="107aa2e2-fe3a-215d-6290-3ae8bc03f865" executionId="67a52b76-9ea2-42a0-a2f8-a2c673cd8ee4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="766d1b2f-b6db-6898-c1a3-826da3004bbb" executionId="3d74f1e6-e436-4b6c-b0eb-dabe39fa9f1d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c008c76c-aa49-286d-a675-a574f80d6008" executionId="58359437-9597-44e5-b887-4e3e35edf673" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="63e55650-4856-0fb9-1578-a00e9506faf0" executionId="f21056ee-12a8-46f3-a45a-7f87e4a14ed8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8d421899-006f-bf4b-f2af-5fed09704780" executionId="5940e502-51bb-4ea6-a1f9-120a2bcee34f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f0e9480e-64d9-0663-0e2b-3a37ffa4e8b9" executionId="eea7ec58-75ff-4a76-8f05-496d0b5c4edd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="239b55af-470b-0a85-a950-2f5f062f8710" executionId="ba4c68fd-ee69-4dca-86f2-0f5515a7c92c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="340541ee-5b35-3a15-d215-32966ef95dda" executionId="a120bbab-8f50-4c02-bde1-2846962cb23c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c12ce9f3-25cb-2e14-7c73-39d23ac07298" executionId="25a46b1d-7991-462e-80ae-bc674d49edcd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="03c11344-6edf-1d48-f5e5-646084d98319" executionId="81d50b66-d1ca-4cb0-b87e-fce207dadc0a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1a451851-dd58-5aa6-605a-0f384c6bc6bf" executionId="9f7c3cd5-c574-42a1-a6a7-3e7e5aa17616" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8824a3c6-0b3c-55b1-29e2-48930f4ee090" executionId="4a2888aa-756f-4491-a9fb-3d2f7cc7659d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="46a40d61-efc3-1931-0d41-b5a0c6239c21" executionId="5e1c9d8d-c743-45ea-b824-0fe7f0162c0c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3bac974d-48cc-8aeb-25b2-6b1f6ed831fb" executionId="1ba13c6f-13f3-4071-9bbf-8267d745b8ba" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="63e702e5-8b61-7665-ebb2-9dd2a085ba4e" executionId="d70b1355-d564-444c-b0ab-de52f83b075c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5890bd22-c0ba-0fab-c174-aee786470204" executionId="b6165016-5ae3-47cb-9809-9832b8234150" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="85c49155-00a7-b891-c3f4-acc28d4c85ef" executionId="9ae74fe9-1900-4072-b7cf-da04c141fc9b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3ece84c0-3977-aacd-ca4b-87120862662c" executionId="7e0c71f4-0063-4b83-aaaf-8fd1a978beb9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f523b7ad-a7cb-93b9-8c3d-dae4293f5bfb" executionId="b9f313f8-9e26-4db1-a2b4-38c404cece6f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="81ca68c3-40b2-c43f-6044-e96861102e28" executionId="d76991b5-dda6-41c9-b23d-d0155ebc42c4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="29fc3f08-c31e-c019-2456-d5643d033dc1" executionId="9be2fd89-db39-406d-a5d1-b986cf74f8d6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="134cd579-b457-5d4b-7f56-ba05d390e44e" executionId="dcc4c09b-1cac-4bf7-8697-75e52d611092" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a6e1cce5-161c-e6a1-6c55-426b83b6e9c5" executionId="e1bae9ff-5818-4784-a47d-256c79fe1b9e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e44264e1-37d7-4765-8347-8b56bd36e397" executionId="4916063c-992c-4396-a719-129e96db45ca" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c060fba7-b3b9-8245-920d-6de61a2cc7dd" executionId="4b024fae-4be8-4ee1-98fb-f98b833f86fd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ffd53392-7fcb-02fc-2b89-00d1879db7c5" executionId="e8a257e9-135c-4bb5-9059-78606bea797a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="931a7d43-8241-d237-56c8-0ba8ca4d4b88" executionId="4df7d4fa-28a3-4697-8f9c-de6e1e834422" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4b48bfa2-cb48-ea00-97b0-9de9a3b80fa3" executionId="cc2b5c82-0b70-42ac-a821-cedf10c819f5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d900c6df-8ed8-6e8f-6975-753e31adb8fa" executionId="875cf7a8-c064-44bd-8e0b-7cf3ff4a134d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8105df19-b695-2413-6d6f-7c58fcd793c3" executionId="2c458fb5-d90b-497e-a965-dc962453a729" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3c7c00b8-152e-58a4-b7dc-0c2163dbdba2" executionId="690475ba-5349-42c1-a0cd-9d738f800fdb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f050388a-2ad9-acf3-f49f-327e905e4103" executionId="cddb8540-e2f9-4158-a258-62f7b956666b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ed2f619f-ae61-a66d-8f39-1d3706d1513c" executionId="e341da00-ee5d-4fc3-8ee7-afe34621ec8d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b9bad301-50c0-8b2f-89c1-0dec91a75935" executionId="c3a308f8-5416-46cc-a35d-bf2626c63794" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5d3cfc95-017c-3b15-a04b-8057d1dd0db7" executionId="15db4df8-8deb-4b5d-91e2-997aa4d4601b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bce91b22-1909-2ade-b75e-218ba6bf9750" executionId="90dd56ec-0985-4d64-bebb-e80943d428b1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5c5125e0-f5ec-d1e0-e619-0cc9f73b065d" executionId="517293a8-6f37-4cac-a09d-6904565564a7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="628d71cb-37bb-786c-ede6-dce59cf17659" executionId="9acf68a6-6c1a-475e-b083-11233fbcc558" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ccf8e5ab-128e-d80b-9e18-8a5112a605af" executionId="afac5bca-91a7-4ff0-bdaa-bab798ba463a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b15187f7-89e2-b76b-482c-e49ab9ba4fef" executionId="dee41cb1-2091-432a-8c0e-792bb41d936b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="53894312-25f0-84d3-2d84-12ddcd438a37" executionId="2918e7a6-3887-4ee0-8c1b-aa43a8fd712a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bcf1c5a5-3c5f-c8a2-0803-4e228c747e16" executionId="b8505b0c-4860-40bb-9247-2c59bea369b2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="16fa3364-dd0b-1bb8-5197-59186be100d3" executionId="ec54a53c-2249-48ea-9751-6e3c79da4b0e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a4bb765b-a5ac-699a-3265-ebc14f245c51" executionId="e4dfdba6-1769-492e-9e64-7e115f16242d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d6b84075-6f90-568a-304d-ffa02d063113" executionId="1e1fbdb6-6288-468a-8332-f9eadbe8808d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b46f1e31-a26c-0d25-7d1d-3e1de67cc6b4" executionId="05e1efa3-8863-45e7-b65d-ec700b4c3d0f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="84bcfe85-4fc6-c9c1-14b1-961a421f5fcc" executionId="e5f3f6f7-8383-422e-856e-76ffb4caaf0a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="900ca637-b1e5-5a90-256a-d58904f9b2fb" executionId="0b090e14-6970-471c-8e8d-b724a64b9f98" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="18d8f9d3-fd7f-59ac-688c-9e31e5755e59" executionId="c2af3e4a-ba99-41fb-b3d9-0deea1fa6294" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="db223345-1394-a150-4a9c-89566008ccd4" executionId="6511f56d-b3e4-44d3-bedf-adc6f0ad9c31" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="634e20de-ff09-ff3b-18e4-830f3eda5390" executionId="f0c19c9d-3e1b-4f1c-ba6f-43091eb07eef" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5d7d9748-5207-ccae-1d99-28d9c3729bbc" executionId="0563cbad-55b3-432c-9df0-4e55f734eb72" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4c440843-9391-f379-4b9a-dde9241318ca" executionId="884e9285-eee7-4fee-9cf1-c04bb0c99825" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="48e23a5f-15b9-dd2f-b242-e972ab9a37a9" executionId="d9479bef-0e26-4d02-ab96-0359e4db1101" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5a9ca12e-9ed5-7302-3425-d972e45deb44" executionId="faad8ef1-ba0e-4530-b732-2d922e601c6a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="14d0a155-4e0d-af37-2437-8a902a3bdc09" executionId="a70870cd-d59a-4071-b220-c9b138dcfd81" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0f4f021c-c8fc-1f23-786b-c5b6c4539b9f" executionId="e060bdfb-704f-471a-aac9-310291252c0d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c6ec8cfe-bca1-c57f-bcca-0b8a8b35cd47" executionId="4a71aa2b-a2ca-4cc1-82c1-63714d2a193f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="09ba8c26-dfc0-3644-178f-c51c6fdcd1c9" executionId="3f0e4d59-985f-450f-9d5d-c1581f2a2919" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="443d3503-65c0-c1c2-0e1f-a143c16ef872" executionId="6c07679b-15bd-48f7-bcc5-6f00d6e8e103" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9fc34cc5-3b49-20cb-8ff0-252c9693852f" executionId="462207c9-19cd-4de7-b95c-c1ea16c6583f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ac264356-96ba-a237-8c87-cafc9af28c5c" executionId="7de9ba0b-cd1a-44cb-87e1-c74b4d0da43e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d75b8a3d-4069-fb20-ab80-f7a241b9cb65" executionId="30dcdbb1-2d20-459e-a0b7-14c4a76b2496" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7b2b29da-65e4-0a58-0254-af5c6a79beba" executionId="8d3a1974-129d-4d48-af5d-0b890d97e61f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7b3de05a-9b52-2a02-200d-43a25ab10e0e" executionId="2ebc13bd-e77a-4247-8738-a9924bb44389" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e4efa3c4-1133-cb50-18cc-a911f3a0b72e" executionId="92a590e8-26f8-4da6-87fc-e1f95ba71135" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e8ff6de3-8bc1-3a86-d880-9ada5f143f18" executionId="508bc136-4137-4a60-9ca9-43df705bc038" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5c367de0-08e2-77fe-acf1-2c8b0a23e7cc" executionId="9f1c4079-d77c-45f8-9dbf-78eb34e81a8a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cf27b96b-5aa7-0448-965d-cc999e612ba1" executionId="2feef8db-9a85-4063-a303-8b8080e86a57" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4a07ac4a-e457-bd53-0712-26ddeb1758e4" executionId="5d94d893-6cf8-4050-b3f2-913a39cee51e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d189edb4-d62a-e98f-e9b4-30b0e52ca47a" executionId="8d6331d1-64dd-4263-89c9-ced018a119cf" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c99f619f-47fd-7a10-880f-1ed892a17354" executionId="4f1a39fc-f52e-4850-9cb8-f36b03fff414" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="01baccce-3192-1710-181b-5946b1582529" executionId="fc397d27-ba17-47a0-9427-649145d6c75b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="23d37f00-93db-b37d-471a-f40f0e2ccfae" executionId="41227d29-5504-4340-b2a9-f30576d0cae0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8c3e9570-53c8-851b-3943-d201b871fbc7" executionId="ba1a3083-c6e6-4ad7-b4f5-3887a262d739" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="46a273e3-5d5d-c30d-e92b-d7bde076f5b8" executionId="93c68d6f-4c45-46ef-ae76-d1267ec12496" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0d764722-03ae-44ed-9304-8d0708ccb6c6" executionId="49641ef3-58d7-454d-b7e3-9ebcdf9463c8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c845647b-4379-4f1a-00a9-24db45f5252a" executionId="53d7497c-2dca-498f-8f2a-64c4f3d5845b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b23f9dbc-bde9-0591-320f-5d8221f75bae" executionId="3ae5f2b5-fd58-4f3a-9dfd-bd294d9e9112" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6a9780a6-2698-cd4e-24ef-ed9ec7bab147" executionId="8b2a3b6f-df0d-45da-9b89-051d7a62bea0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="17b8c735-a1bc-22c4-9ffa-9afe2543199d" executionId="b5410115-dd8a-462f-8dd5-06ab6966e92b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8c81b2a8-df7a-c63c-20fd-9c0b06330cd4" executionId="da20c596-99e7-4367-ae10-29e5a92ffa28" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bf152f44-9e78-ea55-ccf6-44ec2358c98a" executionId="29253faf-5d88-4333-964a-6e8ff2f9189f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bca05f08-f85b-b9dd-202e-0a6dd436f917" executionId="fcf6b16d-a3df-44e8-a826-4cedc27abe9e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6d38ff0a-6551-ec9c-d4bc-3ea5f415bf84" executionId="08afeda8-bfe8-478a-a670-57a242b04761" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d635569a-ab93-2d0a-40c2-f1a17cf8668a" executionId="53884e94-e9ec-4cab-8e2a-d94f99b37439" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="189095cd-1474-7ea8-12a7-a0d7fe681a4d" executionId="9b96cf87-a90d-49cb-8ec1-d40ddec5ef93" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="14324a37-0558-90d1-8efa-3293b26b7511" executionId="b2b0a2ec-4366-4ef2-87d8-ffae49e0e20a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ee3d6833-054d-227f-08ad-d87d97139672" executionId="37dfe418-867a-4486-b1f6-98df068243ac" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="036fcdd4-85ae-69ac-1dfa-21ead4164680" executionId="7f457699-126d-4140-8418-cb3f30944e8d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="068fde29-7f38-6e3f-b9d1-5ce31c98bd79" executionId="0345f46d-f2df-48bf-840f-bf4a0fe21ffe" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="85d9d9d0-8b8f-44e5-167a-325077f24ce4" executionId="e7ee7e09-c3de-4037-b8c4-7597ff670799" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1278c02a-4c5e-758b-e534-1cf58d14f7b0" executionId="345d95ca-1886-4bcc-a3a1-396bc3e198e0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="30d3c1ec-8edb-b753-1621-f72edc6fe9c9" executionId="d91c3ff4-39c0-4f68-9cbe-bced8b9a3a80" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="df4a4d30-fb96-6170-ab1f-a1b6febb3cf6" executionId="ff7a4ada-a654-43e1-ba19-ea05f54bee67" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="02b404db-98c3-9e10-ed8f-f03a370db4c2" executionId="c5a25a7e-e37e-4574-a739-d156fdab2cf0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6177a9e1-d8b2-a6e4-f7b0-3c07a35a016c" executionId="db208ba3-e189-4c14-b986-6e9d73993994" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="729efd80-556a-adb1-ec37-7034b346d87e" executionId="b0a82347-e318-411b-9519-7dc094bc41b5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="95e243aa-045e-fbec-a5c6-4b2c541d2407" executionId="a3215b3a-7c91-48cb-aa68-d0fa992ae985" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="19dbed00-a4c2-c0b7-8b71-9ee9b7215697" executionId="b988954b-e4cd-47ed-b6ef-adfe8dc2d2a2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0940f7b0-d3ef-ce63-449e-e46dfcaaf803" executionId="7ce0e056-6668-4987-884f-a7d4637e143a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="536a0a44-a47b-390b-5b5f-67b4c2ef7939" executionId="b22638e4-5e83-42ba-ae89-abc287207f53" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e3c2f7c1-c74d-7665-9367-ea3fee19fb0d" executionId="bd988e18-0be9-4b80-b646-e61809ef9213" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f33f4333-77c6-ebe4-5886-fee811f80897" executionId="bfc26c7f-5d5a-499a-9fc4-41442819fed6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2fa672d0-1e38-1145-6480-b85e958dbde2" executionId="1eda2e2b-80a8-4091-a3d8-f4ad30d121b9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b152a265-bf50-5376-260d-4ade075b8364" executionId="455cc050-e4c0-425b-858a-4fa43338e63a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2d6c5771-5de9-5620-c027-768262bd725a" executionId="4a43adba-0dbe-4041-b15a-01e8b854b4a6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f2041192-ea82-d1c4-9e07-3a78c5761d5c" executionId="3500ccde-fc8b-4e3b-b5ab-b9c5d84fab6c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a01b7098-2614-1bf3-b70e-479159af9e89" executionId="161ff0e1-2f74-4423-95a1-fb4de1b5394a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="96333010-c421-cf78-6774-413dc7fa01e8" executionId="fb69f57d-8b28-493b-8fed-3a7fd3af4dfd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5c89b53b-3837-4bdb-d066-daabd46eea5d" executionId="bd16e4b2-3213-4c9c-8573-3d529d29248b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c9dbe549-0191-579c-b6ef-8db7e1d60e12" executionId="48768f00-d8f8-42eb-a13b-061be624b82f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8d13f955-24fc-5e9e-b22e-149bdc3c6a27" executionId="6348c297-2376-4afa-b74e-c126534ff5e6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Список результатов" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Все загруженные результаты" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="120" executed="119" passed="118" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\IA\ace — копия\tests\SnowMeltingCalculator.Tests\bin\Debug\net8.0-windows\SnowMeltingCalculator.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 120 of 120 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile: F5 smoke fixture не найден: D:\IA\ace\Тест\тест 40.smc. Положите файл «тест 40.smc» в «D:\IA\ace\Тест\», и тест начнёт проверять реальные значения.&#xD;
+Тест "ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile" пропущен в тестовом запуске.&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

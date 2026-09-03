@@ -150,3 +150,7 @@ Phase 7.5 docs-only dossier refresh (plan `docs/architecture-migration/plans/pha
 ## Phase 8 Results-Derived-Projection Overlay
 
 Open/save/report flows now project canonical values: readiness (`MissingModules`/`IsDataReady`), KPI, collector list and the persisted display mode derive from `ProjectSession` slices and the app-owned display-mode seam; rejected restore still leaves the prior projection intact and releases the guard. The headless-environment manual WPF button/dialog QA gap remains recorded (as in Phase 6/7). Evidence: `slice-5`, `slice-7` receipts; model records `EV-P8-SLICE-5`, `EV-P8-SLICE-7`.
+
+## Phase 9 Legacy-Seams-Cleanup Overlay
+
+Owner-approved behavior change (LIM-P8-2, decision B): opening a project no longer imports custom materials/templates into the global catalogs — catalogs are read-only on open; project-local entries remain in the saved file and layers referencing a missing material fall back per the characterized mapper. Restore-failure semantics unchanged (non-transactional, lease cleared, no user-dirty). Results hydraulic views (circuits filter, collector summary, specifications, equipment items, summary cards) show canonical values with Results-owned display objects; no user-visible projection change. Headless manual WPF QA gap remains recorded (RR-002). Evidence: `slice-2..slice-4`, `slice-7` receipts; model records `EV-P9-SLICE-2..7`.

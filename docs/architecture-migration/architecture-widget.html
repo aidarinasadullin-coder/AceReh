@@ -13038,8 +13038,8 @@ h3 {
               "name": "Results collections",
               "current_owner": "ResultsViewModel",
               "target_owner": "derived Results projection",
-              "migration_status": "partial: Layers/Collectors canonical; Circuits/Specifications/EquipmentItems/SummaryCards via shared HydraulicSummaryBuilder(CollectorData) — Phase 9 residual",
-              "coverage_status": "partial",
+              "migration_status": "covered: Circuits rebuilt as Results-owned rows from canonical snapshots (HydraulicCircuitRowProjection); Specifications/EquipmentItems/SummaryCards built by HydraulicSummaryBuilder from canonical collector snapshots",
+              "coverage_status": "covered",
               "views": [
                 "state-ownership"
               ]
@@ -13047,6 +13047,8 @@ h3 {
             "status": "observed",
             "confidence": "verified",
             "evidence_refs": [
+              "EV-P9-SLICE-3",
+              "EV-P9-SLICE-4",
               "EV-P8-SLICE-4",
               "EV-ST"
             ],
@@ -13063,8 +13065,8 @@ h3 {
               "name": "Results collections",
               "current_owner": "ResultsViewModel",
               "target_owner": "derived Results projection",
-              "migration_status": "partial: Layers/Collectors canonical; Circuits/Specifications/EquipmentItems/SummaryCards via shared HydraulicSummaryBuilder(CollectorData) — Phase 9 residual",
-              "coverage_status": "partial",
+              "migration_status": "covered: Circuits rebuilt as Results-owned rows from canonical snapshots (HydraulicCircuitRowProjection); Specifications/EquipmentItems/SummaryCards built by HydraulicSummaryBuilder from canonical collector snapshots",
+              "coverage_status": "covered",
               "views": [
                 "state-ownership"
               ]
@@ -13072,6 +13074,8 @@ h3 {
             "status": "observed",
             "confidence": "verified",
             "evidence_refs": [
+              "EV-P9-SLICE-3",
+              "EV-P9-SLICE-4",
               "EV-P8-SLICE-4",
               "EV-ST"
             ],
@@ -13094,8 +13098,8 @@ h3 {
               "name": "Results selection",
               "current_owner": "ResultsViewModel",
               "target_owner": "derived Results projection",
-              "migration_status": "partial: selection projection Results-owned; UpdateCollectorSummary still reads CircuitsViewModel selection — Phase 9 residual",
-              "coverage_status": "partial",
+              "migration_status": "covered: CollectorSummary built from canonical HydraulicCollectorSummarySnapshot by Results selection; no module-ViewModel selection read remains",
+              "coverage_status": "covered",
               "views": [
                 "state-ownership"
               ]
@@ -13103,6 +13107,7 @@ h3 {
             "status": "observed",
             "confidence": "verified",
             "evidence_refs": [
+              "EV-P9-SLICE-4",
               "EV-P8-SLICE-4",
               "EV-ST"
             ],
@@ -13119,8 +13124,8 @@ h3 {
               "name": "Results selection",
               "current_owner": "ResultsViewModel",
               "target_owner": "derived Results projection",
-              "migration_status": "partial: selection projection Results-owned; UpdateCollectorSummary still reads CircuitsViewModel selection — Phase 9 residual",
-              "coverage_status": "partial",
+              "migration_status": "covered: CollectorSummary built from canonical HydraulicCollectorSummarySnapshot by Results selection; no module-ViewModel selection read remains",
+              "coverage_status": "covered",
               "views": [
                 "state-ownership"
               ]
@@ -13128,6 +13133,7 @@ h3 {
             "status": "observed",
             "confidence": "verified",
             "evidence_refs": [
+              "EV-P9-SLICE-4",
               "EV-P8-SLICE-4",
               "EV-ST"
             ],
@@ -16285,6 +16291,48 @@ h3 {
         "locator": "Multiplicity, rejected-restore preservation and fresh-vs-stale sentinel evidence mapping; 59 passed",
         "confidence": "verified",
         "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P9-SLICE-2",
+        "path": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-2-lim-p8-2-resolution.md",
+        "locator": "LIM-P8-2 resolved by owner decision B: 5 characterization tests re-pinned; full suite 2028 passed / 0 failed / 1 skip",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P9-SLICE-3",
+        "path": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-3-results-owned-circuits.md",
+        "locator": "Results-owned CircuitRow projection rebuilt from canonical HydraulicsState snapshots; ownership negative probes pass; 26/26",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P9-SLICE-4",
+        "path": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-4-builder-selection-decoupling.md",
+        "locator": "HydraulicSummaryBuilder on canonical snapshots; selection re-sourced; CircuitsViewModel removed from ResultsViewModel; 62/62 + 178 adjacent",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P9-SLICE-5",
+        "path": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-5-orchestrator-decoupling.md",
+        "locator": "ProjectLoadOrchestrator decoupled via application-owned adapter interfaces; static architecture test RED-\u003EGREEN; Phase 7 restore contracts re-proven; 220/0/1",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P9-SLICE-6",
+        "path": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-6-alias-removal.md",
+        "locator": "IProjectStateService/IProjectInfoService/ProjectStateService removed; consumers on IProjectSession; IMarkDirtyService kept as internal session dirty seam; 300/0/1",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
+      },
+      {
+        "id": "EV-P9-SLICE-7",
+        "path": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-7-full-regression.md",
+        "locator": "Full regression 2032 passed / 0 failed / 1 known skip; multiplicity, dirty semantics, save/report fixtures unchanged; .smc fixtures untouched",
+        "confidence": "verified",
+        "freshness": "current-at-snapshot"
       }
     ],
     "limitations": [
@@ -16447,12 +16495,14 @@ h3 {
           "compile-time",
           "di-runtime"
         ],
-        "status": "unverified",
+        "status": "verified",
         "evidence": [
+          "EV-P9-SLICE-5",
+          "EV-P9-SLICE-6",
           "EV-CT",
           "EV-DR"
         ],
-        "target_status": "unimplemented"
+        "target_status": "implemented"
       },
       {
         "id": "INV-009",
@@ -18000,11 +18050,13 @@ h3 {
           ],
           "current_owner": "ResultsViewModel",
           "target_owner": "derived Results projection",
-          "migration_status": "partial: Layers/Collectors canonical; Circuits/Specifications/EquipmentItems/SummaryCards via shared HydraulicSummaryBuilder(CollectorData) — Phase 9 residual",
-          "coverage_status": "partial",
+          "migration_status": "covered: Circuits rebuilt as Results-owned rows from canonical snapshots (HydraulicCircuitRowProjection); Specifications/EquipmentItems/SummaryCards built by HydraulicSummaryBuilder from canonical collector snapshots",
+          "coverage_status": "covered",
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P9-SLICE-3",
+            "EV-P9-SLICE-4",
             "EV-P8-SLICE-4",
             "EV-ST"
           ],
@@ -18013,6 +18065,20 @@ h3 {
           "decision_refs": [],
           "evidence_missing": false,
           "references": [
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P9-SLICE-3",
+              "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-3-results-owned-circuits.md — Results-owned CircuitRow projection rebuilt from canonical HydraulicsState snapshots; ownership negative probes pass; 26/26",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P9-SLICE-4",
+              "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-4-builder-selection-decoupling.md — HydraulicSummaryBuilder on canonical snapshots; selection re-sourced; CircuitsViewModel removed from ResultsViewModel; 62/62 + 178 adjacent",
+              "detail": "verified / current-at-snapshot"
+            },
             {
               "kind": "evidence",
               "kind_label": "Доказательство",
@@ -18037,11 +18103,12 @@ h3 {
           ],
           "current_owner": "ResultsViewModel",
           "target_owner": "derived Results projection",
-          "migration_status": "partial: selection projection Results-owned; UpdateCollectorSummary still reads CircuitsViewModel selection — Phase 9 residual",
-          "coverage_status": "partial",
+          "migration_status": "covered: CollectorSummary built from canonical HydraulicCollectorSummarySnapshot by Results selection; no module-ViewModel selection read remains",
+          "coverage_status": "covered",
           "status": "observed",
           "confidence": "verified",
           "evidence_refs": [
+            "EV-P9-SLICE-4",
             "EV-P8-SLICE-4",
             "EV-ST"
           ],
@@ -18050,6 +18117,13 @@ h3 {
           "decision_refs": [],
           "evidence_missing": false,
           "references": [
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P9-SLICE-4",
+              "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-4-builder-selection-decoupling.md — HydraulicSummaryBuilder on canonical snapshots; selection re-sourced; CircuitsViewModel removed from ResultsViewModel; 62/62 + 178 adjacent",
+              "detail": "verified / current-at-snapshot"
+            },
             {
               "kind": "evidence",
               "kind_label": "Доказательство",
@@ -18200,14 +18274,30 @@ h3 {
             "compile-time",
             "di-runtime"
           ],
-          "status": "unverified",
+          "status": "verified",
           "evidence": [
+            "EV-P9-SLICE-5",
+            "EV-P9-SLICE-6",
             "EV-CT",
             "EV-DR"
           ],
-          "target_status": "unimplemented",
+          "target_status": "implemented",
           "evidence_missing": false,
           "references": [
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P9-SLICE-5",
+              "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-5-orchestrator-decoupling.md — ProjectLoadOrchestrator decoupled via application-owned adapter interfaces; static architecture test RED-\u003EGREEN; Phase 7 restore contracts re-proven; 220/0/1",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P9-SLICE-6",
+              "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-6-alias-removal.md — IProjectStateService/IProjectInfoService/ProjectStateService removed; consumers on IProjectSession; IMarkDirtyService kept as internal session dirty seam; 300/0/1",
+              "detail": "verified / current-at-snapshot"
+            },
             {
               "kind": "evidence",
               "kind_label": "Доказательство",
@@ -19699,6 +19789,48 @@ h3 {
             "id": "EV-P8-SLICE-7",
             "summary": "docs/architecture-migration/evidence/phase-8-results-derived-projection/slice-7-multiplicity-sentinel.md — Multiplicity, rejected-restore preservation and fresh-vs-stale sentinel evidence mapping; 59 passed",
             "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P9-SLICE-2",
+            "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-2-lim-p8-2-resolution.md — LIM-P8-2 resolved by owner decision B: 5 characterization tests re-pinned; full suite 2028 passed / 0 failed / 1 skip",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P9-SLICE-3",
+            "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-3-results-owned-circuits.md — Results-owned CircuitRow projection rebuilt from canonical HydraulicsState snapshots; ownership negative probes pass; 26/26",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P9-SLICE-4",
+            "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-4-builder-selection-decoupling.md — HydraulicSummaryBuilder on canonical snapshots; selection re-sourced; CircuitsViewModel removed from ResultsViewModel; 62/62 + 178 adjacent",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P9-SLICE-5",
+            "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-5-orchestrator-decoupling.md — ProjectLoadOrchestrator decoupled via application-owned adapter interfaces; static architecture test RED-\u003EGREEN; Phase 7 restore contracts re-proven; 220/0/1",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P9-SLICE-6",
+            "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-6-alias-removal.md — IProjectStateService/IProjectInfoService/ProjectStateService removed; consumers on IProjectSession; IMarkDirtyService kept as internal session dirty seam; 300/0/1",
+            "detail": "verified / current-at-snapshot"
+          },
+          {
+            "kind": "evidence",
+            "kind_label": "Доказательство",
+            "id": "EV-P9-SLICE-7",
+            "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-7-full-regression.md — Full regression 2032 passed / 0 failed / 1 known skip; multiplicity, dirty semantics, save/report fixtures unchanged; .smc fixtures untouched",
+            "detail": "verified / current-at-snapshot"
           }
         ],
         "limitations": [
@@ -19793,7 +19925,7 @@ h3 {
             "kind_label": "Инвариант",
             "id": "INV-008",
             "summary": "Application services SHALL NOT depend on concrete ViewModels.",
-            "detail": "unverified / target: unimplemented"
+            "detail": "verified / target: implemented"
           },
           {
             "kind": "invariants",
@@ -24217,14 +24349,28 @@ h3 {
           "kind_label": "Инвариант",
           "id": "INV-008",
           "summary": "Application services SHALL NOT depend on concrete ViewModels.",
-          "detail": "unverified / target: unimplemented",
+          "detail": "verified / target: implemented",
           "views": [
             "compile-time",
             "di-runtime"
           ],
-          "status": "unverified",
-          "target_status": "unimplemented",
+          "status": "verified",
+          "target_status": "implemented",
           "references": [
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P9-SLICE-5",
+              "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-5-orchestrator-decoupling.md — ProjectLoadOrchestrator decoupled via application-owned adapter interfaces; static architecture test RED-\u003EGREEN; Phase 7 restore contracts re-proven; 220/0/1",
+              "detail": "verified / current-at-snapshot"
+            },
+            {
+              "kind": "evidence",
+              "kind_label": "Доказательство",
+              "id": "EV-P9-SLICE-6",
+              "summary": "docs/architecture-migration/evidence/phase-9-legacy-seams-cleanup/slice-6-alias-removal.md — IProjectStateService/IProjectInfoService/ProjectStateService removed; consumers on IProjectSession; IMarkDirtyService kept as internal session dirty seam; 300/0/1",
+              "detail": "verified / current-at-snapshot"
+            },
             {
               "kind": "evidence",
               "kind_label": "Доказательство",
