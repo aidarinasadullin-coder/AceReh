@@ -1,0 +1,77 @@
+PASS WI-1 ProjectSessionClimateState (ST-006..ST-011) :: ApplyCitySelection|ApplyIndividualEdit|ApplyProjectSnapshot|ResetToCityData
+    call sites (9):
+      src/Services/Project/ProjectLoadOrchestrator.cs:145
+      src/ViewModels/Climate/ClimateViewModel.cs:447
+      src/ViewModels/Climate/ClimateViewModel.cs:563
+      src/ViewModels/Climate/ClimateViewModel.cs:573
+      src/ViewModels/Climate/ClimateViewModel.cs:583
+      src/ViewModels/Climate/ClimateViewModel.cs:596
+      src/ViewModels/Climate/ClimateViewModel.cs:607
+      src/ViewModels/Climate/ClimateViewModel.cs:618
+      src/ViewModels/Climate/ClimateViewModel.cs:629
+PASS WI-2 ProjectSessionConstructionState (ST-012..ST-013+) :: Apply|ApplySnapshot|ResetToDefaults
+    call sites (5):
+      src/Services/Project/ConstructionDefaultStateInitializer.cs:59
+      src/Services/Project/ProjectLoadOrchestrator.cs:154
+      src/ViewModels/Construction/ConstructionViewModel.cs:503
+      src/ViewModels/Construction/ConstructionViewModel.cs:817
+      src/ViewModels/Construction/ConstructionViewModel.cs:1308
+PASS WI-3 ProjectSessionThermalState (ST-014..ST-015) :: ApplyInputs|ApplyInputEdit|ApplyNeedsRecalculation|BeginCalculation|CompleteCalculation|FailCalculation|Restore|InvalidateFromClimate|InvalidateFromConstruction
+    call sites (14):
+      src/Services/Navigation/CalculationStateService.cs:88
+      src/Services/Navigation/CalculationStateService.cs:94
+      src/Services/Navigation/CalculationStateService.cs:100
+      src/Services/Navigation/CalculationStateService.cs:189
+      src/Services/Project/ProjectLoadOrchestrator.cs:164
+      src/Services/Project/ProjectLoadOrchestrator.cs:177
+      src/Services/Project/ThermalStateCoordinator.cs:110
+      src/Services/Project/ThermalStateCoordinator.cs:144
+      src/Services/Project/ThermalStateCoordinator.cs:163
+      src/Services/Project/ThermalStateCoordinator.cs:181
+      src/Services/Project/ThermalStateCoordinator.cs:191
+      src/Services/Project/ThermalStateCoordinator.cs:236
+      src/Services/Project/ThermalStateCoordinator.cs:264
+      src/Services/Project/ThermalStateCoordinator.cs:274
+PASS WI-4 ProjectSessionHydraulicsState (ST-016..ST-017) :: ApplyGlobalInputs|ReplaceCollectors|BeginCalculation|CompleteCalculation|FailCalculation|ApplySnapshot
+    call sites (11):
+      src/Services/Navigation/CalculationStateService.cs:119
+      src/Services/Navigation/CalculationStateService.cs:125
+      src/Services/Navigation/CalculationStateService.cs:131
+      src/ViewModels/Hydraulics/CircuitsViewModel.cs:1021
+      src/ViewModels/Hydraulics/CircuitsViewModel.cs:1091
+      src/ViewModels/Hydraulics/CircuitsViewModel.cs:1108
+      src/ViewModels/Hydraulics/CircuitsViewModel.cs:1129
+      src/ViewModels/Hydraulics/CircuitsViewModel.cs:1320
+      src/Services/Project/HydraulicsStateCoordinator.cs:62
+      src/Services/Project/HydraulicsStateCoordinator.cs:70
+      src/Services/Project/HydraulicsStateCoordinator.cs:90
+PASS WI-5 ProjectSession dirty/identity (ST-001..ST-004) :: MarkDirty
+    call sites (6):
+      src/Services/Project/ProjectSessionClimateState.cs:256
+      src/Services/Project/ProjectSessionConstructionState.cs:429
+      src/Services/Project/ProjectSessionHydraulicsState.cs:105
+      src/Services/Project/ThermalStateCoordinator.cs:116
+      src/ViewModels/Results/ResultsViewModel.cs:69
+      src/ViewModels/Results/ResultsViewModel.cs:89
+PASS WI-6 ProjectSession dirty/identity (ST-001..ST-004) :: MarkClean
+    call sites (7):
+      src/ViewModels/Results/ResultsViewModel.cs:834
+      src/ViewModels/Results/ResultsViewModel.cs:838
+      src/ViewModels/Results/ResultsViewModel.cs:985
+      src/ViewModels/Results/ResultsViewModel.cs:1639
+      src/ViewModels/Results/ResultsViewModel.cs:1684
+      src/ViewModels/Shell/MainViewModel.cs:238
+      src/ViewModels/Shell/MainViewModel.cs:249
+PASS WI-7 CalculationContext compat projection (ST-020..ST-022) :: UpdateClimate|UpdateConstruction|UpdateThermal|UpdateThermalInputs|UpdateHydraulics|Reset
+    call sites (8):
+      src/Services/Project/HydraulicsStateCoordinator.cs:57
+      src/Services/Project/ProjectLoadOrchestrator.cs:76
+      src/Services/Project/ThermalStateCoordinator.cs:147
+      src/Services/Project/ThermalStateCoordinator.cs:166
+      src/Services/Project/ThermalStateCoordinator.cs:187
+      src/Services/Project/ThermalStateCoordinator.cs:239
+      src/Services/Project/ThermalStateCoordinator.cs:240
+      src/ViewModels/Shell/MainViewModel.cs:236
+PASS WI-8 ViewModel foreign-slice writes :: (grep)
+    call sites (0):
+SUMMARY: 8/8 checks PASS

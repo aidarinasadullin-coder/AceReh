@@ -3236,3 +3236,385 @@ on 2026-08-01. Failed receipt
   ST-026/ST-027 covered states were re-verified as correctly landed. The
   Phase 9 dossier is now internally consistent; the workflow remains completed
   and stopped — no subsequent phase starts automatically.
+
+- 2026-09-03: Phase 10 (`phase-10-reactive-ownership-multiplicity-closure`)
+  planning: plan authored and terminal review completed (owner direction:
+  `напиши план 10 фазы`, then `проведи ревью`). Scope is taken verbatim from
+  the Phase 9 preserved open items: `INV-010` (subscription
+  owner/lifetime/unsubscribe/multiplicity with measured counters replacing the
+  reactive map's `unknown` columns), global closure of `INV-006`/`INV-007`
+  (blocked, per the dossier, only by `INV-010`), and the broader `INV-016`
+  mutation-boundary portions; `DEC-001 = A`, RR-002/RR-004, Markdown/export,
+  and undo/redo stay out of scope. Seven execution slices + F1-F4 wave: reactive
+  census (`RE-001..RE-014` re-grounded post-Phase-9), baseline counting
+  harness, `ReactiveSubscriptionLifecycleTests` with a mandatory RED probe,
+  hygiene-only leak fixes (publication/invalidation semantics changes are an
+  `OWNER_DECISION_REQUIRED` stop), `MutationBoundaryConsolidationTests`,
+  full regression, dossier/global-closure refresh including the reactive-map
+  structural-QA adaptation (the embedded PowerShell QA currently *requires* an
+  `unknown` per `RE-` row) and the verifier exemplar disposition
+  (`verify-widget.mjs` cites `INV-010`; if no genuinely open invariant remains,
+  the slice stops with a recorded owner choice between Options A/B).
+  Terminal review (environment-adaptive, ZCode): the acting agent corrected
+  three path defects before freeze (`CircuitsViewModel.cs` →
+  `src/ViewModels/Hydraulics/`, `CalculationContext.cs` → `src/Core/`,
+  `CalculationStateService.cs` → `src/Services/Navigation/`); one independent
+  read-only subagent pass returned `PASS` on all five checks (paths, filter
+  classes, dossier claims, authority compliance, internal consistency).
+  Verdict `APPROVE`. Frozen candidate: exactly 41832 UTF-8 bytes, SHA-256
+  `D8F893B20AA468D10ED42C275A3FC1D951A3354409E37CDF06B3412F411135B7`.
+  Receipt:
+  `docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/terminal-plan-review-receipt.md`
+  (REVIEW_ID: TERMINAL-PLAN-REVIEW-P10-ZCODE-1). The workflow stops here for
+  explicit owner plan approval; execution is NOT authorized and requires a
+  separate `/architecture-start phase-10-reactive-ownership-multiplicity-closure`.
+
+- 2026-09-03: Phase 10 supplementary Momus-role review (owner direction:
+  `запусти субагента momus ... запусти здесь с той же ролью`). The genuine
+  plugin-agent launch via `opencode-cli.exe run --agent momus` (v1.4.11) was
+  not possible: the CLI did not resolve the `momus` agent and the configured
+  provider `customapi` (`https://dindindon.ru/v1`) is unreachable from the
+  machine (certificate/connection errors). Per the owner's instruction the
+  Momus role from the installed oh-my-openagent plugin was executed by a
+  read-only ZCode subagent: the role text taken verbatim from the installed
+  package (`.../ultrawork/agents/momus.toml`, `developer_instructions`) plus
+  the user's `prompt_append` from `oh-my-openagent.json`. Momus verdict:
+  `[OKAY]` (references verified by reading 30+ files including the drifted
+  line-anchor handling, all 7 slices executable with concrete commands and
+  receipts, no critical blockers, QA scenarios concrete; zero Issues). Review
+  contract verdict: APPROVE. This is supplementary evidence only — the
+  terminal review of record remains `TERMINAL-PLAN-REVIEW-P10-ZCODE-1`
+  (APPROVE); the frozen candidate bytes are unchanged (SHA-256
+  `D8F893B20AA468D10ED42C275A3FC1D951A3354409E37CDF06B3412F411135B7`).
+  Receipt:
+  `docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/momus-role-review-receipt.md`
+  (REVIEW_ID: MOMUS-ROLE-REVIEW-P10-ZCODE-1). The workflow remains stopped
+  for explicit owner plan approval; execution is NOT authorized.
+
+- 2026-09-03: Owner plan approval for Phase 10
+  (`phase-10-reactive-ownership-multiplicity-closure`) recorded. The owner
+  stated exactly `одобряю план Phase 10`, approving the frozen candidate after
+  the terminal review (TERMINAL-PLAN-REVIEW-P10-ZCODE-1, APPROVE) and the
+  supplementary Momus-role review (MOMUS-ROLE-REVIEW-P10-ZCODE-1, `[OKAY]`).
+  Identity re-verified at approval time: `docs/architecture-migration/plans/phase-10-reactive-ownership-multiplicity-closure.md`
+  is exactly 41832 UTF-8 bytes, SHA-256
+  `D8F893B20AA468D10ED42C275A3FC1D951A3354409E37CDF06B3412F411135B7`,
+  byte-identical to the reviewed candidate. Receipt:
+  `docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/owner-plan-approval.md`
+  (REVIEW_ID: OWNER-PLAN-APPROVAL-PHASE-10). This records plan approval only;
+  it does not authorize execution and does not pre-answer the in-plan owner
+  stops (hygiene-only leak-fix semantics stop; verifier exemplar disposition
+  Option A/B). The workflow stops here; the next explicit gate is the
+  separate execution authorization
+  (`/architecture-start phase-10-reactive-ownership-multiplicity-closure` or
+  an equivalent explicit owner direction in-session).
+
+- 2026-09-03: Phase 10 (`phase-10-reactive-ownership-multiplicity-closure`)
+  execution run: Slices 1-6 PASS, Slice 7 stopped `OWNER_DECISION_REQUIRED`
+  (verifier exemplar disposition). Execution authorized by the owner's
+  `/architecture-start phase-10-reactive-ownership-multiplicity-closure`; the
+  frozen plan was re-verified byte-identical before execution
+  (`docs/architecture-migration/plans/phase-10-reactive-ownership-multiplicity-closure.md`,
+  exactly 41832 UTF-8 bytes, SHA-256
+  `D8F893B20AA468D10ED42C275A3FC1D951A3354409E37CDF06B3412F411135B7`). Dirty
+  baseline-relative delta: the only production-tree changes are two new
+  test-only files (`tests/SnowMeltingCalculator.Tests/Services/Project/{ReactiveSubscriptionLifecycleTests,MutationBoundaryConsolidationTests}.cs`,
+  names fixed by the plan); no production source file was edited (leak-hygiene
+  slice is a justified no-op — every census row is application-lifetime-by-
+  design or symmetric per-item attach/detach, and the sensitivity-proven
+  harness measured zero handler multiplication across doubled load/reset
+  cycles). Slice receipts under
+  `docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/`:
+  slice-1 reactive census (28 domain rows with owner/lifetime/unsubscribe/
+  multiplicity; baseline suites 79/79 unmodified); slice-2 counting harness
+  baseline (11/11; per-scenario measured counters replace the reactive map's
+  "unknown" columns as receipt facts; lifecycle origins Dirty+=0); slice-3 RED
+  probe (recorded failing TRX `slice-3-lifecycle-RED.trx`, 3 failed / 8 passed
+  with an injected duplicate subscription) then GREEN (11/11; handler-count
+  snapshots stable across four post-warmup load+reset cycles); slice-4 no-op
+  (combined suites 94/94); slice-5 consolidated INV-016 mutation-boundary
+  proofs across Climate/Construction/Thermal/Hydraulics/Results/Shell-Save
+  (plan-exact filter 36/36; multi-field single actions, one completion boundary
+  per logical action, lifecycle/system origins distinguishable and dirty-free,
+  no ViewModel internals, no undo/redo); slice-6 full regression 2050 passed /
+  0 failed / exactly 1 known RR-004 external-fixture skip; +18 tests = exactly
+  this plan's additions; `git diff --name-only -- '*.smc'` empty. Machine-
+  checked writer inventory (INV-006 verification method)
+  `writer-inventory.mjs` → `writer-inventory-output.txt`: 8/8 PASS — single
+  writable canonical owners across `ST-001..ST-027`; `ResultsViewModel` is the
+  Phase 1 identity adapter invoking the session's own `MarkDirty` boundary
+  (recorded sanctioned); `CalculationContext` `ST-020..ST-022` projection
+  writers are exactly the four sanctioned sites (DEC-001 = A non-owning); zero
+  ViewModel foreign-slice writes.
+  STOP reason: the Slice 7 exemplar disposition is an in-plan owner gate the
+  plan approval explicitly did not pre-answer. After flipping INV-006/007/010
+  (+ adding INV-016) in `maps/architecture-model.json`, no genuinely open
+  invariant remains, so plan Option A (re-point the verifier exemplar to the
+  next open invariant) is unavailable; the owner must record one of: B1 keep a
+  permanently-open synthetic placeholder invariant and re-point the exemplar;
+  B2 amend `verify-widget.mjs` so the `changed-unverified`/
+  `added-survivor-unverified` scenarios source a synthetic unverified status
+  inside the scenario data (live model needs no open row; verifier coverage
+  preserved); B3 retire the two exemplar assertions (reduced verifier
+  surface). Per the frozen decision contract ("No suite may be left failing
+  while the decision is pending") the coupled Slice 7 write-set — reactive-map
+  counter-column fill + structural-QA adaptation, `target-invariants.md`
+  flips, model JSON flips + `EV-P10-*` records, INV-016 model row, widget
+  regeneration, verifier runs, and the corresponding dossier flip entry — is
+  NOT applied; the accepted Phase 9 model/widget/verifier state remains
+  byte-unchanged and all suites green. `RR-002` (headless manual-QA gap) and
+  `RR-004` (external fixture) remain recorded limitations; `DEC-001 = A`
+  untouched; no invalidation-semantics, publication, `.smc`, export, or
+  Markdown change. The next explicit owner gates are: record the exemplar
+  disposition (in-session direction or at a follow-up approval), then owner
+  result acceptance of this phase's execution.
+
+- 2026-09-03: Phase 10 Slice 7 completed; exemplar disposition B2 recorded by
+  the owner in-session (`одобряю... B2: синтетический статус` — the owner
+  selected "B2: синтетический статус (Рекомендую)" from the recorded options).
+  Applied: `widget/verify-widget.mjs` amended (owner-authorized, Phase
+  7.5/9 amendment precedent) so the `changed-unverified`/
+  `added-survivor-unverified`/`removed-survivor-unverified` scenarios inject
+  the synthetic `unverified` status inside the scenario document copies via an
+  `unverifiedInvariant` helper; the live model keeps no permanently-open
+  invariant and no assertion was retired. Global closure applied: model
+  `INV-006`/`INV-007`/`INV-010` → `verified`, new `INV-016` record →
+  `verified` (`target_status: partial`), eight `EV-P10-*` evidence records;
+  `maps/reactive.md` counter cells all measured with slice-1..6 provenance
+  (structural QA adapted and passing: 14 edges / 14 measured rows /
+  0 unmeasured / 0 orphans; the stale Phase 1 state-table equality check is
+  retired as historical); `maps/target-invariants.md` rows flipped with dated
+  closure notes and the Phase 10 overlay appended; global `INV-006`/`INV-007`
+  scope statement recorded verbatim: the verdict covers the migrated write-set
+  `ST-001..ST-027`. Machine-checked writer inventory finalized at
+  `SUMMARY: 8/8 checks PASS` (patterns completed per first-wave review:
+  case-insensitive receivers, coordinator `_state.` scoping per file,
+  `MarkDirty` `ResultsViewModel` identity-adapter call sanctioned and
+  documented). Widget regenerated deterministically: two sequential
+  generations byte-identical, `architecture-widget.html` = 15,998,126 bytes,
+  SHA-256 `a13952963729398c7edf885d83b4b2d1f806e4516337a75d31c6a05574c6289c`;
+  `generate-widget.mjs --check` PASS (count 14); both verifier suites PASS
+  (model-v2 33 assertions / 21 mutations; runtime-v2 PASS, totals 47
+  assertions / 20 mutations) with the amended exemplar; verifier receipt:
+  `evidence/phase-10-reactive-ownership-multiplicity-closure/phase-0.5-acceptance-v2.json`
+  (model hash `b59122f86f6169a25cd97ca9f0cf78f1fbb87fe4dbb9aad4f1dd9db01bfd871b`);
+  `git diff --check` clean. `RR-002` (headless manual WPF QA) and `RR-004`
+  (external fixture) remain recorded limitations, not closed; `DEC-001 = A`
+  and the Phase 6/7/8/9 accepted boundaries are untouched (no publication,
+  invalidation, `.smc`, export, or Markdown change; zero production source
+  edits in the whole phase). The next explicit owner gate is result
+  acceptance of the Phase 10 execution.
+
+- 2026-09-03: Phase 10 result acceptance completed. The owner stated exactly
+  `принимаю результат phase-10-reactive-ownership-multiplicity-closure`,
+  accepting the whole Phase 10 execution result after the three independent
+  final-review domains (F1 Conformance/Scope/Provenance, F2 Architecture/Code
+  Quality, F3 Executable QA/User Risk — all APPROVE on the final tree) and the
+  consolidated receipt `FINAL-WAVE-P10-ZCODE-1` (APPROVE). Identities
+  re-verified at acceptance time (PowerShell `Get-FileHash -Algorithm
+  SHA256`): frozen plan
+  `docs/architecture-migration/plans/phase-10-reactive-ownership-multiplicity-closure.md`
+  = `D8F893B20AA468D10ED42C275A3FC1D951A3354409E37CDF06B3412F411135B7`
+  (41832 bytes); `architecture-widget.html` =
+  `A13952963729398C7EDF885D83B4B2D1F806E4516337A75D31C6A05574C6289C`
+  (15998126 bytes); `maps/architecture-model.json` =
+  `B59122F86F6169A25CD97CA9F0CF78F1FBB87FE4DBB9AAD4F1DD9DB01BFD871B`.
+  Dedicated acceptance receipt:
+  `docs/architecture-migration/evidence/phase-10-reactive-ownership-multiplicity-closure/owner-result-acceptance.md`
+  (REVIEW_ID: OWNER-RESULT-ACCEPTANCE-PHASE-10, VERDICT: APPROVE). The
+  authoritative workflow for Phase 10 transitioned to `completed`;
+  resultAcceptance recorded as accepted; stop remains true; no subsequent
+  phase starts automatically — a new explicit owner direction is required to
+  begin any separate planning or execution workflow. This acceptance is
+  result acceptance only and preserves as recorded (not closed): RR-002
+  (headless manual WPF QA gap), RR-004 (external fixture skip),
+  `DEC-001 = A`, the `INV-016` boundary-property scope
+  (`target_status: partial`), and all Phase 6/7/8/9 accepted boundaries.
+
+- 2026-09-03: Owner provenance note (no work executed). The owner recorded the
+  widget lineage starting point: the initial `architecture_widget.html` was
+  37294 bytes and "did not fully correspond to truth yet, but everything
+  started from it". Confirmed against the archive:
+  `docs/architecture-migration/archive/architecture_widget.phase-0-historical.html`
+  is exactly 37294 bytes ("Архитектура: аудит и цель", 2026-08-18) — the
+  Phase 0 historical snapshot. Lineage: that 37 KB audit-and-goal snapshot →
+  the Phase 0.5 model-driven explorer MVP → the contract-schema v2 widget with
+  the machine verifier → the current deterministic
+  `architecture-widget.html` (15998126 bytes, SHA-256 `A1395296…6289C`, 264
+  records, 18/18 invariants verified). The owner also confirmed the recorded
+  остатки (remaining items) stay open for a later, owner-directed phase.
+
+- 2026-09-03: Phase 11 (`phase-11-migration-tails-closure`) planned. Owner
+  direction: `займемся остатками` — scope selected from the recorded options as
+  "the migration's own tails" (LIM-P8-1 record, sync-over-async save-catalog
+  risk, dossier/model hygiene); audit-P1/P2 program, Markdown removal, and
+  environment/QA residuals stay out of scope until separately directed.
+  Planning grounded on live code: LIM-P8-1's three clauses are substantively
+  closed by Phase 9 (Results-owned `HydraulicCircuitRowProjection.CreateRow`
+  rows from canonical snapshots; `HydraulicSummaryBuilder` takes
+  `IReadOnlyList<HydraulicCollectorSnapshot>`; canonical-snapshot summary by
+  Results-owned selection) — the limitation record was never flipped, so
+  Slice 1 is a verification+flip, with `OWNER_DECISION_REQUIRED` if live code
+  contradicts; `ProjectSnapshotPersistenceInputs.Templates` still does
+  `GetAllAsync().GetAwaiter().GetResult()` (Phase 6 recorded risk) — Slice 2
+  makes the save chain honestly async (`GetTemplatesAsync`/`CreateAsync`)
+  with identical snapshot bytes proven by unmodified frozen suites plus a
+  hash-pin characterization test; Slice 3 full regression; Slice 4 dated
+  state-inventory overlay (ST-001..ST-005 Phase 1 historical block, ST-003
+  live owner `IProjectDisplayModeState`), model `metadata.phase` refresh +
+  `EV-P11-*`, three dead `using ...ViewModels.Hydraulics;` removals in
+  `src/Services/Hydraulics/`, deterministic widget regeneration. Frozen
+  candidate: exactly 24757 bytes, SHA-256
+  `7C25911F5C00C623DD95150C3E2B9C88DF2454FE0607EB2F3BB4C06B8621A91A`.
+  Terminal review: the intended independent subagent pass could not launch
+  (agent quota exhausted; two attempts failed) — the five check groups
+  (LIM-P8-1 grounding, async grounding, hygiene grounding, executability,
+  internal consistency) were executed read-only by the acting agent and all
+  PASSED with zero blocking defects; the independence weakness and the
+  compensating `/architecture-approve` gate are recorded in the receipt.
+  Receipt:
+  `docs/architecture-migration/evidence/phase-11-migration-tails-closure/terminal-plan-review-receipt.md`
+  (REVIEW_ID: TERMINAL-PLAN-REVIEW-P11-ZCODE-1, VERDICT: APPROVE). The
+  workflow stops here for explicit owner plan approval; execution is NOT
+  authorized. The next explicit gate is
+  `/architecture-approve phase-11-migration-tails-closure`, then a separate
+  `/architecture-start phase-11-migration-tails-closure`.
+
+- 2026-09-03: Owner plan approval and in-session execution authorization for
+  Phase 11 (`phase-11-migration-tails-closure`) recorded. Presented with the
+  frozen plan and the gate options, the owner selected
+  `Одобряю план + исполняем здесь (Рекомендую)` — approving the frozen
+  candidate after the terminal review (TERMINAL-PLAN-REVIEW-P11-ZCODE-1,
+  APPROVE) and authorizing execution in the same session (an equivalent
+  explicit owner direction to `/architecture-start
+  phase-11-migration-tails-closure`). Identity re-verified at approval time:
+  `docs/architecture-migration/plans/phase-11-migration-tails-closure.md` is
+  exactly 24757 bytes, SHA-256
+  `7C25911F5C00C623DD95150C3E2B9C88DF2454FE0607EB2F3BB4C06B8621A91A`,
+  byte-identical to the reviewed candidate. Receipt:
+  `docs/architecture-migration/evidence/phase-11-migration-tails-closure/owner-plan-approval.md`
+  (REVIEW_ID: OWNER-PLAN-APPROVAL-PHASE-11). Execution of Slices 1-4 and the
+  final wave now begins in this session; result acceptance remains a separate
+  owner gate at the end.
+
+- 2026-09-03: DEC-006 recorded (owner decision, in-session, during Phase 11
+  Slice 2 execution): **catalogs live only globally** — the logical completion
+  of LIM-P8-2 decision B. Custom materials/templates are NOT embedded into
+  saved projects anymore, and the two never-read wire members are removed
+  from `ProjectData` (sub-variant (a): fields removed from the wire; the
+  owner explicitly blessed touching "old tests": `тесты могут быть старыми и
+  не актуальными`). Facts grounding the decision: save embedded global custom
+  catalogs into every `.smc` (`ProjectSnapshotFactory`,
+  `ResultsViewModel.SaveCurrentProject:1721/:1730`) while the import-less
+  restore (decision B) never reads them back — write-only data in every
+  project file; the dead embedding is also what dragged the recorded
+  sync-over-async `Templates` read into the save path. Consequences applied
+  to the Phase 11 Slice 2 write-set (recorded deviation from the frozen plan,
+  owner-directed): `ProjectData` loses `CustomMaterials`/`CustomTemplates`;
+  `ProjectSnapshot` loses the catalog records; `IProjectSnapshotPersistenceInputs`
+  reduces to `IsOperatingMode`; `ProjectSnapshotFactory` stops reading
+  catalogs; `ResultsViewModel.SaveCurrentProject` drops the catalog fills;
+  the sync-over-async `Templates` read dissolves with the code path (grep
+  gate `GetAwaiter().GetResult()` in src must return zero). Version stays
+  `1.1`: the removed members are optional JSON collections with zero
+  consumers; bumping would orphan the 28 tracked hashed `.smc` fixtures and
+  add churn with no benefit (DEC-002 covers format freedom). This decision
+  supersedes the Phase 11 frozen-plan clause "No `.smc`
+  schema/persistence-format change, no `ProjectData` wire-shape change" for
+  exactly these two members. The hash-pin characterization test pins the new
+  (compact) DTO. Old tests asserting catalog embedding are updated/removed as
+  outdated. Result acceptance remains a separate owner gate.
+
+- 2026-09-03: Phase 11 (`phase-11-migration-tails-closure`) sequential
+  execution completed (Slices 1-4, receipts `slice-1..slice-4` + TRX logs
+  under `evidence/phase-11-migration-tails-closure/logs/`). Slice 1:
+  LIM-P8-1 verified clause-by-clause against live code (all three clauses
+  substantively closed by Phase 9), model record flipped to `closed` with
+  `EV-P11-LIMP81`; targeted suites 50/50 unmodified. Slice 2: stopped once on
+  a grounding contradiction (`ResultsViewModel.SaveCurrentProject` also read
+  `Templates`; frozen "No ResultsViewModel change" premise refuted) and
+  re-scoped by owner decision DEC-006 — catalogs live only globally;
+  `CustomMaterials`/`CustomTemplates` removed from the `ProjectData` wire,
+  `ProjectSnapshot` and the persistence seam (reduced to `IsOperatingMode`);
+  the sync-over-async `Templates` read is deleted with its code path
+  (save-chain grep gate zero; one pre-existing unrelated instance recorded at
+  `CollectorRepository.cs:99`, forwarded to the audit-P1/P2 backlog);
+  `Version` stays `1.1` (optional never-read members; DEC-002); hash-pin
+  characterization test pins the compact DTO (SHA-256
+  `FBD2010C…7B5`); suites 37/37; old catalog-embedding tests updated/removed
+  as outdated (owner-blessed). Slice 3: full regression 2040 passed / 0
+  failed / exactly 1 known RR-004 skip; −10 vs Phase 10 fully explained
+  (21→13 contract tests, 34→32, 45→44, factory 2→3, mapper 5→5);
+  `.smc` fixtures untouched. Slice 4: dated `state-inventory.md` overlay
+  (ST-001..005 Phase 1 historical ownership; ST-003 live owner
+  `IProjectDisplayModeState`; ST-023 wire annotation), model
+  `metadata.phase` → `phase-11-migration-tails-closure` + `EV-P11-*`
+  (4 records), four dead `using …ViewModels.Hydraulics;` removed from
+  `src/Services/Hydraulics/` (0 remain there; two legitimate Results-builder
+  usings documented), widget regenerated deterministically (two identical
+  generations, 16003494 bytes, SHA-256
+  `761D5E167F173FF74429C2E44CB3002D38D87B8A78C9DA2003AEF55CE0889EE8`),
+  `--check` PASS 14/14, both verifier suites PASS (model-v2 33/21, runtime-v2
+  47/20), `git diff --check` clean. RR-002 and RR-004 remain recorded
+  limitations; `DEC-001 = A` untouched. The final verification wave (F1-F3
+  domains + F4 consolidated receipt) and owner result acceptance remain.
+
+- 2026-09-03: Phase 11 result acceptance completed. The owner stated exactly
+  `принимаю результат phase-11-migration-tails-closure`, accepting the whole
+  Phase 11 execution result after the three independent final-review domains
+  (F1 Conformance/Scope/Provenance, F2 Architecture/Code Quality, F3
+  Executable QA/User Risk — all APPROVE on the final tree) and the
+  consolidated receipt `FINAL-WAVE-P11-ZCODE-1` (APPROVE). Identities
+  re-verified at acceptance time (PowerShell `Get-FileHash -Algorithm
+  SHA256`): frozen plan
+  `docs/architecture-migration/plans/phase-11-migration-tails-closure.md` =
+  `7C25911F5C00C623DD95150C3E2B9C88DF2454FE0607EB2F3BB4C06B8621A91A`
+  (24757 bytes); `architecture-widget.html` =
+  `761D5E167F173FF74429C2E44CB3002D38D87B8A78C9DA2003AEF55CE0889EE8`
+  (16003494 bytes); `maps/architecture-model.json` =
+  `03BB2B62E7059CAD64B8529E90B0C863ECA3B6F3DE1AB2A130D27E914E39E496`
+  (matches the verifier receipt model hash). Dedicated acceptance receipt:
+  `docs/architecture-migration/evidence/phase-11-migration-tails-closure/owner-result-acceptance.md`
+  (REVIEW_ID: OWNER-RESULT-ACCEPTANCE-PHASE-11, VERDICT: APPROVE). The
+  authoritative workflow for Phase 11 transitioned to `completed`;
+  resultAcceptance recorded as accepted; stop remains true; no subsequent
+  phase starts automatically — a new explicit owner direction is required to
+  begin any separate planning or execution workflow. This acceptance is
+  result acceptance only and preserves as recorded (not closed): RR-002
+  (headless manual WPF QA gap), RR-004 (external fixture skip), the
+  pre-existing `CollectorRepository.cs:99` sync-over-async instance
+  (audit-P1/P2 backlog), the two Results-builder usings of
+  `ViewModels.Results` read-model records (backlog hygiene), `DEC-001 = A`,
+  and all Phase 1–10 accepted boundaries.
+
+- 2026-09-03: Worktree relocated (owner operation, outside the migration
+  write-set): `D:\IA\ace — копия` → `D:\IA\ace`, and the previous `D:\IA\ace`
+  → `D:\IA\ace_old` (frozen archive, untouched). Owner statement: "ace —
+  копия" is the late version of "ace". Post-move identity re-verification
+  (PowerShell `Get-FileHash -Algorithm SHA256`) — byte-identical to the
+  accepted Phase 11 records: plan `phase-11-migration-tails-closure.md` =
+  `7C25911F5C00C623DD95150C3E2B9C88DF2454FE0607EB2F3BB4C06B8621A91A`
+  (24757 bytes); `architecture-widget.html` =
+  `761D5E167F173FF74429C2E44CB3002D38D87B8A78C9DA2003AEF55CE0889EE8`
+  (16003494 bytes); `maps/architecture-model.json` =
+  `03BB2B62E7059CAD64B8529E90B0C863ECA3B6F3DE1AB2A130D27E914E39E496`. Git
+  history intact (HEAD `e9e45c4`; the uncommitted Phase 10/11 working set
+  moved with the directory). Convention: paths in historical receipts,
+  TRX logs and map front-matters referring to `D:\IA\ace — копия` (and
+  earlier worktrees `D:\IA\ace v.2`, `D:\IA\ace`) are point-in-time
+  provenance of when that work ran and are intentionally NOT rewritten; the
+  authoritative current worktree is `D:\IA\ace`. Known live absolute
+  dependency: the RR-004 fixture path constant
+  (`ResultsViewModelOpenProjectTests:1685`,
+  `D:\IA\ace\Тест\тест 40.smc`) now resolves inside the current worktree;
+  the fixture file is absent in both old and new locations, so the test
+  keeps its recorded skip until the fixture is provided. Post-move build and
+  regression re-run from the new path: see the dated follow-up entry.
+
+- 2026-09-03: Post-relocation verification (from `D:\IA\ace`): `obj`/`bin`
+  cleaned and the full solution rebuilt — 0 errors (1 pre-existing warning);
+  full regression from the new path: **2040 passed / 0 failed / exactly 1
+  known RR-004 skip** (`post-move-full-regression.trx` under
+  `evidence/phase-11-migration-tails-closure/logs/`) — identical to the
+  accepted Phase 11 result. The relocation is proven behavior-neutral; all
+  Phase 11 receipts and hashes stand.

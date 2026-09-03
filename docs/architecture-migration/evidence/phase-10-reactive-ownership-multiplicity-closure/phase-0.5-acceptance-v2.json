@@ -1,0 +1,95 @@
+{
+  "verdict": "PASS",
+  "suite": "runtime-v2",
+  "commands": [
+    "node docs/architecture-migration/widget/verify-widget.mjs --suite runtime-v2 --schema docs/architecture-migration/maps/architecture-model.widget.schema.json --model docs/architecture-migration/maps/architecture-model.json --output docs/architecture-migration/evidence/phase-0.5-acceptance-v2.json"
+  ],
+  "exits": [
+    0,
+    0
+  ],
+  "suites": [
+    {
+      "suite": "runtime-v2-positive",
+      "status": "PASS",
+      "assertions": 37,
+      "mutations": 10,
+      "ids": [
+        "node-changed",
+        "edge-changed",
+        "state_record-changed",
+        "coverage-changed",
+        "flow-changed",
+        "equal",
+        "added",
+        "swap-symmetry",
+        "removed",
+        "unresolved",
+        "changed-unverified",
+        "added-survivor-unverified",
+        "removed-survivor-unverified",
+        "verified-only",
+        "set-reorder",
+        "ordered-reorder",
+        "policy-disagreement",
+        "accepted-policy-unchanged",
+        "invalid-policy-atomic",
+        "invalid-after-valid-empty",
+        "deep-immutable",
+        "same-pair",
+        "valid-empty-target",
+        "no-match",
+        "empty-snapshot",
+        "empty-diff",
+        "filtered-diff",
+        "two-documents",
+        "array",
+        "v1",
+        "duplicate-identity",
+        "name-collision",
+        "invalid-policy",
+        "orphan",
+        "wrong-snapshot-endpoint",
+        "bad-flow",
+        "missing-invariant"
+      ]
+    },
+    {
+      "suite": "runtime-v2-negative",
+      "status": "PASS",
+      "assertions": 10,
+      "mutations": 10,
+      "ids": [
+        "two-documents",
+        "array",
+        "v1",
+        "duplicate-identity",
+        "name-collision",
+        "invalid-policy",
+        "orphan",
+        "wrong-snapshot-endpoint",
+        "bad-flow",
+        "missing-invariant"
+      ]
+    }
+  ],
+  "totals": {
+    "assertions": 47,
+    "mutations": 20
+  },
+  "hashes": {
+    "schema": "574aa8a8c9b9989e1545ec02a65f8785c638f5854adeb0ffecb594a8ea11f510",
+    "model": "b59122f86f6169a25cd97ca9f0cf78f1fbb87fe4dbb9aad4f1dd9db01bfd871b",
+    "runtime": "bf1f303fab91d1dda1c3461b9187da479eacfc951cbbfcad641fbc172bc8f705",
+    "verifier": "77496879ea87500b4b0ebb91d9383dfe383f42a04138e97ea8d7d6b6370c29c6"
+  },
+  "red_evidence": {
+    "v1_runtime": "v1 runtime failed to load accepted v2 records/snapshot_states",
+    "policy_disagreement": "A mutable structuredClone of an accepted frozen state changes diff through canonical_diff_fields; the accepted state remains frozen, identity-stable and unchanged; replacement of the invalid policy is atomically rejected."
+  },
+  "write_set": [
+    "docs/architecture-migration/widget/architecture-widget.mjs",
+    "docs/architecture-migration/widget/verify-widget.mjs",
+    "docs/architecture-migration/evidence/phase-0.5-acceptance-v2.json"
+  ]
+}
