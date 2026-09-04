@@ -231,7 +231,6 @@
                         <TextBlock Text="ℹ️ 1 мм/ч воды ≈ 1 см/ч снега (для свежего снега)"
                                    FontSize="11"
                                    Foreground="{DynamicResource RehauGrayBrush}"
-                                   FontStyle="Italic"
                                    Margin="0,4,0,0"
                                    TextWrapping="Wrap"/>
                     </StackPanel>

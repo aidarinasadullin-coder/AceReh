@@ -1,0 +1,27 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!--
+        Токены типографики REHAU 2026 (брендбук стр. 19–21, аудит §2.3).
+        Источник: docs/design/brandbook-2026-application.md, §4.
+        Утверждённая шкала размеров: 12 / 14 / 16 / 20 / 28 + Display 32.
+
+        Веса (брендбук стр. 20): Regular — набора текста; Medium — мелкие
+        заголовки; SemiBold — подзаголовки; Bold — заголовки и выводы;
+        ExtraBold — только Display и hero. Курсив не допускается.
+
+        Шрифт: Inter (фирменный шрифт 2026). Каноническое определение
+        FontFamily.Main — в App.xaml (pack URI на Assets/Fonts).
+        Регулярное и полужирное начертания добавлены в Фазе 0 (Inter-Regular.ttf,
+        Inter-SemiBold.ttf) — до этого Regular(400) матчился на Medium(500).
+    -->
+
+    <system:Double x:Key="Font.Size.Caption">12</system:Double>
+    <system:Double x:Key="Font.Size.Body">14</system:Double>
+    <system:Double x:Key="Font.Size.Section">16</system:Double>
+    <system:Double x:Key="Font.Size.Title">20</system:Double>
+    <system:Double x:Key="Font.Size.Heading">28</system:Double>
+    <system:Double x:Key="Font.Size.Display">32</system:Double>
+
+</ResourceDictionary>
