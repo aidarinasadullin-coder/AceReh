@@ -179,7 +179,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -331,31 +330,10 @@
             </StackPanel>
         </Border>
 
-        <!-- Grid.Row="2" — Карточка ошибки валидации -->
-        <Border Grid.Row="2"
-                Style="{StaticResource Card.Default}"
-                Background="#FFEBEE"
-                BorderBrush="#F44336"
-                BorderThickness="1"
-                Margin="0,0,0,10"
-                Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
-            <StackPanel Orientation="Horizontal" Margin="16">
-                <Path Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"
-                      Width="20" Height="20"
-                      Fill="#F44336"
-                      Margin="0,0,8,0"
-                      VerticalAlignment="Center"
-                      Stretch="Uniform"/>
-                <TextBlock Text="{Binding ValidationMessage}"
-                           AutomationProperties.AutomationId="HydraulicsValidationMessage"
-                           VerticalAlignment="Center"
-                           Foreground="#C62828"
-                           TextWrapping="Wrap"/>
-            </StackPanel>
-        </Border>
+        <!-- Валидация модуля переехала в статус-бар каркаса (Фаза 1) -->
 
-        <!-- Grid.Row="3" — Свойства теплоносителя -->
-        <Border Grid.Row="3"
+        <!-- Grid.Row="2" — Свойства теплоносителя -->
+        <Border Grid.Row="2"
                 Style="{StaticResource RehauInfoBlockStyle}"
                 Margin="0,0,0,10">
             <StackPanel>
@@ -433,8 +411,8 @@
             </StackPanel>
         </Border>
 
-        <!-- Grid.Row="4" — Информационные блоки (Входные данные, Данные укладки, Результаты) -->
-        <Grid Grid.Row="4" Margin="0,0,0,10">
+        <!-- Grid.Row="3" — Информационные блоки (Входные данные, Данные укладки, Результаты) -->
+        <Grid Grid.Row="3" Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -665,8 +643,8 @@
             </Border>
         </Grid>
 
-        <!-- Grid.Row="6" — Кнопки управления (над TabControl) -->
-        <Grid Grid.Row="6" Margin="0,0,0,8">
+        <!-- Grid.Row="4" — Кнопки управления (над TabControl) -->
+        <Grid Grid.Row="4" Margin="0,0,0,8">
             <StackPanel Orientation="Horizontal">
                 <Button Content="+ Добавить коллектор"
                         Command="{Binding AddCollectorCommand}"
@@ -693,8 +671,8 @@
             </StackPanel>
         </Grid>
 
-        <!-- Grid.Row="7" — TabControl для коллекторов в общей рамке с таблицей -->
-        <Border Grid.Row="7"
+        <!-- Grid.Row="5" — TabControl для коллекторов в общей рамке с таблицей -->
+        <Border Grid.Row="5"
                 Background="White"
                 BorderBrush="{DynamicResource RehauRedBrush}"
                 BorderThickness="1"

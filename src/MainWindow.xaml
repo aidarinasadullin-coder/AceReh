@@ -4,17 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        xmlns:views="clr-namespace:SnowMeltingCalculator.Views.Climate"
-        xmlns:viewsThermal="clr-namespace:SnowMeltingCalculator.Views.Thermal"
         xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
-        Height="700" Width="900"
+        Height="900" Width="1440"
         Closing="MainWindow_Closing"
-        MinHeight="600" MinWidth="800"
+        MinHeight="720" MinWidth="1280"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource RehauBackgroundBrush}"
-        TextElement.Foreground="{DynamicResource RehauBlackBrush}"
+        TextElement.Foreground="{DynamicResource Brand.Black.Brush}"
         FontFamily="{StaticResource FontFamily.Main}"
         Focusable="True"
         shell:WindowChrome.WindowChrome="{DynamicResource WindowChrome}">
@@ -26,18 +24,9 @@
                       GlassFrameThickness="1"
                       ResizeBorderThickness="4"
                       UseAeroCaptionButtons="False"/>
-        
-        <!-- Стиль для бейджа навигации -->
-        <Style x:Key="NavigationBadgeStyle" TargetType="Border">
-            <Setter Property="Width" Value="20"/>
-            <Setter Property="Height" Value="20"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Margin" Value="8,0,0,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Visibility" Value="Collapsed"/>
-        </Style>
     </Window.Resources>
 
+    <!-- Единственный корневой Grid (контракт MainWindowChromeLayoutTests) -->
     <Grid>
         <Grid.Style>
             <Style TargetType="Grid">
@@ -53,81 +42,85 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header с логотипом REHAU -->
+        <!-- ============================================ -->
+        <!-- ШАПКА: светлая поверхность (Фаза 1)          -->
+        <!-- ============================================ -->
         <Border Grid.Row="0"
-                Background="{DynamicResource RehauRedBrush}"
-                BorderBrush="{DynamicResource RehauRedDarkBrush}" BorderThickness="0,0,0,2"
+                Style="{StaticResource Shell.HeaderRoot}"
                 MouseLeftButtonDown="HeaderBorder_MouseLeftButtonDown">
-            <Grid Margin="{StaticResource Spacing.MD.Horizontal}">
+            <Grid Height="56">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Логотип и название -->
+                <!-- Логотип РЕХАУ: цветной знак + кириллический wordmark
+                     (logo_main_color.svg SharpVectors рендерит некорректно) -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Логотип РЕХАУ -->
-                    <Border Width="52" Height="52" Margin="0,0,12,0"
-                           Background="White" CornerRadius="4"
-                           Padding="4">
+                    <Border Width="34" Height="34"
+                            Background="White"
+                            BorderBrush="{DynamicResource Brand.Gray.100.Brush}"
+                            BorderThickness="1"
+                            CornerRadius="4">
                         <svgc:SvgViewbox Source="pack://application:,,,/Assets/Brand/logo_icon_color.svg"
-                                         Width="44" Height="44"
+                                         Width="26" Height="26"
                                          Stretch="Uniform"
                                          HorizontalAlignment="Center"
                                          VerticalAlignment="Center"/>
                     </Border>
-
-                    <!-- Название -->
+                    <TextBlock Text="РЕХАУ"
+                               FontSize="{StaticResource Font.Size.Title}"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource Brand.Black.Brush}"
+                               Margin="10,0,0,0"
+                               VerticalAlignment="Center"/>
+                    <Border Style="{StaticResource Shell.HeaderDivider}"/>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="РЕХАУ"
-                                  FontSize="22" FontWeight="Bold"
-                                  Foreground="White"
-                                  FontFamily="{StaticResource FontFamily.Main}"/>
                         <TextBlock Text="Калькулятор снеготаяния"
-                                  FontSize="12"
-                                  Foreground="#CCCCCC"
-                                  FontFamily="{StaticResource FontFamily.Main}"/>
+                                   Style="{StaticResource Shell.BrandTitle}"/>
+                        <TextBlock Text="открытых площадок"
+                                   Style="{StaticResource Shell.BrandSubtitle}"/>
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Название текущего модуля -->
-                <Border Grid.Column="1"
-                       Background="Transparent"
-                       CornerRadius="4"
-                       Padding="16,6"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center">
-                    <TextBlock Text="{Binding CurrentTitle}"
-                              FontSize="14" FontWeight="SemiBold"
-                              Foreground="White"
-                              FontFamily="{StaticResource FontFamily.Main}"/>
-                </Border>
+                <!-- Текущий модуль -->
+                <Border Grid.Column="2" Style="{StaticResource Shell.HeaderDivider}"/>
+                <TextBlock Grid.Column="2"
+                           Text="{Binding CurrentTitle}"
+                           Style="{StaticResource Shell.HeaderModuleTitle}"
+                           Margin="32,0,16,0"/>
 
-                <!-- Menu Файл -->
-                <Menu Grid.Column="2" Background="Transparent" VerticalAlignment="Center" Margin="0,0,16,0">
-                    <MenuItem Header="Файл" Foreground="White" FontSize="13">
-                        <MenuItem.Resources>
-                            <SolidColorBrush x:Key="MenuBackground" Color="#FFE4002B"/>
-                            <SolidColorBrush x:Key="MenuItemBackground" Color="#FFE4002B"/>
-                            <Style TargetType="MenuItem">
-                                <Setter Property="Background" Value="{StaticResource MenuItemBackground}"/>
-                                <Setter Property="Foreground" Value="White"/>
-                                <Setter Property="FontSize" Value="13"/>
-                                <Setter Property="Padding" Value="12,8"/>
-                            </Style>
-                        </MenuItem.Resources>
-                        <MenuItem Header="Сохранить" 
-                                  Command="{Binding ResultsViewModel.SaveProjectCommand}" 
+                <!-- Имя проекта (из карточки результатов, Ф6 — постоянное место) -->
+                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                    <TextBlock Text="{Binding ResultsViewModel.ProjectNumber}"
+                               Style="{StaticResource Shell.ProjectName}"
+                               FontWeight="SemiBold"/>
+                    <TextBlock Text=" · "
+                               Style="{StaticResource Shell.ProjectName}"/>
+                    <TextBlock Text="{Binding ResultsViewModel.ProjectObject}"
+                               Style="{StaticResource Shell.ProjectName}"/>
+                </StackPanel>
+
+                <!-- Меню Файл -->
+                <Menu Grid.Column="5" Background="Transparent" VerticalAlignment="Center" Margin="0,0,16,0">
+                    <MenuItem Header="Файл" Style="{StaticResource Shell.FileMenuItem}">
+                        <MenuItem Header="Сохранить"
+                                  Command="{Binding ResultsViewModel.SaveProjectCommand}"
                                   InputGestureText="Ctrl+S"/>
-                        <MenuItem Header="Сохранить как..." 
-                                  Command="{Binding ResultsViewModel.SaveProjectAsCommand}" 
+                        <MenuItem Header="Сохранить как..."
+                                  Command="{Binding ResultsViewModel.SaveProjectAsCommand}"
                                   InputGestureText="Ctrl+Shift+S"/>
-                        <MenuItem Header="Открыть..." 
-                                  Command="{Binding ResultsViewModel.OpenProjectCommand}" 
+                        <MenuItem Header="Открыть..."
+                                  Command="{Binding ResultsViewModel.OpenProjectCommand}"
                                   InputGestureText="Ctrl+O"/>
                         <Separator/>
                         <MenuItem Header="Создать новый расчёт"
@@ -138,142 +131,46 @@
                     </MenuItem>
                 </Menu>
 
-                <!-- Информация о версии и кнопки управления окном -->
-                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Версия -->
-                    <TextBlock Text="v1.0"
-                              FontSize="11"
-                              Foreground="#AAAAAA"
-                              VerticalAlignment="Center"
-                              FontFamily="{StaticResource FontFamily.Main}"
-                              Margin="0,0,16,0"/>
-
-                    <!-- Кнопки управления окном -->
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-                        <!-- Кнопка "Свернуть" -->
-                        <Button x:Name="MinimizeButton"
-                                Width="40" Height="40"
-                                Click="MinimizeButton_Click"
-                                ToolTip="Свернуть"
-                                Background="Transparent"
-                                BorderThickness="0">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="{TemplateBinding BorderThickness}">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#4FC7B5"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Path Data="M4,20 L20,20"
-                                  Stroke="White"
-                                  StrokeThickness="2"
-                                  Width="24" Height="24"
-                                  Opacity="0.8"/>
-                        </Button>
-
-                        <!-- Кнопка "Развернуть/Восстановить" -->
-                        <Button x:Name="MaximizeRestoreButton"
-                                Width="40" Height="40"
-                                Click="MaximizeRestoreButton_Click"
-                                ToolTip="Развернуть"
-                                Background="Transparent"
-                                BorderThickness="0">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="{TemplateBinding BorderThickness}">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#4FC7B5"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Path x:Name="MaximizeRestoreIcon"
-                                  Data="M3,3 L15,3 L15,15 L3,15 Z"
-                                  Stroke="White"
-                                  StrokeThickness="2"
-                                  Width="18" Height="18"
-                                  Opacity="0.8"/>
-                        </Button>
-
-                        <!-- Кнопка "Закрыть" -->
-                        <Button x:Name="CloseButton"
-                                Width="40" Height="40"
-                                Click="CloseButton_Click"
-                                ToolTip="Закрыть"
-                                Background="Transparent"
-                                BorderThickness="0">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="{TemplateBinding BorderThickness}">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#E50040"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Path Data="M4,4 L20,20 M20,4 L4,20"
-                                  Stroke="White"
-                                  StrokeThickness="2"
-                                  Width="24" Height="24"
-                                  Opacity="0.8"/>
-                        </Button>
+                <!-- Каркасные главные действия: каскад расчёта — Ф5, сплит-отчёт — Ф6 -->
+                <Button Grid.Column="6"
+                        Content="Рассчитать"
+                        Style="{StaticResource Button.Primary}"
+                        IsEnabled="False"
+                        MinWidth="120"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"/>
+                <Button Grid.Column="7"
+                        Style="{StaticResource Button.Secondary}"
+                        IsEnabled="False"
+                        MinWidth="110"
+                        VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Отчёт PDF"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource Shell.BrandSubtitle}"/>
+                        <Path Data="M0,0 L5,5 L10,0"
+                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              StrokeThickness="1.5"
+                              Width="10" Height="5"
+                              Stretch="None"
+                              Margin="8,2,0,0"
+                              VerticalAlignment="Center"/>
                     </StackPanel>
-                </StackPanel>
+                </Button>
             </Grid>
         </Border>
 
-        <!-- Основной контент -->
+        <!-- ============================================ -->
+        <!-- ТЕЛО: степпер · рабочая область · сводка     -->
+        <!-- ============================================ -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/><!-- Боковое меню с автоматической шириной -->
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Боковое меню -->
+            <!-- Степпер сценария -->
             <Grid Grid.Column="0" x:Name="SidebarGrid">
                 <Grid.Style>
                     <Style TargetType="Grid">
@@ -285,56 +182,83 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-                
-<Border Background="{DynamicResource RehauBackgroundGrayBrush}"
-                        BorderBrush="{DynamicResource RehauGrayBrush}"
+
+                <Border Background="White"
+                        BorderBrush="{DynamicResource Brand.Gray.100.Brush}"
                         BorderThickness="0,0,1,0">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <!-- Кнопка сворачивания -->
-                        <Button Grid.Row="0"
+                        <!-- Шаги сценария: ✓ готов · ● черновик · ⚠ ошибка · ⟳ пересчёт -->
+                        <ListBox Grid.Row="0"
+                                ItemsSource="{Binding MenuItems}"
+                                SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
+                                Margin="0,8,0,8"
+                                BorderThickness="0"
+                                Background="Transparent">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem" BasedOn="{StaticResource Shell.StepItem}"/>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Style="{StaticResource Shell.StepBadge}">
+                                            <TextBlock Text="{Binding Number}"
+                                                       Style="{StaticResource Shell.StepBadgeText}"/>
+                                        </Border>
+
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding Title}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource Shell.StepTitle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                        <TextBlock Grid.Column="2">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource Shell.StepStatusGlyph}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <!-- Кнопка сворачивания степпера -->
+                        <Button Grid.Row="1"
                                 x:Name="ToggleSidebarButton"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Top"
-                                Margin="0,8,8,0"
-                                Width="32" Height="32"
+                                HorizontalAlignment="Left"
+                                Margin="12,0,0,10"
+                                Width="28" Height="28"
                                 Command="{Binding ToggleSidebarCommand}"
                                 ToolTip="{Binding IsSidebarCollapsed, Converter={StaticResource SidebarTooltipConverter}}"
                                 AutomationProperties.Name="Свернуть/развернуть панель навигации"
                                 AutomationProperties.HelpText="Нажмите для переключения состояния боковой панели (Ctrl+B)"
-                                Background="{DynamicResource RehauTealLightBrush}"
-                                Foreground="White"
-                                BorderThickness="0">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Background" Value="{DynamicResource RehauTealLightBrush}"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                                        CornerRadius="4">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource RehauTealBrush}"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Path x:Name="ChevronIcon" Width="18" Height="18" Stroke="White" StrokeThickness="2" Stretch="Uniform">
+                                Style="{StaticResource Shell.SidebarToggleButton}">
+                            <Path x:Name="ChevronIcon" Width="16" Height="16"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  StrokeThickness="2" Stretch="Uniform">
                                 <Path.Style>
                                     <Style TargetType="Path">
                                         <Setter Property="Data" Value="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"/>
@@ -347,143 +271,213 @@
                                 </Path.Style>
                             </Path>
                         </Button>
-
-                        <!-- Меню навигации -->
-                        <ListBox Grid.Row="1"
-                                ItemsSource="{Binding MenuItems}"
-                                SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
-                                Margin="8,8,8,8"
-                                BorderThickness="0"
-                                Background="Transparent">
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem">
-                                    <Setter Property="Margin" Value="0,2"/>
-                                    <Setter Property="Padding" Value="12,10"/>
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="ListBoxItem">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderBrush="Transparent"
-                                                        BorderThickness="0"
-                                                        CornerRadius="4"
-                                                        Padding="{TemplateBinding Padding}">
-                                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Style.Triggers>
-                                        <!-- Nav.Hover: бирюзовый текст, прозрачный красный фон -->
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#1AE50040"/>
-                                            <Setter Property="Foreground" Value="{DynamicResource RehauTealLightBrush}"/>
-                                        </Trigger>
-                                        <!-- Nav.Active: красный текст, красный полупрозрачный фон -->
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
-                                            <Setter Property="Foreground" Value="{DynamicResource RehauRedBrush}"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <!-- Иконка -->
-                                        <Path Grid.Column="0"
-                                              Data="{Binding IconPath}"
-                                              Width="24" Height="24"
-                                              Margin="0,0,12,0"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Center"
-                                              Stretch="Uniform"
-                                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"/>
-
-                                        <!-- Текст -->
-                                        <TextBlock Grid.Column="1"
-                                                  Text="{Binding Title}"
-                                                  Margin="0,0,0,0"
-                                                  HorizontalAlignment="Left"
-                                                  VerticalAlignment="Center"
-                                                  FontWeight="Medium"
-                                                  FontSize="14"
-                                                  TextWrapping="Wrap"
-                                                  TextAlignment="Left"
-                                                  MaxWidth="140"
-                                                  Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DataContext.IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                        
-                                        <!-- Бейдж предупреждения (!) -->
-                                        <Border Grid.Column="2"
-                                                 Style="{StaticResource NavigationBadgeStyle}"
-                                                 Background="#FFB300"
-                                                 Visibility="{Binding HasWarning, Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <TextBlock Text="!"
-                                                       Foreground="White"
-                                                       FontWeight="Bold"
-                                                       FontSize="11"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Border>
-
-                                        <!-- Бейдж ошибки (!) -->
-                                        <Border Grid.Column="2"
-                                                 Style="{StaticResource NavigationBadgeStyle}"
-                                                 Background="#F44336"
-                                                 Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <TextBlock Text="!"
-                                                       Foreground="White"
-                                                       FontWeight="Bold"
-                                                       FontSize="11"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Border>
-                                        
-                                        <!-- Бейдж расчёта (⏳) -->
-                                        <Border Grid.Column="2"
-                                                 Style="{StaticResource NavigationBadgeStyle}"
-                                                 Background="#2196F3"
-                                                 Visibility="{Binding IsCalculating, Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <TextBlock Text="⏳"
-                                                       Foreground="White"
-                                                       FontSize="11"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Border>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
                     </Grid>
                 </Border>
             </Grid>
 
             <!-- Область контента -->
-            <ContentControl Grid.Column="1" 
+            <ContentControl Grid.Column="1"
                             x:Name="ModuleContentControl"
-                            Content="{Binding CurrentModuleView, RelativeSource={RelativeSource AncestorType=Window}}" 
+                            Content="{Binding CurrentModuleView, RelativeSource={RelativeSource AncestorType=Window}}"
                             Margin="0"
                             Background="{DynamicResource RehauBackgroundBrush}"/>
+
+            <!-- Панель «Сводка»: ≥1680 видна, уже — скрыта (план Ф1.5) -->
+            <Border Grid.Column="2"
+                    Style="{StaticResource Shell.SummaryRoot}"
+                    DataContext="{Binding Summary, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Visibility="{Binding IsSummaryVisible, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource AncestorType=Window}}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="СВОДКА ПРОЕКТА"
+                                   Style="{StaticResource Shell.SummaryHeader}"/>
+
+                        <TextBlock Text="Мощность" Style="{StaticResource Shell.SummarySection}"/>
+                        <Grid Style="{StaticResource Shell.SummaryRow}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Тепловая мощность" Style="{StaticResource Shell.SummaryLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="{Binding TotalThermalPowerKw, StringFormat={}{0:F1}}"
+                                           Style="{StaticResource Shell.SummaryValueAccent}"/>
+                                <TextBlock Text=" кВт" Style="{StaticResource Shell.SummaryLabel}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource Shell.SummaryRow}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Поток вверх q↑" Style="{StaticResource Shell.SummaryLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="{Binding PowerUp, StringFormat={}{0:F1}}"
+                                           Style="{StaticResource Shell.SummaryValue}"/>
+                                <TextBlock Text=" Вт/м²" Style="{StaticResource Shell.SummaryLabel}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource Shell.SummaryRow}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Поток вниз q↓" Style="{StaticResource Shell.SummaryLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="{Binding PowerDown, StringFormat={}{0:F1}}"
+                                           Style="{StaticResource Shell.SummaryValue}"/>
+                                <TextBlock Text=" Вт/м²" Style="{StaticResource Shell.SummaryLabel}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource Shell.SummaryRow}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Суммарный поток q" Style="{StaticResource Shell.SummaryLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="{Binding PowerTotal, StringFormat={}{0:F1}}"
+                                           Style="{StaticResource Shell.SummaryValue}"/>
+                                <TextBlock Text=" Вт/м²" Style="{StaticResource Shell.SummaryLabel}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Температуры" Style="{StaticResource Shell.SummarySection}"/>
+                        <Grid Style="{StaticResource Shell.SummaryRow}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Подача" Style="{StaticResource Shell.SummaryLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="{Binding SupplyTemperature, StringFormat={}{0:F1}}"
+                                           Style="{StaticResource Shell.SummaryValueAccent}"/>
+                                <TextBlock Text=" °C" Style="{StaticResource Shell.SummaryLabel}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource Shell.SummaryRow}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Обратка" Style="{StaticResource Shell.SummaryLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="{Binding ReturnTemperature, StringFormat={}{0:F1}}"
+                                           Style="{StaticResource Shell.SummaryValueTeal}"/>
+                                <TextBlock Text=" °C" Style="{StaticResource Shell.SummaryLabel}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource Shell.SummaryRow}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Режим" Style="{StaticResource Shell.SummaryLabel}"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding ModeText}"
+                                       Style="{StaticResource Shell.SummaryValue}"/>
+                        </Grid>
+
+                        <TextBlock Text="Город" Style="{StaticResource Shell.SummarySection}"/>
+                        <TextBlock Text="{Binding City}"
+                                   Style="{StaticResource Shell.SummaryValue}"
+                                   HorizontalAlignment="Left"
+                                   TextWrapping="Wrap"/>
+
+                        <TextBlock Text="Шаги" Style="{StaticResource Shell.SummarySection}"/>
+                        <ItemsControl ItemsSource="{Binding DataContext.MenuItems, RelativeSource={RelativeSource AncestorType=Window}}"
+                                      Margin="0,0,0,8">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Style="{StaticResource Shell.SummaryRow}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Title}" Style="{StaticResource Shell.SummaryLabel}"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Style="{StaticResource Shell.StepStatusGlyph}"
+                                                   Margin="0"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
         </Grid>
+
+        <!-- ============================================ -->
+        <!-- СТАТУС-БАР                                   -->
+        <!-- ============================================ -->
+        <Border Grid.Row="2" Style="{StaticResource Shell.StatusBarRoot}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Height="20"
+                            VerticalAlignment="Center">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource Shell.StatusPlate}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStatusKind}" Value="Warning">
+                                        <Setter Property="Background" Value="{DynamicResource Status.Warning.Brush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStatusKind}" Value="Error">
+                                        <Setter Property="Background" Value="{DynamicResource Brand.Red.Brush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStatusKind}" Value="Info">
+                                        <Setter Property="Background" Value="{DynamicResource Brand.Gray.600.Brush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding CurrentModulePlateText}"
+                                   Style="{StaticResource Shell.StatusPlateText}"/>
+                    </Border>
+                    <Path Data="M0,0 L8,0 L0,20 Z"
+                          Width="8" Height="20"
+                          Stretch="None"
+                          VerticalAlignment="Center"
+                          Margin="-8,0,8,0">
+                        <Path.Style>
+                            <Style TargetType="Path">
+                                <Setter Property="Fill" Value="{DynamicResource Brand.Teal.Brush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStatusKind}" Value="Warning">
+                                        <Setter Property="Fill" Value="{DynamicResource Status.Warning.Brush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStatusKind}" Value="Error">
+                                        <Setter Property="Fill" Value="{DynamicResource Brand.Red.Brush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStatusKind}" Value="Info">
+                                        <Setter Property="Fill" Value="{DynamicResource Brand.Gray.600.Brush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Path.Style>
+                    </Path>
+                </StackPanel>
+
+                <!-- Сообщение валидации/статуса активного модуля (перенос из
+                     полноширинных карточек вьюх; AutomationId контракта —
+                     ThermalAutomationIdSelectorContractTests) -->
+                <TextBlock Grid.Column="1"
+                           Text="{Binding CurrentValidationText}"
+                           Style="{StaticResource Shell.StatusText}"
+                           AutomationProperties.AutomationId="ShellValidationMessage"/>
+
+                <TextBlock Grid.Column="2"
+                           Text="{Binding CurrentRecalcText, StringFormat='⟳ {0}'}"
+                           Style="{StaticResource Shell.RecalcText}"
+                           Visibility="{Binding CurrentRecalcText, Converter={StaticResource StringToVisibilityConverter}}"
+                           AutomationProperties.AutomationId="ShellRecalcMessage"/>
+            </Grid>
+        </Border>
     </Grid>
 
 </Window>
