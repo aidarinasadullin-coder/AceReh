@@ -41,3 +41,14 @@ direction and follows the dossier workflow
   `docs/architecture/README.md`.
 - Migration-scale work reopens the dossier workflow and its explicit
   owner gates.
+
+## Эволюция правил и манера работы
+
+- Внутренние рассуждения и промежуточные выводы — на русском.
+- Уроки из сессий записываются в `docs/agents/lessons.md` (append-only);
+  промоция правила в этот файл — только решением владельца, одной строкой
+  и с указанием проверки (тест / шаг ревью / ADR-запись).
+- Деградация архитектуры недопустима: инварианты R1–R6 проверяются тестами
+  (`ArchitectureRulesTests`), списки санкционированных writers меняются
+  только через ADR; каждая фаза завершает handover записью «state ownership
+  без изменений» либо ADR-записью.
