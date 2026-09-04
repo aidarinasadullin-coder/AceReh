@@ -1,0 +1,54 @@
+# Манифест иконок Фазы 2 (план Ф2.3).
+# Формат строки:  Display Name<TAB>Icon.Ключ
+#   Display Name — имя ассета microsoft/fluentui-system-icons (папка assets/<Display Name>);
+#   берётся вариант ic_fluent_<slug>_24_regular.svg. Ключи уникальны.
+# Регенерация словаря: python tools/gen-fluent-icons.py
+# Карта соответствия текущих inline Path -> ключи: docs/design/icons.md
+
+# --- Экспорт/отчёты (ResultsView, шапка Ф6) ---
+Eye	Icon.Visibility
+Print	Icon.Print
+Save	Icon.Save
+Document	Icon.Document
+Arrow Export	Icon.Export
+Open Folder	Icon.OpenFolder
+
+# --- KPI/результаты (ResultsView дашборд, HeroKPI Ф6) ---
+Fire	Icon.Fire
+Drop	Icon.Drop
+Flow	Icon.Flow
+Triangle	Icon.Triangle
+Temperature	Icon.Temperature
+Calendar	Icon.Calendar
+Top Speed	Icon.Gauge
+
+# --- Гидравлика (CircuitsView, коллекторы; Ф3) ---
+Options	Icon.Manifold
+Box	Icon.Pipe
+Settings	Icon.Pump
+Table Simple	Icon.TableSimple
+
+# --- Статусы и сервисные ---
+Info	Icon.Info
+Warning	Icon.Warning
+Checkmark	Icon.Checkmark
+Dismiss	Icon.Dismiss
+Clock	Icon.Clock
+Arrow Counterclockwise	Icon.Reset
+
+# --- Навигация ---
+Chevron Down	Icon.ChevronDown
+Chevron Left	Icon.ChevronLeft
+Chevron Right	Icon.ChevronRight
+Calculator	Icon.Calculator
+
+# --- Климат (Ф5) ---
+Building	Icon.Building
+Weather Snow	Icon.Snow
+Search	Icon.Search
+
+# --- Конструкция (Ф4) ---
+Layer Diagonal	Icon.Layers
+Edit	Icon.Edit
+Delete	Icon.Delete
+Add	Icon.Add

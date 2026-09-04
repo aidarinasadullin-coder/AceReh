@@ -694,6 +694,44 @@ namespace SnowMeltingCalculator.Tests.Configuration
                 {
                     Source = new Uri("pack://application:,,,/SnowMeltingCalculator;component/Themes/Tokens.Typography.xaml")
                 });
+                // Фаза 2 редизайна: компонентная библиотека. Порядок повторяет
+                // App.xaml (ADR-006): канонические ключи Controls.* — ДО Dictionary.xaml.
+                resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/SnowMeltingCalculator;component/Themes/Icons.Fluent.xaml")
+                });
+                resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/SnowMeltingCalculator;component/Themes/Components.Card.xaml")
+                });
+                resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/SnowMeltingCalculator;component/Themes/Components.Kpi.xaml")
+                });
+                resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/SnowMeltingCalculator;component/Themes/Components.InfoBlock.xaml")
+                });
+                resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/SnowMeltingCalculator;component/Themes/Components.Brand.xaml")
+                });
+                resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/SnowMeltingCalculator;component/Themes/Controls.CheckBox.xaml")
+                });
+                resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/SnowMeltingCalculator;component/Themes/Controls.ComboBox.xaml")
+                });
+                resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/SnowMeltingCalculator;component/Themes/Controls.TextBox.xaml")
+                });
+                resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/SnowMeltingCalculator;component/Themes/Controls.DataGrid.xaml")
+                });
                 resources.MergedDictionaries.Add(new ResourceDictionary
                 {
                     Source = new Uri("pack://application:,,,/SnowMeltingCalculator;component/Themes/RecalcIndicators.xaml")

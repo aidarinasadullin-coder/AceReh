@@ -192,8 +192,12 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <!-- Шаги сценария: ✓ готов · ● черновик · ⚠ ошибка · ⟳ пересчёт -->
+                        <!-- Шаги сценария: ✓ готов · ● черновик · ⚠ ошибка · ⟳ пересчёт.
+                             ShellStepperList — селектор UiSmoke (снятие техдолга Ф1Б,
+                             план Ф2.6): навигация больше не зависит от эвристики
+                             «первый List в окне». -->
                         <ListBox Grid.Row="0"
+                                AutomationProperties.AutomationId="ShellStepperList"
                                 ItemsSource="{Binding MenuItems}"
                                 SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
                                 Margin="0,8,0,8"

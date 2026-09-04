@@ -36,9 +36,13 @@ public sealed class ThermalAutomationIdSelectorContractTests
         // за каркасными слотами ShellValidationMessage/ShellRecalcMessage.
         // Фаза 1Б: ShellModulePlate — скошенная плашка текущего модуля,
         // якорь навигации UI smoke-набора (UiSmoke).
+        // Фаза 2 (план Ф2.6): ShellStepperList — снятие техдолга Ф1Б, навигация
+        // UiSmoke адресует ListBox степпера напрямую, а не эвристикой
+        // «первый List в окне» (UiSmoke/README.md, «Известные ограничения»).
         (@"src\MainWindow.xaml", "ShellModulePlate", "TextBlock"),
         (@"src\MainWindow.xaml", "ShellValidationMessage", "TextBlock"),
         (@"src\MainWindow.xaml", "ShellRecalcMessage", "TextBlock"),
+        (@"src\MainWindow.xaml", "ShellStepperList", "ListBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalMode", "ComboBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalSupplyTemperature", "TextBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalGroundTemperature", "TextBox"),

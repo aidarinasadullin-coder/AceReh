@@ -16,6 +16,21 @@
                 <ResourceDictionary Source="Themes/Tokens.Gradients.xaml"/>
                 <ResourceDictionary Source="Themes/Tokens.Typography.xaml"/>
 
+                <!-- Фаза 2 редизайна: компонентная библиотека. Порядок мержа
+                     закреплён ревью Ф2 (ADR-006): канонические ключи Controls.*
+                     грузятся ДО Dictionary.xaml, потому что легаси-алиасы
+                     (RehauTextBoxStyle и др.) держат BasedOn={StaticResource …}
+                     на переезжающие ключи; Icons.Fluent — до Components/Controls. -->
+                <ResourceDictionary Source="Themes/Icons.Fluent.xaml"/>
+                <ResourceDictionary Source="Themes/Components.Card.xaml"/>
+                <ResourceDictionary Source="Themes/Components.Kpi.xaml"/>
+                <ResourceDictionary Source="Themes/Components.InfoBlock.xaml"/>
+                <ResourceDictionary Source="Themes/Components.Brand.xaml"/>
+                <ResourceDictionary Source="Themes/Controls.CheckBox.xaml"/>
+                <ResourceDictionary Source="Themes/Controls.ComboBox.xaml"/>
+                <ResourceDictionary Source="Themes/Controls.TextBox.xaml"/>
+                <ResourceDictionary Source="Themes/Controls.DataGrid.xaml"/>
+
                 <!-- Ресурсы индикаторов пересчёта -->
                 <ResourceDictionary Source="Themes/RecalcIndicators.xaml"/>
 
