@@ -1,0 +1,40 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Четыре канонических градиента REHAU 2026 (стр. 16–17 брендбука).
+        Источник: docs/design/brandbook-2026-application.md, §3.
+        Правила: направление горизонтальное или вертикальное; допускается
+        сочетание с чистым белым/чёрным; не более одного активного градиента
+        в одной области; текст на градиенте — белый на тёмном конце, тёмный
+        на светлом. Запрещены: градиент зелёный↔красный, третьи оттенки,
+        нефирменные цвета, градиенты из дополнительных цветов веток.
+
+        Требует: Tokens.Colors.xaml должен быть слит РАНЬШЕ этого словаря.
+    -->
+
+    <!-- Фоны «воздуха»: empty states, welcome -->
+    <LinearGradientBrush x:Key="Brand.Gradient.Teal.Light" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource Brand.Teal}" Offset="0"/>
+        <GradientStop Color="{StaticResource Brand.White}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Акцентные интерфейсные блоки, прогресс, оверлей расчёта -->
+    <LinearGradientBrush x:Key="Brand.Gradient.Teal.Deep" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource Brand.Teal}" Offset="0"/>
+        <GradientStop Color="{StaticResource Brand.Black}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Привлечение внимания без агрессии -->
+    <LinearGradientBrush x:Key="Brand.Gradient.Red.Light" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource Brand.Red}" Offset="0"/>
+        <GradientStop Color="{StaticResource Brand.White}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Сильные акценты, CTA-зоны, ключевой визуал (Hero-KPI, сплэш) -->
+    <LinearGradientBrush x:Key="Brand.Gradient.Red.Intensive" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource Brand.Red}" Offset="0"/>
+        <GradientStop Color="{StaticResource Brand.Black}" Offset="1"/>
+    </LinearGradientBrush>
+
+</ResourceDictionary>

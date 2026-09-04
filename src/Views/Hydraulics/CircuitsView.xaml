@@ -503,7 +503,7 @@
                     <!-- Шероховатость -->
                     <StackPanel Orientation="Horizontal" Margin="0,2">
                         <TextBlock Text="ε:" Width="100" FontSize="11"/>
-                        <TextBlock Text="0.007" FontSize="11"/>
+                        <TextBlock Text="0,007" FontSize="11"/>
                         <TextBlock Text=" мм" FontSize="11"/>
                     </StackPanel>
 
@@ -659,7 +659,6 @@
                     <TextBlock Text="* При холодном пуске удельные потери могут превышать 300 Па/м"
                                Foreground="#666"
                                FontSize="10"
-                               FontStyle="Italic"
                                TextWrapping="Wrap"
                                Margin="0,8,0,0"/>
                 </StackPanel>

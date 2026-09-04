@@ -29,11 +29,13 @@
     </x:Array>
 
     <!-- ============================================ -->
-    <!-- ШРИФТЫ REHAU -->
+    <!-- ШРИФТЫ REHAU                                 -->
     <!-- ============================================ -->
 
-    <!-- Основной шрифт приложения -->
-    <FontFamily x:Key="FontFamily.Main">Inter</FontFamily>
+    <!-- Основной шрифт: единственное каноническое определение FontFamily.Main
+         находится в App.xaml (pack URI pack://application:,,,/Assets/Fonts/#Inter).
+         Словарная копия удалена в Фазе 0 редизайна (план, п. 8). -->
+
 
     <!-- ============================================ -->
     <!-- ТИПОГРАФИКА REHAU -->
@@ -73,9 +75,11 @@
     </Style>
 
     <!-- Основной текст -->
+    <!-- Брендбук 2026 (стр. 20): Regular — набора текста; Light только для
+         крупных декоративных подписей ≥ 20 px (Фаза 0 редизайна, п. 4). -->
     <Style x:Key="Text.Body" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="FontWeight" Value="Light"/>
+        <Setter Property="FontWeight" Value="Regular"/>
         <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
@@ -92,7 +96,7 @@
     <!-- Подписи -->
     <Style x:Key="Text.Caption" TargetType="TextBlock">
         <Setter Property="FontSize" Value="12"/>
-        <Setter Property="FontWeight" Value="Light"/>
+        <Setter Property="FontWeight" Value="Regular"/>
         <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
@@ -109,7 +113,7 @@
     <!-- Ссылки -->
     <Style x:Key="Text.Link" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="FontWeight" Value="Light"/>
+        <Setter Property="FontWeight" Value="Regular"/>
         <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         <Setter Property="Foreground" Value="{DynamicResource RehauRedBrush}"/>
         <Setter Property="TextDecorations" Value="Underline"/>
@@ -120,7 +124,7 @@
     <!-- Текст на брендовом фоне -->
     <Style x:Key="Text.OnBrand" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="FontWeight" Value="Light"/>
+        <Setter Property="FontWeight" Value="Regular"/>
         <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="TextWrapping" Value="Wrap"/>

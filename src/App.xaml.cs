@@ -27,6 +27,10 @@ namespace SnowMeltingCalculator
         {
             base.OnStartup(e);
 
+            // Русская локаль чисел во всех биндингах (запятая, пробел-тысячи) —
+            // решение владельца; до любых окон и биндингов.
+            Core.AppCulture.PinBindingCulture();
+
             // Настройка DI
             var services = new ServiceCollection();
 

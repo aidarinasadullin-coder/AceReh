@@ -1,0 +1,82 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Токены палитры REHAU 2026 (канонический источник цветов).
+        Источник: docs/design/brandbook-2026-application.md, §2 (стр. 13–15 брендбука).
+        Легаси-ключи App.xaml перепривязаны на эти значения (Фаза 0 редизайна).
+
+        Осознанное исключение (§2.3 бренд-дока): в палитре нет жёлто-оранжевого,
+        предупреждение использует единственный функциональный янтарный
+        Warning.Amber #FFB300 — только для статусных полос и бейджей.
+    -->
+
+    <!-- Основные цвета (стр. 13) -->
+    <Color x:Key="Brand.Red">#E50040</Color>
+    <Color x:Key="Brand.Teal">#4FC7B5</Color>
+    <Color x:Key="Brand.Black">#000000</Color>
+    <Color x:Key="Brand.White">#FFFFFF</Color>
+
+    <!-- Красная ветка (стр. 15) -->
+    <Color x:Key="Brand.Red.Dark">#B60034</Color>
+    <Color x:Key="Brand.Red.Soft">#F4555E</Color>
+    <Color x:Key="Brand.Red.Pale">#FA8A86</Color>
+    <Color x:Key="Brand.Red.Tint">#FCC2B8</Color>
+
+    <!-- Зелёная (бирюзовая) ветка (стр. 15) -->
+    <Color x:Key="Brand.Teal.Deep">#2F776D</Color>
+    <Color x:Key="Brand.Teal.Success">#3F9F91</Color>
+    <Color x:Key="Brand.Teal.Soft">#72D2C4</Color>
+    <Color x:Key="Brand.Teal.Pale">#95DDD3</Color>
+
+    <!-- Серая линейка (стр. 14, PANTONE Cool Gray) -->
+    <Color x:Key="Brand.Gray.100">#E4E4E4</Color>
+    <Color x:Key="Brand.Gray.300">#B0B0B0</Color>
+    <Color x:Key="Brand.Gray.600">#818181</Color>
+    <Color x:Key="Brand.Gray.800">#4E4E4E</Color>
+
+    <!--
+        Семантика статусов (§2.3 бренд-дока):
+        ошибка  — Brand.Red на фоне Brand.Red.Tint (альфа ~28 %);
+        успех   — Brand.Teal.Success на фоне Brand.Teal.Pale tint;
+        инфо/процесс — Brand.Teal.Deep / Brand.Teal на фоне Brand.Teal.Pale tint.
+    -->
+    <Color x:Key="Status.Error">#E50040</Color>
+    <Color x:Key="Status.Error.Background">#47FCC2B8</Color>
+    <Color x:Key="Status.Warning">#FFB300</Color>
+    <Color x:Key="Status.Success">#3F9F91</Color>
+    <Color x:Key="Status.Success.Background">#4795DDD3</Color>
+    <Color x:Key="Status.Info">#2F776D</Color>
+    <Color x:Key="Status.Info.Background">#4795DDD3</Color>
+
+    <!-- Кисти палитры (для прямого использования во вьюхах) -->
+    <SolidColorBrush x:Key="Brand.Red.Brush" Color="{StaticResource Brand.Red}"/>
+    <SolidColorBrush x:Key="Brand.Teal.Brush" Color="{StaticResource Brand.Teal}"/>
+    <SolidColorBrush x:Key="Brand.Black.Brush" Color="{StaticResource Brand.Black}"/>
+    <SolidColorBrush x:Key="Brand.White.Brush" Color="{StaticResource Brand.White}"/>
+
+    <SolidColorBrush x:Key="Brand.Red.Dark.Brush" Color="{StaticResource Brand.Red.Dark}"/>
+    <SolidColorBrush x:Key="Brand.Red.Soft.Brush" Color="{StaticResource Brand.Red.Soft}"/>
+    <SolidColorBrush x:Key="Brand.Red.Pale.Brush" Color="{StaticResource Brand.Red.Pale}"/>
+    <SolidColorBrush x:Key="Brand.Red.Tint.Brush" Color="{StaticResource Status.Error.Background}"/>
+
+    <SolidColorBrush x:Key="Brand.Teal.Deep.Brush" Color="{StaticResource Brand.Teal.Deep}"/>
+    <SolidColorBrush x:Key="Brand.Teal.Success.Brush" Color="{StaticResource Brand.Teal.Success}"/>
+    <SolidColorBrush x:Key="Brand.Teal.Soft.Brush" Color="{StaticResource Brand.Teal.Soft}"/>
+    <SolidColorBrush x:Key="Brand.Teal.Pale.Brush" Color="{StaticResource Brand.Teal.Pale}"/>
+    <SolidColorBrush x:Key="Brand.Teal.Tint.Brush" Color="{StaticResource Status.Info.Background}"/>
+
+    <SolidColorBrush x:Key="Brand.Gray.100.Brush" Color="{StaticResource Brand.Gray.100}"/>
+    <SolidColorBrush x:Key="Brand.Gray.300.Brush" Color="{StaticResource Brand.Gray.300}"/>
+    <SolidColorBrush x:Key="Brand.Gray.600.Brush" Color="{StaticResource Brand.Gray.600}"/>
+    <SolidColorBrush x:Key="Brand.Gray.800.Brush" Color="{StaticResource Brand.Gray.800}"/>
+
+    <SolidColorBrush x:Key="Status.Error.Brush" Color="{StaticResource Status.Error}"/>
+    <SolidColorBrush x:Key="Status.Error.Background.Brush" Color="{StaticResource Status.Error.Background}"/>
+    <SolidColorBrush x:Key="Status.Warning.Brush" Color="{StaticResource Status.Warning}"/>
+    <SolidColorBrush x:Key="Status.Success.Brush" Color="{StaticResource Status.Success}"/>
+    <SolidColorBrush x:Key="Status.Success.Background.Brush" Color="{StaticResource Status.Success.Background}"/>
+    <SolidColorBrush x:Key="Status.Info.Brush" Color="{StaticResource Status.Info}"/>
+    <SolidColorBrush x:Key="Status.Info.Background.Brush" Color="{StaticResource Status.Info.Background}"/>
+
+</ResourceDictionary>
