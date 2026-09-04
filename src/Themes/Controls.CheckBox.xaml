@@ -1,0 +1,71 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Канонический CheckBox (Фаза 2 редизайна; до фазы контрол был
+        дефолтным WPF —ClimateView:250, ConstructionView:59). Implicit-стиль
+        без размеров (ADR-006): только шаблон и кисти; явный ключ
+        CheckBox.Default оставлен для BasedOn будущих вариантов.
+    -->
+
+    <Style x:Key="CheckBox.Default" TargetType="CheckBox">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brand.Black.Brush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                Background="Transparent">
+                        <Border x:Name="Box"
+                                Width="18" Height="18"
+                                Background="White"
+                                BorderBrush="{DynamicResource Brand.Gray.300.Brush}"
+                                BorderThickness="1"
+                                CornerRadius="{StaticResource Radius.Tag}"
+                                VerticalAlignment="Center">
+                            <Path x:Name="CheckMark"
+                                  Data="M3.5,9.5 L7.5,13.5 L14.5,5"
+                                  Stroke="White"
+                                  StrokeThickness="2"
+                                  StrokeStartLineCap="Round"
+                                  StrokeEndLineCap="Round"
+                                  Stretch="Uniform"
+                                  Width="12" Height="12"
+                                  Opacity="0"/>
+                        </Border>
+                        <ContentPresenter Margin="8,0,0,0"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brand.Teal.Success.Brush}"/>
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brand.Teal.Success.Brush}"/>
+                            <Setter TargetName="CheckMark" Property="Opacity" Value="1"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brand.Teal.Deep.Brush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brand.Red.Brush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource RehauBackgroundGrayBrush}"/>
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brand.Gray.100.Brush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Brand.Gray.300.Brush}"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- IMPLICIT: все чекбоксы приложения получают бренд-вид -->
+    <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBox.Default}"/>
+
+</ResourceDictionary>

@@ -1,0 +1,122 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                    xmlns:ap="clr-namespace:SnowMeltingCalculator.AttachedProperties">
+
+    <!--
+        Канонический TextBox (Фаза 2 редизайна; переезд из Dictionary.xaml,
+        ревью Ф2 — ADR-006). Эталон: tokens.css .f .in (высота 34, hairline,
+        без прыжка толщины при фокусе).
+
+        Правила ADR-006:
+        - implicit-стиль (без x:Key) задаёт ТОЛЬКО шаблон и кисти — никаких
+          Height/MinHeight/Padding: локальные Height="26" элементов побеждали
+          бы только сеттер Height, а стилевые MinHeight/Padding ломали бы
+          мелкие поля (CircuitsView, CircuitInputView, ячейки DataGrid);
+        - высота 34 и паддинги — в явном ключе TextBox.Default;
+        - фокус — кольцо 1px (внутренний Border) поверх hairline 1px, метрики
+          не меняются;
+        - юнит-adornment — attached property Field.Unit, колонка схлопывается
+          при пустом значении.
+    -->
+
+    <!-- Шаблон полей: внешняя hairline-рамка + внутреннее фокус-кольцо +
+         контент с опциональным юнитом справа -->
+    <ControlTemplate x:Key="Controls.FieldTemplate" TargetType="TextBox">
+        <Grid>
+            <Border x:Name="OuterBorder"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{StaticResource Radius.SM}"/>
+            <Border x:Name="FocusRing"
+                    Margin="1"
+                    BorderThickness="1"
+                    BorderBrush="Transparent"
+                    CornerRadius="{StaticResource Radius.SM}"
+                    IsHitTestVisible="False"/>
+            <Grid Margin="{TemplateBinding Padding}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ScrollViewer x:Name="PART_ContentHost"
+                              VerticalAlignment="Center"
+                              Focusable="False"/>
+                <TextBlock x:Name="UnitAdornment"
+                           Grid.Column="1"
+                           Text="{Binding Path=(ap:Field.Unit), RelativeSource={RelativeSource TemplatedParent}, FallbackValue=''}"
+                           FontSize="{StaticResource Font.Size.Caption}"
+                           Foreground="{DynamicResource Brand.Gray.300.Brush}"
+                           Margin="6,0,0,0"
+                           VerticalAlignment="Center"
+                           IsHitTestVisible="False">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=(ap:Field.Unit), RelativeSource={RelativeSource TemplatedParent}, FallbackValue=''}" Value="{x:Static sys:String.Empty}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Path=(ap:Field.Unit), RelativeSource={RelativeSource TemplatedParent}, FallbackValue=''}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brand.Gray.300.Brush}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter TargetName="FocusRing" Property="BorderBrush" Value="{DynamicResource Brand.Red.Brush}"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource RehauBackgroundGrayBrush}"/>
+                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brand.Gray.100.Brush}"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- База: только шаблон, типографика и кисти (implicit-совместимо, без размеров) -->
+    <Style x:Key="TextBox.Base" TargetType="TextBox">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brand.Black.Brush}"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Brand.Gray.100.Brush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Template" Value="{StaticResource Controls.FieldTemplate}"/>
+    </Style>
+
+    <!-- IMPLICIT: все нестилизованные TextBox получают бренд-вид без размеров -->
+    <Style TargetType="TextBox" BasedOn="{StaticResource TextBox.Base}"/>
+
+    <!-- Явный: поле формы 34px с паддингом (эталон .f .in) -->
+    <Style x:Key="TextBox.Default" TargetType="TextBox" BasedOn="{StaticResource TextBox.Base}">
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="Padding" Value="10,0"/>
+    </Style>
+
+    <Style x:Key="TextBox.Focus" TargetType="TextBox" BasedOn="{StaticResource TextBox.Default}">
+        <Setter Property="BorderBrush" Value="{DynamicResource Brand.Red.Brush}"/>
+    </Style>
+
+    <Style x:Key="TextBox.Error" TargetType="TextBox" BasedOn="{StaticResource TextBox.Default}">
+        <Setter Property="Background" Value="{DynamicResource Status.Error.Background.Brush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Status.Error.Brush}"/>
+    </Style>
+
+    <Style x:Key="TextBox.Disabled" TargetType="TextBox" BasedOn="{StaticResource TextBox.Base}">
+        <Setter Property="Background" Value="{DynamicResource RehauBackgroundGrayBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Brand.Gray.100.Brush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brand.Gray.300.Brush}"/>
+        <Setter Property="IsEnabled" Value="False"/>
+    </Style>
+
+</ResourceDictionary>

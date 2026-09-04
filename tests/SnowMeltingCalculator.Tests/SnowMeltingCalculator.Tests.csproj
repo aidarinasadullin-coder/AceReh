@@ -23,6 +23,11 @@
     <!-- Dev-only зависимость UI smoke-набора (Фаза 1Б редизайна): MIT,
          в дистрибутив приложения не попадает (см. docs/design/redesign-plan.md). -->
     <PackageReference Include="FlaUI.UIA3" Version="5.0.0" />
+    <!-- PoC VirtualizingWrapPanel (Фаза 2 редизайна, план Ф2.4): MIT, 0 зависимостей.
+         Dev-only на этом этапе: PoC-критерии встроены в приёмку как STA-тесты;
+         PackageReference в src добавляется фазой первого внедрения в разметку
+         (Ф3/Ф6) — решение зафиксировано в плане Ф2 и ADR-006. -->
+    <PackageReference Include="VirtualizingWrapPanel" Version="2.5.4" />
   </ItemGroup>
 
   <ItemGroup>

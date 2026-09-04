@@ -9,6 +9,8 @@
 
     <!-- Токены скругления -->
     <CornerRadius x:Key="Radius.None">0</CornerRadius>
+    <!-- XXS: фирменная «рамка ключевого сообщения» 2px (BrandFrame, Ф2 редизайна) -->
+    <CornerRadius x:Key="Radius.XXS">2</CornerRadius>
     <CornerRadius x:Key="Radius.SM">4</CornerRadius>
     <CornerRadius x:Key="Radius.MD">8</CornerRadius>
     <CornerRadius x:Key="Radius.LG">12</CornerRadius>

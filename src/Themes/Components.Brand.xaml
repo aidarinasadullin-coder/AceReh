@@ -1,0 +1,66 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Компоненты бренда: SkewPlate (скошенная плашка) и BrandFrame (рамка
+        ключевого сообщения) — Фаза 2 редизайна, фирменные приёмы (§55–57
+        бренд-дока, эталоны tokens.css .plate/.brand-frame). Только токены.
+
+        SkewPlate — композиция из трёх стилей (паттерн статус-бара Ф1):
+            <StackPanel Orientation="Horizontal">
+                <Border Style="{StaticResource SkewPlate.Root}">
+                    <TextBlock Style="{StaticResource SkewPlate.Text}" Text="КЛИМАТ"/>
+                </Border>
+                <Path Style="{StaticResource SkewPlate.Tip}"
+                      Fill="{Binding Background, RelativeSource={RelativeSource
+                             AncestorType=Border}}"/>
+            </StackPanel>
+        Высоту задаёт потребитель (22–28 px); Tip тянется по высоте строки.
+    -->
+
+    <Style x:Key="SkewPlate.Root" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Brand.Teal.Brush}"/>
+        <Setter Property="Padding" Value="10,0,14,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Правый скошенный угол: треугольник, примыкающий к плашке без зазора -->
+    <Style x:Key="SkewPlate.Tip" TargetType="Path">
+        <Setter Property="Data" Value="M0,0 L8,0 L0,20 Z"/>
+        <Setter Property="Stretch" Value="Fill"/>
+        <Setter Property="Width" Value="8"/>
+        <Setter Property="MinHeight" Value="20"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Setter Property="Margin" Value="-1,0,8,0"/>
+    </Style>
+
+    <Style x:Key="SkewPlate.Text" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Caption}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- BrandFrame: рамка 2px Brand.Red вокруг ключевого сообщения -->
+    <Style x:Key="BrandFrame.Root" TargetType="Border">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Brand.Red.Brush}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="CornerRadius" Value="{StaticResource Radius.XXS}"/>
+        <Setter Property="Padding" Value="14,12"/>
+    </Style>
+
+    <Style x:Key="BrandFrame.Title" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brand.Red.Brush}"/>
+    </Style>
+
+    <Style x:Key="BrandFrame.Sub" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Caption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brand.Gray.800.Brush}"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+</ResourceDictionary>

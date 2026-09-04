@@ -182,16 +182,29 @@ public sealed class UiSmokeApplication : IDisposable
     /// <summary>
     /// Перейти на шаг сценария по русскому заголовку степпера
     /// («Климат», «Конструкция», «Тепловой расчёт», «Гидравлический расчёт», «Результаты»).
+    /// Список адресуется по контракту ShellStepperList (план Ф2.6, снятие
+    /// техдолга Ф1Б); эвристика «первый List в окне» оставлена фолбэком.
     /// </summary>
     public void NavigateTo(string stepTitle)
     {
-        var item = Retry.WhileNull(
-            () => Window
-                .FindFirstDescendant(cf => cf.ByControlType(ControlType.List))?
+        AutomationElement? FindStepInList(Func<AutomationElement?> findList)
+        {
+            var list = findList();
+            return list?
                 .FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
                 .FirstOrDefault(candidate => candidate
                     .FindAllDescendants(cf => cf.ByControlType(ControlType.Text))
-                    .Any(text => text.Name == stepTitle)),
+                    .Any(text => text.Name == stepTitle));
+        }
+
+        AutomationElement? ByStepperListId() =>
+            Window.FindFirstDescendant(cf => cf.ByAutomationId("ShellStepperList"));
+
+        AutomationElement? ByFirstListHeuristic() =>
+            Window.FindFirstDescendant(cf => cf.ByControlType(ControlType.List));
+
+        var item = Retry.WhileNull(
+            () => FindStepInList(ByStepperListId) ?? FindStepInList(ByFirstListHeuristic),
             UiTimeout,
             ignoreException: true).Result;
 
