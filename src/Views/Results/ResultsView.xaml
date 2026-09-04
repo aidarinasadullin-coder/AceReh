@@ -297,7 +297,6 @@
                     <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
                                Text="{Binding StatusMessage}"
                                FontSize="11"
-                               FontStyle="Italic"
                                Foreground="{DynamicResource RehauGrayBrush}"
                                Margin="0,6,0,0"/>
                 </Grid>
@@ -632,7 +631,6 @@
                         <TextBlock Text="Нет данных по коллекторам"
                                    FontSize="12"
                                    Foreground="{DynamicResource RehauGrayBrush}"
-                                   FontStyle="Italic"
                                    HorizontalAlignment="Center"
                                    Margin="0,8,0,0">
                             <TextBlock.Style>

@@ -5,63 +5,81 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                
+
                 <!-- Примитивные токены дизайн-системы -->
                 <ResourceDictionary Source="Themes/PrimitiveSpacing.xaml"/>
                 <ResourceDictionary Source="Themes/PrimitiveRadius.xaml"/>
-                
+
+                <!-- Токены бренда 2026: палитра, градиенты, типографика
+                     (Фаза 0 редизайна; порядок важен — Colors раньше Gradients) -->
+                <ResourceDictionary Source="Themes/Tokens.Colors.xaml"/>
+                <ResourceDictionary Source="Themes/Tokens.Gradients.xaml"/>
+                <ResourceDictionary Source="Themes/Tokens.Typography.xaml"/>
+
                 <!-- Ресурсы индикаторов пересчёта -->
                 <ResourceDictionary Source="Themes/RecalcIndicators.xaml"/>
-                
+
                 <!-- Ресурсы приложения -->
                 <ResourceDictionary Source="Resources/Dictionary.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- ============================================ -->
-            <!-- КОРПОРАТИВНЫЕ ЦВЕТА REHAU (из официального логотипа) -->
+            <!-- КОРПОРАТИВНЫЕ ЦВЕТА REHAU                    -->
+            <!-- Фаза 0 редизайна: значения перепривязаны на  -->
+            <!-- палитру 2026. Канонический источник —        -->
+            <!-- Themes/Tokens.Colors.xaml; значения ниже     -->
+            <!-- поддерживаются с ним в согласии.             -->
             <!-- ============================================ -->
-            
-            <!-- Основные брендовые цвета -->
+
+            <!-- Основные брендовые цвета (стр. 13 брендбука; Brand.Red / Brand.Teal) -->
             <Color x:Key="RehauRed">#E50040</Color>
             <Color x:Key="RehauTeal">#4FC7B5</Color>
-            <Color x:Key="RehauGray">#575756</Color>
-            <Color x:Key="RehauBlack">#1D1D1B</Color>
+            <Color x:Key="RehauGray">#4E4E4E</Color>
+            <Color x:Key="RehauBlack">#000000</Color>
             <Color x:Key="RehauWhite">#FFFFFF</Color>
-            
-            <!-- Производные цвета для градиентов и акцентов -->
-            <Color x:Key="RehauRedLight">#FF6B6B</Color>
-            <Color x:Key="RehauRedDark">#B3002E</Color>
-            <Color x:Key="RehauTealLight">#6BD3C8</Color>
-            <Color x:Key="RehauTealDark">#2E9B8E</Color>
-            
-            <!-- Фоновые цвета -->
+
+            <!-- Дополнительные цвета (стр. 15; Brand.Red.Soft / Brand.Red.Dark /
+                 Brand.Teal.Soft / Brand.Teal.Deep). #1D1D1B, #575756, #FF6B6B,
+                 #B3002E, #6BD3C8, #2E9B8E — вне палитры 2026, выведены из употребления. -->
+            <Color x:Key="RehauRedLight">#F4555E</Color>
+            <Color x:Key="RehauRedDark">#B60034</Color>
+            <Color x:Key="RehauTealLight">#72D2C4</Color>
+            <Color x:Key="RehauTealDark">#2F776D</Color>
+
+            <!-- Фоновые цвета (нейтральные поверхности, вне серой линейки брендбука) -->
             <Color x:Key="RehauBackgroundLight">#FAFAFA</Color>
             <Color x:Key="RehauBackgroundGray">#F5F5F5</Color>
             <Color x:Key="RehauCardBackground">#FFFFFF</Color>
-            
-            <!-- Прозрачные фоновые цвета для карточек -->
-            <Color x:Key="RehauRedLightOpacity">#FFE5EC</Color>
-            <Color x:Key="RehauTealLightOpacity">#E8F6F4</Color>
+
+            <!-- Прозрачные фоновые цвета: tint дополнительных цветов с альфой ~28 %
+                 (Brand.Red.Tint / Brand.Teal.Pale, §2.2 бренд-дока) -->
+            <Color x:Key="RehauRedLightOpacity">#47FCC2B8</Color>
+            <Color x:Key="RehauTealLightOpacity">#4795DDD3</Color>
 
             <!-- ============================================ -->
-            <!-- СЕРАЯ ПАЛИТРА (для индикаторов и UI)          -->
+            <!-- СЕРАЯ ПАЛИТРА (для индикаторов и UI)         -->
+            <!-- Границы/disabled перепривязаны на серую      -->
+            <!-- линейку стр. 14 (Brand.Gray.100/300/600/800);-->
+            <!-- Gray50–Gray200 — нейтральные поверхности.    -->
             <!-- ============================================ -->
             <Color x:Key="Gray50">#FAFAFA</Color>
             <Color x:Key="Gray100">#F5F5F5</Color>
             <Color x:Key="Gray200">#EEEEEE</Color>
-            <Color x:Key="Gray300">#E0E0E0</Color>
-            <Color x:Key="Gray400">#BDBDBD</Color>
-            <Color x:Key="Gray500">#9E9E9E</Color>
-            <Color x:Key="Gray600">#757575</Color>
-            <Color x:Key="Gray700">#616161</Color>
-            <Color x:Key="Gray800">#424242</Color>
-            <Color x:Key="Gray900">#212121</Color>
-            
-            <!-- Семантические цвета -->
-            <Color x:Key="ErrorRed">#D32F2F</Color>
-            <Color x:Key="WarningOrange">#FF9800</Color>
-            <Color x:Key="SuccessGreen">#4FC7B5</Color>
-            <Color x:Key="InfoBlue">#1976D2</Color>
+            <Color x:Key="Gray300">#E4E4E4</Color>
+            <Color x:Key="Gray400">#B0B0B0</Color>
+            <Color x:Key="Gray500">#818181</Color>
+            <Color x:Key="Gray600">#4E4E4E</Color>
+            <Color x:Key="Gray700">#4E4E4E</Color>
+            <Color x:Key="Gray800">#4E4E4E</Color>
+            <Color x:Key="Gray900">#000000</Color>
+
+            <!-- Семантические цвета (§2.3 бренд-дока; Status.* в Tokens.Colors).
+                 Warning — единственное документированное исключение: функциональный
+                 янтарный #FFB300 только для статусных полос и бейджей. -->
+            <Color x:Key="ErrorRed">#E50040</Color>
+            <Color x:Key="WarningOrange">#FFB300</Color>
+            <Color x:Key="SuccessGreen">#3F9F91</Color>
+            <Color x:Key="InfoBlue">#2F776D</Color>
 
             <!-- ============================================ -->
             <!-- SOLID COLOR BRUSHES -->
@@ -97,8 +115,9 @@
             <SolidColorBrush x:Key="Color.Border.Default" Color="{StaticResource Gray300}"/>
             <SolidColorBrush x:Key="Color.Border.Error" Color="{StaticResource ErrorRed}"/>
             <SolidColorBrush x:Key="Color.Border.Success" Color="{StaticResource SuccessGreen}"/>
-            <SolidColorBrush x:Key="Color.Border.Warning" Color="#FFB300"/>
-            <SolidColorBrush x:Key="Color.Border.Processing" Color="#2196F3"/>
+            <SolidColorBrush x:Key="Color.Border.Warning" Color="{StaticResource WarningOrange}"/>
+            <!-- Индикатор пересчёта/процесса — бирюзовая ветка (§2.3; замена Material-синего) -->
+            <SolidColorBrush x:Key="Color.Border.Processing" Color="{StaticResource RehauTeal}"/>
             
             <!-- Текст -->
             <SolidColorBrush x:Key="Color.Text.Primary" Color="{StaticResource Gray900}"/>

@@ -225,8 +225,9 @@ namespace SnowMeltingCalculator.Behaviors
             if (string.IsNullOrEmpty(e.Text))
                 return;
 
-            // Получаем системный десятичный разделитель
-            var decimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+            // Разделитель закреплённой культуры биндингов (AppCulture), а не
+            // CurrentCulture — иначе на машине с en-US ввод «35,5» разобьётся.
+            var decimalSeparator = Core.AppCulture.Culture.NumberFormat.NumberDecimalSeparator;
 
             // Если введена точка или запятая
             if (e.Text == "." || e.Text == ",")
@@ -253,7 +254,8 @@ namespace SnowMeltingCalculator.Behaviors
             if (e.DataObject.GetDataPresent(typeof(string)))
             {
                 var text = (string)e.DataObject.GetData(typeof(string));
-                var decimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+                // Та же закреплённая культура, что и у биндинга (см. AppCulture)
+                var decimalSeparator = Core.AppCulture.Culture.NumberFormat.NumberDecimalSeparator;
 
                 // Заменяем все точки и запятые на системный разделитель
                 var normalizedText = text.Replace(".", decimalSeparator).Replace(",", decimalSeparator);
