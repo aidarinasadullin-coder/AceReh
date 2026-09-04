@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
+<link rel="stylesheet" href="tokens.css"></head><body>
+<div class="window">
+
+  <header class="hdr">
+    <img class="logo" src="../../workspace/rehau_assets/logo_main_color.png" alt="REHAU">
+    <div><div class="app-name">Калькулятор снеготаяния</div><div class="app-sub">открытых площадок</div></div>
+    <div class="crumb">Конструкция</div>
+    <div class="spacer"></div>
+    <div class="project">ПРОЕКТ-2026-114 · <b>Парковка ТЦ «Меридиан»</b></div>
+    <button class="btn primary">▶&nbsp;Рассчитать</button>
+    <button class="btn secondary split">Отчёт PDF&nbsp;<span class="caret">▼</span></button>
+  </header>
+
+  <nav class="stepper">
+    <div class="step done"><span class="num">1</span>Климат<span class="st done">✓</span></div>
+    <div class="step active"><span class="num">2</span>Конструкция</div>
+    <div class="step"><span class="num">3</span>Тепловой расчёт<span class="st draft">●</span></div>
+    <div class="step"><span class="num">4</span>Гидравлика<span class="st draft">●</span></div>
+    <div class="step"><span class="num">5</span>Результаты<span class="st draft">●</span></div>
+    <div class="collapse">«</div>
+  </nav>
+
+  <main class="main">
+    <div class="page-title">Конструкция<small>Шаг 2 из 5 — слоистая структура «пирога»</small></div>
+
+    <div class="row">
+      <div class="card" style="flex:1;">
+        <h3>Параметры</h3>
+        <div class="fields" style="grid-template-columns:1fr 1fr;">
+          <div class="f"><label>Уровень грунтовых вод</label><div class="in">Более 1 м (λA)<span class="chev">▾</span></div></div>
+          <div class="f"><label>Нагрузки на покрытие</label>
+            <div class="in" style="gap:8px">
+              <span style="width:15px;height:15px;border:1.5px solid var(--teal-mid);border-radius:3.5px;background:var(--teal-mid);color:#fff;font-size:10px;display:inline-flex;align-items:center;justify-content:center">✓</span>
+              Учтены (мин. слой над трубой 50 мм)
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="flex:1.4;">
+        <h3>Шаблон конструкции
+          <span class="aux"><button class="btn primary" style="height:28px;font-size:12px;padding:0 12px;">Применить</button></span>
+        </h3>
+        <div class="fields">
+          <div class="f"><label>Шаблон</label>
+            <div class="in">Открытая парковка · асфальт / ЭППС 220 мм<span class="chev">▾</span></div>
+            <div class="hint">Типовое решение для паркингов: покрытие 200 мм, утеплитель 220 мм, подготовка 300 мм</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Пир конструкции
+        <span class="aux">R₁ 0.4821 · R₂ 0.7301 · λE 1.173 <span style="color:var(--g300)">→ сводка</span></span>
+      </h3>
+      <div style="display:flex; gap:20px;">
+        <div class="grow">
+          <div style="display:flex; align-items:center; margin-bottom:8px;">
+            <span style="font-size:12px; font-weight:700; color:var(--teal-deep);">Слои над трубой</span>
+            <span style="font-size:11.5px; color:var(--g600); margin-left:10px;">общая толщина <b style="color:var(--teal-deep)">320 мм</b></span>
+            <span class="mini-btn" style="margin-left:auto;">+ Слой</span>
+          </div>
+          <table class="grid">
+            <tr><th style="width:30px">№</th><th>Материал</th><th class="r">Толщина, мм</th><th class="r">λ, Вт/м·К</th><th class="r">R, м²·К/Вт</th><th style="width:32px"></th></tr>
+            <tr><td class="dim">1</td><td>Асфальтобетон</td><td class="r">50</td><td class="r">1.400</td><td class="r" style="color:var(--red)">0.0357</td><td style="color:var(--g300)">✕</td></tr>
+            <tr><td class="dim">2</td><td>Бетон армированный</td><td class="r">150</td><td class="r">1.690</td><td class="r" style="color:var(--red)">0.0888</td><td style="color:var(--g300)">✕</td></tr>
+            <tr><td class="dim">3</td><td>ЭППС (XPS)</td><td class="r">120</td><td class="r">0.036</td><td class="r" style="color:var(--red)">3.3333</td><td style="color:var(--g300)">✕</td></tr>
+          </table>
+
+          <div style="display:flex; align-items:center; margin:16px 0 8px;">
+            <span style="font-size:12px; font-weight:700; color:var(--teal-deep);">Слои под трубой</span>
+            <span style="font-size:11.5px; color:var(--g600); margin-left:10px;">общая толщина <b style="color:var(--teal-deep)">400 мм</b></span>
+            <span class="mini-btn" style="margin-left:auto;">+ Слой</span>
+          </div>
+          <table class="grid">
+            <tr><th style="width:30px">№</th><th>Материал</th><th class="r">Толщина, мм</th><th class="r">λ, Вт/м·К</th><th class="r">R, м²·К/Вт</th><th style="width:32px"></th></tr>
+            <tr><td class="dim">1</td><td>ЭППС (XPS)</td><td class="r">100</td><td class="r">0.036</td><td class="r" style="color:var(--red)">2.7778</td><td style="color:var(--g300)">✕</td></tr>
+            <tr><td class="dim">2</td><td>Песчаная подготовка</td><td class="r">300</td><td class="r">0.930</td><td class="r" style="color:var(--red)">0.3226</td><td style="color:var(--g300)">✕</td></tr>
+          </table>
+        </div>
+
+        <div style="width:300px; flex:none;">
+          <div style="font-size:12px; font-weight:700; color:var(--g800); margin-bottom:8px;">Схема</div>
+          <div class="pie">
+            <div class="layer" style="background:#9AA0A6;color:#fff">Асфальтобетон · 50 мм</div>
+            <div class="layer" style="background:#C7CCD1">Бетон армированный · 150 мм</div>
+            <div class="layer" style="background:var(--teal-pale);color:var(--teal-deep)">ЭППС · 120 мм · λ 0.036</div>
+            <div class="pipe"></div>
+            <div class="layer" style="background:var(--teal-pale);color:var(--teal-deep)">ЭППС · 100 мм · λ 0.036</div>
+            <div class="layer" style="background:#E8D9B8">Песчаная подготовка · 300 мм</div>
+            <div class="layer" style="background:#D9CFC0">Грунт</div>
+          </div>
+          <div class="hint" style="margin-top:8px;">Окно визуализации 1.0 м, труба на глубине 320 мм</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="rail">
+    <h4>Сводка проекта</h4>
+    <div class="sec">Конструкция</div>
+    <div class="kv"><span>Общая толщина</span><b>720<small>мм</small></b></div>
+    <div class="kv"><span>R₁ над трубой</span><b>0.4821</b></div>
+    <div class="kv"><span>R₂ под трубой</span><b>0.7301</b></div>
+    <div class="kv"><span>λE вокруг трубы</span><b>1.173<small>Вт/м·К</small></b></div>
+    <div class="sec">Шаги</div>
+    <div class="kv"><span>Климат</span><b style="color:var(--teal-mid)">✓ заполнен</b></div>
+    <div class="kv"><span>Конструкция</span><b style="color:var(--red)">⚠ слой 3</b></div>
+  </aside>
+
+  <footer class="status">
+    <span class="plate warn">ВНИМАНИЕ</span>
+    <span class="msg">Слой 3 над трубой: толщина 120 мм — требование при нагрузках выполнено (≥ 50 мм). Проверьте λ утеплителя.</span>
+  </footer>
+</div>
+</body></html>
