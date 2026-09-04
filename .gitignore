@@ -47,3 +47,7 @@ console.log*
 # Keep data files
 !data/*.json
 !data/*.yaml
+
+# JS/Python regenerable artifacts
+docs/workspace/node_modules/
+docs/workspace/__pycache__/

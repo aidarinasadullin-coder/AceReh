@@ -1,0 +1,35 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  .about-bg { width:1440px; height:900px; background:#3A3A3E; position:relative; display:flex;
+    align-items:center; justify-content:center; }
+  .about { width:480px; background:#fff; border-radius:10px; box-shadow:0 18px 60px rgba(0,0,0,.35); overflow:hidden; }
+  .about .strip { height:6px; background:linear-gradient(90deg, var(--red), var(--red-dark)); }
+  .about .body { padding:26px 30px 24px; }
+  .about .logo { height:34px; margin-bottom:18px; }
+  .about h2 { font-size:18px; font-weight:800; margin-bottom:4px; }
+  .about .sub { font-size:12.5px; color:var(--g600); margin-bottom:16px; }
+  .about .rows { font-size:12px; border-top:1px solid #F4F4F4; padding-top:12px; }
+  .about .rows .r { display:flex; padding:4px 0; }
+  .about .rows .r span:first-child { color:var(--g600); }
+  .about .rows .r span:last-child { margin-left:auto; font-weight:600; }
+  .about .actions { margin-top:20px; display:flex; justify-content:flex-end; }
+</style></head><body>
+<div class="about-bg">
+  <div class="about">
+    <div class="strip"></div>
+    <div class="body">
+      <img class="logo" src="../../workspace/rehau_assets/logo_main_color.png" alt="РЕХАУ">
+      <h2>Калькулятор снеготаяния</h2>
+      <div class="sub">Расчёт систем обогрева открытых площадок РЕХАУ</div>
+      <div class="rows">
+        <div class="r"><span>Версия</span><span>v1.1.2</span></div>
+        <div class="r"><span>Данные</span><span>СП 131.13330.2025</span></div>
+        <div class="r"><span>Слоган</span><span>Ваше преимущество РЕХАУ</span></div>
+        <div class="r"><span>©</span><span>РЕХАУ</span></div>
+      </div>
+      <div class="actions"><button class="btn secondary">Закрыть</button></div>
+    </div>
+  </div>
+</div>
+</body></html>
