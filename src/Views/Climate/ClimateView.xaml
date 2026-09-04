@@ -20,7 +20,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -277,27 +276,10 @@
             </StackPanel>
         </Border>
 
-        <!-- Предупреждения -->
-        <Border Grid.Row="4" Style="{StaticResource Card.Default}"
-                Background="#FFF8E8"
-                BorderBrush="#FFB300"
-                BorderThickness="1"
-                Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
-            <StackPanel Orientation="Horizontal" Margin="16">
-                <Path Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"
-                      Width="20" Height="20"
-                      Fill="#FF9800"
-                      Margin="0,0,8,0"
-                      VerticalAlignment="Center"
-                      Stretch="Uniform"/>
-                <TextBlock Text="{Binding ValidationMessage}"
-                          VerticalAlignment="Center"
-                          Foreground="#E65100"/>
-            </StackPanel>
-        </Border>
+        <!-- Валидация модуля переехала в статус-бар каркаса (Фаза 1) -->
 
         <!-- Кнопки действий -->
-        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
             <Button Content="Сбросить к данным города"
                    Command="{Binding ResetToCityDataCommand}"
                    Style="{StaticResource RehauSecondaryButtonStyle}"

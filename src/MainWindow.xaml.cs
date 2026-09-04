@@ -46,6 +46,28 @@ namespace SnowMeltingCalculator
         public object? CurrentModuleView { get; private set; }
 
         /// <summary>
+        /// Read-only адаптер правой панели «Сводка» (Фаза 1 редизайна).
+        /// </summary>
+        public SummaryViewModel Summary { get; }
+
+        private bool _isSummaryVisible;
+        /// <summary>
+        /// Панель «Сводка» видна на широких окнах (≥1680), на узких скрыта
+        /// (план Ф1.5). Управляется из SizeChanged, чтобы не зависеть от
+        /// тонкостей биндинга ActualWidth.
+        /// </summary>
+        public bool IsSummaryVisible
+        {
+            get => _isSummaryVisible;
+            private set
+            {
+                if (_isSummaryVisible == value) return;
+                _isSummaryVisible = value;
+                PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(IsSummaryVisible)));
+            }
+        }
+
+        /// <summary>
         /// Путь к файлу проекта, который нужно открыть при запуске приложения
         /// (например, при двойном клике по файлу .smc в проводнике).
         /// </summary>
@@ -54,14 +76,20 @@ namespace SnowMeltingCalculator
         public MainWindow(
             MainViewModel viewModel,
             IProjectSession projectStateService,
-            IDialogService dialogService)
+            IDialogService dialogService,
+            SummaryViewModel summary)
         {
             _viewModel = viewModel;
             _projectStateService = projectStateService;
             _dialogService = dialogService;
+            Summary = summary;
 
             InitializeComponent();
             DataContext = viewModel;
+
+            // Адаптивность свода: ≥1680 видна, уже — скрыта (план Ф1.5)
+            SizeChanged += (_, _) => IsSummaryVisible = ActualWidth >= 1680;
+            IsSummaryVisible = ActualWidth >= 1680;
 
             WireViewModel();
 
@@ -304,13 +332,13 @@ namespace SnowMeltingCalculator
 
             if (isCollapsed)
             {
-                animation.From = 220;
-                animation.To = 65;
+                animation.From = 230;
+                animation.To = 70;
             }
             else
             {
-                animation.From = 65;
-                animation.To = 220;
+                animation.From = 70;
+                animation.To = 230;
             }
 
             sidebarGrid.BeginAnimation(System.Windows.Controls.Grid.WidthProperty, animation);

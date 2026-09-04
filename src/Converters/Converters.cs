@@ -463,4 +463,27 @@ namespace SnowMeltingCalculator.Converters
             throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// Конвертер: ширина окна >= порога → Visible, иначе Collapsed.
+    /// Порог передаётся параметром (например, 1680 — порог показа панели
+    /// «Сводка» в каркасе Фазы 1 редизайна).
+    /// </summary>
+    public class WidthThresholdToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var width = value is double d ? d : 0;
+            var threshold = double.TryParse(parameter as string, System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out var parsed)
+                ? parsed
+                : 0;
+            return width >= threshold ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
