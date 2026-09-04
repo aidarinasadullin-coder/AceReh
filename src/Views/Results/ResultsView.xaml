@@ -22,65 +22,59 @@
         <converters:DivisionConverter x:Key="PascalToKilopascalConverter" Divisor="1000"/>
 
         <!-- ===== Dashboard dense styles ===== -->
+        <!-- Фаза 2: локальные ключи сохранены (разметка не меняется — план Ф2.5),
+             определения переведены на компонентную библиотеку Themes/Components.*
+             и токены. Литеральные FontSize в разметке body — вне объёма Ф2.5;
+             ratchet-allowlist ResultsView уменьшен по HEX (ревью Ф2, ADR-006). -->
 
         <!-- Стиль для секционной карточки dashboard -->
-        <Style x:Key="DashboardSectionCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Color.Border.Default}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="{StaticResource Radius.SM}"/>
+        <Style x:Key="DashboardSectionCardStyle" TargetType="Border" BasedOn="{StaticResource Card.Root}">
             <Setter Property="Padding" Value="10"/>
         </Style>
 
         <!-- Стиль для внутренней карточки -->
         <Style x:Key="DashboardInnerCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource RehauResultCardBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Color.Border.Default}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand.Gray.100.Brush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="{StaticResource Radius.SM}"/>
             <Setter Property="Padding" Value="8"/>
         </Style>
 
         <!-- Стиль для заголовка секции -->
-        <Style x:Key="DashboardSectionTitleStyle" TargetType="TextBlock">
+        <Style x:Key="DashboardSectionTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Card.Title}">
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
-            <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
             <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
 
         <!-- Стиль для метки параметра -->
-        <Style x:Key="DashboardLabelStyle" TargetType="TextBlock">
+        <Style x:Key="DashboardLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Card.Subtitle}">
             <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
-            <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         </Style>
 
         <!-- Стиль для значения параметра -->
         <Style x:Key="DashboardValueStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brand.Black.Brush}"/>
             <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         </Style>
 
         <!-- Стиль для компактной KPI-карточки -->
         <Style x:Key="DashboardKpiCardStyle" TargetType="Border">
             <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Color.Border.Default}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand.Gray.100.Brush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="{StaticResource Radius.SM}"/>
             <Setter Property="Padding" Value="8"/>
         </Style>
 
         <!-- Стиль для компактного TextBox -->
-        <Style x:Key="DashboardCompactTextBoxStyle" TargetType="TextBox">
+        <Style x:Key="DashboardCompactTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource TextBox.Base}">
             <Setter Property="Height" Value="26"/>
             <Setter Property="Padding" Value="6,2"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource RehauGrayBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand.Gray.300.Brush}"/>
         </Style>
 
         <!-- Стиль для компактной кнопки экспорта -->
@@ -94,7 +88,7 @@
         <!-- Стиль для KPI-карточки (переопределён как плотный) -->
         <Style x:Key="KpiCardStyle" TargetType="Border">
             <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Color.Border.Default}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand.Gray.100.Brush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="{StaticResource Radius.SM}"/>
             <Setter Property="Padding" Value="8"/>
@@ -119,7 +113,7 @@
         <!-- Стиль для карточки оборудования (переопределён как плотный) -->
         <Style x:Key="EquipmentCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource RehauResultCardBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Color.Border.Default}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand.Gray.100.Brush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="{StaticResource Radius.SM}"/>
             <Setter Property="Padding" Value="8"/>
@@ -141,7 +135,7 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource RehauGrayBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand.Gray.100.Brush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -166,7 +160,7 @@
                     <Setter Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
                 </Trigger>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F5F5F5"/>
+                    <Setter Property="Background" Value="{DynamicResource RehauBackgroundGrayBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>

@@ -244,208 +244,16 @@
     </Style>
 
     <!-- ============================================ -->
-    <!-- TEXTBOX СТИЛИ -->
+    <!-- TEXTBOX / COMBOBOX / DATAGRID СТИЛИ          -->
     <!-- ============================================ -->
 
-    <!-- Базовый стиль TextBox -->
-    <Style x:Key="TextBox.Base" TargetType="TextBox">
-        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Padding" Value="12,8"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="TextBox">
-                    <Border x:Name="border"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{StaticResource Radius.SM}"
-                            Padding="{TemplateBinding Padding}">
-                        <ScrollViewer x:Name="PART_ContentHost"
-                                      VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsFocused" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
-                            <Setter TargetName="border" Property="BorderThickness" Value="2"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RehauGrayBrush}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- Default TextBox -->
-    <Style x:Key="TextBox.Default" TargetType="TextBox" BasedOn="{StaticResource TextBox.Base}">
-        <Setter Property="Background" Value="White"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource RehauGrayBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
-    </Style>
-
-    <!-- Focus TextBox - с акцентом при фокусе -->
-    <Style x:Key="TextBox.Focus" TargetType="TextBox" BasedOn="{StaticResource TextBox.Default}">
-        <Setter Property="BorderThickness" Value="2"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
-    </Style>
-
-    <!-- Error TextBox - состояние ошибки -->
-    <Style x:Key="TextBox.Error" TargetType="TextBox" BasedOn="{StaticResource TextBox.Base}">
-        <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
-        <Setter Property="BorderThickness" Value="2"/>
-        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
-    </Style>
-
-    <!-- Disabled TextBox - отключённое состояние -->
-    <Style x:Key="TextBox.Disabled" TargetType="TextBox" BasedOn="{StaticResource TextBox.Base}">
-        <Setter Property="Background" Value="#F5F5F5"/>
-        <Setter Property="BorderBrush" Value="#E0E0E0"/>
-        <Setter Property="Foreground" Value="#9E9E9E"/>
-        <Setter Property="IsEnabled" Value="False"/>
-    </Style>
-
-    <!-- ============================================ -->
-    <!-- COMBOBOX СТИЛИ -->
-    <!-- ============================================ -->
-
-    <!-- Default ComboBox -->
-    <Style x:Key="ComboBox.Default" TargetType="ComboBox">
-        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Padding" Value="12,8"/>
-        <Setter Property="MinHeight" Value="40"/>
-        <Setter Property="Height" Value="Auto"/>
-        <Setter Property="MaxHeight" Value="60"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource RehauGrayBrush}"/>
-        <Setter Property="Background" Value="White"/>
-        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ComboBox">
-                    <Grid>
-                        <Border x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{StaticResource Radius.SM}"
-                                Padding="{TemplateBinding Padding}">
-                            <Grid>
-                                <ContentPresenter Content="{TemplateBinding SelectionBoxItem}"
-                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                                  VerticalAlignment="Center"
-                                                  HorizontalAlignment="Left"/>
-                                <Path x:Name="arrow"
-                                      Data="M0,0 L6,6 L12,0"
-                                      Stroke="{DynamicResource RehauGrayBrush}"
-                                      StrokeThickness="1.5"
-                                      Width="12"
-                                      Height="6"
-                                      Stretch="Uniform"
-                                      HorizontalAlignment="Right"
-                                      VerticalAlignment="Center"
-                                      Margin="0,0,8,0"/>
-                            </Grid>
-                        </Border>
-                        <!-- ToggleButton для управления раскрытием списка -->
-                        <ToggleButton x:Name="PART_ToggleButton"
-                                      Background="Transparent"
-                                      BorderThickness="0"
-                                      IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                      Cursor="Hand"
-                                      Focusable="False"
-                                      ClickMode="Press">
-                            <ToggleButton.Template>
-                                <ControlTemplate TargetType="ToggleButton">
-                                    <Border Background="Transparent"/>
-                                </ControlTemplate>
-                            </ToggleButton.Template>
-                        </ToggleButton>
-                        <Popup x:Name="PART_Popup"
-                               AllowsTransparency="True"
-                               Placement="Bottom"
-                               IsOpen="{TemplateBinding IsDropDownOpen}">
-                            <Border Background="White"
-                                    BorderBrush="{DynamicResource RehauGrayBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="{StaticResource Radius.SM}"
-                                    Margin="0,4,0,0"
-                                    MaxHeight="300">
-                                <ScrollViewer>
-                                    <ItemsPresenter/>
-                                </ScrollViewer>
-                            </Border>
-                        </Popup>
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <!-- Hover: бирюзовая рамка -->
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RehauTealBrush}"/>
-                        </Trigger>
-                        <!-- Focus: красная рамка (акцент) -->
-                        <Trigger Property="IsFocused" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
-                            <Setter TargetName="border" Property="BorderThickness" Value="2"/>
-                        </Trigger>
-                        <!-- Dropdown open: стрелка вверх -->
-                        <Trigger Property="IsDropDownOpen" Value="True">
-                            <Setter TargetName="arrow" Property="RenderTransform">
-                                <Setter.Value>
-                                    <RotateTransform Angle="180"/>
-                                </Setter.Value>
-                            </Setter>
-                        </Trigger>
-                        <!-- Disabled: серый фон и текст -->
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="border" Property="Background" Value="#F5F5F5"/>
-                            <Setter TargetName="border" Property="BorderBrush" Value="#E0E0E0"/>
-                            <Setter TargetName="arrow" Property="Stroke" Value="#9E9E9E"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Foreground" Value="#9E9E9E"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>
-
-    <!-- Стиль для элементов ComboBox -->
-    <Style x:Key="ComboBoxItem.Default" TargetType="ComboBoxItem">
-        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Padding" Value="12,10"/>
-        <Setter Property="MinHeight" Value="50"/>
-        <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ComboBoxItem">
-                    <Border x:Name="border"
-                            Background="Transparent"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="#F5F5F5"/>
-                        </Trigger>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    <!-- Фаза 2 редизайна: канонические стили TextBox (TextBox.Base/Default/
+         Focus/Error/Disabled), ComboBox (ComboBox.Default/ComboBoxItem.Default)
+         и DataGrid (DataGrid.*) переехали в Themes/Controls.*.xaml и мержатся
+         ДО этого словаря (порядок закреплён ADR-006) — StaticResource-алиасы
+         ниже разрешаются по ним. Мёртвые легаси-алиасы
+         RehauDataGridHeaderStyle/RehauDataGridRowStyle удалены (0 использований,
+         ревью Ф2). -->
 
     <!-- ============================================ -->
     <!-- УЛУЧШЕННЫЕ СТИЛИ REHAU -->
@@ -510,13 +318,12 @@
     <Style x:Key="RehauSecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}">
     </Style>
 
-    <!-- Стиль для полей ввода -->
+    <!-- Стиль для полей ввода (канон — Controls.TextBox.xaml) -->
     <Style x:Key="RehauTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource TextBox.Default}">
     </Style>
 
-    <!-- Стиль для ComboBox -->
-    <Style x:Key="RehauComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource ComboBox.Default}">
-        <Setter Property="ItemContainerStyle" Value="{StaticResource ComboBoxItem.Default}"/>
+    <!-- Стиль для ComboBox (канон — Controls.ComboBox.xaml; поле формы 34px) -->
+    <Style x:Key="RehauComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource ComboBox.Field}">
     </Style>
 
     <!-- Стиль для информационных карточек (плоский цвет) -->
@@ -658,26 +465,8 @@
         <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
     </Style>
 
-    <!-- Стиль для DataGrid заголовка -->
-    <Style x:Key="RehauDataGridHeaderStyle" TargetType="DataGridColumnHeader">
-        <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Padding" Value="8,5"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-    </Style>
-
-    <!-- Стиль для строки DataGrid -->
-    <Style x:Key="RehauDataGridRowStyle" TargetType="DataGridRow">
-        <Setter Property="Background" Value="White"/>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#F5F5F5"/>
-            </Trigger>
-            <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>
+    <!-- Стили DataGrid-заголовка/строки RehauDataGrid* удалены (Фаза 2):
+         0 использований во вьюхах; канон — Themes/Controls.DataGrid.xaml. -->
 
     <!-- Стили текста по состояниям -->
     <Style x:Key="RehauWarningTextStyle" TargetType="TextBlock">
@@ -742,96 +531,11 @@
     </Style>
 
     <!-- ============================================ -->
-    <!-- DATAGRID СТИЛИ -->
+    <!-- DATAGRID СТИЛИ                               -->
     <!-- ============================================ -->
 
-    <!-- Default DataGrid -->
-    <Style x:Key="DataGrid.Default" TargetType="DataGrid">
-        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Background" Value="White"/>
-        <Setter Property="BorderBrush" Value="#E0E0E0"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-        <Setter Property="HorizontalGridLinesBrush" Value="#F0F0F0"/>
-        <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
-        <Setter Property="RowBackground" Value="White"/>
-        <Setter Property="AlternatingRowBackground" Value="#FAFAFA"/>
-        <Setter Property="HeadersVisibility" Value="Column"/>
-        <Setter Property="CanUserAddRows" Value="False"/>
-        <Setter Property="CanUserDeleteRows" Value="False"/>
-        <Setter Property="AutoGenerateColumns" Value="False"/>
-        <Setter Property="IsReadOnly" Value="True"/>
-        <Setter Property="SelectionMode" Value="Single"/>
-        <Setter Property="SelectionUnit" Value="FullRow"/>
-    </Style>
-
-    <!-- DataGridColumnHeader -->
-    <Style x:Key="DataGridColumnHeader.Default" TargetType="DataGridColumnHeader">
-        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
-        <Setter Property="Padding" Value="8,5"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="BorderBrush" Value="#E0E0E0"/>
-        <Setter Property="BorderThickness" Value="0,0,1,1"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="DataGridColumnHeader">
-                    <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- DataGridRow -->
-    <Style x:Key="DataGridRow.Default" TargetType="DataGridRow">
-        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Background" Value="White"/>
-        <Setter Property="Foreground" Value="{DynamicResource RehauBlackBrush}"/>
-        <Setter Property="Height" Value="36"/>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#F5F5F5"/>
-            </Trigger>
-            <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{DynamicResource RehauRedLightOpacityBrush}"/>
-            </Trigger>
-            <Trigger Property="AlternationIndex" Value="1">
-                <Setter Property="Background" Value="#FAFAFA"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>
-
-    <!-- DataGridCell -->
-    <Style x:Key="DataGridCell.Default" TargetType="DataGridCell">
-        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Padding" Value="8,5"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="DataGridCell">
-                    <Border Background="Transparent"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    <!-- Фаза 2: канонические DataGrid.Default/DataGridColumnHeader.Default/
+         DataGridRow.Default/DataGridCell.Default переехали в
+         Themes/Controls.DataGrid.xaml (мержится до этого словаря). -->
 
 </ResourceDictionary>

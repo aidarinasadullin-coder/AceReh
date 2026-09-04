@@ -95,3 +95,36 @@ owner-approved D1–D6). Владение состоянием не меняет
 
 Внедрение — Фаза 4Б плана редизайна; до её явного запуска владельцем флаг
 остаётся как есть (в UI — до этого момента без изменений).
+
+### ADR-006 — 2026-09-05 — Фаза 2 редизайна: findings ревью, меняющие реализацию UI-слоя
+
+Независимый read-only ревью дизайна Фазы 2 (компонентная библиотека,
+`docs/design/redesign-plan.md` §Ф2) до реализации. State ownership,
+санкционированные writers и `.smc`-контракт не затрагиваются; записи ниже —
+только про UI-слой (Themes/Dictionary/App.xaml, attached properties):
+
+1. **Implicit-стили TextBox/ComboBox — без размеров и Padding.** Стилевые
+   `MinHeight`/`Padding` применяются даже при локальном `Height="26"` на
+   элементе → обрезанный ввод/выросшие строки (голые поля CircuitsView
+   с `Height="26"` — строки 241, 255, 308, 323 рабочего дерева, а также
+   CircuitInputView, ячеечные комбобоксы Construction/TemplateEditor).
+   Высота 34 и паддинги — только в явных ключах; implicit-стили задают
+   только шаблон и кисти.
+2. **Порядок мержа App.xaml:** канонические ключи `Controls.*.xaml` грузятся
+   ДО `Dictionary.xaml` (алиасы `RehauTextBoxStyle`/`RehauComboBoxStyle`
+   держат `BasedOn={StaticResource …}`), порядок: Tokens → Icons.Fluent →
+   Components.* → Controls.* → RecalcIndicators → Dictionary → Shell.
+3. **Aspect.Ratio (чип 2:1) — через Height, не Width:** `Height =
+   ActualWidth / ratio` с guard'ом от рекурсии; сеттер Width ломал бы
+   растяжение в Grid/UniformGrid и будущих wrap-панелях.
+4. **Фокус-рамка полей — без смены толщины:** двойной Border (внешний 1px
+   hairline + внутренний 1px-кольцо Brand.Red при фокусе) вместо 1→2px —
+   метрики не прыгают, паттерн эталона (tokens.css `.in.err`).
+5. **Ratchet-ожидания скорректированы:** чистка ресурсов ResultsView даёт
+   HEX 1→0, FontSize остаётся 92 (литералы в разметке body — вне объёма
+   Ф2.5); ratchet CircuitsView не меняется (5,68) — сам файл получил лишь
+   две токен-замены Setter'ов (FontSize 14 → Font.Size.Body).
+   Allowlist уменьшается только по факту.
+6. Мёртвые легаси-ключи `RehauDataGridHeaderStyle`/`RehauDataGridRowStyle`
+   удаляются (0 использований); канонические `DataGrid.*` переезжают в
+   `Controls.DataGrid.xaml` как заготовка Ф3 (вьюхи подключат их там).
