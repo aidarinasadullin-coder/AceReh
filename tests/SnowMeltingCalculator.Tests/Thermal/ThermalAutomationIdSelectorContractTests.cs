@@ -31,6 +31,11 @@ public sealed class ThermalAutomationIdSelectorContractTests
 
     private static readonly (string File, string Id, string ControlType)[] Contract =
     {
+        // Фаза 1 редизайна: полноширинные карточки валидации/пересчёта ThermalView
+        // перенесены в статус-бар каркаса (MainWindow); контракты ID закреплены
+        // за каркасными слотами ShellValidationMessage/ShellRecalcMessage.
+        (@"src\MainWindow.xaml", "ShellValidationMessage", "TextBlock"),
+        (@"src\MainWindow.xaml", "ShellRecalcMessage", "TextBlock"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalMode", "ComboBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalSupplyTemperature", "TextBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalGroundTemperature", "TextBox"),
@@ -38,10 +43,8 @@ public sealed class ThermalAutomationIdSelectorContractTests
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalPipeSpacing", "ComboBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalCalculate", "Button"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalReset", "Button"),
-        (@"src\Views\Thermal\ThermalView.xaml", "ThermalRecalcMessage", "TextBlock"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalDeltaT", "TextBlock"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalPowerTotal", "TextBlock"),
-        (@"src\Views\Thermal\ThermalView.xaml", "ThermalResultStatus", "TextBlock"),
         (@"src\Views\Hydraulics\CircuitsView.xaml", "HydraulicsPipeSpacing", "TextBlock"),
         (@"src\Views\Hydraulics\CircuitsView.xaml", "HydraulicsSupplyTemperature", "TextBlock"),
         (@"src\Views\Hydraulics\CircuitsView.xaml", "HydraulicsReturnTemperature", "TextBlock"),
@@ -74,6 +77,7 @@ public sealed class ThermalAutomationIdSelectorContractTests
         }
     }
 
+    [TestCase(@"src\MainWindow.xaml")]
     [TestCase(@"src\Views\Thermal\ThermalView.xaml")]
     [TestCase(@"src\Views\Hydraulics\CircuitsView.xaml")]
     [TestCase(@"src\Views\Results\ResultsView.xaml")]

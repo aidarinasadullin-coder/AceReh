@@ -3,6 +3,25 @@ using CommunityToolkit.Mvvm.ComponentModel;
 namespace SnowMeltingCalculator.Models.Navigation
 {
     /// <summary>
+    /// Состояние шага степпера (Фаза 1 редизайна): ✓ готов · ● черновик ·
+    /// ⚠ ошибка · ⟳ пересчёт.
+    /// </summary>
+    public enum StepStatus
+    {
+        /// <summary>Шаг заполнен корректно (✓).</summary>
+        Ready,
+
+        /// <summary>Шаг в черновике, данные не готовы (●).</summary>
+        Draft,
+
+        /// <summary>Валидация шага не проходит (⚠).</summary>
+        Error,
+
+        /// <summary>Идёт пересчёт шага (⟳).</summary>
+        Recalculating
+    }
+
+    /// <summary>
     /// Элемент меню навигации
     /// </summary>
     public partial class MenuItem : ObservableObject
@@ -27,6 +46,17 @@ namespace SnowMeltingCalculator.Models.Navigation
 
         [ObservableProperty]
         private NavigationTarget _target;
+
+        /// <summary>
+        /// Состояние шага для степпера (✓ / ● / ⚠ / ⟳).
+        /// </summary>
+        [ObservableProperty]
+        private StepStatus _stepStatus = StepStatus.Draft;
+
+        /// <summary>
+        /// Порядковый номер шага (1–5) для кружка степпера.
+        /// </summary>
+        public int Number { get; init; }
 
         /// <summary>
         /// SVG path data для иконки (вычисляется на основе Icon)

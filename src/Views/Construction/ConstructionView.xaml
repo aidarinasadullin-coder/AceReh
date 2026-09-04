@@ -20,7 +20,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
 <!-- Заголовок страницы -->
@@ -68,22 +67,10 @@
             </StackPanel>
         </Border>
 
-        <!-- Валидация -->
-        <Border Grid.Row="2"
-                Style="{StaticResource RehauWarningCardStyle}"
-                Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
-            <StackPanel Orientation="Horizontal">
-                <Path Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"
-                      Style="{StaticResource RehauWarningIconStyle}"/>
-                <TextBlock Text="{Binding ValidationMessage}"
-                           VerticalAlignment="Center"
-                           TextWrapping="Wrap"
-                           Foreground="{Binding IsValid, Converter={StaticResource BoolToValidationColorConverter}}"/>
-            </StackPanel>
-        </Border>
+        <!-- Валидация модуля переехала в статус-бар каркаса (Фаза 1) -->
 
 <!-- Шаблоны конструкций (accordion preview) -->
-        <Border Grid.Row="3" Style="{StaticResource Card.Default}">
+        <Border Grid.Row="2" Style="{StaticResource Card.Default}">
             <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">
 <TextBlock Text="Шаблоны конструкций"
                             Style="{StaticResource Text.H3}"
@@ -280,7 +267,7 @@
         </Border>
 
         <!-- Слои над трубой, под трубой, визуализация и результаты -->
-        <Grid Grid.Row="4" x:Name="LayoutGrid">
+        <Grid Grid.Row="3" x:Name="LayoutGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>

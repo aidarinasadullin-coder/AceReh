@@ -77,6 +77,13 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             // Подписка на изменения состояния проекта для обновления заголовка окна
             _projectStateService.PropertyChanged += OnProjectStateChanged;
 
+            // Степпер и статус-бар обновляются по событиям модульных VM
+            _climateViewModel.PropertyChanged += OnModuleViewModelChanged;
+            _constructionViewModel.PropertyChanged += OnModuleViewModelChanged;
+            _thermalViewModel.PropertyChanged += OnModuleViewModelChanged;
+            _circuitsViewModel.PropertyChanged += OnModuleViewModelChanged;
+            _resultsViewModel.PropertyChanged += OnModuleViewModelChanged;
+
             _selectedMenuItem = MenuItems[0];
 
             // Загрузка состояния боковой панели из настроек
@@ -84,15 +91,16 @@ namespace SnowMeltingCalculator.ViewModels.Shell
 
             // Инициализация заголовка окна
             UpdateWindowTitle();
+            RefreshShellStatus();
         }
 
         public MenuItem[] MenuItems { get; } = new[]
         {
-            new MenuItem { Title = "Климат", Icon = "WeatherCloudy", Target = NavigationTarget.Climate },
-            new MenuItem { Title = "Конструкция", Icon = "Layers", Target = NavigationTarget.Construction },
-            new MenuItem { Title = "Тепловой расчёт", Icon = "Fire", Target = NavigationTarget.Thermal },
-            new MenuItem { Title = "Гидравлический расчёт", Icon = "Pipe", Target = NavigationTarget.Hydraulics },
-            new MenuItem { Title = "Результаты", Icon = "ChartBar", Target = NavigationTarget.Results }
+            new MenuItem { Number = 1, Title = "Климат", Icon = "WeatherCloudy", Target = NavigationTarget.Climate },
+            new MenuItem { Number = 2, Title = "Конструкция", Icon = "Layers", Target = NavigationTarget.Construction },
+            new MenuItem { Number = 3, Title = "Тепловой расчёт", Icon = "Fire", Target = NavigationTarget.Thermal },
+            new MenuItem { Number = 4, Title = "Гидравлический расчёт", Icon = "Pipe", Target = NavigationTarget.Hydraulics },
+            new MenuItem { Number = 5, Title = "Результаты", Icon = "ChartBar", Target = NavigationTarget.Results }
         };
 
         private NavigationTarget _currentNavigationTarget = NavigationTarget.Climate;
@@ -112,6 +120,7 @@ namespace SnowMeltingCalculator.ViewModels.Shell
                 {
                     CurrentNavigationTarget = value.Target;
                     UpdateCurrentTitle();
+                    RefreshShellStatus();
                 }
             }
         }
@@ -271,7 +280,164 @@ namespace SnowMeltingCalculator.ViewModels.Shell
                 NavigationTarget.Results => "Результаты расчёта",
                 _ => "Калькулятор снеготаяния РЕХАУ"
             };
+
+            CurrentModulePlateText = CurrentNavigationTarget switch
+            {
+                NavigationTarget.Climate => "КЛИМАТ",
+                NavigationTarget.Construction => "КОНСТРУКЦИЯ",
+                NavigationTarget.Thermal => "ТЕПЛОВОЙ",
+                NavigationTarget.Hydraulics => "ГИДРАВЛИКА",
+                NavigationTarget.Results => "РЕЗУЛЬТАТЫ",
+                _ => string.Empty
+            };
         }
+
+        #region Степпер и статус-бар (Фаза 1 редизайна)
+
+        /// <summary>
+        /// Общий хук событий модульных VM: любые изменения валидации,
+        /// пересчёта или готовности обновляют степпер и статус-бар.
+        /// Чтение — только кэшированных свойств (не геттеров с побочными
+        /// эффектами вроде ClimateViewModel.IsValid — ревью Ф1, F4).
+        /// </summary>
+        private void OnModuleViewModelChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            RefreshShellStatus();
+        }
+
+        /// <summary>
+        /// Пересчитывает состояния шагов степпера и содержимое статус-бара.
+        /// Только чтение существующих VM и снапшотов сессии (R2/R3/R5 не
+        /// затрагиваются).
+        /// </summary>
+        private void RefreshShellStatus()
+        {
+            RefreshStepStatuses();
+            RefreshStatusBar();
+        }
+
+        private void RefreshStepStatuses()
+        {
+            var climate = MenuItemByTitle("Климат");
+            if (climate != null)
+            {
+                climate.StepStatus = !string.IsNullOrWhiteSpace(_climateViewModel.ValidationMessage)
+                    ? StepStatus.Error
+                    : !string.IsNullOrWhiteSpace(_climateState.Snapshot.SelectedCity)
+                        ? StepStatus.Ready
+                        : StepStatus.Draft;
+            }
+
+            var construction = MenuItemByTitle("Конструкция");
+            if (construction != null)
+            {
+                construction.StepStatus = !string.IsNullOrWhiteSpace(_constructionViewModel.ValidationMessage)
+                    ? StepStatus.Error
+                    : StepStatus.Ready;
+            }
+
+            var thermal = MenuItemByTitle("Тепловой расчёт");
+            if (thermal != null)
+            {
+                thermal.StepStatus = _thermalViewModel.IsCalculating
+                    ? StepStatus.Recalculating
+                    : !string.IsNullOrWhiteSpace(_thermalViewModel.ValidationMessage)
+                        ? StepStatus.Error
+                        : !_thermalViewModel.NeedsRecalculation
+                            ? StepStatus.Ready
+                            : StepStatus.Draft;
+            }
+
+            var hydraulics = MenuItemByTitle("Гидравлический расчёт");
+            if (hydraulics != null)
+            {
+                hydraulics.StepStatus = _circuitsViewModel.IsCalculating
+                    ? StepStatus.Recalculating
+                    : (hydraulics.HasError || !string.IsNullOrWhiteSpace(_circuitsViewModel.ValidationMessage))
+                        ? StepStatus.Error
+                        : StepStatus.Ready;
+            }
+
+            var results = MenuItemByTitle("Результаты");
+            if (results != null)
+            {
+                results.StepStatus = _resultsViewModel.IsDataReady
+                    ? StepStatus.Ready
+                    : StepStatus.Draft;
+            }
+        }
+
+        private MenuItem? MenuItemByTitle(string title) =>
+            MenuItems.FirstOrDefault(m => m.Title == title);
+
+        private void RefreshStatusBar()
+        {
+            var thermalNeedsRecalculation = _thermalViewModel.NeedsRecalculation;
+
+            // Основной слот — валидация/статус активного модуля
+            var validationText = CurrentNavigationTarget switch
+            {
+                NavigationTarget.Climate => _climateViewModel.ValidationMessage,
+                NavigationTarget.Construction => _constructionViewModel.ValidationMessage,
+                NavigationTarget.Thermal => thermalNeedsRecalculation
+                    ? _thermalViewModel.RecalcMessage
+                    : _thermalViewModel.ValidationMessage,
+                NavigationTarget.Hydraulics => _circuitsViewModel.ValidationMessage,
+                NavigationTarget.Results => _resultsViewModel.StatusMessage,
+                _ => string.Empty
+            };
+            CurrentValidationText = validationText ?? string.Empty;
+
+            // Слот пересчёта справа — только тепловой модуль умеет NeedsRecalculation
+            CurrentRecalcText = thermalNeedsRecalculation
+                && CurrentNavigationTarget != NavigationTarget.Thermal
+                    ? _thermalViewModel.RecalcMessage ?? string.Empty
+                    : string.Empty;
+
+            CurrentStatusKind = CurrentNavigationTarget switch
+            {
+                NavigationTarget.Thermal when thermalNeedsRecalculation => ShellStatusKind.Warning,
+                NavigationTarget.Results => _resultsViewModel.IsDataReady
+                    ? ShellStatusKind.Success
+                    : ShellStatusKind.Warning,
+                _ when !string.IsNullOrWhiteSpace(CurrentValidationText) => ShellStatusKind.Error,
+                _ => ShellStatusKind.Success
+            };
+        }
+
+        private ShellStatusKind _currentStatusKind = ShellStatusKind.Success;
+        /// <summary>Семантика статус-бара: цвет скошенной плашки.</summary>
+        public ShellStatusKind CurrentStatusKind
+        {
+            get => _currentStatusKind;
+            private set => SetProperty(ref _currentStatusKind, value);
+        }
+
+        private string _currentModulePlateText = "КЛИМАТ";
+        /// <summary>Короткое имя модуля для скошенной плашки.</summary>
+        public string CurrentModulePlateText
+        {
+            get => _currentModulePlateText;
+            private set => SetProperty(ref _currentModulePlateText, value);
+        }
+
+        private string _currentValidationText = string.Empty;
+        /// <summary>Валидация/статус активного модуля (слот статус-бара).</summary>
+        public string CurrentValidationText
+        {
+            get => _currentValidationText;
+            private set => SetProperty(ref _currentValidationText, value);
+        }
+
+        private string _currentRecalcText = string.Empty;
+        /// <summary>Сообщение о необходимости пересчёта (правый слот).</summary>
+        public string CurrentRecalcText
+        {
+            get => _currentRecalcText;
+            private set => SetProperty(ref _currentRecalcText, value);
+        }
+
+        #endregion
 
         #region Обработка событий состояния расчёта
 

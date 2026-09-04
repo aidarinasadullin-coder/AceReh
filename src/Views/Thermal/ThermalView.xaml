@@ -22,7 +22,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -311,50 +310,10 @@
             </Button>
         </StackPanel>
 
-<!-- Валидация -->
-        <Border Grid.Row="5" Style="{StaticResource Card.Default}"
-                Background="#FFF8E8"
-                BorderBrush="#FFB300"
-                BorderThickness="1"
-                Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}">
-            <StackPanel Orientation="Horizontal" Margin="16">
-                <Path Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"
-                      Width="20" Height="20"
-                      Fill="#FF9800"
-                      Margin="0,0,8,0"
-                      VerticalAlignment="Center"
-                      Stretch="Uniform"/>
-                <TextBlock Text="{Binding ValidationMessage}"
-                           VerticalAlignment="Center"
-                           Foreground="#E65100"
-                           AutomationProperties.AutomationId="ThermalResultStatus"/>
-            </StackPanel>
-        </Border>
-
-        <!-- Сообщение о пересчёте -->
-        <Border Grid.Row="5" Style="{StaticResource Card.Default}"
-                Background="#E3F2FD"
-                BorderBrush="#1976D2"
-                BorderThickness="1"
-                Visibility="{Binding NeedsRecalculation, Converter={StaticResource BoolToVisibilityConverter}}">
-            <StackPanel Orientation="Horizontal" Margin="16">
-                <Path Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"
-                      Width="20" Height="20"
-                      Fill="#1976D2"
-                      Margin="0,0,8,0"
-                      VerticalAlignment="Center"
-                      Stretch="Uniform"/>
-                <TextBlock Text="{Binding RecalcMessage}"
-                           VerticalAlignment="Center"
-                           Foreground="#E65100"
-                           FontSize="13"
-                           FontWeight="Medium"
-                           AutomationProperties.AutomationId="ThermalRecalcMessage"/>
-            </StackPanel>
-        </Border>
+        <!-- Валидация и пересчёт переехали в статус-бар каркаса (Фаза 1) -->
 
         <!-- Группа "Результаты" -->
-        <Border Grid.Row="6"
+        <Border Grid.Row="5"
                 Style="{StaticResource Card.Default}"
                 Visibility="{Binding Result, Converter={StaticResource NullToVisibilityConverter}}">
             <StackPanel Margin="{StaticResource Spacing.MD.Thickness}">

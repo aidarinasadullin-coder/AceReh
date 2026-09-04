@@ -179,6 +179,9 @@ namespace SnowMeltingCalculator.Configuration
             // ViewModel главного окна (shell)
             services.AddSingleton<ViewModels.Shell.MainViewModel>();
 
+            // Read-only адаптер панели «Сводка» (Фаза 1 редизайна)
+            services.AddSingleton<ViewModels.Shell.SummaryViewModel>();
+
             return services;
         }
 

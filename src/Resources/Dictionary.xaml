@@ -19,6 +19,7 @@
     <converters:SidebarTooltipConverter x:Key="SidebarTooltipConverter"/>
     <converters:CityMatchToHighlightConverter x:Key="CityMatchToHighlightConverter"/>
     <converters:OrderToNumberConverter x:Key="OrderToNumberConverter"/>
+    <converters:WidthThresholdToVisibilityConverter x:Key="WidthThresholdToVisibilityConverter"/>
 
     <!-- Значения климатических зон для ComboBox -->
     <x:Array x:Key="ClimateZoneValues" Type="{x:Type models:ClimateZone}">

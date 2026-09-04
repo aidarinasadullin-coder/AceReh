@@ -21,6 +21,9 @@
 
                 <!-- Ресурсы приложения -->
                 <ResourceDictionary Source="Resources/Dictionary.xaml"/>
+
+                <!-- Каркас окна (Фаза 1): после Dictionary.xaml — см. ревью Ф1 (F8) -->
+                <ResourceDictionary Source="Themes/Shell.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- ============================================ -->

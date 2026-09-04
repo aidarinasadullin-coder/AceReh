@@ -48,17 +48,19 @@ namespace SnowMeltingCalculator.Tests.Views
         /// </summary>
         private static readonly Dictionary<string, (int Hex, int FontSize)> Allowlist = new()
         {
-            ["MainWindow.xaml"] = (11, 9),
-            ["Views/Climate/ClimateView.xaml"] = (5, 7),
+            // Обновлено в Фазе 1: каркас окна (MainWindow) и удалённые
+            // валидационные карточки вьюх убрали большинство литералов.
+            ["MainWindow.xaml"] = (0, 0),
+            ["Views/Climate/ClimateView.xaml"] = (1, 7),
             ["Views/Construction/ConstructionView.xaml"] = (0, 12),
             ["Views/Construction/MaterialEditorView.xaml"] = (3, 10),
             ["Views/Construction/TemplateEditorView.xaml"] = (3, 6),
             ["Views/Hydraulics/CircuitInputView.xaml"] = (0, 0),
             ["Views/Hydraulics/CircuitsResultsView.xaml"] = (0, 1),
-            ["Views/Hydraulics/CircuitsView.xaml"] = (9, 68),
+            ["Views/Hydraulics/CircuitsView.xaml"] = (5, 68),
             ["Views/Results/ResultsView.xaml"] = (1, 92),
             ["Views/Shared/ConstructionVisualizationView.xaml"] = (0, 0),
-            ["Views/Thermal/ThermalView.xaml"] = (8, 42),
+            ["Views/Thermal/ThermalView.xaml"] = (0, 41),
         };
 
         [Test]
