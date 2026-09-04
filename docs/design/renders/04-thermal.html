@@ -1,0 +1,103 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
+<link rel="stylesheet" href="tokens.css"></head><body>
+<div class="window">
+
+  <header class="hdr">
+    <img class="logo" src="../../workspace/rehau_assets/logo_main_color.png" alt="REHAU">
+    <div><div class="app-name">Калькулятор снеготаяния</div><div class="app-sub">открытых площадок</div></div>
+    <div class="crumb">Тепловой расчёт</div>
+    <div class="spacer"></div>
+    <div class="project">ПРОЕКТ-2026-114 · <b>Парковка ТЦ «Меридиан»</b></div>
+    <button class="btn primary">▶&nbsp;Рассчитать</button>
+    <button class="btn secondary split">Отчёт PDF&nbsp;<span class="caret">▼</span></button>
+  </header>
+
+  <nav class="stepper">
+    <div class="step done"><span class="num">1</span>Климат<span class="st done">✓</span></div>
+    <div class="step done"><span class="num">2</span>Конструкция<span class="st done">✓</span></div>
+    <div class="step active"><span class="num">3</span>Тепловой расчёт</div>
+    <div class="step"><span class="num">4</span>Гидравлика<span class="st draft">●</span></div>
+    <div class="step"><span class="num">5</span>Результаты<span class="st draft">●</span></div>
+    <div class="collapse">«</div>
+  </nav>
+
+  <main class="main">
+    <div class="page-title">Тепловой расчёт<small>Шаг 3 из 5 — режим, температуры, труба</small></div>
+
+    <div class="card">
+      <h3>Режим работы</h3>
+      <div class="fields" style="grid-template-columns: 2fr;">
+        <div class="f"><label>Режим</label>
+          <div class="in">Melting<span class="chev">▾</span></div>
+          <div class="hint">Стандартный режим, температура поверхности +5°C. Оптимальный баланс мощности и эффективности.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Температуры и труба</h3>
+      <div class="fields" style="grid-template-columns:repeat(4,1fr);">
+        <div class="f"><label>Температура подачи</label><div class="in">35.0<span class="unit">°C</span></div></div>
+        <div class="f"><label>Температура грунта</label><div class="in">−5.0<span class="unit">°C</span></div></div>
+        <div class="f"><label>Температурный перепад</label>
+          <div class="in" style="background:#FAFAFA;color:var(--g800)">ΔT 7.0 К <span class="unit">рассчитывается</span></div>
+        </div>
+        <div class="f"><label>Труба</label><div class="in">RAUTHERM S 17×2.35<span class="chev">▾</span></div>
+          <div class="hint">Наружный Ø 17 мм · внутренний 12.3 мм</div></div>
+      </div>
+      <div class="fields" style="grid-template-columns:repeat(4,1fr); margin-top:14px;">
+        <div class="f"><label>Шаг укладки</label><div class="in">100<span class="unit">мм</span></div></div>
+        <div class="f"><label>Температура поверхности</label><div class="in" style="background:#FAFAFA;color:var(--g800)">+5.0<span class="unit">°C · из режима</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:14px;">
+      <div class="hero" style="width:430px; flex:none;">
+        <div class="k">СУММАРНАЯ МОЩНОСТЬ</div>
+        <div class="v">97.9<small>Вт/м²</small></div>
+        <div class="d">q↑ 85.2 вверх · q↓ 12.7 вниз · режим «без наледи»</div>
+        <div class="squares">
+          <i style="background:var(--red-pale)"></i><i style="background:transparent"></i><i style="background:#fff"></i>
+          <i style="background:transparent"></i><i style="background:var(--teal-soft)"></i><i style="background:transparent"></i>
+        </div>
+      </div>
+      <div class="grow">
+        <div class="chips" style="grid-template-columns:repeat(3,1fr);">
+          <div class="chip accent"><div class="v">85.2<small>Вт/м²</small></div><div class="l">Поток вверх q↑</div></div>
+          <div class="chip cold"><div class="v">12.7<small>Вт/м²</small></div><div class="l">Поток вниз q↓</div></div>
+          <div class="chip"><div class="v">8.72<small>Вт/м²·К</small></div><div class="l">Коэффициент теплоотдачи α</div></div>
+          <div class="chip"><div class="v">1.5<small>°C</small></div><div class="l">Средняя температура</div></div>
+          <div class="chip cold"><div class="v">28.0<small>°C</small></div><div class="l">Температура обратки</div></div>
+          <div class="chip"><div class="v">3.94<small>л/(ч·м²)</small></div><div class="l">Расход</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px; padding:12px 18px; display:flex; align-items:center; gap:8px;">
+      <span style="font-size:13px; font-weight:600; color:var(--g800);">Дополнительные параметры</span>
+      <span style="font-size:10px; color:var(--g300);">▼</span>
+      <span style="margin-left:auto; font-size:11.5px; color:var(--g600);">КПД ребра 0.962 · R<sub>FB</sub> 0.0482 · m 18.41 1/м · теплота плавления 70.2 Вт/м²</span>
+    </div>
+  </main>
+
+  <aside class="rail">
+    <h4>Сводка проекта</h4>
+    <div class="sec">Мощность</div>
+    <div class="kv hot"><span>Тепловая мощность</span><b>12.4<small>кВт</small></b></div>
+    <div class="kv"><span>Суммарный поток q</span><b>97.9<small>Вт/м²</small></b></div>
+    <div class="kv"><span>Поток вверх q↑</span><b>85.2<small>Вт/м²</small></b></div>
+    <div class="sec">Температуры</div>
+    <div class="kv hot"><span>Подача</span><b>35.0<small>°C</small></b></div>
+    <div class="kv cold"><span>Обратка</span><b>28.0<small>°C</small></b></div>
+    <div class="kv"><span>Режим</span><b>Без наледи</b></div>
+    <div class="sec">Шаги</div>
+    <div class="kv"><span>Тепловой</span><b style="color:var(--teal-mid)">✓ рассчитан</b></div>
+    <div class="kv"><span>Гидравлика</span><b style="color:var(--g300)">● черновик</b></div>
+  </aside>
+
+  <footer class="status">
+    <span class="plate ok">РАСЧЁТ ✓</span>
+    <span class="msg">Тепловой расчёт выполнен. q 97.9 Вт/м² · температура поверхности +5 °C по режиму.</span>
+  </footer>
+</div>
+</body></html>
