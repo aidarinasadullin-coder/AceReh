@@ -34,6 +34,9 @@ public sealed class ThermalAutomationIdSelectorContractTests
         // Фаза 1 редизайна: полноширинные карточки валидации/пересчёта ThermalView
         // перенесены в статус-бар каркаса (MainWindow); контракты ID закреплены
         // за каркасными слотами ShellValidationMessage/ShellRecalcMessage.
+        // Фаза 1Б: ShellModulePlate — скошенная плашка текущего модуля,
+        // якорь навигации UI smoke-набора (UiSmoke).
+        (@"src\MainWindow.xaml", "ShellModulePlate", "TextBlock"),
         (@"src\MainWindow.xaml", "ShellValidationMessage", "TextBlock"),
         (@"src\MainWindow.xaml", "ShellRecalcMessage", "TextBlock"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalMode", "ComboBox"),

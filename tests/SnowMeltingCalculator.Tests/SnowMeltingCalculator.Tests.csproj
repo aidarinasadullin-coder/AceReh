@@ -20,6 +20,9 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
+    <!-- Dev-only зависимость UI smoke-набора (Фаза 1Б редизайна): MIT,
+         в дистрибутив приложения не попадает (см. docs/design/redesign-plan.md). -->
+    <PackageReference Include="FlaUI.UIA3" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
