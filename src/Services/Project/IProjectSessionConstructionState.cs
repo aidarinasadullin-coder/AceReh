@@ -5,7 +5,7 @@ namespace SnowMeltingCalculator.Services.Project
 {
     /// <summary>
     /// Canonical Construction project state slice owned by <see cref="ProjectSession"/>.
-    /// Single writable canonical owner of GroundwaterLevel, HasLoads, ordered
+    /// Single writable canonical owner of GroundwaterLevel, ordered
     /// LayersAbovePipe and ordered LayersBelowPipe.
     /// </summary>
     public interface IProjectSessionConstructionState

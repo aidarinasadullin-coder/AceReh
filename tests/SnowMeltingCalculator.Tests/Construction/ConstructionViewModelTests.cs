@@ -565,13 +565,12 @@ namespace SnowMeltingCalculator.Tests.Construction
             // Arrange
             await _viewModel.InitializeCommand.ExecuteAsync(null);
             _viewModel.LayersAbovePipe.Clear();
-            _viewModel.HasLoads = true;
 
             var concrete = _viewModel.AvailableMaterials.First(m => m.Id == 5);
             _viewModel.LayersAbovePipe.Add(new Layer
             {
                 Material = concrete,
-                Thickness = 30, // Меньше минимума (50 мм при нагрузках)
+                Thickness = 30, // Меньше минимума (40 мм)
                 CalculatedLambda = concrete.LambdaA,
                 Position = LayerPosition.AbovePipe,
                 Order = 0
@@ -664,22 +663,6 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
-        public async Task ApplyTemplate_SetsHasLoads()
-        {
-            // Arrange
-            await _viewModel.InitializeCommand.ExecuteAsync(null);
-            var template = _viewModel.Templates.First(t => t.Id == 1); // Типовая парковка
-            template.HasLoads = true;
-
-            // Act
-            _viewModel.SelectedTemplate = template;
-            _viewModel.ApplyTemplateCommand.Execute(null);
-
-            // Assert
-            Assert.That(_viewModel.HasLoads, Is.True);
-        }
-
-        [Test]
         public async Task ApplyTemplate_Success_EmitsExactlyOneCanonicalTemplateCompletion()
         {
             // Arrange
@@ -763,7 +746,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             await _viewModel.InitializeCommand.ExecuteAsync(null);
             var wet = new ConstructionStateSnapshot(
                 0.5,
-                false,
                 new[] { new ConstructionLayerSnapshot(Guid.NewGuid(), 5, "Бетон", 100.0, 1.74, false, LayerPosition.AbovePipe, 0) },
                 Array.Empty<ConstructionLayerSnapshot>());
 
@@ -777,7 +759,6 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             var dry = new ConstructionStateSnapshot(
                 2.0,
-                false,
                 new[] { new ConstructionLayerSnapshot(Guid.NewGuid(), 5, "Бетон", 100.0, 1.74, false, LayerPosition.AbovePipe, 0) },
                 Array.Empty<ConstructionLayerSnapshot>());
             _viewModel.ApplyLifecycleSnapshotToAdapter(dry);
@@ -800,14 +781,12 @@ namespace SnowMeltingCalculator.Tests.Construction
             _viewModel.AddLayerAbovePipeCommand.Execute(null);
             _viewModel.AddLayerBelowPipeCommand.Execute(null);
             _viewModel.GroundwaterLevel = 0.5;
-            _viewModel.HasLoads = true;
 
             // Act
             _viewModel.ResetToDefaultCommand.Execute(null);
 
             // Assert: сброс не меняет УГВ — это настройка проекта
             Assert.That(_viewModel.GroundwaterLevel, Is.EqualTo(0.5));
-            Assert.That(_viewModel.HasLoads, Is.False);
         }
 
         #endregion
@@ -946,7 +925,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             var removedLayers = _viewModel.LayersAbovePipe.ToArray();
             var expectedBelow = _constructionState.Snapshot.LayersBelowPipe.ToArray();
             var expectedGroundwaterLevel = _constructionState.Snapshot.GroundwaterLevel;
-            var expectedHasLoads = _constructionState.Snapshot.HasLoads;
             var stateChanged = 0;
             var dataChanged = 0;
             _constructionState.Changed += (_, _) => stateChanged++;
@@ -960,7 +938,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 Assert.That(_constructionState.Snapshot.LayersAbovePipe, Is.Empty);
                 Assert.That(_constructionState.Snapshot.LayersBelowPipe, Is.EqualTo(expectedBelow));
                 Assert.That(_constructionState.Snapshot.GroundwaterLevel, Is.EqualTo(expectedGroundwaterLevel));
-                Assert.That(_constructionState.Snapshot.HasLoads, Is.EqualTo(expectedHasLoads));
             });
 
             var stateChangedAfterClear = stateChanged;
@@ -1075,7 +1052,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 Assert.That(after.LayersAbovePipe[0] with { Thickness = before.LayersAbovePipe[0].Thickness }, Is.EqualTo(before.LayersAbovePipe[0]));
                 Assert.That(after.LayersBelowPipe, Is.EqualTo(before.LayersBelowPipe));
                 Assert.That(after.GroundwaterLevel, Is.EqualTo(before.GroundwaterLevel));
-                Assert.That(after.HasLoads, Is.EqualTo(before.HasLoads));
             });
         }
 
@@ -1138,7 +1114,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             var staleLayers = _viewModel.LayersAbovePipe.Concat(_viewModel.LayersBelowPipe).ToArray();
             var canonical = new ConstructionStateSnapshot(
                 0.75,
-                true,
                 new[] { new ConstructionLayerSnapshot(Guid.NewGuid(), 11, "canonical-above", 61, 1.23, true, LayerPosition.AbovePipe, 0) },
                 new[] { new ConstructionLayerSnapshot(Guid.NewGuid(), 1, "canonical-below", 222, 0.4, false, LayerPosition.BelowPipe, 0) });
             _constructionState.ApplySnapshot(canonical, ConstructionMutationOrigin.ProjectLoad);
@@ -1158,7 +1133,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 Assert.That(_constructionState.Snapshot, Is.Not.EqualTo(canonical));
                 Assert.That(_constructionState.Snapshot.LayersAbovePipe, Has.Count.EqualTo(1));
                 Assert.That(_constructionState.Snapshot.LayersBelowPipe, Has.Count.EqualTo(6));
-                Assert.That(_constructionState.Snapshot.HasLoads, Is.False);
             });
 
             var effectsBeforeStaleEdits = (stateChanged, dataChanged, DirtyCalls);
@@ -1213,15 +1187,13 @@ namespace SnowMeltingCalculator.Tests.Construction
             _constructionState.Changed += (_, args) => origins.Add(args.Origin);
 
             _viewModel.GroundwaterLevel = 0.5;
-            _viewModel.HasLoads = true;
 
             Assert.Multiple(() =>
             {
                 Assert.That(_constructionState.Snapshot.GroundwaterLevel, Is.EqualTo(0.5));
-                Assert.That(_constructionState.Snapshot.HasLoads, Is.True);
                 Assert.That(_constructionState.Snapshot.LayersAbovePipe.Select(layer => layer.Id), Is.EqualTo(aboveIds));
                 Assert.That(_constructionState.Snapshot.LayersBelowPipe.Select(layer => layer.Id), Is.EqualTo(belowIds));
-                Assert.That(origins, Is.EqualTo(new[] { ConstructionMutationOrigin.User, ConstructionMutationOrigin.User }));
+                Assert.That(origins, Is.EqualTo(new[] { ConstructionMutationOrigin.User }));
             });
         }
 
@@ -1340,7 +1312,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             var construction = new ConstructionModel
             {
                 GroundwaterLevel = template.DefaultGroundwaterLevel,
-                HasLoads = template.HasLoads
             };
 
             foreach (var layerTemplate in template.LayersAbovePipe.OrderBy(l => l.Order))

@@ -44,7 +44,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             var construction = new ConstructionModel
             {
                 GroundwaterLevel = 2.0,
-                HasLoads = false
             };
 
             var concrete = _materialRepository.GetMaterialById(5) ?? Material.GetDefaultMaterial();

@@ -18,7 +18,6 @@ namespace SnowMeltingCalculator.Services.Project
         private ConstructionStateProjection _projection;
 
         private double _groundwaterLevel;
-        private bool _hasLoads;
         private List<ConstructionLayerSnapshot> _layersAbovePipe = new();
         private List<ConstructionLayerSnapshot> _layersBelowPipe = new();
 
@@ -43,7 +42,6 @@ namespace SnowMeltingCalculator.Services.Project
 
         public ConstructionStateSnapshot Snapshot => new(
             _groundwaterLevel,
-            _hasLoads,
             _layersAbovePipe.ToArray(),
             _layersBelowPipe.ToArray());
 
@@ -64,12 +62,6 @@ namespace SnowMeltingCalculator.Services.Project
                     return ApplyScalar(oldSnapshot, origin, () =>
                     {
                         _groundwaterLevel = setGroundwater.Value;
-                    });
-
-                case ConstructionMutation.SetHasLoads setHasLoads:
-                    return ApplyScalar(oldSnapshot, origin, () =>
-                    {
-                        _hasLoads = setHasLoads.Value;
                     });
 
                 case ConstructionMutation.AddLayer addLayer:
@@ -136,7 +128,6 @@ namespace SnowMeltingCalculator.Services.Project
 
             var candidate = new ConstructionStateSnapshot(
                 defaults.GroundwaterLevel,
-                false,
                 defaults.LayersAbovePipe.ToArray(),
                 defaults.LayersBelowPipe.ToArray());
 
@@ -370,7 +361,6 @@ namespace SnowMeltingCalculator.Services.Project
         private void CommitSnapshot(ConstructionStateSnapshot normalized)
         {
             _groundwaterLevel = normalized.GroundwaterLevel;
-            _hasLoads = normalized.HasLoads;
             _layersAbovePipe = normalized.LayersAbovePipe.ToList();
             _layersBelowPipe = normalized.LayersBelowPipe.ToList();
         }
@@ -385,7 +375,7 @@ namespace SnowMeltingCalculator.Services.Project
                 .Select((l, i) => l with { Order = i, Position = Models.Construction.LayerPosition.BelowPipe })
                 .ToArray();
 
-            return new ConstructionStateSnapshot(candidate.GroundwaterLevel, candidate.HasLoads, above, below);
+            return new ConstructionStateSnapshot(candidate.GroundwaterLevel, above, below);
         }
 
         private static bool TryValidate(ConstructionStateSnapshot candidate, out string? errorCode)

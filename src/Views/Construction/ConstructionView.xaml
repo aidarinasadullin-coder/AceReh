@@ -35,37 +35,17 @@
                                Style="{StaticResource Text.H3}"
                                Foreground="{DynamicResource RehauBlackBrush}"/>
 
-                    <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- УГВ -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Уровень грунтовых вод"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource RehauGrayBrush}"
-                                       Margin="0,0,0,6"/>
-                            <ComboBox ItemsSource="{Binding GroundwaterLevelOptions}"
-                                      SelectedItem="{Binding SelectedGroundwaterOption}"
-                                      MinWidth="250"
-                                      ToolTip="Выбор уровня грунтовых вод влияет на теплопроводность материалов под трубой"
-                                      Style="{StaticResource RehauComboBoxStyle}"/>
-                        </StackPanel>
-
-                        <!-- Нагрузки (флаг снимает Фаза 4Б) -->
-                        <StackPanel Grid.Column="1" Margin="24,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Нагрузки на покрытие"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource RehauGrayBrush}"
-                                       Margin="0,0,0,6"/>
-                            <CheckBox Content="Учтены (мин. слой над трубой 50 мм)"
-                                      IsChecked="{Binding HasLoads}"
-                                      ToolTip="При наличии нагрузок минимальная толщина слоёв над трубой увеличивается до 50 мм"
-                                      Foreground="{DynamicResource RehauBlackBrush}"/>
-                        </StackPanel>
-                    </Grid>
+                    <StackPanel Margin="0,8,0,0">
+                        <TextBlock Text="Уровень грунтовых вод"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource RehauGrayBrush}"
+                                   Margin="0,0,0,6"/>
+                        <ComboBox ItemsSource="{Binding GroundwaterLevelOptions}"
+                                  SelectedItem="{Binding SelectedGroundwaterOption}"
+                                  MinWidth="250"
+                                  ToolTip="Выбор уровня грунтовых вод влияет на теплопроводность материалов под трубой"
+                                  Style="{StaticResource RehauComboBoxStyle}"/>
+                    </StackPanel>
                 </StackPanel>
             </Border>
 

@@ -18,7 +18,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void Create_ReadsEachCanonicalSessionValueOnce_AndCarriesNoCatalogs()
         {
             var climate = new ClimateStateSnapshot("City", "Region", -1, -2, 3, 4, 5, ClimateZone.Zone_M15, true, true, false);
-            var construction = new ConstructionStateSnapshot(1, false, Array.Empty<ConstructionLayerSnapshot>(), Array.Empty<ConstructionLayerSnapshot>());
+            var construction = new ConstructionStateSnapshot(1, Array.Empty<ConstructionLayerSnapshot>(), Array.Empty<ConstructionLayerSnapshot>());
             var thermal = ThermalStateSnapshot.Default;
             var hydraulics = HydraulicsStateSnapshot.Default;
             var session = new Mock<IProjectSession>(MockBehavior.Strict);
@@ -89,7 +89,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             {
                 new ConstructionLayerSnapshot(Guid.NewGuid(), 5, "Асфальт", 80, 0.81, true, LayerPosition.AbovePipe, 0)
             };
-            var construction = new ConstructionStateSnapshot(0.9, true, layersAbove, Array.Empty<ConstructionLayerSnapshot>());
+            var construction = new ConstructionStateSnapshot(0.9, layersAbove, Array.Empty<ConstructionLayerSnapshot>());
             var session = new Mock<IProjectSession>(MockBehavior.Strict);
             var inputs = new Mock<IProjectSnapshotPersistenceInputs>(MockBehavior.Strict);
             var climateState = new Mock<IProjectSessionClimateState>(MockBehavior.Strict);
@@ -122,8 +122,10 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             using var sha256 = SHA256.Create();
             var hash = Convert.ToHexString(sha256.ComputeHash(Encoding.UTF8.GetBytes(json)));
 
+            // Пин обновлён осознанно (ADR-005, Фаза 4Б): поле hasLoads выпало
+            // из ConstructionData формата .smc — JSON-сериализация изменилась.
             Assert.That(hash, Is.EqualTo(
-                "FBD2010C0C8BF0F1552BE48F4CFAFF30A35ACFA57CA42D7DA0F39A2729B1B7B5"));
+                "0E3545CD949BC7A8AF32B91CCE0C24776654DDAA26EE90DA177E53B5ACC6B86F"));
         }
     }
 }

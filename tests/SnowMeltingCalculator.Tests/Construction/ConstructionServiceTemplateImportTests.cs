@@ -50,7 +50,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 Id = 1,
                 Name = "Existing material with snapshot",
                 DefaultGroundwaterLevel = 2.0,
-                HasLoads = false,
                 LayersAbovePipe = new List<LayerTemplate>
                 {
                     new LayerTemplate { MaterialId = 5, Thickness = 100, Position = LayerPosition.AbovePipe, Order = 0 }

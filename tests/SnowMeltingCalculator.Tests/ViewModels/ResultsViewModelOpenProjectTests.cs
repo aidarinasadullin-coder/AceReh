@@ -660,7 +660,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             // и канонический snapshot различаются. SaveCurrentProject должен сохранить
             // именно канонический snapshot, а не stale VM-кэш.
             const double canonicalGroundwater = 0.5;
-            const bool canonicalHasLoads = true;
             const double canonicalThickness = 333.0;
             const double canonicalLambda = 9.5;
             const bool canonicalOverride = true;
@@ -680,7 +679,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             // Применяем канонический snapshot напрямую через state API (non-user origin).
             var canonicalSnapshot = new ConstructionStateSnapshot(
                 canonicalGroundwater,
-                canonicalHasLoads,
                 new[]
                 {
                     new ConstructionLayerSnapshot(
@@ -702,10 +700,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(mutation.Status, Is.EqualTo(ConstructionMutationStatus.Changed));
             Assert.That(_projectStateService.Session.ConstructionState.Snapshot.GroundwaterLevel,
                 Is.EqualTo(canonicalGroundwater).Within(1e-9));
-            Assert.That(_projectStateService.Session.ConstructionState.Snapshot.HasLoads, Is.True);
             Assert.That(_projectStateService.Session.ConstructionState.Snapshot.LayersAbovePipe, Has.Count.EqualTo(1));
             Assert.That(constructionVm.GroundwaterLevel, Is.Not.EqualTo(canonicalGroundwater).Within(0.001));
-            Assert.That(constructionVm.HasLoads, Is.False);
             Assert.That(constructionVm.LayersAbovePipe, Is.Empty);
 
             // Act
@@ -716,7 +712,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             {
                 Assert.That(saved.ConstructionData.GroundwaterLevel,
                     Is.EqualTo(canonicalGroundwater).Within(1e-9));
-                Assert.That(saved.ConstructionData.HasLoads, Is.EqualTo(canonicalHasLoads));
                 Assert.That(saved.ConstructionData.Layers, Has.Count.EqualTo(1));
                 var savedLayer = saved.ConstructionData.Layers[0];
                 Assert.That(savedLayer.Position, Is.EqualTo(LayerPosition.AbovePipe));
@@ -741,7 +736,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             _projectStateService.Session.ConstructionState.ApplySnapshot(
                 new ConstructionStateSnapshot(
                     0.45,
-                    true,
                     new[]
                     {
                         new ConstructionLayerSnapshot(sourceAIds[0], 5, "Concrete", 81, 2.51, true, LayerPosition.AbovePipe, 0),
@@ -781,7 +775,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 Assert.Multiple(() =>
                 {
                     Assert.That(roundTrippedA.GroundwaterLevel, Is.EqualTo(0.45).Within(1e-9));
-                    Assert.That(roundTrippedA.HasLoads, Is.True);
                     Assert.That(roundTrippedA.LayersAbovePipe.Select(layer => layer.Order), Is.EqualTo(new[] { 0, 1 }));
                     Assert.That(roundTrippedA.LayersAbovePipe.Select(layer => layer.MaterialId), Is.EqualTo(new[] { 5, 1 }));
                     Assert.That(roundTrippedA.LayersAbovePipe.Select(layer => layer.MaterialName), Is.EqualTo(new[] { "Concrete", "Sand" }));
@@ -816,7 +809,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 sourceBStateService.Session.ConstructionState.ApplySnapshot(
                     new ConstructionStateSnapshot(
                         3.75,
-                        false,
                         new[]
                         {
                             new ConstructionLayerSnapshot(Guid.NewGuid(), 2, "Soil", 17, 1.07, true, LayerPosition.AbovePipe, 0)
@@ -838,7 +830,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 Assert.Multiple(() =>
                 {
                     Assert.That(roundTrippedB.GroundwaterLevel, Is.EqualTo(3.75).Within(1e-9));
-                    Assert.That(roundTrippedB.HasLoads, Is.False);
                     Assert.That(roundTrippedB.LayersAbovePipe.Select(layer => (layer.Order, layer.MaterialId, layer.MaterialName, layer.Thickness, layer.CalculatedLambda, layer.IsLambdaOverridden)),
                         Is.EqualTo(new[] { (0, 2, "Soil", 17d, 1.07, true) }));
                     Assert.That(roundTrippedB.LayersBelowPipe.Select(layer => (layer.Order, layer.MaterialId, layer.MaterialName, layer.Thickness, layer.CalculatedLambda, layer.IsLambdaOverridden)),
@@ -1089,34 +1080,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             // Assert
             Assert.That(constructionVm2.GroundwaterLevel, Is.EqualTo(0.5).Within(1e-9));
-        }
-
-        [Test]
-        public async Task ProjectRoundTrip_PreservesHasLoads()
-        {
-            // Arrange
-            var constructionVm = await CreateInitializedConstructionViewModelAsync();
-            constructionVm.HasLoads = true;
-
-            var viewModel = CreateViewModel(
-                CreateClimateViewModel(),
-                constructionVm,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
-
-            // Act
-            var data = viewModel.SaveCurrentProject();
-
-            var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
-            var viewModel2 = CreateViewModel(
-                CreateClimateViewModel(),
-                constructionVm2,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
-            await viewModel2.LoadProjectDataAsync(data);
-
-            // Assert
-            Assert.That(constructionVm2.HasLoads, Is.True);
         }
 
         [Test]

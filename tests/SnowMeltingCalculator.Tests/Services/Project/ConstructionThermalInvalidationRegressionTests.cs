@@ -59,7 +59,6 @@ public sealed class ConstructionThermalInvalidationRegressionTests
         var events = fixture.SubscribePublicationEvents();
         var templateSnapshot = new ConstructionStateSnapshot(
             fixture.Snapshot.GroundwaterLevel,
-            fixture.Snapshot.HasLoads,
             new[]
             {
                 new ConstructionLayerSnapshot(fixture.LayerId, 5, "Concrete", 130.0, 1.6, false, LayerPosition.AbovePipe, 0),
@@ -125,7 +124,6 @@ public sealed class ConstructionThermalInvalidationRegressionTests
         var events = fixture.SubscribePublicationEvents();
         var candidate = new ConstructionStateSnapshot(
             fixture.Snapshot.GroundwaterLevel + 1.0,
-            fixture.Snapshot.HasLoads,
             fixture.Snapshot.LayersAbovePipe,
             fixture.Snapshot.LayersBelowPipe);
 
@@ -207,7 +205,6 @@ public sealed class ConstructionThermalInvalidationRegressionTests
         var layerId = Guid.NewGuid();
         var snapshot = new ConstructionStateSnapshot(
             2.0,
-            false,
             new[] { new ConstructionLayerSnapshot(layerId, 5, "Concrete", 100.0, 1.6, false, LayerPosition.AbovePipe, 0) },
             new[] { new ConstructionLayerSnapshot(Guid.NewGuid(), 2, "Ground", 200.0, 1.5, false, LayerPosition.BelowPipe, 0) });
         var initialization = projectSession.ConstructionState.ApplySnapshot(snapshot, ConstructionMutationOrigin.Initialization);

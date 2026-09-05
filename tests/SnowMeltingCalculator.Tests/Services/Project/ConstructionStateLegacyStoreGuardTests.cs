@@ -25,7 +25,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             "private void ApplyTemplateCore(ConstructionTemplate template)",
             "public void OnLayerChanged(Layer layer)",
             "partial void OnGroundwaterLevelChanged(double value)",
-            "partial void OnHasLoadsChanged(bool value)",
             "private void OnLayersCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)",
             "private void OnLayerPropertyChanged(object? sender, PropertyChangedEventArgs e)",
             "private void OnConstructionDataChanged(object? sender, ConstructionDataChangedEventArgs e)",
@@ -73,7 +72,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
 
                 // --- ConstructionViewModel currently owns canonical scalar/collection backing fields (bypass #4) ---
                 Assert.That(viewModelSource, Does.Contain("private double _groundwaterLevel = 2.0;"));
-                Assert.That(viewModelSource, Does.Contain("private bool _hasLoads;"));
                 Assert.That(viewModelSource, Does.Contain("private ObservableCollection<Layer> _layersAbovePipe = new();"));
                 Assert.That(viewModelSource, Does.Contain("private ObservableCollection<Layer> _layersBelowPipe = new();"));
 
@@ -154,14 +152,11 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void ConstructionStateLegacyStoreGuard_RejectsNewDirectConstructionViewModelSetterInForbiddenCallers()
         {
             const string resultsFixture = "_constructionViewModel.GroundwaterLevel = 0.5;";
-            const string newBypassFixture = "_constructionViewModel.HasLoads = true;";
 
             Assert.Multiple(() =>
             {
                 Assert.That(GetDirectConstructionViewModelWrites(resultsFixture), Is.EqualTo(new[] { "GroundwaterLevel" }),
                     "A new direct ResultsViewModel write to ConstructionViewModel must be detected by the writer guard.");
-                Assert.That(GetDirectConstructionViewModelWrites(newBypassFixture), Is.EqualTo(new[] { "HasLoads" }),
-                    "A new direct write must be detected even when it matches an existing allowed property name in a new caller.");
             });
         }
 

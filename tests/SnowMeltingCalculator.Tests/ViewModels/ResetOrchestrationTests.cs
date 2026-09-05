@@ -88,7 +88,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(vm.LayersAbovePipe.Count, Is.EqualTo(1));
             Assert.That(vm.LayersBelowPipe.Count, Is.EqualTo(6));
             Assert.That(vm.GroundwaterLevel, Is.EqualTo(2.0));
-            Assert.That(vm.HasLoads, Is.False);
             Assert.That(vm.SelectedGroundwaterOption, Is.EqualTo("УГВ >= 1 м (сухие условия)"));
             Assert.That(vm.HasUnsavedChanges, Is.False);
             markDirtyMock.Verify(m => m.MarkDirty(), Times.Never);

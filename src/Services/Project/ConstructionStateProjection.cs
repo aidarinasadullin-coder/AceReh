@@ -87,7 +87,8 @@ namespace SnowMeltingCalculator.Services.Project
                 return true;
             }
 
-            var minimumAboveThickness = _snapshot.HasLoads ? 50.0 : 40.0;
+            // Флаг «Нагрузки» снят целиком (ADR-005): правило 40 мм без вариантов.
+            const double minimumAboveThickness = 40.0;
             return _snapshot.LayersAbovePipe.Sum(layer => layer.Thickness) >= minimumAboveThickness;
         }
     }

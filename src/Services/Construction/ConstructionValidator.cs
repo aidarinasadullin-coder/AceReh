@@ -9,7 +9,7 @@ namespace SnowMeltingCalculator.Services.Construction
     /// </summary>
     /// <remarks>
     /// Правила валидации:
-    /// - Минимальная стяжка над трубой: 40 мм (50 мм при нагрузках)
+    /// - Минимальная стяжка над трубой: 40 мм
     /// - Бетон: максимальная температура подачи 50°C
     /// - Асфальт: не применять при температуре наружного воздуха < -15°C
     /// - УГВ < 1м: использовать λБ для слоёв под трубой
@@ -17,14 +17,9 @@ namespace SnowMeltingCalculator.Services.Construction
     public class ConstructionValidator : IValidator<ConstructionModel>
     {
         /// <summary>
-        /// Минимальная толщина слоёв над трубой без нагрузок, мм
+        /// Минимальная толщина слоёв над трубой, мм
         /// </summary>
-        private const double MinThicknessAbovePipeNoLoads = 40.0;
-
-        /// <summary>
-        /// Минимальная толщина слоёв над трубой при наличии нагрузок, мм
-        /// </summary>
-        private const double MinThicknessAbovePipeWithLoads = 50.0;
+        private const double MinThicknessAbovePipe = 40.0;
 
         /// <summary>
         /// Максимальная температура подачи для бетона, °C
@@ -110,17 +105,14 @@ namespace SnowMeltingCalculator.Services.Construction
         /// </summary>
         private void ValidateMinThicknessAbovePipe(ConstructionModel construction, ValidationResult result)
         {
-            var minThickness = construction.HasLoads
-                ? MinThicknessAbovePipeWithLoads
-                : MinThicknessAbovePipeNoLoads;
+            var minThickness = MinThicknessAbovePipe;
 
             var totalAbove = construction.LayersAbovePipe.Sum(l => l.Thickness);
 
             if (construction.LayersAbovePipe.Count > 0 && totalAbove < minThickness)
             {
-                var loadSuffix = construction.HasLoads ? " (при наличии нагрузок)" : "";
                 result.AddError(
-                    $"Минимальная толщина слоёв над трубой{loadSuffix}: {minThickness} мм " +
+                    $"Минимальная толщина слоёв над трубой: {minThickness} мм " +
                     $"(текущая: {totalAbove:F0} мм)");
             }
         }

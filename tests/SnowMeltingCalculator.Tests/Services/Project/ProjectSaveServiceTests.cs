@@ -50,7 +50,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var climate = new ClimateStateSnapshot(
                 "City", "Region", -1, -2, 3, 4, 5, ClimateZone.Zone_M15, true, true, false);
             var construction = new ConstructionStateSnapshot(
-                1, false, Array.Empty<ConstructionLayerSnapshot>(), Array.Empty<ConstructionLayerSnapshot>());
+                1, Array.Empty<ConstructionLayerSnapshot>(), Array.Empty<ConstructionLayerSnapshot>());
             var thermal = ThermalStateSnapshot.Default;
             var hydraulics = HydraulicsStateSnapshot.Default;
 

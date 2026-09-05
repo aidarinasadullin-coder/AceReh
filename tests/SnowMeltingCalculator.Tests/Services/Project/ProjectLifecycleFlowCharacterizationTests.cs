@@ -111,7 +111,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var fixture = CreateCanonicalConstructionOrchestrator();
             var initial = new ConstructionStateSnapshot(
                 0.45,
-                true,
                 new[] { CreateLayerSnapshot("Асфальт", 11, 75, LayerPosition.AbovePipe, 0) },
                 Array.Empty<ConstructionLayerSnapshot>());
             fixture.Session.ConstructionState.ApplySnapshot(initial, ConstructionMutationOrigin.User);
@@ -126,7 +125,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             // а не УГВ предыдущего проекта (план 2026-09-04, D1).
             Assert.That(fixture.Session.ConstructionState.Snapshot.GroundwaterLevel, Is.EqualTo(2.0));
             Assert.That(fixture.ConstructionViewModel.GroundwaterLevel, Is.EqualTo(2.0));
-            Assert.That(fixture.ConstructionViewModel.HasLoads, Is.False);
             Assert.That(fixture.ConstructionViewModel.LayersAbovePipe.Select(layer => layer.Material.Id).ToArray(), Is.EqualTo(new[] { 5 }));
             Assert.That(fixture.ConstructionViewModel.LayersBelowPipe.Select(layer => layer.Material.Id).ToArray(), Is.EqualTo(new[] { 5, 6, 10, 13, 2, 2 }));
             Assert.That(fixture.ConstructionViewModel.LayersBelowPipe.Select(layer => layer.Order).ToArray(), Is.EqualTo(new[] { 0, 1, 2, 3, 4, 5 }));
@@ -138,7 +136,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var fixture = CreateCanonicalConstructionOrchestrator();
             var data = CreateConstructionProjectData(
                 0.6,
-                true,
                 new LayerProjectData
                 {
                     MaterialName = "Асфальт",
@@ -168,7 +165,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             Assert.That(origins, Is.EqualTo(new[] { ConstructionMutationOrigin.ProjectLoad }));
             Assert.That(fixture.Session.ConstructionState.Snapshot.GroundwaterLevel, Is.EqualTo(0.6));
             Assert.That(fixture.ConstructionViewModel.GroundwaterLevel, Is.EqualTo(0.6));
-            Assert.That(fixture.ConstructionViewModel.HasLoads, Is.True);
             Assert.That(fixture.ConstructionViewModel.LayersAbovePipe.Single().Material.Name, Is.EqualTo("Асфальт"));
             Assert.That(fixture.ConstructionViewModel.LayersAbovePipe.Single().CalculatedLambda, Is.EqualTo(0.81));
             // Ручное переопределение λ переживает загрузку проекта
@@ -185,7 +181,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var fixture = CreateCanonicalConstructionOrchestrator();
             var projectA = CreateConstructionProjectData(
                 0.2,
-                true,
                 new LayerProjectData
                 {
                     MaterialName = "Асфальт",
@@ -195,7 +190,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 });
             var projectB = CreateConstructionProjectData(
                 1.4,
-                false,
                 new LayerProjectData
                 {
                     MaterialName = "Тротуарная плитка/брусчатка",
@@ -219,7 +213,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             }));
             Assert.That(fixture.Session.ConstructionState.Snapshot.GroundwaterLevel, Is.EqualTo(1.4));
             Assert.That(fixture.ConstructionViewModel.GroundwaterLevel, Is.EqualTo(1.4));
-            Assert.That(fixture.ConstructionViewModel.HasLoads, Is.False);
             Assert.That(fixture.ConstructionViewModel.LayersAbovePipe, Has.Count.EqualTo(1));
             Assert.That(fixture.ConstructionViewModel.LayersAbovePipe.Single().Material.Name, Is.EqualTo("Тротуарная плитка/брусчатка"));
             Assert.That(fixture.ConstructionViewModel.LayersAbovePipe.Single().Thickness, Is.EqualTo(45));
@@ -842,13 +835,11 @@ namespace SnowMeltingCalculator.Tests.Services.Project
 
         private static ProjectData CreateConstructionProjectData(
             double groundwaterLevel,
-            bool hasLoads,
             params LayerProjectData[] layers)
         {
             var data = CreateMinimalProjectData("CONSTRUCTION", "Construction lifecycle");
             data.Version = "1.1";
             data.ConstructionData.GroundwaterLevel = groundwaterLevel;
-            data.ConstructionData.HasLoads = hasLoads;
             data.ConstructionData.Layers = layers.ToList();
             return data;
         }

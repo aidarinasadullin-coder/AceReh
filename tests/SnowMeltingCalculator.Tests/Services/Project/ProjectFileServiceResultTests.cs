@@ -53,6 +53,39 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         }
 
         [Test]
+        public async Task LoadProjectResultAsync_LegacyFileWithHasLoads_TreatsAsNoLoads()
+        {
+            // ADR-005 (Фаза 4Б): флаг «Нагрузки на покрытие» удалён из формата.
+            // Старый .smc с "hasLoads": true обязан открываться; поле игнорируется,
+            // проект считается «без нагрузок» (правило 40 мм).
+            var legacyJson =
+"""
+{
+  "version": "1.1",
+  "climateData": { "city": "Норильск" },
+  "constructionData": {
+    "groundwaterLevel": 1.2,
+    "hasLoads": true,
+    "layers": [
+      { "position": "AbovePipe", "materialName": "Бетон", "materialLambda": 1.74, "thickness": 40, "calculatedR": 0.0229, "calculatedLambda": 1.74, "isLambdaOverridden": false, "order": 0 }
+    ]
+  }
+}
+""";
+
+            var filePath = Path.Combine(_testDir, "legacy-hasloads.smc");
+            await File.WriteAllTextAsync(filePath, legacyJson);
+
+            // Act
+            var result = await _service.LoadProjectResultAsync(filePath);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True, "Старый .smc с hasLoads обязан открываться без ошибок.");
+            Assert.That(result.Value!.ConstructionData.GroundwaterLevel, Is.EqualTo(1.2).Within(1e-9));
+            Assert.That(result.Value.ConstructionData.Layers, Has.Count.EqualTo(1));
+        }
+
+        [Test]
         public async Task LoadProjectResultAsync_OnMissingFile_ReturnsFailureWithFileNotFound()
         {
             // Arrange

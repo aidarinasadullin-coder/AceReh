@@ -56,10 +56,10 @@ namespace SnowMeltingCalculator.Tests.Construction
         #region Validate - Thickness Tests
 
         [Test]
-        public void Validate_ThinLayerAbovePipeNoLoads_ReturnsInvalid()
+        public void Validate_ThinLayerAbovePipe_ReturnsInvalid()
         {
             // Arrange
-            var construction = new SnowMeltingCalculator.Models.Construction.Construction { HasLoads = false };
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction();
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
             construction.AddLayerAbovePipe(concrete, 30); // < 40 мм
 
@@ -72,43 +72,13 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
-        public void Validate_ThinLayerAbovePipeWithLoads_ReturnsInvalid()
+        public void Validate_FortyMmAbovePipe_ReturnsValid()
         {
-            // Arrange
-            var construction = new SnowMeltingCalculator.Models.Construction.Construction { HasLoads = true };
+            // Arrange — флаг «Нагрузки» снят (ADR-005): правило 40 мм без вариантов,
+            // бывший кейс «40 мм при нагрузках → invalid (50 мм)» схлопнулся с базовым.
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction();
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
-            construction.AddLayerAbovePipe(concrete, 40); // < 50 мм при нагрузках
-
-            // Act
-            var result = _validator.Validate(construction);
-
-            // Assert
-            Assert.That(result.IsValid, Is.False);
-            Assert.That(result.Errors.Any(e => e.Message.Contains("50")), Is.True);
-        }
-
-        [Test]
-        public void Validate_MinimumThicknessNoLoads_ReturnsValid()
-        {
-            // Arrange
-            var construction = new SnowMeltingCalculator.Models.Construction.Construction { HasLoads = false };
-            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
-            construction.AddLayerAbovePipe(concrete, 40); // Минимум без нагрузок
-
-            // Act
-            var result = _validator.Validate(construction);
-
-            // Assert
-            Assert.That(result.IsValid, Is.True);
-        }
-
-        [Test]
-        public void Validate_MinimumThicknessWithLoads_ReturnsValid()
-        {
-            // Arrange
-            var construction = new SnowMeltingCalculator.Models.Construction.Construction { HasLoads = true };
-            var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
-            construction.AddLayerAbovePipe(concrete, 50); // Минимум при нагрузках
+            construction.AddLayerAbovePipe(concrete, 40);
 
             // Act
             var result = _validator.Validate(construction);
