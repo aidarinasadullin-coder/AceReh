@@ -47,6 +47,15 @@ public sealed class ThermalAutomationIdSelectorContractTests
         // окна (команда ThermalViewModel.CalculateCommand); контракт ID
         // следует за кнопкой. «Сбросить» (ThermalReset) остаётся во вьюхе.
         (@"src\MainWindow.xaml", "ThermalCalculate", "Button"),
+        // Фаза 6 редизайна: сплит-кнопка «Отчёт PDF ▾» в шапке (бывшие
+        // 5 экспорт-кнопок ResultsView) + её пункты меню; команды
+        // ResultsViewModel и IsDataReady-гейт сохранены.
+        (@"src\MainWindow.xaml", "ReportExportButton", "Button"),
+        (@"src\MainWindow.xaml", "ReportExportPreview", "MenuItem"),
+        (@"src\MainWindow.xaml", "ReportExportPrint", "MenuItem"),
+        (@"src\MainWindow.xaml", "ReportExportSavePdf", "MenuItem"),
+        (@"src\MainWindow.xaml", "ReportExportMarkdownOperating", "MenuItem"),
+        (@"src\MainWindow.xaml", "ReportExportMarkdownDesignCold", "MenuItem"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalMode", "ComboBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalSupplyTemperature", "TextBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalGroundTemperature", "TextBox"),

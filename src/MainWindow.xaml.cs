@@ -85,6 +85,11 @@ namespace SnowMeltingCalculator
             InitializeComponent();
             DataContext = viewModel;
 
+            // Сплит-кнопка «Отчёт PDF»: ContextMenu живёт вне визуального
+            // дерева и правым кликом открывается без DataContext — команды
+            // пунктов привязываются к MainViewModel сразу (ревью Ф6, P2-1)
+            ReportExportButton.ContextMenu.DataContext = viewModel;
+
             // Адаптивность свода: ≥1680 видна, уже — скрыта (план Ф1.5)
             SizeChanged += (_, _) => IsSummaryVisible = ActualWidth >= 1680;
             IsSummaryVisible = ActualWidth >= 1680;
@@ -385,6 +390,23 @@ namespace SnowMeltingCalculator
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        /// <summary>
+        /// Сплит-кнопка «Отчёт PDF ▾» (Фаза 6): открывает меню экспорта левым
+        /// кликом. DataContext меню привязан в конструкторе (правый клик
+        /// открывает ContextMenuService без code-behind — ревью Ф6, P2-1);
+        /// здесь задаётся только геометрия (вниз от кнопки). Гейт готовности
+        /// данных — IsEnabled кнопки (ResultsViewModel.IsDataReady).
+        /// </summary>
+        private void ReportExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button button && button.ContextMenu is { } menu)
+            {
+                menu.PlacementTarget = button;
+                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                menu.IsOpen = true;
+            }
         }
 
         private void ToggleWindowState() =>

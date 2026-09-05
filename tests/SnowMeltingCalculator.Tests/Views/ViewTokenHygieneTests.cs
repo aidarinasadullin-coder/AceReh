@@ -45,8 +45,8 @@ namespace SnowMeltingCalculator.Tests.Views
         /// <summary>
         /// Разрешённое количество нарушений на файл на момент Фазы 0.
         /// Файлы, не указанные здесь, обязаны быть чистыми (0, 0).
-        /// Фаза 2 (план Ф2.5): HEX ResultsView устранён (стиль режима → токен);
-        /// FontSize 92/68 — литералы в разметке body, вне объёма Ф2.5 (ADR-006).
+        /// Фаза 6 (план Ф6): ResultsView переработана под компоненты Ф2 —
+        /// литералы устранены полностью, запись удалена (было (0, 92)).
         /// </summary>
         private static readonly Dictionary<string, (int Hex, int FontSize)> Allowlist = new()
         {
@@ -65,7 +65,8 @@ namespace SnowMeltingCalculator.Tests.Views
             // Фаза 3 редизайна: вьюха переработана под компоненты Ф2 —
             // литералы устранены полностью (было (5, 68)).
             ["Views/Hydraulics/CircuitsView.xaml"] = (0, 0),
-            ["Views/Results/ResultsView.xaml"] = (0, 92),
+            // Фаза 6 редизайна: ResultsView чистая (было (0, 92)) — файла
+            // нет в allowlist, правило (0, 0).
             ["Views/Shared/ConstructionVisualizationView.xaml"] = (0, 0),
             ["Views/Thermal/ThermalView.xaml"] = (0, 0),
         };
