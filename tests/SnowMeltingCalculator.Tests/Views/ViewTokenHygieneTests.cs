@@ -54,7 +54,8 @@ namespace SnowMeltingCalculator.Tests.Views
             // валидационные карточки вьюх убрали большинство литералов.
             ["MainWindow.xaml"] = (0, 0),
             ["Views/Climate/ClimateView.xaml"] = (1, 7),
-            ["Views/Construction/ConstructionView.xaml"] = (0, 12),
+            // Фаза 4 редизайна: пир конструкции переработан, литералов 8 (было 12).
+            ["Views/Construction/ConstructionView.xaml"] = (0, 8),
             ["Views/Construction/MaterialEditorView.xaml"] = (3, 10),
             ["Views/Construction/TemplateEditorView.xaml"] = (3, 6),
             ["Views/Hydraulics/CircuitInputView.xaml"] = (0, 0),

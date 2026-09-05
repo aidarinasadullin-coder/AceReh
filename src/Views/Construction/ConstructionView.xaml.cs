@@ -6,8 +6,8 @@ namespace SnowMeltingCalculator.Views.Construction
 {
     /// <summary>
     /// Логика взаимодействия для ConstructionView.xaml.
-    /// Адаптивное переключение раскладки LayoutGrid между двумя колонками
-    /// (2*/1*) и одной колонкой-стэком по событию SizeChanged.
+    /// Адаптивная раскладка «Пира конструкции» (Фаза 4): две колонки
+    /// (таблицы | схема) на широкой области, схема под таблицами на узкой.
     /// </summary>
     public partial class ConstructionView : UserControl
     {
@@ -24,34 +24,24 @@ namespace SnowMeltingCalculator.Views.Construction
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            LayoutGrid.SizeChanged += OnLayoutGridSizeChanged;
+            PieLayoutGrid.SizeChanged += OnPieLayoutGridSizeChanged;
             // Установить начальную раскладку сразу, чтобы избежать мерцания
             // дефолтных 2-col колонок из XAML до первого SizeChanged.
-            ApplyLayout(LayoutGrid.ActualWidth);
+            ApplyLayout(PieLayoutGrid.ActualWidth);
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
-            LayoutGrid.SizeChanged -= OnLayoutGridSizeChanged;
+            PieLayoutGrid.SizeChanged -= OnPieLayoutGridSizeChanged;
         }
 
-        private void OnLayoutGridSizeChanged(object sender, SizeChangedEventArgs e)
+        private void OnPieLayoutGridSizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (_isUpdating) return;
             if (Math.Abs(e.NewSize.Width - _lastWidth) < 1) return;
             _lastWidth = e.NewSize.Width;
 
-            bool twoColumn = e.NewSize.Width >= TwoColumnThreshold;
-            _isUpdating = true;
-            try
-            {
-                if (twoColumn) SetTwoColumnLayout();
-                else SetStackedLayout();
-            }
-            finally
-            {
-                _isUpdating = false;
-            }
+            ApplyLayout(e.NewSize.Width);
         }
 
         private void ApplyLayout(double width)
@@ -72,48 +62,41 @@ namespace SnowMeltingCalculator.Views.Construction
 
         private void SetTwoColumnLayout()
         {
-            LayoutGrid.ColumnDefinitions.Clear();
-            LayoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
-            LayoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            PieLayoutGrid.ColumnDefinitions.Clear();
+            PieLayoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            PieLayoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-            // Перемещаем визуализацию из левого StackPanel в правую колонку Grid
-            if (VisualizationCard.Parent == LeftColumnPanel)
-            {
-                LeftColumnPanel.Children.Remove(VisualizationCard);
-                LayoutGrid.Children.Add(VisualizationCard);
-            }
-
-            Grid.SetColumn(VisualizationCard, 1);
-            Grid.SetRow(VisualizationCard, 0);
-            VisualizationCard.Margin = new Thickness(12, 0, 0, 0);
-            VisualizationCard.VerticalAlignment = VerticalAlignment.Top;
-
-            LeftColumnPanel.Margin = new Thickness(0, 0, 12, 0);
-            LayersAboveCard.Margin = new Thickness(0, 0, 0, 12);
-            LayersBelowCard.Margin = new Thickness(0, 0, 0, 12);
-            ResultsCard.Margin = new Thickness(0);
+            Grid.SetColumn(SchemaPanel, 1);
+            Grid.SetRow(SchemaPanel, 0);
+            SchemaPanel.Margin = new Thickness(16, 0, 0, 0);
+            SchemaPanel.MinWidth = 280;
+            TablesPanel.Margin = new Thickness(0);
         }
 
         private void SetStackedLayout()
         {
-            LayoutGrid.ColumnDefinitions.Clear();
-            LayoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            PieLayoutGrid.ColumnDefinitions.Clear();
+            PieLayoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Перемещаем визуализацию в левый StackPanel так, чтобы она
-            // оказалась сразу перед ResultsCard: порядок
-            // LayersAbove → LayersBelow → Visualization → Results.
-            if (VisualizationCard.Parent == LayoutGrid)
+            // Схема под таблицами на узкой области
+            Grid.SetColumn(SchemaPanel, 0);
+            Grid.SetRow(SchemaPanel, 1);
+            SchemaPanel.Margin = new Thickness(0, 16, 0, 0);
+            SchemaPanel.MinWidth = 0;
+            TablesPanel.Margin = new Thickness(0);
+        }
+
+        /// <summary>
+        /// Меню «⋯» — управление справочниками (Фаза 4, п.2).
+        /// </summary>
+        private void TemplatesMenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.ContextMenu is { } menu)
             {
-                LayoutGrid.Children.Remove(VisualizationCard);
-                int resultsIndex = LeftColumnPanel.Children.IndexOf(ResultsCard);
-                LeftColumnPanel.Children.Insert(resultsIndex, VisualizationCard);
+                menu.PlacementTarget = button;
+                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                menu.IsOpen = true;
             }
-
-            LeftColumnPanel.Margin = new Thickness(0);
-            LayersAboveCard.Margin = new Thickness(0, 0, 0, 12);
-            LayersBelowCard.Margin = new Thickness(0, 0, 0, 12);
-            ResultsCard.Margin = new Thickness(0, 0, 0, 12);
-            VisualizationCard.Margin = new Thickness(0);
         }
     }
 }
