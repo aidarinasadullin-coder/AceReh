@@ -93,14 +93,23 @@
                                Foreground="{DynamicResource RehauBlackBrush}"/>
 
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
-                        <!-- Админ-действия «Материалы/Шаблоны» → меню «⋯» -->
+                        <!-- Админ-действия «Материалы…/Шаблоны…» → меню; кнопка
+                             подписана текстом, чтобы справочники были находимы
+                             без наведения (решение владельца, 2026-09-05) -->
                         <Button x:Name="TemplatesMenuButton"
-                                Content="⋯"
                                 Style="{StaticResource RehauSecondaryButtonStyle}"
-                                MinWidth="36"
-                                ToolTip="Управление справочниками"
-                                AutomationProperties.Name="Управление справочниками"
+                                ToolTip="Материалы и шаблоны конструкций"
                                 Click="TemplatesMenuButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Справочники" VerticalAlignment="Center"/>
+                                <Path Data="M0,0 L5,5 L10,0"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.5"
+                                      Width="10" Height="5"
+                                      Stretch="None"
+                                      Margin="8,2,0,0"
+                                      VerticalAlignment="Center"/>
+                            </StackPanel>
                             <Button.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="Материалы…"
