@@ -1,0 +1,65 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Фаза 4В редизайна: икон-кнопки действий (замена легаси
+         RehauDeleteButtonStyle). Зависимости: Tokens.Colors.xaml,
+         Icons.Fluent.xaml — оба мержатся раньше этого словаря (App.xaml). -->
+
+    <!-- Подложки hover/pressed: бренд-красный с альфой через Opacity кисти
+         (без литеральных цветов — ViewTokenHygieneTests) -->
+    <SolidColorBrush x:Key="Controls.IconButton.DeleteHoverBrush"
+                     Color="{StaticResource Brand.Red}" Opacity="0.12"/>
+    <SolidColorBrush x:Key="Controls.IconButton.DeletePressedBrush"
+                     Color="{StaticResource Brand.Red}" Opacity="0.22"/>
+
+    <!-- Безрамочная икон-кнопка деструктивного действия: глиф Gray.600 в
+         покое; hover — красный глиф на круглой подложке 24 px (конвенция
+         кнопки «закрыть» окна, Фаза 3Б); pressed — темнее; клавиатурный
+         фокус подсвечивается той же подложкой (легаси-рамка удалена).
+         Точки использования задают AutomationProperties.Name по контексту
+         («Удалить слой», «Удалить контур»). -->
+    <Style x:Key="Controls.IconButton.Delete" TargetType="Button">
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brand.Gray.600.Brush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Border x:Name="HoverPlate"
+                                Width="24" Height="24"
+                                CornerRadius="12"
+                                Background="Transparent"/>
+                        <Path Data="{StaticResource Icon.WindowClose}"
+                              Width="12" Height="12"
+                              Stretch="Uniform"
+                              Fill="{TemplateBinding Foreground}"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="HoverPlate" Property="Background"
+                                    Value="{StaticResource Controls.IconButton.DeleteHoverBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Brand.Red.Brush}"/>
+                        </Trigger>
+                        <!-- После IsMouseOver: перекрывает его при зажатой кнопке -->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="HoverPlate" Property="Background"
+                                    Value="{StaticResource Controls.IconButton.DeletePressedBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Brand.Red.Dark.Brush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="HoverPlate" Property="Background"
+                                    Value="{StaticResource Controls.IconButton.DeleteHoverBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Brand.Red.Brush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

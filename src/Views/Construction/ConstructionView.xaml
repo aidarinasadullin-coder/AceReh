@@ -276,15 +276,16 @@
                                                         IsReadOnly="True"
                                                         Foreground="{DynamicResource RehauRedBrush}"/>
 
-                                    <!-- Удалить -->
-                                    <DataGridTemplateColumn Header="" Width="Auto">
+                                    <!-- Удалить: фикс-ширина — Auto меряется без паддинга ячейки (10+10),
+                                         кнопка клипуется при сжатии (Фаза 4В) -->
+                                    <DataGridTemplateColumn Header="" Width="52">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Button Content="✕"
-                                                        Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                <Button Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                         CommandParameter="{Binding}"
-                                                        Style="{StaticResource RehauDeleteButtonStyle}"
-                                                        ToolTip="Удалить слой"/>
+                                                        Style="{StaticResource Controls.IconButton.Delete}"
+                                                        ToolTip="Удалить слой"
+                                                        AutomationProperties.Name="Удалить слой"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -394,15 +395,16 @@
                                                         IsReadOnly="True"
                                                         Foreground="{DynamicResource RehauRedBrush}"/>
 
-                                    <!-- Удалить -->
-                                    <DataGridTemplateColumn Header="" Width="Auto">
+                                    <!-- Удалить: фикс-ширина — Auto меряется без паддинга ячейки (10+10),
+                                         кнопка клипуется при сжатии (Фаза 4В) -->
+                                    <DataGridTemplateColumn Header="" Width="52">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Button Content="✕"
-                                                        Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                <Button Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                         CommandParameter="{Binding}"
-                                                        Style="{StaticResource RehauDeleteButtonStyle}"
-                                                        ToolTip="Удалить слой"/>
+                                                        Style="{StaticResource Controls.IconButton.Delete}"
+                                                        ToolTip="Удалить слой"
+                                                        AutomationProperties.Name="Удалить слой"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
