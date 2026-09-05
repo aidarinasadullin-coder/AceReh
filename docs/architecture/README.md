@@ -128,3 +128,82 @@ owner-approved D1–D6). Владение состоянием не меняет
 6. Мёртвые легаси-ключи `RehauDataGridHeaderStyle`/`RehauDataGridRowStyle`
    удаляются (0 использований); канонические `DataGrid.*` переезжают в
    `Controls.DataGrid.xaml` как заготовка Ф3 (вьюхи подключат их там).
+
+### ADR-007 — 2026-09-05 — Фаза 3 редизайна: findings ревью, меняющие реализацию (Гидравлика)
+
+Независимый read-only ревью дизайна Фазы 3 (`docs/design/redesign-plan.md`
+§Ф3, эталоны `docs/design/renders/03*.png`) до реализации. State ownership
+не меняется: `HydraulicsState` — слайс `ProjectSession`, VM — read-only
+адаптер, writer-паттерны R1–R6 и расчётное ядро не затрагиваются. Записи —
+только про UI-слой:
+
+1. **Видимость колонок DataGrid — через BindingProxy.** `DataGridColumn`
+   лежит вне визуального/логического дерева: DataContext не наследуется,
+   `RelativeSource AncestorType` на колонке молча не разрешается. Для
+   двухрежимной таблицы («Компактно/Полностью») колонки биндят
+   `Visibility` на `CircuitsViewModel.IsCompactMode` через
+   `BindingProxy : Freezable` (ресурс вьюхи). `IsCompactMode` — чистое
+   UI-состояние адаптера: observable-свойство VM, **не** входит в
+   `HydraulicsState`/снапшоты/`Reset()` и осознанно не сбрасывается при
+   загрузке проекта (семантика «настройки сессии», в отличие от
+   `CurrentMode`). Примечание (по ревью диффа): в реализации свойство
+   названо `IsFullMode` (true = «Полностью») с вычисляемой парой
+   `IsCompactView`/`IsFullView` для сегмента — семантика инвертирована
+   относительно названия в этом пункте.
+2. **Сегмент-контрол «Рабочая / Расчётная»** — пара `RadioButton` (view-local
+   стили), сеттеры `IsOperatingMode`/`IsDesignMode` игнорируют `false`
+   (`if (value) CurrentMode = …`), `OnCurrentModeChanged` нотифицирует оба —
+   иначе снятие выделения пушит `false` в оба свойства и режим «двоится».
+   Code-behind табло (`OnOperatingModeClick`/`OnDesignModeClick`) удаляется;
+   мёртвые конвертеры `ModeToBackgroundConverter`/`ModeToBorderConverter`/
+   `HydraulicModeToVisibilityConverter` удаляются из `Converters.cs`.
+3. **Сводка коллектора — `UniformGrid Columns=6`, не VirtualizingWrapPanel.**
+   Эталон — fluid-сетка `repeat(6,1fr)` с чипами пропорциональной ширины;
+   VWP требует явных `ItemWidth/ItemHeight` (фиксированные ширины ломают
+   эталон и конфликтуют с `Aspect.Ratio`), виртуализация при n=6 бесполезна.
+   Пакет `VirtualizingWrapPanel` в `src`-csproj в Ф3 **не добавляется** —
+   переносится в Ф6 (дашборд Результатов, адаптив 4+4 с ItemWidth). Чипы
+   биндят `SelectedCollector.Summary` (живой ObservableObject), а не
+   снимки `HydraulicSummaryCards` (канонический read-model для страницы
+   Результаты).
+4. **Свёртываемые справочные блоки — Expander-шаблон `InfoBlock.Collapsible`**
+   в `Components.InfoBlock.xaml` (компонент, без размеров — ADR-006 п.1).
+   Контент Expander материализуется сразу при загрузке — биндинги живые и
+   в свёрнутом состоянии («данные сохраняются»); UIA-паттерн ExpandCollapse
+   доступен smoke-набору. Новый словарь не вводится, порядок мержа
+   `App.xaml` и зеркало в `DiRegistrationTests` не меняются.
+5. **Типографика уплотнённой таблицы — токены, не литералы.** Задача «11 px»
+   трактуется как «уплотнение»: кегль ячеек/заголовков «Полностью» —
+   `Font.Size.Caption` (12), уплотнение — высотой строки/паддингами.
+   Литерал `FontSize="11"` запрещён ratchet-целью CircuitsView → (0,0).
+   Табличные цифры (OpenType tnum) для Inter через WPF `Typography`
+   недоступны — канон: правое выравнивание + фиксированные десятичные.
+6. **Индикатор пересчёта страницы — бирюзовая ветка**
+   (`Color.Border.Processing`/`Status.Info` + `Icon.Clock`); Material-синие
+   `#E3F2FD/#2196F3/#1976D2` удаляются из вьюхи. На экране остаются два
+   индикатора (страничный `IsCalculating` + каркасный `ShellRecalcMessage`)
+   — семантика разведена: «локальный пересчёт модуля» vs «каскад»; рендер
+   03 показывает только статус-бар, страничный сохранён по плану Ф3.6.
+7. **Отклонения от эталона 03/03b (осознанные):** таб-полоса «Ввод |
+   Результаты» из 03 не переносится — замещена сегментом «Компактно |
+   Полностью» из 03b (чипы сводки видны всегда); вкладки «Коллектор №1..N»
+   в эталоне не изображены (мультиколлекторность) — реализуются таб-полосой
+   на ListBox в шапке карточки (TabControl → ListBox + ContentControl,
+   DataContext содержимого = `CollectorData` сохранён) + сегментом справа.
+   Тулбар: «+ Контур», «+ Коллектор», «− Коллектор» (confirm-семантика
+   `_validator` сохранена), «Рассчитать» (`HydraulicsCalculateButton`);
+   удаление контура — hover-✕ в строке в обоих режимах.
+8. **Kv/тип коллектора/примечание о холодном пуске** (не вошли в 6 чипов)
+   переезжают в aux-строку заголовка карточки и подписи свёрнутого
+   InfoBlock «Результаты»; `Summary.Warning` остаётся в статус-баре
+   каркаса (`ShellValidationMessage`) + ⚠-чип в строке таблицы.
+9. **AutomationId-контракт:** `HydraulicsPipeSpacing`/
+   `HydraulicsSupplyTemperature`/`HydraulicsReturnTemperature` остаются
+   `TextBlock` ровно в одном экземпляре на файл (селекторный контракт
+   `ThermalAutomationIdSelectorContractTests`); при переносе в
+   свёрнутые блоки ID не дублируются. Остальные `Hydraulics*` ID
+   сохраняются как есть (`HydraulicsGlycolType` — якорь UiSmoke).
+10. **Терминология:** DpRohr/DpVerteiler/DpVent/DpGesamt/zu_drosseln →
+    «Δp трубы / Δp коллект. / Δp клап. / Δp всего / Дросс.» — глоссарий
+    `docs/design/glossary-hydraulics.md` (создаётся в Ф3, переиспользуется
+    Ф8); тестовых пинов на заголовки колонок в XAML нет.
