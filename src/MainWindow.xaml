@@ -100,15 +100,20 @@
                            Style="{StaticResource Shell.HeaderModuleTitle}"
                            Margin="32,0,16,0"/>
 
-                <!-- Имя проекта (из карточки результатов, Ф6 — постоянное место) -->
+                <!-- Имя проекта (Ф6: постоянное место, read-only; редактирование
+                     номера/объекта из UI удалено — поля читаются из .smc).
+                     Пустые значения и разделитель скрываются (новый расчёт). -->
                 <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
                     <TextBlock Text="{Binding ResultsViewModel.ProjectNumber}"
                                Style="{StaticResource Shell.ProjectName}"
-                               FontWeight="SemiBold"/>
+                               FontWeight="SemiBold"
+                               Visibility="{Binding ResultsViewModel.ProjectNumber, Converter={StaticResource StringToVisibilityConverter}}"/>
                     <TextBlock Text=" · "
-                               Style="{StaticResource Shell.ProjectName}"/>
+                               Style="{StaticResource Shell.ProjectName}"
+                               Visibility="{Binding ResultsViewModel.ProjectObject, Converter={StaticResource StringToVisibilityConverter}}"/>
                     <TextBlock Text="{Binding ResultsViewModel.ProjectObject}"
-                               Style="{StaticResource Shell.ProjectName}"/>
+                               Style="{StaticResource Shell.ProjectName}"
+                               Visibility="{Binding ResultsViewModel.ProjectObject, Converter={StaticResource StringToVisibilityConverter}}"/>
                 </StackPanel>
 
                 <!-- Меню Файл -->
@@ -134,7 +139,7 @@
 
                 <!-- «Рассчитать» — бывшая кнопка теплового модуля, перенос в шапку
                      (Фаза 5): ThermalCalculate переехал из ThermalView, контрактный
-                     тест обновлён в этой же фазе. Сплит-отчёт — каркас до Ф6. -->
+                     тест обновлён в этой же фазе. -->
                 <Button Grid.Column="6"
                         Content="Рассчитать"
                         Style="{StaticResource Button.Primary}"
@@ -146,9 +151,20 @@
                         MinWidth="120"
                         Margin="0,0,8,0"
                         VerticalAlignment="Center"/>
-                <Button Grid.Column="7"
+
+                <!-- Сплит-кнопка «Отчёт PDF ▾» (Фаза 6): бывшие 5 экспорт-кнопок
+                     ResultsView. Гейт — IsDataReady (те же 5 команд ResultsViewModel,
+                     внутренняя проверка сохранена); меню открывается по клику
+                     (code-behind ставит PlacementTarget/DataContext — ContextMenu
+                     вне визуального дерева). CaptionHeight=0/DragMove не задеты. -->
+                <Button x:Name="ReportExportButton"
+                        Grid.Column="7"
                         Style="{StaticResource Button.Secondary}"
-                        IsEnabled="False"
+                        IsEnabled="{Binding ResultsViewModel.IsDataReady}"
+                        Click="ReportExportButton_Click"
+                        ToolTip="Экспорт отчёта: предпросмотр, печать, PDF и Markdown"
+                        AutomationProperties.AutomationId="ReportExportButton"
+                        AutomationProperties.Name="Отчёт PDF"
                         MinWidth="110"
                         Margin="0,0,16,0"
                         VerticalAlignment="Center">
@@ -164,6 +180,30 @@
                               Margin="8,2,0,0"
                               VerticalAlignment="Center"/>
                     </StackPanel>
+                    <Button.ContextMenu>
+                        <ContextMenu Style="{StaticResource Shell.ReportMenu}">
+                            <MenuItem Header="Предпросмотр PDF"
+                                      Style="{StaticResource Shell.ReportMenuItem}"
+                                      Command="{Binding ResultsViewModel.PreviewPdfCommand}"
+                                      AutomationProperties.AutomationId="ReportExportPreview"/>
+                            <MenuItem Header="Печать"
+                                      Style="{StaticResource Shell.ReportMenuItem}"
+                                      Command="{Binding ResultsViewModel.PrintPdfCommand}"
+                                      AutomationProperties.AutomationId="ReportExportPrint"/>
+                            <MenuItem Header="Сохранить PDF..."
+                                      Style="{StaticResource Shell.ReportMenuItem}"
+                                      Command="{Binding ResultsViewModel.ExportPdfCommand}"
+                                      AutomationProperties.AutomationId="ReportExportSavePdf"/>
+                            <MenuItem Header="Markdown — рабочий режим"
+                                      Style="{StaticResource Shell.ReportMenuItem}"
+                                      Command="{Binding ResultsViewModel.ExportOperatingMarkdownReportCommand}"
+                                      AutomationProperties.AutomationId="ReportExportMarkdownOperating"/>
+                            <MenuItem Header="Markdown — расчётный/холодный"
+                                      Style="{StaticResource Shell.ReportMenuItem}"
+                                      Command="{Binding ResultsViewModel.ExportDesignColdMarkdownReportCommand}"
+                                      AutomationProperties.AutomationId="ReportExportMarkdownDesignCold"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
                 </Button>
 
                 <!-- Кнопки управления окном (Фаза 3Б): системный стиль Win11,

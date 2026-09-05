@@ -802,7 +802,6 @@ namespace SnowMeltingCalculator.Tests.Configuration
             resources["Color.Text.Disabled"] = new SolidColorBrush((Color)resources["Gray400"]);
             resources["Color.Text.Brand"] = new SolidColorBrush((Color)resources["RehauRed"]);
             resources["Color.Text.OnBrand"] = new SolidColorBrush((Color)resources["RehauWhite"]);
-            resources["RehauResultCardBrush"] = new SolidColorBrush(Color.FromRgb(0xF8, 0xF8, 0xF8));
             resources["PrimaryHueLightBrush"] = new SolidColorBrush((Color)resources["RehauRedLight"]);
             resources["PrimaryHueLightForegroundBrush"] = Brushes.White;
             resources["PrimaryHueMidBrush"] = new SolidColorBrush((Color)resources["RehauRed"]);

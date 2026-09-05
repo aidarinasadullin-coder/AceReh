@@ -331,4 +331,57 @@
         <Setter Property="Margin" Value="16,0"/>
     </Style>
 
+    <!-- ============================================ -->
+    <!-- МЕНЮ СПЛИТ-КНОПКИ «ОТЧЁТ PDF» (Фаза 6)       -->
+    <!-- ============================================ -->
+    <!-- Пункты живут в popup вне визуального дерева; DataContext команд
+         ставится кодом при открытии (ReportExportButton_Click). Шаблоны —
+         только токены (MainWindow под гигиеной ViewTokenHygieneTests). -->
+
+    <Style x:Key="Shell.ReportMenu" TargetType="ContextMenu">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Brand.Gray.100.Brush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource Radius.MD}"
+                            Padding="{TemplateBinding Padding}">
+                        <ItemsPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Shell.ReportMenuItem" TargetType="MenuItem">
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brand.Black.Brush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Border x:Name="Root"
+                            Background="Transparent"
+                            CornerRadius="{StaticResource Radius.SM}"
+                            Padding="10,7">
+                        <ContentPresenter ContentSource="Header" RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brand.Gray.100.Brush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Brand.Gray.300.Brush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>
