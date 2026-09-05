@@ -43,12 +43,15 @@ public sealed class ThermalAutomationIdSelectorContractTests
         (@"src\MainWindow.xaml", "ShellValidationMessage", "TextBlock"),
         (@"src\MainWindow.xaml", "ShellRecalcMessage", "TextBlock"),
         (@"src\MainWindow.xaml", "ShellStepperList", "ListBox"),
+        // Фаза 5 редизайна: «Рассчитать» перенесена из ThermalView в шапку
+        // окна (команда ThermalViewModel.CalculateCommand); контракт ID
+        // следует за кнопкой. «Сбросить» (ThermalReset) остаётся во вьюхе.
+        (@"src\MainWindow.xaml", "ThermalCalculate", "Button"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalMode", "ComboBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalSupplyTemperature", "TextBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalGroundTemperature", "TextBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalPipe", "ComboBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalPipeSpacing", "ComboBox"),
-        (@"src\Views\Thermal\ThermalView.xaml", "ThermalCalculate", "Button"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalReset", "Button"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalDeltaT", "TextBlock"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalPowerTotal", "TextBlock"),

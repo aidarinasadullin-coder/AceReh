@@ -285,23 +285,6 @@
         <Setter Property="Margin" Value="0,0,0,4"/>
     </Style>
 
-    <!-- Стиль для карточек результатов (плоский цвет) -->
-    <Style x:Key="RehauResultCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource RehauResultCardBrush}"/>
-        <Setter Property="Padding" Value="{StaticResource Spacing.MD.Thickness}"/>
-        <Setter Property="Margin" Value="0,0,8,8"/>
-        <Setter Property="CornerRadius" Value="6"/>
-        <Setter Property="BorderBrush" Value="#E0E0E0"/>
-        <Setter Property="BorderThickness" Value="1"/>
-    </Style>
-
-    <!-- Стиль для акцентных карточек результатов (основной результат) -->
-    <Style x:Key="RehauAccentResultCardStyle" TargetType="Border" BasedOn="{StaticResource RehauResultCardStyle}">
-        <Setter Property="Background" Value="#F5F5F5"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource RehauRedBrush}"/>
-        <Setter Property="BorderThickness" Value="2"/>
-    </Style>
-
     <!-- Стиль для основной кнопки действия -->
     <Style x:Key="RehauPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
     </Style>
@@ -364,21 +347,6 @@
         <Setter Property="Margin" Value="0,0,8,0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Stretch" Value="Uniform"/>
-    </Style>
-
-    <!-- Стиль для больших значений результатов -->
-    <Style x:Key="RehauResultValueStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="24"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource RehauRedBrush}"/>
-        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
-    </Style>
-
-    <!-- Стиль для единиц измерения -->
-    <Style x:Key="RehauUnitStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="11"/>
-        <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
-        <Setter Property="Margin" Value="0,2,0,0"/>
     </Style>
 
     <!-- ============================================ -->
