@@ -229,46 +229,6 @@ namespace SnowMeltingCalculator.Converters
     }
 
     /// <summary>
-    /// Конвертер: HydraulicMode → Visibility
-    /// </summary>
-    /// <remarks>
-    /// Используется для переключателя режима (Рабочая/Расчётная температура).
-    /// Параметр: "Operating" — виден, если режим OperatingTemperature
-    ///           "Design" — виден, если режим DesignTemperature
-    /// </remarks>
-    public class HydraulicModeToVisibilityConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is Models.Hydraulics.HydraulicMode mode && parameter is string param)
-            {
-                // Если параметр "Operating", показываем кнопку "Расчётная температура"
-                // когда текущий режим OperatingTemperature (нужно переключиться на Design)
-                if (param == "Operating")
-                {
-                    return mode == Models.Hydraulics.HydraulicMode.OperatingTemperature
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                }
-                // Если параметр "Design", показываем кнопку "Рабочая температура"
-                // когда текущий режим DesignTemperature (нужно переключиться на Operating)
-                if (param == "Design")
-                {
-                    return mode == Models.Hydraulics.HydraulicMode.DesignTemperature
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                }
-            }
-            return Visibility.Collapsed;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
     /// Конвертер: bool → Tooltip для кнопки сворачивания боковой панели
     /// </summary>
     /// <remarks>
@@ -295,25 +255,46 @@ namespace SnowMeltingCalculator.Converters
     }
 
     /// <summary>
-    /// Конвертер: давление (мбар) → цвет текста
+    /// Конвертер: давление → цвет текста ячейки (эталон renders/03b).
     /// </summary>
     /// <remarks>
-    /// Давление ≤ 320 мбар → зелёный (#2E7D32)
-    /// Давление > 320 мбар → красный (#D32F2F)
+    /// Порог задаётся ConverterParameter'ом в единицах значения:
+    /// удельные потери (Па/м) — 300; суммарные Δp (Па) — 32000 (320 мбар,
+    /// паспортный предел HKV). Превышение → красный Brand.Red.Dark,
+    /// иначе UnsetValue (нейтральный цвет ячейки — красными остаются
+    /// только проблемные значения, как на эталоне).
     /// </remarks>
     public class PressureColorConverter : IValueConverter
     {
-        private const double PressureLimit = 320.0; // мбар
-
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is double pressure)
+            if (value is double pressure && parameter is string limitText
+                && double.TryParse(limitText, System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out double limit))
             {
-                return pressure > PressureLimit
-                    ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(211, 47, 47))  // Красный
-                    : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(46, 125, 50)); // Зелёный
+                return pressure > limit
+                    ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xB6, 0x00, 0x34))
+                    : System.Windows.DependencyProperty.UnsetValue;
             }
-            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Black);
+
+            return System.Windows.DependencyProperty.UnsetValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Конвертер: давление из Па в кПа (для KPI-чипов сводки коллектора,
+    /// эталон renders/03: значение и единица — раздельные тексты).
+    /// </summary>
+    public class PascalToKpaConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is double pressurePa ? pressurePa / 1000.0 : value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -344,64 +325,6 @@ namespace SnowMeltingCalculator.Converters
                 return "—";
 
             return value;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
-    /// Конвертер: HydraulicMode → Background Brush для табло режима
-    /// </summary>
-    /// <remarks>
-    /// Параметр: "Operating" или "Design"
-    /// Возвращает синий фон (#2196F3), если режим совпадает с параметром
-    /// Возвращает прозрачный фон, если режим не совпадает
-    /// </remarks>
-    public class ModeToBackgroundConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is Models.Hydraulics.HydraulicMode mode && parameter is string param)
-            {
-                bool isSelected = (param == "Operating" && mode == Models.Hydraulics.HydraulicMode.OperatingTemperature) ||
-                                  (param == "Design" && mode == Models.Hydraulics.HydraulicMode.DesignTemperature);
-                return isSelected
-                    ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x21, 0x96, 0xF3)) // Синий
-                    : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Transparent);
-            }
-            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Transparent);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
-    /// Конвертер: HydraulicMode → Border Brush для табло режима
-    /// </summary>
-    /// <remarks>
-    /// Параметр: "Operating" или "Design"
-    /// Возвращает тёмно-синий (#1976D2), если режим совпадает с параметром
-    /// Возвращает серый, если режим не совпадает
-    /// </remarks>
-    public class ModeToBorderConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is Models.Hydraulics.HydraulicMode mode && parameter is string param)
-            {
-                bool isSelected = (param == "Operating" && mode == Models.Hydraulics.HydraulicMode.OperatingTemperature) ||
-                                  (param == "Design" && mode == Models.Hydraulics.HydraulicMode.DesignTemperature);
-                return isSelected
-                    ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x19, 0x76, 0xD2)) // Тёмно-синий
-                    : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Gray);
-            }
-            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Gray);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

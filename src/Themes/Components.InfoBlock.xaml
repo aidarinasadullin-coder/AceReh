@@ -41,4 +41,95 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
+    <!--
+        InfoBlock.Collapsible: свёртываемый справочный блок (Фаза 3 редизайна,
+        план §Ф3.2/§Ф3.5; рендер 03 — «… · развернуть»). Базируется на Expander:
+        контент материализуется сразу при загрузке — биндинги живы и в свёрнутом
+        состоянии («данные сохраняются»), UIA-паттерн ExpandCollapse доступен
+        smoke-набору (ADR-007 п.4). Поверхность — InfoBlock.Root.
+    -->
+    <Style x:Key="InfoBlock.Collapsible" TargetType="Expander">
+        <Setter Property="IsExpanded" Value="False"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brand.Teal.Deep.Brush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Expander">
+                    <Border Background="{DynamicResource Brand.Teal.Tint.Brush}"
+                            BorderBrush="{DynamicResource Brand.Teal.Brush}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource Radius.SM}"
+                            Padding="{StaticResource Spacing.MD.Thickness}">
+                        <StackPanel>
+                            <ToggleButton x:Name="HeaderToggle"
+                                          Cursor="Hand"
+                                          Focusable="True"
+                                          IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent">
+                                            <ContentPresenter/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Path x:Name="Chevron"
+                                          Data="{StaticResource Icon.ChevronDown}"
+                                          Width="12" Height="12"
+                                          Stretch="Uniform"
+                                          Fill="{DynamicResource Brand.Teal.Deep.Brush}"
+                                          VerticalAlignment="Center"
+                                          Margin="0,1,6,0"/>
+                                    <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="ToggleHint"
+                                               Grid.Column="2"
+                                               Text="развернуть"
+                                               FontSize="{StaticResource Font.Size.Caption}"
+                                               FontWeight="Medium"
+                                               Foreground="{DynamicResource Brand.Gray.600.Brush}"
+                                               VerticalAlignment="Center"
+                                               Margin="8,0,0,0"/>
+                                </Grid>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="ExpandSite"
+                                              ContentSource="Content"
+                                              Margin="0,10,0,0"
+                                              Visibility="Collapsed"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="ToggleHint" Property="Text" Value="свернуть"/>
+                            <Setter TargetName="Chevron" Property="RenderTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="180"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Заголовок свёртываемого блока (контент Header) -->
+    <Style x:Key="InfoBlock.CollapsibleTitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brand.Teal.Deep.Brush}"/>
+    </Style>
+
+    <!-- Инлайн-подпись в заголовке свёртываемого блока (значения-кратко, рендер 03) -->
+    <Style x:Key="InfoBlock.CollapsibleSummary" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Caption}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brand.Gray.600.Brush}"/>
+        <Setter Property="Margin" Value="8,0,0,0"/>
+    </Style>
+
 </ResourceDictionary>
