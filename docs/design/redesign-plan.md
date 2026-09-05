@@ -253,6 +253,31 @@ headless/CI-прогонах исключаются фильтром (UIA3 тр�
 `MainWindowChromeLayoutTests` обновлён осознанно; `dotnet test` + smoke
 зелёные; review до реализации; state ownership без изменений.
 
+> **Статус Ф3Б (рабочий набор, 2026-09-05; приёмка — журнал п.15, без
+> участия владельца).** Independent read-only review — approve-with-edits,
+> правки внесены. P0: два поиска пункта гидравлики по заголовку
+> (`RefreshStepStatuses`/`UpdateHydraulicsBadge`) после переименования шага
+> возвращали null — заменены поиском по `Target == NavigationTarget.Hydraulics`
+> (тесты дефект не ловили). P1 зафиксирован: `CurrentTitle` шапки —
+> отдельный маппинг с полными названиями («Гидравлический расчёт», как
+> «Климатические данные» у Климата), краткие названия остаются в степпере;
+> предположение п.5 «шапка следует за Title» неверно — унификация кратких
+> crumb шапки — кандидат в Ф7. P2: мёртвые using удалены; css эталона
+> (зазор 16 px, hover-глиф g800) выровнен с реализацией. Отступления от
+> п.1–2: в апстриме fluentui-system-icons chrome-глифов нет (проверено по
+> ассетам) — использованы Subtract/Square/Square Multiple/Dismiss (словарь
+> перегенерирован, 38 геометрий, включая приготовленные в манифесте Ф4);
+> pressed — Gray.300 (Gray.200 в шкале нет); CaptionHeight=0/
+> UseAeroCaptionButtons=false пересмотрены и оставлены (кнопки — обычные,
+> DragMove не задет); легаси Shell.WindowButton/WindowCloseButton (40×40,
+> Ф1) обновлены до 46×56 на месте; UpdateMaximizeRestoreButton/
+> FindVisualChild удалены (глиф и тултип — декларативно по WindowState).
+> Тесты: MainViewModelTests CurrentTitle не менялся (шапка, не степпер);
+> smoke-адресация «Гидравлика»; новый WindowButtonsSmokeTests (3 теста,
+> закрытие не проверяется, минимизация — последним шагом фикстуры).
+> Полный `dotnet test`: 2089 passed / 1 skipped (предсуществующий
+> условный) / 0 failed, включая smoke с реальным запуском.
+
 ---
 
 ## Фаза 4 — Конструкция (M)

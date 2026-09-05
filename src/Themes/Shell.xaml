@@ -14,12 +14,15 @@
     <!-- ШАПКА                                        -->
     <!-- ============================================ -->
 
-    <!-- Светлая поверхность шапки (замена красного баннера) -->
+    <!-- Светлая поверхность шапки (замена красного баннера).
+         Правый паддинг = 0: колонка кнопок управления окном (Фаза 3Б)
+         прижимается к краю окна; отступ контентных элементов шапки —
+         их собственными Margin. -->
     <Style x:Key="Shell.HeaderRoot" TargetType="Border">
         <Setter Property="Background" Value="White"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Brand.Gray.100.Brush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="Padding" Value="16,0,0,0"/>
     </Style>
 
     <Style x:Key="Shell.BrandTitle" TargetType="TextBlock">
@@ -54,13 +57,16 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
-    <!-- Кнопки управления окном на светлой шапке -->
+    <!-- Кнопки управления окном (Фаза 3Б): системный стиль Win11 —
+         ячейки 46×56, вплотную к правому верхнему краю окна;
+         hover — серая заливка, «закрыть» — фирменный красный -->
     <Style x:Key="Shell.WindowButton" TargetType="Button">
-        <Setter Property="Width" Value="40"/>
-        <Setter Property="Height" Value="40"/>
+        <Setter Property="Width" Value="46"/>
+        <Setter Property="Height" Value="56"/>
         <Setter Property="Focusable" Value="False"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Foreground" Value="{DynamicResource Brand.Gray.600.Brush}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -74,6 +80,12 @@
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource Brand.Gray.100.Brush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Brand.Gray.800.Brush}"/>
+            </Trigger>
+            <!-- Gray.200 в шкале нет — ближайший шаг pressed: Gray.300 -->
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Brand.Gray.300.Brush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Brand.Gray.800.Brush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -82,6 +94,10 @@
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource Brand.Red.Brush}"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Brand.Red.Dark.Brush}"/>
                 <Setter Property="Foreground" Value="White"/>
             </Trigger>
         </Style.Triggers>
@@ -217,6 +233,16 @@
     <!-- ============================================ -->
     <!-- СВОДКА                                       -->
     <!-- ============================================ -->
+
+    <!-- Глиф разворачивания (Фаза 3Б): квадрат ↔ двойной квадрат по WindowState -->
+    <Style x:Key="Shell.WindowMaximizeGlyph" TargetType="Path">
+        <Setter Property="Data" Value="{StaticResource Icon.WindowMaximize}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=WindowState}" Value="Maximized">
+                <Setter Property="Data" Value="{StaticResource Icon.WindowRestore}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
 
     <Style x:Key="Shell.SummaryRoot" TargetType="Border">
         <Setter Property="Background" Value="White"/>

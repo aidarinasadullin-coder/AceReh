@@ -1,8 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnowMeltingCalculator.Core;
@@ -347,10 +345,17 @@ namespace SnowMeltingCalculator
         #region Обработчики кнопок управления окном
 
         /// <summary>
-        /// Обработчик перетаскивания окна за хедер
+        /// Перетаскивание окна за хедер; двойной клик — развернуть/восстановить
+        /// (Фаза 3Б)
         /// </summary>
         private void HeaderBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (e.ClickCount == 2)
+            {
+                ToggleWindowState();
+                return;
+            }
+
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 DragMove();
@@ -366,67 +371,26 @@ namespace SnowMeltingCalculator
         }
 
         /// <summary>
-        /// Обработчик кнопки "Развернуть/Восстановить"
+        /// Обработчик кнопки "Развернуть/Восстановить"; глиф и тултип
+        /// переключаются декларативно по WindowState (Shell.WindowMaximizeGlyph)
         /// </summary>
         private void MaximizeRestoreButton_Click(object sender, RoutedEventArgs e)
         {
-            if (WindowState == WindowState.Maximized)
-            {
-                WindowState = WindowState.Normal;
-                UpdateMaximizeRestoreButton(sender as System.Windows.Controls.Button, false);
-            }
-            else
-            {
-                WindowState = WindowState.Maximized;
-                UpdateMaximizeRestoreButton(sender as System.Windows.Controls.Button, true);
-            }
+            ToggleWindowState();
         }
 
         /// <summary>
-        /// Обработчик кнопки "Закрыть"
+        /// Обработчик кнопки "Закрыть" (поведение не меняется — Фаза 3Б)
         /// </summary>
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
-        /// <summary>
-        /// Обновление иконки кнопки развернуть/восстановить
-        /// </summary>
-        private void UpdateMaximizeRestoreButton(System.Windows.Controls.Button? button, bool isMaximized)
-        {
-            if (button == null) return;
-
-            var path = FindVisualChild<Path>(button);
-            if (path != null)
-            {
-                // Иконка "Развернуть": квадратная рамка
-                // Иконка "Восстановить": передний квадрат + задний квадрат (только верх и право)
-                path.Data = isMaximized
-                    ? Geometry.Parse("M3,7 L3,17 L13,17 L13,7 Z M7,3 L17,3 L17,13") // Восстановить: передний полный + задний (верх+право)
-                    : Geometry.Parse("M3,3 L15,3 L15,15 L3,15 Z"); // Развернуть: квадратная рамка
-            }
-
-            button.ToolTip = isMaximized ? "Восстановить" : "Развернуть";
-        }
-
-        /// <summary>
-        /// Поиск визуального дочернего элемента
-        /// </summary>
-        private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
-        {
-            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-                if (child is T result)
-                    return result;
-
-                var descendant = FindVisualChild<T>(child);
-                if (descendant != null)
-                    return descendant;
-            }
-            return null;
-        }
+        private void ToggleWindowState() =>
+            WindowState = WindowState == WindowState.Maximized
+                ? WindowState.Normal
+                : WindowState.Maximized;
 
         #endregion
     }
