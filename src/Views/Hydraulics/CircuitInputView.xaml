@@ -63,11 +63,11 @@
                           Style="{StaticResource TextBox.Default}"/>
 
                 <Button Grid.Column="2"
-                        Content="✕"
                         Command="{Binding DataContext.RemoveCircuitCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                         CommandParameter="{Binding}"
-                        Style="{StaticResource RehauDeleteButtonStyle}"
+                        Style="{StaticResource Controls.IconButton.Delete}"
                         ToolTip="Удалить контур"
+                        AutomationProperties.Name="Удалить контур"
                         Visibility="{Binding IsReferenceCircuit, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
             </Grid>
         </Border>

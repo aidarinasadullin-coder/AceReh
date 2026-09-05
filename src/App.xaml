@@ -31,6 +31,11 @@
                 <ResourceDictionary Source="Themes/Controls.TextBox.xaml"/>
                 <ResourceDictionary Source="Themes/Controls.DataGrid.xaml"/>
 
+                <!-- Фаза 4В редизайна: икон-кнопки действий (Controls.IconButton.*).
+                     Зависят только от токенов и Icons.Fluent (выше) — порядок
+                     относительно остальных Controls.* не критичен. -->
+                <ResourceDictionary Source="Themes/Controls.Buttons.xaml"/>
+
                 <!-- Ресурсы индикаторов пересчёта -->
                 <ResourceDictionary Source="Themes/RecalcIndicators.xaml"/>
 
