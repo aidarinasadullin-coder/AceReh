@@ -132,11 +132,17 @@
                     </MenuItem>
                 </Menu>
 
-                <!-- Каркасные главные действия: каскад расчёта — Ф5, сплит-отчёт — Ф6 -->
+                <!-- «Рассчитать» — бывшая кнопка теплового модуля, перенос в шапку
+                     (Фаза 5): ThermalCalculate переехал из ThermalView, контрактный
+                     тест обновлён в этой же фазе. Сплит-отчёт — каркас до Ф6. -->
                 <Button Grid.Column="6"
                         Content="Рассчитать"
                         Style="{StaticResource Button.Primary}"
-                        IsEnabled="False"
+                        Command="{Binding ThermalViewModel.CalculateCommand}"
+                        IsEnabled="{Binding ThermalViewModel.IsCalculating, Converter={StaticResource InverseBooleanConverter}}"
+                        ToolTip="Выполнить расчёт по текущим данным модулей"
+                        AutomationProperties.AutomationId="ThermalCalculate"
+                        AutomationProperties.Name="Рассчитать"
                         MinWidth="120"
                         Margin="0,0,8,0"
                         VerticalAlignment="Center"/>

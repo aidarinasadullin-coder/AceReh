@@ -53,7 +53,9 @@ namespace SnowMeltingCalculator.Tests.Views
             // Обновлено в Фазе 1: каркас окна (MainWindow) и удалённые
             // валидационные карточки вьюх убрали большинство литералов.
             ["MainWindow.xaml"] = (0, 0),
-            ["Views/Climate/ClimateView.xaml"] = (1, 7),
+            // Фаза 5 редизайна: вьюхи переработаны под компоненты Ф2 —
+            // литералы устранены полностью (было (1, 7) и (0, 41)).
+            ["Views/Climate/ClimateView.xaml"] = (0, 0),
             // Фаза 4 редизайна: пир конструкции переработан, литералов 8 (было 12).
             ["Views/Construction/ConstructionView.xaml"] = (0, 8),
             ["Views/Construction/MaterialEditorView.xaml"] = (3, 10),
@@ -65,7 +67,7 @@ namespace SnowMeltingCalculator.Tests.Views
             ["Views/Hydraulics/CircuitsView.xaml"] = (0, 0),
             ["Views/Results/ResultsView.xaml"] = (0, 92),
             ["Views/Shared/ConstructionVisualizationView.xaml"] = (0, 0),
-            ["Views/Thermal/ThermalView.xaml"] = (0, 41),
+            ["Views/Thermal/ThermalView.xaml"] = (0, 0),
         };
 
         [Test]
