@@ -67,14 +67,10 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         private int _pipeSpacing = 200;
 
         /// <summary>
-        /// Термическое сопротивление слоёв над трубой, м²·К/Вт
+        /// Температура поверхности, °C (только чтение): следует режиму
+        /// работы (AntiIcing=3, Melting=5, Intensive=7); проекция для UI.
         /// </summary>
-        public double R1Total => _constructionData.R1Total;
-
-        /// <summary>
-        /// Термическое сопротивление слоёв под трубой, м²·К/Вт
-        /// </summary>
-        public double R2Total => _constructionData.R2Total;
+        public double SurfaceTemperature => (double)SelectedMode;
 
         /// <summary>
         /// Доступные значения шага укладки, мм
@@ -100,6 +96,8 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             OnPropertyChanged(nameof(DeltaT));
             OnPropertyChanged(nameof(RecommendedSupplyTemperature));
             OnPropertyChanged(nameof(SupplyTemperatureHint));
+            OnPropertyChanged(nameof(PowerSummary));
+            OnPropertyChanged(nameof(AdditionalSummary));
         }
 
         /// <summary>
@@ -156,9 +154,16 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
 
         /// <summary>
         /// Уведомление об изменении режима работы: правка уходит в координатор.
+        /// Notify UI-проекций (температура поверхности, строка HeroKPI) —
+        /// до guard'ов: загрузка проекта и сброс присваивают режим под ними,
+        /// и без этого поле показывало бы значение предыдущего состояния
+        /// (ревью Ф5, P1). Проекции мутаций не создают.
         /// </summary>
         partial void OnSelectedModeChanged(OperatingMode value)
         {
+            OnPropertyChanged(nameof(SurfaceTemperature));
+            OnPropertyChanged(nameof(PowerSummary));
+
             if (_isResetting) return;
             if (_calculationStateService.IsLoadProjectInProgress) return;
 
@@ -177,6 +182,23 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             RecommendedSupplyTemperature.HasValue
                 ? $"Рекомендуется: {RecommendedSupplyTemperature.Value:F0}°C (для ΔT ≈ 15 К)"
                 : string.Empty;
+
+        /// <summary>
+        /// Детальная строка HeroKPI результатов: потоки вверх/вниз и
+        /// температура поверхности текущего режима (Фаза 5, рендер 04).
+        /// </summary>
+        public string PowerSummary =>
+            Result is null
+                ? string.Empty
+                : $"q↑ {Result.PowerUp:F1} вверх · q↓ {Result.PowerDown:F1} вниз · поверхность {SurfaceTemperature:+0.0} °C";
+
+        /// <summary>
+        /// Сводная строка заголовка свёрнутого блока «Дополнительные параметры».
+        /// </summary>
+        public string AdditionalSummary =>
+            Result is null
+                ? string.Empty
+                : $"КПД ребра {Result.EfficiencyEtaR:F3} · R_FB {Result.RFb:F4} · m {Result.ParameterM:F2} 1/м · теплота плавления {Result.MeltingHeat:F1} Вт/м²";
 
         /// <summary>
         /// Признак выполнения расчёта
@@ -447,12 +469,11 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         }
 
         /// <summary>
-        /// Refresh-сигнал upstream-проекций (R-сопротивления и подсказки).
+        /// Refresh-сигнал upstream-проекций (подсказки подачи).
+        /// R1Total/R2Total ушли из UI в панель «Сводка» каркаса (Фаза 4).
         /// </summary>
         private void OnUpstreamObserved(object? sender, EventArgs e)
         {
-            OnPropertyChanged(nameof(R1Total));
-            OnPropertyChanged(nameof(R2Total));
             OnPropertyChanged(nameof(RecommendedSupplyTemperature));
             OnPropertyChanged(nameof(SupplyTemperatureHint));
         }

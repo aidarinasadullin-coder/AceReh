@@ -289,6 +289,39 @@ namespace SnowMeltingCalculator.Tests.Thermal
             Assert.That(_viewModel.ValidationMessage, Is.Empty);
         }
 
+        [Test]
+        [SetCulture("ru-RU")] // PowerSummary/AdditionalSummary формируются интерполяцией по CurrentCulture (ревью диффа Ф5, P2-1)
+        public void SurfaceTemperature_FollowsMode_EvenUnderResetAndLoadGuards()
+        {
+            // Read-only проекция «Температура поверхности» (Фаза 5): следует
+            // режиму (AntiIcing=3/Melting=5/Intensive=7) и должна обновляться
+            // и при сбросе, и при загрузке проекта — присвоения под guard'ами
+            // не должны оставлять поле со значением предыдущего состояния.
+            _viewModel.SelectedMode = OperatingMode.Intensive;
+            Assert.That(_viewModel.SurfaceTemperature, Is.EqualTo(7.0));
+
+            _viewModel.Reset();
+            Assert.That(_viewModel.SurfaceTemperature, Is.EqualTo(5.0),
+                "После сброса проекция следует режиму по умолчанию (Melting).");
+
+            // PowerSummary/AdditionalSummary — пустые без результата расчёта
+            Assert.That(_viewModel.PowerSummary, Is.Empty);
+            Assert.That(_viewModel.AdditionalSummary, Is.Empty);
+
+            _viewModel.Result = new ThermalCalculationResult
+            {
+                PowerUp = 85.0,
+                PowerDown = 12.5,
+                PowerTotal = 97.5,
+                EfficiencyEtaR = 0.962,
+                RFb = 0.0482,
+                ParameterM = 18.41,
+                MeltingHeat = 70.2
+            };
+            Assert.That(_viewModel.PowerSummary, Does.Contain("поверхность +5,0 °C"));
+            Assert.That(_viewModel.AdditionalSummary, Does.Contain("КПД ребра 0,962"));
+        }
+
         #endregion
 
         #region Validation Tests
