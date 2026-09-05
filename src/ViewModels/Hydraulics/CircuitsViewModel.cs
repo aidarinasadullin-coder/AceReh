@@ -84,13 +84,31 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         [NotifyPropertyChangedFor(nameof(DesignTemperatureValue))]
         [NotifyPropertyChangedFor(nameof(OperatingModeButtonText))]
         [NotifyPropertyChangedFor(nameof(DesignModeButtonText))]
+        [NotifyPropertyChangedFor(nameof(IsOperatingMode))]
+        [NotifyPropertyChangedFor(nameof(IsDesignMode))]
+        [NotifyPropertyChangedFor(nameof(CurrentGlycolProperties))]
         private HydraulicMode _currentMode = HydraulicMode.OperatingTemperature;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CurrentGlycolProperties))]
         private GlycolProperties _operatingGlycolProperties = new();
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CurrentGlycolProperties))]
         private GlycolProperties _designGlycolProperties = new();
+
+        /// <summary>
+        /// Режим таблицы контуров: true — «Полностью» (все 19 колонок),
+        /// false — «Компактно» (эталоны renders/03b / renders/03).
+        /// </summary>
+        /// <remarks>
+        /// Чистое UI-состояние адаптера: не входит в HydraulicsState/снапшоты
+        /// и осознанно не сбрасывается Reset()/загрузкой проекта (ADR-007 п.1).
+        /// </remarks>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsFullView))]
+        [NotifyPropertyChangedFor(nameof(IsCompactView))]
+        private bool _isFullMode;
 
         public bool CanAddCollector => Collectors.Count < 4;
 
@@ -252,6 +270,80 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// Текст кнопки для режима расчётной температуры
         /// </summary>
         public string DesignModeButtonText => $"Расчётная температура: {DesignTemperatureValue:F1}°C";
+
+        /// <summary>
+        /// Сегмент «Рабочая» активен (сегмент-контрол режима потерь).
+        /// </summary>
+        /// <remarks>
+        /// Сеттер игнорирует false: снятие выделения RadioButton пушит false в
+        /// оба свойства группы, писать CurrentMode должен только устанавливаемый
+        /// сегмент (ADR-007 п.2).
+        /// </remarks>
+        public bool IsOperatingMode
+        {
+            get => CurrentMode == HydraulicMode.OperatingTemperature;
+            set
+            {
+                if (value)
+                {
+                    CurrentMode = HydraulicMode.OperatingTemperature;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Сегмент «Расчётная (хол.)» активен. Семантика сеттера — как у IsOperatingMode.
+        /// </summary>
+        public bool IsDesignMode
+        {
+            get => CurrentMode == HydraulicMode.DesignTemperature;
+            set
+            {
+                if (value)
+                {
+                    CurrentMode = HydraulicMode.DesignTemperature;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Сегмент «Компактно» активен (режим таблицы). Семантика сеттера — как у IsOperatingMode.
+        /// </summary>
+        public bool IsCompactView
+        {
+            get => !IsFullMode;
+            set
+            {
+                if (value)
+                {
+                    IsFullMode = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Сегмент «Полностью» активен (режим таблицы). Семантика сеттера — как у IsOperatingMode.
+        /// </summary>
+        public bool IsFullView
+        {
+            get => IsFullMode;
+            set
+            {
+                if (value)
+                {
+                    IsFullMode = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Свойства теплоносителя для активного режима отображения
+        /// (подпись свёрнутого блока «Свойства теплоносителя»).
+        /// </summary>
+        public GlycolProperties CurrentGlycolProperties =>
+            CurrentMode == HydraulicMode.DesignTemperature
+                ? DesignGlycolProperties
+                : OperatingGlycolProperties;
 
         // === Свойства для блока "Данные укладки и мощности" ===
 

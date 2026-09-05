@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Windows;
 using System.Windows.Media;
 using NUnit.Framework;
 using SnowMeltingCalculator.Converters;
@@ -6,7 +7,10 @@ using SnowMeltingCalculator.Converters;
 namespace SnowMeltingCalculator.Tests.Converters
 {
     /// <summary>
-    /// Тесты для PressureColorConverter
+    /// Тесты для PressureColorConverter (контракт Фазы 3 редизайна, ADR-007):
+    /// порог задаётся ConverterParameter'ом в единицах значения;
+    /// превышение → красный Brand.Red.Dark (#B60034), иначе UnsetValue
+    /// (нейтральный цвет ячейки — эталон renders/03b).
     /// </summary>
     [TestFixture]
     public class PressureColorConverterTests
@@ -20,177 +24,87 @@ namespace SnowMeltingCalculator.Tests.Converters
         }
 
         [Test]
-        public void Convert_WhenPressureBelowLimit_ReturnsGreen()
+        public void Convert_WhenAboveParameterLimit_ReturnsBrandRedDark()
         {
-            // Arrange
-            var pressure = 100.0; // мбар (< 320)
+            // Удельные потери: предел 300 Па/м
+            var result = _converter.Convert(312.0, typeof(Brush), "300", CultureInfo.InvariantCulture);
 
-            // Act
-            var result = _converter.Convert(pressure, typeof(Brush), null, CultureInfo.InvariantCulture);
-
-            // Assert
             Assert.That(result, Is.InstanceOf<SolidColorBrush>());
             var brush = (SolidColorBrush)result;
-            Assert.That(brush.Color.R, Is.EqualTo((byte)46));  // #2E7D32
-            Assert.That(brush.Color.G, Is.EqualTo((byte)125));
-            Assert.That(brush.Color.B, Is.EqualTo((byte)50));
+            Assert.That(brush.Color.R, Is.EqualTo((byte)0xB6));
+            Assert.That(brush.Color.G, Is.EqualTo((byte)0x00));
+            Assert.That(brush.Color.B, Is.EqualTo((byte)0x34));
         }
 
         [Test]
-        public void Convert_WhenPressureAtLimit_ReturnsGreen()
+        public void Convert_WhenBelowParameterLimit_ReturnsUnsetValue()
         {
-            // Arrange
-            var pressure = 320.0; // мбар (= 320, граница)
+            var result = _converter.Convert(196.0, typeof(Brush), "300", CultureInfo.InvariantCulture);
 
-            // Act
-            var result = _converter.Convert(pressure, typeof(Brush), null, CultureInfo.InvariantCulture);
-
-            // Assert
-            Assert.That(result, Is.InstanceOf<SolidColorBrush>());
-            var brush = (SolidColorBrush)result;
-            Assert.That(brush.Color.R, Is.EqualTo((byte)46));  // #2E7D32
-            Assert.That(brush.Color.G, Is.EqualTo((byte)125));
-            Assert.That(brush.Color.B, Is.EqualTo((byte)50));
+            Assert.That(result, Is.EqualTo(DependencyProperty.UnsetValue));
         }
 
         [Test]
-        public void Convert_WhenPressureAboveLimit_ReturnsRed()
+        public void Convert_WhenAtParameterLimit_ReturnsUnsetValue()
         {
-            // Arrange
-            var pressure = 400.0; // мбар (> 320)
+            var result = _converter.Convert(300.0, typeof(Brush), "300", CultureInfo.InvariantCulture);
 
-            // Act
-            var result = _converter.Convert(pressure, typeof(Brush), null, CultureInfo.InvariantCulture);
-
-            // Assert
-            Assert.That(result, Is.InstanceOf<SolidColorBrush>());
-            var brush = (SolidColorBrush)result;
-            Assert.That(brush.Color.R, Is.EqualTo((byte)211));  // #D32F2F
-            Assert.That(brush.Color.G, Is.EqualTo((byte)47));
-            Assert.That(brush.Color.B, Is.EqualTo((byte)47));
+            Assert.That(result, Is.EqualTo(DependencyProperty.UnsetValue));
         }
 
         [Test]
-        public void Convert_WhenPressureJustAboveLimit_ReturnsRed()
+        public void Convert_TotalPressureLimitInPascals_ReturnsRedOnlyAboveLimit()
         {
-            // Arrange
-            var pressure = 320.1; // мбар (чуть выше границы)
-
-            // Act
-            var result = _converter.Convert(pressure, typeof(Brush), null, CultureInfo.InvariantCulture);
-
-            // Assert
-            Assert.That(result, Is.InstanceOf<SolidColorBrush>());
-            var brush = (SolidColorBrush)result;
-            Assert.That(brush.Color.R, Is.EqualTo((byte)211));  // #D32F2F
-            Assert.That(brush.Color.G, Is.EqualTo((byte)47));
-            Assert.That(brush.Color.B, Is.EqualTo((byte)47));
+            // Суммарные Δp (Па): предел 32000 Па = 320 мбар (паспортный предел HKV)
+            Assert.That(_converter.Convert(31999.0, typeof(Brush), "32000", CultureInfo.InvariantCulture),
+                Is.EqualTo(DependencyProperty.UnsetValue));
+            Assert.That(_converter.Convert(32000.0, typeof(Brush), "32000", CultureInfo.InvariantCulture),
+                Is.EqualTo(DependencyProperty.UnsetValue));
+            Assert.That(_converter.Convert(32001.0, typeof(Brush), "32000", CultureInfo.InvariantCulture),
+                Is.InstanceOf<SolidColorBrush>());
         }
 
         [Test]
-        public void Convert_WhenPressureZero_ReturnsGreen()
+        public void Convert_WhenParameterMissing_ReturnsUnsetValue()
         {
-            // Arrange
-            var pressure = 0.0; // мбар
-
-            // Act
-            var result = _converter.Convert(pressure, typeof(Brush), null, CultureInfo.InvariantCulture);
-
-            // Assert
-            Assert.That(result, Is.InstanceOf<SolidColorBrush>());
-            var brush = (SolidColorBrush)result;
-            Assert.That(brush.Color.R, Is.EqualTo((byte)46));  // #2E7D32
-            Assert.That(brush.Color.G, Is.EqualTo((byte)125));
-            Assert.That(brush.Color.B, Is.EqualTo((byte)50));
+            Assert.That(_converter.Convert(400.0, typeof(Brush), null, CultureInfo.InvariantCulture),
+                Is.EqualTo(DependencyProperty.UnsetValue));
         }
 
         [Test]
-        public void Convert_WhenPressureNegative_ReturnsGreen()
+        public void Convert_WhenParameterNotANumber_ReturnsUnsetValue()
         {
-            // Arrange
-            var pressure = -10.0; // мбар (отрицательное значение)
-
-            // Act
-            var result = _converter.Convert(pressure, typeof(Brush), null, CultureInfo.InvariantCulture);
-
-            // Assert
-            Assert.That(result, Is.InstanceOf<SolidColorBrush>());
-            var brush = (SolidColorBrush)result;
-            Assert.That(brush.Color.R, Is.EqualTo((byte)46));  // #2E7D32
-            Assert.That(brush.Color.G, Is.EqualTo((byte)125));
-            Assert.That(brush.Color.B, Is.EqualTo((byte)50));
+            Assert.That(_converter.Convert(400.0, typeof(Brush), "not a number", CultureInfo.InvariantCulture),
+                Is.EqualTo(DependencyProperty.UnsetValue));
         }
 
         [Test]
-        public void Convert_WhenPressureVeryHigh_ReturnsRed()
+        public void Convert_WhenValueNull_ReturnsUnsetValue()
         {
-            // Arrange
-            var pressure = 1000.0; // мбар (очень высокое)
-
-            // Act
-            var result = _converter.Convert(pressure, typeof(Brush), null, CultureInfo.InvariantCulture);
-
-            // Assert
-            Assert.That(result, Is.InstanceOf<SolidColorBrush>());
-            var brush = (SolidColorBrush)result;
-            Assert.That(brush.Color.R, Is.EqualTo((byte)211));  // #D32F2F
-            Assert.That(brush.Color.G, Is.EqualTo((byte)47));
-            Assert.That(brush.Color.B, Is.EqualTo((byte)47));
+            Assert.That(_converter.Convert(null!, typeof(Brush), "300", CultureInfo.InvariantCulture),
+                Is.EqualTo(DependencyProperty.UnsetValue));
         }
 
         [Test]
-        public void Convert_WhenNull_ReturnsBlack()
+        public void Convert_WhenValueNotDouble_ReturnsUnsetValue()
         {
-            // Arrange
-            object value = null!;
-
-            // Act
-            var result = _converter.Convert(value, typeof(Brush), null, CultureInfo.InvariantCulture);
-
-            // Assert
-            Assert.That(result, Is.InstanceOf<SolidColorBrush>());
-            var brush = (SolidColorBrush)result;
-            Assert.That(brush.Color, Is.EqualTo(Colors.Black));
+            Assert.That(_converter.Convert("not a double", typeof(Brush), "300", CultureInfo.InvariantCulture),
+                Is.EqualTo(DependencyProperty.UnsetValue));
         }
 
         [Test]
-        public void Convert_WhenNotDouble_ReturnsBlack()
+        public void Convert_ParameterWithInvariantDecimalPoint_IsParsed()
         {
-            // Arrange
-            var value = "not a double";
-
-            // Act
-            var result = _converter.Convert(value, typeof(Brush), null, CultureInfo.InvariantCulture);
-
-            // Assert
+            // Параметр парсится по InvariantCulture независимо от локали ОС
+            var result = _converter.Convert(26.0, typeof(Brush), "25.5", CultureInfo.InvariantCulture);
             Assert.That(result, Is.InstanceOf<SolidColorBrush>());
-            var brush = (SolidColorBrush)result;
-            Assert.That(brush.Color, Is.EqualTo(Colors.Black));
-        }
-
-        [Test]
-        public void Convert_WhenInt_ReturnsCorrectColor()
-        {
-            // Arrange
-            var pressure = 100; // int, не double
-
-            // Act
-            var result = _converter.Convert(pressure, typeof(Brush), null, CultureInfo.InvariantCulture);
-
-            // Assert
-            // int не является double, поэтому должен вернуть чёрный
-            Assert.That(result, Is.InstanceOf<SolidColorBrush>());
-            var brush = (SolidColorBrush)result;
-            Assert.That(brush.Color, Is.EqualTo(Colors.Black));
         }
 
         [Test]
         public void ConvertBack_ThrowsNotImplementedException()
         {
-            // Arrange
-            var value = new SolidColorBrush(Colors.Green);
+            var value = new SolidColorBrush(Colors.Red);
 
-            // Act & Assert
             Assert.Throws<NotImplementedException>(() =>
                 _converter.ConvertBack(value, typeof(double), null, CultureInfo.InvariantCulture));
         }

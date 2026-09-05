@@ -1,40 +1,21 @@
 using System.Windows.Controls;
-using System.Windows.Input;
-using SnowMeltingCalculator.Models.Hydraulics;
-using SnowMeltingCalculator.ViewModels.Hydraulics;
 
 namespace SnowMeltingCalculator.Views.Hydraulics
 {
     /// <summary>
-    /// Представление для таблицы контуров гидравлического расчёта
+    /// Представление гидравлического расчёта: контуры, коллекторы, потери давления.
     /// </summary>
+    /// <remarks>
+    /// Фаза 3 редизайна: переключение режима «Рабочая/Расчётная» и режима
+    /// таблицы «Компактно/Полностью» — сегмент-контролы, биндящие
+    /// CircuitsViewModel (IsOperatingMode/IsDesignMode/IsCompactView/
+    /// IsFullView); code-behind-обработчики табло удалены (ADR-007 п.2).
+    /// </remarks>
     public partial class CircuitsView : UserControl
     {
         public CircuitsView()
         {
             InitializeComponent();
-        }
-
-        /// <summary>
-        /// Обработчик клика по табло "Рабочая температура"
-        /// </summary>
-        private void OnOperatingModeClick(object sender, MouseButtonEventArgs e)
-        {
-            if (DataContext is CircuitsViewModel vm)
-            {
-                vm.CurrentMode = HydraulicMode.OperatingTemperature;
-            }
-        }
-
-        /// <summary>
-        /// Обработчик клика по табло "Расчётная температура"
-        /// </summary>
-        private void OnDesignModeClick(object sender, MouseButtonEventArgs e)
-        {
-            if (DataContext is CircuitsViewModel vm)
-            {
-                vm.CurrentMode = HydraulicMode.DesignTemperature;
-            }
         }
     }
 }

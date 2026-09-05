@@ -59,7 +59,9 @@ namespace SnowMeltingCalculator.Tests.Views
             ["Views/Construction/TemplateEditorView.xaml"] = (3, 6),
             ["Views/Hydraulics/CircuitInputView.xaml"] = (0, 0),
             ["Views/Hydraulics/CircuitsResultsView.xaml"] = (0, 1),
-            ["Views/Hydraulics/CircuitsView.xaml"] = (5, 68),
+            // Фаза 3 редизайна: вьюха переработана под компоненты Ф2 —
+            // литералы устранены полностью (было (5, 68)).
+            ["Views/Hydraulics/CircuitsView.xaml"] = (0, 0),
             ["Views/Results/ResultsView.xaml"] = (0, 92),
             ["Views/Shared/ConstructionVisualizationView.xaml"] = (0, 0),
             ["Views/Thermal/ThermalView.xaml"] = (0, 41),

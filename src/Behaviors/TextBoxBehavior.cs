@@ -47,13 +47,38 @@ namespace SnowMeltingCalculator.Behaviors
                     textBox.GotFocus += OnGotFocus;
                     textBox.GotKeyboardFocus += OnGotKeyboardFocus;
                     textBox.Loaded += OnLoaded;
+                    textBox.PreviewTextInput += OnPreviewTextInputForSelectAll;
+                    textBox.LostFocus += OnLostFocusForSelectAll;
                 }
                 else
                 {
                     textBox.GotFocus -= OnGotFocus;
                     textBox.GotKeyboardFocus -= OnGotKeyboardFocus;
                     textBox.Loaded -= OnLoaded;
+                    textBox.PreviewTextInput -= OnPreviewTextInputForSelectAll;
+                    textBox.LostFocus -= OnLostFocusForSelectAll;
                 }
+            }
+        }
+
+        // Пользователь начал ввод после получения фокуса — отложенный
+        // SelectAll в этом сеансе фокуса выполнять нельзя (иначе он выделит
+        // уже набранные символы и следующий нажатый символ их заменит).
+        private static readonly System.Collections.Generic.Dictionary<TextBox, bool> _inputStarted = new();
+
+        private static void OnPreviewTextInputForSelectAll(object sender, TextCompositionEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                _inputStarted[textBox] = true;
+            }
+        }
+
+        private static void OnLostFocusForSelectAll(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                _inputStarted.Remove(textBox);
             }
         }
 
@@ -87,12 +112,24 @@ namespace SnowMeltingCalculator.Behaviors
 
         private static void SelectAllText(TextBox textBox)
         {
-            // Используем Dispatcher для отложенного вызова SelectAll
-            // Это необходимо для DataGrid, где TextBox создаётся динамически
+            // Синхронно: к моменту фокуса текст биндинга уже установлен, и
+            // выделение должно быть готово к ПЕРВОМУ же нажатию клавиши.
+            // Отложенный SelectAll (ContextIdle) срабатывает между нажатиями
+            // при быстром наборе: «1» → выделение «1» → «0» заменяет её —
+            // ввод «100» поверх «80» давал «00» (гонка замечена в Ф3).
+            if (textBox.IsKeyboardFocused && textBox.Text.Length > 0)
+            {
+                _inputStarted[textBox] = false;
+                textBox.SelectAll();
+            }
+
+            // Отложенный дубль — только страховый: если текст биндинга пришёл
+            // позже фокуса (SelectAll выше был no-op) и пользователь ещё не
+            // начал ввод, выделяем; если уже начал — не трогаем.
             textBox.Dispatcher.BeginInvoke(new Action(() =>
             {
-                // Проверяем, что TextBox всё ещё в фокусе
-                if (textBox.IsKeyboardFocused && textBox.Text.Length > 0)
+                _inputStarted.TryGetValue(textBox, out var started);
+                if (!started && textBox.IsKeyboardFocused && textBox.Text.Length > 0 && textBox.SelectionLength == 0)
                 {
                     textBox.SelectAll();
                 }
