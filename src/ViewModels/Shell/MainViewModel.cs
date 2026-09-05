@@ -96,10 +96,12 @@ namespace SnowMeltingCalculator.ViewModels.Shell
 
         public MenuItem[] MenuItems { get; } = new[]
         {
+            // Заголовки — по эталону 01 (Фаза 3Б): короткое «Гидравлика»
+            // помещается в слот шага без обрезки.
             new MenuItem { Number = 1, Title = "Климат", Icon = "WeatherCloudy", Target = NavigationTarget.Climate },
             new MenuItem { Number = 2, Title = "Конструкция", Icon = "Layers", Target = NavigationTarget.Construction },
             new MenuItem { Number = 3, Title = "Тепловой расчёт", Icon = "Fire", Target = NavigationTarget.Thermal },
-            new MenuItem { Number = 4, Title = "Гидравлический расчёт", Icon = "Pipe", Target = NavigationTarget.Hydraulics },
+            new MenuItem { Number = 4, Title = "Гидравлика", Icon = "Pipe", Target = NavigationTarget.Hydraulics },
             new MenuItem { Number = 5, Title = "Результаты", Icon = "ChartBar", Target = NavigationTarget.Results }
         };
 
@@ -348,7 +350,9 @@ namespace SnowMeltingCalculator.ViewModels.Shell
                             : StepStatus.Draft;
             }
 
-            var hydraulics = MenuItemByTitle("Гидравлический расчёт");
+            // Поиск по Target, не по заголовку: короткие названия шагов
+            // меняются по эталонам (Фаза 3Б), NavigationTarget — контракт.
+            var hydraulics = MenuItems.FirstOrDefault(m => m.Target == NavigationTarget.Hydraulics);
             if (hydraulics != null)
             {
                 hydraulics.StepStatus = _circuitsViewModel.IsCalculating
@@ -491,7 +495,8 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         /// </summary>
         private void UpdateHydraulicsBadge(ModuleState state)
         {
-            var hydraulicsMenuItem = MenuItems.FirstOrDefault(m => m.Title == "Гидравлический расчёт");
+            // Поиск по Target, не по заголовку (Фаза 3Б: шаг переименован в «Гидравлика»).
+            var hydraulicsMenuItem = MenuItems.FirstOrDefault(m => m.Target == NavigationTarget.Hydraulics);
             if (hydraulicsMenuItem == null) return;
 
             switch (state)

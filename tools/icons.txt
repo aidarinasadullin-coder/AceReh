@@ -52,3 +52,11 @@ Layer Diagonal	Icon.Layers
 Edit	Icon.Edit
 Delete	Icon.Delete
 Add	Icon.Add
+
+# --- Кнопки управления окном (Фаза 3Б): в апстриме fluentui-system-icons
+# специализированных chrome-глифов нет (проверено по ассетам),
+# использованы ближайшие аналоги 24 regular.
+Subtract	Icon.WindowMinimize
+Square	Icon.WindowMaximize
+Square Multiple	Icon.WindowRestore
+Dismiss	Icon.WindowClose

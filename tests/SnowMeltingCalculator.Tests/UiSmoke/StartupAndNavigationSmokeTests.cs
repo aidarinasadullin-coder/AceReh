@@ -21,14 +21,14 @@ public sealed class StartupAndNavigationSmokeTests : UiSmokeFixtureBase
         ("Климат", "КЛИМАТ"),
         ("Конструкция", "КОНСТРУКЦИЯ"),
         ("Тепловой расчёт", "ТЕПЛОВОЙ"),
-        ("Гидравлический расчёт", "ГИДРАВЛИКА"),
+        ("Гидравлика", "ГИДРАВЛИКА"),
         ("Результаты", "РЕЗУЛЬТАТЫ")
     };
 
     private static readonly (string Step, string AnchorAutomationId)[] ModuleAnchors =
     {
         ("Тепловой расчёт", "ThermalMode"),
-        ("Гидравлический расчёт", "HydraulicsGlycolType"),
+        ("Гидравлика", "HydraulicsGlycolType"),
         ("Результаты", "ResultsThermalPower")
     };
 
