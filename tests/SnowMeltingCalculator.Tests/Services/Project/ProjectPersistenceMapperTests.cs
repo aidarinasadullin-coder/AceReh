@@ -38,7 +38,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 Assert.That(data.ModifiedDate, Is.EqualTo(now));
                 Assert.That(data.IsOperatingMode, Is.False);
                 Assert.That(data.ClimateData.SelectedCity, Is.EqualTo("Москва"));
-                Assert.That(data.ConstructionData.HasLoads, Is.True);
                 Assert.That(data.ThermalData.SelectedMode, Is.EqualTo(OperatingMode.Melting));
                 Assert.That(data.HydraulicsData.GlycolType, Is.EqualTo(GlycolType.Propylene));
             });
@@ -124,7 +123,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 new ClimateStateSnapshot("Москва", "Московская область", -15, -28, 5, 70, 1, ClimateZone.Zone_M15, false, true, false),
                 new ConstructionStateSnapshot(
                     1.5,
-                    true,
                     new[] { new ConstructionLayerSnapshot(Guid.NewGuid(), 5, "Concrete", 100, 0.2, false, LayerPosition.AbovePipe, 0) },
                     Array.Empty<ConstructionLayerSnapshot>()),
                 ThermalStateSnapshot.Default,

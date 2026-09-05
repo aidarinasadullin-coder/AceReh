@@ -13,7 +13,6 @@ namespace SnowMeltingCalculator.Models.Construction
     public class Construction : IConstructionData
     {
         private double _groundwaterLevel = 2.0;
-        private bool _hasLoads = false;
 
         /// <summary>
         /// Слои над трубой в физическом порядке сверху-вниз: индекс 0 = поверхность, последний элемент = ближайший к трубе (стяжка/бетон вокруг трубы).
@@ -37,22 +36,6 @@ namespace SnowMeltingCalculator.Models.Construction
                 {
                     _groundwaterLevel = value;
                     UpdateLambdaForGroundwater();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Признак наличия нагрузок на покрытие
-        /// </summary>
-        public bool HasLoads
-        {
-            get => _hasLoads;
-            set
-            {
-                if (_hasLoads != value)
-                {
-                    _hasLoads = value;
-                    OnDataChanged();
                 }
             }
         }

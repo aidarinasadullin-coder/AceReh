@@ -453,7 +453,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 var construction = new ConstructionModel
                 {
                     GroundwaterLevel = template.DefaultGroundwaterLevel,
-                    HasLoads = template.HasLoads
                 };
 
                 foreach (var layerTemplate in template.LayersAbovePipe.OrderBy(l => l.Order))

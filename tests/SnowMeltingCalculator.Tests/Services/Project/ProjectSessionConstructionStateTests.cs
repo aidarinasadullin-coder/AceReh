@@ -35,7 +35,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var snapshot = _state.Snapshot;
 
             Assert.That(snapshot.GroundwaterLevel, Is.EqualTo(0.0));
-            Assert.That(snapshot.HasLoads, Is.False);
             Assert.That(snapshot.LayersAbovePipe, Is.Empty);
             Assert.That(snapshot.LayersBelowPipe, Is.Empty);
         }
@@ -62,7 +61,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 Guid.NewGuid(), 5, "Бетон", 100, 1.74, false, LayerPosition.AbovePipe, 0);
 
             var result = state.ApplySnapshot(
-                new ConstructionStateSnapshot(2.0, false, new[] { layer }, Array.Empty<ConstructionLayerSnapshot>()),
+                new ConstructionStateSnapshot(2.0, new[] { layer }, Array.Empty<ConstructionLayerSnapshot>()),
                 ConstructionMutationOrigin.User);
 
             Assert.Multiple(() =>
@@ -85,7 +84,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var layer = new ConstructionLayerSnapshot(
                 layerId, 5, "Бетон", 100, 1.74, false, LayerPosition.AbovePipe, 0);
             var valid = new ConstructionStateSnapshot(
-                2.0, false, new[] { layer }, Array.Empty<ConstructionLayerSnapshot>());
+                2.0, new[] { layer }, Array.Empty<ConstructionLayerSnapshot>());
             state.ApplySnapshot(valid, ConstructionMutationOrigin.Initialization);
             var contextUpdates = 0;
             context.ContextChanged += (_, args) =>
@@ -97,7 +96,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             };
             var duplicate = new ConstructionStateSnapshot(
                 2.0,
-                false,
                 new[] { layer, layer with { Order = 1 } },
                 Array.Empty<ConstructionLayerSnapshot>());
 
@@ -135,7 +133,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 Guid.NewGuid(), 5, "Бетон", 100, 1.74, false, LayerPosition.AbovePipe, 0);
 
             var result = state.ApplySnapshot(
-                new ConstructionStateSnapshot(2.0, false, new[] { layer }, Array.Empty<ConstructionLayerSnapshot>()),
+                new ConstructionStateSnapshot(2.0, new[] { layer }, Array.Empty<ConstructionLayerSnapshot>()),
                 origin);
 
             Assert.Multiple(() =>
@@ -162,7 +160,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             };
 
             var result = state.ApplySnapshot(
-                new ConstructionStateSnapshot(2.0, false, Array.Empty<ConstructionLayerSnapshot>(), Array.Empty<ConstructionLayerSnapshot>()),
+                new ConstructionStateSnapshot(2.0, Array.Empty<ConstructionLayerSnapshot>(), Array.Empty<ConstructionLayerSnapshot>()),
                 ConstructionMutationOrigin.User);
 
             Assert.Multiple(() =>
@@ -185,8 +183,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var layerA = new ConstructionLayerSnapshot(id, 5, "Бетон", 100, 1.74, false, LayerPosition.AbovePipe, 0);
             var layerB = new ConstructionLayerSnapshot(id, 5, "Бетон", 100, 1.74, false, LayerPosition.AbovePipe, 0);
 
-            var snapshotA = new ConstructionStateSnapshot(2.0, false, new[] { layerA }, Array.Empty<ConstructionLayerSnapshot>());
-            var snapshotB = new ConstructionStateSnapshot(2.0, false, new[] { layerB }, Array.Empty<ConstructionLayerSnapshot>());
+            var snapshotA = new ConstructionStateSnapshot(2.0, new[] { layerA }, Array.Empty<ConstructionLayerSnapshot>());
+            var snapshotB = new ConstructionStateSnapshot(2.0, new[] { layerB }, Array.Empty<ConstructionLayerSnapshot>());
 
             Assert.That(snapshotA, Is.EqualTo(snapshotB));
             Assert.That(snapshotA == snapshotB, Is.True);
@@ -200,8 +198,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var layerA = new ConstructionLayerSnapshot(id, 5, "Бетон", 100, 1.74, false, LayerPosition.AbovePipe, 0);
             var layerB = new ConstructionLayerSnapshot(id, 5, "Бетон", 105, 1.74, false, LayerPosition.AbovePipe, 0);
 
-            var snapshotA = new ConstructionStateSnapshot(2.0, false, new[] { layerA }, Array.Empty<ConstructionLayerSnapshot>());
-            var snapshotB = new ConstructionStateSnapshot(2.0, false, new[] { layerB }, Array.Empty<ConstructionLayerSnapshot>());
+            var snapshotA = new ConstructionStateSnapshot(2.0, new[] { layerA }, Array.Empty<ConstructionLayerSnapshot>());
+            var snapshotB = new ConstructionStateSnapshot(2.0, new[] { layerB }, Array.Empty<ConstructionLayerSnapshot>());
 
             Assert.That(snapshotA, Is.Not.EqualTo(snapshotB));
         }
@@ -214,11 +212,11 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var layer1 = new ConstructionLayerSnapshot(id1, 5, "Бетон", 100, 1.74, false, LayerPosition.AbovePipe, 0);
             var layer2 = new ConstructionLayerSnapshot(id2, 11, "Асфальт", 50, 0.8, false, LayerPosition.AbovePipe, 1);
 
-            var orderAB = new ConstructionStateSnapshot(2.0, false, new[] { layer1, layer2 }, Array.Empty<ConstructionLayerSnapshot>());
+            var orderAB = new ConstructionStateSnapshot(2.0, new[] { layer1, layer2 }, Array.Empty<ConstructionLayerSnapshot>());
             // Same two layers, order swapped (their own Order field also swapped to reflect the new position).
             var layer1Reordered = layer1 with { Order = 1 };
             var layer2Reordered = layer2 with { Order = 0 };
-            var orderBA = new ConstructionStateSnapshot(2.0, false, new[] { layer2Reordered, layer1Reordered }, Array.Empty<ConstructionLayerSnapshot>());
+            var orderBA = new ConstructionStateSnapshot(2.0, new[] { layer2Reordered, layer1Reordered }, Array.Empty<ConstructionLayerSnapshot>());
 
             Assert.That(orderAB, Is.Not.EqualTo(orderBA),
                 "Sequence order is semantic; a reordered sequence must not be structurally equal.");
@@ -254,15 +252,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
 
             Assert.That(result.Status, Is.EqualTo(ConstructionMutationStatus.NoChange));
             Assert.That(eventCount, Is.EqualTo(0));
-            _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Never);
-        }
-
-        [Test]
-        public void Apply_SetHasLoads_NonUserOrigin_DoesNotMarkDirty()
-        {
-            var result = _state.Apply(new ConstructionMutation.SetHasLoads(true), ConstructionMutationOrigin.Reset);
-
-            Assert.That(result.Status, Is.EqualTo(ConstructionMutationStatus.Changed));
             _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Never);
         }
 
@@ -412,7 +401,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var sharedId = Guid.NewGuid();
             var layer1 = new ConstructionLayerSnapshot(sharedId, 5, "Бетон", 100, 1.74, false, LayerPosition.AbovePipe, 0);
             var layer2 = new ConstructionLayerSnapshot(sharedId, 11, "Асфальт", 50, 0.8, false, LayerPosition.AbovePipe, 1);
-            var invalidCandidate = new ConstructionStateSnapshot(2.0, false, new[] { layer1, layer2 }, Array.Empty<ConstructionLayerSnapshot>());
+            var invalidCandidate = new ConstructionStateSnapshot(2.0, new[] { layer1, layer2 }, Array.Empty<ConstructionLayerSnapshot>());
 
             var eventCount = 0;
             _state.Changed += (_, __) => eventCount++;
@@ -444,14 +433,13 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var result = _state.ResetToDefaults(defaults, ConstructionMutationOrigin.Reset);
 
             Assert.That(result.Status, Is.EqualTo(ConstructionMutationStatus.Changed));
-            Assert.That(_state.Snapshot.HasLoads, Is.False);
             _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Never);
         }
 
         [Test]
         public void ResetToDefaults_EmptyLayersMatchingScalars_IsNoOp()
         {
-            // Initial state: GroundwaterLevel=0.0, HasLoads=false, empty collections.
+            // Initial state: GroundwaterLevel=0.0, empty collections.
             // Defaults matching the initial empty state must be a no-op.
             var defaults = new ConstructionDefaults(0.0, Array.Empty<ConstructionLayerSnapshot>(), Array.Empty<ConstructionLayerSnapshot>());
             var result = _state.ResetToDefaults(defaults, ConstructionMutationOrigin.Reset);

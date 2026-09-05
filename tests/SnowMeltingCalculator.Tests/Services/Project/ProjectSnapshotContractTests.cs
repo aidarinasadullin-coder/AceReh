@@ -64,7 +64,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 CreateLayer(LayerPosition.BelowPipe, 1),
             };
 
-            return new ConstructionStateSnapshot(1.5, hasLoads: false, above, below);
+            return new ConstructionStateSnapshot(1.5, above, below);
         }
 
         private static ProjectSnapshot CreateSnapshot() => new(

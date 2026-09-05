@@ -334,6 +334,28 @@ characterization зелёные; старые `.smc` с нагрузками о�
 `dotnet test` + smoke зелёные; review до реализации (фаза материальная —
 меняет `.smc`-контракт).
 
+> **Статус Ф4Б (рабочий набор, 2026-09-05; передача владельцу на ревью —
+> делегация п.15 не действует, коммит после приёмки).** Ревью плана до
+> реализации — approve-with-edits: `.smc` — System.Text.Json (не XML),
+> неизвестные поля пропускаются — миграция чтения не нужна; карта шире
+> исходной (ConstructionService, TemplateEditorViewModel,
+> ConstructionStateLegacyStoreGuardTests с source-string pins, 22 тестовых
+> файла); семантические развороты 40/50 зафиксированы осознанно
+> (40 мм при «нагрузках» → валидно). Ревью диффа — approve-with-edits,
+> правки внесены: запись выполнения в ADR-005 (хеш-пин
+> FBD2010C… → 0E3545CD…, «hash-пинов» оказался один, остальное —
+> контрактные ассерты и ctor снимка 4→3 арг), дубль валидатор-теста
+> удалён. Ключевые факты: поле `hasLoads` выпало из `ConstructionData`;
+> legacy-чтение старых `.smc`/json-справочников покрыто новым тестом
+> `LoadProjectResultAsync_LegacyFileWithHasLoads_TreatsAsNoLoads`;
+> правило толщины всегда 40 мм; тексты отчётов не изменились (рендереры
+> флаг не читали); writers R2 не менялись; `v1-sample.smc` не тронут
+> (hasLoads не содержал). Удалены тесты ApplyTemplate_SetsHasLoads,
+> ScalarHasLoads_* (region), Apply_SetHasLoads_NonUserOrigin,
+> ProjectRoundTrip_PreservesHasLoads — путь non-User origin покрыт
+> соседними тестами. Полный `dotnet test`: 2084 passed / 1 skipped
+> (предсуществующий) / 0 failed, включая smoke.
+
 ---
 
 ## Фаза 5 — Тепловой расчёт + Климат (M)

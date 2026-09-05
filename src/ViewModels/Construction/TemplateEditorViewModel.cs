@@ -211,7 +211,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 Id = 0,
                 Name = string.Empty,
                 Description = string.Empty,
-                HasLoads = false,
                 DefaultGroundwaterLevel = 2.0,
                 IsBuiltIn = false,
                 LayersAbovePipe = new(),
@@ -462,7 +461,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 Id = source.Id,
                 Name = source.Name,
                 Description = source.Description,
-                HasLoads = source.HasLoads,
                 DefaultGroundwaterLevel = source.DefaultGroundwaterLevel,
                 IsBuiltIn = source.IsBuiltIn,
                 LayersAbovePipe = source.LayersAbovePipe

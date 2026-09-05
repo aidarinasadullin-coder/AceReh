@@ -116,7 +116,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             // Assert
             Assert.That(loaded, Is.Not.Null);
             Assert.That(loaded!.GroundwaterLevel, Is.EqualTo(construction.GroundwaterLevel));
-            Assert.That(loaded.HasLoads, Is.EqualTo(construction.HasLoads));
         }
 
         [Test]
@@ -226,7 +225,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             var construction = new SnowMeltingCalculator.Models.Construction.Construction
             {
                 GroundwaterLevel = 2.0,
-                HasLoads = true
             };
 
             var concrete = _materialRepository.GetMaterialById(2);

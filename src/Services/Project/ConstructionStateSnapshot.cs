@@ -13,18 +13,15 @@ namespace SnowMeltingCalculator.Services.Project
     public sealed class ConstructionStateSnapshot : IEquatable<ConstructionStateSnapshot>
     {
         public double GroundwaterLevel { get; }
-        public bool HasLoads { get; }
         public IReadOnlyList<ConstructionLayerSnapshot> LayersAbovePipe { get; }
         public IReadOnlyList<ConstructionLayerSnapshot> LayersBelowPipe { get; }
 
         public ConstructionStateSnapshot(
             double groundwaterLevel,
-            bool hasLoads,
             IReadOnlyList<ConstructionLayerSnapshot> layersAbovePipe,
             IReadOnlyList<ConstructionLayerSnapshot> layersBelowPipe)
         {
             GroundwaterLevel = groundwaterLevel;
-            HasLoads = hasLoads;
             LayersAbovePipe = layersAbovePipe ?? throw new ArgumentNullException(nameof(layersAbovePipe));
             LayersBelowPipe = layersBelowPipe ?? throw new ArgumentNullException(nameof(layersBelowPipe));
         }
@@ -38,7 +35,6 @@ namespace SnowMeltingCalculator.Services.Project
             if (ReferenceEquals(this, other)) return true;
 
             return Math.Abs(GroundwaterLevel - other.GroundwaterLevel) < 1e-10
-                && HasLoads == other.HasLoads
                 && LayersAbovePipe.SequenceEqual(other.LayersAbovePipe)
                 && LayersBelowPipe.SequenceEqual(other.LayersBelowPipe);
         }
@@ -49,7 +45,6 @@ namespace SnowMeltingCalculator.Services.Project
         {
             var hash = new HashCode();
             hash.Add(GroundwaterLevel);
-            hash.Add(HasLoads);
             foreach (var l in LayersAbovePipe) hash.Add(l);
             foreach (var l in LayersBelowPipe) hash.Add(l);
             return hash.ToHashCode();

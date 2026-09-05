@@ -134,11 +134,6 @@ namespace SnowMeltingCalculator.Models.Project
         /// Уровень грунтовых вод, м
         /// </summary>
         public double GroundwaterLevel { get; set; } = 2.0;
-
-        /// <summary>
-        /// Признак наличия нагрузок
-        /// </summary>
-        public bool HasLoads { get; set; }
     }
 
     /// <summary>

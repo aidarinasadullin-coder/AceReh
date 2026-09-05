@@ -61,11 +61,6 @@ namespace SnowMeltingCalculator.Models.Construction
         public List<LayerTemplate> LayersBelowPipe { get; set; } = new List<LayerTemplate>();
 
         /// <summary>
-        /// Признак наличия нагрузок на покрытие
-        /// </summary>
-        public bool HasLoads { get; set; }
-
-        /// <summary>
         /// Уровень грунтовых вод по умолчанию, м.
         /// [Устарело как настройка] С плана 2026-09-04 (D2, ADR-004) λА/λБ
         /// определяет УГВ проекта: шаблон задаёт только состав и толщины
@@ -101,7 +96,6 @@ namespace SnowMeltingCalculator.Models.Construction
                     Id = 1,
                     Name = "Парковка / площадка — бетон",
                     Description = "Монолитная бетонная площадка или парковка для легковых автомобилей",
-                    HasLoads = true,
                     DefaultGroundwaterLevel = 2.0,
                     LayersAbovePipe = new List<LayerTemplate>
                     {
@@ -124,7 +118,6 @@ namespace SnowMeltingCalculator.Models.Construction
                     Id = 3,
                     Name = "Пешеходная дорожка — плитка",
                     Description = "Тротуарная плитка или брусчатка с трубами в бетонном слое",
-                    HasLoads = false,
                     DefaultGroundwaterLevel = 2.0,
                     LayersAbovePipe = new List<LayerTemplate>
                     {
@@ -148,7 +141,6 @@ namespace SnowMeltingCalculator.Models.Construction
                     Id = 4,
                     Name = "Въезд в гараж / пандус",
                     Description = "Армированная бетонная плита для зон с высокими автомобильными нагрузками",
-                    HasLoads = true,
                     DefaultGroundwaterLevel = 2.0,
                     LayersAbovePipe = new List<LayerTemplate>
                     {

@@ -238,7 +238,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             var construction = new SnowMeltingCalculator.Models.Construction.Construction
             {
                 GroundwaterLevel = 2.0,
-                HasLoads = false
             };
 
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
@@ -271,7 +270,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             // Arrange
             var construction = new SnowMeltingCalculator.Models.Construction.Construction
             {
-                HasLoads = false
             };
 
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
@@ -286,22 +284,20 @@ namespace SnowMeltingCalculator.Tests.Construction
         }
 
         [Test]
-        public void ValidateConstruction_WithLoads_RequiresThickerLayer()
+        public void ValidateConstruction_FortyMmAbovePipe_IsValid()
         {
-            // Arrange
-            var construction = new SnowMeltingCalculator.Models.Construction.Construction
-            {
-                HasLoads = true
-            };
+            // Arrange — флаг «Нагрузки» снят (ADR-005, Фаза 4Б): правило 40 мм
+            // без вариантов; бывший кейс «40 мм при нагрузках → invalid» схлопнулся.
+            var construction = new SnowMeltingCalculator.Models.Construction.Construction();
 
             var concrete = Material.GetDefaultMaterials().First(m => m.Name == "Бетон");
-            construction.AddLayerAbovePipe(concrete, 40); // Меньше минимума при нагрузках (50 мм)
+            construction.AddLayerAbovePipe(concrete, 40);
 
             // Act
             var result = _service.ValidateConstruction(construction);
 
             // Assert
-            Assert.That(result.IsValid, Is.False);
+            Assert.That(result.IsValid, Is.True);
         }
 
         #endregion
@@ -321,7 +317,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             // Assert
             Assert.That(construction, Is.Not.Null);
             Assert.That(construction.LayersAbovePipe.Count, Is.EqualTo(template.LayersAbovePipe.Count));
-            Assert.That(construction.HasLoads, Is.EqualTo(template.HasLoads));
         }
 
         [Test]
@@ -507,7 +502,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             {
                 Name = "Imported User Template",
                 Description = "From project",
-                HasLoads = false,
                 DefaultGroundwaterLevel = 2.0,
                 IsBuiltIn = false,
                 LayersAbovePipe = new List<LayerTemplate>
@@ -1025,7 +1019,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             {
                 Name = "Custom Project Template",
                 Description = "User template",
-                HasLoads = false,
                 DefaultGroundwaterLevel = 2.0,
                 IsBuiltIn = false,
                 LayersAbovePipe = new List<LayerTemplate>

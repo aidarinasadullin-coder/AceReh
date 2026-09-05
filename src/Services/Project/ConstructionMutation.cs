@@ -15,9 +15,6 @@ namespace SnowMeltingCalculator.Services.Project
         /// <summary>Set GroundwaterLevel to an explicit value.</summary>
         public sealed record SetGroundwaterLevel(double Value) : ConstructionMutation;
 
-        /// <summary>Set HasLoads to an explicit value.</summary>
-        public sealed record SetHasLoads(bool Value) : ConstructionMutation;
-
         /// <summary>Add a new layer with a freshly generated Id to the given position.</summary>
         public sealed record AddLayer(
             SnowMeltingCalculator.Models.Construction.LayerPosition Position,

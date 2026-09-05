@@ -352,9 +352,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var catalog = materials.GetAllMaterials().ToDictionary(material => material.Id);
             var staleLayerId = Guid.NewGuid();
             var customSnapshot = new ConstructionStateSnapshot(
-                2.0,
-                true,
-                new[]
+                2.0, new[]
                 {
                     new ConstructionLayerSnapshot(
                         staleLayerId, 5, catalog[5].Name, 333.0, catalog[5].LambdaA, false,

@@ -210,7 +210,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                     return Task.FromResult<ConstructionModel?>(new ConstructionModel
                     {
                         GroundwaterLevel = 2.0,
-                        HasLoads = false
                     });
                 });
 

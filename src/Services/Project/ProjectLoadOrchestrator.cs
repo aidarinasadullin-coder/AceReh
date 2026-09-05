@@ -248,7 +248,6 @@ namespace SnowMeltingCalculator.Services.Project
 
             return new ConstructionStateSnapshot(
                 data.ConstructionData.GroundwaterLevel,
-                data.ConstructionData.HasLoads,
                 BuildLayerSnapshots(aboveLayers, data.ConstructionData.GroundwaterLevel),
                 BuildLayerSnapshots(belowLayers, data.ConstructionData.GroundwaterLevel));
         }

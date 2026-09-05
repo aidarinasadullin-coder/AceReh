@@ -168,7 +168,7 @@ namespace SnowMeltingCalculator.Tests.Configuration
                 Guid.NewGuid(), 5, "Concrete", 100.0, 2.0, false, LayerPosition.AbovePipe, 0);
 
             var result = session.ConstructionState.ApplySnapshot(
-                new ConstructionStateSnapshot(2.0, false, new[] { layer }, Array.Empty<ConstructionLayerSnapshot>()),
+                new ConstructionStateSnapshot(2.0, new[] { layer }, Array.Empty<ConstructionLayerSnapshot>()),
                 ConstructionMutationOrigin.User);
 
             Assert.Multiple(() =>

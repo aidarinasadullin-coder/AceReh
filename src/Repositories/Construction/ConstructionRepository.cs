@@ -172,7 +172,6 @@ namespace SnowMeltingCalculator.Repositories.Construction
             {
                 Version = "1.1",
                 GroundwaterLevel = construction.GroundwaterLevel,
-                HasLoads = construction.HasLoads,
                 LayersAbovePipe = construction.LayersAbovePipe.Select(MapLayerToDto).ToList(),
                 LayersBelowPipe = construction.Layers
                     .Where(l => l.Position == LayerPosition.BelowPipe)
@@ -215,8 +214,7 @@ namespace SnowMeltingCalculator.Repositories.Construction
 
             var construction = new ConstructionModel
             {
-                GroundwaterLevel = dto.GroundwaterLevel,
-                HasLoads = dto.HasLoads
+                GroundwaterLevel = dto.GroundwaterLevel
             };
 
             // v1.0: chronological Add order = [near pipe, ..., surface].
@@ -289,9 +287,6 @@ namespace SnowMeltingCalculator.Repositories.Construction
 
             [JsonPropertyName("groundwater_level")]
             public double GroundwaterLevel { get; set; }
-
-            [JsonPropertyName("has_loads")]
-            public bool HasLoads { get; set; }
 
             [JsonPropertyName("layers_above_pipe")]
             public List<LayerDto> LayersAbovePipe { get; set; } = new();

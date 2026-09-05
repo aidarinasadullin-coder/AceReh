@@ -113,7 +113,6 @@ namespace SnowMeltingCalculator.Repositories.Construction
 
                 existing.Name = template.Name;
                 existing.Description = template.Description;
-                existing.HasLoads = template.HasLoads;
                 existing.DefaultGroundwaterLevel = template.DefaultGroundwaterLevel;
                 existing.LayersAbovePipe = template.LayersAbovePipe;
                 existing.LayersBelowPipe = template.LayersBelowPipe;
@@ -290,7 +289,6 @@ namespace SnowMeltingCalculator.Repositories.Construction
                 Id = jsonModel.Id,
                 Name = jsonModel.Name ?? string.Empty,
                 Description = jsonModel.Description ?? string.Empty,
-                HasLoads = jsonModel.HasLoads,
                 DefaultGroundwaterLevel = jsonModel.DefaultGroundwaterLevel,
                 IsBuiltIn = isBuiltIn,
                 LayersAbovePipe = jsonModel.LayersAbovePipe?.Select(MapToLayerTemplate).ToList() ?? new List<LayerTemplate>(),
@@ -309,7 +307,6 @@ namespace SnowMeltingCalculator.Repositories.Construction
                 Id = template.Id,
                 Name = template.Name,
                 Description = template.Description,
-                HasLoads = template.HasLoads,
                 DefaultGroundwaterLevel = template.DefaultGroundwaterLevel,
                 IsBuiltIn = template.IsBuiltIn,
                 LayersAbovePipe = template.LayersAbovePipe.Select(MapToJsonLayer).ToList(),
@@ -437,9 +434,6 @@ namespace SnowMeltingCalculator.Repositories.Construction
 
             [JsonPropertyName("description")]
             public string? Description { get; set; }
-
-            [JsonPropertyName("has_loads")]
-            public bool HasLoads { get; set; }
 
             [JsonPropertyName("default_groundwater_level")]
             public double DefaultGroundwaterLevel { get; set; }
