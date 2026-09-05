@@ -49,6 +49,5 @@ console.log*
 !data/*.json
 !data/*.yaml
 
-# JS/Python regenerable artifacts
-docs/workspace/node_modules/
-docs/workspace/__pycache__/
+# Вспомогательные рабочие материалы (брендбук, презентации, скриншоты, генераты) — вне git
+docs/workspace/
