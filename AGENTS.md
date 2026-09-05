@@ -52,3 +52,6 @@ direction and follows the dossier workflow
   (`ArchitectureRulesTests`), списки санкционированных writers меняются
   только через ADR; каждая фаза завершает handover записью «state ownership
   без изменений» либо ADR-записью.
+- Правило, данное владельцем в handover-сообщении, агент записывает в
+  `docs/agents/lessons.md` (или в этот файл, если владелец прямо промотировал
+  строку) и коммитит отдельно от диффа фазы.
