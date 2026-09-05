@@ -134,12 +134,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private bool _hasUnsavedChanges;
 
         /// <summary>
-        /// Признак развёрнутости аккордеона предпросмотра шаблона
-        /// </summary>
-        [ObservableProperty]
-        private bool _isTemplatePreviewExpanded = false;
-
-        /// <summary>
         /// Слои над трубой для предпросмотра шаблона
         /// </summary>
         [ObservableProperty]
@@ -815,15 +809,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             Reset();
         }
 
-        /// <summary>
-        /// Команда переключения развёрнутости аккордеона предпросмотра шаблона
-        /// </summary>
-        [RelayCommand]
-        private void ToggleTemplatePreview()
-        {
-            IsTemplatePreviewExpanded = !IsTemplatePreviewExpanded;
-        }
-
         #endregion
 
         #region Public Methods
@@ -1014,7 +999,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             {
                 TemplatePreviewLayersAbovePipe = new ObservableCollection<Layer>();
                 TemplatePreviewLayersBelowPipe = new ObservableCollection<Layer>();
-                IsTemplatePreviewExpanded = false;
                 CanApplySelectedTemplate = false;
                 TemplatePreviewErrorMessage = string.Empty;
                 return;

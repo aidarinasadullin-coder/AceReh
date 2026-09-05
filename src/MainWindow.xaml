@@ -440,6 +440,54 @@
                                    HorizontalAlignment="Left"
                                    TextWrapping="Wrap"/>
 
+                        <!-- Конструкция: R1/R2/λE переезжают сюда из карточки
+                             «Результаты расчёта» ConstructionView (Фаза 4, п.4) -->
+                        <TextBlock Text="Конструкция" Style="{StaticResource Shell.SummarySection}"/>
+                        <Grid Style="{StaticResource Shell.SummaryRow}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Общая толщина" Style="{StaticResource Shell.SummaryLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="{Binding ConstructionTotalThickness, StringFormat={}{0:F0}}"
+                                           Style="{StaticResource Shell.SummaryValue}"/>
+                                <TextBlock Text=" мм" Style="{StaticResource Shell.SummaryLabel}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource Shell.SummaryRow}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="R₁ над трубой" Style="{StaticResource Shell.SummaryLabel}"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding ConstructionR1, StringFormat={}{0:F4}}"
+                                       Style="{StaticResource Shell.SummaryValue}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource Shell.SummaryRow}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="R₂ под трубой" Style="{StaticResource Shell.SummaryLabel}"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding ConstructionR2, StringFormat={}{0:F4}}"
+                                       Style="{StaticResource Shell.SummaryValue}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource Shell.SummaryRow}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="λЕ вокруг трубы" Style="{StaticResource Shell.SummaryLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="{Binding ConstructionLambdaE, StringFormat={}{0:F3}}"
+                                           Style="{StaticResource Shell.SummaryValue}"/>
+                                <TextBlock Text=" Вт/м·К" Style="{StaticResource Shell.SummaryLabel}"/>
+                            </StackPanel>
+                        </Grid>
+
                         <TextBlock Text="Шаги" Style="{StaticResource Shell.SummarySection}"/>
                         <ItemsControl ItemsSource="{Binding DataContext.MenuItems, RelativeSource={RelativeSource AncestorType=Window}}"
                                       Margin="0,0,0,8">
