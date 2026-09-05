@@ -61,6 +61,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Логотип РЕХАУ: цветной знак + кириллический wordmark
@@ -143,6 +144,7 @@
                         Style="{StaticResource Button.Secondary}"
                         IsEnabled="False"
                         MinWidth="110"
+                        Margin="0,0,16,0"
                         VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Отчёт PDF"
@@ -157,6 +159,51 @@
                               VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+
+                <!-- Кнопки управления окном (Фаза 3Б): системный стиль Win11,
+                     ячейки 46×56 вплотную к правому верхнему краю.
+                     CaptionHeight=0 сохранён — кнопки обычные, chrome не
+                     перехватывает клики; DragMove шапки не задет. -->
+                <StackPanel Grid.Column="8" Orientation="Horizontal">
+                    <Button x:Name="WindowMinimizeButton"
+                            Style="{StaticResource Shell.WindowButton}"
+                            Click="MinimizeButton_Click"
+                            ToolTip="Свернуть"
+                            AutomationProperties.AutomationId="WindowMinimizeButton"
+                            AutomationProperties.Name="Свернуть">
+                        <Path Data="{StaticResource Icon.WindowMinimize}"
+                              Width="12" Height="12" Stretch="Uniform"
+                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </Button>
+                    <Button x:Name="WindowMaximizeButton"
+                            Click="MaximizeRestoreButton_Click"
+                            AutomationProperties.AutomationId="WindowMaximizeButton"
+                            AutomationProperties.Name="Развернуть или восстановить">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource Shell.WindowButton}">
+                                <Setter Property="ToolTip" Value="Развернуть"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=WindowState}" Value="Maximized">
+                                        <Setter Property="ToolTip" Value="Восстановить"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <Path Style="{StaticResource Shell.WindowMaximizeGlyph}"
+                              Width="12" Height="12" Stretch="Uniform"
+                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </Button>
+                    <Button x:Name="WindowCloseButton"
+                            Style="{StaticResource Shell.WindowCloseButton}"
+                            Click="CloseButton_Click"
+                            ToolTip="Закрыть"
+                            AutomationProperties.AutomationId="WindowCloseButton"
+                            AutomationProperties.Name="Закрыть">
+                        <Path Data="{StaticResource Icon.WindowClose}"
+                              Width="12" Height="12" Stretch="Uniform"
+                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -195,10 +242,15 @@
                         <!-- Шаги сценария: ✓ готов · ● черновик · ⚠ ошибка · ⟳ пересчёт.
                              ShellStepperList — селектор UiSmoke (снятие техдолга Ф1Б,
                              план Ф2.6): навигация больше не зависит от эвристики
-                             «первый List в окне». -->
+                             «первый List в окне».
+                             Прокрутка отключена (Фаза 3Б): 5 фиксированных пунктов
+                             помещаются в минималку 1280×720, переполнение —
+                             дефект каркаса, а не кейс для скролла. -->
                         <ListBox Grid.Row="0"
                                 AutomationProperties.AutomationId="ShellStepperList"
                                 ItemsSource="{Binding MenuItems}"
+                                ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                 SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
                                 Margin="0,8,0,8"
                                 BorderThickness="0"

@@ -191,3 +191,13 @@ table.grid td .ok-dot { display:inline-block; width:8px; height:8px; border-radi
 .pipe { height:16px; margin:2px 0; background:repeating-linear-gradient(90deg,#E88AA4 0 14px,#F7B7C7 14px 18px);
   border-radius:8px; position:relative; }
 .pipe::after { content:'труба'; position:absolute; right:8px; top:1px; font-size:9px; color:#fff; font-weight:700; }
+
+/* Кнопки управления окном (Фаза 3Б): системный стиль Win11,
+   ячейки 46×56 вплотную к правому краю шапки */
+.winbtns { display:flex; align-self:stretch; margin-left:16px; }
+.winbtns button { width:46px; border:0; background:transparent; display:flex; align-items:center; justify-content:center; padding:0; }
+.winbtns button:hover { background:var(--g100); }
+.winbtns svg { width:12px; height:12px; stroke:var(--g600); stroke-width:1; fill:none; }
+.winbtns button:hover svg { stroke:var(--g800); }
+.winbtns button.close:hover { background:var(--red); }
+.winbtns button.close:hover svg { stroke:#fff; }
