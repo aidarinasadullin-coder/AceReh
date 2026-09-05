@@ -125,8 +125,7 @@ namespace SnowMeltingCalculator.Services.Construction
             var materialsList = materials.ToList();
             var construction = new ConstructionModel
             {
-                GroundwaterLevel = template.DefaultGroundwaterLevel,
-                HasLoads = template.HasLoads
+                GroundwaterLevel = template.DefaultGroundwaterLevel
             };
 
             // Добавляем слои над трубой
@@ -332,7 +331,6 @@ namespace SnowMeltingCalculator.Services.Construction
                 {
                     Name = template.Name,
                     Description = template.Description,
-                    HasLoads = template.HasLoads,
                     DefaultGroundwaterLevel = template.DefaultGroundwaterLevel,
                     IsBuiltIn = false,
                     LayersAbovePipe = remappedLayers.Take(layerCountAbove).ToList(),

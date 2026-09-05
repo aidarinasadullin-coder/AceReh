@@ -151,11 +151,6 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         public ReportValue<double> LambdaE { get; init; } = new();
 
         /// <summary>
-        /// Признак наличия нагрузок.
-        /// </summary>
-        public bool HasLoads { get; init; }
-
-        /// <summary>
         /// Слои конструкции.
         /// </summary>
         public IReadOnlyList<ReportConstructionLayer> Layers { get; init; } = new List<ReportConstructionLayer>();

@@ -69,7 +69,6 @@ public sealed class CanonicalDefaultConstructionLifecycleTests
         var adapter = provider.GetRequiredService<ConstructionViewModel>();
         var customSnapshot = new ConstructionStateSnapshot(
             0.5,
-            true,
             new[] { CreateLayer(materials[5], 333.0, LayerPosition.AbovePipe, 0) },
             Array.Empty<ConstructionLayerSnapshot>());
         state.ApplySnapshot(customSnapshot, ConstructionMutationOrigin.Initialization);
@@ -88,7 +87,6 @@ public sealed class CanonicalDefaultConstructionLifecycleTests
         {
             Assert.That(state.Snapshot, Is.EqualTo(stateBefore));
             Assert.That(adapter.GroundwaterLevel, Is.EqualTo(0.5));
-            Assert.That(adapter.HasLoads, Is.True);
             Assert.That(adapter.LayersAbovePipe.Select(ToRecipeTuple), Is.EqualTo(adapterAboveBefore));
             Assert.That(adapter.LayersBelowPipe.Select(ToRecipeTuple), Is.EqualTo(adapterBelowBefore));
             Assert.That(changedEvents, Is.Zero);
@@ -299,7 +297,7 @@ public sealed class CanonicalDefaultConstructionLifecycleTests
             CreateLayer(materials[2], 1000.0, LayerPosition.BelowPipe, 4),
             CreateLayer(materials[2], 570.0, LayerPosition.BelowPipe, 5)
         };
-        return new ConstructionStateSnapshot(2.0, false, above, below);
+        return new ConstructionStateSnapshot(2.0, above, below);
     }
 
     internal static void AssertDefaultProjectData(ProjectData project, IReadOnlyDictionary<int, Material> materials)
@@ -309,7 +307,6 @@ public sealed class CanonicalDefaultConstructionLifecycleTests
         {
             Assert.That(project.Version, Is.EqualTo("1.1"));
             Assert.That(project.ConstructionData.GroundwaterLevel, Is.EqualTo(2.0));
-            Assert.That(project.ConstructionData.HasLoads, Is.False);
             Assert.That(project.ConstructionData.R1, Is.GreaterThan(0.0));
             Assert.That(project.ConstructionData.R2, Is.GreaterThan(0.0));
             Assert.That(project.ConstructionData.LambdaE, Is.EqualTo(materials[5].LambdaA).Within(1e-10));
@@ -325,7 +322,6 @@ public sealed class CanonicalDefaultConstructionLifecycleTests
         Assert.Multiple(() =>
         {
             Assert.That(snapshot.GroundwaterLevel, Is.EqualTo(2.0));
-            Assert.That(snapshot.HasLoads, Is.False);
             Assert.That(snapshot.LayersAbovePipe.Select(ToRecipeTuple), Is.EqualTo(expected.LayersAbovePipe.Select(ToRecipeTuple)));
             Assert.That(snapshot.LayersBelowPipe.Select(ToRecipeTuple), Is.EqualTo(expected.LayersBelowPipe.Select(ToRecipeTuple)));
             Assert.That(snapshot.LayersAbovePipe.Concat(snapshot.LayersBelowPipe).All(layer => !layer.IsLambdaOverridden), Is.True);
@@ -337,7 +333,6 @@ public sealed class CanonicalDefaultConstructionLifecycleTests
         Assert.Multiple(() =>
         {
             Assert.That(adapter.GroundwaterLevel, Is.EqualTo(snapshot.GroundwaterLevel));
-            Assert.That(adapter.HasLoads, Is.EqualTo(snapshot.HasLoads));
             Assert.That(adapter.LayersAbovePipe.Select(ToRecipeTuple), Is.EqualTo(snapshot.LayersAbovePipe.Select(ToRecipeTuple)));
             Assert.That(adapter.LayersBelowPipe.Select(ToRecipeTuple), Is.EqualTo(snapshot.LayersBelowPipe.Select(ToRecipeTuple)));
         });

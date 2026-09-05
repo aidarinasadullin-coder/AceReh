@@ -86,12 +86,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private double _groundwaterLevel = 2.0;
 
         /// <summary>
-        /// Признак наличия нагрузок на покрытие
-        /// </summary>
-        [ObservableProperty]
-        private bool _hasLoads;
-
-        /// <summary>
         /// Сообщение валидации
         /// </summary>
         [ObservableProperty]
@@ -498,7 +492,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             newConstruction.GroundwaterLevel = GroundwaterLevel;
             var candidate = new ConstructionStateSnapshot(
                 GroundwaterLevel,
-                template.HasLoads,
                 newConstruction.LayersAbovePipe.Select((layer, index) => new ConstructionLayerSnapshot(
                     layer.Id,
                     layer.Material?.Id ?? 0,
@@ -535,8 +528,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 {
                     LayersBelowPipe.Add(layer);
                 }
-
-                HasLoads = template.HasLoads;
             }
             finally
             {
@@ -896,7 +887,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 // OnSelectedGroundwaterOptionChanged удерживает обработчик
                 // от мутации скаляра (план 2026-09-04, D4).
                 SelectedGroundwaterOption = MapGroundwaterOption(GroundwaterLevel);
-                HasLoads = snapshot.HasLoads;
 
                 LayersAbovePipe.Clear();
                 for (int i = 0; i < snapshot.LayersAbovePipe.Count; i++)
@@ -950,18 +940,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             {
                 _isSyncing = false;
             }
-
-            UpdateCalculations();
-            HasUnsavedChanges = true;
-            SyncStateFromCollections(ConstructionMutationOrigin.User);
-        }
-
-        /// <summary>
-        /// Обработчик изменения признака нагрузок
-        /// </summary>
-        partial void OnHasLoadsChanged(bool value)
-        {
-            if (_isResetting || _isRefreshing) return;
 
             UpdateCalculations();
             HasUnsavedChanges = true;
@@ -1169,7 +1147,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 }
 
                 GroundwaterLevel = _construction.GroundwaterLevel;
-                HasLoads = _construction.HasLoads;
 
                 UpdateCalculations();
             }
@@ -1203,7 +1180,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 }
 
                 _construction.GroundwaterLevel = GroundwaterLevel;
-                _construction.HasLoads = HasLoads;
 
                 // Единый источник истины для порядка слоёв
                 _construction.ReindexLayers();
@@ -1218,8 +1194,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         {
             var candidate = new ConstructionModel
             {
-                GroundwaterLevel = GroundwaterLevel,
-                HasLoads = HasLoads
+                GroundwaterLevel = GroundwaterLevel
             };
             foreach (var layer in LayersAbovePipe)
             {
@@ -1253,7 +1228,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             }
 
             _construction.GroundwaterLevel = source.GroundwaterLevel;
-            _construction.HasLoads = source.HasLoads;
         }
 
         private void OnDataChanged()
@@ -1313,7 +1287,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 LayerPosition.BelowPipe,
                 i)).ToArray();
 
-            var candidate = new ConstructionStateSnapshot(GroundwaterLevel, HasLoads, above, below);
+            var candidate = new ConstructionStateSnapshot(GroundwaterLevel, above, below);
             _constructionState.ApplySnapshot(candidate, origin);
         }
 

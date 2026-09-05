@@ -36,7 +36,6 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 R1 = r1,
                 R2 = r2,
                 LambdaE = lambdaE,
-                HasLoads = construction.HasLoads,
                 Layers = layers
             };
 

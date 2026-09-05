@@ -42,7 +42,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             {
                 Name = name,
                 Description = "Test template",
-                HasLoads = false,
                 DefaultGroundwaterLevel = 2.0,
                 IsBuiltIn = isBuiltIn,
                 LayersAbovePipe = new List<LayerTemplate>
@@ -62,7 +61,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             {
                 Name = name,
                 Description = "Layered test template",
-                HasLoads = true,
                 DefaultGroundwaterLevel = 1.5,
                 IsBuiltIn = false,
                 LayersAbovePipe = new List<LayerTemplate>
@@ -209,7 +207,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             var update = CreateTemplate("Updated");
             update.Id = added.Id;
             update.Description = "Updated description";
-            update.HasLoads = true;
             update.DefaultGroundwaterLevel = 3.0;
             update.LayersAbovePipe.Add(new LayerTemplate
             {
@@ -223,7 +220,6 @@ namespace SnowMeltingCalculator.Tests.Construction
 
             Assert.That(updated.Name, Is.EqualTo("Updated"));
             Assert.That(updated.Description, Is.EqualTo("Updated description"));
-            Assert.That(updated.HasLoads, Is.True);
             Assert.That(updated.DefaultGroundwaterLevel, Is.EqualTo(3.0));
             Assert.That(updated.LayersAbovePipe.Count, Is.EqualTo(2));
             Assert.That(updated.LayersAbovePipe[1].MaterialId, Is.EqualTo(6));

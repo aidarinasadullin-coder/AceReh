@@ -36,7 +36,6 @@ namespace SnowMeltingCalculator.Services.Project
                 R2 = projection.R2Total,
                 LambdaE = projection.LambdaE,
                 GroundwaterLevel = snapshot.GroundwaterLevel,
-                HasLoads = snapshot.HasLoads,
                 Layers = layers
             };
         }

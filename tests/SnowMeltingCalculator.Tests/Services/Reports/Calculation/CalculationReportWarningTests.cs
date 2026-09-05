@@ -274,7 +274,6 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     R1 = 0.05,
                     R2 = 0.02,
                     LambdaE = 1.6,
-                    HasLoads = false,
                     Layers = new List<LayerProjectData>
                     {
                         new LayerProjectData

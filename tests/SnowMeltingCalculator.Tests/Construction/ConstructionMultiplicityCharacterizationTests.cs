@@ -155,32 +155,6 @@ namespace SnowMeltingCalculator.Tests.Construction
 
         #endregion
 
-        #region Scalar edits — HasLoads
-
-        [Test]
-        public void ScalarHasLoads_ChangedValue_MarksDirtyExactlyOnceAndPublishesContextOnce()
-        {
-            Assume.That(_viewModel.HasLoads, Is.False);
-
-            _viewModel.HasLoads = true;
-
-            _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Once);
-            Assert.That(_constructionContextUpdates, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void ScalarHasLoads_SameValue_IsNoOp()
-        {
-            var current = _viewModel.HasLoads;
-
-            _viewModel.HasLoads = current;
-
-            _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Never);
-            Assert.That(_constructionContextUpdates, Is.EqualTo(0));
-        }
-
-        #endregion
-
         #region Add / Remove layer commands
 
         [Test]
@@ -295,7 +269,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             var below = _viewModel.AvailableMaterials.First(m => m.Id == 1);
             _mockService.NextTemplateResult = () =>
             {
-                var construction = new ConstructionModel { HasLoads = false };
+                var construction = new ConstructionModel();
                 construction.AddLayerAbovePipe(above, 80);
                 construction.AddLayerBelowPipe(below, 120);
                 return construction;
@@ -308,8 +282,7 @@ namespace SnowMeltingCalculator.Tests.Construction
             _viewModel.ApplyTemplateCommand.Execute(null);
 
             // Assert — measured after DEC-C04: one canonical Template completion marks dirty,
-            // guarded adapter synchronization suppresses four collection callbacks,
-            // legacy HasLoads completion and the final legacy completion remain through Task 10.
+            // guarded adapter synchronization suppresses four collection callbacks.
             _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Once);
             Assert.That(_constructionContextUpdates, Is.EqualTo(1));
             Assert.That(_viewModel.LayersAbovePipe.Count, Is.EqualTo(1));

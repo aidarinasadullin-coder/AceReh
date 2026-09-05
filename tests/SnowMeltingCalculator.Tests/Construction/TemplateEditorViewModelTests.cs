@@ -38,7 +38,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 Name = "Пользовательский шаблон",
                 IsBuiltIn = false,
                 DefaultGroundwaterLevel = 2.0,
-                HasLoads = false,
                 LayersAbovePipe = new List<LayerTemplate>
                 {
                     new() { MaterialId = 5, Thickness = 100, Position = LayerPosition.AbovePipe, Order = 0 }
@@ -114,7 +113,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 Name = "Существующий",
                 IsBuiltIn = false,
                 DefaultGroundwaterLevel = 2.0,
-                HasLoads = false,
                 LayersAbovePipe = new List<LayerTemplate>
                 {
                     new() { MaterialId = 5, Thickness = 100, Position = LayerPosition.AbovePipe, Order = 0 }
@@ -194,7 +192,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 Name = "Пользовательский",
                 IsBuiltIn = false,
                 DefaultGroundwaterLevel = 2.0,
-                HasLoads = false,
                 LayersAbovePipe = new List<LayerTemplate>
                 {
                     new() { MaterialId = 5, Thickness = 100, Position = LayerPosition.AbovePipe, Order = 0 }
