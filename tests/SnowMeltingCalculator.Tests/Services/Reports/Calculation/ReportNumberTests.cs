@@ -19,10 +19,10 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
         [Test]
         public void Format_ThousandsSeparator_IsSpace()
         {
-            Assert.That(ReportNumber.Format(29199.0, "N0"), Does.Contain("29"));
-            Assert.That(ReportNumber.Format(29199.0, "N0"), Does.Contain("199"));
+            // ru-RU использует неразрывный пробел (U+00A0) как разделитель групп.
+            Assert.That(ReportNumber.Format(29199.0, "N0"), Is.EqualTo("29 199"));
+            Assert.That(ReportNumber.Format(1234567.89), Is.EqualTo("1 234 567,89"));
             Assert.That(ReportNumber.Format(29199.0, "N0"), Does.Not.Contain(","));
-            Assert.That(ReportNumber.Format(1234567.89), Does.Contain("1"));
         }
 
         [Test]

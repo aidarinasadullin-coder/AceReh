@@ -81,7 +81,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
         private static string BuildLambdaRuleNote(ConstructionProjectData construction)
         {
             var condition = construction.GroundwaterLevel < 1.0 ? "λБ (влажные условия)" : "λА (сухие условия)";
-            return $"УГВ < 1 м → λБ (влажные условия), УГВ ≥ 1 м → λА (сухие условия). " +
+            return $"УГВ < 1 м → λБ (влажные условия), УГВ ≥ 1 м → λА (сухие условия); правило касается только слоёв ПОД трубой (над трубой всегда λА). " +
                 $"В проекте УГВ = {ReportNumber.Format(construction.GroundwaterLevel, 1)} м → слои под трубой считаются по {condition}.";
         }
 

@@ -34,10 +34,10 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
             var excessTemperature = ReportValueFactory.Create(detail?.ExcessTemperature ?? 0.0, "K", ReportValueSource.Calculated, "ThermalCalculationResult.ExcessTemperature", formulaStatus: FormulaStatusUnconfirmed);
             var massFlowRate = ReportValueFactory.Create(detail?.MassFlowRate ?? 0.0, "кг/(ч·м²)", ReportValueSource.Calculated, "ThermalCalculationResult.MassFlowRate", formula: "PowerTotal / (c_p / 3.6) / DeltaT", formulaStatus: FormulaStatusNotStored);
             var volumeFlowRate = ReportValueFactory.Create(detail?.VolumeFlowRate ?? 0.0, "л/(ч·м²)", ReportValueSource.Calculated, "ThermalCalculationResult.VolumeFlowRate", formula: "MassFlowRate / rho * 1000", formulaStatus: FormulaStatusNotStored);
-            var snowDensity = ReportValueFactory.Create(900.0, "кг/м³", ReportValueSource.Calculated, "ThermalCalculator.SnowDensity", formulaStatus: FormulaStatusConstant);
-            var iceHeatCapacity = ReportValueFactory.Create(2100.0, "Дж/(кг·К)", ReportValueSource.Calculated, "ThermalCalculator.IceHeatCapacity", formulaStatus: FormulaStatusConstant);
-            var iceMeltingHeat = ReportValueFactory.Create(330000.0, "Дж/кг", ReportValueSource.Calculated, "ThermalCalculator.IceMeltingHeat", formulaStatus: FormulaStatusConstant);
-            var waterHeatCapacity = ReportValueFactory.Create(4200.0, "Дж/(кг·К)", ReportValueSource.Calculated, "ThermalCalculator.WaterHeatCapacity", formulaStatus: FormulaStatusConstant);
+            var snowDensity = ReportValueFactory.Create(Core.Constants.ThermalConstants.SnowDensity, "кг/м³", ReportValueSource.Calculated, "ThermalCalculator.SnowDensity", formulaStatus: FormulaStatusConstant);
+            var iceHeatCapacity = ReportValueFactory.Create(Core.Constants.ThermalConstants.IceHeatCapacity, "Дж/(кг·К)", ReportValueSource.Calculated, "ThermalCalculator.IceHeatCapacity", formulaStatus: FormulaStatusConstant);
+            var iceMeltingHeat = ReportValueFactory.Create(Core.Constants.ThermalConstants.IceMeltingHeat, "Дж/кг", ReportValueSource.Calculated, "ThermalCalculator.IceMeltingHeat", formulaStatus: FormulaStatusConstant);
+            var waterHeatCapacity = ReportValueFactory.Create(Core.Constants.ThermalConstants.WaterHeatCapacity, "Дж/(кг·К)", ReportValueSource.Calculated, "ThermalCalculator.WaterHeatCapacity", formulaStatus: FormulaStatusConstant);
 
             var section = new ThermalSection
             {
@@ -102,36 +102,36 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 Meta("Теплоёмкость льда", "c_ice", "Удельная теплоёмкость льда", iceHeatCapacity),
                 Meta("Теплота плавления льда", "L_melt", "Удельная теплота плавления льда", iceMeltingHeat),
                 Meta("Теплоёмкость воды", "c_water", "Удельная теплоёмкость воды", waterHeatCapacity),
-                Meta("Коэффициент A", "A", "Промежуточный коэффициент A", "-", "A = 1 / etaR", "ThermalCalculator.CalculateExcessTemperature", "ThermalCalculator.cs:329", "ThermalSection"),
-                Meta("Коэффициент B", "B", "Промежуточный коэффициент B", "-", "B = 1/RFb + 1/RD", "ThermalCalculator.CalculateExcessTemperature", "ThermalCalculator.cs:332", "ThermalSection"),
-                Meta("Коэффициент C", "C", "Промежуточный коэффициент C", "-", "C = abs(t_H - t_G)", "ThermalCalculator.CalculateExcessTemperature", "ThermalCalculator.cs:335", "ThermalSection"),
-                Meta("Коэффициент D", "D", "Промежуточный коэффициент D", "-", "D = lR / (pi * lambdaR)", "ThermalCalculator.CalculateExcessTemperature", "ThermalCalculator.cs:342", "ThermalSection"),
-                Meta("Коэффициент E", "E", "Промежуточный коэффициент E", "-", "E = s / (d - s)", "ThermalCalculator.CalculateExcessTemperature", "ThermalCalculator.cs:349", "ThermalSection"),
-                Meta("Аргумент КПД ребра", "x", "Аргумент для расчёта etaR", "-", "x = m * spacing / 2", "ThermalCalculator.CalculateRodTheory", "ThermalCalculator.cs:240", "ThermalSection")
+                Meta("Коэффициент A", "A", "Промежуточный коэффициент A", "-", "A = 1 / etaR", "ThermalCalculator.CalculateExcessTemperature", "ThermalCalculator", "ThermalSection"),
+                Meta("Коэффициент B", "B", "Промежуточный коэффициент B", "-", "B = 1/RFb + 1/RD", "ThermalCalculator.CalculateExcessTemperature", "ThermalCalculator", "ThermalSection"),
+                Meta("Коэффициент C", "C", "Промежуточный коэффициент C", "-", "C = abs(t_H - t_G)", "ThermalCalculator.CalculateExcessTemperature", "ThermalCalculator", "ThermalSection"),
+                Meta("Коэффициент D", "D", "Промежуточный коэффициент D", "-", "D = lR / (pi * lambdaR)", "ThermalCalculator.CalculateExcessTemperature", "ThermalCalculator", "ThermalSection"),
+                Meta("Коэффициент E", "E", "Промежуточный коэффициент E", "-", "E = s / (d - s)", "ThermalCalculator.CalculateExcessTemperature", "ThermalCalculator", "ThermalSection"),
+                Meta("Аргумент КПД ребра", "x", "Аргумент для расчёта etaR", "-", "x = m * spacing / 2", "ThermalCalculator.CalculateRodTheory", "ThermalCalculator", "ThermalSection")
             };
 
             var formulas = new List<ReportFormula>
             {
-                Formula("alpha", "2.26 * (t_P - t_H)^0.33 + 2.6 * v_H", "ThermalCalculator.cs:94", "Thermal"),
-                Formula("Q_таяние", "(h/3600) * rho * (c_ice*(0-t_H) + L_melt + c_water*t_P)", "ThermalCalculator.cs:135-139", "Thermal"),
-                Formula("Q_конв", "alpha * (t_P - t_H)", "ThermalCalculator.cs:143", "Thermal"),
-                Formula("Q_изл", "epsilon * sigma * (273 + t_P)^4", "ThermalCalculator.cs:534-535", "Thermal"),
-                Formula("PowerUp", "Q_таяние + Q_конв", "ThermalCalculator.cs:147", "Thermal"),
-                Formula("RFb", "R1 + 1/alpha", "ThermalCalculator.cs:182", "Thermal"),
-                Formula("RD", "R2 + 1/AlphaBottom", "ThermalCalculator.cs:185", "Thermal"),
-                Formula("m", "0.6 * sqrt((1/RFb + 1/RD) / (lambdaE * dE))", "ThermalCalculator.cs:237", "Thermal"),
-                Formula("x", "m * spacing / 2", "ThermalCalculator.cs:240", "Thermal"),
-                Formula("etaR", "tanh(x) / x", "ThermalCalculator.cs:244-256", "Thermal"),
-                Formula("A", "1 / etaR", "ThermalCalculator.cs:329", "Thermal"),
-                Formula("B", "1/RFb + 1/RD", "ThermalCalculator.cs:332", "Thermal"),
-                Formula("C", "abs(t_H - t_G)", "ThermalCalculator.cs:335", "Thermal"),
-                Formula("D", "lR / (pi * lambdaR)", "ThermalCalculator.cs:342", "Thermal"),
-                Formula("E", "s / (d - s)", "ThermalCalculator.cs:349", "Thermal"),
-                Formula("JHmu", "[A + (B - C/(PowerUp * RFb * RD)) * D * E] * PowerUp * RFb", "ThermalCalculator.cs:354", "Thermal"),
-                Formula("PowerDown", "(JHmu_low * RFb + C * D * E) / (RFb * RD * (A + B * D * E))", "ThermalCalculator.cs:418-422", "Thermal"),
-                Formula("TotalPowerDensity", "PowerUp + PowerDown", "ThermalCalculator.cs:568", "Thermal"),
-                Formula("m_dot", "PowerTotal / (c_p / 3.6) / DeltaT", "ThermalCalculator.cs:577", "Thermal"),
-                Formula("V_dot_m2", "MassFlowRate / rho * 1000", "ThermalCalculator.cs:580", "Thermal")
+                Formula("alpha", "2.26 * (t_P - t_H)^0.33 + 2.6 * v_H", "ThermalCalculator", "Thermal"),
+                Formula("Q_таяние", "(h/3600) * rho * (c_ice*(0-t_H) + L_melt + c_water*t_P)", "ThermalCalculator", "Thermal"),
+                Formula("Q_конв", "alpha * (t_P - t_H)", "ThermalCalculator", "Thermal"),
+                Formula("Q_изл", "epsilon * sigma * (273 + t_P)^4", "ThermalCalculator", "Thermal"),
+                Formula("PowerUp", "Q_таяние + Q_конв", "ThermalCalculator", "Thermal"),
+                Formula("RFb", "R1 + 1/alpha", "ThermalCalculator", "Thermal"),
+                Formula("RD", "R2 + 1/AlphaBottom", "ThermalCalculator", "Thermal"),
+                Formula("m", "0.6 * sqrt((1/RFb + 1/RD) / (lambdaE * dE))", "ThermalCalculator", "Thermal"),
+                Formula("x", "m * spacing / 2", "ThermalCalculator", "Thermal"),
+                Formula("etaR", "tanh(x) / x", "ThermalCalculator", "Thermal"),
+                Formula("A", "1 / etaR", "ThermalCalculator", "Thermal"),
+                Formula("B", "1/RFb + 1/RD", "ThermalCalculator", "Thermal"),
+                Formula("C", "abs(t_H - t_G)", "ThermalCalculator", "Thermal"),
+                Formula("D", "lR / (pi * lambdaR)", "ThermalCalculator", "Thermal"),
+                Formula("E", "s / (d - s)", "ThermalCalculator", "Thermal"),
+                Formula("JHmu", "[A + (B - C/(PowerUp * RFb * RD)) * D * E] * PowerUp * RFb", "ThermalCalculator", "Thermal"),
+                Formula("PowerDown", "(JHmu_low * RFb + C * D * E) / (RFb * RD * (A + B * D * E))", "ThermalCalculator", "Thermal"),
+                Formula("TotalPowerDensity", "PowerUp + PowerDown", "ThermalCalculator", "Thermal"),
+                Formula("m_dot", "PowerTotal / (c_p / 3.6) / DeltaT", "ThermalCalculator", "Thermal"),
+                Formula("V_dot_m2", "MassFlowRate / rho * 1000", "ThermalCalculator", "Thermal")
             };
 
             return new SectionBuildResult<ThermalSection>
@@ -224,7 +224,6 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
             var tSupply = thermal.SupplyTemperature;
             var spacingMm = thermal.PipeSpacing;
             var dOuter = thermal.SelectedPipe?.OuterDiameter ?? 0.0;
-            var wall = thermal.SelectedPipe?.WallThickness ?? 0.0;
 
             ReportValue<double> V(string key, double value, string unit) =>
                 ReportValueFactory.Create(value, unit, ReportValueSource.UserInput, key);
@@ -244,7 +243,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
             {
                 Key = "thermal.melting",
                 Title = "2. Мощность на плавление снега Q_таяния",
-                FormulaText = "Q_таяния = (h/3600)·ρ_снега·[c_льда·(0 − tH) + L_плавл + c_воды·tП]",
+                FormulaText = "Q_таяния = (h/1000/3600)·ρ_снега·[c_льда·(0 − tH) + L_плавл + c_воды·tП] (h в мм/ч)",
                 SubstitutionText = $"Q_таяния = (h = {ReportNumber.Format(h, 2)} мм/ч; константы — таблица ниже) → {ReportNumber.Format(meltingHeat.Value, 1)} Вт/м²",
                 Result = meltingHeat,
                 Note = "Нагрев льда до 0 °C, плавление и нагрев воды до tП; плотность и теплоёмкости — константы кода (таблица констант).",

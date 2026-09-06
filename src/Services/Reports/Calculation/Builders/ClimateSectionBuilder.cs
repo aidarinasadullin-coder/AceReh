@@ -69,10 +69,10 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
 
             var formulas = new List<ReportFormula>
             {
-                Formula("T_return", "2 * MeanTemperature - SupplyTemperature", "ThermalCalculator.cs:521", "Climate"),
-                Formula("T_mean", "ExcessTemperature + AirTemperature", "ThermalCalculator.cs:501", "Climate"),
-                Formula("DeltaT", "SupplyTemperature - ReturnTemperature", "ThermalCalculator.cs:524", "Climate"),
-                Formula("t_P", "(int)OperatingMode", "ThermalCalculator.cs:451", "Climate")
+                Formula("T_return", "2 * MeanTemperature - SupplyTemperature", "ThermalCalculator", "Climate"),
+                Formula("T_mean", "ExcessTemperature + AirTemperature", "ThermalCalculator", "Climate"),
+                Formula("DeltaT", "SupplyTemperature - ReturnTemperature", "ThermalCalculator", "Climate"),
+                Formula("t_P", "(int)OperatingMode", "ThermalCalculator", "Climate")
             };
 
             return new SectionBuildResult<ClimateSection>
