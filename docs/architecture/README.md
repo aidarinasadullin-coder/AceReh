@@ -308,3 +308,31 @@ writers (ADR-003) без изменений, `ArchitectureRulesTests` в зел�
    `DefaultPageSetup.Clone()` задаётся явными `PageWidth`/`PageHeight`
    (связка `PageFormat`+`Orientation` даёт портрет). Тест-пины «QuestPDF»
    в `CalculationReportModelTests` сохранены как анти-зависимостный guard.
+
+### ADR-010 — 2026-09-07 — Детальный отчёт v2 «Пояснительная записка»: модель шагов расчёта, каноника + контрольный пересчёт, state ownership без изменений
+
+Спецификация `docs/report-spec-v2.md` (согласована владельцем 2026-09-06,
+журнал решений в спецификации), план `docs/plans/2026-09-06-report-v2-plan.md`.
+
+Решения:
+
+1. **Источник тепловых величин отчёта** — канонический снимок
+   `ProjectSession.ThermalState.Snapshot` (DEC-T01, полный набор runtime-полей);
+   fallback — ровно один контрольный пересчёт существующим
+   `ThermalCalculator.Calculate` по входам проекта, результат в канонику не
+   пишется, dirty не создаётся. Wire-контракт `.smc` (DEC-T08, ADR Ф4) не
+   изменяется; persistence не затронута.
+2. **Модель документа** — `CalculationStep` (формула → подстановка → результат
+   → примечание); подстановки собираются билдером из тех же `ReportValue`,
+   что идут в таблицы (Derived); рендер не вычисляет.
+3. **Константы расчёта** — единственный источник `Core/Constants/
+   ThermalConstants` (R1 переключает `ThermalCalculator` на него, значения не
+   меняются); `HydraulicsConstants` как источник для отчёта не используется
+   без построчной сверки (значения расходятся с кодом).
+4. **Числа отчёта** — каноническая `AppCulture.Culture` (ADR-Ф8 применяет её
+   же в PDF-рендере).
+5. **UI** — пункты «Markdown — …» переименовываются в «Пояснительная
+   записка — …», AutomationId без изменений.
+
+Итог handover: **state ownership без изменений**, списки санкционированных
+writers (ADR-003) без изменений, `ArchitectureRulesTests` в зелёном прогоне.
