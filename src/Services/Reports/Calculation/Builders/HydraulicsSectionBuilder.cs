@@ -21,6 +21,9 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
             var section = new HydraulicsSection
             {
                 ReferenceCircuit = BuildReferenceCircuit(hydraulics, mode),
+                ModeComparison = mode == CalculationReportMode.DesignCold
+                    ? BuildModeComparison(hydraulics)
+                    : new List<ModeComparisonRow>(),
                 GlycolType = ReportValueFactory.Create(hydraulics.GlycolType.ToString(), "-", ReportValueSource.UserInput, "ProjectData.HydraulicsData.GlycolType"),
                 GlycolConcentration = ReportValueFactory.Create(hydraulics.GlycolConcentration, "%", ReportValueSource.UserInput, "ProjectData.HydraulicsData.GlycolConcentration"),
                 Density = ReportValueFactory.Create(0.0, "г/см³", ReportValueSource.Calculated, "CircuitResultProjectData.Density", formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
@@ -35,6 +38,74 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 ParameterMetadata = HydraulicsReportMetadataBuilder.BuildMetadata(section),
                 Formulas = HydraulicsReportMetadataBuilder.BuildFormulas()
             };
+        }
+
+        /// <summary>
+        /// Сравнение «рабочий vs холодный пуск» (В3): по каждому коллектору —
+        /// вязкость и параметры худшего контура каждого режима из сохранённых
+        /// результатов. Кратность роста — Derived-отношение для отображения.
+        /// </summary>
+        private static List<ModeComparisonRow> BuildModeComparison(HydraulicsProjectData hydraulics)
+        {
+            var rows = new List<ModeComparisonRow>();
+            foreach (var collector in hydraulics.Collectors ?? new List<CollectorProjectData>())
+            {
+                var summary = collector.Summary;
+                if (summary is null)
+                {
+                    continue;
+                }
+
+                var working = PickWorst(collector, CalculationReportMode.Operating);
+                var cold = PickWorst(collector, CalculationReportMode.DesignCold);
+
+                rows.Add(new ModeComparisonRow
+                {
+                    CollectorNumber = collector.CollectorNumber,
+                    CollectorType = collector.CollectorType ?? string.Empty,
+                    WorkingViscosity = working?.KinematicViscosity ?? 0.0,
+                    ColdViscosity = cold?.KinematicViscosity ?? 0.0,
+                    WorkingReynolds = working?.ReynoldsNumber ?? 0.0,
+                    ColdReynolds = cold?.ReynoldsNumber ?? 0.0,
+                    WorkingFriction = working?.FrictionFactor ?? 0.0,
+                    ColdFriction = cold?.FrictionFactor ?? 0.0,
+                    WorkingPressureLossPa = summary.PressureLoss_Operating_Pa,
+                    ColdPressureLossPa = summary.PressureLoss_Cold_Pa,
+                    GrowthRatio = summary.PressureLoss_Operating_Pa > 0.0
+                        ? summary.PressureLoss_Cold_Pa / summary.PressureLoss_Operating_Pa
+                        : 0.0
+                });
+            }
+
+            return rows;
+        }
+
+        /// <summary>Худший контур коллектора в режиме (max DpGesamt; при ничьей — минимальный номер).</summary>
+        private static CircuitResultProjectData? PickWorst(CollectorProjectData collector, CalculationReportMode mode)
+        {
+            CircuitProjectData? worstCircuit = null;
+            CircuitResultProjectData? worstResult = null;
+            double worstDp = -1.0;
+            foreach (var circuit in collector.Circuits ?? new List<CircuitProjectData>())
+            {
+                var result = mode == CalculationReportMode.Operating ? circuit.OperatingResult : circuit.DesignResult;
+                if (result is null)
+                {
+                    continue;
+                }
+
+                if (result.DpGesamt > worstDp
+                    || (result.DpGesamt == worstDp
+                        && worstCircuit is not null
+                        && circuit.CircuitNumber < worstCircuit.CircuitNumber))
+                {
+                    worstDp = result.DpGesamt;
+                    worstCircuit = circuit;
+                    worstResult = result;
+                }
+            }
+
+            return worstResult;
         }
 
         /// <summary>

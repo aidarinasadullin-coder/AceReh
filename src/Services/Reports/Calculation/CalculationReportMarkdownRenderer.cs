@@ -29,7 +29,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             CalculationReportMarkdownSectionRenderer.RenderProjectSection(sb, data.ProjectSection);
             CalculationReportMarkdownSectionRenderer.RenderClimateSection(sb, data.ClimateSection);
             CalculationReportMarkdownSectionRenderer.RenderConstructionSection(sb, data.ConstructionSection);
-            CalculationReportMarkdownSectionRenderer.RenderThermalSection(sb, data.ThermalSection);
+            CalculationReportMarkdownSectionRenderer.RenderThermalSection(sb, data.ThermalSection, data.Mode);
             CalculationReportMarkdownSectionRenderer.RenderHydraulicsSection(sb, data.HydraulicsSection);
             CalculationReportMarkdownSectionRenderer.RenderEquipmentSection(sb, data.EquipmentSection);
             CalculationReportMarkdownAppendixRenderer.RenderWarnings(sb, data.Warnings);

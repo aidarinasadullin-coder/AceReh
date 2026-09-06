@@ -285,7 +285,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 Key = "thermal.rd",
                 Title = "6. Сопротивление вниз RD",
                 FormulaText = "RD = R2 + 1/α_низ; α_низ → ∞ (нижняя граница адиабатическая)",
-                SubstitutionText = $"RD = {ReportNumber.Format(construction.R2, 4)} + 1/{ReportNumber.Format(Core.Constants.ThermalConstants.AlphaBottom, 0)} ≈ {ReportNumber.Format(detail.RD, 4)} м²·К/Вт",
+                SubstitutionText = $"RD = {ReportNumber.Format(construction.R2, 4)} + 1/∞ ≈ {ReportNumber.Format(detail.RD, 4)} м²·К/Вт",
                 Result = rD,
                 Note = "Слои под трубой приняты адиабатической границей снизу.",
                 Inputs = new List<ReportValue<double>> { V("R2", construction.R2, "м²·К/Вт") }

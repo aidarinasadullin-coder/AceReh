@@ -197,6 +197,120 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
         }
 
         [Test]
+        public void Render_Deterministic_TwoRunsIdentical()
+        {
+            // T2-08: два рендера подряд — байт-в-байт одинаковый вывод.
+            var renderer = new CalculationReportMarkdownRenderer();
+            var builder = new CalculationReportDataBuilder();
+            var data = builder.Build(MakeProject(), CalculationReportMode.Operating, new DateTime(2026, 9, 7, 12, 0, 0), MakeDetail());
+
+            var first = renderer.Render(data);
+            var second = renderer.Render(data);
+
+            Assert.That(second, Is.EqualTo(first));
+            Assert.That(first, Does.Contain("Пошаговый расчёт"));
+        }
+
+        [Test]
+        public void Render_OperatingMode_FullThermalSteps_AndReferenceCircuit()
+        {
+            // T2-09 (Operating): полный пошаговый расчёт + референсный контур.
+            var project = MakeProject();
+            project.HydraulicsData = new HydraulicsProjectData
+            {
+                Collectors = new List<CollectorProjectData>
+                {
+                    new()
+                    {
+                        CollectorNumber = 1,
+                        CollectorType = "IV 1¼\"",
+                        Summary = new CollectorSummaryProjectData { PressureLoss_Operating_Pa = 45000, PressureLoss_Cold_Pa = 150000 },
+                        Circuits = new List<CircuitProjectData>
+                        {
+                            new() { CircuitNumber = 1, CircuitLength = 100.0, SupplyLength = 10.0, PipeSpacingCm = 20,
+                                OperatingResult = new CircuitResultProjectData { DpGesamt = 45000, Power = 6700, FlowRate = 320, Velocity = 0.44, ReynoldsNumber = 10600, FrictionFactor = 0.031, PressureLossPerMeter = 204, DpRohr = 400, DpVerteiler = 50, DpVent = 50, Throttling = 0, ValveTurns = 8 },
+                                DesignResult = new CircuitResultProjectData { DpGesamt = 150000, Power = 6700, FlowRate = 320, Velocity = 0.44, ReynoldsNumber = 450, FrictionFactor = 0.14, PressureLossPerMeter = 680, DpRohr = 140000, DpVerteiler = 500, DpVent = 500, Throttling = 0, ValveTurns = 8 } }
+                        }
+                    }
+                }
+            };
+
+            var renderer = new CalculationReportMarkdownRenderer();
+            var builder = new CalculationReportDataBuilder();
+            var operating = renderer.Render(builder.Build(project, CalculationReportMode.Operating, thermalDetail: MakeDetail()));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(operating, Does.Contain("Пошаговый расчёт"));
+                Assert.That(operating, Does.Contain("Референсный контур"));
+                Assert.That(operating, Does.Not.Contain("Сравнение режимов"));
+                Assert.That(operating, Does.Contain("Режим отчёта:** Рабочий"));
+            });
+        }
+
+        [Test]
+        public void Render_DesignCold_ShortThermalSummary_AndModeComparison()
+        {
+            // T2-09 (DesignCold): краткая тепловая справка вместо шагов +
+            // сравнение «рабочий vs пуск» (В3) + гидравлика DesignResult.
+            var project = MakeProject();
+            project.HydraulicsData = new HydraulicsProjectData
+            {
+                Collectors = new List<CollectorProjectData>
+                {
+                    new()
+                    {
+                        CollectorNumber = 1,
+                        CollectorType = "IV 1¼\"",
+                        Summary = new CollectorSummaryProjectData { PressureLoss_Operating_Pa = 45000, PressureLoss_Cold_Pa = 150000 },
+                        Circuits = new List<CircuitProjectData>
+                        {
+                            new() { CircuitNumber = 1, CircuitLength = 100.0, SupplyLength = 10.0, PipeSpacingCm = 20,
+                                OperatingResult = new CircuitResultProjectData { DpGesamt = 45000, Power = 6700, FlowRate = 320, Velocity = 0.44, ReynoldsNumber = 10600, FrictionFactor = 0.031, PressureLossPerMeter = 204, DpRohr = 400, DpVerteiler = 50, DpVent = 50, Throttling = 0, ValveTurns = 8 },
+                                DesignResult = new CircuitResultProjectData { DpGesamt = 150000, Power = 6700, FlowRate = 320, Velocity = 0.44, ReynoldsNumber = 450, FrictionFactor = 0.14, PressureLossPerMeter = 680, DpRohr = 140000, DpVerteiler = 500, DpVent = 500, Throttling = 0, ValveTurns = 8 } }
+                        }
+                    }
+                }
+            };
+
+            var renderer = new CalculationReportMarkdownRenderer();
+            var builder = new CalculationReportDataBuilder();
+            var cold = renderer.Render(builder.Build(project, CalculationReportMode.DesignCold, thermalDetail: MakeDetail()));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cold, Does.Contain("Краткая тепловая справка"));
+                Assert.That(cold, Does.Not.Contain("Пошаговый расчёт"));
+                Assert.That(cold, Does.Contain("Сравнение режимов"));
+                Assert.That(cold, Does.Contain("×3,3"));
+                Assert.That(cold, Does.Contain("150"));
+                Assert.That(cold, Does.Contain("Режим отчёта:** Расчётный/холодный"));
+            });
+        }
+
+        [Test]
+        public void Render_WithoutDetail_MissingDataMarkerShown()
+        {
+            // В2: детальные величины отсутствуют (старый файл, пересчёт
+            // невозможен) — маркер «нет данных» + MISSING_THERMAL_DETAIL.
+            var detail = new ThermalReportDetail
+            {
+                Source = ThermalReportDetailSource.RecalculationInvalid,
+                ValidationErrors = new[] { "Мощность вниз (потери) не может быть отрицательной." }
+            };
+            var builder = new CalculationReportDataBuilder();
+            var data = builder.Build(MakeProject(), CalculationReportMode.Operating, thermalDetail: detail);
+            var markdown = new CalculationReportMarkdownRenderer().Render(data);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(data.ThermalSection.IsDetailAvailable, Is.False);
+                Assert.That(markdown, Does.Contain("нет данных"));
+                Assert.That(markdown, Does.Contain("MISSING_THERMAL_DETAIL") , "предупреждение в разделе предупреждений");
+            });
+        }
+
+        [Test]
         public void Build_MissingCircuitResults_ReferenceCircuitNull()
         {
             // T2-13: результатов выбранного режима нет — референсный контур
