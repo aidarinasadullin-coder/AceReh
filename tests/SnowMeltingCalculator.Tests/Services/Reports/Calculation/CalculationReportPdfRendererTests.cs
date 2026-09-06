@@ -127,6 +127,44 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
         }
 
         [Test]
+        public void Render_OperatingMode_FullSteps_WithoutModeComparison()
+        {
+            // T2-09-PDF (Operating): полный пошаговый расчёт, сравнения режимов нет.
+            var text = RenderToText(BuildFullData(CalculationReportMode.Operating));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(text, Does.Contain("Режим отчёта"));
+                Assert.That(text, Does.Contain("Рабочий режим"));
+                Assert.That(text, Does.Contain("Пошаговый расчёт"));
+                Assert.That(text, Does.Not.Contain("Краткая тепловая справка"));
+                Assert.That(text, Does.Not.Contain("Сравнение режимов"));
+            });
+        }
+
+        [Test]
+        public void Render_DesignColdMode_ShortSummary_Comparison_AndDesignHydraulics()
+        {
+            // T2-09-PDF (DesignCold, В3): краткая справка + сравнение
+            // «рабочий vs пуск», гидравлика — DesignResult (DpGesamt 150 000).
+            var text = RenderToText(BuildFullData(CalculationReportMode.DesignCold));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(text, Does.Contain("Расчётный/холодный режим"));
+                Assert.That(text, Does.Contain("Краткая тепловая справка"));
+                Assert.That(text, Does.Not.Contain("Пошаговый расчёт"));
+                Assert.That(text, Does.Contain("Сравнение режимов: рабочий vs холодный пуск"));
+                Assert.That(text, Does.Contain("худшего контура"));
+                // Гидравлика пуска: DpGesamt контура DesignResult = 150 000
+                // (NBSP-тысячи, каноническая культура).
+                Assert.That(text, Does.Contain("150\u00A0000,000"));
+                // Кратность роста потерь 150000/45000.
+                Assert.That(text, Does.Contain("×3,3"));
+            });
+        }
+
+        [Test]
         public void InterResolver_ResolvesEmbeddedBrandFont()
         {
             // Брендбук (спека §7.2): Inter подаётся из встроенных TTF,
