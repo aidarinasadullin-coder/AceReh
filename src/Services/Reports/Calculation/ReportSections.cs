@@ -3,11 +3,95 @@ using System.Collections.Generic;
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
+    /// Шаг расчёта детального отчёта (ADR-010): формула → подстановка реальных
+    /// значений проекта → результат. Подстановочный текст собирается билдером
+    /// из тех же <see cref="ReportValue{T}"/>, что идут в таблицы раздела
+    /// (Derived), поэтому числа шага и таблиц не могут разойтись.
+    /// </summary>
+    public sealed class CalculationStep
+    {
+        /// <summary>Стабильный ключ шага (например, «thermal.alpha»).</summary>
+        public string Key { get; init; } = string.Empty;
+
+        /// <summary>Заголовок шага (название величины с обозначением).</summary>
+        public string Title { get; init; } = string.Empty;
+
+        /// <summary>Формульная запись (обозначения, из кода/документации).</summary>
+        public string FormulaText { get; init; } = string.Empty;
+
+        /// <summary>Подстановка чисел проекта в формулу.</summary>
+        public string SubstitutionText { get; init; } = string.Empty;
+
+        /// <summary>Результат шага: значение, единица, источник.</summary>
+        public ReportValue<double> Result { get; init; } = new();
+
+        /// <summary>Примечание (физический смысл, справочные оговорки).</summary>
+        public string? Note { get; init; }
+
+        /// <summary>Входные значения подстановки — метаданные источника чисел.</summary>
+        public IReadOnlyList<ReportValue<double>> Inputs { get; init; } = new List<ReportValue<double>>();
+    }
+
+    /// <summary>
+    /// Запись таблицы констант расчёта (значения — из кода программы).
+    /// </summary>
+    public sealed class ReportConstantEntry
+    {
+        /// <summary>Название константы.</summary>
+        public string Name { get; init; } = string.Empty;
+
+        /// <summary>Обозначение в формулах.</summary>
+        public string Symbol { get; init; } = string.Empty;
+
+        /// <summary>Значение (форматирование — Derived).</summary>
+        public double Value { get; init; }
+
+        /// <summary>Количество знаков после разделителя при выводе.</summary>
+        public int Decimals { get; init; }
+
+        /// <summary>Единица измерения.</summary>
+        public string Unit { get; init; } = string.Empty;
+
+        /// <summary>Источник в коде (класс/файл).</summary>
+        public string SourceDetail { get; init; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Референсный контур гидравлического раздела (В4): контур с максимальными
+    /// потерями худшего коллектора; при ничьей — минимальный номер контура.
+    /// </summary>
+    public sealed class ReferenceCircuitSection
+    {
+        /// <summary>Номер коллектора референсного контура.</summary>
+        public int CollectorNumber { get; init; }
+
+        /// <summary>Номер контура.</summary>
+        public int CircuitNumber { get; init; }
+
+        /// <summary>Тип коллектора.</summary>
+        public string CollectorType { get; init; } = string.Empty;
+
+        /// <summary>Длина контура с подводкой, м.</summary>
+        public ReportValue<double> TotalLength { get; init; } = new();
+
+        /// <summary>Цепочка шагов: Q_HK → V̇ → v → Re → λ → R → DpRohr → DpVerteiler → DpVent → DpGesamt.</summary>
+        public IReadOnlyList<CalculationStep> Steps { get; init; } = new List<CalculationStep>();
+
+        /// <summary>Шаги примера балансировки: Δp дросселя → Kv (формула) → обороты.</summary>
+        public IReadOnlyList<CalculationStep> BalancingSteps { get; init; } = new List<CalculationStep>();
+
+        /// <summary>Примечание о правиле вычитания для типа коллектора (HKV-D/IV).</summary>
+        public string? BalancingNote { get; init; }
+
+        /// <summary>Примечание о семантике DpVent (полностью открытый клапан, не пересчитывается).</summary>
+        public string? DpVentNote { get; init; }
+    }
+
+    /// <summary>
     /// Слой конструкции в отчёте.
     /// </summary>
     public sealed class ReportConstructionLayer
-    {
-        /// <summary>
+    {        /// <summary>
         /// Позиция слоя (над / под трубой).
         /// </summary>
         public string Position { get; init; } = string.Empty;
@@ -151,6 +235,16 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         public ReportValue<double> LambdaE { get; init; } = new();
 
         /// <summary>
+        /// Примечание о правиле выбора λА/λБ по уровню грунтовых вод.
+        /// </summary>
+        public string? LambdaRuleNote { get; init; }
+
+        /// <summary>
+        /// Шаги расчёта R1/R2 с подстановкой по слоям.
+        /// </summary>
+        public IReadOnlyList<CalculationStep> Steps { get; init; } = new List<CalculationStep>();
+
+        /// <summary>
         /// Слои конструкции.
         /// </summary>
         public IReadOnlyList<ReportConstructionLayer> Layers { get; init; } = new List<ReportConstructionLayer>();
@@ -250,6 +344,45 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         /// Теплоёмкость воды.
         /// </summary>
         public ReportValue<double> WaterHeatCapacity { get; init; } = new();
+
+        /// <summary>
+        /// Признак доступности детальных тепловых величин (ADR-010). false —
+        /// рендер выводит маркер «нет данных».
+        /// </summary>
+        public bool IsDetailAvailable { get; init; }
+
+        /// <summary>
+        /// Источник детальных величин (снимок сессии / контрольный пересчёт) —
+        /// для строки под разделом.
+        /// </summary>
+        public string DetailSourceDescription { get; init; } = string.Empty;
+
+        /// <summary>
+        /// Примечание провайдера (пересчёт, расхождение с сохранёнными
+        /// мощностями, дефолтный теплоноситель).
+        /// </summary>
+        public string? DetailNote { get; init; }
+
+        /// <summary>
+        /// Ошибки валидации расчёта/пересчёта (В7) — выводятся в разделе
+        /// «Проверки».
+        /// </summary>
+        public IReadOnlyList<string> DetailValidationErrors { get; init; } = new List<string>();
+
+        /// <summary>
+        /// Пошаговый расчёт (α → Qтаяния → … → расходы).
+        /// </summary>
+        public IReadOnlyList<CalculationStep> Steps { get; init; } = new List<CalculationStep>();
+
+        /// <summary>
+        /// Таблица констант расчёта (значения из кода программы).
+        /// </summary>
+        public IReadOnlyList<ReportConstantEntry> Constants { get; init; } = new List<ReportConstantEntry>();
+
+        /// <summary>
+        /// Коэффициенты A–E теории стержня (таблицей, значения пересчёта).
+        /// </summary>
+        public IReadOnlyList<ReportValue<double>> RodTheoryCoefficients { get; init; } = new List<ReportValue<double>>();
     }
 
     /// <summary>
@@ -450,6 +583,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
     /// </summary>
     public sealed class HydraulicsSection
     {
+        /// <summary>
+        /// Референсный контур с цепочкой шагов и примером балансировки (В4).
+        /// null — результаты выбранного режима отсутствуют (missing-data).
+        /// </summary>
+        public ReferenceCircuitSection? ReferenceCircuit { get; init; }
+
         /// <summary>
         /// Тип гликоля.
         /// </summary>
