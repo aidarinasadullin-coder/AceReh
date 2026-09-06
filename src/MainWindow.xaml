@@ -167,11 +167,17 @@
 
                 <!-- «Рассчитать» — бывшая кнопка теплового модуля, перенос в шапку
                      (Фаза 5): ThermalCalculate переехал из ThermalView, контрактный
-                     тест обновлён в этой же фазе. -->
+                     тест обновлён в этой же фазе. Команда — обёртка шелла
+                     (решение владельца 2026-09-06): каскад гидравлики выполняет
+                     реактивный хук координатора (публикация валидного теплового
+                     результата будит CalculateAll), а шелл обеспечивает видимость
+                     ошибок — при невалидном/несвежем тепловом переводит на
+                     Тепловой шаг, где ошибка видна в статус-баре (раньше
+                     нажатие с другого шага выглядело молчаливым no-op). -->
                 <Button Grid.Column="6"
                         Content="Рассчитать"
                         Style="{StaticResource Button.Primary}"
-                        Command="{Binding ThermalViewModel.CalculateCommand}"
+                        Command="{Binding HeaderCalculateCommand}"
                         IsEnabled="{Binding ThermalViewModel.IsCalculating, Converter={StaticResource InverseBooleanConverter}}"
                         ToolTip="Выполнить расчёт по текущим данным модулей"
                         AutomationProperties.AutomationId="ThermalCalculate"

@@ -182,6 +182,67 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         [RelayCommand]
         private void StartWork() => DismissWelcome();
 
+        /// <summary>
+        /// Шапочная «Рассчитать» (AutomationId ThermalCalculate, Ф5).
+        /// Пересчёт гидравлики выполняется реактивно: публикация валидного
+        /// теплового результата в CalculationContext будит
+        /// HydraulicsStateCoordinator.OnContextChanged → CalculateAll (хук
+        /// существует с baseline; явный вызов из шелла удалён по ревью как
+        /// дублирующий). Обёртка шелла отвечает за видимость ошибок:
+        /// статус-бар показывает сообщения только текущего шага, поэтому при
+        /// отсутствии свежего валидного теплового результата (упала входная
+        /// валидация; результат невалиден; контекст несвеж относительно
+        /// текущих входов — отвергнутая/непринятая правка не очищает прежний
+        /// результат) шелл переводит пользователя на Тепловой шаг, где
+        /// ошибка видна. Климат/Конструкция — входные данные без ручного
+        /// пересчёта, Результаты — производная страница.
+        /// </summary>
+        [RelayCommand]
+        private async Task HeaderCalculate()
+        {
+            await _thermalViewModel.CalculateCommand.ExecuteAsync(null);
+
+            // «Готов к каскаду» = результат валиден И контекст соответствует
+            // текущим входам: правки, не дошедшие до координатора (отвергнутые
+            // каноном, упавшая входная валидация), оставляют в контексте
+            // прежний валидный результат — без проверки свежести нажатие
+            // выглядело бы молчаливым no-op на устаревших данных.
+            var thermalReady = _calculationContext.ThermalResult?.IsValid == true
+                && ThermalInputsMatchContext();
+
+            if (!thermalReady && CurrentNavigationTarget != NavigationTarget.Thermal)
+            {
+                // Навигация через SelectedMenuItem: сеттер обновляет заголовок,
+                // статус-бар и закрывает welcome (поиск по Target — урок Ф3Б).
+                var thermalMenuItem = MenuItems.FirstOrDefault(m => m.Target == NavigationTarget.Thermal);
+                if (thermalMenuItem != null)
+                {
+                    SelectedMenuItem = thermalMenuItem;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Совпадают ли тепловые входы контекста (опубликованные последним
+        /// расчётом/загрузкой) с текущими входами ViewModel.
+        /// </summary>
+        private bool ThermalInputsMatchContext()
+        {
+            var context = _calculationContext.ThermalInputs;
+            if (context == null)
+            {
+                return false;
+            }
+
+            var current = _thermalViewModel.BuildThermalInputs();
+            return context.Mode == current.Mode
+                && context.SupplyTemperature == current.SupplyTemperature
+                && context.GroundTemperature == current.GroundTemperature
+                && ReferenceEquals(context.Pipe, current.Pipe)
+                && context.PipeSpacing == current.PipeSpacing
+                && context.LambdaE == current.LambdaE;
+        }
+
         private bool _isCalculationOverlayVisible;
         /// <summary>
         /// Оверлей расчёта (Ф7.3): панель на градиенте Teal.Deep в зоне
