@@ -1,15 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
     /// Вспомогательные методы форматирования Markdown-таблиц и значений.
+    /// Числа — каноническая культура приложения (<see cref="ReportNumber"/>, В6).
     /// </summary>
     public static class CalculationReportMarkdownRenderHelper
     {
+        /// <summary>Формат табличных чисел по умолчанию.</summary>
+        public const string TableFormat = "N3";
+
         public static string Value(ReportValue<double> value)
         {
             double? v = value.Value;
@@ -18,7 +21,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 return CalculationReportMarkdownRendererConstants.MissingValue;
             }
 
-            return v.Value.ToString(CultureInfo.InvariantCulture);
+            return ReportNumber.Format(v.Value, TableFormat);
         }
 
         public static string Value(ReportValue<string> value)

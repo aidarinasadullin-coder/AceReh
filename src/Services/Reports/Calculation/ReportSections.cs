@@ -579,6 +579,38 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
     }
 
     /// <summary>
+    /// Строка сравнения «рабочий vs холодный пуск» по коллектору (В3).
+    /// Значения — сохранённые результаты соответствующего режима.
+    /// </summary>
+    public sealed class ModeComparisonRow
+    {
+        /// <summary>Номер коллектора.</summary>
+        public int CollectorNumber { get; init; }
+
+        /// <summary>Тип коллектора.</summary>
+        public string CollectorType { get; init; } = string.Empty;
+
+        /// <summary>Вязкость (рабочий/холодный), мм²/с.</summary>
+        public double WorkingViscosity { get; init; }
+        public double ColdViscosity { get; init; }
+
+        /// <summary>Re худшего контура (рабочий/холодный).</summary>
+        public double WorkingReynolds { get; init; }
+        public double ColdReynolds { get; init; }
+
+        /// <summary>λ худшего контура (рабочий/холодный).</summary>
+        public double WorkingFriction { get; init; }
+        public double ColdFriction { get; init; }
+
+        /// <summary>Потери давления коллектора (рабочий/холодный), Па.</summary>
+        public double WorkingPressureLossPa { get; init; }
+        public double ColdPressureLossPa { get; init; }
+
+        /// <summary>Кратность роста потерь (холодный/рабочий; Derived).</summary>
+        public double GrowthRatio { get; init; }
+    }
+
+    /// <summary>
     /// Раздел гидравлического расчёта.
     /// </summary>
     public sealed class HydraulicsSection
@@ -588,6 +620,11 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         /// null — результаты выбранного режима отсутствуют (missing-data).
         /// </summary>
         public ReferenceCircuitSection? ReferenceCircuit { get; init; }
+
+        /// <summary>
+        /// Сравнение «рабочий vs холодный пуск» (В3, режим DesignCold).
+        /// </summary>
+        public IReadOnlyList<ModeComparisonRow> ModeComparison { get; init; } = new List<ModeComparisonRow>();
 
         /// <summary>
         /// Тип гликоля.

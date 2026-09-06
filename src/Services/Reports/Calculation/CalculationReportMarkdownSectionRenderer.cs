@@ -98,8 +98,17 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 ("Эквивалентная теплопроводность LambdaE", section.LambdaE),
             });
 
+            if (!string.IsNullOrWhiteSpace(section.LambdaRuleNote))
+            {
+                sb.AppendLine();
+                sb.AppendLine($"> {section.LambdaRuleNote}");
+            }
+
+            RenderSteps(sb, section.Steps);
+
             if (section.Layers.Count > 0)
             {
+                sb.AppendLine();
                 sb.AppendLine("### Слои конструкции");
                 sb.AppendLine("| Позиция | Материал | Толщина | Ед. | Теплопроводность | Ед. | Термическое сопротивление | Ед. |");
                 sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- |");
@@ -116,31 +125,145 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             sb.AppendLine();
         }
 
-        public static void RenderThermalSection(StringBuilder sb, ThermalSection section)
+        /// <summary>
+        /// Блок шага расчёта: формула → подстановка → результат → примечание (ADR-010).
+        /// </summary>
+        private static void RenderStep(StringBuilder sb, CalculationStep step)
+        {
+            sb.AppendLine($"**{CalculationReportMarkdownRenderHelper.EscapeCell(step.Title)}**");
+            sb.AppendLine($"- Формула: `{CalculationReportMarkdownRenderHelper.EscapeCell(step.FormulaText)}`");
+            if (!string.IsNullOrWhiteSpace(step.SubstitutionText))
+            {
+                sb.AppendLine($"- Подстановка: {CalculationReportMarkdownRenderHelper.EscapeCell(step.SubstitutionText)}");
+            }
+
+            sb.AppendLine($"- Результат: **{CalculationReportMarkdownRenderHelper.Value(step.Result)} {CalculationReportMarkdownRenderHelper.EscapeCell(step.Result.Unit)}**");
+            if (!string.IsNullOrWhiteSpace(step.Note))
+            {
+                sb.AppendLine($"- Примечание: {CalculationReportMarkdownRenderHelper.EscapeCell(step.Note)}");
+            }
+
+            sb.AppendLine();
+        }
+
+        /// <summary>Список шагов; пустой список не рендерится.</summary>
+        private static void RenderSteps(StringBuilder sb, IReadOnlyList<CalculationStep> steps)
+        {
+            foreach (var step in steps)
+            {
+                RenderStep(sb, step);
+            }
+        }
+
+        public static void RenderThermalSection(StringBuilder sb, ThermalSection section, CalculationReportMode mode)
         {
             sb.AppendLine("## Теплотехнический расчёт");
-            CalculationReportMarkdownRenderHelper.RenderScalarTable(sb, new (string, ReportValue<double>)[]
+            sb.AppendLine($"*Источник детальных величин: {CalculationReportMarkdownRenderHelper.EscapeCell(section.DetailSourceDescription)}.*");
+
+            if (!section.IsDetailAvailable)
             {
-                ("Коэффициент теплоотдачи", section.Alpha),
-                ("Мощность на плавление снега", section.MeltingHeat),
-                ("Лучистый тепловой поток (справочно)", section.RadiationHeat),
-                ("Конвективный тепловой поток", section.ConvectionHeat),
-                ("Мощность вверх", section.PowerUp),
-                ("Мощность вниз", section.PowerDown),
-                ("Суммарная удельная мощность", section.TotalPowerDensity),
-                ("Полное сопротивление вверх RFb", section.RFb),
-                ("Полное сопротивление вниз RD", section.RD),
-                ("Параметр затухания M", section.ParameterM),
-                ("КПД ребра EtaR", section.EfficiencyEtaR),
-                ("Избыточная температура", section.ExcessTemperature),
-                ("Массовый расход на м²", section.MassFlowRate),
-                ("Объёмный расход на м²", section.VolumeFlowRate),
-                ("Плотность снега", section.SnowDensity),
-                ("Теплоёмкость льда", section.IceHeatCapacity),
-                ("Теплота плавления льда", section.IceMeltingHeat),
-                ("Теплоёмкость воды", section.WaterHeatCapacity),
-            });
+                sb.AppendLine();
+                sb.AppendLine($"> {CalculationReportMarkdownRendererConstants.MissingValue}: детальные тепловые величины недоступны. " +
+                    "Выполните тепловой расчёт и повторите экспорт. Ниже сохранённые итоги (wire-набор проекта).");
+            }
+
+            if (!string.IsNullOrWhiteSpace(section.DetailNote))
+            {
+                sb.AppendLine();
+                sb.AppendLine($"> Примечание: {CalculationReportMarkdownRenderHelper.EscapeCell(section.DetailNote)}");
+            }
+
+            // Величины, приходящие из детального набора (ADR-010): при их
+            // отсутствии — маркер «нет данных» (В2).
+            string Detail(ReportValue<double> value) =>
+                section.IsDetailAvailable
+                    ? CalculationReportMarkdownRenderHelper.Value(value)
+                    : CalculationReportMarkdownRendererConstants.MissingValue;
+
+            if (mode == CalculationReportMode.DesignCold)
+            {
+                // В3: холодный отчёт — краткая тепловая справка (контекст вязкости
+                // и ламинарного режима), полный ход расчёта — в рабочем отчёте.
+                sb.AppendLine();
+                sb.AppendLine("### Краткая тепловая справка");
+                CalculationReportMarkdownRenderHelper.RenderScalarTable(sb, new[]
+                {
+                    ("Полезная мощность вверх", section.PowerUp),
+                    ("Мощность вниз", section.PowerDown),
+                    ("Суммарная удельная мощность", section.TotalPowerDensity),
+                });
+                sb.AppendLine();
+                sb.AppendLine("> Средняя температура теплоносителя и перепад ΔT приведены в разделе «Климатические данные» выше: " +
+                    "они определяют свойства теплоносителя и ламинарный режим холодного пуска. " +
+                    "Полный пошаговый тепловой расчёт — в отчёте рабочего режима.");
+            }
+            else
+            {
+                sb.AppendLine();
+                CalculationReportMarkdownRenderHelper.RenderScalarTable(sb, new[]
+                {
+                    ("Коэффициент теплоотдачи", section.Alpha),
+                    ("Мощность на плавление снега", section.MeltingHeat),
+                    ("Лучистый тепловой поток (справочно)", section.RadiationHeat),
+                    ("Конвективный тепловой поток", section.ConvectionHeat),
+                    ("Полное сопротивление вверх RFb", section.RFb),
+                    ("Полное сопротивление вниз RD", section.RD),
+                    ("Параметр затухания M", section.ParameterM),
+                    ("КПД ребра EtaR", section.EfficiencyEtaR),
+                    ("Избыточная температура", section.ExcessTemperature),
+                    ("Массовый расход на м²", section.MassFlowRate),
+                    ("Объёмный расход на м²", section.VolumeFlowRate),
+                });
+
+                // Маркеры «нет данных» для detail-величин поверх таблицы (В2).
+                if (!section.IsDetailAvailable)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine($"*α, Q_таяния, Q_конв, RFb, RD, m, ηR, JHmü, расходы — {CalculationReportMarkdownRendererConstants.MissingValue}.*");
+                }
+
+                sb.AppendLine();
+                sb.AppendLine("### Пошаговый расчёт");
+                sb.AppendLine();
+                RenderSteps(sb, section.Steps);
+
+                if (section.Constants.Count > 0)
+                {
+                    sb.AppendLine("### Константы расчёта (из кода программы)");
+                    sb.AppendLine("| Константа | Обозначение | Значение | Единица | Источник |");
+                    sb.AppendLine("| --- | --- | --- | --- | --- |");
+                    foreach (var constant in section.Constants)
+                    {
+                        sb.AppendLine($"| {CalculationReportMarkdownRenderHelper.EscapeCell(constant.Name)} | {CalculationReportMarkdownRenderHelper.EscapeCell(constant.Symbol)} | " +
+                            $"{ReportNumber.Format(constant.Value, constant.Decimals)} | {CalculationReportMarkdownRenderHelper.EscapeCell(constant.Unit)} | " +
+                            $"{CalculationReportMarkdownRenderHelper.EscapeCell(constant.SourceDetail)} |");
+                    }
+
+                    sb.AppendLine();
+                }
+            }
+
+            if (section.DetailValidationErrors.Count > 0)
+            {
+                // В7: примечания валидации результата расчёта/пересчёта.
+                sb.AppendLine("### Примечания валидации теплового расчёта");
+                foreach (var error in section.DetailValidationErrors)
+                {
+                    sb.AppendLine($"- {CalculationReportMarkdownRenderHelper.EscapeCell(error)}");
+                }
+
+                sb.AppendLine();
+            }
+
             sb.AppendLine();
+        }
+
+        /// <summary>
+        /// Перегрузка совместимости: прежние вызовы (тесты v1) — полный режим Operating.
+        /// </summary>
+        public static void RenderThermalSection(StringBuilder sb, ThermalSection section)
+        {
+            RenderThermalSection(sb, section, CalculationReportMode.Operating);
         }
 
         public static void RenderHydraulicsSection(StringBuilder sb, HydraulicsSection section)
@@ -157,6 +280,9 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 ("Удельная теплоёмкость", section.SpecificHeat),
                 ("Кинематическая вязкость", section.KinematicViscosity),
             });
+
+            RenderReferenceCircuit(sb, section.ReferenceCircuit);
+            RenderModeComparison(sb, section.ModeComparison);
 
             foreach (var collector in section.Collectors.OrderBy(c => c.Number))
             {
@@ -198,6 +324,63 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 }
             }
 
+            sb.AppendLine();
+        }
+
+        /// <summary>Референсный контур: цепочка шагов + пример балансировки (В4).</summary>
+        private static void RenderReferenceCircuit(StringBuilder sb, ReferenceCircuitSection? reference)
+        {
+            if (reference is null)
+            {
+                return;
+            }
+
+            sb.AppendLine($"### Референсный контур (коллектор {reference.CollectorNumber}, контур {reference.CircuitNumber}, {CalculationReportMarkdownRenderHelper.EscapeCell(reference.CollectorType)})");
+            sb.AppendLine($"*Контур с максимальными потерями; полная длина {CalculationReportMarkdownRenderHelper.Value(reference.TotalLength)} {CalculationReportMarkdownRenderHelper.EscapeCell(reference.TotalLength.Unit)}.*");
+            sb.AppendLine();
+            RenderSteps(sb, reference.Steps);
+
+            sb.AppendLine("#### Пример балансировки");
+            if (!string.IsNullOrWhiteSpace(reference.BalancingNote))
+            {
+                sb.AppendLine($"> {CalculationReportMarkdownRenderHelper.EscapeCell(reference.BalancingNote)}");
+            }
+
+            sb.AppendLine();
+            RenderSteps(sb, reference.BalancingSteps);
+
+            if (!string.IsNullOrWhiteSpace(reference.DpVentNote))
+            {
+                sb.AppendLine($"> {CalculationReportMarkdownRenderHelper.EscapeCell(reference.DpVentNote)}");
+                sb.AppendLine();
+            }
+        }
+
+        /// <summary>Сравнение «рабочий vs холодный пуск» (В3, режим DesignCold).</summary>
+        private static void RenderModeComparison(StringBuilder sb, IReadOnlyList<ModeComparisonRow> rows)
+        {
+            if (rows.Count == 0)
+            {
+                return;
+            }
+
+            sb.AppendLine("### Сравнение режимов: рабочий vs холодный пуск");
+            sb.AppendLine();
+            sb.AppendLine("| Коллектор | Тип | ν рабочий, мм²/с | ν пуск, мм²/с | Re рабочий | Re пуск | λ рабочий | λ пуск | Δp рабочий, Па | Δp пуск, Па | Кратность |");
+            sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+            foreach (var row in rows)
+            {
+                sb.AppendLine($"| {row.CollectorNumber} | {CalculationReportMarkdownRenderHelper.EscapeCell(row.CollectorType)} | " +
+                    $"{ReportNumber.Format(row.WorkingViscosity)} | {ReportNumber.Format(row.ColdViscosity)} | " +
+                    $"{ReportNumber.Format(row.WorkingReynolds, "N0")} | {ReportNumber.Format(row.ColdReynolds, "N0")} | " +
+                    $"{ReportNumber.Format(row.WorkingFriction)} | {ReportNumber.Format(row.ColdFriction)} | " +
+                    $"{ReportNumber.Format(row.WorkingPressureLossPa, "N0")} | {ReportNumber.Format(row.ColdPressureLossPa, "N0")} | " +
+                    $"×{ReportNumber.Format(row.GrowthRatio)} |");
+            }
+
+            sb.AppendLine();
+            sb.AppendLine("> Холодный пуск: вязкость теплоносителя при расчётной температуре многократно растёт, " +
+                "Re падает до ламинарного режима, потери давления увеличиваются в разы — подбор насоса выполняется по наихудшему режиму.");
             sb.AppendLine();
         }
 
