@@ -1,4 +1,5 @@
 using System;
+using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Thermal;
 
@@ -8,54 +9,13 @@ namespace SnowMeltingCalculator.Services.Thermal
     /// Калькулятор теплового расчёта систем снеготаяния
     /// </summary>
     /// <remarks>
-    /// Реализует расчёт по методике РЕХАУ для систем снеготаяния
+    /// Реализует расчёт по методике РЕХАУ для систем снеготаяния.
+    /// Физические константы — единственный источник
+    /// <see cref="ThermalConstants"/> (ADR-010): дубликаты литералов удалены,
+    /// значения не менялись.
     /// </remarks>
     public class ThermalCalculator : IThermalCalculator
     {
-        #region Константы
-
-        /// <summary>
-        /// Плотность снега, кг/м³
-        /// </summary>
-        private const double SnowDensity = 900.0;
-
-        /// <summary>
-        /// Удельная теплоёмкость льда, Дж/кг·К
-        /// </summary>
-        private const double IceHeatCapacity = 2100.0;
-
-        /// <summary>
-        /// Удельная теплота плавления льда, Дж/кг
-        /// </summary>
-        private const double IceMeltingHeat = 330000.0;
-
-        /// <summary>
-        /// Удельная теплоёмкость воды, Дж/кг·К
-        /// </summary>
-        private const double WaterHeatCapacity = 4200.0;
-
-        /// <summary>
-        /// Постоянная Стефана-Больцмана, Вт/м²·К⁴
-        /// </summary>
-        private const double StefanBoltzmann = 5.77e-8;
-
-        /// <summary>
-        /// Коэффициент излучения поверхности
-        /// </summary>
-        private const double EmissionCoefficient = 0.055;
-
-        /// <summary>
-        /// Коэффициент теплоотдачи снизу (адиабатические условия)
-        /// </summary>
-        private const double AlphaBottom = 999999999.0;
-
-        /// <summary>
-        /// Коэффициент для расчёта параметра m
-        /// </summary>
-        private const double RodCoefficient = 0.6;
-
-        #endregion
-
         #region Основные методы расчёта
 
         /// <summary>
@@ -132,10 +92,10 @@ namespace SnowMeltingCalculator.Services.Thermal
             // 1. Теплота плавления снега
             // Q_таяние = (h/3600) × ρ × [c_льда × (0 - t_H) + L_плавл + c_воды × (t_П - 0)]
             // Примечание: в формуле (h/3600) уже учтено в конвертации выше
-            var qMelting = h * SnowDensity * (
-                IceHeatCapacity * (0 - airTemp) +    // нагрев льда до 0°C
-                IceMeltingHeat +                     // плавление льда
-                WaterHeatCapacity * surfaceTemp      // нагрев воды до t_П
+            var qMelting = h * ThermalConstants.SnowDensity * (
+                ThermalConstants.IceHeatCapacity * (0 - airTemp) +    // нагрев льда до 0°C
+                ThermalConstants.IceMeltingHeat +                     // плавление льда
+                ThermalConstants.WaterHeatCapacity * surfaceTemp      // нагрев воды до t_П
             );
 
             // 2. Конвективный теплообмен
@@ -182,7 +142,7 @@ namespace SnowMeltingCalculator.Services.Thermal
             var rFb = r1Total + 1.0 / alpha;
 
             // Сопротивление вниз (адиабатические условия)
-            var rD = r2Total + 1.0 / AlphaBottom;
+            var rD = r2Total + 1.0 / ThermalConstants.AlphaBottom;
 
             return (rFb, rD);
         }
@@ -234,7 +194,7 @@ namespace SnowMeltingCalculator.Services.Thermal
             // m = 0.6 × √[(1/RFb + 1/RD) / (λE × dE)]
             var sumReciprocal = 1.0 / rFb + 1.0 / rD;
             var denominator = lambdaE * dE;
-            var m = RodCoefficient * Math.Sqrt(sumReciprocal / denominator);
+            var m = ThermalConstants.RodCoefficient * Math.Sqrt(sumReciprocal / denominator);
 
             // Аргумент для tanh
             var x = m * spacing / 2.0;
@@ -525,13 +485,13 @@ namespace SnowMeltingCalculator.Services.Thermal
 
                 // 7. Расчёт составляющих мощности (для справки)
                 var h = climate.SnowfallIntensity / 1000.0 / 3600.0;
-                result.MeltingHeat = h * SnowDensity * (
-                    IceHeatCapacity * (0 - climate.AirTemperature) +
-                    IceMeltingHeat +
-                    WaterHeatCapacity * surfaceTemp);
+                result.MeltingHeat = h * ThermalConstants.SnowDensity * (
+                    ThermalConstants.IceHeatCapacity * (0 - climate.AirTemperature) +
+                    ThermalConstants.IceMeltingHeat +
+                    ThermalConstants.WaterHeatCapacity * surfaceTemp);
                 // Лучистый теплообмен: Q = ε × σ × T⁴
                 // где T - абсолютная температура поверхности в Кельвинах
-                result.RadiationHeat = EmissionCoefficient * StefanBoltzmann *
+                result.RadiationHeat = ThermalConstants.EmissionCoefficient * ThermalConstants.StefanBoltzmann *
                     Math.Pow(273.0 + surfaceTemp, 4);
                 result.ConvectionHeat = alpha * (surfaceTemp - climate.AirTemperature);
 
