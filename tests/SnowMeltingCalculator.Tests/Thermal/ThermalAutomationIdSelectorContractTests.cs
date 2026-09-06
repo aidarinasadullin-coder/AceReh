@@ -69,7 +69,10 @@ public sealed class ThermalAutomationIdSelectorContractTests
         (@"src\Views\Hydraulics\CircuitsView.xaml", "HydraulicsReturnTemperature", "TextBlock"),
         (@"src\Views\Results\ResultsView.xaml", "ResultsThermalPower", "TextBlock"),
         (@"src\Views\Results\ResultsView.xaml", "ResultsSupplyTemperature", "TextBlock"),
-        (@"src\Views\Results\ResultsView.xaml", "ResultsReturnTemperature", "TextBlock")
+        (@"src\Views\Results\ResultsView.xaml", "ResultsReturnTemperature", "TextBlock"),
+        // Ф7-полировка: список подсказок города — якорь smoke-пина «выбор
+        // завершается в дропдауне» (CitySelection_CompletesInDropdown...).
+        (@"src\Controls\Climate\CityAutoCompleteBox.xaml", "CitySuggestionsList", "ListBox")
     };
 
     [TestCaseSource(nameof(ContractRows))]
@@ -100,6 +103,7 @@ public sealed class ThermalAutomationIdSelectorContractTests
     [TestCase(@"src\Views\Thermal\ThermalView.xaml")]
     [TestCase(@"src\Views\Hydraulics\CircuitsView.xaml")]
     [TestCase(@"src\Views\Results\ResultsView.xaml")]
+    [TestCase(@"src\Controls\Climate\CityAutoCompleteBox.xaml")]
     public void Contract_NoDuplicateAutomationIdsWithinAView(string file)
     {
         var document = LoadView(file);

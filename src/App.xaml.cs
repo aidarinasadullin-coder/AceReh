@@ -27,9 +27,21 @@ namespace SnowMeltingCalculator
         {
             base.OnStartup(e);
 
+            // Завершение — по закрытию MainWindow (P2-3 ревью Ф7): сплэш
+            // закрывается раньше/позже главного окна, и при дефолтном
+            // OnLastWindowClose его закрытие в catch-ветке убило бы
+            // приложение до показа диалога ошибки.
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
+
             // Русская локаль чисел во всех биндингах (запятая, пробел-тысячи) —
             // решение владельца; до любых окон и биндингов.
             Core.AppCulture.PinBindingCulture();
+
+            // Сплэш (Ф7.2, рендер 06): показ до загрузки климата и
+            // материалов — пользователь видит бренд, а не «зависший» стол.
+            var splashStart = System.Diagnostics.Stopwatch.StartNew();
+            var splash = new SplashWindow();
+            splash.Show();
 
             // Настройка DI
             var services = new ServiceCollection();
@@ -65,6 +77,16 @@ namespace SnowMeltingCalculator
                     mainWindow.InitialProjectPath = startupProjectPath;
                 }
                 mainWindow.Show();
+
+                // MainWindow — явно: WPF назначает Application.MainWindow на
+                // первое показанное окно (сплэш), и с OnMainWindowClose его
+                // закрытие завершило бы приложение (вскрыто UiSmoke Ф7).
+                MainWindow = mainWindow;
+
+                // Сплэш живёт суммарно ≥ MinSplashDuration и закрывается
+                // fade-out'ом уже поверх показанного главного окна.
+                var remaining = SplashWindow.MinSplashDuration - splashStart.Elapsed;
+                await splash.CloseAfterDelayAsync(remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero);
             }
             catch (Exception ex)
             {
@@ -77,12 +99,16 @@ namespace SnowMeltingCalculator
                     System.Diagnostics.Debug.WriteLine($"InnerException StackTrace: {ex.InnerException.StackTrace}");
                 }
 
+                // Диалог до закрытия сплэша: с OnMainWindowClose приложение
+                // не завершится между окнами; сплэш (Topmost) гасим после,
+                // чтобы он не перекрыл MessageBox.
                 MessageBox.Show(
                     $"Ошибка при запуске приложения:\n{ex.Message}\n\n{(ex.InnerException != null ? ex.InnerException.Message : "")}\n\n{ex.StackTrace}",
                     "Ошибка запуска",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
 
+                splash.Close();
                 Shutdown();
             }
         }

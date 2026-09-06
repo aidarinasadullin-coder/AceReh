@@ -142,7 +142,9 @@
         </Style.Triggers>
     </Style>
 
-    <!-- Кружок с номером шага -->
+    <!-- Кружок с номером шага. Состояние кодируется заливкой (Ф7-полировка,
+         решение владельца): серый — черновик, Brand.Teal.Pale — выполнен
+         (эталон 01 .step.done .num), Brand.Red — активный. -->
     <Style x:Key="Shell.StepBadge" TargetType="Border">
         <Setter Property="Width" Value="26"/>
         <Setter Property="Height" Value="26"/>
@@ -150,6 +152,11 @@
         <Setter Property="Background" Value="{DynamicResource Brand.Gray.100.Brush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Style.Triggers>
+            <!-- Порядок важен: активный шаг перекрывает «выполнен» —
+                 кружок текущего шага всегда бренд-красный (эталон 01). -->
+            <DataTrigger Binding="{Binding StepStatus}" Value="Ready">
+                <Setter Property="Background" Value="{DynamicResource Brand.Teal.Pale.Brush}"/>
+            </DataTrigger>
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}" Value="True">
                 <Setter Property="Background" Value="{DynamicResource Brand.Red.Brush}"/>
             </DataTrigger>
@@ -163,6 +170,9 @@
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Style.Triggers>
+            <DataTrigger Binding="{Binding StepStatus}" Value="Ready">
+                <Setter Property="Foreground" Value="{DynamicResource Brand.Teal.Deep.Brush}"/>
+            </DataTrigger>
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}" Value="True">
                 <Setter Property="Foreground" Value="White"/>
             </DataTrigger>
@@ -177,10 +187,37 @@
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>
 
-    <!-- Правый слот состояния шага: ✓ готов · ⚠ ошибка · ⟳ пересчёт · ● черновик -->
+    <!-- Правый слот шага степпера — только отклонения (Ф7-полировка,
+         решение владельца): базовое состояние кодирует заливка кружка
+         (см. Shell.StepBadge), слот появляется лишь при ⚠ ошибке или
+         ⟳ пересчёте — активная строка остаётся чистой. Полные статусы
+         всех шагов живёт в своде (Shell.StepStatusGlyphFull). -->
     <Style x:Key="Shell.StepStatusGlyph" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}"/>
         <Setter Property="Margin" Value="8,0,0,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Text" Value="⚠"/>
+        <Setter Property="Foreground" Value="{DynamicResource Status.Warning.Brush}"/>
+        <Setter Property="Visibility" Value="Collapsed"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding StepStatus}" Value="Error">
+                <Setter Property="Visibility" Value="Visible"/>
+                <Setter Property="ToolTip" Value="Ошибка валидации"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding StepStatus}" Value="Recalculating">
+                <Setter Property="Visibility" Value="Visible"/>
+                <Setter Property="Text" Value="⟳"/>
+                <Setter Property="Foreground" Value="{DynamicResource Brand.Teal.Brush}"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="ToolTip" Value="Пересчёт"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Полные статусы шага для свода «Шаги»: ✓ готов · ⚠ ошибка ·
+         ⟳ пересчёт · ● черновик (обзор всех шагов на одном экране). -->
+    <Style x:Key="Shell.StepStatusGlyphFull" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Text" Value="●"/>
         <Setter Property="Foreground" Value="{DynamicResource Brand.Gray.300.Brush}"/>
@@ -200,8 +237,8 @@
             <DataTrigger Binding="{Binding StepStatus}" Value="Recalculating">
                 <Setter Property="Text" Value="⟳"/>
                 <Setter Property="Foreground" Value="{DynamicResource Brand.Teal.Brush}"/>
-                <Setter Property="ToolTip" Value="Пересчёт"/>
                 <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="ToolTip" Value="Пересчёт"/>
             </DataTrigger>
         </Style.Triggers>
     </Style>
@@ -267,6 +304,15 @@
     </Style>
 
     <Style x:Key="Shell.SummaryRow" TargetType="Grid">
+        <Setter Property="Margin" Value="0,3"/>
+    </Style>
+
+    <!-- Волосная линия между строками «метка · значение» свода (эталон 01
+         .rail .kv border-bottom): держит строку, не даёт взгляду съезжать.
+         Цвет — как линии строк таблиц (Controls.DataGrid). -->
+    <Style x:Key="Shell.SummaryDivider" TargetType="Border">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Background" Value="{DynamicResource Brand.Gray.100.Brush}"/>
         <Setter Property="Margin" Value="0,3"/>
     </Style>
 

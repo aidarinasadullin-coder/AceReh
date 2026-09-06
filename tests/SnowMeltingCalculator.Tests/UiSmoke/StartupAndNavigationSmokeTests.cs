@@ -74,4 +74,45 @@ public sealed class StartupAndNavigationSmokeTests : UiSmokeFixtureBase
         static string plateOf(string step) =>
             System.Array.Find(Steps, pair => pair.Step == step).Plate;
     }
+
+    [Test, Order(3)]
+    public void CitySelection_CompletesInDropdown_PopupDoesNotReopen()
+    {
+        // Решение владельца (журнал п.5, обратная связь приёмки Ф7): выбор
+        // города завершается в дропдауне — после выбора список не возвращается
+        // ни debounce-хвостом, ни повторным фокусом в поле.
+        App.NavigateTo("Климат");
+        App.WaitModulePlate("КЛИМАТ");
+
+        var cityField = App.WaitForElement("ClimateCitySearch")
+            ?? throw new AssertionException("Поле города (ClimateCitySearch) не найдено.");
+        var cityEdit = cityField.FindFirstDescendant(
+                cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.Edit))
+            ?? throw new AssertionException("TextBox города внутри ClimateCitySearch не найден.");
+
+        cityEdit.Patterns.Value.Pattern.SetValue("Сургут");
+
+        var popupList = FlaUI.Core.Tools.Retry.WhileNull(
+                () => App.FindInAnyWindow("CitySuggestionsList"),
+                System.TimeSpan.FromSeconds(5),
+                ignoreException: true).Result;
+        Assert.That(popupList, Is.Not.Null,
+            "После ввода названия города должен открыться список подсказок.");
+
+        var item = popupList!.FindFirstDescendant(
+                cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.ListItem))
+            ?? throw new AssertionException("Список подсказок города пуст.");
+        item.Click(); // реальный клик мышью — канал выбора контрола (MouseLeftButtonUp)
+
+        // Выбор состоялся: debounce-окно, которое раньше переоткрывало popup.
+        System.Threading.Thread.Sleep(600);
+        Assert.That(App.FindInAnyWindow("CitySuggestionsList"), Is.Null,
+            "После выбора города список подсказок не должен переоткрываться.");
+
+        // Повторный фокус в поле — тоже не возвращает список.
+        cityEdit.Focus();
+        System.Threading.Thread.Sleep(1200);
+        Assert.That(App.FindInAnyWindow("CitySuggestionsList"), Is.Null,
+            "Возврат фокуса в поле с выбранным городом не должен переоткрывать список.");
+    }
 }

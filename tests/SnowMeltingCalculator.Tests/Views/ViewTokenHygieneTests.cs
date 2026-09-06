@@ -12,9 +12,14 @@ namespace SnowMeltingCalculator.Tests.Views
     /// Отдельный fixture — сознательно НЕ в ArchitectureRulesTests: это
     /// визуальные, не архитектурные правила.
     ///
-    /// Что сканируется: src/Views/**/*.xaml и src/MainWindow.xaml.
+    /// Что сканируется: src/Views/**/*.xaml, src/Controls/**/*.xaml
+    /// (расширение Ф7.0) и src/MainWindow.xaml. Themes/*.xaml сознательно
+    /// вне зоны (там живут примитивы и легаси-словари, приёмка Ф7 —
+    /// «вьюхи + контролы»).
     /// Что нарушает правило: литеральные HEX-цвета (#RGB/#RRGGBB/#AARRGGBB)
-    /// и «сырые» числовые FontSize вместо токенов шкалы (Tokens.Typography).
+    /// и «сырые» числовые FontSize вместо токенов шкалы (Tokens.Typography) —
+    /// в обеих формах: атрибутной FontSize="18" и сеттерной
+    /// Property="FontSize" Value="18" (расширение Ф7.0).
     /// Что пропускается: XAML-комментарии и design-time атрибуты d:*.
     ///
     /// Решение по named-цветам (зафиксировано): именованные цвета WPF
@@ -42,11 +47,19 @@ namespace SnowMeltingCalculator.Tests.Views
             new(@"(?:TextElement\.)?FontSize\s*=\s*""[0-9]+(?:[.,][0-9]+)?""",
                 RegexOptions.Compiled);
 
+        /// <summary>Сеттерная форма литерального размера: &lt;Setter Property="FontSize" Value="18"/&gt;.</summary>
+        private static readonly Regex SetterFontSizeRegex =
+            new(@"Property\s*=\s*""(?:TextElement\.)?FontSize""\s+Value\s*=\s*""[0-9]+(?:[.,][0-9]+)?""",
+                RegexOptions.Compiled);
+
         /// <summary>
         /// Разрешённое количество нарушений на файл на момент Фазы 0.
         /// Файлы, не указанные здесь, обязаны быть чистыми (0, 0).
         /// Фаза 6 (план Ф6): ResultsView переработана под компоненты Ф2 —
         /// литералы устранены полностью, запись удалена (было (0, 92)).
+        /// Фаза 7 (план Ф7.0): сканер распространён на сеттерную форму
+        /// FontSize и на src/Controls; CircuitsResultsView/CircuitInputView
+        /// токенизированы — записи уменьшены, новых нарушений нет.
         /// </summary>
         private static readonly Dictionary<string, (int Hex, int FontSize)> Allowlist = new()
         {
@@ -56,12 +69,15 @@ namespace SnowMeltingCalculator.Tests.Views
             // Фаза 5 редизайна: вьюхи переработаны под компоненты Ф2 —
             // литералы устранены полностью (было (1, 7) и (0, 41)).
             ["Views/Climate/ClimateView.xaml"] = (0, 0),
-            // Фаза 4 редизайна: пир конструкции переработан, литералов 8 (было 12).
-            ["Views/Construction/ConstructionView.xaml"] = (0, 8),
+            // Фаза 4 редизайна: пир конструкции переработан, литералов 7 (было 12;
+            // отсчёт 8 был завышен на один литерал, точный счёт сканера — 7).
+            ["Views/Construction/ConstructionView.xaml"] = (0, 7),
             ["Views/Construction/MaterialEditorView.xaml"] = (3, 10),
             ["Views/Construction/TemplateEditorView.xaml"] = (3, 6),
             ["Views/Hydraulics/CircuitInputView.xaml"] = (0, 0),
-            ["Views/Hydraulics/CircuitsResultsView.xaml"] = (0, 1),
+            // Фаза 7: сеттерные литералы токенизированы (было (0, 1) —
+            // атрибутная форма); файл чист.
+            ["Views/Hydraulics/CircuitsResultsView.xaml"] = (0, 0),
             // Фаза 3 редизайна: вьюха переработана под компоненты Ф2 —
             // литералы устранены полностью (было (5, 68)).
             ["Views/Hydraulics/CircuitsView.xaml"] = (0, 0),
@@ -115,6 +131,9 @@ namespace SnowMeltingCalculator.Tests.Views
             const string xaml = """
                                 <UserControl xmlns:d="http://schemas.microsoft.com/expression/blend/2008">
                                     <TextBlock Text="инъекция" Foreground="#FF0000" FontSize="18"/>
+                                    <Setter Property="FontSize" Value="24"/>
+                                    <Setter Property="TextElement.FontSize" Value="9"/>
+                                    <TextBlock Text="чистая строка" FontSize="{StaticResource Font.Size.Body}"/>
                                 </UserControl>
                                 """;
 
@@ -123,7 +142,8 @@ namespace SnowMeltingCalculator.Tests.Views
             Assert.Multiple(() =>
             {
                 Assert.That(result.Hex, Is.EqualTo(1), "сканер должен ловить подставленный HEX");
-                Assert.That(result.FontSize, Is.EqualTo(1), "сканер должен ловить сырой FontSize");
+                Assert.That(result.FontSize, Is.EqualTo(3),
+                    "сканер должен ловить сырой FontSize в атрибутной и обеих сеттерных формах, но не токен-значение");
             });
         }
 
@@ -161,7 +181,8 @@ namespace SnowMeltingCalculator.Tests.Views
                 }
 
                 hex += LiteralHexRegex.Matches(line).Count;
-                fontSizes += RawFontSizeRegex.Matches(line).Count;
+                fontSizes += RawFontSizeRegex.Matches(line).Count
+                    + SetterFontSizeRegex.Matches(line).Count;
             }
 
             return (hex, fontSizes);
@@ -171,7 +192,9 @@ namespace SnowMeltingCalculator.Tests.Views
         {
             var srcRoot = FindSrcRoot();
             var viewsDir = Path.Combine(srcRoot, "Views");
+            var controlsDir = Path.Combine(srcRoot, "Controls");
             var files = Directory.EnumerateFiles(viewsDir, "*.xaml", SearchOption.AllDirectories)
+                .Concat(Directory.EnumerateFiles(controlsDir, "*.xaml", SearchOption.AllDirectories))
                 .Concat(new[] { Path.Combine(srcRoot, "MainWindow.xaml") });
             return files.OrderBy(p => p, StringComparer.Ordinal).ToList();
         }

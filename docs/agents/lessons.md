@@ -128,3 +128,14 @@
    Проверка: правило docs/workspace/ в .gitignore;
    `git log origin/master..master --name-only --pretty=format: |
    grep -c '^docs/workspace'` → 0.
+
+7. Полировка Ф7 (2026-09-06, приёмка владельцем): предупреждения валидатора
+   — не «мягкие ошибки». Сообщение «УГВ < 1 м → используется λБ» описывает
+   автоматику, к которой пользователю нечего применять, но склейка
+   Warnings с Errors в один ValidationMessage красила шаг степпера ⚠ и
+   статус-бар как ошибку — «нормальный режим» выглядел проблемой.
+   → Правило: каналы разделяются — Errors валидатора → ValidationMessage
+   (шаг ⚠, статус Error), Warnings → InfoMessage (нейтральная Info-плашка,
+   шаг остаётся ✓). Для новых модулей — сразу два канала, не склейка.
+   Проверка: ConstructionViewModelTests.Validate_WetGroundwater_
+   WarningsGoToInfoChannel + скрин construction-wet-no-warning.
