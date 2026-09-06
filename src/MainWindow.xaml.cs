@@ -104,11 +104,28 @@ namespace SnowMeltingCalculator
         }
 
         /// <summary>
-        /// Обработчик отображения окна: открывает проект, переданный через командную строку.
+        /// Обработчик отображения окна: скрывает welcome при старте с файлом
+        /// (.smc из проводника — проект сразу открыт) и открывает проект,
+        /// переданный через командную строку.
         /// </summary>
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            if (!string.IsNullOrEmpty(InitialProjectPath))
+            {
+                _viewModel.DismissWelcome();
+            }
+
             await LoadInitialProjectAsync();
+        }
+
+        /// <summary>
+        /// Диалог «О программе» (Ф7.2, рендер 06b) — модальный, поверх
+        /// главного окна.
+        /// </summary>
+        private void AboutMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var about = new AboutWindow { Owner = this };
+            about.ShowDialog();
         }
 
         /// <summary>

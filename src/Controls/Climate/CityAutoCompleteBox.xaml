@@ -59,6 +59,7 @@
                     <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.15" Direction="270"/>
                 </Border.Effect>
                 <ListBox x:Name="SuggestionsList"
+                         AutomationProperties.AutomationId="CitySuggestionsList"
                          ItemsSource="{Binding FilteredCities, ElementName=Root}"
                          SelectedIndex="{Binding SelectedSuggestionIndex, ElementName=Root, Mode=TwoWay}"
                          VirtualizingStackPanel.IsVirtualizing="True"
@@ -87,7 +88,7 @@
                                 <!-- Регион -->
                                 <TextBlock Grid.Row="1" Grid.Column="0"
                                            attached:InlinesProperty.Inlines="{Binding HighlightedRegion, Converter={StaticResource HighlightConverter}}"
-                                           FontSize="11"/>
+                                           FontSize="{StaticResource Font.Size.Caption}"/>
 
                                 <!-- Температура и зона -->
                                 <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
@@ -95,11 +96,11 @@
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Center">
                                     <TextBlock Text="{Binding TemperatureDisplay, Mode=OneWay}"
-                                              Foreground="{DynamicResource RehauTealBrush}"
+                                              Foreground="{DynamicResource Brand.Teal.Deep.Brush}"
                                               FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding ZoneDisplay, Mode=OneWay}"
-                                              Foreground="{DynamicResource RehauGrayBrush}"
-                                              FontSize="11"/>
+                                              Foreground="{DynamicResource Brand.Gray.600.Brush}"
+                                              FontSize="{StaticResource Font.Size.Caption}"/>
                                 </StackPanel>
                             </Grid>
                         </DataTemplate>

@@ -86,6 +86,9 @@ public sealed class UiSmokeApplication : IDisposable
     /// <summary>
     /// Запустить exe (опционально с аргументами командной строки, например путь к .smc)
     /// и дождаться главного окна. Рабочая директория — папка exe.
+    /// Окно выбирается по заголовку «Калькулятор снеготаяния REHAU», а не по
+    /// process.MainWindowHandle: сплэш Ф7.2 (первое видимое окно процесса)
+    /// перехватил бы MainWindowHandle (P2-4 ревью Ф7).
     /// </summary>
     public static UiSmokeApplication Launch(params string[] arguments)
     {
@@ -112,9 +115,9 @@ public sealed class UiSmokeApplication : IDisposable
             // не в интерактивной сессии) не должен оставлять процесс висеть.
             automation = new UIA3Automation();
             var window = Retry.WhileNull(
-                () => app.GetMainWindow(automation),
-                WindowTimeout,
-                ignoreException: true).Result
+                    () => FindMainWindow(app, automation),
+                    WindowTimeout,
+                    ignoreException: true).Result
                 ?? throw new TimeoutException(
                     $"Главное окно не появилось за {WindowTimeout.TotalSeconds} с (процесс HasExited={app.HasExited}).");
 
@@ -126,6 +129,18 @@ public sealed class UiSmokeApplication : IDisposable
             app.Kill();
             throw;
         }
+    }
+
+    /// <summary>
+    /// Главное окно среди top-level окон процесса: заголовок заканчивается
+    /// на «Калькулятор снеготаяния REHAU» (MainViewModel.WindowTitle).
+    /// Сплэш (Title=«Загрузка») и служебные окна не совпадают.
+    /// </summary>
+    private static Window? FindMainWindow(Application app, UIA3Automation automation)
+    {
+        return app.GetAllTopLevelWindows(automation)
+            .FirstOrDefault(w => (w.Title ?? string.Empty)
+                .EndsWith("Калькулятор снеготаяния REHAU", StringComparison.Ordinal));
     }
 
     /// <summary>Путь к read-only фикстуре проекта v1-sample.smc (мутировать запрещено).</summary>
@@ -144,6 +159,32 @@ public sealed class UiSmokeApplication : IDisposable
             () => Window.FindFirstDescendant(cf => cf.ByAutomationId(automationId)),
             timeout ?? UiTimeout,
             ignoreException: true).Result;
+    }
+
+    /// <summary>
+    /// Найти элемент по AutomationId в любом top-level окне процесса (WPF Popup
+    /// живёт в отдельном HWND и не виден среди потомков главного окна).
+    /// Null, если элемента нет нигде.
+    /// </summary>
+    public AutomationElement? FindInAnyWindow(string automationId)
+    {
+        foreach (var window in _app.GetAllTopLevelWindows(_automation))
+        {
+            try
+            {
+                var element = window.FindFirstDescendant(cf => cf.ByAutomationId(automationId));
+                if (element is not null)
+                {
+                    return element;
+                }
+            }
+            catch
+            {
+                // Окно могло закрыться в момент обхода — пропускаем.
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Прочитать текст элемента по AutomationId (пустая строка, если элемент не найден).</summary>

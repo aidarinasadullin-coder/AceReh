@@ -215,3 +215,45 @@ ADR: «hash-пинов» оказалось не множество, а один
     «Δp трубы / Δp коллект. / Δp клап. / Δp всего / Дросс.» — глоссарий
     `docs/design/glossary-hydraulics.md` (создаётся в Ф3, переиспользуется
     Ф8); тестовых пинов на заголовки колонок в XAML нет.
+
+### ADR-008 — 2026-09-06 — Фаза 7 редизайна: полировка и бренд-QA, state ownership без изменений
+
+Независимый read-only ревью плана реализации Ф7 (`docs/design/redesign-plan.md`
+§Ф7, «Ревью плана реализации, 2026-09-06» — approve-with-edits) до
+реализации. Итог handover: **state ownership без изменений** — слайсы
+`ProjectSession`, writer-паттерны R1–R6, `.smc`-контракт и списки
+санкционированных writers (ADR-003) не затронуты. Зафиксированные решения
+UI-слоя:
+
+1. **Welcome и оверлей расчёта — shell UI-state, не проектное состояние.**
+   `MainViewModel.IsWelcomeVisible` (init true; закрытие — первый переход по
+   степперу, факт «проект открыт» по `IProjectSession.CurrentFilePath`
+   [P2-1: номер в `.smc` бывает пустым], кнопка «Начать работу»; повторное
+   открытие — `PerformNewCalculationReset`) и `IsCalculationOverlayVisible`
+   (read-only проекция `ThermalViewModel.IsCalculating`; гидравлический
+   `IsCalculating` — вычислимое свойство над сервисом без отдельной
+   нотификации, в проекцию не включён). Семантика как у `IsSidebarCollapsed`
+   (ADR-006 п. аналогично `IsFullMode`): в `ProjectSession`/снапшоты не входят.
+2. **Петля компоновки Гидравлики закрыта прецедентом Ф5:** локальный стиль
+   `Hyd.SummaryChip` (Ratio=0, Height=96) в CircuitsView — урок №6;
+   `KpiChip.Root` (Ratio=2) остаётся каноном компонента для невьюпортных
+   зон.
+3. **Ratchet/сканер:** зона `ViewTokenHygieneTests` расширена на
+   `src/Controls/**/*.xaml` + сеттерная форма `Property="FontSize"
+   Value="N"`; allowlist без роста (CircuitsResultsView (0,1)→(0,0) после
+   токенизации, хвосты P1-1). Themes сознательно вне зоны сканера.
+4. **Сплэш/«О программе» — новые окна, состояния не вводят;**
+   `ShutdownMode=OnMainWindowClose` (P2-3) — закрытие сплэша не завершает
+   приложение до показа MainWindow/диалога ошибки. UiSmoke находит главное
+   окно перебором top-level окон по заголовку (сплэш перехватывает
+   `MainWindowHandle`, P2-4).
+5. **Анимации переходов — attached property `ContentTransition`** (fade +
+   slide 180 мс, свой код; XamlFlair — reject, журнал п.11). Смена Content
+   — через `DependencyPropertyDescriptor` (у ContentControl нет публичного
+   события ContentChanged); slide не затирает чужой RenderTransform.
+6. **Семантика welcome и «Новый расчёт»:** гейтом закрытия welcome служат
+   только переход по степперу, смена `CurrentFilePath` и кнопка «Начать
+   работу». «Создать новый расчёт» намеренно возвращает welcome-слой, даже
+   если `CurrentFilePath` ещё привязан (MarkClean путь не сбрасывает) —
+   «пустое состояние при живом файле» осознанное; заголовок окна при этом
+   продолжает показывать файл.

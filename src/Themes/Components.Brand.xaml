@@ -50,6 +50,19 @@
         <Setter Property="Padding" Value="14,12"/>
     </Style>
 
+    <!-- «Квадраты» (§5.3 бренд-дока): модульная композиция X/½X.
+         Сетка 4×3 собирает потребитель (UniformGrid Columns=4);
+         заливки задает каждый квадрат (Red.Pale / Teal.Soft / White /
+         прозрачный). Не более одного вхождения на экран. -->
+    <Style x:Key="Brand.Square" TargetType="Border">
+        <Setter Property="Width" Value="18"/>
+        <Setter Property="Height" Value="18"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0,0,5,5"/>
+        <Setter Property="CornerRadius" Value="2"/>
+    </Style>
+
     <Style x:Key="BrandFrame.Title" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>

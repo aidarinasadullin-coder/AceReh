@@ -123,6 +123,9 @@ namespace SnowMeltingCalculator.ViewModels.Shell
                     CurrentNavigationTarget = value.Target;
                     UpdateCurrentTitle();
                     RefreshShellStatus();
+                    // Первое действие пользователя в модуле закрывает welcome
+                    // (Ф7.1): любой переход по степперу — сигнал «начал работу».
+                    IsWelcomeVisible = false;
                 }
             }
         }
@@ -152,6 +155,44 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         /// Признак развёрнутой боковой панели (для удобства в XAML)
         /// </summary>
         public bool IsSidebarExpanded => !IsSidebarCollapsed;
+
+        private bool _isWelcomeVisible = true;
+        /// <summary>
+        /// Welcome/empty-слой в зоне контента (Ф7.1, градиент Teal.Light):
+        /// виден на пустом проекте, пока пользователь не начал работу —
+        /// не перешёл по степперу, не открыл проект и не нажал «Начать
+        /// работу». Shell UI-state (как IsSidebarCollapsed), каноническое
+        /// состояние проекта не затрагивается.
+        /// </summary>
+        public bool IsWelcomeVisible
+        {
+            get => _isWelcomeVisible;
+            private set => SetProperty(ref _isWelcomeVisible, value);
+        }
+
+        /// <summary>
+        /// Закрыть welcome-слой (кнопка «Начать работу», старт с файлом .smc).
+        /// </summary>
+        public void DismissWelcome() => IsWelcomeVisible = false;
+
+        /// <summary>
+        /// Команда кнопки «Начать работу» на welcome-слое: остаёмся на
+        /// шаге «Климат» (шаг 1 сценария), слой закрывается.
+        /// </summary>
+        [RelayCommand]
+        private void StartWork() => DismissWelcome();
+
+        private bool _isCalculationOverlayVisible;
+        /// <summary>
+        /// Оверлей расчёта (Ф7.3): панель на градиенте Teal.Deep в зоне
+        /// контента, пока идёт пересчёт теплового модуля. Read-only проекция
+        /// IsCalculating; каноническое состояние не затрагивается.
+        /// </summary>
+        public bool IsCalculationOverlayVisible
+        {
+            get => _isCalculationOverlayVisible;
+            private set => SetProperty(ref _isCalculationOverlayVisible, value);
+        }
 
         /// <summary>
         /// Команда переключения состояния боковой панели
@@ -194,6 +235,14 @@ namespace SnowMeltingCalculator.ViewModels.Shell
                 e.PropertyName == nameof(IProjectSession.CurrentFilePath))
             {
                 UpdateWindowTitle();
+
+                // Открытый проект (файл привязан) закрывает welcome (Ф7.1);
+                // гейт — CurrentFilePath, не ProjectNumber: номер в .smc
+                // бывает пустым, а «проект открыт» семантически — путь.
+                if (!string.IsNullOrEmpty(_projectStateService.CurrentFilePath))
+                {
+                    IsWelcomeVisible = false;
+                }
             }
         }
 
@@ -259,6 +308,9 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             _hydraulicsState.ResetToDefaults(HydraulicsMutationOrigin.UserReset);
             _circuitsViewModel.Reset();
             _projectStateService.MarkClean();
+            // Новый расчёт — снова пустое состояние (Ф7.1): welcome-слой
+            // возвращается, пока пользователь не начнёт работу.
+            IsWelcomeVisible = true;
         }
 
         private string _currentTitle = "Климатические данные";
@@ -304,6 +356,14 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         /// </summary>
         private void OnModuleViewModelChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
+            // Оверлей расчёта (Ф7.3): read-only проекция теплового расчёта.
+            // Гидравлический IsCalculating — вычислимое свойство над сервисом
+            // без отдельной нотификации — в проекцию не включён.
+            if (e.PropertyName == nameof(ThermalViewModel.IsCalculating))
+            {
+                IsCalculationOverlayVisible = _thermalViewModel.IsCalculating;
+            }
+
             RefreshShellStatus();
         }
 
@@ -378,11 +438,15 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         {
             var thermalNeedsRecalculation = _thermalViewModel.NeedsRecalculation;
 
-            // Основной слот — валидация/статус активного модуля
+            // Основной слот — валидация/статус активного модуля. Конструкция:
+            // ошибки — сразу; без ошибок — информационные сообщения валидатора
+            // (λБ при УГВ < 1 м и т.п.), канал разведён в Ф7-полировке.
             var validationText = CurrentNavigationTarget switch
             {
                 NavigationTarget.Climate => _climateViewModel.ValidationMessage,
-                NavigationTarget.Construction => _constructionViewModel.ValidationMessage,
+                NavigationTarget.Construction => string.IsNullOrWhiteSpace(_constructionViewModel.ValidationMessage)
+                    ? _constructionViewModel.InfoMessage
+                    : _constructionViewModel.ValidationMessage,
                 NavigationTarget.Thermal => thermalNeedsRecalculation
                     ? _thermalViewModel.RecalcMessage
                     : _thermalViewModel.ValidationMessage,
@@ -404,6 +468,9 @@ namespace SnowMeltingCalculator.ViewModels.Shell
                 NavigationTarget.Results => _resultsViewModel.IsDataReady
                     ? ShellStatusKind.Success
                     : ShellStatusKind.Warning,
+                // Информационный текст Конструкции — нейтральная плашка, не ошибка.
+                NavigationTarget.Construction when string.IsNullOrWhiteSpace(_constructionViewModel.ValidationMessage)
+                    => ShellStatusKind.Info,
                 _ when !string.IsNullOrWhiteSpace(CurrentValidationText) => ShellStatusKind.Error,
                 _ => ShellStatusKind.Success
             };
@@ -475,17 +542,14 @@ namespace SnowMeltingCalculator.ViewModels.Shell
                 case ModuleState.Actual:
                     thermalMenuItem.HasWarning = false;
                     thermalMenuItem.IsCalculating = false;
-                    thermalMenuItem.BadgeColor = string.Empty;
                     break;
                 case ModuleState.NeedsRecalculation:
                     thermalMenuItem.HasWarning = true;
                     thermalMenuItem.IsCalculating = false;
-                    thermalMenuItem.BadgeColor = "#FFB300"; // Оранжевый
                     break;
                 case ModuleState.Calculating:
                     thermalMenuItem.HasWarning = false;
                     thermalMenuItem.IsCalculating = true;
-                    thermalMenuItem.BadgeColor = "#2196F3"; // Синий
                     break;
             }
         }
@@ -505,7 +569,6 @@ namespace SnowMeltingCalculator.ViewModels.Shell
                     hydraulicsMenuItem.HasWarning = false;
                     hydraulicsMenuItem.HasError = false;
                     hydraulicsMenuItem.IsCalculating = false;
-                    hydraulicsMenuItem.BadgeColor = string.Empty;
                     break;
                 case ModuleState.NeedsRecalculation:
                     // Гидравлика не использует NeedsRecalculation (автопересчёт)
@@ -513,13 +576,11 @@ namespace SnowMeltingCalculator.ViewModels.Shell
                 case ModuleState.Calculating:
                     hydraulicsMenuItem.HasWarning = false;
                     hydraulicsMenuItem.IsCalculating = true;
-                    hydraulicsMenuItem.BadgeColor = "#2196F3"; // Синий
                     break;
                 case ModuleState.Error:
                     hydraulicsMenuItem.HasError = true;
                     hydraulicsMenuItem.HasWarning = false;
                     hydraulicsMenuItem.IsCalculating = false;
-                    hydraulicsMenuItem.BadgeColor = "#F44336";
                     break;
             }
         }

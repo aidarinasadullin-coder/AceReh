@@ -290,13 +290,16 @@ namespace SnowMeltingCalculator.Tests.Thermal
         }
 
         [Test]
-        [SetCulture("ru-RU")] // PowerSummary/AdditionalSummary формируются интерполяцией по CurrentCulture (ревью диффа Ф5, P2-1)
         public void SurfaceTemperature_FollowsMode_EvenUnderResetAndLoadGuards()
         {
             // Read-only проекция «Температура поверхности» (Фаза 5): следует
             // режиму (AntiIcing=3/Melting=5/Intensive=7) и должна обновляться
             // и при сбросе, и при загрузке проекта — присвоения под guard'ами
             // не должны оставлять поле со значением предыдущего состояния.
+            // Ассерты ниже — пин канона AppCulture.Culture (запятая) в
+            // PowerSummary/AdditionalSummary: тест прогоняется без
+            // [SetCulture], форматирование обязано не зависеть от
+            // CurrentCulture (Ф7.0, ревью диффа Ф5 P2-1).
             _viewModel.SelectedMode = OperatingMode.Intensive;
             Assert.That(_viewModel.SurfaceTemperature, Is.EqualTo(7.0));
 

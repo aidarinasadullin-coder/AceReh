@@ -196,6 +196,17 @@
         <Style x:Key="Hyd.InfoRow" TargetType="Grid" BasedOn="{StaticResource InfoBlock.Row}">
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
+
+        <!-- Чип KPI сводки коллектора: фиксированная высота вместо 2:1.
+             Урок №6 (docs/agents/lessons.md): вьюха живёт в ScrollViewer
+             с Auto-скроллом — высота «ширина/2» (KpiChip.Root) образует
+             компоновочную петлю «скроллбар ↔ перекомпоновка» на границе
+             вьюпорта (отложено с Ф5, ревью диффа). Ratio=0 — поддержанное
+             отключение AspectRatio, см. Thv.ResultChip / Rsv.Chip. -->
+        <Style x:Key="Hyd.SummaryChip" TargetType="Border" BasedOn="{StaticResource KpiChip.Root}">
+            <Setter Property="ap:AspectRatio.Ratio" Value="0"/>
+            <Setter Property="Height" Value="96"/>
+        </Style>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -546,7 +557,7 @@
 
                     <!-- Сводка коллектора — 6 KPI-чипов (UniformGrid = repeat(6,1fr), ADR-007 п.3) -->
                     <UniformGrid Grid.Row="1" Columns="6" Margin="0,12,0,0">
-                        <Border Style="{StaticResource KpiChip.Root}" Margin="0,0,10,0">
+                        <Border Style="{StaticResource Hyd.SummaryChip}" Margin="0,0,10,0">
                             <StackPanel VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{Binding SelectedCollector.Summary.CircuitCount}" Style="{StaticResource KpiChip.Value}"/>
@@ -555,7 +566,7 @@
                                 <TextBlock Text="Контуров" Style="{StaticResource KpiChip.Label}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource KpiChip.Root}" Margin="0,0,10,0">
+                        <Border Style="{StaticResource Hyd.SummaryChip}" Margin="0,0,10,0">
                             <StackPanel VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{Binding SelectedCollector.Summary.TotalPipeLength, StringFormat={}{0:N0}}" Style="{StaticResource KpiChip.Value}"/>
@@ -564,7 +575,7 @@
                                 <TextBlock Text="Длина труб" Style="{StaticResource KpiChip.Label}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource KpiChip.Root}" Margin="0,0,10,0">
+                        <Border Style="{StaticResource Hyd.SummaryChip}" Margin="0,0,10,0">
                             <StackPanel VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{Binding SelectedCollector.Summary.TotalPower, StringFormat={}{0:N0}}" Style="{StaticResource KpiChip.Value}"/>
@@ -573,7 +584,7 @@
                                 <TextBlock Text="Мощность" Style="{StaticResource KpiChip.Label}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource KpiChip.Root}" Margin="0,0,10,0">
+                        <Border Style="{StaticResource Hyd.SummaryChip}" Margin="0,0,10,0">
                             <StackPanel VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{Binding SelectedCollector.Summary.TotalFlowRate, StringFormat={}{0:N0}}" Style="{StaticResource KpiChip.Value}"/>
@@ -582,7 +593,7 @@
                                 <TextBlock Text="Расход" Style="{StaticResource KpiChip.Label}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource KpiChip.Root}" Margin="0,0,10,0">
+                        <Border Style="{StaticResource Hyd.SummaryChip}" Margin="0,0,10,0">
                             <StackPanel VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{Binding SelectedCollector.Summary.PressureLoss_Operating_Pa, Converter={StaticResource PascalToKpaConverter}, StringFormat={}{0:F1}}" Style="{StaticResource KpiChip.ValueTeal}"/>
@@ -591,7 +602,7 @@
                                 <TextBlock Text="Потери (раб.)" Style="{StaticResource KpiChip.Label}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource KpiChip.Root}">
+                        <Border Style="{StaticResource Hyd.SummaryChip}">
                             <StackPanel VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{Binding SelectedCollector.Summary.PressureLoss_Cold_Pa, Converter={StaticResource PascalToKpaConverter}, StringFormat={}{0:F1}}" Style="{StaticResource KpiChip.ValueAccent}"/>

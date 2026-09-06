@@ -85,6 +85,14 @@ namespace SnowMeltingCalculator.Controls.Climate
         private bool _isNavigating = false;
         private bool _isFocused = false;
 
+        /// <summary>
+        /// Выбор завершён в дропдауне (журнал п.5, обратная связь приёмки Ф7):
+        /// список закрыт до нового ввода пользователя — не переоткрывается
+        /// ни debounce-хвостом программной установки имени города, ни
+        /// повторным фокусом в поле.
+        /// </summary>
+        private bool _selectionCompleted = false;
+
         #endregion
 
         #region Events
@@ -168,6 +176,20 @@ namespace SnowMeltingCalculator.Controls.Climate
         private void OnSearchQueryChanged(string value)
         {
             UpdatePlaceholderVisibility();
+
+            // «Выбор завершён»: пока текст совпадает с выбранным городом,
+            // поиск не запускается и popup не переоткрывается; правка текста
+            // пользователем снимает признак и возвращает обычное поведение.
+            if (_selectionCompleted)
+            {
+                if (SelectedCity != null && string.Equals(value, SelectedCity.Name, StringComparison.Ordinal))
+                {
+                    return;
+                }
+
+                _selectionCompleted = false;
+            }
+
             if (string.IsNullOrEmpty(value))
             {
                 ClosePopup();
@@ -182,6 +204,11 @@ namespace SnowMeltingCalculator.Controls.Climate
         {
             if (newValue != null && !_isNavigating)
             {
+                // Внешний выбор (загрузка проекта): тот же контракт «выбор
+                // завершён» — без повторного поиска и вспышки popup.
+                _selectionCompleted = true;
+                _debounceCts?.Cancel();
+
                 SearchQuery = newValue.Name;
                 ClosePopup();
             }
@@ -226,6 +253,14 @@ namespace SnowMeltingCalculator.Controls.Climate
         {
             _isFocused = true;
             UpdatePlaceholderVisibility();
+
+            // Выбор завершён: возврат в поле не возвращает подсказку — список
+            // появится только после правки текста (журнал п.5).
+            if (_selectionCompleted)
+            {
+                return;
+            }
+
             // Открыть popup при фокусе, если есть текст
             if (!string.IsNullOrEmpty(SearchQuery) && FilteredCities != null)
             {
@@ -326,6 +361,13 @@ namespace SnowMeltingCalculator.Controls.Climate
         /// </summary>
         private void OnSearchTriggered()
         {
+            // Popup — аккордеон фокуса: без фокуса в поле (загрузка проекта,
+            // программные правки SearchQuery) список не вспыхивает.
+            if (!_isFocused)
+            {
+                return;
+            }
+
             // Открыть popup, если есть результаты
             if (FilteredCities != null)
             {
@@ -385,6 +427,13 @@ namespace SnowMeltingCalculator.Controls.Climate
         private void SelectItem(CityMatchResult item)
         {
             _isNavigating = true;
+
+            // Выбор завершён в дропдауне (журнал п.5): гасим активный
+            // debounce — программная установка имени города не переоткрывает
+            // список через 300 мс; дальнейшее подавление — в флаге
+            // <see cref="_selectionCompleted"/>.
+            _selectionCompleted = true;
+            _debounceCts?.Cancel();
 
             SelectedCity = item.City;
             SearchQuery = item.City.Name;

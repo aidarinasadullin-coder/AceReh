@@ -25,7 +25,7 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="5,0,0,0"/>
             <Setter Property="Foreground" Value="{DynamicResource RehauGrayBrush}"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource Font.Size.Caption}"/>
             <Setter Property="FontFamily" Value="{StaticResource FontFamily.Main}"/>
         </Style>
     </UserControl.Resources>

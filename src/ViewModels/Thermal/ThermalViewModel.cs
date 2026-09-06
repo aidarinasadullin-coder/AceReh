@@ -176,29 +176,36 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         public double? RecommendedSupplyTemperature => Result?.MeanTemperature + 7.5;
 
         /// <summary>
-        /// Подсказка для температуры подачи
+        /// Подсказка для температуры подачи. Форматирование — по канону
+        /// <see cref="AppCulture.Culture"/> (запятая), не по CurrentCulture:
+        /// на не-RU ОС интерполяция давала бы точки (Ф7.0, ревью диффа Ф5).
         /// </summary>
         public string SupplyTemperatureHint =>
             RecommendedSupplyTemperature.HasValue
-                ? $"Рекомендуется: {RecommendedSupplyTemperature.Value:F0}°C (для ΔT ≈ 15 К)"
+                ? string.Create(AppCulture.Culture,
+                    $"Рекомендуется: {RecommendedSupplyTemperature.Value:F0}°C (для ΔT ≈ 15 К)")
                 : string.Empty;
 
         /// <summary>
         /// Детальная строка HeroKPI результатов: потоки вверх/вниз и
         /// температура поверхности текущего режима (Фаза 5, рендер 04).
+        /// Числа — по канону <see cref="AppCulture.Culture"/> (Ф7.0).
         /// </summary>
         public string PowerSummary =>
             Result is null
                 ? string.Empty
-                : $"q↑ {Result.PowerUp:F1} вверх · q↓ {Result.PowerDown:F1} вниз · поверхность {SurfaceTemperature:+0.0} °C";
+                : string.Create(AppCulture.Culture,
+                    $"q↑ {Result.PowerUp:F1} вверх · q↓ {Result.PowerDown:F1} вниз · поверхность {SurfaceTemperature:+0.0} °C");
 
         /// <summary>
         /// Сводная строка заголовка свёрнутого блока «Дополнительные параметры».
+        /// Числа — по канону <see cref="AppCulture.Culture"/> (Ф7.0).
         /// </summary>
         public string AdditionalSummary =>
             Result is null
                 ? string.Empty
-                : $"КПД ребра {Result.EfficiencyEtaR:F3} · R_FB {Result.RFb:F4} · m {Result.ParameterM:F2} 1/м · теплота плавления {Result.MeltingHeat:F1} Вт/м²";
+                : string.Create(AppCulture.Culture,
+                    $"КПД ребра {Result.EfficiencyEtaR:F3} · R_FB {Result.RFb:F4} · m {Result.ParameterM:F2} 1/м · теплота плавления {Result.MeltingHeat:F1} Вт/м²");
 
         /// <summary>
         /// Признак выполнения расчёта

@@ -625,6 +625,28 @@ namespace SnowMeltingCalculator.Tests.Construction
             Assert.That(_viewModel.ValidationMessage, Does.Not.Contain("50°C"));
         }
 
+        [Test]
+        public async Task Validate_WetGroundwater_WarningsGoToInfoChannel()
+        {
+            // Ф7-полировка (решение владельца): влажные условия (УГВ < 1 м) —
+            // нормальный режим. Сообщение валидатора о λБ — информация, не
+            // ошибка: ValidationMessage пуст (шаг «Конструкция» остаётся ✓),
+            // текст уходит в InfoMessage (нейтральная плашка статус-бара).
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            _viewModel.GroundwaterLevel = 0.5;
+
+            _viewModel.Validate();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(_viewModel.IsValid, Is.True);
+                Assert.That(_viewModel.ValidationMessage, Is.Empty,
+                    "Информация о λБ не должна красить шаг «Конструкция» как ошибочный.");
+                Assert.That(_viewModel.InfoMessage, Does.Contain("Уровень грунтовых вод"));
+                Assert.That(_viewModel.InfoMessage, Does.Contain("λБ"));
+            });
+        }
+
         #endregion
 
         #region Template Tests

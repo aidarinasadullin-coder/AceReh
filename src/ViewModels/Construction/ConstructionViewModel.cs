@@ -86,10 +86,20 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         private double _groundwaterLevel = 2.0;
 
         /// <summary>
-        /// Сообщение валидации
+        /// Сообщение валидации (только ошибки)
         /// </summary>
         [ObservableProperty]
         private string _validationMessage = string.Empty;
+
+        /// <summary>
+        /// Информационные сообщения валидатора (не ошибки): например, «при
+        /// УГВ &lt; 1 м для слоёв под трубой используется λБ» — автоматика
+        /// применила режим, пользователю исправлять нечего. Показывается в
+        /// статус-баре нейтральной (Info) плашкой и не красит шаг степпера
+        /// как ошибочный (Ф7-полировка, решение владельца).
+        /// </summary>
+        [ObservableProperty]
+        private string _infoMessage = string.Empty;
 
         /// <summary>
         /// Признак валидности конструкции
@@ -846,7 +856,10 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         }
 
         /// <summary>
-        /// Валидация конструкции
+        /// Валидация конструкции. Каналы разделены (Ф7-полировка): ошибки —
+        /// в <see cref="ValidationMessage"/> (красят шаг ⚠ и статус-бар),
+        /// предупреждения-инструкции валидатора — в <see cref="InfoMessage"/>
+        /// (нейтральная плашка статус-бара, шаг остаётся ✓).
         /// </summary>
         public void Validate()
         {
@@ -854,11 +867,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
 
             IsValid = result.IsValid;
 
-            var messages = new System.Collections.Generic.List<string>();
-            messages.AddRange(result.Errors.Select(e => e.Message));
-            messages.AddRange(result.Warnings);
-
-            ValidationMessage = string.Join("\n", messages);
+            ValidationMessage = string.Join("\n", result.Errors.Select(e => e.Message));
+            InfoMessage = string.Join("\n", result.Warnings);
         }
 
         /// <summary>
