@@ -228,11 +228,11 @@
                                       Style="{StaticResource Shell.ReportMenuItem}"
                                       Command="{Binding ResultsViewModel.ExportPdfCommand}"
                                       AutomationProperties.AutomationId="ReportExportSavePdf"/>
-                            <MenuItem Header="Markdown — рабочий режим"
+                            <MenuItem Header="Пояснительная записка — рабочий режим"
                                       Style="{StaticResource Shell.ReportMenuItem}"
                                       Command="{Binding ResultsViewModel.ExportOperatingMarkdownReportCommand}"
                                       AutomationProperties.AutomationId="ReportExportMarkdownOperating"/>
-                            <MenuItem Header="Markdown — расчётный/холодный"
+                            <MenuItem Header="Пояснительная записка — холодный пуск"
                                       Style="{StaticResource Shell.ReportMenuItem}"
                                       Command="{Binding ResultsViewModel.ExportDesignColdMarkdownReportCommand}"
                                       AutomationProperties.AutomationId="ReportExportMarkdownDesignCold"/>
