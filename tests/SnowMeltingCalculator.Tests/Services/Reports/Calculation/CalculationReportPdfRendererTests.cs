@@ -126,6 +126,39 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
             Assert.That(() => new CalculationReportPdfRenderer().Render(null!), Throws.ArgumentNullException);
         }
 
+        [Test]
+        public void InterResolver_ResolvesEmbeddedBrandFont()
+        {
+            // Брендбук (спека §7.2): Inter подаётся из встроенных TTF,
+            // Inter в системе не установлен.
+            var resolver = new CalculationReportInterFontResolver();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(CalculationReportInterFontResolver.CanLoadFonts(), Is.True,
+                    "встроенный Inter-Regular должен загружаться из g.resources");
+
+                var regular = resolver.ResolveTypeface(CalculationReportInterFontResolver.FamilyName, isBold: false, isItalic: false);
+                Assert.That(regular.FaceName, Is.EqualTo("Inter-Regular"));
+
+                var bold = resolver.ResolveTypeface(CalculationReportInterFontResolver.FamilyName, isBold: true, isItalic: false);
+                Assert.That(bold.FaceName, Is.EqualTo("Inter-Bold"));
+
+                var bytes = resolver.GetFont("Inter-Regular");
+                Assert.That(bytes, Is.Not.Null);
+                Assert.That(bytes!.Length, Is.GreaterThan(1000));
+                // TrueType-магия 0x00010000.
+                Assert.That(bytes[0], Is.EqualTo(0x00));
+                Assert.That(bytes[1], Is.EqualTo(0x01));
+                Assert.That(bytes[2], Is.EqualTo(0x00));
+                Assert.That(bytes[3], Is.EqualTo(0x00));
+
+                // Делегация чужих семейств (краткий PDF — Arial) проверяется
+                // смоук-рендером: платформенный резолвер PDFsharp отвечает
+                // только вызову из-под установленного глобального резолвера.
+            });
+        }
+
         #region Подготовка данных
 
         private static CalculationReportData BuildFullData(CalculationReportMode mode)

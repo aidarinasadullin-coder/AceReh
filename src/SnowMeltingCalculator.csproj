@@ -45,6 +45,12 @@
     <Resource Include="Assets\Fonts\*.ttf" />
   </ItemGroup>
 
+  <!-- Логотип для колонтитула PDF-отчёта (мини-фаза PDF-PZ, §7.2):
+       читается из g.resources, без deploy-файла. -->
+  <ItemGroup>
+    <Resource Include="Resources\Images\rehau_logo.png" />
+  </ItemGroup>
+
   <!-- Фирменные SVG-ассеты -->
   <ItemGroup>
     <Resource Include="Assets\Brand\*.svg" />

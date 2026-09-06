@@ -6,17 +6,23 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
     /// Однократная инициализация шрифтового резолвера PDFsharp перед первым
     /// рендером детального отчёта (урок №9 Ф8): в Core-сборке 6.2 «из коробки»
     /// шрифты не резолвятся — под Windows включается штатный
-    /// <see cref="GlobalFontSettings.UseWindowsFontsUnderWindows"/>
-    /// (Arial содержит кириллицу, эмбеддинг подмножеством штатный).
+    /// <see cref="GlobalFontSettings.UseWindowsFontsUnderWindows"/>,
+    /// поверх ставится композитный резолвер бренд-шрифта Inter
+    /// (<see cref="CalculationReportInterFontResolver"/>, спека §7.2).
     /// </summary>
     /// <remarks>
-    /// Флаг идемпотентен; установка не бросает исключений даже если
-    /// шрифтовые операции в процессе уже выполнялись (краткий PDF).
-    /// Резолвер Inter добавляется на шаге PDF-2 (брендбук), здесь — база.
+    /// PDFsharp допускает установку глобального резолвера только до первой
+    /// шрифтовой операции процесса. Если она уже произошла (например, краткий
+    /// PDF отрендерился раньше), установка невозможна — тогда отчёт
+    /// печатается резервным Arial (допустим по гайдлайну, §3.2 гайда).
+    /// Вызов идемпотентен.
     /// </remarks>
     public static class CalculationReportPdfFontBootstrapper
     {
         private static bool _initialized;
+
+        /// <summary>Резолвер Inter установлен — рендер может использовать Inter.</summary>
+        public static bool InterAvailable { get; private set; }
 
         public static void EnsureInitialized()
         {
@@ -31,9 +37,24 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             {
                 GlobalFontSettings.UseWindowsFontsUnderWindows = true;
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Инициализация шрифтов PDFsharp: {ex.Message}");
+            }
+
+            try
+            {
+                if (CalculationReportInterFontResolver.CanLoadFonts())
+                {
+                    GlobalFontSettings.FontResolver = new CalculationReportInterFontResolver();
+                    InterAvailable = true;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                // Резолвер нельзя менять после шрифтовых операций — откат на Arial.
+                InterAvailable = false;
+                System.Diagnostics.Debug.WriteLine($"Резолвер Inter не установлен: {ex.Message}");
             }
         }
     }
