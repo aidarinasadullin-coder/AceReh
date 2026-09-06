@@ -155,7 +155,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             }
         }
 
-        public static void RenderThermalSection(StringBuilder sb, ThermalSection section, CalculationReportMode mode)
+        public static void RenderThermalSection(StringBuilder sb, ThermalSection section, ClimateSection? climate, CalculationReportMode mode)
         {
             sb.AppendLine("## Теплотехнический расчёт");
             sb.AppendLine($"*Источник детальных величин: {CalculationReportMarkdownRenderHelper.EscapeCell(section.DetailSourceDescription)}.*");
@@ -174,7 +174,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             }
 
             // Величины, приходящие из детального набора (ADR-010): при их
-            // отсутствии — маркер «нет данных» (В2).
+            // отсутствии — маркер «нет данных» (В2), включая ячейки таблицы.
             string Detail(ReportValue<double> value) =>
                 section.IsDetailAvailable
                     ? CalculationReportMarkdownRenderHelper.Value(value)
@@ -182,8 +182,9 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
             if (mode == CalculationReportMode.DesignCold)
             {
-                // В3: холодный отчёт — краткая тепловая справка (контекст вязкости
-                // и ламинарного режима), полный ход расчёта — в рабочем отчёте.
+                // В3: холодный отчёт — краткая тепловая справка (средняя
+                // температура, ΔT — контекст вязкости и ламинарного режима),
+                // полный ход расчёта — в рабочем отчёте.
                 sb.AppendLine();
                 sb.AppendLine("### Краткая тепловая справка");
                 CalculationReportMarkdownRenderHelper.RenderScalarTable(sb, new[]
@@ -191,11 +192,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     ("Полезная мощность вверх", section.PowerUp),
                     ("Мощность вниз", section.PowerDown),
                     ("Суммарная удельная мощность", section.TotalPowerDensity),
+                    ("Средняя температура теплоносителя", climate?.MeanTemperature ?? new ReportValue<double>()),
+                    ("Температурный перепад", climate?.DeltaT ?? new ReportValue<double>()),
                 });
                 sb.AppendLine();
-                sb.AppendLine("> Средняя температура теплоносителя и перепад ΔT приведены в разделе «Климатические данные» выше: " +
-                    "они определяют свойства теплоносителя и ламинарный режим холодного пуска. " +
-                    "Полный пошаговый тепловой расчёт — в отчёте рабочего режима.");
+                sb.AppendLine("> Средняя температура теплоносителя и перепад ΔT задают свойства теплоносителя " +
+                    "и ламинарный режим холодного пуска. Полный пошаговый тепловой расчёт — в отчёте рабочего режима.");
             }
             else
             {
@@ -213,13 +215,13 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     ("Избыточная температура", section.ExcessTemperature),
                     ("Массовый расход на м²", section.MassFlowRate),
                     ("Объёмный расход на м²", section.VolumeFlowRate),
-                });
+                }, Detail);
 
-                // Маркеры «нет данных» для detail-величин поверх таблицы (В2).
+                // Сводный маркер «нет данных» для detail-величин (В2).
                 if (!section.IsDetailAvailable)
                 {
                     sb.AppendLine();
-                    sb.AppendLine($"*α, Q_таяния, Q_конв, RFb, RD, m, ηR, JHmü, расходы — {CalculationReportMarkdownRendererConstants.MissingValue}.*");
+                    sb.AppendLine($"*α, Q_таяния, Q_конв, Q_изл, RFb, RD, m, ηR, JHmü, расходы — {CalculationReportMarkdownRendererConstants.MissingValue}.*");
                 }
 
                 sb.AppendLine();
@@ -243,18 +245,6 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 }
             }
 
-            if (section.DetailValidationErrors.Count > 0)
-            {
-                // В7: примечания валидации результата расчёта/пересчёта.
-                sb.AppendLine("### Примечания валидации теплового расчёта");
-                foreach (var error in section.DetailValidationErrors)
-                {
-                    sb.AppendLine($"- {CalculationReportMarkdownRenderHelper.EscapeCell(error)}");
-                }
-
-                sb.AppendLine();
-            }
-
             sb.AppendLine();
         }
 
@@ -263,7 +253,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         /// </summary>
         public static void RenderThermalSection(StringBuilder sb, ThermalSection section)
         {
-            RenderThermalSection(sb, section, CalculationReportMode.Operating);
+            RenderThermalSection(sb, section, climate: null, CalculationReportMode.Operating);
         }
 
         public static void RenderHydraulicsSection(StringBuilder sb, HydraulicsSection section)
@@ -370,16 +360,22 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
             foreach (var row in rows)
             {
+                // Кратность — Derived (спека В3); при нулевой рабочей потере
+                // рост не определён — прочерк вместо «×0,000».
+                var growth = row.GrowthRatio > 0
+                    ? $"×{ReportNumber.Format(row.GrowthRatio)}"
+                    : "-";
                 sb.AppendLine($"| {row.CollectorNumber} | {CalculationReportMarkdownRenderHelper.EscapeCell(row.CollectorType)} | " +
                     $"{ReportNumber.Format(row.WorkingViscosity)} | {ReportNumber.Format(row.ColdViscosity)} | " +
                     $"{ReportNumber.Format(row.WorkingReynolds, "N0")} | {ReportNumber.Format(row.ColdReynolds, "N0")} | " +
-                    $"{ReportNumber.Format(row.WorkingFriction)} | {ReportNumber.Format(row.ColdFriction)} | " +
+                    $"{ReportNumber.Format(row.WorkingFriction, "N3")} | {ReportNumber.Format(row.ColdFriction, "N3")} | " +
                     $"{ReportNumber.Format(row.WorkingPressureLossPa, "N0")} | {ReportNumber.Format(row.ColdPressureLossPa, "N0")} | " +
-                    $"×{ReportNumber.Format(row.GrowthRatio)} |");
+                    $"{growth} |");
             }
 
             sb.AppendLine();
-            sb.AppendLine("> Холодный пуск: вязкость теплоносителя при расчётной температуре многократно растёт, " +
+            sb.AppendLine("> ν, Re и λ — значения худшего контура коллектора; Δp и кратность — по сводке коллектора. " +
+                "Холодный пуск: вязкость теплоносителя при расчётной температуре многократно растёт, " +
                 "Re падает до ламинарного режима, потери давления увеличиваются в разы — подбор насоса выполняется по наихудшему режиму.");
             sb.AppendLine();
         }

@@ -71,11 +71,25 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
         public static void RenderScalarTable(StringBuilder sb, IEnumerable<(string Name, ReportValue<double> Value)> rows)
         {
+            RenderScalarTable(sb, rows, Value);
+        }
+
+        /// <summary>
+        /// Таблица «Параметр | Обозначение | Значение | Единица | Источник»
+        /// с внешним форматированием значения (например, подмена «нет данных»,
+        /// В2). Форматтер получает то же <see cref="ReportValue{T}"/>, что идёт
+        /// в строку — числа шагов и таблиц не расходятся по построению.
+        /// </summary>
+        public static void RenderScalarTable(
+            StringBuilder sb,
+            IEnumerable<(string Name, ReportValue<double> Value)> rows,
+            Func<ReportValue<double>, string> formatValue)
+        {
             sb.AppendLine("| Параметр | Обозначение | Значение | Единица | Источник |");
             sb.AppendLine("| --- | --- | --- | --- | --- |");
             foreach (var (name, value) in rows)
             {
-                sb.AppendLine($"| {EscapeCell(name)} | {EscapeCell(value.SourceDetail)} | {Value(value)} | {EscapeCell(value.Unit)} | {Source(value)} |");
+                sb.AppendLine($"| {EscapeCell(name)} | {EscapeCell(value.SourceDetail)} | {formatValue(value)} | {EscapeCell(value.Unit)} | {Source(value)} |");
             }
         }
 
