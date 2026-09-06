@@ -236,6 +236,14 @@
                                       Style="{StaticResource Shell.ReportMenuItem}"
                                       Command="{Binding ResultsViewModel.ExportDesignColdMarkdownReportCommand}"
                                       AutomationProperties.AutomationId="ReportExportMarkdownDesignCold"/>
+                            <MenuItem Header="Пояснительная записка (PDF) — рабочий режим"
+                                      Style="{StaticResource Shell.ReportMenuItem}"
+                                      Command="{Binding ResultsViewModel.ExportOperatingPdfReportCommand}"
+                                      AutomationProperties.AutomationId="ReportExportPdfReportOperating"/>
+                            <MenuItem Header="Пояснительная записка (PDF) — холодный пуск"
+                                      Style="{StaticResource Shell.ReportMenuItem}"
+                                      Command="{Binding ResultsViewModel.ExportDesignColdPdfReportCommand}"
+                                      AutomationProperties.AutomationId="ReportExportPdfReportDesignCold"/>
                         </ContextMenu>
                     </Button.ContextMenu>
                 </Button>

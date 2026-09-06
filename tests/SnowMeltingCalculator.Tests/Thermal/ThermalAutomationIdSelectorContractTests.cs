@@ -56,6 +56,10 @@ public sealed class ThermalAutomationIdSelectorContractTests
         (@"src\MainWindow.xaml", "ReportExportSavePdf", "MenuItem"),
         (@"src\MainWindow.xaml", "ReportExportMarkdownOperating", "MenuItem"),
         (@"src\MainWindow.xaml", "ReportExportMarkdownDesignCold", "MenuItem"),
+        // Мини-фаза PDF-PZ: пункты PDF-версии пояснительной записки
+        // (решение владельца 2026-09-07, спека §7.2/план §3 PDF-4).
+        (@"src\MainWindow.xaml", "ReportExportPdfReportOperating", "MenuItem"),
+        (@"src\MainWindow.xaml", "ReportExportPdfReportDesignCold", "MenuItem"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalMode", "ComboBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalSupplyTemperature", "TextBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalGroundTemperature", "TextBox"),
