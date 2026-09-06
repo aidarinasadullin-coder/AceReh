@@ -12,7 +12,29 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
     {
         public static void RenderWarnings(StringBuilder sb, IReadOnlyList<CalculationReportWarning> warnings)
         {
+            RenderWarnings(sb, warnings, new List<string>());
+        }
+
+        /// <summary>
+        /// Раздел «Предупреждения и ограничения»: предупреждения v1-лимитов и
+        /// (В7) примечания валидации результата расчёта/пересчёта.
+        /// </summary>
+        public static void RenderWarnings(
+            StringBuilder sb,
+            IReadOnlyList<CalculationReportWarning> warnings,
+            IReadOnlyList<string> validationNotes)
+        {
             sb.AppendLine("## Предупреждения и ограничения");
+            if (validationNotes.Count > 0)
+            {
+                foreach (var note in validationNotes)
+                {
+                    sb.AppendLine($"- {CalculationReportMarkdownRenderHelper.EscapeCell(note)}");
+                }
+
+                sb.AppendLine();
+            }
+
             if (warnings.Count == 0)
             {
                 sb.AppendLine(CalculationReportMarkdownRendererConstants.NoWarningSentinel);

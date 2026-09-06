@@ -280,8 +280,15 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
             Assert.Multiple(() =>
             {
                 Assert.That(cold, Does.Contain("Краткая тепловая справка"));
+                // В3 (обзор PDF-0): справка содержит среднюю температуру и ΔT.
+                Assert.That(cold, Does.Contain("| Средняя температура теплоносителя | ThermalResultProjectData.MeanTemperature |"));
+                Assert.That(cold, Does.Contain("| Температурный перепад | ThermalResultProjectData.DeltaT |"));
                 Assert.That(cold, Does.Not.Contain("Пошаговый расчёт"));
                 Assert.That(cold, Does.Contain("Сравнение режимов"));
+                // Обзор PDF-0: пометка агрегации в сравнении режимов;
+                // λ — N3 (значащая цифра не теряется).
+                Assert.That(cold, Does.Contain("худшего контура"));
+                Assert.That(cold, Does.Contain("0,031"));
                 Assert.That(cold, Does.Contain("×3,3"));
                 Assert.That(cold, Does.Contain("150"));
                 Assert.That(cold, Does.Contain("Режим отчёта:** Расчётный/холодный"));
@@ -305,8 +312,15 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
             Assert.Multiple(() =>
             {
                 Assert.That(data.ThermalSection.IsDetailAvailable, Is.False);
+                // В2 (обзор PDF-0): маркер — в ячейках таблицы, а не «0,000».
+                Assert.That(markdown, Does.Contain("| Коэффициент теплоотдачи | ThermalCalculationResult.Alpha | нет данных |"));
                 Assert.That(markdown, Does.Contain("нет данных"));
-                Assert.That(markdown, Does.Contain("MISSING_THERMAL_DETAIL") , "предупреждение в разделе предупреждений");
+                Assert.That(markdown, Does.Contain("MISSING_THERMAL_DETAIL"), "предупреждение в разделе предупреждений");
+                // В7 (обзор PDF-0): примечания валидации — в разделе
+                // «Предупреждения и ограничения», ниже его заголовка.
+                var warningsIndex = markdown.IndexOf("## Предупреждения и ограничения", StringComparison.Ordinal);
+                var noteIndex = markdown.IndexOf("- Мощность вниз (потери) не может быть отрицательной.", StringComparison.Ordinal);
+                Assert.That(noteIndex, Is.GreaterThan(warningsIndex));
             });
         }
 
