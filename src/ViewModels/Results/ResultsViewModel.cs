@@ -30,6 +30,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly IDialogService _dialogService;
         private readonly IPdfExportService _pdfExportService;
         private readonly ICalculationReportExportService _calculationReportExportService;
+        private readonly ICalculationReportPdfExportService _calculationReportPdfExportService;
         private readonly IProjectFileService _projectFileService;
         private readonly IProjectSaveService? _projectSaveService;
         private readonly IProjectDisplayModeState? _displayModeState;
@@ -508,7 +509,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
             ResultsKpiPresenter? resultsKpiPresenter = null,
             IProjectSaveService? projectSaveService = null,
             IProjectDisplayModeState? displayModeState = null,
-            IThermalReportDataProvider? thermalReportDataProvider = null)
+            IThermalReportDataProvider? thermalReportDataProvider = null,
+            ICalculationReportPdfExportService? calculationReportPdfExportService = null)
         {
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
@@ -528,6 +530,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 ?? new ThermalReportDataProvider(
                     _projectSession,
                     new Services.Thermal.ThermalCalculator());
+            _calculationReportPdfExportService = calculationReportPdfExportService
+                ?? new CalculationReportPdfExportService(
+                    new CalculationReportDataBuilder(),
+                    new CalculationReportPdfRenderer());
             if (_displayModeState is not null)
             {
                 _displayModeState.IsOperatingMode = IsOperatingMode;
@@ -724,6 +730,90 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 else
                 {
                     StatusMessage = "Ошибка при экспорте отчёта";
+                }
+
+                await Task.Delay(3000);
+                StatusMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Ошибка экспорта: {ex.Message}";
+                await Task.Delay(5000);
+                StatusMessage = string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Команда экспорта детального отчёта в PDF для рабочего режима
+        /// (пояснительная записка, мини-фаза PDF-PZ)
+        /// </summary>
+        [RelayCommand]
+        private async Task ExportOperatingPdfReport()
+        {
+            RefreshAll();
+
+            await ExportPdfReportAsync(
+                CalculationReportMode.Operating,
+                $"Пояснительная_записка_рабочий_{ProjectNumber}_{DateTime.Now:yyyyMMdd}.pdf",
+                "Экспорт пояснительной записки рабочего режима (PDF)");
+        }
+
+        /// <summary>
+        /// Команда экспорта детального отчёта в PDF для расчётного холодного
+        /// режима (пояснительная записка, мини-фаза PDF-PZ)
+        /// </summary>
+        [RelayCommand]
+        private async Task ExportDesignColdPdfReport()
+        {
+            RefreshAll();
+
+            await ExportPdfReportAsync(
+                CalculationReportMode.DesignCold,
+                $"Пояснительная_записка_холодный_пуск_{ProjectNumber}_{DateTime.Now:yyyyMMdd}.pdf",
+                "Экспорт пояснительной записки холодного пуска (PDF)");
+        }
+
+        /// <summary>
+        /// Тонкий релей экспорта PDF-записки: готовность данных, диалог
+        /// сохранения, детальные тепловые величины провайдера и дата — по
+        /// образцу <see cref="ExportMarkdownReportAsync"/> (ADR-010).
+        /// </summary>
+        private async Task ExportPdfReportAsync(
+            CalculationReportMode mode,
+            string defaultFileName,
+            string title)
+        {
+            if (!IsDataReady)
+            {
+                StatusMessage = "Невозможно экспортировать: не все данные готовы";
+                await Task.Delay(3000);
+                StatusMessage = string.Empty;
+                return;
+            }
+
+            var fileName = _dialogService.ShowSaveFileDialog(
+                defaultFileName,
+                "PDF файлы (*.pdf)|*.pdf",
+                title: title,
+                defaultExt: "pdf");
+
+            if (fileName == null)
+                return;
+
+            try
+            {
+                StatusMessage = "Экспорт пояснительной записки...";
+                var thermalDetail = _thermalReportDataProvider.Provide();
+                var success = await _calculationReportPdfExportService.ExportReportAsync(
+                    fileName, SaveCurrentProject(), mode, thermalDetail, DateTime.Now);
+
+                if (success)
+                {
+                    StatusMessage = $"Записка сохранена: {Path.GetFileName(fileName)}";
+                }
+                else
+                {
+                    StatusMessage = "Ошибка при экспорте записки";
                 }
 
                 await Task.Delay(3000);

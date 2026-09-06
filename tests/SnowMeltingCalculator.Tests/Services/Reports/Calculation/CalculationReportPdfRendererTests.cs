@@ -197,6 +197,40 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
             });
         }
 
+        [Test]
+        public async Task ExportReportAsync_WritesPdfFileWithMagicHeader()
+        {
+            // Мини-фаза PDF-PZ (PDF-4): сквозной экспорт builder → рендер →
+            // запись файла; результат начинается с %PDF-магии.
+            var service = new CalculationReportPdfExportService(
+                new CalculationReportDataBuilder(),
+                new CalculationReportPdfRenderer());
+            var filePath = Path.Combine(TestContext.CurrentContext.WorkDirectory, $"report-pz-export-{Guid.NewGuid():N}.pdf");
+
+            try
+            {
+                var exported = await service.ExportReportAsync(
+                    filePath,
+                    MakeProject(),
+                    CalculationReportMode.Operating,
+                    new ThermalReportDetail { Source = ThermalReportDetailSource.Snapshot },
+                    FixedReportDate);
+
+                Assert.That(exported, Is.True);
+                Assert.That(File.Exists(filePath), Is.True);
+                var bytes = await File.ReadAllBytesAsync(filePath);
+                Assert.That(bytes.Length, Is.GreaterThan(0));
+                Assert.That(bytes[..4], Is.EqualTo(PdfMagicHeader));
+            }
+            finally
+            {
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+        }
+
         #region Подготовка данных
 
         private static CalculationReportData BuildFullData(CalculationReportMode mode)

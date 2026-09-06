@@ -215,6 +215,14 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<ICalculationReportMarkdownRenderer, CalculationReportMarkdownRenderer>();
             services.AddSingleton<IThermalReportDataProvider, ThermalReportDataProvider>();
             services.AddSingleton<ICalculationReportExportService, CalculationReportExportService>();
+            // Мини-фаза PDF-PZ: PDF-рендер и экспорт пояснительной записки.
+            // Бутстрапп шрифтов вызывается при построении контейнера — до
+            // первого рендера любого PDF: если краткий PDF отрендерится
+            // раньше, глобальный резолвер Inter установить уже не удастся
+            // (PDFsharp меняет его только до первой шрифтовой операции).
+            CalculationReportPdfFontBootstrapper.EnsureInitialized();
+            services.AddSingleton<ICalculationReportPdfRenderer, CalculationReportPdfRenderer>();
+            services.AddSingleton<ICalculationReportPdfExportService, CalculationReportPdfExportService>();
             services.AddSingleton<IProjectFileService, ProjectFileService>();
             services.AddSingleton<IProjectDisplayModeState, ProjectDisplayModeState>();
             services.AddSingleton<IProjectSnapshotPersistenceInputs, ProjectSnapshotPersistenceInputs>();
