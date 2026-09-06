@@ -39,6 +39,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly ProjectLoadOrchestrator _projectLoadOrchestrator;
         private readonly ResultsPdfDataBuilder _resultsPdfDataBuilder;
         private readonly HydraulicSummaryBuilder _hydraulicSummaryBuilder;
+        private readonly ResultsKpiPresenter _resultsKpiPresenter;
         private DateTime _createdDate;
 
         private bool _isResetting;
@@ -503,6 +504,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             ProjectLoadOrchestrator projectLoadOrchestrator,
             ResultsPdfDataBuilder resultsPdfDataBuilder,
             HydraulicSummaryBuilder hydraulicSummaryBuilder,
+            ResultsKpiPresenter? resultsKpiPresenter = null,
             IProjectSaveService? projectSaveService = null,
             IProjectDisplayModeState? displayModeState = null)
         {
@@ -519,6 +521,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _projectLoadOrchestrator = projectLoadOrchestrator ?? throw new ArgumentNullException(nameof(projectLoadOrchestrator));
             _resultsPdfDataBuilder = resultsPdfDataBuilder ?? throw new ArgumentNullException(nameof(resultsPdfDataBuilder));
             _hydraulicSummaryBuilder = hydraulicSummaryBuilder ?? throw new ArgumentNullException(nameof(hydraulicSummaryBuilder));
+            _resultsKpiPresenter = resultsKpiPresenter ?? new ResultsKpiPresenter();
             if (_displayModeState is not null)
             {
                 _displayModeState.IsOperatingMode = IsOperatingMode;
@@ -1131,22 +1134,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
         }
 
         /// <summary>
-        /// Получить правильное склонение слова "контур"
-        /// </summary>
-        private static string GetContourWord(int count)
-        {
-            if (count % 100 >= 11 && count % 100 <= 19)
-                return "контуров";
-            int lastDigit = count % 10;
-            return lastDigit switch
-            {
-                1 => "контур",
-                2 or 3 or 4 => "контура",
-                _ => "контуров"
-            };
-        }
-
-        /// <summary>
         /// Получить название теплоносителя на русском
         /// </summary>
         private static string GetGlycolTypeName(GlycolType type)
@@ -1166,123 +1153,32 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// <summary>
         /// Пересчитать все KPI показатели
         /// </summary>
+        /// <remarks>
+        /// DE-3: вычисления выполняет чистый <see cref="ResultsKpiPresenter"/>
+        /// из канонических снимков (HydraulicsState + труба ThermalState);
+        /// VM назначает read-model наблюдаемым свойствам. Состав назначений
+        /// 1:1 с прежними CalculateTotalPower/CalculateSystemVolume/
+        /// CalculatePumpParameters/CalculateExpansionTank.
+        /// </remarks>
         private void RecalculateKpi()
         {
-            CalculateTotalPower();
-            CalculateSystemVolume();
-            CalculatePumpParameters();
-            CalculateExpansionTank();
+            var kpis = _resultsKpiPresenter.BuildKpis(
+                _projectSession.HydraulicsState.Snapshot.Collectors,
+                _projectSession.ThermalState.Snapshot.Inputs.Pipe?.InnerDiameter,
+                IsOperatingMode);
+
+            TotalThermalPower_kW = kpis.TotalThermalPower_kW;
+            SystemVolume_L = kpis.SystemVolume_L;
+            TotalPipeLength = kpis.TotalPipeLength;
+            PumpFlowRate_m3h = kpis.PumpFlowRate_m3h;
+            PumpQ = kpis.PumpFlowRate_m3h;
+            PumpHead_kPa = kpis.PumpHead_kPa;
+            PumpH = kpis.PumpHead_kPa;
+            ExpansionTankVolume_L = kpis.ExpansionTankVolume_L;
+            ExpansionTankV = kpis.ExpansionTankVolume_L;
+
             UpdateCollectorSpecifications();
             UpdateCollectorEquipmentItems();
-        }
-
-        /// <summary>
-        /// Рассчитать суммарную тепловую мощность
-        /// </summary>
-        private void CalculateTotalPower()
-        {
-            // Суммируем мощности коллекторов; при пустом списке (или null)
-            // итерация просто не выполняется, и итог корректно обнуляется.
-            // Ранний return «оставляем текущее значение» убираем: иначе после
-            // RefreshAll() с пустыми коллекторами остаётся stale-значение
-            // из предыдущего проекта, а должно быть 0.
-            double totalPower_W = 0;
-
-            // Phase 8: KPI-агрегаты читаются из канонического HydraulicsState snapshot.
-            foreach (var collector in _projectSession.HydraulicsState.Snapshot.Collectors)
-            {
-                if (collector?.Summary != null)
-                {
-                    totalPower_W += collector.Summary.TotalPower;
-                }
-            }
-
-            TotalThermalPower_kW = totalPower_W / 1000.0;
-        }
-
-        /// <summary>
-        /// Рассчитать объём системы
-        /// </summary>
-        private void CalculateSystemVolume()
-        {
-            double totalLength = 0;
-            double innerDiameter_m = 0;
-
-            // Получаем внутренний диаметр трубы из канонического ThermalState
-            // snapshot (Todo 10 / DEC-T07), а не из кэша адаптера.
-            var canonicalPipe = _projectSession.ThermalState.Snapshot.Inputs.Pipe;
-            if (canonicalPipe != null)
-            {
-                innerDiameter_m = canonicalPipe.InnerDiameter / 1000.0; // мм → м
-            }
-
-            // Суммируем длины всех контуров из канонического HydraulicsState snapshot;
-            // TotalLength контура = CircuitLength + SupplyLength (как CircuitRow.TotalLength).
-            foreach (var collector in _projectSession.HydraulicsState.Snapshot.Collectors)
-            {
-                if (collector?.Circuits == null) continue;
-                foreach (var circuit in collector.Circuits)
-                {
-                    totalLength += circuit.CircuitLength + circuit.SupplyLength;
-                }
-            }
-
-            // V = π × d²/4 × L × 1000 (литры)
-            if (innerDiameter_m > 0)
-            {
-                SystemVolume_L = Math.PI * Math.Pow(innerDiameter_m, 2) / 4.0 * totalLength * 1000.0;
-            }
-            else
-            {
-                SystemVolume_L = 0;
-            }
-
-            TotalPipeLength = totalLength;
-        }
-
-        /// <summary>
-        /// Рассчитать параметры насоса
-        /// </summary>
-        private void CalculatePumpParameters()
-        {
-            double totalFlowRate_Lh = 0;
-            double maxPressureLoss_Pa = 0;
-
-            var pumpCollectors = _projectSession.HydraulicsState.Snapshot.Collectors;
-            if (pumpCollectors.Count == 0)
-            {
-                PumpFlowRate_m3h = 0;
-                PumpQ = 0;
-                PumpHead_kPa = 0;
-                PumpH = 0;
-                return;
-            }
-
-            foreach (var collector in pumpCollectors)
-            {
-                if (collector?.Summary != null)
-                {
-                    totalFlowRate_Lh += collector.Summary.TotalFlowRate;
-
-                    // Максимальные потери в зависимости от режима
-                    double pressureLoss = IsOperatingMode
-                        ? collector.Summary.PressureLoss_Operating_Pa
-                        : collector.Summary.PressureLoss_Cold_Pa;
-
-                    if (pressureLoss > maxPressureLoss_Pa)
-                    {
-                        maxPressureLoss_Pa = pressureLoss;
-                    }
-                }
-            }
-
-            // Переводим расход в м³/ч
-            PumpFlowRate_m3h = totalFlowRate_Lh / 1000.0;
-            PumpQ = PumpFlowRate_m3h;
-
-            // Переводим напор в кПа
-            PumpHead_kPa = maxPressureLoss_Pa / 1000.0;
-            PumpH = PumpHead_kPa;
         }
 
         /// <summary>
@@ -1290,39 +1186,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// </summary>
         private void UpdatePumpHead()
         {
-            double maxPressureLoss_Pa = 0;
-
-            foreach (var collector in _projectSession.HydraulicsState.Snapshot.Collectors)
-            {
-                if (collector?.Summary != null)
-                {
-                    double pressureLoss = IsOperatingMode
-                        ? collector.Summary.PressureLoss_Operating_Pa
-                        : collector.Summary.PressureLoss_Cold_Pa;
-
-                    if (pressureLoss > maxPressureLoss_Pa)
-                    {
-                        maxPressureLoss_Pa = pressureLoss;
-                    }
-                }
-            }
-
-            PumpHead_kPa = maxPressureLoss_Pa / 1000.0;
+            PumpHead_kPa = _resultsKpiPresenter.BuildPumpHead(
+                _projectSession.HydraulicsState.Snapshot.Collectors,
+                IsOperatingMode);
             PumpH = PumpHead_kPa;
-        }
-
-        /// <summary>
-        /// Рассчитать объём расширительного бака
-        /// Формула: V_системы × β × 1.2
-        /// </summary>
-        private void CalculateExpansionTank()
-        {
-            // Коэффициент расширения воды (примерно 0.034 при 80°C)
-            double beta = 0.034;
-
-            // Коэффициент запаса 1.2
-            ExpansionTankVolume_L = SystemVolume_L * beta * 1.2;
-            ExpansionTankV = ExpansionTankVolume_L;
         }
 
         /// <summary>
@@ -1334,25 +1201,15 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
             Collectors.Clear();
 
-            // Phase 8: список коллекторов строится из канонического HydraulicsState snapshot.
-            // Пустой канон: общий путь ниже сбрасывает RzsCount, выбор и обновляет
-            // summary/filter (ранний return здесь оставил бы stale-итоги выбранного
-            // коллектора от предыдущего проекта).
+            // Phase 8: список коллекторов строится из канонического HydraulicsState
+            // snapshot. Пустой канон: общий путь ниже сбрасывает RzsCount, выбор и
+            // обновляет summary/filter (ранний return здесь оставил бы stale-итоги
+            // выбранного коллектора от предыдущего проекта).
+            // DE-3: маппинг строк — HydraulicSummaryBuilder.BuildCollectorInfos.
             var canonicalCollectors = _projectSession.HydraulicsState.Snapshot.Collectors;
 
-            for (int i = 0; i < canonicalCollectors.Count; i++)
+            foreach (var collectorInfo in _hydraulicSummaryBuilder.BuildCollectorInfos(canonicalCollectors))
             {
-                var collectorData = canonicalCollectors[i];
-                if (collectorData == null) continue;
-
-                var collectorInfo = new CollectorInfo
-                {
-                    Number = collectorData.CollectorNumber,
-                    DisplayName = $"Коллектор №{collectorData.CollectorNumber} ({collectorData.Circuits?.Count ?? 0} {GetContourWord(collectorData.Circuits?.Count ?? 0)})",
-                    CircuitCount = collectorData.Circuits?.Count ?? 0,
-                    TotalFlowRate = (collectorData.Summary?.TotalFlowRate ?? 0) / 1000.0,
-                    IsSelected = (i == 0) // Первый коллектор выбран по умолчанию
-                };
                 collectorInfo.SetParent(this);
                 Collectors.Add(collectorInfo);
             }
@@ -1401,30 +1258,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 return;
             }
 
-            CollectorSummary = CreateCollectorSummary(canonicalCollectors[SelectedCollectorIndex]);
-        }
-
-        /// <summary>
-        /// Собрать сводку выбранного коллектора из канонического снапшота
-        /// (инверсия адаптерного зеркала <c>CircuitsViewModel</c>).
-        /// </summary>
-        private static CollectorSummary? CreateCollectorSummary(HydraulicCollectorSnapshot collector)
-        {
-            var summary = collector.Summary;
-            if (summary == null) return null;
-
-            return new CollectorSummary
-            {
-                CollectorNumber = collector.CollectorNumber,
-                CollectorType = summary.CollectorType,
-                CircuitCount = summary.CircuitCount,
-                TotalPipeLength = summary.TotalPipeLength,
-                TotalPower = summary.TotalPower,
-                TotalFlowRate = summary.TotalFlowRate,
-                PressureLoss_Operating_Pa = summary.PressureLoss_Operating_Pa,
-                PressureLoss_Cold_Pa = summary.PressureLoss_Cold_Pa,
-                Kv = summary.Kv
-            };
+            // DE-3: маппинг сводки — HydraulicSummaryBuilder.BuildCollectorSummary.
+            CollectorSummary = _hydraulicSummaryBuilder.BuildCollectorSummary(
+                canonicalCollectors[SelectedCollectorIndex]);
         }
 
         /// <summary>
@@ -1447,17 +1283,11 @@ namespace SnowMeltingCalculator.ViewModels.Results
             if (SelectedCollectorIndex >= canonicalCollectors.Count)
                 return;
 
-            foreach (var circuitSnapshot in canonicalCollectors[SelectedCollectorIndex].Circuits)
+            // DE-3: реконструкция строк с режимом отображения —
+            // HydraulicCircuitRowProjection.CreateRows.
+            foreach (var circuit in HydraulicCircuitRowProjection.CreateRows(
+                canonicalCollectors[SelectedCollectorIndex], IsOperatingMode))
             {
-                if (circuitSnapshot == null) continue;
-
-                var circuit = HydraulicCircuitRowProjection.CreateRow(circuitSnapshot);
-
-                // Устанавливаем режим отображения на Results-owned копии
-                circuit.DisplayMode = IsOperatingMode
-                    ? HydraulicMode.OperatingTemperature
-                    : HydraulicMode.DesignTemperature;
-
                 Circuits.Add(circuit);
             }
         }

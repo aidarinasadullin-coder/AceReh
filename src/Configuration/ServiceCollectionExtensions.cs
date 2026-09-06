@@ -231,6 +231,7 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<ProjectLoadOrchestrator>();
             services.AddSingleton<ResultsPdfDataBuilder>();
             services.AddSingleton<HydraulicSummaryBuilder>();
+            services.AddSingleton<ResultsKpiPresenter>();
 
             // ViewModels
             services.AddSingleton<ResultsViewModel>();

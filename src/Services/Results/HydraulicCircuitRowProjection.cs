@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Services.Project;
 
@@ -46,6 +47,29 @@ namespace SnowMeltingCalculator.Services.Results
                 OperatingResult = ToDomainResult(circuit.OperatingResult),
                 DesignResult = ToDomainResult(circuit.DesignResult)
             };
+        }
+
+        /// <summary>
+        /// Создать строки Results-owned проекции для всех контуров коллектора,
+        /// включая назначение режима отображения (DE-3: финализация проекции —
+        /// раньше режим назначался в ResultsViewModel.UpdateCircuitsFilter).
+        /// </summary>
+        public static List<CircuitRow> CreateRows(HydraulicCollectorSnapshot collector, bool isOperatingMode)
+        {
+            var rows = new List<CircuitRow>();
+            foreach (var circuitSnapshot in collector.Circuits)
+            {
+                if (circuitSnapshot == null) continue;
+
+                // Режим отображения назначается Results-owned копии
+                var circuit = CreateRow(circuitSnapshot);
+                circuit.DisplayMode = isOperatingMode
+                    ? HydraulicMode.OperatingTemperature
+                    : HydraulicMode.DesignTemperature;
+                rows.Add(circuit);
+            }
+
+            return rows;
         }
 
         private static CircuitTemperatureResult ToDomainResult(HydraulicCircuitResultSnapshot? snapshot)

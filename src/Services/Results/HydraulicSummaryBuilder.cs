@@ -11,6 +11,9 @@ namespace SnowMeltingCalculator.Services.Results
     /// Вынесен из ResultsViewModel (архитектурный долг, этап C3).
     /// Phase 9 (ST-026/ST-027): вход — канонические снимки HydraulicsState,
     /// не модель модуля.
+    /// DE-3: дополнительно строки переключателя коллекторов и сводка
+    /// выбранного коллектора (бывшие UpdateCollectorsList/CreateCollectorSummary
+    /// из ResultsViewModel).
     /// </summary>
     public class HydraulicSummaryBuilder
     {
@@ -108,6 +111,77 @@ namespace SnowMeltingCalculator.Services.Results
 
             items.AddRange(orderedGroups);
             return items;
+        }
+
+        /// <summary>
+        /// Построить строки переключателя коллекторов (DE-3: вынос из ResultsViewModel).
+        /// </summary>
+        /// <remarks>
+        /// <c>IsSelected</c> при построении всегда назначается первой строке;
+        /// фактический выбор восстанавливает ResultsViewModel после перестроения.
+        /// </remarks>
+        public List<CollectorInfo> BuildCollectorInfos(IReadOnlyList<HydraulicCollectorSnapshot>? collectors)
+        {
+            var collectorInfos = new List<CollectorInfo>();
+            if (collectors == null) return collectorInfos;
+
+            for (int i = 0; i < collectors.Count; i++)
+            {
+                var collectorData = collectors[i];
+                if (collectorData == null) continue;
+
+                collectorInfos.Add(new CollectorInfo
+                {
+                    Number = collectorData.CollectorNumber,
+                    DisplayName = $"Коллектор №{collectorData.CollectorNumber} ({collectorData.Circuits?.Count ?? 0} {GetContourWord(collectorData.Circuits?.Count ?? 0)})",
+                    CircuitCount = collectorData.Circuits?.Count ?? 0,
+                    TotalFlowRate = (collectorData.Summary?.TotalFlowRate ?? 0) / 1000.0,
+                    IsSelected = (i == 0) // Первый коллектор выбран по умолчанию
+                });
+            }
+
+            return collectorInfos;
+        }
+
+        /// <summary>
+        /// Собрать сводку выбранного коллектора из канонического снапшота
+        /// (DE-3: вынос CreateCollectorSummary из ResultsViewModel).
+        /// </summary>
+        public CollectorSummary? BuildCollectorSummary(HydraulicCollectorSnapshot collector)
+        {
+            var summary = collector.Summary;
+            if (summary == null) return null;
+
+            return new CollectorSummary
+            {
+                CollectorNumber = collector.CollectorNumber,
+                CollectorType = summary.CollectorType,
+                CircuitCount = summary.CircuitCount,
+                TotalPipeLength = summary.TotalPipeLength,
+                TotalPower = summary.TotalPower,
+                TotalFlowRate = summary.TotalFlowRate,
+                PressureLoss_Operating_Pa = summary.PressureLoss_Operating_Pa,
+                PressureLoss_Cold_Pa = summary.PressureLoss_Cold_Pa,
+                Kv = summary.Kv
+            };
+        }
+
+        /// <summary>
+        /// Получить правильное склонение слова "контур" (перенос из ResultsViewModel
+        /// дословно; рядом существует FormatCircuitCount — объединение отложено:
+        /// формы для 21–24, 31–34 и т.п. у них различаются).
+        /// </summary>
+        private static string GetContourWord(int count)
+        {
+            if (count % 100 >= 11 && count % 100 <= 19)
+                return "контуров";
+            int lastDigit = count % 10;
+            return lastDigit switch
+            {
+                1 => "контур",
+                2 or 3 or 4 => "контура",
+                _ => "контуров"
+            };
         }
 
         private static CollectorHydraulicSummaryCard BuildCard(HydraulicCollectorSnapshot collector)
