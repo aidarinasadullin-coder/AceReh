@@ -861,5 +861,6 @@ doc-комментарии `CalculationReportMarkdownRenderer.cs:10` (ревью
     HeaderCalculateCascadeTests (DI, без создания WPF Application —
     thread-affinity тестов EditorDialogService): невалидный вход (навигация,
     публикации нет) и валидный сценарий (Москва + дефолты конструкции +
-    подача 25, каскад хуком, без перескока шагов). Открыто: культура
-    интерполяций CollectorViewModel/CircuitsViewModel (§Ф7.0б).
+    подача 25, каскад хуком, без перескока шагов).
+    Принято владельцем (2026-09-06, коммиты 110f526/9b7205b).
+    Открыто: культура интерполяций CollectorViewModel/CircuitsViewModel (§Ф7.0б).
