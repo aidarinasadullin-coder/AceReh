@@ -11,7 +11,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
     /// </summary>
     public sealed class HydraulicsSectionBuilder : IReportSectionBuilder<HydraulicsSection>
     {
-        public SectionBuildResult<HydraulicsSection> Build(ProjectData project, CalculationReportMode mode)
+        public SectionBuildResult<HydraulicsSection> Build(ProjectData project, CalculationReportMode mode, ThermalReportDetail? thermalDetail = null)
         {
             var hydraulics = project.HydraulicsData ?? new HydraulicsProjectData();
             var collectors = (hydraulics.Collectors ?? new List<CollectorProjectData>())

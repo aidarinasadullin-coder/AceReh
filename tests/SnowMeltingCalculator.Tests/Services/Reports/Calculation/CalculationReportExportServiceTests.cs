@@ -170,7 +170,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             cts.Cancel();
 
             var ex = Assert.ThrowsAsync<OperationCanceledException>(async () =>
-                await service.ExportReportAsync(filePath, project, CalculationReportMode.Operating, cts.Token));
+                await service.ExportReportAsync(filePath, project, CalculationReportMode.Operating, cancellationToken: cts.Token));
             Assert.That(ex, Is.Not.Null);
         }
 
@@ -217,7 +217,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         {
             public CalculationReportMode LastMode { get; private set; }
 
-            public CalculationReportData Build(ProjectData project, CalculationReportMode mode, DateTime? reportDate = null)
+            public CalculationReportData Build(ProjectData project, CalculationReportMode mode, DateTime? reportDate = null, ThermalReportDetail? thermalDetail = null)
             {
                 LastMode = mode;
                 return new CalculationReportData
@@ -246,7 +246,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         {
             public int BuildCount { get; private set; }
 
-            public CalculationReportData Build(ProjectData project, CalculationReportMode mode, DateTime? reportDate = null)
+            public CalculationReportData Build(ProjectData project, CalculationReportMode mode, DateTime? reportDate = null, ThermalReportDetail? thermalDetail = null)
             {
                 BuildCount++;
                 return new CalculationReportData
