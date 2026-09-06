@@ -20,10 +20,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         /// <param name="project">Данные проекта.</param>
         /// <param name="mode">Режим отчёта.</param>
         /// <param name="reportDate">Дата формирования отчёта (опционально).</param>
+        /// <param name="thermalDetail">Детальные тепловые величины (ADR-010); null — прежнее поведение.</param>
         /// <returns>Модель данных отчёта.</returns>
         CalculationReportData Build(
             ProjectData project,
             CalculationReportMode mode,
-            DateTime? reportDate = null);
+            DateTime? reportDate = null,
+            ThermalReportDetail? thermalDetail = null);
     }
 }

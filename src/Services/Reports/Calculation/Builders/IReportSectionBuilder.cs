@@ -10,6 +10,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
         /// <summary>
         /// Построить раздел и собрать метаданные параметров и формулы.
         /// </summary>
-        SectionBuildResult<TSection> Build(ProjectData project, CalculationReportMode mode);
+        /// <param name="project">Данные проекта.</param>
+        /// <param name="mode">Режим отчёта.</param>
+        /// <param name="thermalDetail">Детальные тепловые величины (ADR-010); используется тепловым разделом.</param>
+        SectionBuildResult<TSection> Build(
+            ProjectData project,
+            CalculationReportMode mode,
+            ThermalReportDetail? thermalDetail = null);
     }
 }

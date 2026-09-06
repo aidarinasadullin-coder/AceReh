@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using SnowMeltingCalculator.Core.Constants;
+using SnowMeltingCalculator.Models.Thermal;
 
 namespace SnowMeltingCalculator.Tests.Core
 {
@@ -44,13 +45,13 @@ namespace SnowMeltingCalculator.Tests.Core
             // Фактические температуры поверхности калькулятора: (int)OperatingMode.
             Assert.Multiple(() =>
             {
-                Assert.That((int)Models.Thermal.OperatingMode.Melting, Is.EqualTo(5));
-                Assert.That((int)Models.Thermal.OperatingMode.AntiIcing, Is.EqualTo(3));
-                Assert.That((int)Models.Thermal.OperatingMode.Intensive, Is.EqualTo(7));
+                Assert.That((int)OperatingMode.Melting, Is.EqualTo(5));
+                Assert.That((int)OperatingMode.AntiIcing, Is.EqualTo(3));
+                Assert.That((int)OperatingMode.Intensive, Is.EqualTo(7));
 
-                Assert.That(ThermalConstants.SurfaceTempMelting, Is.Not.EqualTo((int)Models.Thermal.OperatingMode.Melting));
-                Assert.That(ThermalConstants.SurfaceTempPrevention, Is.Not.EqualTo((int)Models.Thermal.OperatingMode.Melting));
-                Assert.That(ThermalConstants.SurfaceTempAntiIce, Is.Not.EqualTo((int)Models.Thermal.OperatingMode.AntiIcing));
+                Assert.That(ThermalConstants.SurfaceTempMelting, Is.Not.EqualTo((int)OperatingMode.Melting));
+                Assert.That(ThermalConstants.SurfaceTempPrevention, Is.Not.EqualTo((int)OperatingMode.Melting));
+                Assert.That(ThermalConstants.SurfaceTempAntiIce, Is.Not.EqualTo((int)OperatingMode.AntiIcing));
             });
         }
     }

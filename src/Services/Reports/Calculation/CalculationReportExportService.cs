@@ -26,6 +26,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             string filePath,
             ProjectData project,
             CalculationReportMode mode,
+            ThermalReportDetail? thermalDetail = null,
+            DateTime? reportDate = null,
             CancellationToken cancellationToken = default)
         {
             if (project == null)
@@ -44,7 +46,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var reportData = _builder.Build(project, mode);
+                var reportData = _builder.Build(project, mode, reportDate, thermalDetail);
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var markdown = _renderer.Render(reportData);

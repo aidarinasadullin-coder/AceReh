@@ -13,25 +13,26 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
         private const string FormulaStatusUnconfirmed = "требуется привязка к существующей формуле";
         private const string FormulaStatusConstant = "кодовое значение";
 
-        public SectionBuildResult<ThermalSection> Build(ProjectData project, CalculationReportMode mode)
+        public SectionBuildResult<ThermalSection> Build(ProjectData project, CalculationReportMode mode, ThermalReportDetail? thermalDetail = null)
         {
             var thermal = project.ThermalData ?? new ThermalProjectData();
             var result = thermal.Result ?? new ThermalResultProjectData();
+            var detail = thermalDetail is { HasValues: true } ? thermalDetail : null;
 
-            var alpha = ReportValueFactory.Create(0.0, "Вт/(м²·К)", ReportValueSource.Calculated, "ThermalCalculationResult.Alpha", formula: "2.26 * (t_P - t_H)^0.33 + 2.6 * v_H", formulaStatus: FormulaStatusNotStored);
-            var meltingHeat = ReportValueFactory.Create(0.0, "Вт/м²", ReportValueSource.Calculated, "ThermalCalculationResult.MeltingHeat", formula: "(h/3600) * rho * (c_ice*(0-t_H) + L_melt + c_water*t_P)", formulaStatus: FormulaStatusNotStored);
-            var radiationHeat = ReportValueFactory.Create(0.0, "Вт/м²", ReportValueSource.Calculated, "ThermalCalculationResult.RadiationHeat", formulaStatus: FormulaStatusReference);
-            var convectionHeat = ReportValueFactory.Create(0.0, "Вт/м²", ReportValueSource.Calculated, "ThermalCalculationResult.ConvectionHeat", formula: "alpha * (t_P - t_H)", formulaStatus: FormulaStatusNotStored);
+            var alpha = ReportValueFactory.Create(detail?.Alpha ?? 0.0, "Вт/(м²·К)", ReportValueSource.Calculated, "ThermalCalculationResult.Alpha", formula: "2.26 * (t_P - t_H)^0.33 + 2.6 * v_H", formulaStatus: FormulaStatusNotStored);
+            var meltingHeat = ReportValueFactory.Create(detail?.MeltingHeat ?? 0.0, "Вт/м²", ReportValueSource.Calculated, "ThermalCalculationResult.MeltingHeat", formula: "(h/3600) * rho * (c_ice*(0-t_H) + L_melt + c_water*t_P)", formulaStatus: FormulaStatusNotStored);
+            var radiationHeat = ReportValueFactory.Create(detail?.RadiationHeat ?? 0.0, "Вт/м²", ReportValueSource.Calculated, "ThermalCalculationResult.RadiationHeat", formulaStatus: FormulaStatusReference);
+            var convectionHeat = ReportValueFactory.Create(detail?.ConvectionHeat ?? 0.0, "Вт/м²", ReportValueSource.Calculated, "ThermalCalculationResult.ConvectionHeat", formula: "alpha * (t_P - t_H)", formulaStatus: FormulaStatusNotStored);
             var powerUp = ReportValueFactory.Create(result.PowerUp, "Вт/м²", ReportValueSource.Calculated, "ThermalResultProjectData.PowerUp", formula: "MeltingHeat + ConvectionHeat");
             var powerDown = ReportValueFactory.Create(result.PowerDown, "Вт/м²", ReportValueSource.Calculated, "ThermalResultProjectData.PowerDown", formulaStatus: FormulaStatusUnconfirmed);
             var totalPowerDensity = ReportValueFactory.Create(result.PowerTotal, "Вт/м²", ReportValueSource.Calculated, "ThermalResultProjectData.PowerTotal", formula: "PowerUp + PowerDown");
-            var rFb = ReportValueFactory.Create(0.0, "м²·К/Вт", ReportValueSource.Calculated, "ThermalCalculationResult.RFb", formula: "R1 + 1/alpha", formulaStatus: FormulaStatusNotStored);
-            var rD = ReportValueFactory.Create(0.0, "м²·К/Вт", ReportValueSource.Calculated, "ThermalCalculationResult.RD", formula: "R2 + 1/AlphaBottom", formulaStatus: FormulaStatusNotStored);
-            var parameterM = ReportValueFactory.Create(0.0, "1/м", ReportValueSource.Calculated, "ThermalCalculationResult.ParameterM", formula: "0.6 * sqrt((1/RFb + 1/RD) / (lambdaE * dE))", formulaStatus: FormulaStatusNotStored);
-            var efficiencyEtaR = ReportValueFactory.Create(0.0, "-", ReportValueSource.Calculated, "ThermalCalculationResult.EfficiencyEtaR", formula: "tanh(x)/x", formulaStatus: FormulaStatusNotStored);
-            var excessTemperature = ReportValueFactory.Create(0.0, "K", ReportValueSource.Calculated, "ThermalCalculationResult.ExcessTemperature", formulaStatus: FormulaStatusUnconfirmed);
-            var massFlowRate = ReportValueFactory.Create(0.0, "кг/(ч·м²)", ReportValueSource.Calculated, "ThermalCalculationResult.MassFlowRate", formula: "PowerTotal / (c_p / 3.6) / DeltaT", formulaStatus: FormulaStatusNotStored);
-            var volumeFlowRate = ReportValueFactory.Create(0.0, "л/(ч·м²)", ReportValueSource.Calculated, "ThermalCalculationResult.VolumeFlowRate", formula: "MassFlowRate / rho * 1000", formulaStatus: FormulaStatusNotStored);
+            var rFb = ReportValueFactory.Create(detail?.RFb ?? 0.0, "м²·К/Вт", ReportValueSource.Calculated, "ThermalCalculationResult.RFb", formula: "R1 + 1/alpha", formulaStatus: FormulaStatusNotStored);
+            var rD = ReportValueFactory.Create(detail?.RD ?? 0.0, "м²·К/Вт", ReportValueSource.Calculated, "ThermalCalculationResult.RD", formula: "R2 + 1/AlphaBottom", formulaStatus: FormulaStatusNotStored);
+            var parameterM = ReportValueFactory.Create(detail?.ParameterM ?? 0.0, "1/м", ReportValueSource.Calculated, "ThermalCalculationResult.ParameterM", formula: "0.6 * sqrt((1/RFb + 1/RD) / (lambdaE * dE))", formulaStatus: FormulaStatusNotStored);
+            var efficiencyEtaR = ReportValueFactory.Create(detail?.EfficiencyEtaR ?? 0.0, "-", ReportValueSource.Calculated, "ThermalCalculationResult.EfficiencyEtaR", formula: "tanh(x)/x", formulaStatus: FormulaStatusNotStored);
+            var excessTemperature = ReportValueFactory.Create(detail?.ExcessTemperature ?? 0.0, "K", ReportValueSource.Calculated, "ThermalCalculationResult.ExcessTemperature", formulaStatus: FormulaStatusUnconfirmed);
+            var massFlowRate = ReportValueFactory.Create(detail?.MassFlowRate ?? 0.0, "кг/(ч·м²)", ReportValueSource.Calculated, "ThermalCalculationResult.MassFlowRate", formula: "PowerTotal / (c_p / 3.6) / DeltaT", formulaStatus: FormulaStatusNotStored);
+            var volumeFlowRate = ReportValueFactory.Create(detail?.VolumeFlowRate ?? 0.0, "л/(ч·м²)", ReportValueSource.Calculated, "ThermalCalculationResult.VolumeFlowRate", formula: "MassFlowRate / rho * 1000", formulaStatus: FormulaStatusNotStored);
             var snowDensity = ReportValueFactory.Create(900.0, "кг/м³", ReportValueSource.Calculated, "ThermalCalculator.SnowDensity", formulaStatus: FormulaStatusConstant);
             var iceHeatCapacity = ReportValueFactory.Create(2100.0, "Дж/(кг·К)", ReportValueSource.Calculated, "ThermalCalculator.IceHeatCapacity", formulaStatus: FormulaStatusConstant);
             var iceMeltingHeat = ReportValueFactory.Create(330000.0, "Дж/кг", ReportValueSource.Calculated, "ThermalCalculator.IceMeltingHeat", formulaStatus: FormulaStatusConstant);

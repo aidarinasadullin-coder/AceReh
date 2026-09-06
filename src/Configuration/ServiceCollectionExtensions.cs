@@ -213,6 +213,7 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<IPdfExportService, PdfExportService>();
             services.AddSingleton<ICalculationReportDataBuilder, CalculationReportDataBuilder>();
             services.AddSingleton<ICalculationReportMarkdownRenderer, CalculationReportMarkdownRenderer>();
+            services.AddSingleton<IThermalReportDataProvider, ThermalReportDataProvider>();
             services.AddSingleton<ICalculationReportExportService, CalculationReportExportService>();
             services.AddSingleton<IProjectFileService, ProjectFileService>();
             services.AddSingleton<IProjectDisplayModeState, ProjectDisplayModeState>();

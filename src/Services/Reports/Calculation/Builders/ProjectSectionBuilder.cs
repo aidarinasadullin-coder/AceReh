@@ -8,7 +8,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
     /// </summary>
     public sealed class ProjectSectionBuilder : IReportSectionBuilder<ProjectSection>
     {
-        public SectionBuildResult<ProjectSection> Build(ProjectData project, CalculationReportMode mode)
+        public SectionBuildResult<ProjectSection> Build(ProjectData project, CalculationReportMode mode, ThermalReportDetail? thermalDetail = null)
         {
             var section = new ProjectSection
             {

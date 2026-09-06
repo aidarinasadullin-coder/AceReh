@@ -40,6 +40,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly ResultsPdfDataBuilder _resultsPdfDataBuilder;
         private readonly HydraulicSummaryBuilder _hydraulicSummaryBuilder;
         private readonly ResultsKpiPresenter _resultsKpiPresenter;
+        private readonly IThermalReportDataProvider _thermalReportDataProvider;
         private DateTime _createdDate;
 
         private bool _isResetting;
@@ -506,7 +507,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
             HydraulicSummaryBuilder hydraulicSummaryBuilder,
             ResultsKpiPresenter? resultsKpiPresenter = null,
             IProjectSaveService? projectSaveService = null,
-            IProjectDisplayModeState? displayModeState = null)
+            IProjectDisplayModeState? displayModeState = null,
+            IThermalReportDataProvider? thermalReportDataProvider = null)
         {
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
@@ -522,6 +524,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _resultsPdfDataBuilder = resultsPdfDataBuilder ?? throw new ArgumentNullException(nameof(resultsPdfDataBuilder));
             _hydraulicSummaryBuilder = hydraulicSummaryBuilder ?? throw new ArgumentNullException(nameof(hydraulicSummaryBuilder));
             _resultsKpiPresenter = resultsKpiPresenter ?? new ResultsKpiPresenter();
+            _thermalReportDataProvider = thermalReportDataProvider
+                ?? new ThermalReportDataProvider(
+                    _projectSession,
+                    new Services.Thermal.ThermalCalculator());
             if (_displayModeState is not null)
             {
                 _displayModeState.IsOperatingMode = IsOperatingMode;
@@ -704,7 +710,12 @@ namespace SnowMeltingCalculator.ViewModels.Results
             try
             {
                 StatusMessage = "Экспорт детального отчёта...";
-                var success = await _calculationReportExportService.ExportReportAsync(fileName, SaveCurrentProject(), mode);
+                // ADR-010: детальные тепловые величины — из канонического снимка
+                // сессии (fallback — контрольный пересчёт внутри провайдера);
+                // дата отчёта передаётся явно.
+                var thermalDetail = _thermalReportDataProvider.Provide();
+                var success = await _calculationReportExportService.ExportReportAsync(
+                    fileName, SaveCurrentProject(), mode, thermalDetail, DateTime.Now);
 
                 if (success)
                 {

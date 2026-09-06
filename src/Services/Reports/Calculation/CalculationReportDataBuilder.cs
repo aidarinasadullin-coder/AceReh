@@ -66,18 +66,19 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         public CalculationReportData Build(
             ProjectData project,
             CalculationReportMode mode,
-            DateTime? reportDate = null)
+            DateTime? reportDate = null,
+            ThermalReportDetail? thermalDetail = null)
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
 
             var normalizedDate = NormalizeReportDate(reportDate);
-            var warnings = CollectWarnings(project, mode);
+            var warnings = CollectWarnings(project, mode, thermalDetail);
 
             var projectResult = _projectBuilder.Build(project, mode);
             var climateResult = _climateBuilder.Build(project, mode);
             var constructionResult = _constructionBuilder.Build(project, mode);
-            var thermalResult = _thermalBuilder.Build(project, mode);
+            var thermalResult = _thermalBuilder.Build(project, mode, thermalDetail);
             var hydraulicsResult = _hydraulicsBuilder.Build(project, mode);
             var equipmentResult = _equipmentBuilder.Build(project, mode);
 
@@ -129,9 +130,42 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
         private static IReadOnlyList<CalculationReportWarning> CollectWarnings(
             ProjectData project,
-            CalculationReportMode mode)
+            CalculationReportMode mode,
+            ThermalReportDetail? thermalDetail = null)
         {
             var warnings = new List<CalculationReportWarning>();
+
+            if (thermalDetail is not null)
+            {
+                if (!thermalDetail.HasValues)
+                {
+                    warnings.Add(new CalculationReportWarning
+                    {
+                        Code = "MISSING_THERMAL_DETAIL",
+                        Severity = thermalDetail.Source == ThermalReportDetailSource.RecalculationInvalid
+                            ? "Error"
+                            : "Warning",
+                        Message = thermalDetail.Source == ThermalReportDetailSource.RecalculationInvalid
+                            ? "Контрольный пересчёт теплового раздела не дал валидного результата — детальные величины в отчёте отсутствуют. Выполните тепловой расчёт и повторите экспорт."
+                            : "Детальные тепловые величины недоступны — выполните тепловой расчёт и повторите экспорт.",
+                        SourcePath = "SnowMeltingCalculator.Services.Reports.Calculation.ThermalReportDetail.Source",
+                        RelatedValues = new List<string>(thermalDetail.ValidationErrors)
+                    });
+                }
+
+                if (thermalDetail.IsStale)
+                {
+                    warnings.Add(new CalculationReportWarning
+                    {
+                        Code = "REPORT_INPUTS_STALE",
+                        Severity = "Warning",
+                        Message = "Тепловые входы проекта изменились после последнего расчёта — значения теплового раздела соответствуют предыдущему расчёту. Нажмите «Рассчитать» и повторите экспорт.",
+                        SourcePath = "SnowMeltingCalculator.Services.Project.ThermalCalculationPhase.NeedsRecalculation",
+                        RelatedValues = new List<string> { "ThermalStateSnapshot.Status.Phase" }
+                    });
+                }
+            }
+
             var hydraulics = project.HydraulicsData ?? new HydraulicsProjectData();
             var collectors = hydraulics.Collectors ?? new List<CollectorProjectData>();
 
