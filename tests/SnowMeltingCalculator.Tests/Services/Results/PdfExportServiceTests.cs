@@ -19,6 +19,52 @@ namespace SnowMeltingCalculator.Tests.Services.Results
         // file signature and start producing non-PDF output.
         private static readonly byte[] PdfMagicHeader = { 0x25, 0x50, 0x44, 0x46 };
 
+        // Минимальный валидный 1x1 PNG для проверки вставки схемы конструкции
+        // (поле ConstructionImageBytes в фикстуре не задаётся).
+        private static readonly byte[] TinyConstructionPng = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==");
+
+        [Test]
+        public void NumberFormat_UsesCanonicalRussianCulture()
+        {
+            // Числа отчёта закреплены за каноном приложения (ru-RU: запятая,
+            // пробел-тысячи — решение владельца 2026-09-04), независимо от
+            // CurrentCulture машины прогона.
+            Assert.That(PdfExportService.Num(42.5, "F2"), Is.EqualTo("42,50"));
+            Assert.That(PdfExportService.Num(42.5, "N1"), Is.EqualTo("42,5"));
+            Assert.That(PdfExportService.Num(1234.5, "N1"), Is.EqualTo("1\u00A0234,5"),
+                "тысячи отделяются неразрывным пробелом по канону ru-RU");
+        }
+
+        [Test]
+        public async Task ExportResultsToPdfAsync_WithConstructionImage_IncludesBase64Image()
+        {
+            // Схема конструкции (byte[]) вставляется fileless base64-протоколом
+            // MigraDoc: ImageSource.FromBinary в официальном PDFsharp 6.x не
+            // существует (ревью Ф8, P0-2). Успешный экспорт = путь рабочий.
+            var service = new PdfExportService();
+            var filePath = Path.Combine(TestContext.CurrentContext.WorkDirectory, $"results-image-{Guid.NewGuid():N}.pdf");
+            var data = CreateResultsPdfData();
+            data.ConstructionImageBytes = TinyConstructionPng;
+
+            try
+            {
+                var exported = await service.ExportResultsToPdfAsync(filePath, data);
+
+                Assert.That(exported, Is.True, "экспорт с PNG-схемой должен пройти");
+                Assert.That(File.Exists(filePath), Is.True);
+                var bytes = await File.ReadAllBytesAsync(filePath);
+                Assert.That(bytes[..4], Is.EqualTo(PdfMagicHeader));
+            }
+            finally
+            {
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+        }
+
         [Test]
         public async Task ExportResultsToPdfAsync_GeneratesPdf_whenDataContainsDashboardAndHydraulicDetails()
         {
@@ -29,7 +75,7 @@ namespace SnowMeltingCalculator.Tests.Services.Results
 
             try
             {
-                // When: exporting through the real QuestPDF service.
+                // When: exporting through the real PDF export service.
                 var exported = await service.ExportResultsToPdfAsync(filePath, data);
 
                 // Then: a non-empty PDF file is produced.
