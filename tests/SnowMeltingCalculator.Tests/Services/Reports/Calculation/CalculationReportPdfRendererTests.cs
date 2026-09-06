@@ -231,6 +231,16 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
             }
         }
 
+        [Test]
+        public void Render_FullReport_UsesCanonicalRussianNumberFormat()
+        {
+            // В6: числа таблиц — каноническая культура приложения
+            // (десятичная запятая, NBSP-тысячи), здесь Re = 10600.
+            var text = RenderToText(BuildFullData(CalculationReportMode.Operating));
+
+            Assert.That(text, Does.Contain("10\u00A0600,000"));
+        }
+
         #region Подготовка данных
 
         private static CalculationReportData BuildFullData(CalculationReportMode mode)
