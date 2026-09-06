@@ -7,7 +7,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
     /// Статический рендерер детального расчётного отчёта в Markdown.
     /// </summary>
     /// <remarks>
-    /// Не зависит от WPF, QuestPDF, ViewModel и не выполняет новых расчётов.
+    /// Не зависит от WPF, PDF-рендерера, ViewModel и не выполняет новых расчётов.
     /// Форматирование секций и приложений делегировано вспомогательным классам.
     /// </remarks>
     public sealed class CalculationReportMarkdownRenderer : ICalculationReportMarkdownRenderer

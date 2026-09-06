@@ -139,3 +139,31 @@
    шаг остаётся ✓). Для новых модулей — сразу два канала, не склейка.
    Проверка: ConstructionViewModelTests.Validate_WetGroundwater_
    WarningsGoToInfoChannel + скрин construction-wet-no-warning.
+
+## 2026-09-06 (Фаза 8: миграция PDF-рендера QuestPDF → PDFsharp/MigraDoc 6.2.4)
+
+8. PDFsharp/MigraDoc 6.2: альбомная страница после `DefaultPageSetup.Clone()`.
+   Связка `pageSetup.PageFormat = PageFormat.A4` + `Orientation = Landscape`
+   в 6.2 даёт портретную страницу (MediaBox 595×842) — контент, свёрстанный
+   на 782 pt, обрезается по правому краю; на скриншоте выглядит как «пропавшие
+   колонки», а причина — в установке страницы.
+   → Правило: размеры страницы после Clone() задавать явно —
+   `PageWidth = Unit.FromPoint(842); PageHeight = Unit.FromPoint(595)`;
+   после генерации PDF проверять MediaBox (или рендер в PNG), а не только
+   факт наличия файла.
+   Проверка: baseline-new.pdf MediaBox `0 0 842 595`, рендер 1123×793
+   (docs/workspace/fase8/).
+
+9. PDFsharp 6.x официальный vs форк PdfSharpCore — API картинок مختلف.
+   `ImageSource.FromBinary(name, byte[])` — API форка (PdfSharpCore/
+   MigraDocCore); в официальном 6.2.x класса `ImageSource` нет, byte[]
+   вставляется fileless base64-протоколом: `AddImage("base64:" +
+   Convert.ToBase64String(bytes))`. То же с резолвером шрифтов: в
+   Core-сборке 6.2 «из коробки» шрифты не резолвятся —
+   `GlobalFontSettings.UseWindowsFontsUnderWindows = true` (один раз за
+   процесс, до первого рендера).
+   → Правило: API-факты о PDFsharp проверять по официальным докам
+   docs.pdfsharp.net или по метаданным скачанного nupkg (XML-доки в
+   lib/net8.0), не по статьям о форках.
+   Проверка: PdfExportServiceTests.ExportResultsToPdfAsync_
+   WithConstructionImage_IncludesBase64Image; рендер отчёта с кириллицей.
