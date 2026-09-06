@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
@@ -27,13 +28,13 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
     /// </remarks>
     public sealed class CalculationReportPdfRenderer : ICalculationReportPdfRenderer
     {
-        static CalculationReportPdfRenderer()
-        {
-            // Урок №9 Ф8: резолвер шрифтов включается до первого рендера.
-            CalculationReportPdfFontBootstrapper.EnsureInitialized();
-        }
+        /// <summary>
+        /// Бренд-шрифт Inter (спека §7.2), при недоступности резолвера —
+        /// резервный Arial (§3.2 гайдлайна). Инициализация резолвера — до
+        /// первого шрифтового рендера (урок №9 Ф8).
+        /// </summary>
+        private static readonly string FontName = InitFontName();
 
-        private const string FontName = "Arial";
         private const string MissingValue = CalculationReportMarkdownRendererConstants.MissingValue;
         private const string TableFormat = CalculationReportMarkdownRenderHelper.TableFormat;
 
@@ -41,6 +42,11 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         private const string SecondaryTextColorHex = "#757575";
         private const string BorderColorHex = "#BDBDBD";
         private const string HeaderBackgroundHex = "#F5F5F5";
+
+        /// <summary>Активный Красный — только линия шапки (спека §7.2).</summary>
+        private const string BrandRedHex = "#E50040";
+        private const string SemanticErrorHex = "#D32F2F";
+        private const string SemanticWarningHex = "#FF9800";
 
         /// <summary>
         /// Маркеры ссылок на кодовую базу в свободных текстах модели
@@ -95,6 +101,15 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             RenderFormulasAppendix(section, data.FormulasAppendix);
 
             return document;
+        }
+
+        /// <summary>Инициализирует резолвер шрифтов и возвращает имя бренд-шрифта.</summary>
+        private static string InitFontName()
+        {
+            CalculationReportPdfFontBootstrapper.EnsureInitialized();
+            return CalculationReportPdfFontBootstrapper.InterAvailable
+                ? CalculationReportInterFontResolver.FamilyName
+                : "Arial";
         }
 
         private static void ConfigurePageSetup(Document document, Section section)
@@ -587,7 +602,17 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     warning.RelatedValues.Count > 0
                         ? string.Join(", ", warning.RelatedValues)
                         : "-",
-                }).ToList());
+                }).ToList(),
+                // Семантические цвета — дополнение к текстовому статусу
+                // (спека §7.2), статус остаётся читаемым ч/б печатью.
+                cellColor: (rowIndex, columnIndex) => columnIndex == 1
+                    ? warnings[rowIndex].Severity?.Trim().ToLowerInvariant() switch
+                    {
+                        "error" => SemanticErrorHex,
+                        "warning" => SemanticWarningHex,
+                        _ => null,
+                    }
+                    : null);
             AddSpacer(section, 6);
         }
 
@@ -730,28 +755,87 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
         private static void BuildHeader(HeaderFooter header, CalculationReportData data)
         {
+            // Шапка: подпись слева, логотип справа на светлом фоне, под ними —
+            // линия Активного Красного (единственный бренд-акцент документа,
+            // спека §7.2). Свободное пространство вокруг логотипа ≥ 20% высоты.
             var table = header.AddTable();
-            table.AddColumn(Unit.FromPoint(ContentWidthPoints));
+            table.Borders.Visible = false;
+            table.AddColumn(Unit.FromPoint(ContentWidthPoints - 140));
+            table.AddColumn(Unit.FromPoint(140));
             var row = table.AddRow();
-            var cell = row.Cells[0];
+            row.VerticalAlignment = VerticalAlignment.Bottom;
 
-            var paragraph = cell.AddParagraph();
-            paragraph.Format.Font.Name = FontName;
-            paragraph.Format.Font.Size = 8;
-            paragraph.Format.Font.Color = GetColor(SecondaryTextColorHex);
-            paragraph.AddText("РЕХАУ — Калькулятор снеготаяния");
-            paragraph.AddTab();
-            paragraph.AddText($"Проект {EmptyAsDash(data.ProjectSection.ProjectNumber)} · {data.ReportDate:dd.MM.yyyy}");
-            paragraph.Format.TabStops.AddTabStop(Unit.FromPoint(ContentWidthPoints), TabAlignment.Right);
+            var captionCell = row.Cells[0];
+            var caption = captionCell.AddParagraph();
+            caption.Format.Font.Name = FontName;
+            caption.Format.Font.Size = 8;
+            caption.Format.Font.Color = GetColor(SecondaryTextColorHex);
+            caption.AddText("РЕХАУ — Калькулятор снеготаяния");
+            caption.AddLineBreak();
+            caption.AddText($"Проект {EmptyAsDash(data.ProjectSection.ProjectNumber)} · {data.ReportDate:dd.MM.yyyy}");
 
-            // Бренд-линия шапки; единственное цветное пятно документа
-            // (спека §7.2 — Активный Красный только в бренд-элементах шапки).
-            paragraph.Format.Borders.Bottom = new Border
+            var logoCell = row.Cells[1];
+            logoCell.Borders.DistanceFromTop = Unit.FromPoint(4);
+            logoCell.Borders.DistanceFromBottom = Unit.FromPoint(4);
+            logoCell.Borders.DistanceFromLeft = Unit.FromPoint(4);
+            logoCell.Borders.DistanceFromRight = Unit.FromPoint(4);
+            var logoParagraph = logoCell.AddParagraph();
+            logoParagraph.Format.Alignment = ParagraphAlignment.Right;
+            var logoBytes = TryLoadLogoBytes();
+            if (logoBytes != null)
+            {
+                // Протокол Ф8: в официальном PDFsharp 6.x байты вставляются
+                // fileless base64-протоколом (ImageSource.FromBinary не существует).
+                var image = logoParagraph.AddImage("base64:" + Convert.ToBase64String(logoBytes));
+                image.LockAspectRatio = true;
+                image.Height = Unit.FromPoint(18);
+            }
+            else
+            {
+                var fallback = logoParagraph.AddFormattedText("РЕХАУ");
+                fallback.Font.Name = FontName;
+                fallback.Font.Size = 12;
+                fallback.Font.Bold = true;
+                fallback.Font.Color = GetColor(BrandRedHex);
+            }
+
+            var brandLine = header.AddParagraph();
+            brandLine.Format.Font.Size = 1;
+            brandLine.Format.SpaceBefore = Unit.FromPoint(2);
+            brandLine.Format.SpaceAfter = Unit.FromPoint(0);
+            brandLine.Format.Borders.Bottom = new Border
             {
                 Width = Unit.FromPoint(1.5),
-                Color = GetColor("#E50040"),
+                Color = GetColor(BrandRedHex),
             };
-            paragraph.Format.Borders.DistanceFromBottom = Unit.FromPoint(4);
+        }
+
+        /// <summary>
+        /// Логотип РЕХАУ — встроенный WPF-ресурс (deploy-независимо, fileless).
+        /// </summary>
+        private static byte[]? TryLoadLogoBytes()
+        {
+            try
+            {
+                // WPF кладёт ресурсы в <Assembly>.g.resources; ResourceManager
+                // сам добавляет суффикс «.resources», поэтому корень — «.g».
+                var assembly = typeof(CalculationReportPdfRenderer).Assembly;
+                var manager = new System.Resources.ResourceManager(assembly.GetName().Name + ".g", assembly);
+                using var stream = manager.GetStream("resources/images/rehau_logo.png") as Stream;
+                if (stream == null)
+                {
+                    return null;
+                }
+
+                using var ms = new MemoryStream();
+                stream.CopyTo(ms);
+                return ms.Length > 0 ? ms.ToArray() : null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Логотип отчёта не загружен: {ex.Message}");
+                return null;
+            }
         }
 
         private static void BuildFooter(HeaderFooter footer, CalculationReportData data)
@@ -909,7 +993,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         /// (спека §7.2), серые границы. <paramref name="headers"/> = null —
         /// таблица без шапки.
         /// </summary>
-        private static void AddTable(Section section, double[] widths, string[]? headers, IReadOnlyList<string[]> rows)
+        private static void AddTable(
+            Section section,
+            double[] widths,
+            string[]? headers,
+            IReadOnlyList<string[]> rows,
+            Func<int, int, string?>? cellColor = null)
         {
             if (rows.Count == 0)
             {
@@ -939,28 +1028,29 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 }
             }
 
-            foreach (var cells in rows)
+            for (var rowIndex = 0; rowIndex < rows.Count; rowIndex++)
             {
+                var cells = rows[rowIndex];
                 var row = table.AddRow();
                 row.Borders.DistanceFromTop = Unit.FromPoint(1.5);
                 row.Borders.DistanceFromBottom = Unit.FromPoint(1.5);
                 for (var i = 0; i < cells.Length; i++)
                 {
-                    FillCell(row.Cells[i], cells[i], bold: false, size: 8);
+                    FillCell(row.Cells[i], cells[i], bold: false, size: 8, colorHex: cellColor?.Invoke(rowIndex, i));
                 }
             }
 
             AddSpacer(section, 4);
         }
 
-        private static void FillCell(Cell cell, string? text, bool bold, double size)
+        private static void FillCell(Cell cell, string? text, bool bold, double size, string? colorHex = null)
         {
             // Подавление ссылок на кодовую базу — общая точка прохода
             // табличного текста билдеров (спека §7.2).
             var paragraph = cell.AddParagraph(SuppressCodeReferences(text));
             paragraph.Format.Font.Name = FontName;
             paragraph.Format.Font.Size = size;
-            paragraph.Format.Font.Color = GetColor(TextColorHex);
+            paragraph.Format.Font.Color = GetColor(colorHex ?? TextColorHex);
             paragraph.Format.Font.Bold = bold;
         }
 
