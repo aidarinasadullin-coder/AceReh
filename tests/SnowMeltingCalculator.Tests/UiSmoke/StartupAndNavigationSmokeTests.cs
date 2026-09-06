@@ -115,4 +115,30 @@ public sealed class StartupAndNavigationSmokeTests : UiSmokeFixtureBase
         Assert.That(App.FindInAnyWindow("CitySuggestionsList"), Is.Null,
             "Возврат фокуса в поле с выбранным городом не должен переоткрывать список.");
     }
+
+    [Test, Order(4)]
+    public void HeaderCalculate_FromForeignStep_ShowsThermalValidationInsteadOfSilentNoOp()
+    {
+        // Решение владельца (2026-09-06, «молчаливую ошибку надо поправить»):
+        // шапочная «Рассчитать» считает тепловое; если тепловые входы невалидны,
+        // сообщение валидации не попадало в статус-бар другого шага (no-op).
+        // Теперь шелл переводит на Тепловой шаг, где ошибка видна.
+        // Внимание (ревью): пин опирается на то, что инвалидация без результата
+        // — NoChange и фаза теплового остаётся Default (роутинг статус-бара
+        // при NeedsRecalculation показал бы RecalcMessage вместо валидации).
+        App.NavigateTo("Климат");
+        App.WaitModulePlate("КЛИМАТ");
+
+        var button = App.WaitForElement("ThermalCalculate")
+            ?? throw new AssertionException("Шапочная кнопка «Рассчитать» (ThermalCalculate) не найдена.");
+        button.Patterns.Invoke.Pattern.Invoke();
+
+        // Свежий старт: тип трубы не выбран → валидация теплового модуля,
+        // шелл ведёт на Тепловой шаг, где она отображается в статус-баре.
+        App.WaitModulePlate("ТЕПЛОВОЙ");
+
+        var message = App.ReadText("ShellValidationMessage");
+        Assert.That(message, Does.Contain("Тип трубы не задан"),
+            "После шапочного «Рассчитать» с невалидным тепловым входом статус-бар должен показать ошибку.");
+    }
 }

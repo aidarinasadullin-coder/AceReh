@@ -167,3 +167,27 @@
    lib/net8.0), не по статьям о форках.
    Проверка: PdfExportServiceTests.ExportResultsToPdfAsync_
    WithConstructionImage_IncludesBase64Image; рендер отчёта с кириллицей.
+
+10. Прежде чем утверждать «X не происходит» — проверь реактивные хуки на всём
+    пути публикации (2026-09-06, полировка шапочной «Рассчитать»).
+    Агент по коду подписок CircuitsViewModel заключил, что гидравлика не
+    пересчитывается при тепловом пересчёте, и построил «каскад» явным
+    дожимом; ревью диффа нашло хук HydraulicsStateCoordinator.
+    OnContextChanged → CalculateAll на публикацию валидного результата
+    (с baseline) — явный вызов дублировал его, а посылка была ложной.
+    → Правило: состояниеpublisher'а ищи у координаторов/контекстов, а не
+    только у VM: grep по подпискам на Changed/ContextChanged в Services/Project
+    перед выводами о цепочках пересчёта.
+    Проверка: ревью диффа (P2-2/P2-3), HeaderCalculateCascadeTests (каскад
+    хуком, без явного вызова).
+
+11. WPF Application в тестах — процесс-глобален и владеет Dispatcher'ом
+    (2026-09-06, HeaderCalculateCascadeTests).
+    Фикстура создала `new Application()` на своём потоке; тесты
+    EditorDialogService, обращающиеся к Application.Current.MainWindow со
+    своего потока, получили VerifyAccess («владельцем является другой поток»)
+    в зависимости от порядка прогонов.
+    → Правило: VM/сервисным тестам Application не нужен; если нужен — только
+    в фикстуре, которая его использует, и осознанно (thread-affinity
+    распространяется на все последующие фикстуры процесса).
+    Проверка: EditorDialogService + HeaderCalculateCascade вместе — зелёные.
