@@ -60,7 +60,10 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 var pressure = mode == CalculationReportMode.Operating
                     ? summary.PressureLoss_Operating_Pa
                     : summary.PressureLoss_Cold_Pa;
-                if (pressure > worstPressure)
+                if (pressure > worstPressure
+                    || (pressure == worstPressure
+                        && worstCollector is not null
+                        && collector.CollectorNumber < worstCollector.CollectorNumber))
                 {
                     worstPressure = pressure;
                     worstCollector = collector;
@@ -84,7 +87,10 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                     continue;
                 }
 
-                if (result.DpGesamt > worstDp)
+                if (result.DpGesamt > worstDp
+                    || (result.DpGesamt == worstDp
+                        && worstCircuit is not null
+                        && circuit.CircuitNumber < worstCircuit.CircuitNumber))
                 {
                     worstDp = result.DpGesamt;
                     worstCircuit = circuit;
@@ -111,7 +117,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                     Key = "hyd.ref.power",
                     Title = "Шаг 1. Мощность контура Q_HK",
                     FormulaText = "Q_HK = [L_HK/(100/VAHK) + L_Zul/(100/VAZul)·(qZul/100)]·q_total",
-                    SubstitutionText = $"Q_HK (L_HK = {ReportNumber.Format(worstCircuit.CircuitLength, 0)} м; VAHK = {ReportNumber.Format(worstCircuit.PipeSpacingCm, 0)} см; L_Zul = {ReportNumber.Format(worstCircuit.SupplyLength, 1)} м) = {ReportNumber.Format(resultValues.Power, 0)} Вт",
+                    SubstitutionText = $"Q_HK (L_HK = {ReportNumber.Format(worstCircuit.CircuitLength, 0)} м; VAHK = {ReportNumber.Format(worstCircuit.PipeSpacingCm, 0)} см; L_Zul = {ReportNumber.Format(worstCircuit.SupplyLength, 1)} м; VAZul = {ReportNumber.Format(worstCircuit.SupplySpacingCm, 0)} см; qZul = {ReportNumber.Format(worstCircuit.SupplyHeatPercent, 0)} %) = {ReportNumber.Format(resultValues.Power, 0)} Вт",
                     Result = V("Q_HK", resultValues.Power, "Вт"),
                     Inputs = new List<ReportValue<double>>
                     {
@@ -171,7 +177,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 {
                     Key = "hyd.ref.r",
                     Title = "Шаг 6. Удельные потери давления R",
-                    FormulaText = "R = 10000·v²·ρ·λ/(2·d_вн)",
+                    FormulaText = "R = 10000·v²·ρ·λ/(2·d_вн)·100 (ρ в г/см³, d в мм)",
                     SubstitutionText = $"R (v = {ReportNumber.Format(resultValues.Velocity, 3)} м/с; λ = {ReportNumber.Format(resultValues.FrictionFactor, 4)}) = {ReportNumber.Format(resultValues.PressureLossPerMeter, 1)} Па/м",
                     Result = V("R", resultValues.PressureLossPerMeter, "Па/м"),
                     Inputs = new List<ReportValue<double>>
@@ -268,7 +274,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                     Key = "hyd.ref.turns",
                     Title = "Балансировка. Настроечные обороты клапана",
                     FormulaText = isHkv
-                        ? "Кубическая характеристика HKV: Kv → обороты (обратный расчёт методом Ньютона); округление до ¼ оборота"
+                        ? "Кубическая характеристика HKV: Kv → обороты по полиному; округление до ¼ оборота"
                         : "Линейная характеристика IV: обороты = a·Kv − b; округление до ¼ оборота",
                     SubstitutionText = $"Обороты контура = {ReportNumber.Format(resultValues.ValveTurns, 2)} об",
                     Result = V("обороты", resultValues.ValveTurns, "об")

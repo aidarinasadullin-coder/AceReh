@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using SnowMeltingCalculator.Core;
 using System.Linq;
 using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
@@ -182,7 +183,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     {
                         Code = "COLLECTOR_PRESSURE_LOSS_EXCEEDED",
                         Severity = "Warning",
-                        Message = $"Потери давления коллектора {collector.CollectorNumber} в режиме {mode} ({selectedCollectorPressureLoss.ToString("F0", CultureInfo.InvariantCulture)} Па) превышают максимально допустимые {ValidationConstants.MaxPressureLoss.ToString(CultureInfo.InvariantCulture)} Па.",
+                        Message = $"Потери давления коллектора {collector.CollectorNumber} в режиме {mode} ({selectedCollectorPressureLoss.ToString("N0", AppCulture.Culture)} Па) превышают максимально допустимые {ValidationConstants.MaxPressureLoss.ToString("N0", AppCulture.Culture)} Па.",
                         SourcePath = "SnowMeltingCalculator.Core.Constants.ValidationConstants.MaxPressureLoss",
                         RelatedValues = new List<string>
                         {
@@ -227,7 +228,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                         {
                             Code = "VELOCITY_OUT_OF_RANGE",
                             Severity = "Warning",
-                            Message = $"Скорость потока в контуре {circuit.CircuitNumber} коллектора {collector.CollectorNumber} в режиме {mode} ({result.Velocity.ToString("F2", CultureInfo.InvariantCulture)} м/с) выходит за допустимый диапазон {ValidationConstants.MinVelocity.ToString("F1", CultureInfo.InvariantCulture)}..{ValidationConstants.MaxVelocity.ToString("F1", CultureInfo.InvariantCulture)} м/с.",
+                            Message = $"Скорость потока в контуре {circuit.CircuitNumber} коллектора {collector.CollectorNumber} в режиме {mode} ({result.Velocity.ToString("N2", AppCulture.Culture)} м/с) выходит за допустимый диапазон {ValidationConstants.MinVelocity.ToString("N1", AppCulture.Culture)}..{ValidationConstants.MaxVelocity.ToString("N1", AppCulture.Culture)} м/с.",
                             SourcePath = "SnowMeltingCalculator.Core.Constants.ValidationConstants.MinVelocity|MaxVelocity",
                             RelatedValues = new List<string> { velocityPath }
                         });
@@ -239,7 +240,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                         {
                             Code = "PRESSURE_LOSS_PER_METER_EXCEEDED",
                             Severity = "Warning",
-                            Message = $"Удельные потери давления в контуре {circuit.CircuitNumber} коллектора {collector.CollectorNumber} в режиме {mode} ({result.PressureLossPerMeter.ToString("F0", CultureInfo.InvariantCulture)} Па/м) превышают максимально допустимые {CircuitTemperatureResult.MaxPressureLossPerMeter.ToString("F0", CultureInfo.InvariantCulture)} Па/м.",
+                            Message = $"Удельные потери давления в контуре {circuit.CircuitNumber} коллектора {collector.CollectorNumber} в режиме {mode} ({result.PressureLossPerMeter.ToString("N0", AppCulture.Culture)} Па/м) превышают максимально допустимые {CircuitTemperatureResult.MaxPressureLossPerMeter.ToString("N0", AppCulture.Culture)} Па/м.",
                             SourcePath = "SnowMeltingCalculator.Models.Hydraulics.CircuitTemperatureResult.MaxPressureLossPerMeter",
                             RelatedValues = new List<string>
                             {
@@ -257,7 +258,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                         {
                             Code = "VALVE_TURNS_EXCEEDED",
                             Severity = "Warning",
-                            Message = $"Обороты балансировочного клапана в контуре {circuit.CircuitNumber} коллектора {collector.CollectorNumber} ({result.ValveTurns.ToString("F2", CultureInfo.InvariantCulture)} об) превышают максимум {maxTurns.ToString("F2", CultureInfo.InvariantCulture)} об для типа {collector.ValveType}.",
+                            Message = $"Обороты балансировочного клапана в контуре {circuit.CircuitNumber} коллектора {collector.CollectorNumber} ({result.ValveTurns.ToString("N2", AppCulture.Culture)} об) превышают максимум {maxTurns.ToString("N2", AppCulture.Culture)} об для типа {collector.ValveType}.",
                             SourcePath = "SnowMeltingCalculator.Services.Hydraulics.ValveTurnsCalculator.GetMaxTurns",
                             RelatedValues = new List<string>
                             {

@@ -71,9 +71,9 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
             var warning = report.Warnings.Single(w => w.Code == "VELOCITY_OUT_OF_RANGE");
             Assert.That(warning.Severity, Is.EqualTo("Warning"));
-            Assert.That(warning.Message, Does.Contain("0.05"));
-            Assert.That(warning.Message, Does.Contain("0.1"));
-            Assert.That(warning.Message, Does.Contain("2.0"));
+            Assert.That(warning.Message, Does.Contain("0,05"));
+            Assert.That(warning.Message, Does.Contain("0,1"));
+            Assert.That(warning.Message, Does.Contain("2,0"));
             Assert.That(warning.SourcePath, Does.Contain("ValidationConstants"));
             Assert.That(warning.RelatedValues, Does.Contain("CircuitProjectData.OperatingResult.Velocity"));
         }
@@ -88,8 +88,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             var report = builder.Build(project, CalculationReportMode.Operating, FixedDate);
 
             var warning = report.Warnings.Single(w => w.Code == "VELOCITY_OUT_OF_RANGE");
-            Assert.That(warning.Message, Does.Contain("2.5"));
-            Assert.That(warning.Message, Does.Contain("2.0"));
+            Assert.That(warning.Message, Does.Contain("2,5"));
+            Assert.That(warning.Message, Does.Contain("2,0"));
             Assert.That(warning.RelatedValues, Does.Contain("CircuitProjectData.OperatingResult.Velocity"));
         }
 
@@ -145,8 +145,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
             var warning = report.Warnings.Single(w => w.Code == "COLLECTOR_PRESSURE_LOSS_EXCEEDED");
             Assert.That(warning.Severity, Is.EqualTo("Warning"));
-            Assert.That(warning.Message, Does.Contain("35000"));
-            Assert.That(warning.Message, Does.Contain("32000"));
+            Assert.That(warning.Message, Does.Contain("35 000"));
+            Assert.That(warning.Message, Does.Contain("32 000"));
             Assert.That(warning.SourcePath, Does.Contain("ValidationConstants.MaxPressureLoss"));
             Assert.That(warning.RelatedValues, Does.Contain("CollectorSummaryProjectData.PressureLoss_Operating_Pa"));
         }
@@ -189,8 +189,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
             var warning = report.Warnings.Single(w => w.Code == "VALVE_TURNS_EXCEEDED");
             Assert.That(warning.Severity, Is.EqualTo("Warning"));
-            Assert.That(warning.Message, Does.Contain("3.0"));
-            Assert.That(warning.Message, Does.Contain("2.5"));
+            Assert.That(warning.Message, Does.Contain("3,00"));
+            Assert.That(warning.Message, Does.Contain("2,5"));
             Assert.That(warning.Message, Does.Contain("HKV_D"));
             Assert.That(warning.SourcePath, Does.Contain("ValveTurnsCalculator.GetMaxTurns"));
             Assert.That(warning.RelatedValues, Does.Contain("CircuitProjectData.OperatingResult.ValveTurns"));
@@ -208,8 +208,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             var report = builder.Build(project, CalculationReportMode.Operating, FixedDate);
 
             var warning = report.Warnings.Single(w => w.Code == "VALVE_TURNS_EXCEEDED");
-            Assert.That(warning.Message, Does.Contain("9.0"));
-            Assert.That(warning.Message, Does.Contain("8.0"));
+            Assert.That(warning.Message, Does.Contain("9,00"));
+            Assert.That(warning.Message, Does.Contain("8,00"));
             Assert.That(warning.Message, Does.Contain("IV_1_25"));
         }
 

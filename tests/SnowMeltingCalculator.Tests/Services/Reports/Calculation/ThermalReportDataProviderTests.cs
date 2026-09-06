@@ -4,9 +4,11 @@ using NUnit.Framework;
 using SnowMeltingCalculator.Models.Project;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Project;
+using SnowMeltingCalculator.Models.Climate;
+using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Reports.Calculation;
-using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Tests.Construction;
+using ThermalServices = SnowMeltingCalculator.Services.Thermal;
 
 namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
 {
@@ -16,19 +18,63 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
     /// сверку с сохранёнными полями и невалидный пересчёт; контрольный
     /// пересчёт не пишет в канонику и не создаёт dirty.
     /// </summary>
+    /// <summary>
+    /// Счётчик вызовов Calculate поверх реального калькулятора — пин
+    /// «ровно один контрольный пересчёт» (T2-02/T2-03).
+    /// </summary>
+    public class CountingThermalCalculator : ThermalServices.IThermalCalculator
+    {
+        private readonly ThermalServices.ThermalCalculator _inner = new();
+        public int CalculateCalls { get; private set; }
+
+        public double CalculateHeatTransferCoefficient(double surfaceTemp, double airTemp, double windSpeed) =>
+            _inner.CalculateHeatTransferCoefficient(surfaceTemp, airTemp, windSpeed);
+
+        public double CalculatePowerUp(double snowfallIntensity, double surfaceTemp, double airTemp, double alpha) =>
+            _inner.CalculatePowerUp(snowfallIntensity, surfaceTemp, airTemp, alpha);
+
+        public (double RFb, double RD) CalculateThermalResistance(double r1Total, double r2Total, double alpha) =>
+            _inner.CalculateThermalResistance(r1Total, r2Total, alpha);
+
+        public (double ParameterM, double EfficiencyEtaR) CalculateRodTheory(
+            double rFb, double rD, double lambdaE, double dE, double spacing) =>
+            _inner.CalculateRodTheory(rFb, rD, lambdaE, dE, spacing);
+
+        public double CalculateExcessTemperature(
+            ThermalInputs parameters,
+            double powerUp,
+            double rFb,
+            double rD,
+            double etaR,
+            IClimateData climate,
+            IConstructionData construction) =>
+            _inner.CalculateExcessTemperature(parameters, powerUp, rFb, rD, etaR, climate, construction);
+
+        public ThermalCalculationResult Calculate(ThermalInputs inputs, IClimateData climate, IConstructionData construction)
+        {
+            CalculateCalls++;
+            return _inner.Calculate(inputs, climate, construction);
+        }
+
+        public bool Validate(ThermalInputs inputs, IClimateData climate, IConstructionData construction, out string[] errors) =>
+            _inner.Validate(inputs, climate, construction, out errors);
+    }
+
     [TestFixture]
     public class ThermalReportDataProviderTests
     {
         private ProjectSession _session = null!;
         private ThermalReportDataProvider _provider = null!;
+        private CountingThermalCalculator _calculator = null!;
 
         [SetUp]
         public async Task SetUpAsync()
         {
             _session = new ProjectSession();
+            _calculator = new CountingThermalCalculator();
             _provider = new ThermalReportDataProvider(
                 _session,
-                new ThermalCalculator());
+                _calculator);
 
             // Реалистичная заводская конструкция (бетон 100 / ЭППС 80 / основание):
             // без слоёв контрольный пересчёт честно даёт невалидный результат,
@@ -96,6 +142,7 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
                 Assert.That(detail.Alpha, Is.EqualTo(14.0));
                 Assert.That(detail.VolumeFlowRate, Is.EqualTo(21.6));
                 Assert.That(detail.IsStale, Is.False);
+                Assert.That(_calculator.CalculateCalls, Is.EqualTo(0));
             });
         }
 
@@ -119,10 +166,32 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
                 Assert.That(detail.Note, Does.Contain("контрольным пересчётом").IgnoreCase);
             });
 
-            // Канонический результат (8 wire-полей) не подменён пересчётом.
+            // Канонический результат (8 wire-полей) не подменён пересчётом;
+            // пересчёт выполнен ровно один раз.
+            Assert.That(_calculator.CalculateCalls, Is.EqualTo(1));
             Assert.That(_session.ThermalState.Snapshot.Result, Is.Not.Null);
             Assert.That(_session.ThermalState.Snapshot.Result!.PowerUp, Is.EqualTo(330.0));
             Assert.That(_session.IsDirty, Is.False);
+        }
+
+        [Test]
+        public void Provide_NonThermalDirtyEdit_DoesNotSetStale()
+        {
+            // T2-05: правка не-тепловых полей (номер проекта) делает проект
+            // dirty, но не переводит тепловую фазу в NeedsRecalculation —
+            // REPORT_INPUTS_STALE не возникает.
+            _session.ThermalState.Restore(MakeInputs(), MakeResult());
+            _session.ProjectNumber = "изменён";
+            _session.MarkDirty();
+
+            var detail = _provider.Provide();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(_session.IsDirty, Is.True);
+                Assert.That(detail.Source, Is.EqualTo(ThermalReportDetailSource.Snapshot));
+                Assert.That(detail.IsStale, Is.False);
+            });
         }
 
         [Test]
@@ -186,7 +255,7 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
             var emptySession = new ProjectSession();
             var provider = new ThermalReportDataProvider(
                 emptySession,
-                new ThermalCalculator());
+                new ThermalServices.ThermalCalculator());
 
             var detail = provider.Provide();
 

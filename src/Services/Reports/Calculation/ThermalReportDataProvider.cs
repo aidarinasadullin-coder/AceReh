@@ -164,7 +164,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
             if (savedResult is not null
                 && (Math.Abs(recalc.PowerUp - savedResult.PowerUp) > PowerMismatchTolerance
-                    || Math.Abs(recalc.PowerTotal - savedResult.PowerTotal) > PowerMismatchTolerance))
+                    || Math.Abs(recalc.PowerTotal - savedResult.PowerTotal) > PowerMismatchTolerance
+                    || Math.Abs(recalc.DeltaT - savedResult.DeltaT) > PowerMismatchTolerance))
             {
                 notes.Add(string.Format(
                     culture,
