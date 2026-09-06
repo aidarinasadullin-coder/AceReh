@@ -1,0 +1,302 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using MigraDoc.DocumentObjectModel;
+using MigraDoc.DocumentObjectModel.Tables;
+using MigraDoc.Rendering;
+using NUnit.Framework;
+using SnowMeltingCalculator.Models.Climate;
+using SnowMeltingCalculator.Models.Construction;
+using SnowMeltingCalculator.Models.Hydraulics;
+using SnowMeltingCalculator.Models.Project;
+using SnowMeltingCalculator.Models.Thermal;
+using SnowMeltingCalculator.Services.Reports.Calculation;
+
+namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
+{
+    /// <summary>
+    /// Тесты PDF-рендера детального расчётного отчёта (мини-фаза PDF-PZ):
+    /// разделы 1:1 с Markdown, отсутствие путей кодовой базы (решение
+    /// владельца 2026-09-07, спека §7.2), успешный рендер с кириллицей.
+    /// Контент-пины проверяются по обходу объектной модели MigraDoc —
+    /// это текст, который попадёт в PDF.
+    /// </summary>
+    [TestFixture]
+    public class CalculationReportPdfRendererTests
+    {
+        private static readonly byte[] PdfMagicHeader = { 0x25, 0x50, 0x44, 0x46 };
+        private static readonly DateTime FixedReportDate = new DateTime(2026, 9, 7, 12, 0, 0, DateTimeKind.Utc);
+
+        [Test]
+        public void Render_FullReport_TextContainsAllSectionHeadings()
+        {
+            var text = RenderToText(BuildFullData(CalculationReportMode.Operating));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(text, Does.Contain("Детальный расчётный отчёт"));
+                Assert.That(text, Does.Contain("Методика"));
+                Assert.That(text, Does.Contain("Краткая сводка"));
+                Assert.That(text, Does.Contain("Исходные данные проекта"));
+                Assert.That(text, Does.Contain("Климатические данные"));
+                Assert.That(text, Does.Contain("Конструкция"));
+                Assert.That(text, Does.Contain("Теплотехнический расчёт"));
+                Assert.That(text, Does.Contain("Пошаговый расчёт"));
+                Assert.That(text, Does.Contain("Константы расчёта (из кода программы)"));
+                Assert.That(text, Does.Contain("Гидравлический расчёт"));
+                Assert.That(text, Does.Contain("Референсный контур"));
+                Assert.That(text, Does.Contain("Оборудование и KPI"));
+                Assert.That(text, Does.Contain("Предупреждения и ограничения"));
+                Assert.That(text, Does.Contain("Приложение: источники значений"));
+                Assert.That(text, Does.Contain("Приложение: формулы и обозначения"));
+            });
+        }
+
+        [Test]
+        public void Render_FullReport_TextDoesNotContainCodeBasePaths()
+        {
+            // Решение владельца 2026-09-07 (спека §7.2): пути к коду
+            // (SourceDetail, констант-таблица, SourcePath) в PDF не выводятся.
+            var text = RenderToText(BuildFullData(CalculationReportMode.Operating));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(text, Does.Not.Contain("ThermalConstants"));
+                Assert.That(text, Does.Not.Contain("ProjectData."));
+                Assert.That(text, Does.Not.Contain("ThermalCalculationResult."));
+                Assert.That(text, Does.Not.Contain("ThermalCalculator."));
+                Assert.That(text, Does.Not.Contain("FlowRegimeCalculator"));
+                Assert.That(text, Does.Not.Contain("SourceDetail"));
+                Assert.That(text, Does.Not.Contain(".cs"));
+            });
+        }
+
+        [Test]
+        public void Render_FullReport_TracesByEngineeringCategories()
+        {
+            var text = RenderToText(BuildFullData(CalculationReportMode.Operating));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(text, Does.Contain("введено пользователем"));
+                Assert.That(text, Does.Contain("база программы"));
+                Assert.That(text, Does.Contain("рассчитано программой"));
+            });
+        }
+
+        [Test]
+        public void Render_FullReport_RendersPdfFile_WithCyrillicContent()
+        {
+            var document = new CalculationReportPdfRenderer().Render(BuildFullData(CalculationReportMode.Operating));
+            var filePath = Path.Combine(TestContext.CurrentContext.WorkDirectory, $"report-pz-{Guid.NewGuid():N}.pdf");
+
+            try
+            {
+                var renderer = new PdfDocumentRenderer(true) { Document = document };
+                renderer.RenderDocument();
+                renderer.PdfDocument.Save(filePath);
+
+                var bytes = File.ReadAllBytes(filePath);
+                Assert.That(bytes.Length, Is.GreaterThan(0));
+                Assert.That(bytes[..4], Is.EqualTo(PdfMagicHeader), "PDF должен начинаться с %PDF-магии");
+            }
+            finally
+            {
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+        }
+
+        [Test]
+        public void Render_TwoRuns_ProduceIdenticalDocumentText()
+        {
+            var data = BuildFullData(CalculationReportMode.Operating);
+            var first = RenderToText(data);
+            var second = RenderToText(data);
+
+            Assert.That(second, Is.EqualTo(first));
+        }
+
+        [Test]
+        public void Render_NullData_ThrowsArgumentNullException()
+        {
+            Assert.That(() => new CalculationReportPdfRenderer().Render(null!), Throws.ArgumentNullException);
+        }
+
+        #region Подготовка данных
+
+        private static CalculationReportData BuildFullData(CalculationReportMode mode)
+        {
+            var detail = new ThermalReportDetail
+            {
+                Source = ThermalReportDetailSource.Snapshot,
+                Alpha = 14.13,
+                MeltingHeat = 47.8,
+                RadiationHeat = 320.0,
+                ConvectionHeat = 282.7,
+                ExcessTemperature = 60.2,
+                RFb = 0.1283,
+                RD = 5.6374,
+                ParameterM = 9.08,
+                EfficiencyEtaR = 0.793,
+                MassFlowRate = 22.1,
+                VolumeFlowRate = 21.62
+            };
+
+            var builder = new CalculationReportDataBuilder();
+            return builder.Build(MakeProject(), mode, FixedReportDate, detail);
+        }
+
+        private static ProjectData MakeProject()
+        {
+            return new ProjectData
+            {
+                ProjectNumber = "9-100000",
+                ProjectObject = "Екатеринбург",
+                ClimateData = new ClimateProjectData
+                {
+                    SelectedCity = "Екатеринбург",
+                    AirTemperature = -15.0,
+                    WindSpeed = 3.1,
+                    Humidity = 72.0,
+                    SnowfallIntensity = 0.5
+                },
+                ConstructionData = new ConstructionProjectData
+                {
+                    GroundwaterLevel = 2.0,
+                    R1 = 0.0575,
+                    R2 = 5.6374,
+                    LambdaE = 1.74,
+                    Layers = new List<LayerProjectData>
+                    {
+                        new() { Position = LayerPosition.AbovePipe, MaterialName = "Бетон", Thickness = 100.0, CalculatedLambda = 1.74, CalculatedR = 0.0575 },
+                        new() { Position = LayerPosition.BelowPipe, MaterialName = "Пенополистирол ЭППС", Thickness = 80.0, CalculatedLambda = 0.035, CalculatedR = 2.2857 }
+                    }
+                },
+                ThermalData = new ThermalProjectData
+                {
+                    SelectedMode = OperatingMode.Melting,
+                    SupplyTemperature = 53.0,
+                    GroundTemperature = 10.0,
+                    PipeSpacing = 200,
+                    SelectedPipe = new PipeTypeProjectData { Name = "RAUTHERM S 20x2.0", OuterDiameter = 20.0, InnerDiameter = 16.0, WallThickness = 2.0 },
+                    Result = new ThermalResultProjectData
+                    {
+                        PowerUp = 330.5,
+                        PowerDown = 4.9,
+                        PowerTotal = 335.4,
+                        SupplyTemperature = 53.0,
+                        ReturnTemperature = 37.4,
+                        MeanTemperature = 45.2,
+                        DeltaT = 15.6,
+                        IsValid = true
+                    }
+                },
+                HydraulicsData = new HydraulicsProjectData
+                {
+                    GlycolType = GlycolType.Ethylene,
+                    GlycolConcentration = 40.0,
+                    Collectors = new List<CollectorProjectData>
+                    {
+                        new()
+                        {
+                            CollectorNumber = 1,
+                            CollectorType = "IV 1¼\"",
+                            Summary = new CollectorSummaryProjectData { PressureLoss_Operating_Pa = 45000, PressureLoss_Cold_Pa = 150000 },
+                            Circuits = new List<CircuitProjectData>
+                            {
+                                new()
+                                {
+                                    CircuitNumber = 1, CircuitLength = 100.0, SupplyLength = 10.0, PipeSpacingCm = 20,
+                                    OperatingResult = new CircuitResultProjectData { DpGesamt = 45000, Power = 6700, FlowRate = 320, Velocity = 0.44, ReynoldsNumber = 10600, FrictionFactor = 0.031, PressureLossPerMeter = 204, DpRohr = 40000, DpVerteiler = 3000, DpVent = 2000, Throttling = 0, ValveTurns = 8 },
+                                    DesignResult = new CircuitResultProjectData { DpGesamt = 150000, Power = 6700, FlowRate = 320, Velocity = 0.44, ReynoldsNumber = 450, FrictionFactor = 0.14, PressureLossPerMeter = 680, DpRohr = 140000, DpVerteiler = 5000, DpVent = 5000, Throttling = 0, ValveTurns = 8 }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        #endregion
+
+        #region Обход текста MigraDoc
+
+        private static string RenderToText(CalculationReportData data)
+        {
+            var document = new CalculationReportPdfRenderer().Render(data);
+            var sb = new StringBuilder();
+            CollectText(document, sb);
+            return sb.ToString();
+        }
+
+        private static void CollectText(DocumentObject? obj, StringBuilder sb)
+        {
+            switch (obj)
+            {
+                case Document document:
+                    foreach (Section section in document.Sections)
+                    {
+                        CollectText(section, sb);
+                    }
+
+                    break;
+                case Section section:
+                    foreach (DocumentObject element in section.Elements)
+                    {
+                        CollectText(element, sb);
+                    }
+
+                    // HeadersFooters не enumerable — обход по известным слотам.
+                    CollectText(section.Headers.Primary, sb);
+                    CollectText(section.Headers.FirstPage, sb);
+                    CollectText(section.Headers.EvenPage, sb);
+                    CollectText(section.Footers.Primary, sb);
+                    CollectText(section.Footers.FirstPage, sb);
+                    CollectText(section.Footers.EvenPage, sb);
+
+                    break;
+                case HeaderFooter headerFooter:
+                    foreach (DocumentObject element in headerFooter.Elements)
+                    {
+                        CollectText(element, sb);
+                    }
+
+                    break;
+                case Table table:
+                    foreach (Row row in table.Rows)
+                    {
+                        foreach (Cell cell in row.Cells)
+                        {
+                            foreach (DocumentObject element in cell.Elements)
+                            {
+                                CollectText(element, sb);
+                            }
+
+                            sb.Append(" | ");
+                        }
+
+                        sb.AppendLine();
+                    }
+
+                    break;
+                case Paragraph paragraph:
+                    foreach (DocumentObject element in paragraph.Elements)
+                    {
+                        if (element is Text text)
+                        {
+                            sb.Append(text.Content);
+                        }
+                    }
+
+                    sb.AppendLine();
+                    break;
+            }
+        }
+
+        #endregion
+    }
+}
