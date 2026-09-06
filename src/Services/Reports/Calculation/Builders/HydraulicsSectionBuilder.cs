@@ -20,6 +20,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
 
             var section = new HydraulicsSection
             {
+                ReferenceCircuit = BuildReferenceCircuit(hydraulics, mode),
                 GlycolType = ReportValueFactory.Create(hydraulics.GlycolType.ToString(), "-", ReportValueSource.UserInput, "ProjectData.HydraulicsData.GlycolType"),
                 GlycolConcentration = ReportValueFactory.Create(hydraulics.GlycolConcentration, "%", ReportValueSource.UserInput, "ProjectData.HydraulicsData.GlycolConcentration"),
                 Density = ReportValueFactory.Create(0.0, "г/см³", ReportValueSource.Calculated, "CircuitResultProjectData.Density", formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
@@ -33,6 +34,259 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 Section = section,
                 ParameterMetadata = HydraulicsReportMetadataBuilder.BuildMetadata(section),
                 Formulas = HydraulicsReportMetadataBuilder.BuildFormulas()
+            };
+        }
+
+        /// <summary>
+        /// Референсный контур (В4): контур с максимальными потерями худшего
+        /// коллектора выбранного режима; при ничьей — минимальный номер контура
+        /// (совместимо с доменным <c>IsReferenceCircuit</c>). Все величины шагов —
+        /// сохранённые результаты контура; новых вычислений нет (AC-5). Если
+        /// результатов режима нет — null (missing-data, T2-13).
+        /// </summary>
+        private static ReferenceCircuitSection? BuildReferenceCircuit(HydraulicsProjectData hydraulics, CalculationReportMode mode)
+        {
+            CollectorProjectData? worstCollector = null;
+            double worstPressure = -1.0;
+
+            foreach (var collector in hydraulics.Collectors ?? new List<CollectorProjectData>())
+            {
+                var summary = collector.Summary;
+                if (summary is null)
+                {
+                    continue;
+                }
+
+                var pressure = mode == CalculationReportMode.Operating
+                    ? summary.PressureLoss_Operating_Pa
+                    : summary.PressureLoss_Cold_Pa;
+                if (pressure > worstPressure)
+                {
+                    worstPressure = pressure;
+                    worstCollector = collector;
+                }
+            }
+
+            if (worstCollector is null)
+            {
+                return null;
+            }
+
+            CircuitProjectData? worstCircuit = null;
+            CircuitResultProjectData? worstResult = null;
+            double worstDp = -1.0;
+
+            foreach (var circuit in worstCollector.Circuits ?? new List<CircuitProjectData>())
+            {
+                var result = mode == CalculationReportMode.Operating ? circuit.OperatingResult : circuit.DesignResult;
+                if (result is null)
+                {
+                    continue;
+                }
+
+                if (result.DpGesamt > worstDp)
+                {
+                    worstDp = result.DpGesamt;
+                    worstCircuit = circuit;
+                    worstResult = result;
+                }
+            }
+
+            if (worstCircuit is null || worstResult is null)
+            {
+                return null;
+            }
+
+            var totalLength = worstCircuit.CircuitLength + worstCircuit.SupplyLength;
+            var isHkv = (worstCollector.CollectorType ?? string.Empty).Contains("HKV", StringComparison.OrdinalIgnoreCase);
+            var resultValues = worstResult;
+
+            ReportValue<double> V(string key, double value, string unit) =>
+                ReportValueFactory.Create(value, unit, ReportValueSource.Calculated, key);
+
+            var steps = new List<CalculationStep>
+            {
+                new CalculationStep
+                {
+                    Key = "hyd.ref.power",
+                    Title = "Шаг 1. Мощность контура Q_HK",
+                    FormulaText = "Q_HK = [L_HK/(100/VAHK) + L_Zul/(100/VAZul)·(qZul/100)]·q_total",
+                    SubstitutionText = $"Q_HK (L_HK = {ReportNumber.Format(worstCircuit.CircuitLength, 0)} м; VAHK = {ReportNumber.Format(worstCircuit.PipeSpacingCm, 0)} см; L_Zul = {ReportNumber.Format(worstCircuit.SupplyLength, 1)} м) = {ReportNumber.Format(resultValues.Power, 0)} Вт",
+                    Result = V("Q_HK", resultValues.Power, "Вт"),
+                    Inputs = new List<ReportValue<double>>
+                    {
+                        V("L_HK", worstCircuit.CircuitLength, "м"),
+                        V("VAHK", worstCircuit.PipeSpacingCm, "см"),
+                        V("L_Zul", worstCircuit.SupplyLength, "м")
+                    }
+                },
+                new CalculationStep
+                {
+                    Key = "hyd.ref.flow",
+                    Title = "Шаг 2. Объёмный расход V̇",
+                    FormulaText = "V̇ = Q_HK·3,6/(ρ·c_p·ΔT)",
+                    SubstitutionText = $"V̇ (Q_HK = {ReportNumber.Format(resultValues.Power, 0)} Вт; ρ = {ReportNumber.Format(resultValues.Density, 3)} г/см³) = {ReportNumber.Format(resultValues.FlowRate, 1)} л/ч",
+                    Result = V("V_dot", resultValues.FlowRate, "л/ч"),
+                    Note = "c_p и ΔT — из теплового раздела; свойства теплоносителя — интерполяция glycol-базы при рабочей температуре.",
+                    Inputs = new List<ReportValue<double>>
+                    {
+                        V("Q_HK", resultValues.Power, "Вт"),
+                        V("ρ", resultValues.Density, "г/см³")
+                    }
+                },
+                new CalculationStep
+                {
+                    Key = "hyd.ref.velocity",
+                    Title = "Шаг 3. Скорость потока v",
+                    FormulaText = "v = V̇·4000/(3600·π·d_вн²)",
+                    SubstitutionText = $"v (V̇ = {ReportNumber.Format(resultValues.FlowRate, 1)} л/ч) = {ReportNumber.Format(resultValues.Velocity, 3)} м/с",
+                    Result = V("v", resultValues.Velocity, "м/с"),
+                    Note = "d_вн — по трубе проекта; геометрия в контуре не сохраняется, поэтому подстановка приведена сокращённо.",
+                    Inputs = new List<ReportValue<double>> { V("V_dot", resultValues.FlowRate, "л/ч") }
+                },
+                new CalculationStep
+                {
+                    Key = "hyd.ref.re",
+                    Title = "Шаг 4. Число Рейнольдса Re",
+                    FormulaText = "Re = 1000·v·d_вн/ν",
+                    SubstitutionText = $"Re (v = {ReportNumber.Format(resultValues.Velocity, 3)} м/с; ν = {ReportNumber.Format(resultValues.KinematicViscosity, 3)} мм²/с) = {ReportNumber.Format(resultValues.ReynoldsNumber, 0)}",
+                    Result = V("Re", resultValues.ReynoldsNumber, "-"),
+                    Inputs = new List<ReportValue<double>>
+                    {
+                        V("v", resultValues.Velocity, "м/с"),
+                        V("ν", resultValues.KinematicViscosity, "мм²/с")
+                    }
+                },
+                new CalculationStep
+                {
+                    Key = "hyd.ref.lambda",
+                    Title = "Шаг 5. Коэффициент гидравлического трения λ",
+                    FormulaText = "Re < 2300: λ = 64/Re; Re > 4000: Колбрук–Уайт (итерации, старт по Блазиусу); между — линейная интерполяция",
+                    SubstitutionText = $"λ (Re = {ReportNumber.Format(resultValues.ReynoldsNumber, 0)}) = {ReportNumber.Format(resultValues.FrictionFactor, 4)}",
+                    Result = V("lambda", resultValues.FrictionFactor, "-"),
+                    Note = $"Режим течения контура: {worstResult.FlowRegime ?? worstResult.FlowRegimeString ?? "не сохранён"}. Шероховатость PE-Xa 0,007 мм.",
+                    Inputs = new List<ReportValue<double>> { V("Re", resultValues.ReynoldsNumber, "-") }
+                },
+                new CalculationStep
+                {
+                    Key = "hyd.ref.r",
+                    Title = "Шаг 6. Удельные потери давления R",
+                    FormulaText = "R = 10000·v²·ρ·λ/(2·d_вн)",
+                    SubstitutionText = $"R (v = {ReportNumber.Format(resultValues.Velocity, 3)} м/с; λ = {ReportNumber.Format(resultValues.FrictionFactor, 4)}) = {ReportNumber.Format(resultValues.PressureLossPerMeter, 1)} Па/м",
+                    Result = V("R", resultValues.PressureLossPerMeter, "Па/м"),
+                    Inputs = new List<ReportValue<double>>
+                    {
+                        V("v", resultValues.Velocity, "м/с"),
+                        V("λ", resultValues.FrictionFactor, "-")
+                    }
+                },
+                new CalculationStep
+                {
+                    Key = "hyd.ref.dprohr",
+                    Title = "Шаг 7. Потери в трубе DpRohr",
+                    FormulaText = "DpRohr = (L_HK + L_Zul)·R",
+                    SubstitutionText = $"DpRohr = ({ReportNumber.Format(worstCircuit.CircuitLength, 0)} + {ReportNumber.Format(worstCircuit.SupplyLength, 1)})·{ReportNumber.Format(resultValues.PressureLossPerMeter, 1)} = {ReportNumber.Format(resultValues.DpRohr, 0)} Па",
+                    Result = V("DpRohr", resultValues.DpRohr, "Па"),
+                    Inputs = new List<ReportValue<double>>
+                    {
+                        V("L_total", totalLength, "м"),
+                        V("R", resultValues.PressureLossPerMeter, "Па/м")
+                    }
+                },
+                new CalculationStep
+                {
+                    Key = "hyd.ref.dpvert",
+                    Title = "Шаг 8. Потери в распределителе DpVerteiler",
+                    FormulaText = isHkv
+                        ? "DpVerteiler = (V_м³ч/Kv_распределителя)²·10⁵·ρ"
+                        : "DpVerteiler = 15000·(ρ/2)·v²",
+                    SubstitutionText = $"DpVerteiler (V̇ = {ReportNumber.Format(resultValues.FlowRate, 1)} л/ч; v = {ReportNumber.Format(resultValues.Velocity, 3)} м/с) = {ReportNumber.Format(resultValues.DpVerteiler, 0)} Па",
+                    Result = V("DpVerteiler", resultValues.DpVerteiler, "Па"),
+                    Note = "Формула зависит от типа коллектора: HKV-D — через Kv распределителя, IV — через скорость.",
+                    Inputs = new List<ReportValue<double>>
+                    {
+                        V("V_dot", resultValues.FlowRate, "л/ч"),
+                        V("v", resultValues.Velocity, "м/с")
+                    }
+                },
+                new CalculationStep
+                {
+                    Key = "hyd.ref.dpvent",
+                    Title = "Шаг 9. Потери в вентиле DpVent",
+                    FormulaText = isHkv
+                        ? "DpVent = 15000·(ρ/2)·v²"
+                        : "DpVent = (V_м³ч/Kv_вентиля)²·10⁵·ρ",
+                    SubstitutionText = $"DpVent (номинальный Kv, клапан полностью открыт) = {ReportNumber.Format(resultValues.DpVent, 0)} Па",
+                    Result = V("DpVent", resultValues.DpVent, "Па"),
+                    Inputs = new List<ReportValue<double>>
+                    {
+                        V("V_dot", resultValues.FlowRate, "л/ч"),
+                        V("v", resultValues.Velocity, "м/с")
+                    }
+                },
+                new CalculationStep
+                {
+                    Key = "hyd.ref.dpgesamt",
+                    Title = "Шаг 10. Суммарные потери DpGesamt",
+                    FormulaText = "DpGesamt = DpRohr + DpVerteiler + DpVent",
+                    SubstitutionText = $"DpGesamt = {ReportNumber.Format(resultValues.DpRohr, 0)} + {ReportNumber.Format(resultValues.DpVerteiler, 0)} + {ReportNumber.Format(resultValues.DpVent, 0)} = {ReportNumber.Format(resultValues.DpGesamt, 0)} Па",
+                    Result = V("DpGesamt", resultValues.DpGesamt, "Па"),
+                    Inputs = new List<ReportValue<double>>
+                    {
+                        V("DpRohr", resultValues.DpRohr, "Па"),
+                        V("DpVerteiler", resultValues.DpVerteiler, "Па"),
+                        V("DpVent", resultValues.DpVent, "Па")
+                    }
+                }
+            };
+
+            var balancingSteps = new List<CalculationStep>
+            {
+                new CalculationStep
+                {
+                    Key = "hyd.ref.throttle",
+                    Title = "Балансировка. Избыточное давление для увязки zu_dr.",
+                    FormulaText = isHkv
+                        ? "zu_dr. = maxDp − (DpRohr + DpVent) — распределитель HKV не дросселируется"
+                        : "zu_dr. = maxDp − (DpRohr + DpVerteiler) — вентиль IV не дросселируется",
+                    SubstitutionText = $"zu_dr. (DpGesamt контура = {ReportNumber.Format(resultValues.DpGesamt, 0)} Па) = {ReportNumber.Format(resultValues.Throttling, 0)} Па",
+                    Result = V("zu_dr", resultValues.Throttling, "Па"),
+                    Note = "Референсный контур имеет максимальные потери: zu_dr. = 0, клапан полностью открыт.",
+                    Inputs = new List<ReportValue<double>> { V("DpGesamt", resultValues.DpGesamt, "Па") }
+                },
+                new CalculationStep
+                {
+                    Key = "hyd.ref.kv",
+                    Title = "Балансировка. Требуемый Kv клапана",
+                    FormulaText = "Kv = (V̇/1000)/√(zu_dr./10⁵/ρ)",
+                    SubstitutionText = "Kv — не сохраняется в проекте: подстановка недоступна (формула приведена для проверки настройки).",
+                    Result = V("Kv", 0.0, "м³/ч"),
+                    Note = "Величина Kv контура не сохраняется в wire-наборе проекта (DEC-T08/ADR-010) — новых вычислений отчёт не выполняет."
+                },
+                new CalculationStep
+                {
+                    Key = "hyd.ref.turns",
+                    Title = "Балансировка. Настроечные обороты клапана",
+                    FormulaText = isHkv
+                        ? "Кубическая характеристика HKV: Kv → обороты (обратный расчёт методом Ньютона); округление до ¼ оборота"
+                        : "Линейная характеристика IV: обороты = a·Kv − b; округление до ¼ оборота",
+                    SubstitutionText = $"Обороты контура = {ReportNumber.Format(resultValues.ValveTurns, 2)} об",
+                    Result = V("обороты", resultValues.ValveTurns, "об")
+                }
+            };
+
+            return new ReferenceCircuitSection
+            {
+                CollectorNumber = worstCollector.CollectorNumber,
+                CircuitNumber = worstCircuit.CircuitNumber,
+                CollectorType = worstCollector.CollectorType ?? string.Empty,
+                TotalLength = ReportValueFactory.Create(totalLength, "м", ReportValueSource.Calculated, "CircuitProjectData.CircuitLength + SupplyLength", formula: "L_HK + L_Zul"),
+                Steps = steps,
+                BalancingSteps = balancingSteps,
+                BalancingNote = isHkv
+                    ? "База вычитания HKV-D: из максимальных потерь исключаются DpRohr и DpVent (распределитель не дросселируется); максимум оборотов 2½."
+                    : "База вычитания IV: из максимальных потерь исключаются DpRohr и DpVerteiler (вентиль не дросселируется); максимум оборотов 8.",
+                DpVentNote = "Колонка DpVent показывает потери при полностью открытом клапане (номинальный Kv) и после балансировки не пересчитывается; реальное выравнивание обеспечивает настройка клапана на рассчитанные обороты."
             };
         }
 

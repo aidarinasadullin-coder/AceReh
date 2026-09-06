@@ -36,6 +36,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 R1 = r1,
                 R2 = r2,
                 LambdaE = lambdaE,
+                LambdaRuleNote = BuildLambdaRuleNote(construction),
+                Steps = BuildSteps(construction, layers, r1, r2),
                 Layers = layers
             };
 
@@ -70,6 +72,72 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 ParameterMetadata = metadata,
                 Formulas = formulas
             };
+        }
+
+        /// <summary>
+        /// Правило выбора λА/λБ по уровню грунтовых вод (docs/Formulas_Snegotayanie.md)
+        /// с фактическим значением УГВ проекта.
+        /// </summary>
+        private static string BuildLambdaRuleNote(ConstructionProjectData construction)
+        {
+            var condition = construction.GroundwaterLevel < 1.0 ? "λБ (влажные условия)" : "λА (сухие условия)";
+            return $"УГВ < 1 м → λБ (влажные условия), УГВ ≥ 1 м → λА (сухие условия). " +
+                $"В проекте УГВ = {ReportNumber.Format(construction.GroundwaterLevel, 1)} м → слои под трубой считаются по {condition}.";
+        }
+
+        /// <summary>
+        /// Шаги расчёта R1/R2 с подстановкой по слоям: слагаемые
+        /// «(d_i/1000)/λ_i» берутся из сохранённых слоёв, результат —
+        /// сохранённое суммарное сопротивление. Новых вычислений нет (AC-5):
+        /// при отсутствии слоёв шаги не строятся.
+        /// </summary>
+        private static List<CalculationStep> BuildSteps(
+            ConstructionProjectData construction,
+            IReadOnlyList<ReportConstructionLayer> layers,
+            ReportValue<double> r1,
+            ReportValue<double> r2)
+        {
+            var steps = new List<CalculationStep>();
+            AddResistanceStep(steps, "construction.r1", "R1 — сопротивление слоёв НАД трубой",
+                layers.Where(l => l.Position == LayerPosition.AbovePipe.ToString()).ToList(), construction.R1, r1);
+            AddResistanceStep(steps, "construction.r2", "R2 — сопротивление слоёв ПОД трубой",
+                layers.Where(l => l.Position == LayerPosition.BelowPipe.ToString()).ToList(), construction.R2, r2);
+            return steps;
+        }
+
+        private static void AddResistanceStep(
+            List<CalculationStep> steps,
+            string key,
+            string title,
+            IReadOnlyList<ReportConstructionLayer> layerRows,
+            double total,
+            ReportValue<double> resultValue)
+        {
+            if (layerRows.Count == 0)
+            {
+                return;
+            }
+
+            var terms = layerRows
+                .Select(l => $"{ReportNumber.Format(l.Thickness.Value / 1000.0, 3)}/{ReportNumber.Format(l.Lambda.Value, 2)}");
+            var substitution = $"{title.Split(' ')[0]} = {string.Join(" + ", terms)} = {ReportNumber.Format(total, 4)} м²·К/Вт";
+
+            steps.Add(new CalculationStep
+            {
+                Key = key,
+                Title = title,
+                FormulaText = "R = Σ (d_i/1000)/λ_i",
+                SubstitutionText = substitution,
+                Result = resultValue,
+                Note = "Отсчёт — от оси трубы: слои над трубой к поверхности, под трубой — к грунту.",
+                Inputs = layerRows
+                    .SelectMany(l => new[]
+                    {
+                        ReportValueFactory.Create(l.Thickness.Value, "мм", ReportValueSource.UserInput, "LayerProjectData.Thickness"),
+                        ReportValueFactory.Create(l.Lambda.Value, "Вт/(м·К)", ReportValueSource.Project, "LayerProjectData.CalculatedLambda")
+                    })
+                    .ToList()
+            });
         }
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<double> value)
