@@ -93,13 +93,22 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
 
             try
             {
+                // Та же настройка, что в CalculationReportPdfExportService:
+                // FlateEncodeMode.BestSpeed против ошибки Acrobat
+                // «Недостаточно данных для изображения» (empira/PDFsharp#258).
                 var renderer = new PdfDocumentRenderer(true) { Document = document };
+                renderer.PdfDocument = new PdfSharp.Pdf.PdfDocument();
+                renderer.PdfDocument.Options.FlateEncodeMode = PdfSharp.Pdf.PdfFlateEncodeMode.BestSpeed;
                 renderer.RenderDocument();
                 renderer.PdfDocument.Save(filePath);
 
                 var bytes = File.ReadAllBytes(filePath);
                 Assert.That(bytes.Length, Is.GreaterThan(0));
                 Assert.That(bytes[..4], Is.EqualTo(PdfMagicHeader), "PDF должен начинаться с %PDF-магии");
+                Assert.That(
+                    renderer.PdfDocument.Options.FlateEncodeMode,
+                    Is.EqualTo(PdfSharp.Pdf.PdfFlateEncodeMode.BestSpeed),
+                    "экспорт обязан кодировать Flate-потоки в режиме BestSpeed (пин обхода Acrobat, PDFsharp#258)");
             }
             finally
             {
