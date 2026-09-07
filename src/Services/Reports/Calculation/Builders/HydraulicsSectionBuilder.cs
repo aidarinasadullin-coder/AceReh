@@ -335,7 +335,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 {
                     Key = "hyd.ref.kv",
                     Title = "Балансировка. Требуемый Kv клапана",
-                    FormulaText = "Kv = (V̇/1000)/√(zu_dr./10⁵/ρ)",
+                    FormulaText = "Kv = (V̇/1000)/√(zu_dr/10⁵/ρ)",
                     SubstitutionText = "Kv — не сохраняется в проекте: подстановка недоступна (формула приведена для проверки настройки).",
                     Result = V("Kv", 0.0, "м³/ч"),
                     Note = "Величина Kv контура не сохраняется в wire-наборе проекта (DEC-T08/ADR-010) — новых вычислений отчёт не выполняет."
