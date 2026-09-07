@@ -14,7 +14,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
         private const string FormulaStatusUnconfirmed = "требуется привязка к существующей формуле";
         private const string FormulaStatusConstant = "кодовое значение";
 
-        public SectionBuildResult<ThermalSection> Build(ProjectData project, CalculationReportMode mode, ThermalReportDetail? thermalDetail = null)
+        public SectionBuildResult<ThermalSection> Build(ProjectData project, CalculationReportMode mode, ThermalReportDetail? thermalDetail = null, HydraulicsReportDetail? hydraulicsDetail = null)
         {
             var thermal = project.ThermalData ?? new ThermalProjectData();
             var result = thermal.Result ?? new ThermalResultProjectData();

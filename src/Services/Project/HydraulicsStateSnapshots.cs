@@ -171,22 +171,71 @@ namespace SnowMeltingCalculator.Services.Project
         public override int GetHashCode() => HashCode.Combine(Phase, ValidationMessage);
     }
 
+    /// <summary>
+    /// Свойства теплоносителя на момент расчёта гидравлики (ADR-013):
+    /// Operating и Design — плотность/теплоёмкость/вязкость, теплопроводность
+    /// и число Прандтля. Runtime-каноника: writer — гидравлический расчётный
+    /// пайплайн (<c>CompleteCalculation</c>); wire-контракт .smc не
+    /// расширяется, поэтому в файле, сохранённом любой версией программы,
+    /// поля восстанавливаются пустыми (null) — ПЗ применяет контрольную
+    /// интерполяцию (В13).
+    /// </summary>
+    public sealed class GlycolPropertiesSnapshot : IEquatable<GlycolPropertiesSnapshot>
+    {
+        public double Density { get; }              // кг/м³
+        public double SpecificHeat { get; }         // кДж/(кг·К)
+        public double KinematicViscosity { get; }   // мм²/с
+        public double ThermalConductivity { get; }  // Вт/(м·К)
+        public double PrandtlNumber { get; }
+
+        public GlycolPropertiesSnapshot(double density, double specificHeat, double kinematicViscosity, double thermalConductivity, double prandtlNumber)
+        {
+            Density = density; SpecificHeat = specificHeat; KinematicViscosity = kinematicViscosity;
+            ThermalConductivity = thermalConductivity; PrandtlNumber = prandtlNumber;
+        }
+
+        public bool Equals(GlycolPropertiesSnapshot? other) => other is not null
+            && Density.Equals(other.Density) && SpecificHeat.Equals(other.SpecificHeat)
+            && KinematicViscosity.Equals(other.KinematicViscosity)
+            && ThermalConductivity.Equals(other.ThermalConductivity)
+            && PrandtlNumber.Equals(other.PrandtlNumber);
+        public override bool Equals(object? obj) => obj is GlycolPropertiesSnapshot other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(Density, SpecificHeat, KinematicViscosity, ThermalConductivity, PrandtlNumber);
+
+        /// <summary>Фиксация свойств, рассчитанных GlycolDataService, в канонический снимок (ADR-013).</summary>
+        public static GlycolPropertiesSnapshot FromModel(Models.Hydraulics.GlycolProperties properties)
+        {
+            if (properties is null) throw new ArgumentNullException(nameof(properties));
+            return new GlycolPropertiesSnapshot(
+                properties.Density,
+                properties.SpecificHeat,
+                properties.KinematicViscosity,
+                properties.ThermalConductivity,
+                properties.PrandtlNumber);
+        }
+    }
+
     public sealed class HydraulicsStateSnapshot : IEquatable<HydraulicsStateSnapshot>
     {
         public static HydraulicsStateSnapshot Default { get; } = new(HydraulicGlobalInputsSnapshot.Default, Array.Empty<HydraulicCollectorSnapshot>(), HydraulicsStatusSnapshot.Default);
         public HydraulicGlobalInputsSnapshot GlobalInputs { get; }
         public IReadOnlyList<HydraulicCollectorSnapshot> Collectors { get; }
         public HydraulicsStatusSnapshot Status { get; }
+        public GlycolPropertiesSnapshot? OperatingGlycolProperties { get; }
+        public GlycolPropertiesSnapshot? DesignGlycolProperties { get; }
 
-        public HydraulicsStateSnapshot(HydraulicGlobalInputsSnapshot globalInputs, IEnumerable<HydraulicCollectorSnapshot>? collectors, HydraulicsStatusSnapshot status)
+        public HydraulicsStateSnapshot(HydraulicGlobalInputsSnapshot globalInputs, IEnumerable<HydraulicCollectorSnapshot>? collectors, HydraulicsStatusSnapshot status, GlycolPropertiesSnapshot? operatingGlycolProperties = null, GlycolPropertiesSnapshot? designGlycolProperties = null)
         {
             GlobalInputs = globalInputs ?? throw new ArgumentNullException(nameof(globalInputs));
             Collectors = Array.AsReadOnly((collectors ?? Array.Empty<HydraulicCollectorSnapshot>()).ToArray());
             Status = status ?? throw new ArgumentNullException(nameof(status));
+            OperatingGlycolProperties = operatingGlycolProperties;
+            DesignGlycolProperties = designGlycolProperties;
         }
-        public bool Equals(HydraulicsStateSnapshot? other) => other is not null && GlobalInputs.Equals(other.GlobalInputs) && Collectors.SequenceEqual(other.Collectors) && Status.Equals(other.Status);
+        public bool Equals(HydraulicsStateSnapshot? other) => other is not null && GlobalInputs.Equals(other.GlobalInputs) && Collectors.SequenceEqual(other.Collectors) && Status.Equals(other.Status)
+            && Equals(OperatingGlycolProperties, other.OperatingGlycolProperties) && Equals(DesignGlycolProperties, other.DesignGlycolProperties);
         public override bool Equals(object? obj) => obj is HydraulicsStateSnapshot other && Equals(other);
-        public override int GetHashCode() => HashCode.Combine(GlobalInputs, Collectors.Count, Status);
+        public override int GetHashCode() => HashCode.Combine(GlobalInputs, Collectors.Count, Status, OperatingGlycolProperties, DesignGlycolProperties);
     }
 
     /// <summary>

@@ -102,10 +102,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             Assert.That(radiationHeat, Is.Not.Null);
             Assert.That(radiationHeat!.Formula, Is.EqualTo("справочно, не включается в PowerUp"));
 
+            // P4/ADR-013: Pr — реальная величина раздела (FormulaStatusUnconfirmed снят).
             var pr = report.SourcesAppendix.Entries
                 .SingleOrDefault(e => e.Symbol == "Pr");
             Assert.That(pr, Is.Not.Null);
-            Assert.That(pr!.Formula, Is.EqualTo("требуется привязка к существующей формуле"));
+            Assert.That(pr!.Formula, Is.Null,
+                "Pr больше не условный источник — значение выводится в разделе «Гидравлический расчёт»");
         }
 
         [Test]

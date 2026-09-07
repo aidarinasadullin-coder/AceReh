@@ -114,7 +114,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 // λ — N3 (не ухудшать); обороты — дробью «8».
                 Assert.That(circuitRow, Is.EqualTo(
                     "| 1 | 100,0 | 20,0 | 6\u00A0700 | 320,00 | 0,44 | 10\u00A0600 | 0,031 | Турбулентный | 204 " +
-                    "| 40\u00A0000 Па | 3\u00A0000 Па | 2\u00A0000 Па | 45\u00A0000 Па | нет данных Па | 8 |"),
+                    "| 40\u00A0000 Па | 3\u00A0000 Па | 2\u00A0000 Па | 45\u00A0000 Па | 0 Па | 8 |"),
                     "строка контура: точность по единицам §7.3, обороты дробью");
                 Assert.That(markdown, Does.Contain("| Количество контуров | 1 | шт |"));
                 Assert.That(markdown, Does.Contain("| Расчётная температура наружного воздуха | ProjectData.ClimateData.AirTemperature | -15,0 | °C |"));

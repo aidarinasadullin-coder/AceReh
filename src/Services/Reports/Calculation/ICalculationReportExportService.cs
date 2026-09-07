@@ -24,6 +24,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             CalculationReportMode mode,
             ThermalReportDetail? thermalDetail = null,
             DateTime? reportDate = null,
+            HydraulicsReportDetail? hydraulicsDetail = null,
             CancellationToken cancellationToken = default);
     }
 }

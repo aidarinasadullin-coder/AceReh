@@ -263,6 +263,100 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         }
 
         [Test]
+        public void CompleteCalculation_WithGlycolProperties_FixesThemInSnapshot()
+        {
+            // ADR-013: свойства теплоносителя фиксируются тем же расчётом,
+            // что и результаты.
+            var operating = new GlycolPropertiesSnapshot(1053.0, 3.39, 4.5, 0.47, 38.0);
+            var design = new GlycolPropertiesSnapshot(1049.0, 3.41, 12.0, 0.45, 96.0);
+
+            _state.BeginCalculation();
+            _state.CompleteCalculation(
+                new[] { Collector() },
+                new Dictionary<int, HydraulicCollectorSummarySnapshot> { [1] = Summary() },
+                operating,
+                design);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(_state.Snapshot.OperatingGlycolProperties, Is.EqualTo(operating));
+                Assert.That(_state.Snapshot.DesignGlycolProperties, Is.EqualTo(design));
+            });
+        }
+
+        [Test]
+        public void CompleteCalculation_WithoutGlycol_KeepsPropertiesNull()
+        {
+            _state.BeginCalculation();
+            _state.CompleteCalculation(
+                new[] { Collector() },
+                new Dictionary<int, HydraulicCollectorSummarySnapshot> { [1] = Summary() });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(_state.Snapshot.OperatingGlycolProperties, Is.Null);
+                Assert.That(_state.Snapshot.DesignGlycolProperties, Is.Null);
+            });
+        }
+
+        [Test]
+        public void InputMutations_ClearGlycolProperties_LikeResults()
+        {
+            // Свойства живут вместе с результатами: правка входов
+            // пользователем инвалидирует и их (ADR-013).
+            var operating = new GlycolPropertiesSnapshot(1053.0, 3.39, 4.5, 0.47, 38.0);
+            var design = new GlycolPropertiesSnapshot(1049.0, 3.41, 12.0, 0.45, 96.0);
+            _state.BeginCalculation();
+            _state.CompleteCalculation(new[] { Collector() }, new Dictionary<int, HydraulicCollectorSummarySnapshot> { [1] = Summary() }, operating, design);
+
+            _state.ApplyGlobalInputs(HydraulicGlobalInputsSnapshot.Default, HydraulicsMutationOrigin.User);
+            Assert.That(_state.Snapshot.OperatingGlycolProperties, Is.Null, "ApplyGlobalInputs(User) сбрасывает свойства");
+
+            _state.BeginCalculation();
+            _state.CompleteCalculation(new[] { Collector() }, new Dictionary<int, HydraulicCollectorSummarySnapshot> { [1] = Summary() }, operating, design);
+            _state.ReplaceCollectors(new[] { Collector() }, HydraulicsMutationOrigin.User);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_state.Snapshot.OperatingGlycolProperties, Is.Null, "ReplaceCollectors(User) сбрасывает свойства");
+                Assert.That(_state.Snapshot.DesignGlycolProperties, Is.Null, "ReplaceCollectors(User) сбрасывает свойства");
+            });
+        }
+
+        [Test]
+        public void FailCalculation_ClearsGlycolProperties()
+        {
+            var operating = new GlycolPropertiesSnapshot(1053.0, 3.39, 4.5, 0.47, 38.0);
+            _state.BeginCalculation();
+            _state.CompleteCalculation(new[] { Collector() }, new Dictionary<int, HydraulicCollectorSummarySnapshot> { [1] = Summary() }, operating, operating);
+
+            _state.BeginCalculation();
+            _state.FailCalculation("boom");
+
+            Assert.That(_state.Snapshot.OperatingGlycolProperties, Is.Null, "провалившийся расчёт не оставляет полурезультатов");
+        }
+
+        [Test]
+        public void Restore_KeepsGlycolProperties_Passthrough()
+        {
+            var operating = new GlycolPropertiesSnapshot(1053.0, 3.39, 4.5, 0.47, 38.0);
+            var design = new GlycolPropertiesSnapshot(1049.0, 3.41, 12.0, 0.45, 96.0);
+            var snapshot = new HydraulicsStateSnapshot(
+                HydraulicGlobalInputsSnapshot.Default,
+                new[] { Collector() },
+                HydraulicsStatusSnapshot.Default,
+                operating,
+                design);
+
+            _state.Restore(snapshot, HydraulicsMutationOrigin.ProjectLoad);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(_state.Snapshot.OperatingGlycolProperties, Is.EqualTo(operating));
+                Assert.That(_state.Snapshot.DesignGlycolProperties, Is.EqualTo(design));
+            });
+        }
+
+        [Test]
         public void CompleteCalculation_StoresResults_IsCalculatedTrue()
         {
             _state.ReplaceCollectors(new[] { Collector() }, HydraulicsMutationOrigin.ProjectLoad);

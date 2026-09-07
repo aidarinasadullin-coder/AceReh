@@ -214,6 +214,7 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<ICalculationReportDataBuilder, CalculationReportDataBuilder>();
             services.AddSingleton<ICalculationReportMarkdownRenderer, CalculationReportMarkdownRenderer>();
             services.AddSingleton<IThermalReportDataProvider, ThermalReportDataProvider>();
+            services.AddSingleton<IHydraulicsReportDataProvider, HydraulicsReportDataProvider>();
             services.AddSingleton<ICalculationReportExportService, CalculationReportExportService>();
             // Мини-фаза PDF-PZ: PDF-рендер и экспорт пояснительной записки.
             // Бутстрапп шрифтов вызывается при построении контейнера — до

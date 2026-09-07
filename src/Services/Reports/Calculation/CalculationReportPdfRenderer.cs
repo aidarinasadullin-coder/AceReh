@@ -488,7 +488,21 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 ("Плотность теплоносителя", data.Density),
                 ("Удельная теплоёмкость", data.SpecificHeat),
                 ("Кинематическая вязкость", data.KinematicViscosity),
+                ("Теплопроводность", data.ThermalConductivity),
+                ("Число Прандтля", data.PrandtlNumber),
             });
+
+            // Примечание к свойствам теплоносителя (В13).
+            if (!string.IsNullOrWhiteSpace(data.GlycolNote))
+            {
+                var glycolNote = section.AddParagraph();
+                glycolNote.Format.Font.Name = FontName;
+                glycolNote.Format.Font.Size = 8;
+                glycolNote.Format.Font.Italic = true;
+                glycolNote.Format.Font.Color = GetColor(SecondaryTextColorHex);
+                glycolNote.Format.SpaceAfter = Unit.FromPoint(2);
+                glycolNote.AddText(data.GlycolNote);
+            }
             AddScalarTable(section, new (string, ReportValue<string>)[]
             {
                 ("Тип гликоля", data.GlycolType),

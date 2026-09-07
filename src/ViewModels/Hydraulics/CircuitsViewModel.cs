@@ -1092,7 +1092,9 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 CaptureCanonicalCollectors,
                 NotifyThermalPropertiesChanged,
                 UpdateFromClimateModule,
-                MirrorPipeSpacing);
+                MirrorPipeSpacing,
+                () => GlycolPropertiesSnapshot.FromModel(OperatingGlycolProperties),
+                () => GlycolPropertiesSnapshot.FromModel(DesignGlycolProperties));
 
             _isInitializing = false;
         }
