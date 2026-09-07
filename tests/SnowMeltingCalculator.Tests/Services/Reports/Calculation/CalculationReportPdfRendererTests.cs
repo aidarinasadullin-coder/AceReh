@@ -241,6 +241,65 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
             Assert.That(text, Does.Contain("10\u00A0600,000"));
         }
 
+        [Test]
+        public void LaTeXConverter_ConvertsPlainNotation()
+        {
+            // Запрос владельца 2026-09-07: формулы PDF — LaTeX-вёрстка.
+            // Греческие буквы остаются юникодом (CSharpMath рендерит фолбэком),
+            // кириллические индексы не заворачиваются в \text.
+            var latex = CalculationReportLaTeXFormulaRenderer.TryConvertToLaTeX(
+                "α = 2,26·(tП − tH)^0,33 + 2,6·vH");
+
+            Assert.That(latex, Is.EqualTo("α = 2,26 \\cdot (t_{П} - t_{H})^{0,33} + 2,6 \\cdot v_{H}"));
+        }
+
+        [Test]
+        public void LaTeXConverter_KeepsSubscriptNames()
+        {
+            // qTotal не разбивается на q_T + otal: за заглавной идут строчные.
+            // ṁ → \dot{m} (комбинируемая диакритика в math-фолбэке отсутствует);
+            // греческая Δ остаётся юникодом (рендерится фолбэком CSharpMath).
+            var latex = CalculationReportLaTeXFormulaRenderer.TryConvertToLaTeX(
+                "ṁ = qTotal/(c_p/3,6)/ΔT");
+
+            Assert.That(latex, Is.EqualTo("\\dot{m} = qTotal/(c_{p}/3,6)/ΔT"));
+        }
+
+        [Test]
+        public void LaTeXConverter_RejectsProseFormulas()
+        {
+            // Пояснительная проза остаётся текстом (пин рендера).
+            var latex = CalculationReportLaTeXFormulaRenderer.TryConvertToLaTeX(
+                "Re < 2300: λ = 64/Re; Re > 4000: Колбрук–Уайт (итерации, старт по Блазиусу); между — линейная интерполяция");
+
+            Assert.That(latex, Is.Null);
+        }
+
+        [Test]
+        public void LaTeXRenderer_ProducesPngBytes()
+        {
+            var image = CalculationReportLaTeXFormulaRenderer.TryRenderPng(
+                "Q_таяния = (h/1000/3600)·ρ_снега·[c_льда·(0 − tH) + L_плавл + c_воды·tП] (h в мм/ч)");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(image, Is.Not.Null, "формула с кириллическими индексами должна рендериться");
+                Assert.That(image!.Bytes.Length, Is.GreaterThan(100));
+                // PNG-магия 0x89 0x50 0x4E 0x47.
+                Assert.That(image.Bytes[..4], Is.EqualTo(new byte[] { 0x89, 0x50, 0x4E, 0x47 }));
+                Assert.That(image.WidthPx, Is.GreaterThan(50));
+                Assert.That(image.HeightPx, Is.GreaterThan(10));
+            });
+        }
+
+        [Test]
+        public void LaTeXRenderer_ProseFormula_ReturnsNull()
+        {
+            Assert.That(CalculationReportLaTeXFormulaRenderer.TryRenderPng(
+                "Re < 2300: λ = 64/Re; Re > 4000: Колбрук–Уайт (итерации, старт по Блазиусу); между — линейная интерполяция"),
+                Is.Null);
+        }
+
         #region Подготовка данных
 
         private static CalculationReportData BuildFullData(CalculationReportMode mode)
@@ -326,8 +385,8 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
                                 new()
                                 {
                                     CircuitNumber = 1, CircuitLength = 100.0, SupplyLength = 10.0, PipeSpacingCm = 20,
-                                    OperatingResult = new CircuitResultProjectData { DpGesamt = 45000, Power = 6700, FlowRate = 320, Velocity = 0.44, ReynoldsNumber = 10600, FrictionFactor = 0.031, PressureLossPerMeter = 204, DpRohr = 40000, DpVerteiler = 3000, DpVent = 2000, Throttling = 0, ValveTurns = 8 },
-                                    DesignResult = new CircuitResultProjectData { DpGesamt = 150000, Power = 6700, FlowRate = 320, Velocity = 0.44, ReynoldsNumber = 450, FrictionFactor = 0.14, PressureLossPerMeter = 680, DpRohr = 140000, DpVerteiler = 5000, DpVent = 5000, Throttling = 0, ValveTurns = 8 }
+                                    OperatingResult = new CircuitResultProjectData { DpGesamt = 45000, Power = 6700, FlowRate = 320, Velocity = 0.44, ReynoldsNumber = 10600, FrictionFactor = 0.031, PressureLossPerMeter = 204, DpRohr = 40000, DpVerteiler = 3000, DpVent = 2000, Throttling = 0, ValveTurns = 8, Density = 1.053, KinematicViscosity = 0.66, FlowRegime = "Турбулентный" },
+                                    DesignResult = new CircuitResultProjectData { DpGesamt = 150000, Power = 6700, FlowRate = 320, Velocity = 0.44, ReynoldsNumber = 450, FrictionFactor = 0.1422, PressureLossPerMeter = 680, DpRohr = 140000, DpVerteiler = 5000, DpVent = 5000, Throttling = 0, ValveTurns = 8, Density = 1.053, KinematicViscosity = 15.64, FlowRegime = "Ламинарный" }
                                 }
                             }
                         }
