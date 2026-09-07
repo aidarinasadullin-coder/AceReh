@@ -24,7 +24,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         private const float RenderFontSize = 30f;
 
         /// <summary>Пт на пиксель при размещении в документе (рендер 3×, В10).</summary>
-        public const double PointPerPixel = 1d / 3d;
+        internal const double PointPerPixel = 1d / 3d;
 
         private static readonly ConcurrentDictionary<string, FormulaImage?> Cache = new();
 
