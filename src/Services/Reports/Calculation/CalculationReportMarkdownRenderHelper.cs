@@ -1,17 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
     /// Вспомогательные методы форматирования Markdown-таблиц и значений.
-    /// Числа — каноническая культура приложения (<see cref="ReportNumber"/>, В6).
+    /// Числа — каноническая культура приложения (<see cref="ReportNumber"/>, В6);
+    /// точность — по <see cref="ReportValue{T}.Decimals"/> величины (В9,
+    /// спека §7.3), формат таблицы — запасной. Нулевое значение → «нет данных»
+    /// только при <c>!ZeroIsValid</c> (В2/В14); обороты клапана — дробью
+    /// (<see cref="ValveTurnsFraction"/>).
     /// </summary>
     public static class CalculationReportMarkdownRenderHelper
     {
-        /// <summary>Формат табличных чисел по умолчанию.</summary>
-        public const string TableFormat = "N3";
+        /// <summary>Формат табличных чисел по умолчанию (величины без Decimals).</summary>
+        public const string TableFormat = "N2";
 
         public static string Value(ReportValue<double> value)
         {
@@ -21,7 +26,29 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 return CalculationReportMarkdownRendererConstants.MissingValue;
             }
 
-            return ReportNumber.Format(v.Value, TableFormat);
+            // Нулевое значение → «нет данных» только когда ноль не валиден
+            // (В2: заглушки нехранённых величин; В14: ZeroIsValid = true → «0»).
+            if (v.Value == 0.0 && !value.ZeroIsValid)
+            {
+                return CalculationReportMarkdownRendererConstants.MissingValue;
+            }
+
+            // Обороты клапана — дробью («8», «8 ½»), как в UI-конвертере.
+            if (IsValveTurnsUnit(value.Unit))
+            {
+                return ValveTurnsFraction.Format(v.Value);
+            }
+
+            // Точность величины (В9); без Decimals — формат таблицы (N2).
+            return value.Decimals is { } decimals
+                ? ReportNumber.Format(v.Value, decimals)
+                : ReportNumber.Format(v.Value, TableFormat);
+        }
+
+        /// <summary>Единица «обороты клапана» («об», «об.») — рендер дробью.</summary>
+        public static bool IsValveTurnsUnit(string unit)
+        {
+            return unit is "об" or "об.";
         }
 
         public static string Value(ReportValue<string> value)

@@ -36,12 +36,13 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         private static readonly string FontName = InitFontName();
 
         private const string MissingValue = CalculationReportMarkdownRendererConstants.MissingValue;
-        private const string TableFormat = CalculationReportMarkdownRenderHelper.TableFormat;
 
         /// <summary>
         /// Статус «заполнитель» билдеров: величина не хранится в проекте
-        /// и не вычислена — нулевое значение в PDF показывается как
-        /// «нет данных» (по смыслу В2).
+        /// и не вычислена. В статусах формул приложения остаётся видимым
+        /// (санкционированный маркер); нулевые заполнители в значениях
+        /// показывает как «нет данных» общий гейт <c>!ZeroIsValid</c>
+        /// (В2/В14, <see cref="CalculationReportMarkdownRenderHelper.Value"/>).
         /// </summary>
         private const string UnconfirmedStatusMarker = "требуется привязка к существующей формуле";
 
@@ -1006,24 +1007,15 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
         #region Хелперы форматирования
 
-        /// <summary>Значение double: N3 по канонической культуре или «нет данных»
-        /// (та же семантика, что у <see cref="CalculationReportMarkdownRenderHelper"/>).</summary>
+        /// <summary>Значение double: точность по <see cref="ReportValue{T}.Decimals"/>
+        /// величины (В9, спека §7.3), формат таблицы — запасной; «нет данных»
+        /// для null и для нуля при <c>!ZeroIsValid</c> (В2/В14); обороты
+        /// клапана — дробью. Семантика единая с
+        /// <see cref="CalculationReportMarkdownRenderHelper"/> — делегирование,
+        /// без дублирования правила.</summary>
         private static string FormatValue(ReportValue<double> value)
         {
-            double? v = value.Value;
-            if (!v.HasValue)
-            {
-                return MissingValue;
-            }
-
-            // Нулевой заполнитель нехранённой величины (DEC-T08: статусы
-            // «требуется привязка») — в PDF показывается как «нет данных».
-            if (v.Value == 0.0 && value.FormulaStatus == UnconfirmedStatusMarker)
-            {
-                return MissingValue;
-            }
-
-            return ReportNumber.Format(v.Value, TableFormat);
+            return CalculationReportMarkdownRenderHelper.Value(value);
         }
 
         private static string FormatValue(ReportValue<string> value)

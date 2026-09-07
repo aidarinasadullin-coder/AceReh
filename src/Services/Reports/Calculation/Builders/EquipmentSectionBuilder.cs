@@ -21,8 +21,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                     Number = collector.CollectorNumber,
                     Type = collector.CollectorType ?? string.Empty,
                     CircuitCount = collector.Summary?.CircuitCount ?? 0,
-                    TotalPower = ReportValueFactory.Create(collector.Summary?.TotalPower ?? 0.0, "Вт", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalPower"),
-                    TotalFlowRate = ReportValueFactory.Create(collector.Summary?.TotalFlowRate ?? 0.0, "л/ч", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalFlowRate"),
+                    TotalPower = ReportValueFactory.Create(collector.Summary?.TotalPower ?? 0.0, "Вт", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalPower", decimals: ReportDecimals.For("Вт")),
+                    TotalFlowRate = ReportValueFactory.Create(collector.Summary?.TotalFlowRate ?? 0.0, "л/ч", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalFlowRate", decimals: ReportDecimals.For("л/ч")),
                     PressureLoss = ReportValueFactory.Create(
                         mode == CalculationReportMode.Operating
                             ? (collector.Summary?.PressureLoss_Operating_Pa ?? 0.0)
@@ -32,8 +32,9 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                         mode == CalculationReportMode.Operating
                             ? "CollectorSummaryProjectData.PressureLoss_Operating_Pa"
                             : "CollectorSummaryProjectData.PressureLoss_Cold_Pa",
+                        decimals: ReportDecimals.For("Па"),
                         formula: "max(DpGesamt)"),
-                    Kv = ReportValueFactory.Create(collector.Summary?.Kv ?? 0.0, "-", ReportValueSource.Calculated, "CollectorSummaryProjectData.Kv")
+                    Kv = ReportValueFactory.Create(collector.Summary?.Kv ?? 0.0, "-", ReportValueSource.Calculated, "CollectorSummaryProjectData.Kv", decimals: 2)
                 })
                 .ToList();
 
@@ -49,13 +50,13 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 Math.Pow((project.ThermalData?.SelectedPipe?.InnerDiameter ?? 0.0) / 1000.0 / 2.0, 2) * 1000.0;
             var expansionTankVolume = systemVolume * 0.034 * 1.2;
 
-            var totalThermalPower = ReportValueFactory.Create(totalPower / 1000.0, "кВт", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalPower", formula: "sum(TotalPower) / 1000");
-            var systemVolumeValue = ReportValueFactory.Create(systemVolume, "л", ReportValueSource.Calculated, "ProjectData.ThermalData.SelectedPipe.InnerDiameter", formula: "PI * d_inner² / 4 * totalLength * 1000");
-            var pumpFlowRate = ReportValueFactory.Create(totalFlowRate / 1000.0, "м³/ч", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalFlowRate", formula: "sum(TotalFlowRate) / 1000");
-            var pumpHead = ReportValueFactory.Create(pressureLoss / 1000.0, "кПа", ReportValueSource.Calculated, "CollectorSummaryProjectData.PressureLoss", formula: "max(PressureLoss) / 1000");
-            var expansionTankVolumeValue = ReportValueFactory.Create(expansionTankVolume, "л", ReportValueSource.Calculated, "EquipmentSection.SystemVolume", formula: "SystemVolume * 0.034 * 1.2");
-            var totalPipeLengthValue = ReportValueFactory.Create(totalPipeLength, "м", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalPipeLength", formula: "sum(TotalLength)");
-            var rzsCount = ReportValueFactory.Create((double)collectors.Count, "шт", ReportValueSource.Calculated, "HydraulicsProjectData.Collectors", formula: "Count");
+            var totalThermalPower = ReportValueFactory.Create(totalPower / 1000.0, "кВт", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalPower", decimals: ReportDecimals.For("кВт"), formula: "sum(TotalPower) / 1000");
+            var systemVolumeValue = ReportValueFactory.Create(systemVolume, "л", ReportValueSource.Calculated, "ProjectData.ThermalData.SelectedPipe.InnerDiameter", decimals: ReportDecimals.For("л"), formula: "PI * d_inner² / 4 * totalLength * 1000");
+            var pumpFlowRate = ReportValueFactory.Create(totalFlowRate / 1000.0, "м³/ч", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalFlowRate", decimals: ReportDecimals.For("м³/ч"), formula: "sum(TotalFlowRate) / 1000");
+            var pumpHead = ReportValueFactory.Create(pressureLoss / 1000.0, "кПа", ReportValueSource.Calculated, "CollectorSummaryProjectData.PressureLoss", decimals: ReportDecimals.For("кПа"), formula: "max(PressureLoss) / 1000");
+            var expansionTankVolumeValue = ReportValueFactory.Create(expansionTankVolume, "л", ReportValueSource.Calculated, "EquipmentSection.SystemVolume", decimals: ReportDecimals.For("л"), formula: "SystemVolume * 0.034 * 1.2");
+            var totalPipeLengthValue = ReportValueFactory.Create(totalPipeLength, "м", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalPipeLength", decimals: ReportDecimals.For("м"), formula: "sum(TotalLength)");
+            var rzsCount = ReportValueFactory.Create((double)collectors.Count, "шт", ReportValueSource.Calculated, "HydraulicsProjectData.Collectors", decimals: ReportDecimals.For("шт"), formula: "Count");
 
             var section = new EquipmentSection
             {

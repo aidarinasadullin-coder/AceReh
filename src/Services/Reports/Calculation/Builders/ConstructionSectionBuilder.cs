@@ -14,19 +14,19 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
         {
             var construction = project.ConstructionData ?? new ConstructionProjectData();
 
-            var groundwaterLevel = ReportValueFactory.Create(construction.GroundwaterLevel, "м", ReportValueSource.UserInput, "ProjectData.ConstructionData.GroundwaterLevel");
-            var r1 = ReportValueFactory.Create(construction.R1, "м²·К/Вт", ReportValueSource.Calculated, "ProjectData.ConstructionData.R1", formula: "sum(R_i) above pipe");
-            var r2 = ReportValueFactory.Create(construction.R2, "м²·К/Вт", ReportValueSource.Calculated, "ProjectData.ConstructionData.R2", formula: "sum(R_i) below pipe");
-            var lambdaE = ReportValueFactory.Create(construction.LambdaE, "Вт/(м·К)", ReportValueSource.UserInput, "ProjectData.ConstructionData.LambdaE");
+            var groundwaterLevel = ReportValueFactory.Create(construction.GroundwaterLevel, "м", ReportValueSource.UserInput, "ProjectData.ConstructionData.GroundwaterLevel", decimals: ReportDecimals.For("м"));
+            var r1 = ReportValueFactory.Create(construction.R1, "м²·К/Вт", ReportValueSource.Calculated, "ProjectData.ConstructionData.R1", decimals: ReportDecimals.For("м²·К/Вт"), formula: "sum(R_i) above pipe");
+            var r2 = ReportValueFactory.Create(construction.R2, "м²·К/Вт", ReportValueSource.Calculated, "ProjectData.ConstructionData.R2", decimals: ReportDecimals.For("м²·К/Вт"), formula: "sum(R_i) below pipe");
+            var lambdaE = ReportValueFactory.Create(construction.LambdaE, "Вт/(м·К)", ReportValueSource.UserInput, "ProjectData.ConstructionData.LambdaE", decimals: ReportDecimals.For("Вт/(м·К)"));
 
             var layers = (construction.Layers ?? new List<LayerProjectData>())
                 .Select(layer => new ReportConstructionLayer
                 {
                     Position = layer.Position.ToString(),
                     MaterialName = ReportValueFactory.Create(layer.MaterialName ?? string.Empty, "-", ReportValueSource.Project, "LayerProjectData.MaterialName"),
-                    Thickness = ReportValueFactory.Create(layer.Thickness, "мм", ReportValueSource.UserInput, "LayerProjectData.Thickness"),
-                    Lambda = ReportValueFactory.Create(layer.CalculatedLambda, "Вт/(м·К)", ReportValueSource.Project, "LayerProjectData.CalculatedLambda", formula: layer.IsLambdaOverridden ? "ручное переопределение" : "материал БД"),
-                    ThermalResistance = ReportValueFactory.Create(layer.CalculatedR, "м²·К/Вт", ReportValueSource.Calculated, "LayerProjectData.CalculatedR", formula: "(d / 1000) / lambda")
+                    Thickness = ReportValueFactory.Create(layer.Thickness, "мм", ReportValueSource.UserInput, "LayerProjectData.Thickness", decimals: ReportDecimals.For("мм")),
+                    Lambda = ReportValueFactory.Create(layer.CalculatedLambda, "Вт/(м·К)", ReportValueSource.Project, "LayerProjectData.CalculatedLambda", decimals: ReportDecimals.For("Вт/(м·К)"), formula: layer.IsLambdaOverridden ? "ручное переопределение" : "материал БД"),
+                    ThermalResistance = ReportValueFactory.Create(layer.CalculatedR, "м²·К/Вт", ReportValueSource.Calculated, "LayerProjectData.CalculatedR", decimals: ReportDecimals.For("м²·К/Вт"), formula: "(d / 1000) / lambda")
                 })
                 .ToList();
 
@@ -133,8 +133,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 Inputs = layerRows
                     .SelectMany(l => new[]
                     {
-                        ReportValueFactory.Create(l.Thickness.Value, "мм", ReportValueSource.UserInput, "LayerProjectData.Thickness"),
-                        ReportValueFactory.Create(l.Lambda.Value, "Вт/(м·К)", ReportValueSource.Project, "LayerProjectData.CalculatedLambda")
+                        ReportValueFactory.Create(l.Thickness.Value, "мм", ReportValueSource.UserInput, "LayerProjectData.Thickness", decimals: ReportDecimals.For("мм")),
+                        ReportValueFactory.Create(l.Lambda.Value, "Вт/(м·К)", ReportValueSource.Project, "LayerProjectData.CalculatedLambda", decimals: ReportDecimals.For("Вт/(м·К)"))
                     })
                     .ToList()
             });

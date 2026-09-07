@@ -38,5 +38,19 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         /// Например: "требуется привязка к существующей формуле".
         /// </remarks>
         public string? FormulaStatus { get; init; }
+
+        /// <summary>
+        /// Знаки после разделителя при выводе (В9, спека §7.3): назначается
+        /// билдером по единице величины; null — рендер применяет формат
+        /// таблицы по умолчанию (<see cref="CalculationReportMarkdownRenderHelper.TableFormat"/>).
+        /// </summary>
+        public int? Decimals { get; init; }
+
+        /// <summary>
+        /// Нулевое значение валидно (В14): маркер «нет данных» к нулю не
+        /// применяется. По умолчанию false — ноль рендерится как «нет данных»
+        /// (правило В2 для заглушек нехранённых величин).
+        /// </summary>
+        public bool ZeroIsValid { get; init; }
     }
 }
