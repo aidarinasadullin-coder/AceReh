@@ -108,7 +108,7 @@ namespace SnowMeltingCalculator.Services
         }
 
         /// <summary>Adler-32 (RFC 1950) — тот самый отсутствующий трейлер.</summary>
-        internal static uint ComputeAdler32(byte[] data)
+        private static uint ComputeAdler32(byte[] data)
         {
             const uint modAdler = 65521;
             uint a = 1, b = 0;
