@@ -18,14 +18,18 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
 
             var city = ReportValueFactory.Create(climate.SelectedCity ?? string.Empty, "-", ReportValueSource.ProgramDatabase, "ProjectData.ClimateData.SelectedCity");
             var region = ReportValueFactory.Create(climate.Region ?? string.Empty, "-", ReportValueSource.ProgramDatabase, "ProjectData.ClimateData.Region");
-            var airTemperature = ReportValueFactory.Create(climate.AirTemperature, "°C", ReportValueSource.ProgramDatabase, "ProjectData.ClimateData.AirTemperature", decimals: ReportDecimals.For("°C"));
-            var windSpeed = ReportValueFactory.Create(climate.WindSpeed, "м/с", ReportValueSource.ProgramDatabase, "ProjectData.ClimateData.WindSpeed", decimals: ReportDecimals.For("м/с"));
-            var humidity = ReportValueFactory.Create(climate.Humidity, "%", ReportValueSource.ProgramDatabase, "ProjectData.ClimateData.Humidity", decimals: ReportDecimals.For("%"));
-            var snowfallIntensity = ReportValueFactory.Create(climate.SnowfallIntensity, "мм/ч", ReportValueSource.UserInput, "ProjectData.ClimateData.SnowfallIntensity", decimals: ReportDecimals.For("мм/ч"));
+            // Доменно-валидные нули входов (ревью P1–P2, В2-семантика):
+            // t_H = 0 °C (−50..+10), ветер 0 м/с (ValidationConstants.MinWindSpeed = 0),
+            // влажность 0 % (не валидируется), снег 0 мм/ч (0..20),
+            // t_G = 0 °C (−10..30) — хранимые значения, а не заглушки.
+            var airTemperature = ReportValueFactory.Create(climate.AirTemperature, "°C", ReportValueSource.ProgramDatabase, "ProjectData.ClimateData.AirTemperature", decimals: ReportDecimals.For("°C"), zeroIsValid: true);
+            var windSpeed = ReportValueFactory.Create(climate.WindSpeed, "м/с", ReportValueSource.ProgramDatabase, "ProjectData.ClimateData.WindSpeed", decimals: ReportDecimals.For("м/с"), zeroIsValid: true);
+            var humidity = ReportValueFactory.Create(climate.Humidity, "%", ReportValueSource.ProgramDatabase, "ProjectData.ClimateData.Humidity", decimals: ReportDecimals.For("%"), zeroIsValid: true);
+            var snowfallIntensity = ReportValueFactory.Create(climate.SnowfallIntensity, "мм/ч", ReportValueSource.UserInput, "ProjectData.ClimateData.SnowfallIntensity", decimals: ReportDecimals.For("мм/ч"), zeroIsValid: true);
             var climateZone = ReportValueFactory.Create(climate.SelectedZone.ToString(), "-", ReportValueSource.ProgramDatabase, "ProjectData.ClimateData.SelectedZone");
             var coldPeriodDays = ReportValueFactory.Create(0.0, "дней", ReportValueSource.ProgramDatabase, "ClimateViewModel.SelectedCity.Period_0_Days", decimals: ReportDecimals.For("дней"), formulaStatus: "условно: данные отсутствуют в ProjectData");
             var surfaceTemperature = ReportValueFactory.Create((double)(int)thermal.SelectedMode, "°C", ReportValueSource.UserInput, "ProjectData.ThermalData.SelectedMode", decimals: ReportDecimals.For("°C"), formula: "(int)OperatingMode");
-            var groundTemperature = ReportValueFactory.Create(thermal.GroundTemperature, "°C", ReportValueSource.UserInput, "ProjectData.ThermalData.GroundTemperature", decimals: ReportDecimals.For("°C"));
+            var groundTemperature = ReportValueFactory.Create(thermal.GroundTemperature, "°C", ReportValueSource.UserInput, "ProjectData.ThermalData.GroundTemperature", decimals: ReportDecimals.For("°C"), zeroIsValid: true);
             var supplyTemperature = ReportValueFactory.Create(thermal.SupplyTemperature, "°C", ReportValueSource.UserInput, "ProjectData.ThermalData.SupplyTemperature", decimals: ReportDecimals.For("°C"));
             var returnTemperature = ReportValueFactory.Create(result.ReturnTemperature, "°C", ReportValueSource.Calculated, "ThermalResultProjectData.ReturnTemperature", decimals: ReportDecimals.For("°C"), formula: "2 * MeanTemperature - SupplyTemperature");
             var meanTemperature = ReportValueFactory.Create(result.MeanTemperature, "°C", ReportValueSource.Calculated, "ThermalResultProjectData.MeanTemperature", decimals: ReportDecimals.For("°C"), formula: "ExcessTemperature + AirTemperature");

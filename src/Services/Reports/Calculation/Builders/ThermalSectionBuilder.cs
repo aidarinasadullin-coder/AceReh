@@ -225,8 +225,10 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
             var spacingMm = thermal.PipeSpacing;
             var dOuter = thermal.SelectedPipe?.OuterDiameter ?? 0.0;
 
-            ReportValue<double> V(string key, double value, string unit) =>
-                ReportValueFactory.Create(value, unit, ReportValueSource.UserInput, key, decimals: ReportDecimals.For(unit));
+            // zeroIsValid — доменно-валидные нули входов (ревью P1–P2):
+            // t_H = 0 °C, ветер 0 м/с, снег 0 мм/ч, t_G = 0 °C.
+            ReportValue<double> V(string key, double value, string unit, bool zeroIsValid = false) =>
+                ReportValueFactory.Create(value, unit, ReportValueSource.UserInput, key, decimals: ReportDecimals.For(unit), zeroIsValid: zeroIsValid);
 
             steps.Add(new CalculationStep
             {
@@ -236,7 +238,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 SubstitutionText = $"α = 2,26·({ReportNumber.Format(tP, 1)} − ({ReportNumber.Format(tH, 1)}))^0,33 + 2,6·{ReportNumber.Format(vH, 1)}",
                 Result = alpha,
                 Note = "Конвекция с поверхности; ветровая составляющая 2,6·vH часто превышает собственно конвективную.",
-                Inputs = new List<ReportValue<double>> { V("t_P", tP, "°C"), V("t_H", tH, "°C"), V("v_H", vH, "м/с") }
+                Inputs = new List<ReportValue<double>> { V("t_P", tP, "°C"), V("t_H", tH, "°C", zeroIsValid: true), V("v_H", vH, "м/с", zeroIsValid: true) }
             });
 
             steps.Add(new CalculationStep
@@ -247,7 +249,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 SubstitutionText = $"Q_таяния = (h = {ReportNumber.Format(h, 2)} мм/ч; константы — таблица ниже) → {ReportNumber.Format(meltingHeat.Value, 1)} Вт/м²",
                 Result = meltingHeat,
                 Note = "Нагрев льда до 0 °C, плавление и нагрев воды до tП; плотность и теплоёмкости — константы кода (таблица констант).",
-                Inputs = new List<ReportValue<double>> { V("h", h, "мм/ч") }
+                Inputs = new List<ReportValue<double>> { V("h", h, "мм/ч", zeroIsValid: true) }
             });
 
             steps.Add(new CalculationStep
@@ -257,7 +259,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 FormulaText = "Q_конв = α·(tП − tH)",
                 SubstitutionText = $"Q_конв = {ReportNumber.Format(detail.Alpha, 2)}·({ReportNumber.Format(tP, 1)} − ({ReportNumber.Format(tH, 1)}))",
                 Result = convectionHeat,
-                Inputs = new List<ReportValue<double>> { V("alpha", detail.Alpha, "Вт/(м²·К)"), V("t_P", tP, "°C"), V("t_H", tH, "°C") }
+                Inputs = new List<ReportValue<double>> { V("alpha", detail.Alpha, "Вт/(м²·К)"), V("t_P", tP, "°C"), V("t_H", tH, "°C", zeroIsValid: true) }
             });
 
             steps.Add(new CalculationStep
@@ -331,7 +333,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 FormulaText = "T_средняя = JHmü + tH",
                 SubstitutionText = $"T_средняя = {ReportNumber.Format(detail.ExcessTemperature, 1)} + ({ReportNumber.Format(tH, 1)}) = {ReportNumber.Format(result.MeanTemperature, 1)} °C",
                 Result = ReportValueFactory.Create(result.MeanTemperature, "°C", ReportValueSource.Calculated, "ThermalResultProjectData.MeanTemperature", decimals: ReportDecimals.For("°C"), formula: "JHmü + t_H"),
-                Inputs = new List<ReportValue<double>> { V("JHmü", detail.ExcessTemperature, "К"), V("t_H", tH, "°C") }
+                Inputs = new List<ReportValue<double>> { V("JHmü", detail.ExcessTemperature, "К"), V("t_H", tH, "°C", zeroIsValid: true) }
             });
 
             steps.Add(new CalculationStep
@@ -352,7 +354,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 SubstitutionText = $"qD = {ReportNumber.Format(result.PowerDown, 1)} Вт/м² (потери вниз через изоляцию)",
                 Result = powerDown,
                 Note = "Промежуточные коэффициенты A–E не сохраняются в проекте; зависимость qD от толщины утепления видна по величине R2.",
-                Inputs = new List<ReportValue<double>> { V("T_средняя", result.MeanTemperature, "°C"), V("t_G", tG, "°C") }
+                Inputs = new List<ReportValue<double>> { V("T_средняя", result.MeanTemperature, "°C"), V("t_G", tG, "°C", zeroIsValid: true) }
             });
 
             steps.Add(new CalculationStep

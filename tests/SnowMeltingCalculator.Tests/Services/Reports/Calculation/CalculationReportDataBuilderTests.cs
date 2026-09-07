@@ -58,6 +58,74 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         }
 
         [Test]
+        public void Build_DomainValidZeroInputs_AreMarkedZeroIsValidAndRenderAsZero()
+        {
+            // Ревью P1–P2 (находка №1), семантика В2: «нет данных» — для
+            // заглушек нехранённых величин; доменно-валидные нули входов —
+            // хранимые значения → рендерятся «0», а не «нет данных».
+            var project = CreateProjectWithCircuitResults();
+            project.ClimateData.AirTemperature = 0.0;
+            project.ClimateData.Humidity = 0.0;
+            project.ClimateData.SnowfallIntensity = 0.0;
+            project.ThermalData.GroundTemperature = 0.0;
+            project.ConstructionData.GroundwaterLevel = 0.0;
+            project.HydraulicsData.GlycolConcentration = 0.0;
+            var builder = new CalculationReportDataBuilder();
+            // Детали тепла — чтобы шаги строились (без ThermalReportDetail
+            // шаги заменяются маркером, T2-07), их Inputs читают те же
+            // климатические нули.
+            var report = builder.Build(
+                project,
+                CalculationReportMode.Operating,
+                FixedDate,
+                new ThermalReportDetail
+                {
+                    Source = ThermalReportDetailSource.Snapshot,
+                    Alpha = 14.13,
+                    MeltingHeat = 47.8,
+                    RadiationHeat = 320.0,
+                    ConvectionHeat = 282.7,
+                    ExcessTemperature = 60.2,
+                    RFb = 0.1283,
+                    RD = 5.6374,
+                    ParameterM = 9.08,
+                    EfficiencyEtaR = 0.793,
+                    MassFlowRate = 22.1,
+                    VolumeFlowRate = 21.62
+                });
+
+            var stepInputs = report.ThermalSection.Steps.SelectMany(s => s.Inputs).ToList();
+            Assert.Multiple(() =>
+            {
+                Assert.That(report.ClimateSection.AirTemperature.ZeroIsValid, Is.True, "t_H = 0 °C валиден (−50…+10)");
+                Assert.That(report.ClimateSection.Humidity.ZeroIsValid, Is.True, "влажность 0 % не валидируется");
+                Assert.That(report.ClimateSection.SnowfallIntensity.ZeroIsValid, Is.True, "снегопад 0 мм/ч валиден (0…20)");
+                Assert.That(report.ClimateSection.GroundTemperature.ZeroIsValid, Is.True, "t_G = 0 °C валиден (−10…30)");
+                Assert.That(report.ConstructionSection.GroundwaterLevel.ZeroIsValid, Is.True, "уровень грунтовых вод 0 м валиден (0…10)");
+                Assert.That(report.HydraulicsSection.GlycolConcentration.ZeroIsValid, Is.True, "концентрация 0 % — вода (спека §3.4)");
+                Assert.That(report.ClimateSection.ColdPeriodDays.ZeroIsValid, Is.False, "заглушка нехранённых дней остаётся «нет данных»");
+                Assert.That(report.ClimateSection.SupplyTemperature.ZeroIsValid, Is.False, "t_подачи = 0 вне диапазона (20…90)");
+                foreach (var key in new[] { "t_H", "v_H", "h", "t_G" })
+                {
+                    var inputs = stepInputs.Where(v => v.SourceDetail == key).ToList();
+                    Assert.That(inputs, Is.Not.Empty, $"входы шагов с ключом {key} присутствуют");
+                    Assert.That(inputs.All(v => v.ZeroIsValid), Is.True, $"входы шагов {key} наследуют ZeroIsValid источника");
+                }
+            });
+
+            var markdown = new CalculationReportMarkdownRenderer().Render(report);
+            Assert.Multiple(() =>
+            {
+                Assert.That(markdown, Does.Contain("| 0,0 | °C |"), "t_H/t_G = 0 рендерятся значением");
+                Assert.That(markdown, Does.Contain("| 0,000 | % |"), "влажность 0 % рендерится значением");
+                Assert.That(markdown, Does.Contain("| 0,000 | мм/ч |"), "снегопад 0 мм/ч рендерится значением");
+                Assert.That(markdown, Does.Contain("| 0,0 | м |"), "уровень грунтовых вод 0 м рендерится значением");
+                Assert.That(markdown, Does.Not.Contain("| нет данных | °C |"));
+                Assert.That(markdown, Does.Contain("нет данных"), "заглушки (ColdPeriodDays и пр.) остаются «нет данных»");
+            });
+        }
+
+        [Test]
         public void Build_UsesCurrentProjection_WhenPersistedDtoHasStaleSentinel()
         {
             var persistedProject = CreateProjectWithCircuitResults();
