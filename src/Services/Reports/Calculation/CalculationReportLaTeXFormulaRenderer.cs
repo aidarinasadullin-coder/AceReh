@@ -9,8 +9,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
     /// <summary>
     /// LaTeX-вёрстка формул детального отчёта (запрос владельца, 2026-09-07):
     /// «плоская» запись формулы из модели конвертируется в LaTeX и
-    /// отрисовывается CSharpMath/SkiaSharp в PNG (двукратный масштаб к
-    /// точечному размеру PDF — кириллица в индексах поддерживается).
+    /// отрисовывается CSharpMath/SkiaSharp в PNG (трёхкратный масштаб к
+    /// точечному размеру PDF, В10 — кириллица в индексах поддерживается).
     /// </summary>
     /// <remarks>
     /// Формулы с прозой (4+ кириллических слова вне subscript'ов — пояснения
@@ -19,11 +19,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
     /// </remarks>
     public static class CalculationReportLaTeXFormulaRenderer
     {
-        /// <summary>Размер шрифта рендера, px (в PDF размещается 0,5 pt/px).</summary>
-        private const float RenderFontSize = 20f;
+        /// <summary>Размер шрифта рендера, px (в PDF размещается 1/3 pt/px —
+        /// кегль формулы в документе прежний, растровый запас трёхкратный).</summary>
+        private const float RenderFontSize = 30f;
 
-        /// <summary>Пт на пиксель при размещении в документе.</summary>
-        public const double PointPerPixel = 0.5;
+        /// <summary>Пт на пиксель при размещении в документе (рендер 3×, В10).</summary>
+        public const double PointPerPixel = 1d / 3d;
 
         private static readonly ConcurrentDictionary<string, FormulaImage?> Cache = new();
 
@@ -108,6 +109,10 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 protectedGroups.Add(m.Value);
                 return "\u0001" + (protectedGroups.Count - 1).ToString(CultureInfo.InvariantCulture) + "\u0001";
             });
+            // Корни: √( … )/sqrt( … ) → \sqrt{ … } (В10) — после защиты
+            // подстрочных групп, чтобы подкоренные индексы (d_нар) не
+            // разъехались; скобки балансируются, вложенность — рекурсией.
+            t = ConvertSquareRoots(t);
             // Оставшаяся кириллица → \text{...}; пробелы внутри \text
             // сохраняются текстовым режимом.
             t = Regex.Replace(
@@ -116,6 +121,90 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 m => " \\text{ " + m.Groups[1].Value + " } ");
             t = Regex.Replace(t, "\u0001(\\d+)\u0001", m => protectedGroups[int.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture)]);
             return Regex.Replace(t, "\\s+", " ").Trim();
+        }
+
+        /// <summary>
+        /// √( … )/sqrt( … ) → \sqrt{ … }: винкула рисуется CSharpMath вместо
+        /// голого глифа радикала. Маркер без скобочной группы (√x) не
+        /// конвертируется; несбалансированная скобка — остаток остаётся как
+        /// есть (рендер откатится к тексту, правило проза-фолбэка).
+        /// </summary>
+        private static string ConvertSquareRoots(string t)
+        {
+            var i = 0;
+            while (i < t.Length)
+            {
+                var markerLength = RootMarkerLength(t, i);
+                if (markerLength == 0)
+                {
+                    i++;
+                    continue;
+                }
+
+                var open = i + markerLength;
+                if (open >= t.Length || t[open] != '(')
+                {
+                    i++;
+                    continue;
+                }
+
+                var close = FindMatchingParen(t, open);
+                if (close < 0)
+                {
+                    return t;
+                }
+
+                var radicand = ConvertSquareRoots(t.Substring(open + 1, close - open - 1));
+                t = t.Substring(0, i) + "\\sqrt{" + radicand + "}" + t.Substring(close + 1);
+                i += "\\sqrt{".Length + radicand.Length + 1;
+            }
+
+            return t;
+        }
+
+        /// <summary>Длина маркера корня в позиции <paramref name="i"/>:
+        /// «√» либо «sqrt» вне слова (не asqrt, не d_sqrt, не уже-готовый \sqrt).</summary>
+        private static int RootMarkerLength(string t, int i)
+        {
+            if (t[i] == '√')
+            {
+                return 1;
+            }
+
+            if (t[i] != 's' || i + 4 > t.Length || t[i + 1] != 'q' || t[i + 2] != 'r' || t[i + 3] != 't')
+            {
+                return 0;
+            }
+
+            if (i > 0 && (char.IsLetterOrDigit(t[i - 1]) || t[i - 1] == '_' || t[i - 1] == '\\'))
+            {
+                return 0;
+            }
+
+            return 4;
+        }
+
+        /// <summary>Позиция скобки, парной к открывающей в <paramref name="open"/>; −1 — не найдена.</summary>
+        private static int FindMatchingParen(string t, int open)
+        {
+            var depth = 0;
+            for (var j = open; j < t.Length; j++)
+            {
+                if (t[j] == '(')
+                {
+                    depth++;
+                }
+                else if (t[j] == ')')
+                {
+                    depth--;
+                    if (depth == 0)
+                    {
+                        return j;
+                    }
+                }
+            }
+
+            return -1;
         }
 
         private static FormulaImage? TryRenderPngInner(string latex)
@@ -134,13 +223,14 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 }
 
                 const int pad = 2;
-                // Рендер на запасной канве с последующей обрезкой по
-                // непрозрачным пикселям (Display до Draw не заполнен).
-                using var bitmap = new SKBitmap(2400, 240);
+                // Канва 3× с запасом: базовая линия на y = 162px — над ней
+                // 162/30 ≈ 5,4em (требование В10: ≥ 5em), под ней ≈ 7,9em —
+                // высокие конструкции (\sqrt{…} с дробью) не режутся.
+                using var bitmap = new SKBitmap(3600, 400);
                 using (var canvas = new SKCanvas(bitmap))
                 {
                     canvas.Clear(SKColors.Transparent);
-                    painter.Draw(canvas, new SKPoint(pad + 8, pad + 80));
+                    painter.Draw(canvas, new SKPoint(pad + 8, pad + 160));
                     canvas.Flush();
                 }
 

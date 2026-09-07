@@ -300,6 +300,126 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
                 Is.Null);
         }
 
+        [Test]
+        public void LaTeXConverter_ConvertsRadicalToSqrt()
+        {
+            // В10: √( … ) → \sqrt{ … } — винкула рисуется CSharpMath, а не
+            // голый глиф; подкоренный индекс zu_dr защищён до конверсии.
+            var latex = CalculationReportLaTeXFormulaRenderer.TryConvertToLaTeX(
+                "Kv = (V̇/1000)/√(zu_dr/10⁵/ρ)");
+
+            Assert.That(latex, Is.EqualTo("Kv = (\\dot{V}/1000)/\\sqrt{zu_{dr}/10^{5}/ρ}"));
+        }
+
+        [Test]
+        public void LaTeXConverter_ConvertsRadical_KeepsRadicandSubscripts()
+        {
+            // План P2: конверсия корня — после защиты подстрочных групп,
+            // d_нар под корнем не разъезжается.
+            var latex = CalculationReportLaTeXFormulaRenderer.TryConvertToLaTeX(
+                "m = 0,6·√((1/RFb + 1/RD)/(λE·d_нар))");
+
+            Assert.That(latex, Is.EqualTo("m = 0,6 \\cdot \\sqrt{(1/RFb + 1/RD)/(λE \\cdot d_{нар})}"));
+        }
+
+        [Test]
+        public void LaTeXConverter_ConvertsAsciiSqrt()
+        {
+            // В10: sqrt( … ) из инженерной нотации приложения формул → \sqrt{ … };
+            // вложенные скобки балансируются, sqrt внутри слова не задевается.
+            var latex = CalculationReportLaTeXFormulaRenderer.TryConvertToLaTeX(
+                "0.6 * sqrt((1/RFb + 1/RD) / (λE * dE))");
+
+            Assert.That(latex, Is.EqualTo("0,6 \\cdot \\sqrt{(1/RFb + 1/RD) / (λE \\cdot d_{E})}"));
+        }
+
+        [Test]
+        public void LaTeXConverter_NestedSquareRoots()
+        {
+            var latex = CalculationReportLaTeXFormulaRenderer.TryConvertToLaTeX(
+                "√(1 + √(a + b))");
+
+            Assert.That(latex, Is.EqualTo("\\sqrt{1 + \\sqrt{a + b}}"));
+        }
+
+        [Test]
+        public void LaTeXConverter_UnbalancedParen_RadicalLeftUnconverted()
+        {
+            // Несбалансированная скобка — конверсия не выполняется, рендер
+            // откатится к текстовому фолбэку.
+            var latex = CalculationReportLaTeXFormulaRenderer.TryConvertToLaTeX(
+                "√(a + b");
+
+            Assert.That(latex, Does.StartWith("√(a + b"));
+        }
+
+        [Test]
+        public void LaTeXRenderer_RendersSqrtFormula_NotClippedByCanvas()
+        {
+            // В10/AC-2: радикал с винкулой рендерится в PNG; канва 3× не режет
+            // контент (периметр обрезанного изображения прозрачен).
+            var image = CalculationReportLaTeXFormulaRenderer.TryRenderPng(
+                "m = 0,6·√((1/RFb + 1/RD)/(λE·d_нар))");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(image, Is.Not.Null, "формула с корнем должна рендериться в PNG");
+                Assert.That(image!.Bytes[..4], Is.EqualTo(new byte[] { 0x89, 0x50, 0x4E, 0x47 }));
+                Assert.That(image.HeightPx, Is.GreaterThan(40), "радикал должен быть сопоставим с кеглем рендера");
+                AssertBorderTransparent(image);
+            });
+        }
+
+        [Test]
+        public void LaTeXRenderer_FractionUnderRadical_FitsCanvas()
+        {
+            // В10: \sqrt{дробь} — самая высокая конструкция ПЗ; запас канвы
+            // над базовой линией (≥ 5em при кегле 30px) не срезает её.
+            var image = CalculationReportLaTeXFormulaRenderer.TryRenderPng(
+                "√(\\frac{Q_таяния·3,6}{c_воды·ρ_снега·h})");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(image, Is.Not.Null, "дробь под радикалом должна рендериться");
+                Assert.That(image!.HeightPx, Is.GreaterThan(80), "дробь под корнем — высокая конструкция");
+                AssertBorderTransparent(image);
+            });
+        }
+
+        [Test]
+        public void LaTeXRenderer_PngDeterministic()
+        {
+            const string formula = "m = 0,6·√((1/RFb + 1/RD)/(λE·d_нар))";
+
+            var first = CalculationReportLaTeXFormulaRenderer.TryRenderPng(formula);
+            var second = CalculationReportLaTeXFormulaRenderer.TryRenderPng(formula);
+
+            Assert.That(second!.Bytes, Is.EqualTo(first!.Bytes), "повторный рендер той же формулы — байт в байт");
+        }
+
+        /// <summary>Периметр PNG прозрачен — обрезка по контенту не упёрлась
+        /// в канву, конструкция не срезана (иначе на границе остались
+        /// полупрозрачные пиксели антиалиасинга).</summary>
+        private static void AssertBorderTransparent(CalculationReportLaTeXFormulaRenderer.FormulaImage image)
+        {
+            using var bitmap = SkiaSharp.SKBitmap.Decode(image.Bytes);
+            Assert.That(bitmap, Is.Not.Null, "PNG декодируется");
+            Assert.Multiple(() =>
+            {
+                for (var x = 0; x < bitmap.Width; x++)
+                {
+                    Assert.That(bitmap.GetPixel(x, 0).Alpha, Is.EqualTo(0), $"верхняя кромка, x={x}");
+                    Assert.That(bitmap.GetPixel(x, bitmap.Height - 1).Alpha, Is.EqualTo(0), $"нижняя кромка, x={x}");
+                }
+
+                for (var y = 0; y < bitmap.Height; y++)
+                {
+                    Assert.That(bitmap.GetPixel(0, y).Alpha, Is.EqualTo(0), $"левая кромка, y={y}");
+                    Assert.That(bitmap.GetPixel(bitmap.Width - 1, y).Alpha, Is.EqualTo(0), $"правая кромка, y={y}");
+                }
+            });
+        }
+
         #region Подготовка данных
 
         private static CalculationReportData BuildFullData(CalculationReportMode mode)

@@ -871,7 +871,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             valueRun.Font.Color = GetColor(TextColorHex);
         }
 
-        /// <summary>Встроить PNG формулы: 0,5 pt/px (рендер двукратный),
+        /// <summary>Встроить PNG формулы: 1/3 pt/px (рендер трёхкратный, В10),
         /// ширина ограничена доступной областью.</summary>
         private static void AddFormulaImage(Paragraph paragraph, CalculationReportLaTeXFormulaRenderer.FormulaImage image, double maxWidthPt = 480)
         {
