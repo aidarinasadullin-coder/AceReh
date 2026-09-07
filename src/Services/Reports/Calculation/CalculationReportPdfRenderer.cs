@@ -28,6 +28,10 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
     /// </remarks>
     public sealed class CalculationReportPdfRenderer : ICalculationReportPdfRenderer
     {
+        /// <summary>Сквозной счётчик формул тела документа «(N)» (В11);
+        /// сбрасывается в начале каждого <see cref="Render"/>.</summary>
+        private int _formulaNumber;
+
         /// <summary>
         /// Бренд-шрифт Inter (спека §7.2), при недоступности резолвера —
         /// резервный Arial (§3.2 гайдлайна). Инициализация резолвера — до
@@ -185,6 +189,10 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 throw new ArgumentNullException(nameof(data));
             }
 
+            // Сквозная нумерация формул тела документа (В11) — на каждый
+            // документ с нуля, независимо от времени жизни рендера.
+            _formulaNumber = 0;
+
             var document = new Document();
 
             var section = document.AddSection();
@@ -334,7 +342,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             AddSpacer(section, 6);
         }
 
-        private static void RenderConstructionSection(Section section, ConstructionSection data)
+        private void RenderConstructionSection(Section section, ConstructionSection data)
         {
             AddSectionHeading(section, "Конструкция");
             AddScalarTable(section, new[]
@@ -376,7 +384,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
         #region Теплотехнический расчёт
 
-        private static void RenderThermalSection(
+        private void RenderThermalSection(
             Section section,
             ThermalSection data,
             ClimateSection climate,
@@ -471,7 +479,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
         #region Гидравлический расчёт
 
-        private static void RenderHydraulicsSection(Section section, HydraulicsSection data)
+        private void RenderHydraulicsSection(Section section, HydraulicsSection data)
         {
             AddSectionHeading(section, "Гидравлический расчёт");
             AddScalarTable(section, new (string, ReportValue<double>)[]
@@ -564,7 +572,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         }
 
         /// <summary>Референсный контур: цепочка шагов + пример балансировки (В4).</summary>
-        private static void RenderReferenceCircuit(Section section, ReferenceCircuitSection? reference)
+        private void RenderReferenceCircuit(Section section, ReferenceCircuitSection? reference)
         {
             if (reference is null)
             {
@@ -635,7 +643,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
         #region Оборудование, проверки, приложения
 
-        private static void RenderEquipmentSection(Section section, EquipmentSection data)
+        private void RenderEquipmentSection(Section section, EquipmentSection data)
         {
             AddSectionHeading(section, "Оборудование и KPI");
             AddScalarTable(section, new[]
@@ -804,9 +812,11 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         #region Шаги расчёта
 
         /// <summary>Блок шага: формула → подстановка → результат → примечание.
-        /// Формула верстается LaTeX-математикой (запрос владельца 2026-09-07);
-        /// при невозможности вёрстки — текстовая строка.</summary>
-        private static void RenderStep(Section section, CalculationStep step)
+        /// Формула верстается LaTeX-математикой (запрос владельца 2026-09-07),
+        /// центрируется и нумеруется сквозно «(N)» справа (В11) — безрамочная
+        /// двухколоночная таблица; при невозможности вёрстки — текстовая
+        /// строка без номера.</summary>
+        private void RenderStep(Section section, CalculationStep step)
         {
             var title = section.AddParagraph();
             title.AddText(step.Title);
@@ -821,10 +831,28 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             var formulaImage = CalculationReportLaTeXFormulaRenderer.TryRenderPng(step.FormulaText);
             if (formulaImage != null)
             {
-                var formulaParagraph = section.AddParagraph();
-                formulaParagraph.Format.LeftIndent = Unit.FromPoint(12);
-                formulaParagraph.Format.SpaceAfter = Unit.FromPoint(2);
-                AddFormulaImage(formulaParagraph, formulaImage);
+                // Формула тела документа — с номером (В11); приложение
+                // формул нумеруется напрямую и счётчик не трогает.
+                _formulaNumber++;
+                var table = section.AddTable();
+                var numberWidth = 30.0;
+                var formulaColumn = table.AddColumn(Unit.FromPoint(ContentWidthPoints - numberWidth));
+                var numberColumn = table.AddColumn(Unit.FromPoint(numberWidth));
+                var row = table.AddRow();
+                row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
+                var formulaParagraph = row.Cells[0].AddParagraph();
+                formulaParagraph.Format.Alignment = ParagraphAlignment.Center;
+                AddFormulaImage(formulaParagraph, formulaImage, maxWidthPt: ContentWidthPoints - numberWidth);
+                row.Cells[1].VerticalAlignment = VerticalAlignment.Center;
+                var numberParagraph = row.Cells[1].AddParagraph();
+                numberParagraph.Format.Alignment = ParagraphAlignment.Right;
+                numberParagraph.Format.Font.Name = FontName;
+                numberParagraph.Format.Font.Size = 9;
+                numberParagraph.Format.Font.Color = GetColor(SecondaryTextColorHex);
+                numberParagraph.AddText($"({_formulaNumber})");
+                // Таблица без SpaceAfter — интервал формульного блока
+                // 6pt (В11) даёт разделительный абзац.
+                AddSpacer(section, 6);
             }
             else
             {
@@ -882,7 +910,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         }
 
         /// <summary>Список шагов; пустой список не рендерится.</summary>
-        private static void RenderSteps(Section section, IReadOnlyList<CalculationStep> steps)
+        private void RenderSteps(Section section, IReadOnlyList<CalculationStep> steps)
         {
             foreach (var step in steps)
             {
