@@ -65,6 +65,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                         {
                             Document = document
                         };
+                        // FlateEncodeMode.BestSpeed: Flate-потоки режима по умолчанию
+                        // Adobe Acrobat отвергает («Недостаточно данных для изображения»);
+                        // BestSpeed — санкционированный обход мейнтейнера PDFsharp
+                        // (empira/PDFsharp#258). Содержимое документа не меняется.
+                        pdfRenderer.PdfDocument = new PdfSharp.Pdf.PdfDocument();
+                        pdfRenderer.PdfDocument.Options.FlateEncodeMode = PdfSharp.Pdf.PdfFlateEncodeMode.BestSpeed;
                         pdfRenderer.RenderDocument();
                         cancellationToken.ThrowIfCancellationRequested();
 
