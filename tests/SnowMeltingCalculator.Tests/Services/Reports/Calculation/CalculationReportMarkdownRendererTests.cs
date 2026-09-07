@@ -361,7 +361,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 },
                 ThermalSection = new ThermalSection
                 {
-                    PowerUp = ReportValueFactory.Create(275.0, "Вт/м²", ReportValueSource.Calculated, "ThermalCalculationResult.PowerUp", "Q_вверх")
+                    PowerUp = ReportValueFactory.Create(275.0, "Вт/м²", ReportValueSource.Calculated, "ThermalCalculationResult.PowerUp", formula: "Q_вверх")
                 },
                 HydraulicsSection = new HydraulicsSection
                 {

@@ -157,8 +157,8 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
                 Assert.That(text, Does.Contain("Сравнение режимов: рабочий vs холодный пуск"));
                 Assert.That(text, Does.Contain("худшего контура"));
                 // Гидравлика пуска: DpGesamt контура DesignResult = 150 000
-                // (NBSP-тысячи, каноническая культура).
-                Assert.That(text, Does.Contain("150\u00A0000,000"));
+                // (NBSP-тысячи, каноническая культура; Па → 0 знаков, В9).
+                Assert.That(text, Does.Contain("150\u00A0000"));
                 // Кратность роста потерь 150000/45000.
                 Assert.That(text, Does.Contain("×3,3"));
             });
@@ -235,10 +235,10 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
         public void Render_FullReport_UsesCanonicalRussianNumberFormat()
         {
             // В6: числа таблиц — каноническая культура приложения
-            // (десятичная запятая, NBSP-тысячи), здесь Re = 10600.
+            // (десятичная запятая, NBSP-тысячи); Re = 10600 → 0 знаков (В9).
             var text = RenderToText(BuildFullData(CalculationReportMode.Operating));
 
-            Assert.That(text, Does.Contain("10\u00A0600,000"));
+            Assert.That(text, Does.Contain("10\u00A0600"));
         }
 
         [Test]
