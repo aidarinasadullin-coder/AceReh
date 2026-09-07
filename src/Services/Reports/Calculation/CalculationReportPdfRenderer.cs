@@ -38,6 +38,13 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         private const string MissingValue = CalculationReportMarkdownRendererConstants.MissingValue;
         private const string TableFormat = CalculationReportMarkdownRenderHelper.TableFormat;
 
+        /// <summary>
+        /// Статус «заполнитель» билдеров: величина не хранится в проекте
+        /// и не вычислена — нулевое значение в PDF показывается как
+        /// «нет данных» (по смыслу В2).
+        /// </summary>
+        private const string UnconfirmedStatusMarker = "требуется привязка к существующей формуле";
+
         private const string TextColorHex = "#212121";
         private const string SecondaryTextColorHex = "#757575";
         private const string BorderColorHex = "#BDBDBD";
@@ -51,8 +58,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         /// <summary>
         /// Маркеры ссылок на кодовую базу в свободных текстах модели
         /// (решение владельца 2026-09-07, спека §7.2): тексты, их содержащие,
-        /// в PDF не выводятся. Охватывает статусы вида «не сохраняется в
-        /// ProjectData», просочившиеся в <c>Meta.Formula</c> билдеров.
+        /// в PDF не выводятся. Охватывает пути классов/свойств, внутренние
+        /// артефакты документации (ADR/DEC/wire) и служебные статусы.
         /// </summary>
         private static readonly string[] CodeBaseMarkers =
         {
@@ -64,6 +71,103 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             "ViewModel",
             "SourceDetail",
             ".cs",
+            "DEC-T",
+            "ADR-",
+            "wire",
+            "GlycoProperties",
+            "материал БД",
+        };
+
+        /// <summary>Служебные статусы билдеров — в PDF не выводятся (§7.2:
+        /// трассировка только инженерными категориями).</summary>
+        private static readonly string[] StatusMarkers =
+        {
+            "кодовое значение",
+            "не сохраняется",
+            "недоступно",
+            "условно:",
+            "справочно,",
+            "требуется привязка",
+        };
+
+        /// <summary>
+        /// Конструкции псевдокода в формулах — в PDF не выводятся.
+        /// </summary>
+        private static readonly string[] PseudoCodeMarkers =
+        {
+            "(int)",
+            "(double)",
+            "sum(",
+            "max(",
+            "min(",
+            "Count",
+        };
+
+        /// <summary>
+        /// Подстановки обозначений: идентификаторы модели → обозначения,
+        /// используемые самим отчётом в шагах расчёта (t_H, Q_таяния, qTotal…).
+        /// Только нотация — выражения не меняются. Порядок: длинные ключи
+        /// раньше коротких.
+        /// </summary>
+        private static readonly (string From, string To)[] SymbolSubstitutions =
+        {
+            ("interpolation 64/2300 .. Colebrook-White at Re=4000", "интерполяция 64/2300 … Колбрук-Уайт при Re = 4000"),
+            ("Colebrook-White iterative", "Колбрук-Уайт, итерационно"),
+            ("JHmu_low", "JHmü_низ"),
+            ("AlphaBottom", "α_низ"),
+            ("DpVerteiler", "Δp_распределителя"),
+            ("MeltingHeat", "Q_таяния"),
+            ("ConvectionHeat", "Q_конв"),
+            ("RadiationHeat", "Q_изл"),
+            ("ExcessTemperature", "JHmü"),
+            ("MeanTemperature", "T_средняя"),
+            ("SupplyTemperature", "T_подачи"),
+            ("ReturnTemperature", "T_обратки"),
+            ("SurfaceTemperature", "t_П"),
+            ("AirTemperature", "t_H"),
+            ("GroundTemperature", "t_G"),
+            ("CircuitLength", "L_HK"),
+            ("SupplyLength", "L_Zul"),
+            ("TotalLength", "L_total"),
+            ("TotalFlowRate", "V_Σ"),
+            ("TotalPower", "P"),
+            ("PressureLoss", "Δp"),
+            ("SystemVolume", "V_сист"),
+            ("PowerTotal", "qTotal"),
+            ("MassFlowRate", "ṁ"),
+            ("VolumeFlowRate", "V̇_м2"),
+            ("RzsCount", "N_РЗС"),
+            ("lambdaR", "λ_R"),
+            ("lambdaB", "λБ"),
+            ("lambdaA", "λА"),
+            ("lambdaE", "λE"),
+            ("LambdaE", "λE"),
+            ("DpRohr", "Δp_трубы"),
+            ("DpVent", "Δp_клапана"),
+            ("maxDp", "Δp_max"),
+            ("epsilon", "ε"),
+            ("sigma", "σ"),
+            ("alpha", "α"),
+            ("lambda_i", "λ_i"),
+            ("lambda_I", "λ_I"),
+            ("lambda", "λ"),
+            ("nu", "ν"),
+            ("DeltaT", "ΔT"),
+            ("d_inner", "d_вн"),
+            ("d_ext", "d_нар"),
+            ("totalLength", "L"),
+            ("FlowRate", "V"),
+            ("q_down", "q↓"),
+            ("q_up", "q↑"),
+            ("V_dot", "V̇"),
+            ("spacing", "s"),
+            ("rho", "ρ"),
+            ("PI", "π"),
+            ("pi", "π"),
+            ("->", "→"),
+            ("^4", "⁴"),
+            ("^3", "³"),
+            ("^2", "²"),
         };
 
         /// <summary>A4-портрет: ширина контентной области, pt (595 − поля 2×50).</summary>
@@ -237,7 +341,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 ("Уровень грунтовых вод", data.GroundwaterLevel),
                 ("Сопротивление вверх R1", data.R1),
                 ("Сопротивление вниз R2", data.R2),
-                ("Эквивалентная теплопроводность LambdaE", data.LambdaE),
+                ("Эквивалентная теплопроводность λE", data.LambdaE),
             });
 
             if (!string.IsNullOrWhiteSpace(data.LambdaRuleNote))
@@ -256,7 +360,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     new[] { "Позиция", "Материал", "Толщина", "Теплопроводность", "Термическое сопротивление" },
                     data.Layers.Select(layer => new[]
                     {
-                        layer.Position,
+                        FormatLayerPosition(layer.Position),
                         FormatValue(layer.MaterialName),
                         FormatValueWithUnit(layer.Thickness),
                         FormatValueWithUnit(layer.Lambda),
@@ -285,7 +389,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 AddNoteParagraph(
                     section,
                     $"{MissingValue}: детальные тепловые величины недоступны. " +
-                    "Выполните тепловой расчёт и повторите экспорт. Ниже сохранённые итоги (wire-набор проекта).");
+                    "Выполните тепловой расчёт и повторите экспорт. Ниже сохранённые итоги проекта.");
             }
 
             if (!string.IsNullOrWhiteSpace(data.DetailNote))
@@ -314,6 +418,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             }
             else
             {
+                // Величины детального набора (ADR-010): при недоступных
+                // деталях — маркер «нет данных» в ячейках (В2).
                 AddScalarTable(section, new[]
                 {
                     ("Коэффициент теплоотдачи", data.Alpha),
@@ -327,7 +433,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     ("Избыточная температура", data.ExcessTemperature),
                     ("Массовый расход на м²", data.MassFlowRate),
                     ("Объёмный расход на м²", data.VolumeFlowRate),
-                });
+                }, value => data.IsDetailAvailable ? FormatValue(value) : MissingValue);
 
                 // Сводный маркер «нет данных» для detail-величин (В2).
                 if (!data.IsDetailAvailable)
@@ -440,7 +546,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
             AddTable(
                 section,
-                new[] { 45.0, 55.0, 60.0, 55.0, 60.0, 55.0, 55.0, 55.0, 55.0 },
+                new[] { 42.0, 45.0, 56.0, 50.0, 72.0, 50.0, 56.0, 80.0, 44.0 },
                 new[] { "Контур", "Коэфф. трения", "Удельные потери", "Потери в трубе", "Потери в распределителе", "Потери в вентиле", "Суммарные потери", "Дросселирование", "Обороты клапана" },
                 ordered.Select(circuit => new[]
                 {
@@ -498,7 +604,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             AddSubHeading(section, "Сравнение режимов: рабочий vs холодный пуск");
             AddTable(
                 section,
-                new[] { 38.0, 52.0, 42.0, 42.0, 47.0, 47.0, 38.0, 38.0, 50.0, 50.0, 51.0 },
+                new[] { 54.0, 49.0, 40.0, 40.0, 45.0, 45.0, 40.0, 40.0, 47.0, 47.0, 48.0 },
                 new[] { "Коллектор", "Тип", "ν рабочий, мм²/с", "ν пуск, мм²/с", "Re рабочий", "Re пуск", "λ рабочий", "λ пуск", "Δp рабочий, Па", "Δp пуск, Па", "Кратность" },
                 rows.Select(row => new[]
                 {
@@ -592,13 +698,15 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
             AddTable(
                 section,
-                new[] { 95.0, 55.0, 245.0, 100.0 },
+                new[] { 172.0, 55.0, 168.0, 100.0 },
                 new[] { "Код", "Уровень", "Сообщение", "Связанные значения" },
                 warnings.Select(warning => new[]
                 {
-                    warning.Code,
+                    // ZWSP после подчёркиваний: длинные коды переносятся,
+                    // а не вылетают за границу ячейки.
+                    warning.Code.Replace("_", "_\u200B"),
                     warning.Severity,
-                    warning.Message,
+                    NormalizeWarningMessage(warning.Message),
                     warning.RelatedValues.Count > 0
                         ? string.Join(", ", warning.RelatedValues)
                         : "-",
@@ -628,20 +736,37 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
             // Решение владельца 2026-09-07 (спека §7.2): колонки с путями кода
             // (SourceDetail, FormulaSource, WhereCalculated, WhereUsed) в PDF
-            // не выводятся — трассировка инженерными категориями.
-            AddTable(
-                section,
-                new[] { 105.0, 55.0, 145.0, 30.0, 70.0, 90.0 },
-                new[] { "Название", "Обозначение", "Физический смысл", "Ед.", "Источник", "Формула" },
-                appendix.Entries.Select(entry => new[]
+            // не выводятся — трассировка инженерными категориями; формулы —
+            // в инженерной нотации. Повторы по ключу «название+обозначение+
+            // единица» скрывается — билдеры отдают одну и ту же величину
+            // из нескольких секций.
+            var seenKeys = new HashSet<string>(StringComparer.Ordinal);
+            var sourceRows = new List<string[]>();
+            foreach (var entry in appendix.Entries)
+            {
+                var row = new[]
                 {
                     entry.Name,
                     entry.Symbol,
                     entry.PhysicalMeaning,
                     entry.Unit,
                     SourceLabel(entry.Source),
-                    SuppressCodeReferences(entry.Formula),
-                }).ToList());
+                    FormatFormulaForPdf(entry.Formula),
+                };
+                var key = entry.Name + "\u0001" + entry.Symbol + "\u0001" + entry.Unit;
+                if (!seenKeys.Add(key))
+                {
+                    continue;
+                }
+
+                sourceRows.Add(row);
+            }
+
+            AddTable(
+                section,
+                new[] { 95.0, 80.0, 120.0, 45.0, 70.0, 85.0 },
+                new[] { "Название", "Обозначение", "Физический смысл", "Ед.", "Источник", "Формула" },
+                sourceRows);
             AddSpacer(section, 6);
         }
 
@@ -656,7 +781,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             }
 
             // SourcePath подавляется (решение владельца, спека §7.2) —
-            // колонки «Источник» в PDF нет.
+            // колонки «Источник» в PDF нет; выражения — в инженерной нотации.
             var grouped = appendix.Formulas
                 .OrderBy(f => f.Section)
                 .ThenBy(f => f.Symbol)
@@ -669,17 +794,18 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     section,
                     new[] { 80.0, 300.0, 115.0 },
                     new[] { "Символ", "Выражение", "Статус" },
-                    group.Select(formula => new[]
+                    group.Select(formula =>
                     {
-                        formula.Symbol,
-                        string.IsNullOrWhiteSpace(formula.Expression)
-                            ? (string.IsNullOrWhiteSpace(formula.FormulaStatus)
-                                ? CalculationReportMarkdownRendererConstants.FormulaNotInMvp
-                                : formula.FormulaStatus)
-                            : formula.Expression,
-                        string.IsNullOrWhiteSpace(formula.Expression) && !string.IsNullOrWhiteSpace(formula.FormulaStatus)
+                        var expression = string.IsNullOrWhiteSpace(formula.Expression)
                             ? CalculationReportMarkdownRendererConstants.FormulaNotInMvp
-                            : (string.IsNullOrWhiteSpace(formula.FormulaStatus) ? "-" : formula.FormulaStatus),
+                            : FormatFormulaForPdf(formula.Expression);
+                        var status = FormatFormulaStatus(formula.FormulaStatus);
+                        if (string.IsNullOrWhiteSpace(formula.Expression) && !string.IsNullOrWhiteSpace(formula.FormulaStatus))
+                        {
+                            status = CalculationReportMarkdownRendererConstants.FormulaNotInMvp;
+                        }
+
+                        return new[] { formula.Symbol, expression, status };
                     }).ToList());
                 AddSpacer(section, 3);
             }
@@ -720,7 +846,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 boldValue: true);
             if (!string.IsNullOrWhiteSpace(step.Note))
             {
-                AddStepLine(section, "Примечание: ", step.Note);
+                // Заметки с внутренними артефактами не выводятся (§7.2).
+                var note = SuppressCodeReferences(step.Note);
+                if (note != "-")
+                {
+                    AddStepLine(section, "Примечание: ", note);
+                }
             }
         }
 
@@ -876,6 +1007,13 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 return MissingValue;
             }
 
+            // Нулевой заполнитель нехранённой величины (DEC-T08: статусы
+            // «требуется привязка») — в PDF показывается как «нет данных».
+            if (v.Value == 0.0 && value.FormulaStatus == UnconfirmedStatusMarker)
+            {
+                return MissingValue;
+            }
+
             return ReportNumber.Format(v.Value, TableFormat);
         }
 
@@ -915,6 +1053,35 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         }
 
         /// <summary>
+        /// Идентификаторы режимов в текстах предупреждений билдера →
+        /// названия режимов по глоссарию (в PDF нет идентификаторов кода).
+        /// </summary>
+        private static string NormalizeWarningMessage(string? message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return "-";
+            }
+
+            return message
+                .Replace("в режиме DesignCold", "в режиме холодного пуска", StringComparison.Ordinal)
+                .Replace("в режиме Operating", "в рабочем режиме", StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// Позиция слоя конструкции: имя enum → подпись по глоссарию.
+        /// </summary>
+        private static string FormatLayerPosition(string? position)
+        {
+            return position switch
+            {
+                "AbovePipe" => "над трубой",
+                "BelowPipe" => "под трубой",
+                _ => string.IsNullOrWhiteSpace(position) ? "-" : position,
+            };
+        }
+
+        /// <summary>
         /// Подавить текст, содержащий ссылки на кодовую базу (решение
         /// владельца, спека §7.2): в ячейке остаётся прочерк.
         /// </summary>
@@ -926,6 +1093,65 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             }
 
             foreach (var marker in CodeBaseMarkers)
+            {
+                if (text.Contains(marker, StringComparison.OrdinalIgnoreCase))
+                {
+                    return "-";
+                }
+            }
+
+            return text;
+        }
+
+        /// <summary>
+        /// Статус формулы для приложения: санкционированные маркеры
+        /// («требуется привязка…») остаются, служебная лексика — прочерк.
+        /// </summary>
+        private static string FormatFormulaStatus(string? status)
+        {
+            if (string.IsNullOrWhiteSpace(status))
+            {
+                return "-";
+            }
+
+            if (status == CalculationReportMarkdownRendererConstants.FormulaNotInMvp
+                || status == UnconfirmedStatusMarker)
+            {
+                return status;
+            }
+
+            return FormatFormulaForPdf(status);
+        }
+
+        /// <summary>
+        /// Приложить инженерную нотацию к формуле из модели (подстановки
+        /// обозначений) и подавить служебные статусы и псевдокод — для
+        /// колонок «Формула»/«Выражение» приложений (спека §7.2).
+        /// </summary>
+        private static string FormatFormulaForPdf(string? formula)
+        {
+            var text = SuppressCodeReferences(formula);
+            if (text == "-")
+            {
+                return text;
+            }
+
+            foreach (var (from, to) in SymbolSubstitutions)
+            {
+                // Ключи из одних букв заменяются целыми словами (lambda не
+                // заденет lambdaR); прочие — прямой заменой (символы, ^2).
+                if (char.IsAsciiLetter(from[0]) && from.All(char.IsAsciiLetter))
+                {
+                    text = System.Text.RegularExpressions.Regex.Replace(
+                        text, "\\b" + from + "\\b", to);
+                }
+                else
+                {
+                    text = text.Replace(from, to, StringComparison.Ordinal);
+                }
+            }
+
+            foreach (var marker in PseudoCodeMarkers.Concat(StatusMarkers))
             {
                 if (text.Contains(marker, StringComparison.OrdinalIgnoreCase))
                 {
@@ -948,9 +1174,15 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         /// <summary>
         /// Таблица «Параметр | Значение | Единица | Источник» — PDF-аналог
         /// скалярных таблиц Markdown без колонки «Обозначение» (пути кода).
+        /// <paramref name="formatValue"/> — внешнее форматирование значения
+        /// (В2: подмена «нет данных»).
         /// </summary>
-        private static void AddScalarTable(Section section, IEnumerable<(string Name, ReportValue<double> Value)> rows)
+        private static void AddScalarTable(
+            Section section,
+            IEnumerable<(string Name, ReportValue<double> Value)> rows,
+            Func<ReportValue<double>, string>? formatValue = null)
         {
+            var format = formatValue ?? FormatValue;
             AddTable(
                 section,
                 new[] { 225.0, 115.0, 75.0, 80.0 },
@@ -958,7 +1190,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 rows.Select(row => new[]
                 {
                     row.Name,
-                    FormatValue(row.Value),
+                    format(row.Value),
                     row.Value.Unit,
                     SourceLabel(row.Value.Source),
                 }).ToList());
@@ -1018,10 +1250,9 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             {
                 var headerRow = table.AddRow();
                 headerRow.HeadingFormat = true;
-                
+
                 headerRow.Shading.Color = GetColor(HeaderBackgroundHex);
-                headerRow.Borders.DistanceFromTop = Unit.FromPoint(2);
-                headerRow.Borders.DistanceFromBottom = Unit.FromPoint(2);
+                SetCellPadding(headerRow, 3);
                 for (var i = 0; i < headers.Length; i++)
                 {
                     FillCell(headerRow.Cells[i], headers[i], bold: true, size: 8);
@@ -1032,8 +1263,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             {
                 var cells = rows[rowIndex];
                 var row = table.AddRow();
-                row.Borders.DistanceFromTop = Unit.FromPoint(1.5);
-                row.Borders.DistanceFromBottom = Unit.FromPoint(1.5);
+                SetCellPadding(row, 3);
                 for (var i = 0; i < cells.Length; i++)
                 {
                     FillCell(row.Cells[i], cells[i], bold: false, size: 8, colorHex: cellColor?.Invoke(rowIndex, i));
@@ -1041,6 +1271,16 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             }
 
             AddSpacer(section, 4);
+        }
+
+        /// <summary>Внутренние отступы ячеек — иначе текст соседних колонок
+        /// сливается на границе (находка визуального ревью).</summary>
+        private static void SetCellPadding(Row row, double points)
+        {
+            row.Borders.DistanceFromTop = Unit.FromPoint(1.5);
+            row.Borders.DistanceFromBottom = Unit.FromPoint(1.5);
+            row.Borders.DistanceFromLeft = Unit.FromPoint(points);
+            row.Borders.DistanceFromRight = Unit.FromPoint(points);
         }
 
         private static void FillCell(Cell cell, string? text, bool bold, double size, string? colorHex = null)
