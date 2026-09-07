@@ -130,6 +130,52 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
         }
 
         [Test]
+        public void Render_BodyFormulas_NumberedContinuously_AppendixUnnumbered()
+        {
+            // В11: формулы тела нумеруются сквозно «(N)» справа; приложение
+            // формул — справочник без номеров.
+            var data = BuildFullData(CalculationReportMode.Operating);
+            var expected = CountBodyFormulas(data);
+            Assert.That(expected, Is.GreaterThan(0), "в фикстуре есть формулы тела");
+
+            var document = new CalculationReportPdfRenderer().Render(data);
+            var paragraphs = CollectParagraphInfos(document);
+
+            var numbers = paragraphs
+                .Where(p => !p.HasImage && IsFormulaNumber(p.Text) && p.Alignment == ParagraphAlignment.Right)
+                .Select(p => int.Parse(p.Text.Trim('(', ')'), System.Globalization.CultureInfo.InvariantCulture))
+                .ToList();
+
+            Assert.That(
+                numbers,
+                Is.EqualTo(Enumerable.Range(1, expected).ToList()),
+                "сквозная нумерация формул тела — 1..N без пропусков и повторов");
+        }
+
+        [Test]
+        public void Render_BodyFormulas_Centered_NumberColumnRight()
+        {
+            // В11: формула — по центру широкой ячейки; номер — справа.
+            var data = BuildFullData(CalculationReportMode.Operating);
+            var expected = CountBodyFormulas(data);
+
+            var document = new CalculationReportPdfRenderer().Render(data);
+            var paragraphs = CollectParagraphInfos(document);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    paragraphs.Count(p => p.HasImage && p.Alignment == ParagraphAlignment.Center),
+                    Is.EqualTo(expected),
+                    "каждая формула тела центрируется");
+                Assert.That(
+                    paragraphs.Count(p => p.HasImage && p.Alignment == ParagraphAlignment.Left),
+                    Is.GreaterThan(0),
+                    "приложение формул остаётся невыровненным справочником (без центрирования)");
+            });
+        }
+
+        [Test]
         public void Render_NullData_ThrowsArgumentNullException()
         {
             Assert.That(() => new CalculationReportPdfRenderer().Render(null!), Throws.ArgumentNullException);
@@ -534,6 +580,85 @@ namespace SnowMeltingCalculator.Tests.Services.Reports.Calculation
             var sb = new StringBuilder();
             CollectText(document, sb);
             return sb.ToString();
+        }
+
+        /// <summary>Число формул тела документа: шаги, чей FormulaText
+        /// рендерится LaTeX-картинкой (те же условия нумерации, что в
+        /// RenderStep). Приложение формул не учитывается.</summary>
+        private static int CountBodyFormulas(CalculationReportData data)
+        {
+            var steps = new List<CalculationStep>();
+            steps.AddRange(data.ConstructionSection.Steps);
+            steps.AddRange(data.ThermalSection.Steps);
+            steps.AddRange(data.HydraulicsSection.ReferenceCircuit?.Steps ?? new List<CalculationStep>());
+            steps.AddRange(data.HydraulicsSection.ReferenceCircuit?.BalancingSteps ?? new List<CalculationStep>());
+            return steps.Count(s => CalculationReportLaTeXFormulaRenderer.TryRenderPng(s.FormulaText) != null);
+        }
+
+        private static bool IsFormulaNumber(string text)
+        {
+            return text.Length > 2 && text[0] == '(' && text[^1] == ')'
+                && int.TryParse(text[1..^1], System.Globalization.CultureInfo.InvariantCulture, out _);
+        }
+
+        private sealed record ParagraphInfo(string Text, ParagraphAlignment Alignment, bool HasImage);
+
+        private static List<ParagraphInfo> CollectParagraphInfos(Document document)
+        {
+            var result = new List<ParagraphInfo>();
+
+            void Walk(DocumentObject? obj)
+            {
+                switch (obj)
+                {
+                    case Document doc:
+                        foreach (Section section in doc.Sections)
+                        {
+                            Walk(section);
+                        }
+                        break;
+                    case Section section:
+                        foreach (DocumentObject element in section.Elements)
+                        {
+                            Walk(element);
+                        }
+                        break;
+                    case Table table:
+                        foreach (Row row in table.Rows)
+                        {
+                            foreach (Cell cell in row.Cells)
+                            {
+                                foreach (DocumentObject element in cell.Elements)
+                                {
+                                    Walk(element);
+                                }
+                            }
+                        }
+                        break;
+                    case Paragraph paragraph:
+                        {
+                            var sb = new StringBuilder();
+                            var hasImage = false;
+                            foreach (DocumentObject element in paragraph.Elements)
+                            {
+                                if (element is Text text)
+                                {
+                                    sb.Append(text.Content);
+                                }
+
+                                if (element is MigraDoc.DocumentObjectModel.Shapes.Image)
+                                {
+                                    hasImage = true;
+                                }
+                            }
+                            result.Add(new ParagraphInfo(sb.ToString(), paragraph.Format.Alignment, hasImage));
+                            break;
+                        }
+                }
+            }
+
+            Walk(document);
+            return result;
         }
 
         private static void CollectText(DocumentObject? obj, StringBuilder sb)
