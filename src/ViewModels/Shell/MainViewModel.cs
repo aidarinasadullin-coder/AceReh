@@ -84,6 +84,11 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             _circuitsViewModel.PropertyChanged += OnModuleViewModelChanged;
             _resultsViewModel.PropertyChanged += OnModuleViewModelChanged;
 
+            // Правка ввода гидравлики после расчёта инвалидирует результаты в
+            // каноне (ADR-012) — VM-свойства при этом могут не уведомить, статус
+            // вкладки «Гидравлика» читает снапшот напрямую: подписка на канон.
+            _hydraulicsState.Changed += OnHydraulicsStateChanged;
+
             _selectedMenuItem = MenuItems[0];
 
             // Загрузка состояния боковой панели из настроек
@@ -429,6 +434,14 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         }
 
         /// <summary>
+        /// Каноническое изменение гидравлики: после User-правки результаты
+        /// инвалидируются в каноне (ADR-012), статус вкладки «Гидравлика»
+        /// читает снапшот напрямую — гасим/зажигаем степпер реактивно.
+        /// Отписки не нужны: VM — app-lifetime singleton (как везде).
+        /// </summary>
+        private void OnHydraulicsStateChanged(object? sender, HydraulicsStateChangedEventArgs e) => RefreshShellStatus();
+
+        /// <summary>
         /// Пересчитывает состояния шагов степпера и содержимое статус-бара.
         /// Только чтение существующих VM и снапшотов сессии (R2/R3/R5 не
         /// затрагиваются).
@@ -462,11 +475,15 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             var thermal = MenuItemByTitle("Тепловой расчёт");
             if (thermal != null)
             {
+                // «Галочка = рассчитано и валидно»: Ready только при свежем
+                // валидном каноническом результате (канонический гейт — тот же
+                // паттерн, что в ProjectLoadOrchestrator).
                 thermal.StepStatus = _thermalViewModel.IsCalculating
                     ? StepStatus.Recalculating
                     : !string.IsNullOrWhiteSpace(_thermalViewModel.ValidationMessage)
                         ? StepStatus.Error
                         : !_thermalViewModel.NeedsRecalculation
+                          && _thermalState.Snapshot.Result is { IsValid: true }
                             ? StepStatus.Ready
                             : StepStatus.Draft;
             }
@@ -480,7 +497,9 @@ namespace SnowMeltingCalculator.ViewModels.Shell
                     ? StepStatus.Recalculating
                     : (hydraulics.HasError || !string.IsNullOrWhiteSpace(_circuitsViewModel.ValidationMessage))
                         ? StepStatus.Error
-                        : StepStatus.Ready;
+                        : _hydraulicsState.Snapshot.IsCalculated()
+                            ? StepStatus.Ready
+                            : StepStatus.Draft;
             }
 
             var results = MenuItemByTitle("Результаты");

@@ -194,12 +194,12 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             if (activeCircuits.Count == 0)
                 return circuits;
 
-            double maxDpGesamt = activeCircuits.Max(c => c.OperatingResult.DpGesamt);
+            double maxDpGesamt = activeCircuits.Max(c => c.OperatingResult?.DpGesamt ?? 0);
             double maxTurns = ValveTurnsCalculator.GetMaxTurns(valveType);
 
             foreach (var circuit in activeCircuits)
             {
-                double dpGesamt = circuit.OperatingResult.DpGesamt;
+                double dpGesamt = circuit.OperatingResult?.DpGesamt ?? 0;
                 circuit.IsReferenceCircuit = Math.Abs(dpGesamt - maxDpGesamt) < 0.01;
 
                 if (circuit.IsReferenceCircuit)
@@ -212,14 +212,14 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 {
                     if (valveType == ValveType.HKV_D)
                     {
-                        circuit.Throttling = maxDpGesamt - (circuit.OperatingResult.DpRohr + circuit.OperatingResult.DpVent);
+                        circuit.Throttling = maxDpGesamt - ((circuit.OperatingResult?.DpRohr ?? 0) + (circuit.OperatingResult?.DpVent ?? 0));
                     }
                     else
                     {
-                        circuit.Throttling = maxDpGesamt - (circuit.OperatingResult.DpRohr + circuit.OperatingResult.DpVerteiler);
+                        circuit.Throttling = maxDpGesamt - ((circuit.OperatingResult?.DpRohr ?? 0) + (circuit.OperatingResult?.DpVerteiler ?? 0));
                     }
 
-                    double density_g_cm3 = circuit.OperatingResult.Density;
+                    double density_g_cm3 = circuit.OperatingResult?.Density ?? 0;
                     double kv = CalculateKvForThrottling(circuit.FlowRate, circuit.Throttling, density_g_cm3);
                     var (turns, warning) = ValveTurnsCalculator.CalculateTurnsWithWarning(kv, valveType);
                     circuit.ValveTurns = turns;

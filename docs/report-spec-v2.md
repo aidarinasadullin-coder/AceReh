@@ -253,10 +253,14 @@ MinVelocity = 0.5 против фактических 0.1).
 
 ## 8. UI
 
-Пункты сплит-кнопки: «Пояснительная записка — рабочий режим» / «Пояснительная
-записка — холодный пуск» (В8). AutomationId сохраняются
-(`ReportExportMarkdownOperating` / `ReportExportMarkdownDesignCold`).
-Правка применяется после приёмки фазы 8 редизайна (та же панель экспорта).
+Пункты сплит-кнопки «Пояснительная записка — рабочий режим» / «Пояснительная
+записка — холодный пуск» (В8) с AutomationId `ReportExportMarkdownOperating` /
+`ReportExportMarkdownDesignCold` существовали до 2026-09-07. Решением владельца
+(2026-09-07) .md-пункты убраны из меню «Отчёт PDF»: экспорт пояснительной
+записки остался только в PDF (`ReportExportPdfReportOperating` /
+`ReportExportPdfReportDesignCold`, мини-фаза PDF-PZ). Сервис Markdown-экспорта
+(`ICalculationReportExportService`) сохранён в кодовой базе и тестах как
+компонент без UI-входа.
 
 ## 9. Тесты
 

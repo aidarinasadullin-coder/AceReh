@@ -75,15 +75,24 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             // harness itself subscribes, because). Census values come from
             // `evidence/phase-10-.../slice-1-reactive-census.md`; the probe column is
             // the harness's own counting subscription on that surface.
+            // Amendment (2026-09-07, owner-approved reactive IsDataReady): the four
+            // slice-`Changed` rows gain one ResultsViewModel readiness handler each —
+            // the frozen Phase 10 evidence doc records the pre-amendment census.
+            // Second amendment (2026-09-07, owner-approved step-status honesty /
+            // ADR-012): the HydraulicsState row gains one more handler —
+            // MainViewModel now subscribes to HydraulicsState.Changed to refresh
+            // the hydraulics stepper status, which reads the canonical snapshot
+            // directly (user edits invalidate results in canon without notifying
+            // any CircuitsViewModel property).
             var expected = new (object publisher, string field, int census, int probes, string because)[]
             {
                 (_graph.Context, nameof(CalculationContext.ContextChanged), 1, 1, "RE-P5-HYD-001: the hydraulics coordinator holds the only production ContextChanged subscription"),
                 (_graph.CalcState, nameof(ICalculationStateService.StateChanged), 3, 1, "MainViewModel + ThermalViewModel + HydraulicsStateCoordinator(no-op)"),
                 (_graph.CalcState, nameof(ICalculationStateService.PipeSpacingChanged), 3, 1, "HydraulicsStateCoordinator + ThermalViewModel + ConstructionViewModel"),
-                (_graph.Session.ClimateState, "Changed", 1, 1, "ClimateViewModel adapter mirror"),
-                (_graph.Session.ConstructionState, "Changed", 1, 1, "ConstructionViewModel adapter"),
-                (_graph.Session.ThermalState, "Changed", 1, 1, "CalculationStateService legacy translation"),
-                (_graph.Session.HydraulicsState, "Changed", 2, 1, "CalculationStateService translation + CircuitsViewModel ProjectLoad mirror"),
+                (_graph.Session.ClimateState, "Changed", 2, 1, "ClimateViewModel adapter mirror + ResultsViewModel readiness"),
+                (_graph.Session.ConstructionState, "Changed", 2, 1, "ConstructionViewModel adapter + ResultsViewModel readiness"),
+                (_graph.Session.ThermalState, "Changed", 2, 1, "CalculationStateService legacy translation + ResultsViewModel readiness"),
+                (_graph.Session.HydraulicsState, "Changed", 4, 1, "CalculationStateService translation + CircuitsViewModel ProjectLoad mirror + ResultsViewModel readiness + MainViewModel stepper refresh (ADR-012)"),
                 (_graph.Session, nameof(INotifyPropertyChanged.PropertyChanged), 1, 1, "MainViewModel window-title watcher"),
                 (_graph.Coordinator, nameof(ThermalStateCoordinator.Completion), 1, 1, "ThermalViewModel adapter"),
                 (_graph.Coordinator, nameof(ThermalStateCoordinator.UpstreamObserved), 1, 1, "ThermalViewModel refresh signal"),
@@ -364,7 +373,11 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             throw new InvalidOperationException($"Event backing field '{fieldName}' not found on {publisher.GetType().Name}.");
         }
 
-        private static void ResetAppSettingsSingleton()
+        /// <summary>
+        /// Сбрасывает статический singleton <see cref="AppSettings"/> и удаляет файл настроек.
+        /// internal: переиспользуется степпер-тестами на том же production-shaped графе.
+        /// </summary>
+        internal static void ResetAppSettingsSingleton()
         {
             var settingsPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -546,7 +559,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                     session,
                     new Mock<IDialogService>().Object,
                     new Mock<IPdfExportService>().Object,
-                    new Mock<ICalculationReportExportService>().Object,
                     fileServiceMock.Object,
                     calcState,
                     materialRepositoryMock.Object,

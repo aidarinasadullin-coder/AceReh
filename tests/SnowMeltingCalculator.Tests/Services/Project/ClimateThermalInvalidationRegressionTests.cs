@@ -419,9 +419,8 @@ public sealed class ClimateThermalInvalidationRegressionTests
         var resultsViewModel = new ResultsViewModel(
             session,
             new Mock<global::SnowMeltingCalculator.Services.Navigation.IDialogService>().Object,
-            new Mock<IPdfExportService>().Object,
-            new Mock<ICalculationReportExportService>().Object,
-            new Mock<IProjectFileService>().Object,
+                new Mock<IPdfExportService>().Object,
+                new Mock<IProjectFileService>().Object,
             calculationState,
             materialRepository.Object,
             constructionService.Object,

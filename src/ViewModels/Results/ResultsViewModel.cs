@@ -29,7 +29,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly IProjectSession _projectSession;
         private readonly IDialogService _dialogService;
         private readonly IPdfExportService _pdfExportService;
-        private readonly ICalculationReportExportService _calculationReportExportService;
         private readonly ICalculationReportPdfExportService _calculationReportPdfExportService;
         private readonly IProjectFileService _projectFileService;
         private readonly IProjectSaveService? _projectSaveService;
@@ -498,7 +497,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
             IProjectSession projectSession,
             IDialogService dialogService,
             IPdfExportService pdfExportService,
-            ICalculationReportExportService calculationReportExportService,
             IProjectFileService projectFileService,
             ICalculationStateService calculationStateService,
             IMaterialRepository materialRepository,
@@ -515,7 +513,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _pdfExportService = pdfExportService ?? throw new ArgumentNullException(nameof(pdfExportService));
-            _calculationReportExportService = calculationReportExportService ?? throw new ArgumentNullException(nameof(calculationReportExportService));
             _projectFileService = projectFileService ?? throw new ArgumentNullException(nameof(projectFileService));
             _projectSaveService = projectSaveService;
             _displayModeState = displayModeState;
@@ -543,6 +540,18 @@ namespace SnowMeltingCalculator.ViewModels.Results
             LoadClimateData();
             LoadConstructionData();
             LoadThermalData();
+
+            // Реактивная готовность (согласовано с владельцем): IsDataReady —
+            // производный кэшируемый флаг, чистая функция канонического состояния;
+            // триггер пересчёта — события Changed слайсов сессии, а не навигация.
+            // Обработчик вызывает только дешёвый CheckDataReadiness: тяжёлая
+            // гидратация контента (карточки/KPI) остаётся на навигации —
+            // LoadHydraulicsDataOnNavigate. Подписки без отписок — VM и сессия
+            // живут всё время приложения (паттерн SummaryViewModel).
+            _projectSession.ClimateState.Changed += OnCanonicalStateChanged;
+            _projectSession.ConstructionState.Changed += OnCanonicalStateChanged;
+            _projectSession.ThermalState.Changed += OnCanonicalStateChanged;
+            _projectSession.HydraulicsState.Changed += OnCanonicalStateChanged;
 
             // Проверяем готовность данных
             CheckDataReadiness();
@@ -664,86 +673,6 @@ namespace SnowMeltingCalculator.ViewModels.Results
         }
 
         /// <summary>
-        /// Команда экспорта детального отчёта в Markdown для рабочего режима
-        /// </summary>
-        [RelayCommand]
-        private async Task ExportOperatingMarkdownReport()
-        {
-            RefreshAll();
-
-            await ExportMarkdownReportAsync(
-                CalculationReportMode.Operating,
-                $"Детальный_отчёт_рабочий_{ProjectNumber}_{DateTime.Now:yyyyMMdd}.md",
-                "Экспорт детального отчёта рабочего режима в Markdown");
-        }
-
-        /// <summary>
-        /// Команда экспорта детального отчёта в Markdown для расчётного холодного режима
-        /// </summary>
-        [RelayCommand]
-        private async Task ExportDesignColdMarkdownReport()
-        {
-            RefreshAll();
-
-            await ExportMarkdownReportAsync(
-                CalculationReportMode.DesignCold,
-                $"Детальный_отчёт_расчётный_холодный_{ProjectNumber}_{DateTime.Now:yyyyMMdd}.md",
-                "Экспорт детального отчёта расчётного холодного режима в Markdown");
-        }
-
-        private async Task ExportMarkdownReportAsync(
-            CalculationReportMode mode,
-            string defaultFileName,
-            string title)
-        {
-            if (!IsDataReady)
-            {
-                StatusMessage = "Невозможно экспортировать: не все данные готовы";
-                await Task.Delay(3000);
-                StatusMessage = string.Empty;
-                return;
-            }
-
-            var fileName = _dialogService.ShowSaveFileDialog(
-                defaultFileName,
-                "Markdown файлы (*.md)|*.md",
-                title: title,
-                defaultExt: "md");
-
-            if (fileName == null)
-                return;
-
-            try
-            {
-                StatusMessage = "Экспорт детального отчёта...";
-                // ADR-010: детальные тепловые величины — из канонического снимка
-                // сессии (fallback — контрольный пересчёт внутри провайдера);
-                // дата отчёта передаётся явно.
-                var thermalDetail = _thermalReportDataProvider.Provide();
-                var success = await _calculationReportExportService.ExportReportAsync(
-                    fileName, SaveCurrentProject(), mode, thermalDetail, DateTime.Now);
-
-                if (success)
-                {
-                    StatusMessage = $"Отчёт сохранён: {Path.GetFileName(fileName)}";
-                }
-                else
-                {
-                    StatusMessage = "Ошибка при экспорте отчёта";
-                }
-
-                await Task.Delay(3000);
-                StatusMessage = string.Empty;
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = $"Ошибка экспорта: {ex.Message}";
-                await Task.Delay(5000);
-                StatusMessage = string.Empty;
-            }
-        }
-
-        /// <summary>
         /// Команда экспорта детального отчёта в PDF для рабочего режима
         /// (пояснительная записка, мини-фаза PDF-PZ)
         /// </summary>
@@ -775,8 +704,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
         /// <summary>
         /// Тонкий релей экспорта PDF-записки: готовность данных, диалог
-        /// сохранения, детальные тепловые величины провайдера и дата — по
-        /// образцу <see cref="ExportMarkdownReportAsync"/> (ADR-010).
+        /// сохранения, детальные тепловые величины провайдера и дата
+        /// (ADR-010).
         /// </summary>
         private async Task ExportPdfReportAsync(
             CalculationReportMode mode,
@@ -1441,6 +1370,14 @@ namespace SnowMeltingCalculator.ViewModels.Results
         }
 
         /// <summary>
+        /// Реакция на событие Changed любого канонического слайса сессии
+        /// (подписки — в конструкторе): пересчитать только готовность.
+        /// RefreshAll здесь не вызывается — гидратация контента остаётся
+        /// на навигации. Обработчик только читает канон (R5: Results derived).
+        /// </summary>
+        private void OnCanonicalStateChanged(object? sender, EventArgs e) => CheckDataReadiness();
+
+        /// <summary>
         /// Проверить готовность данных всех модулей
         /// </summary>
         private void CheckDataReadiness()
@@ -1472,13 +1409,12 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 MissingModules.Add("Тепловой расчёт - не выбрана труба");
             }
 
-            // Проверка гидравлического расчёта (Phase 8: канонический HydraulicsState)
-            var hasValidCircuits = _projectSession.HydraulicsState.Snapshot.Collectors
-                .Any(c => c?.Circuits != null && c.Circuits.Any(circuit => circuit.CircuitLength > 0));
-
-            if (!hasValidCircuits)
+            // Проверка гидравлического расчёта (Phase 8: канонический HydraulicsState;
+            // ADR-012: «рассчитано и валидно» — тот же предикат, что у вкладки 4:
+            // есть контуры с длиной > 0 и у всех коллекторов посчитан Summary)
+            if (!_projectSession.HydraulicsState.Snapshot.IsCalculated())
             {
-                MissingModules.Add("Гидравлика - нет контуров");
+                MissingModules.Add("Гидравлика - нет контуров или расчёт не выполнен");
             }
 
             IsDataReady = MissingModules.Count == 0;

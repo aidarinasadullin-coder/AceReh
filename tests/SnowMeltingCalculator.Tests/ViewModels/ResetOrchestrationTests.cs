@@ -314,7 +314,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 projectStateService.Session,
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
-                new Mock<ICalculationReportExportService>().Object,
                 new Mock<IProjectFileService>().Object,
                 calculationStateService,
                 materialRepositoryMock.Object,

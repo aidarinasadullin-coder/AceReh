@@ -22,8 +22,15 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         [ObservableProperty]
         private ObservableCollection<CircuitRow> _circuits = new();
 
+        /// <summary>
+        /// Итоги расчёта коллектора
+        /// </summary>
+        /// <remarks>
+        /// Nullable: правка ввода пользователем инвалидирует результаты
+        /// (ADR-012) — до пересчёта итоги пусты.
+        /// </remarks>
         [ObservableProperty]
-        private CollectorSummary _summary = new();
+        private CollectorSummary? _summary = new();
 
         private string _collectorType = "HKV-D (2-12 контуров)";
         public string CollectorType

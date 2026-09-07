@@ -54,8 +54,9 @@ public sealed class ThermalAutomationIdSelectorContractTests
         (@"src\MainWindow.xaml", "ReportExportPreview", "MenuItem"),
         (@"src\MainWindow.xaml", "ReportExportPrint", "MenuItem"),
         (@"src\MainWindow.xaml", "ReportExportSavePdf", "MenuItem"),
-        (@"src\MainWindow.xaml", "ReportExportMarkdownOperating", "MenuItem"),
-        (@"src\MainWindow.xaml", "ReportExportMarkdownDesignCold", "MenuItem"),
+        // Решение владельца 2026-09-07: .md-пункты «Пояснительная записка»
+        // (ReportExportMarkdownOperating/DesignCold) убраны из меню
+        // «Отчёт PDF» — экспорт записки остался только в PDF.
         // Мини-фаза PDF-PZ: пункты PDF-версии пояснительной записки
         // (решение владельца 2026-09-07, спека §7.2/план §3 PDF-4).
         (@"src\MainWindow.xaml", "ReportExportPdfReportOperating", "MenuItem"),

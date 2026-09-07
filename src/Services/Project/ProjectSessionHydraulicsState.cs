@@ -59,6 +59,29 @@ namespace SnowMeltingCalculator.Services.Project
         {
             if (collectors is null) throw new ArgumentNullException(nameof(collectors));
             var candidate = collectors.ToArray();
+            if (origin is HydraulicsMutationOrigin.User or HydraulicsMutationOrigin.UserReset)
+            {
+                // Правка ввода пользователем инвалидирует результаты в каноне
+                // (ADR-012): гидравлические результаты действительны только для
+                // входов, на которых выполнен расчёт. Загрузка/сбросы/расчёт
+                // сохраняют прежнюю семантику. Status не трогаем — новых фаз
+                // не заводим, wire-формат .smc не меняется.
+                candidate = candidate
+                    .Select(collector => new HydraulicCollectorSnapshot(
+                        collector.CollectorNumber,
+                        collector.CollectorType,
+                        collector.ValveType,
+                        collector.Circuits.Select(circuit => new HydraulicCircuitSnapshot(
+                            circuit.CircuitNumber,
+                            circuit.CircuitLength,
+                            circuit.SupplyLength,
+                            circuit.SupplySpacingCm,
+                            circuit.SupplyHeatPercent,
+                            circuit.PipeSpacingCm)),
+                        summary: null))
+                    .ToArray();
+            }
+
             return Commit(new(_snapshot.GlobalInputs, candidate, _snapshot.Status), origin);
         }
 
@@ -77,13 +100,21 @@ namespace SnowMeltingCalculator.Services.Project
         {
             if (_snapshot.Status.Phase != HydraulicsCalculationPhase.Calculating)
                 return Reject(HydraulicsMutationOrigin.Calculation, new[] { "FailCalculation requires an active calculation." });
+            // Провалившийся расчёт не оставляет «полурезультатов»: чистится
+            // и Summary коллекторов, и контурные результаты.
             var collectors = _snapshot.Collectors
                 .Select(collector => new HydraulicCollectorSnapshot(
                     collector.CollectorNumber,
                     collector.CollectorType,
                     collector.ValveType,
-                    collector.Circuits,
-                    null))
+                    collector.Circuits.Select(circuit => new HydraulicCircuitSnapshot(
+                        circuit.CircuitNumber,
+                        circuit.CircuitLength,
+                        circuit.SupplyLength,
+                        circuit.SupplySpacingCm,
+                        circuit.SupplyHeatPercent,
+                        circuit.PipeSpacingCm)),
+                    summary: null))
                 .ToArray();
             return Commit(new(_snapshot.GlobalInputs, collectors, new(HydraulicsCalculationPhase.Error, message)), HydraulicsMutationOrigin.Calculation);
         }

@@ -152,5 +152,135 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             Assert.That(_dirty.Calls, Is.EqualTo(1));
             Assert.That(_events, Is.EqualTo(7));
         }
+
+        #region ADR-012: инвалидация результатов при User-мутациях
+
+        private static HydraulicCircuitResultSnapshot Result(double seed = 1) =>
+            new(seed, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
+
+        private static HydraulicCollectorSnapshot CollectorWithResults() =>
+            new(1, "HKV-D", ValveType.HKV_D,
+                new[]
+                {
+                    new HydraulicCircuitSnapshot(1, 110, 10, 5, 10, 20, Result(1), Result(2)),
+                    new HydraulicCircuitSnapshot(2, 120, 10, 5, 10, 20, Result(3), Result(4))
+                },
+                Summary());
+
+        private static void AssertResultsCleared(HydraulicsStateSnapshot snapshot)
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(snapshot.Collectors.Select(c => c.Summary), Has.All.Null,
+                    "Summary коллекторов обнулён");
+                Assert.That(snapshot.Collectors.SelectMany(c => c.Circuits)
+                    .Select(c => c.OperatingResult), Has.All.Null, "OperatingResult обнулён");
+                Assert.That(snapshot.Collectors.SelectMany(c => c.Circuits)
+                    .Select(c => c.DesignResult), Has.All.Null, "DesignResult обнулён");
+                Assert.That(snapshot.Collectors.SelectMany(c => c.Circuits)
+                    .Select(c => c.CircuitLength), Is.Not.Empty,
+                    "введённые длины сохраняются");
+            });
+        }
+
+        [Test]
+        public void ReplaceCollectors_User_ClearsResultsAndSummary()
+        {
+            _state.Restore(new HydraulicsStateSnapshot(Inputs(), new[] { CollectorWithResults() }, HydraulicsStatusSnapshot.Default), HydraulicsMutationOrigin.ProjectLoad);
+
+            var edited = new[] { new HydraulicCollectorSnapshot(1, "HKV-D", ValveType.HKV_D, new[] { new HydraulicCircuitSnapshot(1, 130, 10, 5, 10, 20) }) };
+            var result = _state.ReplaceCollectors(edited, HydraulicsMutationOrigin.User);
+
+            Assert.That(result.IsChanged, Is.True);
+            AssertResultsCleared(_state.Snapshot);
+        }
+
+        [Test]
+        public void ReplaceCollectors_UserReset_ClearsResultsAndSummary()
+        {
+            _state.Restore(new HydraulicsStateSnapshot(Inputs(), new[] { CollectorWithResults() }, HydraulicsStatusSnapshot.Default), HydraulicsMutationOrigin.ProjectLoad);
+
+            var edited = new[] { new HydraulicCollectorSnapshot(1, "HKV-D", ValveType.HKV_D, new[] { new HydraulicCircuitSnapshot(1, 130, 10, 5, 10, 20) }) };
+            _state.ReplaceCollectors(edited, HydraulicsMutationOrigin.UserReset);
+
+            AssertResultsCleared(_state.Snapshot);
+        }
+
+        [Test]
+        public void ReplaceCollectors_LifecycleOrigins_PreserveResults(
+            [Values(
+                HydraulicsMutationOrigin.ProjectLoadReset,
+                HydraulicsMutationOrigin.ProjectLoad,
+                HydraulicsMutationOrigin.Calculation,
+                HydraulicsMutationOrigin.Initialization,
+                HydraulicsMutationOrigin.SystemApply)] HydraulicsMutationOrigin origin)
+        {
+            _state.Restore(new HydraulicsStateSnapshot(Inputs(), new[] { CollectorWithResults() }, HydraulicsStatusSnapshot.Default), HydraulicsMutationOrigin.ProjectLoad);
+
+            var edited = new[] { new HydraulicCollectorSnapshot(1, "HKV-D", ValveType.HKV_D, new[] { new HydraulicCircuitSnapshot(1, 130, 10, 5, 10, 20, Result(9), Result(9)) }, Summary()) };
+            _state.ReplaceCollectors(edited, origin);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(_state.Snapshot.Collectors.Select(c => c.Summary), Has.All.Not.Null,
+                    $"{origin}: загрузка/сбросы/расчёт сохраняют результаты");
+                Assert.That(_state.Snapshot.Collectors.SelectMany(c => c.Circuits)
+                    .Select(c => c.OperatingResult), Has.All.Not.Null, $"{origin}: OperatingResult сохранён");
+                Assert.That(_state.Snapshot.Collectors.SelectMany(c => c.Circuits)
+                    .Select(c => c.DesignResult), Has.All.Not.Null, $"{origin}: DesignResult сохранён");
+            });
+        }
+
+        [Test]
+        public void FailCalculation_ClearsCircuitResultsAndSummary()
+        {
+            _state.Restore(new HydraulicsStateSnapshot(Inputs(), new[] { CollectorWithResults() }, HydraulicsStatusSnapshot.Default), HydraulicsMutationOrigin.ProjectLoad);
+            _state.BeginCalculation();
+
+            var result = _state.FailCalculation("boom");
+
+            Assert.That(result.IsChanged, Is.True);
+            AssertResultsCleared(_state.Snapshot);
+            Assert.That(_state.Snapshot.Status.Phase, Is.EqualTo(HydraulicsCalculationPhase.Error));
+        }
+
+        [Test]
+        public void Restore_ProjectLoad_PreservesResults()
+        {
+            var restored = new HydraulicsStateSnapshot(Inputs(), new[] { CollectorWithResults() }, HydraulicsStatusSnapshot.Default);
+
+            _state.Restore(restored, HydraulicsMutationOrigin.ProjectLoad);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(_state.Snapshot.Collectors.Select(c => c.Summary), Has.All.Not.Null,
+                    "загрузка сохраняет результаты файла");
+                Assert.That(_state.Snapshot.Collectors.SelectMany(c => c.Circuits)
+                    .Select(c => c.OperatingResult), Has.All.Not.Null);
+                Assert.That(_state.Snapshot.Collectors.SelectMany(c => c.Circuits)
+                    .Select(c => c.DesignResult), Has.All.Not.Null);
+            });
+        }
+
+        [Test]
+        public void CompleteCalculation_StoresResults_IsCalculatedTrue()
+        {
+            _state.ReplaceCollectors(new[] { Collector() }, HydraulicsMutationOrigin.ProjectLoad);
+
+            _state.CompleteCalculation(
+                new[] { new HydraulicCollectorSnapshot(1, "HKV-D", ValveType.HKV_D, new[] { new HydraulicCircuitSnapshot(1, 110, 10, 5, 10, 20, Result(1), Result(2)) }) },
+                new Dictionary<int, HydraulicCollectorSummarySnapshot> { [1] = Summary() });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(_state.Snapshot.Collectors.Select(c => c.Summary), Has.All.Not.Null);
+                Assert.That(_state.Snapshot.Collectors.SelectMany(c => c.Circuits)
+                    .Select(c => c.OperatingResult), Has.All.Not.Null);
+                Assert.That(_state.Snapshot.IsCalculated(), Is.True,
+                    "после расчёта предикат «рассчитано и валидно» истинен");
+            });
+        }
+
+        #endregion
     }
 }

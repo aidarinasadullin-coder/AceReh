@@ -390,23 +390,31 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <summary>
         /// Результат расчёта при рабочей температуре
         /// </summary>
+        /// <remarks>
+        /// Nullable: правка ввода пользователем инвалидирует результаты
+        /// (ADR-012) — до пересчёта расчётные поля строки пусты.
+        /// </remarks>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(CurrentResult))]
         [NotifyPropertyChangedFor(nameof(FlowRegimeDescription))]
         [NotifyPropertyChangedFor(nameof(TotalLoss_mbar))]
         [NotifyPropertyChangedFor(nameof(PressureLossWarning))]
-        private CircuitTemperatureResult _operatingResult = new();
+        private CircuitTemperatureResult? _operatingResult = new();
 
         // === Результаты при расчётной температуре ===
 
         /// <summary>
         /// Результат расчёта при расчётной (холодной) температуре
         /// </summary>
+        /// <remarks>
+        /// Nullable: правка ввода пользователем инвалидирует результаты
+        /// (ADR-012) — до пересчёта расчётные поля строки пусты.
+        /// </remarks>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(CurrentResult))]
         [NotifyPropertyChangedFor(nameof(FlowRegimeDescription))]
         [NotifyPropertyChangedFor(nameof(TotalLoss_mbar))]
-        private CircuitTemperatureResult _designResult = new();
+        private CircuitTemperatureResult? _designResult = new();
 
         // === Балансировка ===
 
@@ -457,7 +465,8 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// При холодном пуске удельные потери могут превышать 300 Па/м из-за повышенной вязкости.
         /// </remarks>
         public string? PressureLossWarning =>
-            OperatingResult?.PressureLossPerMeter > CircuitTemperatureResult.MaxPressureLossPerMeter
+            OperatingResult is not null
+            && OperatingResult.PressureLossPerMeter > CircuitTemperatureResult.MaxPressureLossPerMeter
                 ? $"Удельные потери {OperatingResult.PressureLossPerMeter:F0} Па/м > {CircuitTemperatureResult.MaxPressureLossPerMeter:F0} Па/м"
                 : null;
 
@@ -475,13 +484,14 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <summary>
         /// Получить результат для текущего режима отображения
         /// </summary>
-        public CircuitTemperatureResult CurrentResult =>
+        /// <remarks>Null после инвалидации результатов (ADR-012) до пересчёта.</remarks>
+        public CircuitTemperatureResult? CurrentResult =>
             DisplayMode == HydraulicMode.DesignTemperature ? DesignResult : OperatingResult;
 
         /// <summary>
         /// Описание режима течения для текущего режима
         /// </summary>
-        public string FlowRegimeDescription => CurrentResult.FlowRegime switch
+        public string FlowRegimeDescription => CurrentResult?.FlowRegime switch
         {
             FlowRegime.Laminar => "Ламинарный",
             FlowRegime.Transitional => "Переходный",
@@ -492,6 +502,6 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <summary>
         /// Получить результат в мбар для текущего режима
         /// </summary>
-        public double TotalLoss_mbar => CurrentResult.DpGesamt / 100.0;
+        public double TotalLoss_mbar => (CurrentResult?.DpGesamt ?? 0) / 100.0;
     }
 }

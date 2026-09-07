@@ -33,7 +33,6 @@ namespace SnowMeltingCalculator
         private readonly MainViewModel _viewModel;
         private readonly IProjectSession _projectStateService;
         private readonly IDialogService _dialogService;
-        private Action? _refreshResultsOnNavigate = null;
         private bool _isClosingAfterSave;
 
         private readonly Dictionary<NavigationTarget, object> _moduleViewCache = new();
@@ -298,14 +297,7 @@ namespace SnowMeltingCalculator
             {
                 if (target == NavigationTarget.Results)
                 {
-                    if (_refreshResultsOnNavigate is null)
-                    {
-                        _viewModel.ResultsViewModel.LoadHydraulicsDataOnNavigate();
-                    }
-                    else
-                    {
-                        _refreshResultsOnNavigate();
-                    }
+                    _viewModel.ResultsViewModel.LoadHydraulicsDataOnNavigate();
                 }
 
                 if (hasCachedView)

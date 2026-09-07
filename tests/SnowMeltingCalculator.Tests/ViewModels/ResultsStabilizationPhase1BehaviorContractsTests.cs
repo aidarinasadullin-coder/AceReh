@@ -59,6 +59,67 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
 
         [Test]
+        public async Task IsDataReady_TurnsTrue_OnCanonicalHydraulicsChange_WithoutNavigationRefresh()
+        {
+            var circuitsViewModel = ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors(
+                ResultsViewModelTestHelpers.CreateCollector(1, ValveType.HKV_D, 2));
+            var viewModel = ResultsViewModelTestHelpers.CreateResultsViewModel(_projectStateService, circuitsViewModel);
+            await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
+
+            // Гидравлика — единственный неготовый модуль фикстуры (HydraulicsData
+            // пустой): флаг не поднят даже реактивно.
+            Assert.That(viewModel.IsDataReady, Is.False,
+                "guard: пустая каноническая гидравлика держит вкладку неготовой");
+
+            // Каноническое изменение БЕЗ навигации: сеем валидные контуры в
+            // HydraulicsState — событие Changed обязано реактивно поднять
+            // IsDataReady без LoadHydraulicsDataOnNavigate/RefreshAll.
+            _projectStateService.Session.HydraulicsState.ReplaceCollectors(new[]
+            {
+                new HydraulicCollectorSnapshot(
+                    1, "HKV-D (2-12 контуров)", ValveType.HKV_D,
+                    new[] { new HydraulicCircuitSnapshot(1, 50, 10, 5, 10, 20) },
+                    new HydraulicCollectorSummarySnapshot(1, 60, 5000, 720, 24000, 22000, 2.2, "HKV-D"))
+            }, HydraulicsMutationOrigin.Calculation);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(viewModel.IsDataReady, Is.True,
+                    "IsDataReady пересчитывается по событию Changed слайса, без перехода на вкладку «Результаты».");
+                Assert.That(viewModel.HydraulicSummaryCards, Is.Empty,
+                    "Реактивный обработчик пересчитывает только готовность: гидратация контента остаётся на навигации.");
+            });
+        }
+
+        [Test]
+        public async Task IsDataReady_TurnsFalse_OnCanonicalThermalInvalidation_WithoutNavigationRefresh()
+        {
+            var circuitsViewModel = ResultsViewModelTestHelpers.CreateCircuitsViewModelWithCollectors(
+                ResultsViewModelTestHelpers.CreateCollector(1, ValveType.HKV_D, 2));
+            var viewModel = ResultsViewModelTestHelpers.CreateResultsViewModel(_projectStateService, circuitsViewModel);
+            await ResultsViewModelTestHelpers.LoadReadyModulesAsync(viewModel);
+            _projectStateService.Session.HydraulicsState.ReplaceCollectors(new[]
+            {
+                new HydraulicCollectorSnapshot(
+                    1, "HKV-D (2-12 контуров)", ValveType.HKV_D,
+                    new[] { new HydraulicCircuitSnapshot(1, 50, 10, 5, 10, 20) },
+                    new HydraulicCollectorSummarySnapshot(1, 60, 5000, 720, 24000, 22000, 2.2, "HKV-D"))
+            }, HydraulicsMutationOrigin.Calculation);
+            Assert.That(viewModel.IsDataReady, Is.True, "guard: все модули валидны");
+
+            // Порча данных в каноне (инвалидация теплового результата) —
+            // событие Changed обязано реактивно опустить IsDataReady.
+            _projectStateService.Session.ThermalState.InvalidateFromClimate("canonical result cleared");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(viewModel.IsDataReady, Is.False,
+                    "Инвалидация канонического слайса реактивно опускает IsDataReady без навигации.");
+                Assert.That(viewModel.MissingModules, Does.Contain("Тепловой расчёт - нет результата"));
+            });
+        }
+
+        [Test]
         public async Task RefreshAll_WhenInputsChangeButValidResultIsRetained_PreservesOutputWithoutCalculation()
         {
             var viewModel = CreateReadyViewModel();
