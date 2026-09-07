@@ -316,3 +316,20 @@
     /DMyAppVersion=<Version из csproj>`.
     Проверка: `.gitignore` + `git rm -r --cached publish/`; sanity-чек
     скрипта блокирует сборку сетапа из протухшего publish.
+
+## 2026-09-08 (версия — откат решения о бампе; сборка сетапа напрямую)
+
+19. Версия остаётся 1.1.2. Решение владельца (2026-09-08): бамп на
+    `2.0.0-beta.1` из урока №17 не применяется («фиг с ней с версией»),
+    расхождения версий в README/CHANGELOG/PROJECT_STATUS и хардкоды в
+    `.iss`/INSTALL.md не правятся, единый UI-хелпер и
+    `scripts/make-installer.ps1` (уроки №17–18) не создаются — до явной
+    команды владельца. Урок №17 остаётся в силе как правило (единственный
+    источник версии — `<Version>` в csproj), но его «текущее значение»
+    superseded: фактическая версия — 1.1.2. Сетап
+    `output/SnowMeltingCalculator-v1.1.2-Setup.exe` собран 2026-09-08
+    напрямую ISCC (`%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe`, не
+    x86 Program Files) из свежего `dotnet publish`; бинарный шум от
+    пересборки в `publish/` в коммит не попал (восстановлен из HEAD).
+    Проверка: csproj == `#define MyAppVersion` == имя сетапа (1.1.2);
+    git status чист от publish/-артефактов.
