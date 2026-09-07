@@ -25,7 +25,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                     ? BuildModeComparison(hydraulics)
                     : new List<ModeComparisonRow>(),
                 GlycolType = ReportValueFactory.Create(hydraulics.GlycolType.ToString(), "-", ReportValueSource.UserInput, "ProjectData.HydraulicsData.GlycolType"),
-                GlycolConcentration = ReportValueFactory.Create(hydraulics.GlycolConcentration, "%", ReportValueSource.UserInput, "ProjectData.HydraulicsData.GlycolConcentration", decimals: ReportDecimals.For("%")),
+                GlycolConcentration = ReportValueFactory.Create(hydraulics.GlycolConcentration, "%", ReportValueSource.UserInput, "ProjectData.HydraulicsData.GlycolConcentration", decimals: ReportDecimals.For("%"), zeroIsValid: true),
                 Density = ReportValueFactory.Create(0.0, "г/см³", ReportValueSource.Calculated, "CircuitResultProjectData.Density", decimals: ReportDecimals.For("г/см³"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
                 SpecificHeat = ReportValueFactory.Create(0.0, "кДж/(кг·К)", ReportValueSource.Calculated, "GlycolProperties.SpecificHeat", decimals: ReportDecimals.For("кДж/(кг·К)"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
                 KinematicViscosity = ReportValueFactory.Create(0.0, "мм²/с", ReportValueSource.Calculated, "CircuitResultProjectData.KinematicViscosity", decimals: ReportDecimals.For("мм²/с"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),

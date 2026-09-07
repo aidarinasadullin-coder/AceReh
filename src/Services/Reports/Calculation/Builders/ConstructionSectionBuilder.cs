@@ -14,7 +14,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
         {
             var construction = project.ConstructionData ?? new ConstructionProjectData();
 
-            var groundwaterLevel = ReportValueFactory.Create(construction.GroundwaterLevel, "м", ReportValueSource.UserInput, "ProjectData.ConstructionData.GroundwaterLevel", decimals: ReportDecimals.For("м"));
+            var groundwaterLevel = ReportValueFactory.Create(construction.GroundwaterLevel, "м", ReportValueSource.UserInput, "ProjectData.ConstructionData.GroundwaterLevel", decimals: ReportDecimals.For("м"), zeroIsValid: true);
             var r1 = ReportValueFactory.Create(construction.R1, "м²·К/Вт", ReportValueSource.Calculated, "ProjectData.ConstructionData.R1", decimals: ReportDecimals.For("м²·К/Вт"), formula: "sum(R_i) above pipe");
             var r2 = ReportValueFactory.Create(construction.R2, "м²·К/Вт", ReportValueSource.Calculated, "ProjectData.ConstructionData.R2", decimals: ReportDecimals.For("м²·К/Вт"), formula: "sum(R_i) below pipe");
             var lambdaE = ReportValueFactory.Create(construction.LambdaE, "Вт/(м·К)", ReportValueSource.UserInput, "ProjectData.ConstructionData.LambdaE", decimals: ReportDecimals.For("Вт/(м·К)"));
