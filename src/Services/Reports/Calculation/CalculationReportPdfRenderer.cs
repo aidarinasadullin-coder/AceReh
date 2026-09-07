@@ -787,37 +787,24 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 .ThenBy(f => f.Symbol)
                 .GroupBy(f => f.Section)
                 .ToList();
-            foreach (var group in grouped)
+            var groupList = grouped.ToList();
+            for (var i = 0; i < groupList.Count; i++)
             {
-                AddSubHeading(section, group.Key);
-                AddTable(
-                    section,
-                    new[] { 80.0, 300.0, 115.0 },
-                    new[] { "Символ", "Выражение", "Статус" },
-                    group.Select(formula =>
-                    {
-                        var expression = string.IsNullOrWhiteSpace(formula.Expression)
-                            ? CalculationReportMarkdownRendererConstants.FormulaNotInMvp
-                            : FormatFormulaForPdf(formula.Expression);
-                        var status = FormatFormulaStatus(formula.FormulaStatus);
-                        if (string.IsNullOrWhiteSpace(formula.Expression) && !string.IsNullOrWhiteSpace(formula.FormulaStatus))
-                        {
-                            status = CalculationReportMarkdownRendererConstants.FormulaNotInMvp;
-                        }
-
-                        return new[] { formula.Symbol, expression, status };
-                    }).ToList());
-                AddSpacer(section, 3);
+                AddSubHeading(section, groupList[i].Key);
+                // После последней группы спейсеры не ставятся — иначе в конце
+                // документа возможна пустая страница (находка визуального
+                // ревью).
+                AddFormulaTable(section, groupList[i].ToList(), trailingSpacer: i < groupList.Count - 1);
             }
-
-            AddSpacer(section, 3);
         }
 
         #endregion
 
         #region Шаги расчёта
 
-        /// <summary>Блок шага: формула → подстановка → результат → примечание.</summary>
+        /// <summary>Блок шага: формула → подстановка → результат → примечание.
+        /// Формула верстается LaTeX-математикой (запрос владельца 2026-09-07);
+        /// при невозможности вёрстки — текстовая строка.</summary>
         private static void RenderStep(Section section, CalculationStep step)
         {
             var title = section.AddParagraph();
@@ -830,7 +817,19 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             title.Format.SpaceAfter = Unit.FromPoint(1);
             title.Format.KeepWithNext = true;
 
-            AddStepLine(section, "Формула: ", step.FormulaText);
+            var formulaImage = CalculationReportLaTeXFormulaRenderer.TryRenderPng(step.FormulaText);
+            if (formulaImage != null)
+            {
+                var formulaParagraph = section.AddParagraph();
+                formulaParagraph.Format.LeftIndent = Unit.FromPoint(12);
+                formulaParagraph.Format.SpaceAfter = Unit.FromPoint(2);
+                AddFormulaImage(formulaParagraph, formulaImage);
+            }
+            else
+            {
+                AddStepLine(section, "Формула: ", step.FormulaText);
+            }
+
             if (!string.IsNullOrWhiteSpace(step.SubstitutionText))
             {
                 AddStepLine(section, "Подстановка: ", step.SubstitutionText);
@@ -869,6 +868,16 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             valueRun.Font.Size = 9;
             valueRun.Font.Bold = boldValue;
             valueRun.Font.Color = GetColor(TextColorHex);
+        }
+
+        /// <summary>Встроить PNG формулы: 0,5 pt/px (рендер двукратный),
+        /// ширина ограничена доступной областью.</summary>
+        private static void AddFormulaImage(Paragraph paragraph, CalculationReportLaTeXFormulaRenderer.FormulaImage image, double maxWidthPt = 480)
+        {
+            var widthPt = Math.Min(image.WidthPx * CalculationReportLaTeXFormulaRenderer.PointPerPixel, maxWidthPt);
+            var img = paragraph.AddImage("base64:" + Convert.ToBase64String(image.Bytes));
+            img.LockAspectRatio = true;
+            img.Width = Unit.FromPoint(widthPt);
         }
 
         /// <summary>Список шагов; пустой список не рендерится.</summary>
@@ -1292,6 +1301,69 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             paragraph.Format.Font.Size = size;
             paragraph.Format.Font.Color = GetColor(colorHex ?? TextColorHex);
             paragraph.Format.Font.Bold = bold;
+        }
+
+        /// <summary>
+        /// Таблица приложения формул: «Выражение» верстается LaTeX-математикой
+        /// (запрос владельца 2026-09-07), при невозможности — текст.
+        /// </summary>
+        private static void AddFormulaTable(Section section, IReadOnlyList<ReportFormula> formulas, bool trailingSpacer = true)
+        {
+            var table = section.AddTable();
+            table.Borders.Width = Unit.FromPoint(0.5);
+            table.Borders.Color = GetColor(BorderColorHex);
+            foreach (var width in new[] { 80.0, 300.0, 115.0 })
+            {
+                table.AddColumn(Unit.FromPoint(width));
+            }
+
+            var headerRow = table.AddRow();
+            headerRow.HeadingFormat = true;
+            headerRow.Shading.Color = GetColor(HeaderBackgroundHex);
+            SetCellPadding(headerRow, 3);
+            FillCell(headerRow.Cells[0], "Символ", bold: true, size: 8);
+            FillCell(headerRow.Cells[1], "Выражение", bold: true, size: 8);
+            FillCell(headerRow.Cells[2], "Статус", bold: true, size: 8);
+
+            foreach (var formula in formulas)
+            {
+                var row = table.AddRow();
+                SetCellPadding(row, 3);
+                FillCell(row.Cells[0], formula.Symbol, bold: false, size: 8);
+
+                var expression = string.IsNullOrWhiteSpace(formula.Expression)
+                    ? null
+                    : FormatFormulaForPdf(formula.Expression);
+                var image = expression == null
+                    ? null
+                    : CalculationReportLaTeXFormulaRenderer.TryRenderPng(expression);
+                if (image != null)
+                {
+                    var imageParagraph = row.Cells[1].AddParagraph();
+                    AddFormulaImage(imageParagraph, image, maxWidthPt: 290);
+                }
+                else
+                {
+                    FillCell(
+                        row.Cells[1],
+                        expression ?? CalculationReportMarkdownRendererConstants.FormulaNotInMvp,
+                        bold: false,
+                        size: 8);
+                }
+
+                var status = FormatFormulaStatus(formula.FormulaStatus);
+                if (string.IsNullOrWhiteSpace(formula.Expression) && !string.IsNullOrWhiteSpace(formula.FormulaStatus))
+                {
+                    status = CalculationReportMarkdownRendererConstants.FormulaNotInMvp;
+                }
+
+                FillCell(row.Cells[2], status, bold: false, size: 8);
+            }
+
+            if (trailingSpacer)
+            {
+                AddSpacer(section, 4);
+            }
         }
 
         private static void AddSectionHeading(Section section, string text, double headingSize = 12, double spaceAfter = 4)
