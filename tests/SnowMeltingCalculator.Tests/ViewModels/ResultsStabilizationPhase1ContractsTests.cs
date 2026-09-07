@@ -45,15 +45,23 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var window = CreateUninitializedMainWindow(results, projectStateService, climate, construction, thermal);
             var cachedView = new ContentControl { DataContext = results };
             SetCachedView(window, NavigationTarget.Results, cachedView);
-            var refreshCount = 0;
-            SetField(window, "_refreshResultsOnNavigate", (Action)(() =>
+
+            // Мёртвый делегат _refreshResultsOnNavigate удалён (полю нигде не
+            // присваивалось); refresh-счётчик считается по наблюдаемой поверхности:
+            // один RefreshAll = ровно один Reset HydraulicSummaryCards
+            // (RebuildHydraulicSummaryCards). Exactly-one call-site пинируется
+            // исходным контрактом ResolveView_ResultsRefreshRemainsInside...
+            var rebuilds = 0;
+            results.HydraulicSummaryCards.CollectionChanged += (_, e) =>
             {
-                refreshCount++;
-                results.LoadHydraulicsDataOnNavigate();
-            }));
+                if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+                {
+                    rebuilds++;
+                }
+            };
 
             var firstView = InvokeResolveView(window, NavigationTarget.Results);
-            Assert.That(refreshCount, Is.EqualTo(1));
+            Assert.That(rebuilds, Is.EqualTo(1));
             var firstCity = results.SelectedCity;
             results.SelectedCity = "Изменённый город";
             var secondView = InvokeResolveView(window, NavigationTarget.Results);
@@ -64,7 +72,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 Assert.That(secondView, Is.SameAs(firstView), "Cached Results navigation must reuse the View instance.");
                 Assert.That(cachedView.DataContext, Is.SameAs(results),
                     "Cached Results navigation must preserve the ResultsViewModel DataContext.");
-                Assert.That(refreshCount, Is.EqualTo(2), "Each Results entry must invoke exactly one refresh.");
+                Assert.That(rebuilds, Is.EqualTo(2), "Each Results entry must invoke exactly one refresh.");
                 Assert.That(results.SelectedCity, Is.EqualTo(firstCity),
                     "Each Results cache hit must refresh the projection before returning it.");
             });
@@ -84,7 +92,15 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var window = CreateUninitializedMainWindow(results, projectStateService, climate, construction, thermal, out var dialog);
             var fallbackView = new object();
             SetCachedView(window, NavigationTarget.Climate, fallbackView);
-            SetField(window, "_refreshResultsOnNavigate", (Action)(() => throw new InvalidOperationException("refresh failed")));
+
+            // Мёртвый делегат _refreshResultsOnNavigate удалён; отказ refresh
+            // сеется через сломанный канон-доступ: первый же шаг RefreshAll
+            // (LoadClimateData → ClimateState) падает внутри существующей
+            // границы try/catch ResolveView.
+            var brokenSession = new Moq.Mock<SnowMeltingCalculator.Services.Project.IProjectSession>();
+            brokenSession.SetupGet(session => session.ClimateState)
+                .Throws(new InvalidOperationException("refresh failed"));
+            SetField(results, "_projectSession", brokenSession.Object);
 
             var resolvedView = InvokeResolveView(window, NavigationTarget.Results);
 
@@ -209,8 +225,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         [TestCase("ExportPdf")]
         [TestCase("PreviewPdf")]
         [TestCase("PrintPdf")]
-        [TestCase("ExportOperatingMarkdownReport")]
-        [TestCase("ExportDesignColdMarkdownReport")]
         [TestCase("ExportExcel")]
         public void ResultsCommands_RefreshBeforeConsumingOrExportingData(string commandName)
         {
@@ -228,8 +242,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 "ExportPdf" => methodBody.IndexOf("if (!IsDataReady)", StringComparison.Ordinal),
                 "PreviewPdf" => methodBody.IndexOf("if (!IsDataReady)", StringComparison.Ordinal),
                 "PrintPdf" => methodBody.IndexOf("if (!IsDataReady)", StringComparison.Ordinal),
-                "ExportOperatingMarkdownReport" => methodBody.IndexOf("ExportMarkdownReportAsync(", StringComparison.Ordinal),
-                "ExportDesignColdMarkdownReport" => methodBody.IndexOf("ExportMarkdownReportAsync(", StringComparison.Ordinal),
                 "ExportExcel" => methodBody.IndexOf("StatusMessage =", StringComparison.Ordinal),
                 _ => -1
             };

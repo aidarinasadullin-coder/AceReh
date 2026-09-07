@@ -1740,7 +1740,6 @@ public sealed class ThermalMultiplicityCharacterizationTests
             session,
             dialogService.Object,
             new Mock<IPdfExportService>().Object,
-            new Mock<ICalculationReportExportService>().Object,
             projectFileService ?? new Mock<IProjectFileService>().Object,
             calculationState,
             materialRepository.Object,

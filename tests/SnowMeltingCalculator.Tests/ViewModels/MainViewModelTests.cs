@@ -908,7 +908,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 projectStateService.Session,
                 dialogService,
                 new Mock<IPdfExportService>().Object,
-                new Mock<ICalculationReportExportService>().Object,
                 projectFileService,
                 calculationStateService,
                 materialRepositoryMock.Object,

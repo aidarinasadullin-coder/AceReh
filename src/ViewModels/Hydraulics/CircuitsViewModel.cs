@@ -966,15 +966,86 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
         private void OnHydraulicsStateChanged(object? sender, HydraulicsStateChangedEventArgs e)
         {
-            if (e.Origin != HydraulicsMutationOrigin.ProjectLoad)
+            if (e.Origin == HydraulicsMutationOrigin.ProjectLoad)
             {
+                _isMirroringHydraulicsState = true;
+                try
+                {
+                    ApplyLifecycleSnapshotToAdapter(e.NewSnapshot);
+                }
+                finally
+                {
+                    _isMirroringHydraulicsState = false;
+                }
+
                 return;
             }
 
+            // Правка ввода пользователем инвалидирует результаты в каноне
+            // (ADR-012): расчётные колонки грида очищаются на СУЩЕСТВУЮЩИХ
+            // строках (без пересборки ObservableCollection — фокус/выделение
+            // редактируемой ячейки сохраняется), до пересчёта.
+            if (e.Origin is HydraulicsMutationOrigin.User or HydraulicsMutationOrigin.UserReset)
+            {
+                ClearStaleCalculationResults(e);
+            }
+        }
+
+        /// <summary>
+        /// Очистить расчётные поля существующих строк грида там, где канон
+        /// ПОТЕРЯЛ результаты при этой User-мутации (ADR-012): поле было в
+        /// OldSnapshot и отсутствует в NewSnapshot. Если результатов не было и
+        /// в старом каноне (старт приложения, первый ввод длин) — грид не
+        /// трогается. Сопоставление — по номерам коллектора/контура
+        /// (стабильны при правке: канон строится из тех же строк). Входные
+        /// поля не трогаются; guard отсекает ре-энтрантный ReplaceCollectors
+        /// (сеттеры результатов не слушаются
+        /// OnCircuitPropertyChanged/OnCollectorPropertyChanged).
+        /// </summary>
+        private void ClearStaleCalculationResults(HydraulicsStateChangedEventArgs e)
+        {
             _isMirroringHydraulicsState = true;
             try
             {
-                ApplyLifecycleSnapshotToAdapter(e.NewSnapshot);
+                foreach (var collector in Collectors)
+                {
+                    var oldCollector = e.OldSnapshot.Collectors
+                        .FirstOrDefault(c => c.CollectorNumber == collector.CollectorNumber);
+                    var newCollector = e.NewSnapshot.Collectors
+                        .FirstOrDefault(c => c.CollectorNumber == collector.CollectorNumber);
+
+                    if (oldCollector?.Summary is not null && newCollector?.Summary is null)
+                    {
+                        collector.Summary = null;
+                    }
+
+                    foreach (var circuit in collector.Circuits)
+                    {
+                        var oldCircuit = oldCollector?.Circuits
+                            .FirstOrDefault(c => c.CircuitNumber == circuit.CircuitNumber);
+                        var newCircuit = newCollector?.Circuits
+                            .FirstOrDefault(c => c.CircuitNumber == circuit.CircuitNumber);
+
+                        if (oldCircuit?.OperatingResult is not null && newCircuit?.OperatingResult is null)
+                        {
+                            circuit.OperatingResult = null;
+                            circuit.Power = 0;
+                            circuit.FlowRate = 0;
+                            circuit.Velocity = 0;
+                            circuit.Throttling = 0;
+                            circuit.ValveTurns = 0;
+                            circuit.ValveTurnsWarning = null;
+                            circuit.IsReferenceCircuit = false;
+                        }
+
+                        if (oldCircuit?.DesignResult is not null && newCircuit?.DesignResult is null)
+                        {
+                            circuit.DesignResult = null;
+                        }
+                    }
+                }
+
+                RebuildHydraulicSummaryCards();
             }
             finally
             {

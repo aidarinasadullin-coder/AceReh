@@ -602,7 +602,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 projectStateService.Session,
                 new Mock<IDialogService>().Object,
                 new Mock<IPdfExportService>().Object,
-                new Mock<ICalculationReportExportService>().Object,
                 new Mock<IProjectFileService>().Object,
                 calcState,
                 new Mock<IMaterialRepository>().Object,

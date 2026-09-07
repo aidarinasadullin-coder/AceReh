@@ -188,4 +188,20 @@ namespace SnowMeltingCalculator.Services.Project
         public override bool Equals(object? obj) => obj is HydraulicsStateSnapshot other && Equals(other);
         public override int GetHashCode() => HashCode.Combine(GlobalInputs, Collectors.Count, Status);
     }
+
+    /// <summary>
+    /// Честный признак «расчёт гидравлики выполнен для текущих данных»:
+    /// есть контуры с длиной &gt; 0 и у всех коллекторов посчитан Summary.
+    /// Правка ввода пользователем (ReplaceCollectors c User/UserReset) обнуляет
+    /// результаты в каноне — предикат гаснет реактивно до пересчёта (ADR-012).
+    /// Общий для статуса вкладки «Гидравлика» (MainViewModel) и гейта вкладки
+    /// «Результаты» (ResultsViewModel.CheckDataReadiness).
+    /// </summary>
+    public static class HydraulicsStateSnapshotExtensions
+    {
+        public static bool IsCalculated(this HydraulicsStateSnapshot snapshot) =>
+            snapshot.Collectors.Count > 0
+            && snapshot.Collectors.All(c => c.Summary is not null)
+            && snapshot.Collectors.Any(c => c.Circuits.Any(cr => cr.CircuitLength > 0));
+    }
 }

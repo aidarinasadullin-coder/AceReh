@@ -156,7 +156,7 @@ namespace SnowMeltingCalculator.Services.Results
 
                             // Расчёт удельных потерь (Па/м)
                             double pressureLossPerMeter = 0;
-                            if (result?.DpRohr > 0 && circuit.TotalLength > 0)
+                            if (result is not null && result.DpRohr > 0 && circuit.TotalLength > 0)
                             {
                                 pressureLossPerMeter = result.DpRohr / circuit.TotalLength;
                             }
