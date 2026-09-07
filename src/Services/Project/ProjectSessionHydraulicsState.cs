@@ -52,6 +52,8 @@ namespace SnowMeltingCalculator.Services.Project
             var status = origin == HydraulicsMutationOrigin.SystemApply
                 ? HydraulicsStatusSnapshot.Default
                 : _snapshot.Status;
+            // Входы изменились — прежние свойства теплоносителя описывают
+            // чужой расчёт (ADR-013: живут вместе с результатами).
             return errors.Count == 0 ? Commit(new(candidate, _snapshot.Collectors, status), origin) : Reject(origin, errors);
         }
 
@@ -82,18 +84,32 @@ namespace SnowMeltingCalculator.Services.Project
                     .ToArray();
             }
 
-            return Commit(new(_snapshot.GlobalInputs, candidate, _snapshot.Status), origin);
+            // Пользовательская правка инвалидирует результаты (ADR-012) —
+            // вместе с ними и свойства теплоносителя (ADR-013).
+            var invalidateGlycol = origin is HydraulicsMutationOrigin.User or HydraulicsMutationOrigin.UserReset;
+            return Commit(new(
+                _snapshot.GlobalInputs,
+                candidate,
+                _snapshot.Status,
+                invalidateGlycol ? null : _snapshot.OperatingGlycolProperties,
+                invalidateGlycol ? null : _snapshot.DesignGlycolProperties), origin);
         }
 
         public HydraulicsMutationResult BeginCalculation() =>
-            Commit(new(_snapshot.GlobalInputs, _snapshot.Collectors, new(HydraulicsCalculationPhase.Calculating, string.Empty)), HydraulicsMutationOrigin.Calculation);
+            Commit(new(_snapshot.GlobalInputs, _snapshot.Collectors, new(HydraulicsCalculationPhase.Calculating, string.Empty), _snapshot.OperatingGlycolProperties, _snapshot.DesignGlycolProperties), HydraulicsMutationOrigin.Calculation);
 
-        public HydraulicsMutationResult CompleteCalculation(IReadOnlyList<HydraulicCollectorSnapshot> results, IReadOnlyDictionary<int, HydraulicCollectorSummarySnapshot> summaryByCollector, HydraulicsMutationOrigin origin = HydraulicsMutationOrigin.Calculation)
+        public HydraulicsMutationResult CompleteCalculation(IReadOnlyList<HydraulicCollectorSnapshot> results, IReadOnlyDictionary<int, HydraulicCollectorSummarySnapshot> summaryByCollector, HydraulicsMutationOrigin origin = HydraulicsMutationOrigin.Calculation) =>
+            CompleteCalculation(results, summaryByCollector, operatingGlycol: null, designGlycol: null, origin);
+
+        public HydraulicsMutationResult CompleteCalculation(IReadOnlyList<HydraulicCollectorSnapshot> results, IReadOnlyDictionary<int, HydraulicCollectorSummarySnapshot> summaryByCollector, GlycolPropertiesSnapshot? operatingGlycol, GlycolPropertiesSnapshot? designGlycol, HydraulicsMutationOrigin origin = HydraulicsMutationOrigin.Calculation)
         {
             if (results is null) throw new ArgumentNullException(nameof(results));
             if (summaryByCollector is null) throw new ArgumentNullException(nameof(summaryByCollector));
             var collectors = results.Select(c => new HydraulicCollectorSnapshot(c.CollectorNumber, c.CollectorType, c.ValveType, c.Circuits, summaryByCollector.TryGetValue(c.CollectorNumber, out var summary) ? summary : c.Summary)).ToArray();
-            return Commit(new(_snapshot.GlobalInputs, collectors, HydraulicsStatusSnapshot.Default), origin);
+            // Свойства теплоносителя фиксируются тем же расчётом, что и
+            // результаты (ADR-013); повторный GetProperties детерминирован,
+            // поэтому снимок == GetProperties(входы расчёта).
+            return Commit(new(_snapshot.GlobalInputs, collectors, HydraulicsStatusSnapshot.Default, operatingGlycol, designGlycol), origin);
         }
 
         public HydraulicsMutationResult FailCalculation(string message)
@@ -101,7 +117,8 @@ namespace SnowMeltingCalculator.Services.Project
             if (_snapshot.Status.Phase != HydraulicsCalculationPhase.Calculating)
                 return Reject(HydraulicsMutationOrigin.Calculation, new[] { "FailCalculation requires an active calculation." });
             // Провалившийся расчёт не оставляет «полурезультатов»: чистится
-            // и Summary коллекторов, и контурные результаты.
+            // и Summary коллекторов, и контурные результаты, и свойства
+            // теплоносителя.
             var collectors = _snapshot.Collectors
                 .Select(collector => new HydraulicCollectorSnapshot(
                     collector.CollectorNumber,
@@ -123,7 +140,9 @@ namespace SnowMeltingCalculator.Services.Project
         {
             if (snapshot is null) throw new ArgumentNullException(nameof(snapshot));
             if (origin != HydraulicsMutationOrigin.ProjectLoad) return Reject(origin, new[] { "Restore accepts only ProjectLoad origin." });
-            return Commit(new(snapshot.GlobalInputs, snapshot.Collectors, snapshot.Status), origin);
+            // Свойства теплоносителя приходят пустыми (wire .smc не расширяется,
+            // ADR-013) — ПЗ применит контрольную интерполяцию (В13).
+            return Commit(new(snapshot.GlobalInputs, snapshot.Collectors, snapshot.Status, snapshot.OperatingGlycolProperties, snapshot.DesignGlycolProperties), origin);
         }
 
         public HydraulicsMutationResult ResetToDefaults(HydraulicsMutationOrigin origin) => Commit(HydraulicsStateSnapshot.Default, origin);

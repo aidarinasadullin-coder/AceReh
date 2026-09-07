@@ -68,19 +68,20 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             ProjectData project,
             CalculationReportMode mode,
             DateTime? reportDate = null,
-            ThermalReportDetail? thermalDetail = null)
+            ThermalReportDetail? thermalDetail = null,
+            HydraulicsReportDetail? hydraulicsDetail = null)
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
 
             var normalizedDate = NormalizeReportDate(reportDate);
-            var warnings = CollectWarnings(project, mode, thermalDetail);
+            var warnings = CollectWarnings(project, mode, thermalDetail, hydraulicsDetail);
 
             var projectResult = _projectBuilder.Build(project, mode);
             var climateResult = _climateBuilder.Build(project, mode);
             var constructionResult = _constructionBuilder.Build(project, mode);
             var thermalResult = _thermalBuilder.Build(project, mode, thermalDetail);
-            var hydraulicsResult = _hydraulicsBuilder.Build(project, mode);
+            var hydraulicsResult = _hydraulicsBuilder.Build(project, mode, hydraulicsDetail: hydraulicsDetail);
             var equipmentResult = _equipmentBuilder.Build(project, mode);
 
             var sourceEntries = new List<ReportParameterMetadata>();
@@ -132,7 +133,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         private static IReadOnlyList<CalculationReportWarning> CollectWarnings(
             ProjectData project,
             CalculationReportMode mode,
-            ThermalReportDetail? thermalDetail = null)
+            ThermalReportDetail? thermalDetail = null,
+            HydraulicsReportDetail? hydraulicsDetail = null)
         {
             var warnings = new List<CalculationReportWarning>();
 
@@ -165,6 +167,18 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                         RelatedValues = new List<string> { "ThermalStateSnapshot.Status.Phase" }
                     });
                 }
+            }
+
+            if (hydraulicsDetail is { Source: HydraulicsReportDetailSource.Unavailable })
+            {
+                warnings.Add(new CalculationReportWarning
+                {
+                    Code = "MISSING_GLYCOL_PROPERTIES",
+                    Severity = "Warning",
+                    Message = "Свойства теплоносителя недоступны: входы вне диапазона справочной базы гликолей — значения раздела «Гидравлический расчёт» показаны как «нет данных».",
+                    SourcePath = "SnowMeltingCalculator.Services.Reports.Calculation.HydraulicsReportDetail.Source",
+                    RelatedValues = new List<string> { "HydraulicsReportDetailSource.Unavailable" }
+                });
             }
 
             var hydraulics = project.HydraulicsData ?? new HydraulicsProjectData();

@@ -13,9 +13,11 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
         /// <param name="project">Данные проекта.</param>
         /// <param name="mode">Режим отчёта.</param>
         /// <param name="thermalDetail">Детальные тепловые величины (ADR-010); используется тепловым разделом.</param>
+        /// <param name="hydraulicsDetail">Детальные величины гидравлики (ADR-013/В13); используется гидравлическим разделом.</param>
         SectionBuildResult<TSection> Build(
             ProjectData project,
             CalculationReportMode mode,
-            ThermalReportDetail? thermalDetail = null);
+            ThermalReportDetail? thermalDetail = null,
+            HydraulicsReportDetail? hydraulicsDetail = null);
     }
 }

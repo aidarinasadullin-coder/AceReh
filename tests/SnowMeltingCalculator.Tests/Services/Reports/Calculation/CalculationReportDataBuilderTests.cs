@@ -8,6 +8,8 @@ using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Models.Project;
 using SnowMeltingCalculator.Models.Thermal;
+using SnowMeltingCalculator.Services.Project;
+using SnowMeltingCalculator.Services.Reports.Calculation.Builders;
 
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
@@ -329,6 +331,92 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             Assert.That(collector.Summary.TotalPower.Value, Is.EqualTo(1200.0));
             Assert.That(collector.Summary.TotalFlowRate.Value, Is.EqualTo(100.0));
             Assert.That(collector.Summary.PressureLoss.Value, Is.EqualTo(15000.0));
+        }
+
+        [Test]
+        public void Build_HydraulicsDetail_FillsGlycolPropertiesFromSnapshot()
+        {
+            // ADR-013: свойства теплоносителя из снимка; λ и Pr присутствуют;
+            // плотность переводится кг/м³ → г/см³.
+            var detail = new HydraulicsReportDetail
+            {
+                Source = HydraulicsReportDetailSource.Snapshot,
+                Operating = new GlycolPropertiesSnapshot(1053.0, 3.39, 4.5, 0.47, 38.0),
+                Design = new GlycolPropertiesSnapshot(1049.0, 3.41, 12.0, 0.45, 96.0)
+            };
+            var builder = new CalculationReportDataBuilder();
+
+            var report = builder.Build(CreateProjectWithCircuitResults(), CalculationReportMode.Operating, FixedDate, hydraulicsDetail: detail);
+
+            var hydraulics = report.HydraulicsSection;
+            Assert.Multiple(() =>
+            {
+                Assert.That(hydraulics.Density.Value, Is.EqualTo(1.053).Within(1e-9));
+                Assert.That(hydraulics.SpecificHeat.Value, Is.EqualTo(3.39));
+                Assert.That(hydraulics.KinematicViscosity.Value, Is.EqualTo(4.5));
+                Assert.That(hydraulics.ThermalConductivity.Value, Is.EqualTo(0.47));
+                Assert.That(hydraulics.PrandtlNumber.Value, Is.EqualTo(38.0));
+                Assert.That(hydraulics.GlycolNote, Is.Null);
+                Assert.That(hydraulics.Density.FormulaStatus, Is.Not.EqualTo(HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed));
+            });
+        }
+
+        [Test]
+        public void Build_HydraulicsDetailFallback_NoteRenderedAndThrottlingZeroValid()
+        {
+            // В13: примечание контрольной интерполяции; В14: дросселирование
+            // референсного контура — валидный «0», не «нет данных».
+            var detail = new HydraulicsReportDetail
+            {
+                Source = HydraulicsReportDetailSource.ControlInterpolation,
+                Operating = new GlycolPropertiesSnapshot(1053.0, 3.39, 4.5, 0.47, 38.0),
+                Design = new GlycolPropertiesSnapshot(1049.0, 3.41, 12.0, 0.45, 96.0),
+                Note = "Свойства теплоносителя получены контрольной интерполяцией: файл сохранён без гидравлических свойств в снимке."
+            };
+            var builder = new CalculationReportDataBuilder();
+            var project = CreateProjectWithCircuitResults();
+            // Референсный контур (худший по DpGesamt) с Throttling = 0 —
+            // «клапан полностью открыт», валидное значение (В14).
+            project.HydraulicsData.Collectors[0].Circuits[0].OperatingResult!.Throttling = 0.0;
+
+            var report = builder.Build(project, CalculationReportMode.Operating, FixedDate, hydraulicsDetail: detail);
+            var markdown = new CalculationReportMarkdownRenderer().Render(report);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(markdown, Does.Contain("контрольной интерполяцией"));
+                Assert.That(markdown, Does.Contain("Теплопроводность"));
+                Assert.That(markdown, Does.Contain("Число Прандтля"));
+                Assert.That(markdown, Does.Contain("- Результат: **0 Па**"),
+                    "В14: дросселирование референсного контура — валидный 0");
+                Assert.That(report.HydraulicsSection.Collectors
+                    .SelectMany(c => c.Circuits).Any(c => c.Throttling.ZeroIsValid), Is.True,
+                    "Throttling в таблице контуров помечен ZeroIsValid");
+            });
+        }
+
+        [Test]
+        public void Build_HydraulicsDetailUnavailable_NoDataAndWarning()
+        {
+            // В2: выход за диапазон базы — «нет данных» + предупреждение.
+            var detail = new HydraulicsReportDetail
+            {
+                Source = HydraulicsReportDetailSource.Unavailable,
+                Note = "Свойства теплоносителя недоступны: входы вне диапазона справочной базы гликолей."
+            };
+            var builder = new CalculationReportDataBuilder();
+
+            var report = builder.Build(CreateProjectWithCircuitResults(), CalculationReportMode.Operating, FixedDate, hydraulicsDetail: detail);
+            var markdown = new CalculationReportMarkdownRenderer().Render(report);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(report.Warnings.Any(w => w.Code == "MISSING_GLYCOL_PROPERTIES"), Is.True);
+                Assert.That(markdown, Does.Contain("вне диапазона"));
+                Assert.That(report.HydraulicsSection.Density.Value, Is.EqualTo(0.0));
+                Assert.That(report.HydraulicsSection.Density.ZeroIsValid, Is.False, "0 свойств — заглушка, рендерится «нет данных»");
+                Assert.That(markdown, Does.Contain("| Плотность теплоносителя | CircuitResultProjectData.Density | нет данных |"));
+            });
         }
 
         private static ProjectData CreateMinimalProject()

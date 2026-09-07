@@ -269,7 +269,17 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 ("Плотность теплоносителя", section.Density),
                 ("Удельная теплоёмкость", section.SpecificHeat),
                 ("Кинематическая вязкость", section.KinematicViscosity),
+                ("Теплопроводность", section.ThermalConductivity),
+                ("Число Прандтля", section.PrandtlNumber),
             });
+
+            // Примечание к свойствам теплоносителя (В13): контрольная
+            // интерполяция или недоступность базы.
+            if (!string.IsNullOrWhiteSpace(section.GlycolNote))
+            {
+                sb.AppendLine($"_{section.GlycolNote}_");
+                sb.AppendLine();
+            }
 
             RenderReferenceCircuit(sb, section.ReferenceCircuit);
             RenderModeComparison(sb, section.ModeComparison);

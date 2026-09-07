@@ -652,6 +652,20 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         public ReportValue<double> KinematicViscosity { get; init; } = new();
 
         /// <summary>
+        /// Теплопроводность (ADR-013/В13; названия — из Ф3).
+        /// </summary>
+        public ReportValue<double> ThermalConductivity { get; init; } = new();
+
+        /// <summary>
+        /// Число Прандтля.
+        /// </summary>
+        public ReportValue<double> PrandtlNumber { get; init; } = new();
+
+        /// <summary>Примечание к свойствам теплоносителя (контрольная
+        /// интерполяция / недоступность базы, В13) — null без примечания.</summary>
+        public string? GlycolNote { get; init; }
+
+        /// <summary>
         /// Коллекторы.
         /// </summary>
         public IReadOnlyList<ReportCollector> Collectors { get; init; } = new List<ReportCollector>();

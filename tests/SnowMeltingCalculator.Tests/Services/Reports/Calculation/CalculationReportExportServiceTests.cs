@@ -217,7 +217,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         {
             public CalculationReportMode LastMode { get; private set; }
 
-            public CalculationReportData Build(ProjectData project, CalculationReportMode mode, DateTime? reportDate = null, ThermalReportDetail? thermalDetail = null)
+            public CalculationReportData Build(ProjectData project, CalculationReportMode mode, DateTime? reportDate = null, ThermalReportDetail? thermalDetail = null, HydraulicsReportDetail? hydraulicsDetail = null)
             {
                 LastMode = mode;
                 return new CalculationReportData
@@ -246,7 +246,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         {
             public int BuildCount { get; private set; }
 
-            public CalculationReportData Build(ProjectData project, CalculationReportMode mode, DateTime? reportDate = null, ThermalReportDetail? thermalDetail = null)
+            public CalculationReportData Build(ProjectData project, CalculationReportMode mode, DateTime? reportDate = null, ThermalReportDetail? thermalDetail = null, HydraulicsReportDetail? hydraulicsDetail = null)
             {
                 BuildCount++;
                 return new CalculationReportData

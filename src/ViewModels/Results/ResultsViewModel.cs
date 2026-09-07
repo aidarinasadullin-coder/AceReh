@@ -41,6 +41,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly HydraulicSummaryBuilder _hydraulicSummaryBuilder;
         private readonly ResultsKpiPresenter _resultsKpiPresenter;
         private readonly IThermalReportDataProvider _thermalReportDataProvider;
+        private readonly IHydraulicsReportDataProvider _hydraulicsReportDataProvider;
         private DateTime _createdDate;
 
         private bool _isResetting;
@@ -508,7 +509,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
             IProjectSaveService? projectSaveService = null,
             IProjectDisplayModeState? displayModeState = null,
             IThermalReportDataProvider? thermalReportDataProvider = null,
-            ICalculationReportPdfExportService? calculationReportPdfExportService = null)
+            ICalculationReportPdfExportService? calculationReportPdfExportService = null,
+            IHydraulicsReportDataProvider? hydraulicsReportDataProvider = null)
         {
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
@@ -527,6 +529,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 ?? new ThermalReportDataProvider(
                     _projectSession,
                     new Services.Thermal.ThermalCalculator());
+            _hydraulicsReportDataProvider = hydraulicsReportDataProvider
+                ?? new HydraulicsReportDataProvider(
+                    _projectSession,
+                    new Services.Hydraulics.GlycolDataService());
             _calculationReportPdfExportService = calculationReportPdfExportService
                 ?? new CalculationReportPdfExportService(
                     new CalculationReportDataBuilder(),
@@ -733,8 +739,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
             {
                 StatusMessage = "Экспорт пояснительной записки...";
                 var thermalDetail = _thermalReportDataProvider.Provide();
+                var hydraulicsDetail = _hydraulicsReportDataProvider.Provide();
                 var success = await _calculationReportPdfExportService.ExportReportAsync(
-                    fileName, SaveCurrentProject(), mode, thermalDetail, DateTime.Now);
+                    fileName, SaveCurrentProject(), mode, thermalDetail, DateTime.Now, hydraulicsDetail);
 
                 if (success)
                 {

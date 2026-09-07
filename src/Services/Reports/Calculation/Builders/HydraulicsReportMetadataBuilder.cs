@@ -65,8 +65,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
             metadata.Add(Meta("Плотность", "rho", "Плотность теплоносителя", section.Density));
             metadata.Add(Meta("Удельная теплоёмкость", "c_p", "Удельная теплоёмкость теплоносителя", section.SpecificHeat));
             metadata.Add(Meta("Кинематическая вязкость", "nu", "Кинематическая вязкость теплоносителя", section.KinematicViscosity));
-            metadata.Add(Meta("Теплопроводность теплоносителя", "lambda_fluid", "Теплопроводность теплоносителя", "Вт/(м·К)", ReportValueSource.ProgramDatabase, "GlycolProperties.ThermalConductivity", "условно: доступна в GlycolProperties, но не сохраняется в результате", "HydraulicsSection"));
-            metadata.Add(Meta("Число Прандтля", "Pr", "Число Прандтля", "-", ReportValueSource.ProgramDatabase, "GlycolProperties.PrandtlNumber", FormulaStatusUnconfirmed, "HydraulicsSection"));
+            metadata.Add(Meta("Теплопроводность", "lambda_fluid", "Теплопроводность теплоносителя", section.ThermalConductivity));
+            metadata.Add(Meta("Число Прандтля", "Pr", "Число Прандтля", section.PrandtlNumber));
             metadata.Add(Meta("Температура замерзания", "-", "Температура замерзания теплоносителя", "°C", ReportValueSource.ProgramDatabase, "GlycolProperties", "недоступно в текущем коде", "HydraulicsSection"));
         }
 

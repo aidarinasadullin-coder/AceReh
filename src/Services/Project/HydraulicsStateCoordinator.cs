@@ -19,6 +19,8 @@ namespace SnowMeltingCalculator.Services.Project
         private Action? _notifyThermal;
         private Action? _notifyClimate;
         private Action<double>? _mirrorPipeSpacing;
+        private Func<GlycolPropertiesSnapshot?>? _captureOperatingGlycol;
+        private Func<GlycolPropertiesSnapshot?>? _captureDesignGlycol;
 
         public HydraulicsStateCoordinator(
             IProjectSessionHydraulicsState state,
@@ -33,7 +35,7 @@ namespace SnowMeltingCalculator.Services.Project
             _calculationStateService.StateChanged += OnStateChanged;
         }
 
-        public void Connect(Func<List<CollectorSummary>?> calculateSelected, Func<List<CollectorSummary>?> calculateAll, Func<IReadOnlyList<HydraulicCollectorSnapshot>> captureCollectors, Action notifyThermal, Action notifyClimate, Action<double> mirrorPipeSpacing)
+        public void Connect(Func<List<CollectorSummary>?> calculateSelected, Func<List<CollectorSummary>?> calculateAll, Func<IReadOnlyList<HydraulicCollectorSnapshot>> captureCollectors, Action notifyThermal, Action notifyClimate, Action<double> mirrorPipeSpacing, Func<GlycolPropertiesSnapshot?>? captureOperatingGlycol = null, Func<GlycolPropertiesSnapshot?>? captureDesignGlycol = null)
         {
             _calculateSelected = calculateSelected ?? throw new ArgumentNullException(nameof(calculateSelected));
             _calculateAll = calculateAll ?? throw new ArgumentNullException(nameof(calculateAll));
@@ -41,6 +43,8 @@ namespace SnowMeltingCalculator.Services.Project
             _notifyThermal = notifyThermal ?? throw new ArgumentNullException(nameof(notifyThermal));
             _notifyClimate = notifyClimate ?? throw new ArgumentNullException(nameof(notifyClimate));
             _mirrorPipeSpacing = mirrorPipeSpacing ?? throw new ArgumentNullException(nameof(mirrorPipeSpacing));
+            _captureOperatingGlycol = captureOperatingGlycol;
+            _captureDesignGlycol = captureDesignGlycol;
         }
 
         public void Calculate(Func<List<CollectorSummary>?> calculation) => RunCalculation(calculation);
@@ -87,8 +91,11 @@ namespace SnowMeltingCalculator.Services.Project
                         summary.PressureLoss_Cold_Pa,
                         summary.Kv,
                         summary.CollectorType));
-                _state.CompleteCalculation(_captureCollectors!(),
-                    summaryByCollector);
+                _state.CompleteCalculation(
+                    _captureCollectors!(),
+                    summaryByCollector,
+                    _captureOperatingGlycol?.Invoke(),
+                    _captureDesignGlycol?.Invoke());
             }
             finally
             {
