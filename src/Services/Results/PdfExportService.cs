@@ -72,13 +72,11 @@ namespace SnowMeltingCalculator.Services.Results
                     {
                         Document = document
                     };
-                    // FlateEncodeMode.BestSpeed: Flate-потоки режима по умолчанию
-                    // Adobe Acrobat отвергает («Недостаточно данных для изображения»);
-                    // BestSpeed — санкционированный обход мейнтейнера PDFsharp
-                    // (empira/PDFsharp#258). Содержимое документа не меняется.
-                    renderer.PdfDocument = new PdfSharp.Pdf.PdfDocument();
-                    renderer.PdfDocument.Options.FlateEncodeMode = PdfSharp.Pdf.PdfFlateEncodeMode.BestSpeed;
                     renderer.RenderDocument();
+                    // PDFsharp 6.x пишет Flate-потоки без трейлера Adler-32 —
+                    // Acrobat показывает «Недостаточно данных для изображения».
+                    // Дописываем трейлер image-потокам; содержимое не меняется.
+                    PdfFlateStreamRepair.RepairImageStreams(renderer.PdfDocument);
                     renderer.PdfDocument.Save(filePath);
                     return true;
                 }
