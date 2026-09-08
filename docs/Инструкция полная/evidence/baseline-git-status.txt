@@ -1,0 +1,6 @@
+ M INSTALL.md
+ M publish/SnowMeltingCalculator.deps.json
+ M publish/SnowMeltingCalculator.pdb
+?? docs/plans/2026-09-08-instruction-full-plan.md
+?? "docs/\320\230\320\275\321\201\321\202\321\200\321\203\320\272\321\206\320\270\321\217 \320\277\320\276\320\273\320\275\320\260\321\217/"
+4389e804dba7baf5f7cf308fe95174924f19fd11
