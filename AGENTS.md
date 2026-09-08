@@ -41,6 +41,12 @@ direction and follows the dossier workflow
   `docs/architecture/README.md`.
 - Migration-scale work reopens the dossier workflow and its explicit
   owner gates.
+- A plan handed to the owner goes through owner review (implementation
+  starts only after the owner signal) and is accompanied by a `show-me`
+  visualization: one self-contained HTML artifact built from the plan's
+  real entities, in REHAU token colors. The artifact is committed next
+  to the plan as `docs/plans/show-me-*.html`. Check: the owner opens
+  the artifact during plan review (`docs/agents/lessons.md`, урок №21).
 
 ## Эволюция правил и манера работы
 
