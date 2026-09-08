@@ -43,6 +43,19 @@
     </None>
   </ItemGroup>
 
+  <!-- Полная инструкция пользователя (Файл → Инструкция): README.html и
+       media/ деплоятся рядом с exe, относительные ссылки HTML работают. -->
+  <ItemGroup>
+    <None Include="..\docs\Инструкция полная\README.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>docs\Инструкция полная\README.html</TargetPath>
+    </None>
+    <None Include="..\docs\Инструкция полная\media\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>docs\Инструкция полная\media\%(Filename)%(Extension)</TargetPath>
+    </None>
+  </ItemGroup>
+
   <!-- Шрифты Inter -->
   <ItemGroup>
     <Resource Include="Assets\Fonts\*.ttf" />
