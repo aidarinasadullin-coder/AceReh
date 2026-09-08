@@ -124,6 +124,9 @@ C:\Program Files\REHAU\SnowMeltingCalculator\
 │   ├── glycol_data.json          # свойства этилен-/пропиленгликоля
 │   ├── materials_db.json         # теплопроводность материалов
 │   └── rehau_products.json       # трубы RAUTHERM S, коллекторы HKV и IV
+├── docs\Инструкция полная\       # полная инструкция пользователя
+│   ├── README.html               # открывается из меню «Файл → Инструкция»
+│   └── media\                    # скриншоты и GIF-демонстрации инструкции
 ├── LatoFont\                     # шрифты (лицензия OFL)
 └── cs\ de\ … zh-Hant\            # локализованные ресурсы .NET-рантайма
 ```
