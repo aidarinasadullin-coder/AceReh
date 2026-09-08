@@ -155,6 +155,12 @@
                                   Command="{Binding NewCalculationCommand}"
                                   InputGestureText="Ctrl+N"/>
                         <Separator/>
+                        <!-- «Инструкция»: полная инструкция пользователя
+                             (docs\Инструкция полная\README.html) открывается
+                             в браузере по умолчанию. -->
+                        <MenuItem Header="Инструкция"
+                                  Click="InstructionMenuItem_Click"
+                                  AutomationProperties.AutomationId="InstructionMenuItem"/>
                         <!-- «О программе» (Ф7.2, рендер 06b): лёгкий диалог —
                              версия, данные, слоган. -->
                         <MenuItem Header="О программе"
