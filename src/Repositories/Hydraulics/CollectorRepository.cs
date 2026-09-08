@@ -94,9 +94,9 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// <param name="circuits">Количество контуров</param>
         /// <param name="totalFlowRate_m3_h">Суммарный расход, м³/ч</param>
         /// <returns>Рекомендуемый коллектор или null, если не найден</returns>
-        public Collector? SelectCollector(int circuits, double totalFlowRate_m3_h)
+        public async Task<Collector?> SelectCollectorAsync(int circuits, double totalFlowRate_m3_h)
         {
-            var collectors = LoadDataAsync().GetAwaiter().GetResult();
+            var collectors = await LoadDataAsync();
 
             // Фильтрация по количеству контуров
             var candidates = collectors

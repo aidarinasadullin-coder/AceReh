@@ -83,7 +83,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// Ограничения:
         /// - HKV-D: макс. 12 контуров, макс. 1.5 м³/ч, макс. 320 мбар
         /// </remarks>
-        Collector? SelectCollector(int circuits, double totalFlowRate_m3_h);
+        System.Threading.Tasks.Task<Collector?> SelectCollectorAsync(int circuits, double totalFlowRate_m3_h);
 
         /// <summary>
         /// Получить список доступных количеств контуров для HKV-D

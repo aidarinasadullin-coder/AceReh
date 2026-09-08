@@ -85,13 +85,13 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         }
 
         [Test]
-        public void CollectorRepository_SelectCollector_ReturnsSuitableCollector()
+        public async Task CollectorRepository_SelectCollectorAsync_ReturnsSuitableCollector()
         {
             // Arrange
             var repository = new CollectorRepository("data/rehau_products.json");
 
             // Act
-            var collector = repository.SelectCollector(4, 1.0);
+            var collector = await repository.SelectCollectorAsync(4, 1.0);
 
             // Assert
             Assert.That(collector, Is.Not.Null);
@@ -100,13 +100,13 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         }
 
         [Test]
-        public void CollectorRepository_SelectCollector_ReturnsNullForTooManyCircuits()
+        public async Task CollectorRepository_SelectCollectorAsync_ReturnsNullForTooManyCircuits()
         {
             // Arrange
             var repository = new CollectorRepository("data/rehau_products.json");
 
             // Act
-            var collector = repository.SelectCollector(20, 1.0);
+            var collector = await repository.SelectCollectorAsync(20, 1.0);
 
             // Assert
             Assert.That(collector, Is.Null);

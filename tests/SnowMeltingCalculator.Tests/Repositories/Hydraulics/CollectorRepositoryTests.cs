@@ -119,17 +119,17 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
 
         #endregion
 
-        #region SelectCollector Tests
+        #region SelectCollectorAsync Tests
 
         [Test]
-        public void SelectCollector_HKV4Circuits_ReturnsCorrectCollector()
+        public async Task SelectCollectorAsync_HKV4Circuits_ReturnsCorrectCollector()
         {
             // Arrange
             int circuits = 4;
             double totalFlowRate = 0.6; // м³/ч
 
             // Act
-            var collector = _repository.SelectCollector(circuits, totalFlowRate);
+            var collector = await _repository.SelectCollectorAsync(circuits, totalFlowRate);
 
             // Assert
             Assert.That(collector, Is.Not.Null);
@@ -138,14 +138,14 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         }
 
         [Test]
-        public void SelectCollector_HighFlowRate_ReturnsCollectorWithSufficientCapacity()
+        public async Task SelectCollectorAsync_HighFlowRate_ReturnsCollectorWithSufficientCapacity()
         {
             // Arrange
             int circuits = 6;
             double totalFlowRate = 1.5; // м³/ч
 
             // Act
-            var collector = _repository.SelectCollector(circuits, totalFlowRate);
+            var collector = await _repository.SelectCollectorAsync(circuits, totalFlowRate);
 
             // Assert
             Assert.That(collector, Is.Not.Null);
@@ -153,14 +153,14 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         }
 
         [Test]
-        public void SelectCollector_ManyCircuits_ReturnsSuitableCollector()
+        public async Task SelectCollectorAsync_ManyCircuits_ReturnsSuitableCollector()
         {
             // Arrange
             int circuits = 10;
             double totalFlowRate = 1.0; // м³/ч
 
             // Act
-            var collector = _repository.SelectCollector(circuits, totalFlowRate);
+            var collector = await _repository.SelectCollectorAsync(circuits, totalFlowRate);
 
             // Assert
             Assert.That(collector, Is.Not.Null);

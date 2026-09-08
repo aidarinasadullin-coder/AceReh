@@ -165,10 +165,10 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
 
         #endregion
 
-        #region SelectCollector Tests
+        #region SelectCollectorAsync Tests
 
         [Test]
-        public void SelectCollector_ReturnsSuitableCollector()
+        public async Task SelectCollectorAsync_ReturnsSuitableCollector()
         {
             // Arrange
             var collector = new Collector
@@ -181,11 +181,11 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
             };
 
             _repositoryMock
-                .Setup(r => r.SelectCollector(4, 1.0))
-                .Returns(collector);
+                .Setup(r => r.SelectCollectorAsync(4, 1.0))
+                .ReturnsAsync(collector);
 
             // Act
-            var result = _repositoryMock.Object.SelectCollector(4, 1.0);
+            var result = await _repositoryMock.Object.SelectCollectorAsync(4, 1.0);
 
             // Assert
             Assert.That(result, Is.Not.Null);
@@ -193,7 +193,7 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
         }
 
         [Test]
-        public void SelectCollector_ForHighFlowRate_ReturnsIndustrial()
+        public async Task SelectCollectorAsync_ForHighFlowRate_ReturnsIndustrial()
         {
             // Arrange
             var collector = new Collector
@@ -205,11 +205,11 @@ namespace SnowMeltingCalculator.Tests.Repositories.Hydraulics
             };
 
             _repositoryMock
-                .Setup(r => r.SelectCollector(4, 5.0))
-                .Returns(collector);
+                .Setup(r => r.SelectCollectorAsync(4, 5.0))
+                .ReturnsAsync(collector);
 
             // Act
-            var result = _repositoryMock.Object.SelectCollector(4, 5.0);
+            var result = await _repositoryMock.Object.SelectCollectorAsync(4, 5.0);
 
             // Assert
             Assert.That(result, Is.Not.Null);
