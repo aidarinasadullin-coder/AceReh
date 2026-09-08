@@ -128,6 +128,42 @@ namespace SnowMeltingCalculator
         }
 
         /// <summary>
+        /// «Файл → Инструкция»: открывает полную инструкцию пользователя
+        /// (docs\Инструкция полная\README.html, деплоится рядом с exe)
+        /// в браузере по умолчанию. Отсутствие файла и ошибки запуска
+        /// не роняют приложение — показываются через диалог.
+        /// </summary>
+        private void InstructionMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var path = System.IO.Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "docs", "Инструкция полная", "README.html");
+
+            if (!System.IO.File.Exists(path))
+            {
+                _dialogService.ShowError(
+                    $"Файл инструкции не найден:\n{path}",
+                    "Инструкция");
+                return;
+            }
+
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = path,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError(
+                    $"Не удалось открыть инструкцию:\n{ex.Message}",
+                    "Инструкция");
+            }
+        }
+
+        /// <summary>
         /// Загружает проект по пути из <see cref="InitialProjectPath"/>.
         /// </summary>
         private async Task LoadInitialProjectAsync()
