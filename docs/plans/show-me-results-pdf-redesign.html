@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>show-me: редизайн PDF «Результаты расчёта»</title>
+<style>
+  :root{
+    --red:#E50040; --teal:#4FC7B5; --ink:#1D1D1B;
+    --g1:#4E4E4E; --g2:#818181; --g3:#B0B0B0; --g4:#D9D9D9; --bg:#FFFFFF;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px;font:15px/1.55 "Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  h1{font-size:22px;margin:0 0 4px}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--g1);margin:36px 0 12px;padding-top:14px;border-top:1px solid var(--g4)}
+  h2::before{content:"";display:inline-block;width:9px;height:9px;background:var(--red);margin-right:8px}
+  .sub{color:var(--g2);margin:0 0 20px}
+  code,.mono{font-family:Consolas,"Cascadia Mono",monospace}
+  .cols{display:flex;gap:28px;flex-wrap:wrap}
+  .cols>div{flex:1;min-width:300px}
+  pre{margin:0;padding:16px 18px;background:#FAFAFA;border:1px solid var(--g4);border-radius:6px;overflow:auto;font:13px/1.5 Consolas,monospace}
+  .add{color:#0a7a43;font-weight:600}
+  .del{color:#b00020;text-decoration:line-through;opacity:.75}
+  .keep{color:var(--g1)}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th,td{text-align:left;padding:7px 12px;border-bottom:1px solid var(--g4)}
+  th{color:var(--g2);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:.05em}
+  .pill{display:inline-block;padding:2px 9px;border-radius:3px;font-size:11.5px;font-weight:700;color:#fff}
+  .pill.red{background:var(--red)} .pill.teal{background:var(--teal);color:var(--ink)}
+  .pill.g1{background:var(--g1)} .pill.g2{background:var(--g2)}
+  /* мини-карта страниц */
+  .page{border:1px solid var(--g4);border-radius:6px;overflow:hidden;display:flex;height:280px}
+  .spine{width:74px;background:linear-gradient(180deg,#E50040 0%,#E50040 38%,#fff 100%);color:#fff;padding:12px 10px;font-size:10.5px;font-weight:700;flex-shrink:0}
+  .spine .dim{opacity:.45;font-weight:600}
+  .spine .bar{height:2px;background:#fff;margin:5px 0 10px}
+  .body{flex:1;padding:14px 16px;min-width:0}
+  .body h3{margin:0 0 8px;font-size:14px}
+  .hero{font-size:34px;font-weight:800;color:var(--red);line-height:1}
+  .hero small{font-size:13px;color:var(--ink);font-weight:700}
+  .lbl{font-size:9.5px;font-weight:700;color:var(--g1);letter-spacing:.04em;margin:2px 0 10px}
+  .tiles{display:flex;gap:7px;margin:12px 0}
+  .tile{flex:1;border-radius:3px;color:#fff;padding:9px 8px;font-size:12px;font-weight:800}
+  .tile small{display:block;font-size:8px;font-weight:700;letter-spacing:.05em;margin-top:3px;opacity:.92}
+  .tile.dark{color:var(--ink)}
+  .spec{font-size:11px;color:var(--g1)}
+  .spec b{color:var(--ink)}
+  .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;font-size:12.5px}
+  .flow .box{border:1px solid var(--g4);border-top:3px solid var(--red);border-radius:4px;padding:10px 14px;background:#fff}
+  .flow .box.teal{border-top-color:var(--teal)}
+  .flow .arr{align-self:center;padding:0 10px;color:var(--g2);font-size:16px}
+  .note{font-size:12.5px;color:var(--g1);margin:10px 0 0}
+  @media (max-width:700px){.page{height:auto;flex-direction:column}.spine{width:auto;height:120px}}
+</style>
+</head>
+<body>
+<h1>Редизайн PDF «Результаты расчёта»</h1>
+<p class="sub">docs/plans/2026-09-09-results-pdf-redesign-plan.md · концепция «Корешок + плитки», приёмка владельца 2026-09-09</p>
+
+<h2>Что меняется в дереве</h2>
+<pre>
+src/
+├── Services/Results/
+│   ├── PdfExportService.cs      <span class="del"># старый рендер, 744 строки — баннер-шапка, Arial, зебра</span>
+│   │                            <span class="add"># полная перезапись: корешок-градиент + зоны «Ответ → Спека → Обоснование»</span>
+│   │                            <span class="keep"># IPdfExportService, Num(), PdfFlateStreamRepair, DI — без изменений</span>
+│   └── ResultsPdfData*.cs       <span class="keep"># данные/строители — не трогаем</span>
+├── Resources/Images/
+│   ├── rehau_spine_page1.png    <span class="add"># фон-подложка стр. 1 (навигатор: ОТВЕТ·СПЕКА)</span>
+│   ├── rehau_spine_page2.png    <span class="add"># фон-подложка стр. 2+ (КОНТУРЫ·ОБОСНОВАНИЕ·НАЛАДКА)</span>
+│   ├── rehau_logo_white.png     <span class="add"># белая версия знака (источник в репо)</span>
+│   └── rehau_logo.png           <span class="keep"># цветная версия — остаётся (ПЗ её использует)</span>
+└── SnowMeltingCalculator.csproj <span class="add"># +3 &lt;Resource&gt;</span>
+
+tests/…/PdfExportServiceTests.cs  <span class="keep"># Num-пин, %PDF-magic — остаются</span>
+                                  <span class="add"># + тест «страниц ≥ 2» (PdfReader.Open)</span>
+                                  <span class="del"># ConstructionImage-тест — схема не рендерится (слои таблицей)</span>
+
+docs/workspace/pdf-results-proto/ <span class="keep"># прототип и генератор подложек — вне git (песочница)</span>
+</pre>
+
+<h2>Композиция страниц</h2>
+<div class="cols">
+  <div>
+    <div class="page">
+      <div class="spine">
+        ▓▓ РЕХАУ
+        <div class="bar"></div>
+        ОТВЕТ<br><span class="dim">СПЕКА</span><br><span class="dim">КОНТУРЫ</span><br><span class="dim">ОБОСНОВАНИЕ</span><br><span class="dim">НАЛАДКА</span>
+        <div style="margin-top:70px;color:var(--ink)">1 / N</div>
+      </div>
+      <div class="body">
+        <h3>Результаты расчёта</h3>
+        <div class="hero">391,7 <small>Вт/м²</small></div>
+        <div class="lbl">Q СУММАРНАЯ — ГЕРОЙ</div>
+        <div class="tiles">
+          <div class="tile" style="background:var(--red)">8,66 кВт<small>МОЩНОСТЬ</small></div>
+          <div class="tile dark" style="background:var(--teal)">0,46 м³/ч<small>РАСХОД НАСОСА</small></div>
+          <div class="tile" style="background:var(--g1)">15,5 кПа<small>НАПОР</small></div>
+          <div class="tile" style="background:var(--g2)">55→40,8<small>ПОДАЧА→ОБРАТКА</small></div>
+        </div>
+        <div class="spec"><b>Спека закупки:</b> коллектор HKV-D · труба S 20×2,0 · 130 м · насос · бак · гликоль</div>
+      </div>
+    </div>
+    <p class="note">Стр. 1 = <b>Ответ + Спека</b>. Красный корешок — градиент «Активный красный» (стр. 16 брендбука): красный держится вверху → белый книзу; номер страницы и © — тёмным на светлой зоне.</p>
+  </div>
+  <div>
+    <div class="page">
+      <div class="spine">
+        ▓▓ РЕХАУ
+        <div style="margin-top:14px"><span class="dim">ОТВЕТ</span><br><span class="dim">СПЕКА</span></div>
+        <div class="bar"></div>
+        <span class="dim">КОНТУРЫ</span><br>ОБОСНОВАНИЕ<br>НАЛАДКА
+        <div style="margin-top:26px;color:var(--ink)">2 / N</div>
+      </div>
+      <div class="body">
+        <h3>Обоснование и наладка</h3>
+        <div class="spec" style="color:var(--g2)">Климат · режим · слои конструкции — <span style="color:var(--g2)">притенены, справка</span></div>
+        <div style="margin:12px 0 6px;font-weight:800;font-size:12.5px"><span style="display:inline-block;width:8px;height:8px;background:var(--red)"></span> НАЛАДКА · ХОЛОДНЫЙ ПУСК</div>
+        <div class="spec">15,46 кПа рабочий → <b style="color:var(--red)">83,83 кПа пуск</b> → дросселирование 8,63 кПа</div>
+        <div style="margin:14px 0 6px;border-top:2px solid var(--red);padding-top:5px;font-weight:800;font-size:12.5px">Коллектор 1 · таблица контуров <span style="color:var(--g2)">(стр. 2…N при N коллекторах)</span></div>
+        <div class="spec">Δp-колонки, дроссель &gt; 0 — <b style="color:var(--red)">красным</b>, итоговая строка</div>
+      </div>
+    </div>
+    <p class="note">Стр. 2+ = <b>Обоснование + Наладка</b>. Подложка секции 2 повторяется на всех продолжениях; номер страницы — полями MigraDoc (N заранее неизвестен).</p>
+  </div>
+</div>
+
+<h2>Поток данных и рендера</h2>
+<div class="flow">
+  <div class="box">ResultsViewModel<br><span style="color:var(--g2)">кнопка «Экспорт PDF»</span></div>
+  <div class="arr">→</div>
+  <div class="box">IPdfExportService<br><span style="color:var(--g2)">контракт без изменений</span></div>
+  <div class="arr">→</div>
+  <div class="box">PdfExportService <span class="pill red" style="vertical-align:2px">new</span><br><span style="color:var(--g2)">MigraDoc: секции · зоны · таблицы</span></div>
+  <div class="arr">→</div>
+  <div class="box teal">Ресурсы<br><span style="color:var(--g2)">spine-p1 / spine-p2 / logo_white · Inter (bootstrapper ПЗ)</span></div>
+  <div class="arr">→</div>
+  <div class="box">PdfFlateStreamRepair<br><span style="color:var(--g2)">трейлеры image-потоков (Acrobat)</span></div>
+  <div class="arr">→</div>
+  <div class="box">proto.pdf → файл пользователя</div>
+</div>
+<p class="note">State ownership / .smc / ПЗ-записка — не затронуты: рендер только читает <code>ResultsPdfData</code>.</p>
+
+<h2>Тесты</h2>
+<table>
+  <tr><th>Тест</th><th>Судьба</th><th>Зачем</th></tr>
+  <tr><td class="mono">NumberFormat_UsesCanonicalRussianCulture</td><td><span class="pill teal">остаётся</span></td><td>пин канона ru-RU, <code>Num()</code> сохранён</td></tr>
+  <tr><td class="mono">OutputBytesStartWithPdfMagicHeader</td><td><span class="pill teal">остаётся</span></td><td>структурная канарейка %PDF</td></tr>
+  <tr><td class="mono">GeneratesPdf_whenDashboardAndHydraulicDetails</td><td><span class="pill teal">остаётся</span></td><td>сквозной экспорт на 2 коллекторах</td></tr>
+  <tr><td class="mono">ExportResultsToPdfAsync_…PageCount</td><td><span class="pill red">новый</span></td><td><code>PdfReader.Open(...).PageCount ≥ 2</code></td></tr>
+  <tr><td class="mono">…IncludesBase64Image</td><td><span class="pill g2">удаляется</span></td><td>схема конструкции не рендерится — слои таблицей (принятый макет)</td></tr>
+</table>
+</body>
+</html>
