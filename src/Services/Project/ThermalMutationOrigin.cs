@@ -32,6 +32,13 @@ namespace SnowMeltingCalculator.Services.Project
         Initialization,
 
         /// <summary>Системное применение значений (не пользовательское).</summary>
-        SystemApply
+        SystemApply,
+
+        /// <summary>Undo-применение снимка «до» из дневника отмены (ADR-014):
+        /// dirty не создаёт, статус восстанавливается из снимка.</summary>
+        Undo,
+
+        /// <summary>Redo-применение снимка «после» из дневника отмены (ADR-014).</summary>
+        Redo
     }
 }

@@ -157,6 +157,36 @@ namespace SnowMeltingCalculator.Services.Project
         }
 
         /// <inheritdoc/>
+        public ThermalMutationResult RestoreState(ThermalStateSnapshot snapshot, ThermalMutationOrigin origin)
+        {
+            // ADR-014: метод существует только для Undo/Redo-применения снимков
+            // дневника отмены; другой origin — ошибка программирования.
+            if (origin is not (ThermalMutationOrigin.Undo or ThermalMutationOrigin.Redo))
+            {
+                throw new ArgumentOutOfRangeException(nameof(origin), origin, "RestoreState accepts only Undo/Redo origins.");
+            }
+
+            if (snapshot is null)
+            {
+                throw new ArgumentNullException(nameof(snapshot));
+            }
+
+            var before = Snapshot;
+
+            // Инвариант канонических входов един для всех путей записи.
+            var errors = ValidateInputs(snapshot.Inputs);
+            if (errors.Count > 0)
+            {
+                return Reject(origin, before, errors);
+            }
+
+            // Статус берётся ИЗ снимка (может быть NeedsRecalculation
+            // с сообщением — откат правки входов при существовавшем
+            // результате); НЕ нормализуется к Default (план, ревью P2-4).
+            return Commit(before, origin, snapshot.Inputs, snapshot.Result, snapshot.Status);
+        }
+
+        /// <inheritdoc/>
         public ThermalMutationResult InvalidateFromClimate(string message)
         {
             return InvalidateFromUpstream(message, ThermalMutationOrigin.ClimateInvalidation);

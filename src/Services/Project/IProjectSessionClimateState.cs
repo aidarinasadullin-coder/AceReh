@@ -60,5 +60,18 @@ namespace SnowMeltingCalculator.Services.Project
         /// <param name="origin">Источник мутации.</param>
         /// <returns>Результат мутации.</returns>
         ClimateMutationResult ResetToCityData(CityInfo? city, ClimateMutationOrigin origin);
+
+        /// <summary>
+        /// Каноническое применение полного снимка при отмене/возврате действия
+        /// (ADR-014): прямое присваивание всех 12 полей снимка, включая
+        /// <c>HasUserModifications</c> и <c>Period0Days</c>, без нормализации и без
+        /// origin-пересчётов. Предназначено только для origins
+        /// <see cref="ClimateMutationOrigin.Undo"/>/<see cref="ClimateMutationOrigin.Redo"/>.
+        /// </summary>
+        /// <param name="snapshot">Снимок «до»/«после» из дневника отмены.</param>
+        /// <param name="origin">Источник мутации (<see cref="ClimateMutationOrigin.Undo"/>
+        /// или <see cref="ClimateMutationOrigin.Redo"/>).</param>
+        /// <returns>Результат мутации.</returns>
+        ClimateMutationResult ApplySnapshot(ClimateStateSnapshot snapshot, ClimateMutationOrigin origin);
     }
 }

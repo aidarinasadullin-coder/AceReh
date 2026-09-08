@@ -243,6 +243,16 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<HydraulicSummaryBuilder>();
             services.AddSingleton<ResultsKpiPresenter>();
 
+            // ADR-014: событийный memento-дневник «Отменить / Вернуть».
+            // Синглтон, слушает Changed 4 срезов сессии; диспетчер UI-потока
+            // даёт таймер тишины в UI-потоке (в тестовых композициях без
+            // диспетчера группа закрывается лениво — FlushPendingForTests).
+            services.AddSingleton<Services.History.IUndoRedoService>(sp => new Services.History.UndoRedoService(
+                sp.GetRequiredService<IProjectSession>(),
+                sp.GetRequiredService<IThermalStateCoordinator>(),
+                sp.GetRequiredService<ICalculationStateService>(),
+                System.Windows.Threading.Dispatcher.CurrentDispatcher));
+
             // ViewModels
             services.AddSingleton<ResultsViewModel>();
 

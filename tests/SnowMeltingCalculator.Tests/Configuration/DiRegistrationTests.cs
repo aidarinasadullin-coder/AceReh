@@ -565,6 +565,8 @@ namespace SnowMeltingCalculator.Tests.Configuration
 
             public ThermalMutationResult Restore(ThermalInputsSnapshot inputs, ThermalResultSnapshot? savedResult) => throw new NotSupportedException();
 
+            public ThermalMutationResult RestoreState(ThermalStateSnapshot snapshot, ThermalMutationOrigin origin) => throw new NotSupportedException();
+
             public ThermalMutationResult InvalidateFromClimate(string message) => throw new NotSupportedException();
 
             public ThermalMutationResult InvalidateFromConstruction(string message) => throw new NotSupportedException();

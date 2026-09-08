@@ -966,7 +966,11 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
         private void OnHydraulicsStateChanged(object? sender, HydraulicsStateChangedEventArgs e)
         {
-            if (e.Origin == HydraulicsMutationOrigin.ProjectLoad)
+            // ADR-014: откат/возврат зеркалится тем же lifecycle-путём, что и
+            // загрузка проекта (полное применение снимка в адаптер).
+            if (e.Origin is HydraulicsMutationOrigin.ProjectLoad
+                or HydraulicsMutationOrigin.Undo
+                or HydraulicsMutationOrigin.Redo)
             {
                 _isMirroringHydraulicsState = true;
                 try

@@ -11,6 +11,18 @@ namespace SnowMeltingCalculator.Services.Project
         ProjectLoadReset,
         Restore,
         SystemApply,
-        Initialization
+        Initialization,
+
+        /// <summary>
+        /// Каноническое применение снимка «до» при отмене действия
+        /// (memento-дневник, ADR-014). Dirty не создаёт, DataChanged не поднимает.
+        /// </summary>
+        Undo,
+
+        /// <summary>
+        /// Каноническое применение снимка «после» при возврате отменённого
+        /// действия (memento-дневник, ADR-014). Dirty не создаёт, DataChanged не поднимает.
+        /// </summary>
+        Redo
     }
 }

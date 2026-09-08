@@ -109,11 +109,12 @@ namespace SnowMeltingCalculator.Tests.Architecture
         [Test]
         public void R2_ClimateState_MutatedOnlyBySanctionedWriters()
         {
+            // ApplySnapshot — undo/redo-применение снимка дневника (ADR-014).
             var sites = CallSites(SourceFiles(),
-                @"climateState\.(ApplyCitySelection|ApplyIndividualEdit|ApplyProjectSnapshot|ResetToCityData)\(", true);
+                @"climateState\.(ApplyCitySelection|ApplyIndividualEdit|ApplyProjectSnapshot|ApplySnapshot|ResetToCityData)\(", true);
             AssertSanctioned("R2/WI-1 (ClimateState)", sites,
                 "ProjectSessionClimateState.cs", "ClimateViewModel.cs", "ProjectLoadOrchestrator.cs",
-                "MainViewModel.cs", "ResultsViewModel.cs", "ProjectSession.cs");
+                "MainViewModel.cs", "ResultsViewModel.cs", "ProjectSession.cs", "UndoRedoService.cs");
         }
 
         [Test]
@@ -123,39 +124,44 @@ namespace SnowMeltingCalculator.Tests.Architecture
                 @"constructionState\.(Apply|ApplySnapshot|ResetToDefaults)\(", true);
             // ConstructionStateLegacyStoreGuardTests.cs is inert under the
             // src-only scan; kept for verbatim parity with the evidence.
+            // UndoRedoService.cs — undo/redo-применение снимка (ADR-014).
             AssertSanctioned("R2/WI-2 (ConstructionState)", sites,
                 "ProjectSessionConstructionState.cs", "ConstructionViewModel.cs", "ProjectLoadOrchestrator.cs",
-                "MainViewModel.cs", "ConstructionDefaultStateInitializer.cs", "ConstructionStateLegacyStoreGuardTests.cs");
+                "MainViewModel.cs", "ConstructionDefaultStateInitializer.cs", "ConstructionStateLegacyStoreGuardTests.cs",
+                "UndoRedoService.cs");
         }
 
         [Test]
         public void R2_ThermalState_MutatedOnlyBySanctionedWriters()
         {
             var files = SourceFiles();
+            // RestoreState — undo/redo-восстановление полного среза (ADR-014);
+            // regex Restore\( не матчит RestoreState\( — расширен осознанно.
             var sites = CallSites(files,
-                @"thermalState\.(ApplyInputs|ApplyInputEdit|ApplyNeedsRecalculation|BeginCalculation|CompleteCalculation|FailCalculation|Restore|InvalidateFromClimate|InvalidateFromConstruction)\(", true);
+                @"thermalState\.(ApplyInputs|ApplyInputEdit|ApplyNeedsRecalculation|BeginCalculation|CompleteCalculation|FailCalculation|Restore|RestoreState|InvalidateFromClimate|InvalidateFromConstruction)\(", true);
             // The coordinator holds its slice as a generic `_state` field;
             // that receiver is scoped to the owning coordinator file.
             sites.AddRange(CallSites(files,
-                @"_state\.(ApplyInputs|ApplyInputEdit|ApplyNeedsRecalculation|BeginCalculation|CompleteCalculation|FailCalculation|Restore|InvalidateFromClimate|InvalidateFromConstruction)\(",
+                @"_state\.(ApplyInputs|ApplyInputEdit|ApplyNeedsRecalculation|BeginCalculation|CompleteCalculation|FailCalculation|Restore|RestoreState|InvalidateFromClimate|InvalidateFromConstruction)\(",
                 true, "ThermalStateCoordinator.cs"));
             AssertSanctioned("R2/WI-3 (ThermalState)", sites,
                 "ProjectSessionThermalState.cs", "ThermalStateCoordinator.cs", "CalculationStateService.cs",
-                "ProjectLoadOrchestrator.cs", "ThermalViewModel.cs");
+                "ProjectLoadOrchestrator.cs", "ThermalViewModel.cs", "UndoRedoService.cs");
         }
 
         [Test]
         public void R2_HydraulicsState_MutatedOnlyBySanctionedWriters()
         {
             var files = SourceFiles();
+            // Restore — undo/redo-восстановление снимка дневника (ADR-014).
             var sites = CallSites(files,
-                @"hydraulicsState\.(ApplyGlobalInputs|ReplaceCollectors|BeginCalculation|CompleteCalculation|FailCalculation|ApplySnapshot)\(", true);
+                @"hydraulicsState\.(ApplyGlobalInputs|ReplaceCollectors|BeginCalculation|CompleteCalculation|FailCalculation|ApplySnapshot|Restore)\(", true);
             sites.AddRange(CallSites(files,
-                @"_state\.(ApplyGlobalInputs|ReplaceCollectors|BeginCalculation|CompleteCalculation|FailCalculation|ApplySnapshot)\(",
+                @"_state\.(ApplyGlobalInputs|ReplaceCollectors|BeginCalculation|CompleteCalculation|FailCalculation|ApplySnapshot|Restore)\(",
                 true, "HydraulicsStateCoordinator.cs"));
             AssertSanctioned("R2/WI-4 (HydraulicsState)", sites,
                 "ProjectSessionHydraulicsState.cs", "HydraulicsStateCoordinator.cs", "CircuitsViewModel.cs",
-                "ProjectLoadOrchestrator.cs", "CalculationStateService.cs");
+                "ProjectLoadOrchestrator.cs", "CalculationStateService.cs", "UndoRedoService.cs");
         }
 
         [Test]
@@ -166,10 +172,11 @@ namespace SnowMeltingCalculator.Tests.Architecture
             AssertSanctioned("R2/WI-5 (MarkDirty)", dirty,
                 "ProjectSession.cs", "ProjectSessionClimateState.cs", "ProjectSessionConstructionState.cs",
                 "ProjectSessionThermalState.cs", "ProjectSessionHydraulicsState.cs",
-                "ThermalStateCoordinator.cs", "HydraulicsStateCoordinator.cs", "ResultsViewModel.cs");
+                "ThermalStateCoordinator.cs", "HydraulicsStateCoordinator.cs", "ResultsViewModel.cs",
+                "UndoRedoService.cs");
             var clean = CallSites(files, @"\.MarkClean\(\)", false);
             AssertSanctioned("R2/WI-6 (MarkClean)", clean,
-                "ProjectSession.cs", "ResultsViewModel.cs", "MainViewModel.cs");
+                "ProjectSession.cs", "ResultsViewModel.cs", "MainViewModel.cs", "UndoRedoService.cs");
         }
 
         [Test]

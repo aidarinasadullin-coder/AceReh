@@ -591,7 +591,10 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 "ConstructionInvalidation",
                 "Calculation",
                 "Initialization",
-                "SystemApply"
+                "SystemApply",
+                // ADR-014: undo/redo-применение снимков дневника отмены.
+                "Undo",
+                "Redo"
             };
 
             Assert.That(Enum.GetNames(typeof(ThermalMutationOrigin)), Is.EqualTo(expected));
@@ -622,8 +625,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 .Select(LabelFor)
                 .ToArray();
 
-            Assert.That(labels.Length, Is.EqualTo(9));
-            Assert.That(labels.Distinct().Count(), Is.EqualTo(9));
+            Assert.That(labels.Length, Is.EqualTo(11));
+            Assert.That(labels.Distinct().Count(), Is.EqualTo(11));
         }
 
         private static string LabelFor(ThermalMutationOrigin origin) => origin switch
@@ -637,6 +640,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             ThermalMutationOrigin.Calculation => "calculation",
             ThermalMutationOrigin.Initialization => "initialization",
             ThermalMutationOrigin.SystemApply => "system-apply",
+            ThermalMutationOrigin.Undo => "undo",
+            ThermalMutationOrigin.Redo => "redo",
             _ => throw new ArgumentOutOfRangeException(nameof(origin), origin, "Unknown thermal mutation origin."),
         };
 

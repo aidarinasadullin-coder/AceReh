@@ -139,7 +139,10 @@ namespace SnowMeltingCalculator.Services.Project
         public HydraulicsMutationResult Restore(HydraulicsStateSnapshot snapshot, HydraulicsMutationOrigin origin)
         {
             if (snapshot is null) throw new ArgumentNullException(nameof(snapshot));
-            if (origin != HydraulicsMutationOrigin.ProjectLoad) return Reject(origin, new[] { "Restore accepts only ProjectLoad origin." });
+            // Guard ослаблен для Undo/Redo (ADR-014): дневник отмены применяет
+            // снимки «до»/«после» тем же каноническим путём, что и загрузка.
+            if (origin is not (HydraulicsMutationOrigin.ProjectLoad or HydraulicsMutationOrigin.Undo or HydraulicsMutationOrigin.Redo))
+                return Reject(origin, new[] { "Restore accepts only ProjectLoad, Undo or Redo origins." });
             // Свойства теплоносителя приходят пустыми (wire .smc не расширяется,
             // ADR-013) — ПЗ применит контрольную интерполяцию (В13).
             return Commit(new(snapshot.GlobalInputs, snapshot.Collectors, snapshot.Status, snapshot.OperatingGlycolProperties, snapshot.DesignGlycolProperties), origin);

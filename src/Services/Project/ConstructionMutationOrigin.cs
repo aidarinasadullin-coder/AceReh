@@ -16,6 +16,13 @@ namespace SnowMeltingCalculator.Services.Project
         Reset,
         Restore,
         SystemApply,
-        Initialization
+        Initialization,
+
+        /// <summary>Undo/Redo-применение снимка дневника отмены (ADR-014):
+        /// dirty и RaiseDataChanged не создаёт.</summary>
+        Undo,
+
+        /// <summary>См. <see cref="Undo"/> (ADR-014).</summary>
+        Redo
     }
 }

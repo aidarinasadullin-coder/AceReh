@@ -471,8 +471,46 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 Result = null;
             }
 
+            // ADR-014: откат/возврат теплового состояния восстанавливает
+            // адаптерные привязки полным снимком (входы + результат; статус
+            // транслируется через CalculationStateService сами собой).
+            if (mutation.Origin is ThermalMutationOrigin.Undo or ThermalMutationOrigin.Redo)
+            {
+                ApplyStateSnapshotToAdapter(mutation.After);
+            }
+
             OnPropertyChanged(nameof(RecalcMessage));
             OnPropertyChanged(nameof(NeedsRecalculation));
+        }
+
+        /// <summary>
+        /// Зеркалирование полного канонического снимка теплового состояния в
+        /// адаптерные привязки (ADR-014, откат/возврат действия). Вызывающий
+        /// владеет канонической мутацией; присвоения идут под guards
+        /// (<c>_isResetting</c> + guard загрузки) и мутаций не создают.
+        /// </summary>
+        public void ApplyStateSnapshotToAdapter(ThermalStateSnapshot snapshot)
+        {
+            ArgumentNullException.ThrowIfNull(snapshot);
+
+            _isResetting = true;
+            try
+            {
+                SelectedMode = snapshot.Inputs.Mode;
+                SupplyTemperature = snapshot.Inputs.SupplyTemperature;
+                GroundTemperature = snapshot.Inputs.GroundTemperature;
+                SelectedPipe = ThermalPersistenceMapper.ResolveStandardPipe(
+                    snapshot.Inputs.Pipe,
+                    AvailablePipes);
+                PipeSpacing = snapshot.Inputs.PipeSpacing;
+                Result = snapshot.Result is null
+                    ? null
+                    : ThermalPersistenceMapper.ToDomainResult(snapshot.Result);
+            }
+            finally
+            {
+                _isResetting = false;
+            }
         }
 
         /// <summary>

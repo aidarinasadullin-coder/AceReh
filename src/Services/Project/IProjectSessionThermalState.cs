@@ -76,6 +76,20 @@ namespace SnowMeltingCalculator.Services.Project
         ThermalMutationResult Restore(ThermalInputsSnapshot inputs, ThermalResultSnapshot? savedResult);
 
         /// <summary>
+        /// Каноническое восстановление полного среза при отмене/возврате действия
+        /// (ADR-014): атомарно inputs+result+статус ИЗ снимка — статус может быть
+        /// <see cref="ThermalCalculationPhase.NeedsRecalculation"/> с сообщением
+        /// (не нормализуется к <see cref="ThermalStatusSnapshot.Default"/>, в отличие
+        /// от <see cref="Restore"/>). Предназначено только для origins
+        /// <see cref="ThermalMutationOrigin.Undo"/>/<see cref="ThermalMutationOrigin.Redo"/>.
+        /// </summary>
+        /// <param name="snapshot">Полный снимок «до»/«после» из дневника отмены.</param>
+        /// <param name="origin">Источник мутации (<see cref="ThermalMutationOrigin.Undo"/>
+        /// или <see cref="ThermalMutationOrigin.Redo"/>).</param>
+        /// <returns>Результат мутации.</returns>
+        ThermalMutationResult RestoreState(ThermalStateSnapshot snapshot, ThermalMutationOrigin origin);
+
+        /// <summary>
         /// Инвалидация от климата: результат очищается и статус переходит в
         /// NeedsRecalculation ровно один раз ТОЛЬКО если результат существовал;
         /// иначе — нулевой эффект (замороженное поведение DEC-T04).

@@ -299,6 +299,61 @@ namespace SnowMeltingCalculator.Tests.Services.Project
 
         #endregion
 
+        #region Undo/Redo — journal applications are lifecycle-like boundaries (ADR-014)
+
+        [Test]
+        public async Task Undo_CitySelection_AppliesCanonicalSnapshotsWithLifecycleSemantics()
+        {
+            await _graph.ResultsVm.LoadProjectDataAsync(
+                ReactiveSubscriptionLifecycleTests.ReactiveGraph.CreateThermalProjectData(
+                    OperatingMode.Melting, 55.0, 8.0, 200));
+            var climateBefore = _graph.Session.ClimateState.Snapshot;
+            var thermalBefore = _graph.Session.ThermalState.Snapshot;
+
+            var city = new CityInfo
+            {
+                Name = "Граница",
+                Region = "Тест",
+                T5Days092 = -30.0,
+                WindAvgTempLe8 = 4.0,
+                Humidity15hCold = 75.0,
+                Period_0_Days = 220
+            };
+            _graph.Session.ClimateState.ApplyCitySelection(city, isHighRequirements: false, ClimateMutationOrigin.User);
+            Assert.That(_graph.Session.IsDirty, Is.True, "Sanity: the user edit dirtied the project.");
+            _graph.UndoRedo.FlushPendingForTests();
+
+            var dirtyBefore = _graph.Counters.DirtyRaised;
+            var dirtyRaisedDuringUndo = 0;
+            _graph.Session.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(SnowMeltingCalculator.Services.Project.IProjectSession.IsDirty)
+                    && _graph.Session.IsDirty)
+                {
+                    dirtyRaisedDuringUndo++;
+                }
+            };
+
+            // Слайсовые события отката происходят под guard BeginProjectRestore
+            // (пин origin Undo — в UndoRedoSnapshotRoundTripTests); здесь
+            // фиксируется lifecycle-подобность: ноль пользовательского dirty
+            // за пределами guard и полное восстановление канона.
+            _graph.UndoRedo.Undo();
+
+            Assert.That(dirtyRaisedDuringUndo, Is.Zero,
+                "Undo origins are lifecycle-like: zero user dirty (ADR-014).");
+            Assert.That(_graph.Counters.DirtyRaised, Is.EqualTo(dirtyBefore));
+            Assert.Multiple(() =>
+            {
+                Assert.That(_graph.Session.ClimateState.Snapshot, Is.EqualTo(climateBefore),
+                    "The undo restored the climate snapshot.");
+                Assert.That(_graph.Session.ThermalState.Snapshot, Is.EqualTo(thermalBefore),
+                    "The undo restored the thermal snapshot (result included).");
+            });
+        }
+
+        #endregion
+
         #region Plumbing
 
         private static void ResetAppSettingsSingleton()

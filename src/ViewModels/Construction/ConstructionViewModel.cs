@@ -1254,10 +1254,17 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         /// <summary>
         /// Обработчик изменений состояния конструкции
         /// </summary>
-        private void OnConstructionStateChanged(object? sender, EventArgs e)
+        private void OnConstructionStateChanged(object? sender, ConstructionStateChangedEventArgs e)
         {
             // User edits already originate in this adapter; lifecycle snapshots
             // refresh it explicitly through ApplyLifecycleSnapshotToAdapter.
+            // ADR-014: откат/возврат действия — тот же lifecycle-путь: канонический
+            // снимок применяется поверх адаптерных коллекций (под guard загрузки
+            // присвоения пользовательских мутаций не создают).
+            if (e.Origin is ConstructionMutationOrigin.Undo or ConstructionMutationOrigin.Redo)
+            {
+                ApplyLifecycleSnapshotToAdapter(e.After);
+            }
         }
 
         /// <summary>

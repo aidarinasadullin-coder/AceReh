@@ -84,15 +84,20 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             // the hydraulics stepper status, which reads the canonical snapshot
             // directly (user edits invalidate results in canon without notifying
             // any CircuitsViewModel property).
+            // Third amendment (2026-09-08, ADR-014 undo/redo): the four
+            // slice-`Changed` rows gain one more handler each — the
+            // UndoRedoService memento journal listens on all four slices
+            // (2/2/2/4 → 3/3/3/5). No IProjectSession.PropertyChanged
+            // subscription exists (project card is out of scope in v1).
             var expected = new (object publisher, string field, int census, int probes, string because)[]
             {
                 (_graph.Context, nameof(CalculationContext.ContextChanged), 1, 1, "RE-P5-HYD-001: the hydraulics coordinator holds the only production ContextChanged subscription"),
                 (_graph.CalcState, nameof(ICalculationStateService.StateChanged), 3, 1, "MainViewModel + ThermalViewModel + HydraulicsStateCoordinator(no-op)"),
                 (_graph.CalcState, nameof(ICalculationStateService.PipeSpacingChanged), 3, 1, "HydraulicsStateCoordinator + ThermalViewModel + ConstructionViewModel"),
-                (_graph.Session.ClimateState, "Changed", 2, 1, "ClimateViewModel adapter mirror + ResultsViewModel readiness"),
-                (_graph.Session.ConstructionState, "Changed", 2, 1, "ConstructionViewModel adapter + ResultsViewModel readiness"),
-                (_graph.Session.ThermalState, "Changed", 2, 1, "CalculationStateService legacy translation + ResultsViewModel readiness"),
-                (_graph.Session.HydraulicsState, "Changed", 4, 1, "CalculationStateService translation + CircuitsViewModel ProjectLoad mirror + ResultsViewModel readiness + MainViewModel stepper refresh (ADR-012)"),
+                (_graph.Session.ClimateState, "Changed", 3, 1, "ClimateViewModel adapter mirror + ResultsViewModel readiness + UndoRedoService journal (ADR-014)"),
+                (_graph.Session.ConstructionState, "Changed", 3, 1, "ConstructionViewModel adapter + ResultsViewModel readiness + UndoRedoService journal (ADR-014)"),
+                (_graph.Session.ThermalState, "Changed", 3, 1, "CalculationStateService legacy translation + ResultsViewModel readiness + UndoRedoService journal (ADR-014)"),
+                (_graph.Session.HydraulicsState, "Changed", 5, 1, "CalculationStateService translation + CircuitsViewModel ProjectLoad mirror + ResultsViewModel readiness + MainViewModel stepper refresh (ADR-012) + UndoRedoService journal (ADR-014)"),
                 (_graph.Session, nameof(INotifyPropertyChanged.PropertyChanged), 1, 1, "MainViewModel window-title watcher"),
                 (_graph.Coordinator, nameof(ThermalStateCoordinator.Completion), 1, 1, "ThermalViewModel adapter"),
                 (_graph.Coordinator, nameof(ThermalStateCoordinator.UpstreamObserved), 1, 1, "ThermalViewModel refresh signal"),
@@ -411,6 +416,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             public ResultsViewModel ResultsVm { get; private set; } = null!;
             public MainViewModel MainVm { get; private set; } = null!;
             public ProjectLoadOrchestrator Orchestrator { get; private set; } = null!;
+            public SnowMeltingCalculator.Services.History.UndoRedoService UndoRedo { get; private set; } = null!;
             public Mock<IThermalCalculator> ThermalCalculator { get; private set; } = null!;
             public Mock<IProjectFileService> FileServiceMock { get; private set; } = null!;
             public ReactiveCounters Counters { get; private set; } = null!;
@@ -554,6 +560,10 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                     session,
                     initializer);
 
+                // ADR-014: production-shaped composition includes the undo/redo
+                // journal (singleton; no dispatcher — groups close lazily in tests).
+                var undoRedo = new SnowMeltingCalculator.Services.History.UndoRedoService(session, coordinator, calcState);
+
                 var fileServiceMock = new Mock<IProjectFileService>();
                 var resultsVm = new ResultsViewModel(
                     session,
@@ -569,7 +579,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                         calcState,
                         constructionVm,
                         circuitsVm),
-                    new HydraulicSummaryBuilder());
+                    new HydraulicSummaryBuilder(),
+                    undoRedoService: undoRedo);
 
                 var mainVm = new MainViewModel(
                     climateVm,
@@ -582,7 +593,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                     new Mock<IDialogService>().Object,
                     context,
                     session,
-                    initializer);
+                    initializer,
+                    undoRedo);
 
                 var graph = new ReactiveGraph
                 {
@@ -599,6 +611,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                     ResultsVm = resultsVm,
                     MainVm = mainVm,
                     Orchestrator = orchestrator,
+                    UndoRedo = undoRedo,
                     ThermalCalculator = thermalCalculator,
                     FileServiceMock = fileServiceMock,
                     Counters = counters
@@ -749,7 +762,11 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 };
             }
 
-            public void Dispose() => Coordinator.Dispose();
+            public void Dispose()
+            {
+                Coordinator.Dispose();
+                UndoRedo.Dispose();
+            }
         }
 
         #endregion

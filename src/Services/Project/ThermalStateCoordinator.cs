@@ -241,6 +241,58 @@ namespace SnowMeltingCalculator.Services.Project
         }
 
         /// <inheritdoc />
+        public void RestoreState(ThermalStateSnapshot snapshot, ThermalMutationOrigin origin)
+        {
+            if (origin is not (ThermalMutationOrigin.Undo or ThermalMutationOrigin.Redo))
+            {
+                throw new ArgumentOutOfRangeException(nameof(origin), origin, "RestoreState accepts only Undo/Redo origins.");
+            }
+
+            if (snapshot is null)
+            {
+                throw new ArgumentNullException(nameof(snapshot));
+            }
+
+            // Откат тепла (ADR-014): канонический RestoreState со статусом ИЗ
+            // снимка; публикации в замороженном порядке LoadResult — сначала
+            // входы, затем результат (без DataChanged-проекций). Синхронный
+            // каскад гидравлики (UpdateThermal при валидном результате →
+            // CalculateAll) выполняется внутри этих публикаций; обвязка
+            // UndoRedoService перезаписывает гидравлический снимок следом
+            // (повторная Hydraulics.Restore, план §3).
+            var mutation = _state.RestoreState(snapshot, origin);
+            Publish(mutation);
+
+            // NoChange/Rejected (снимок из дневника равен текущему состоянию):
+            // контекст не пере-публикуется — «отказ → ноль эффектов» (ревью P2-5).
+            if (!mutation.IsChanged)
+            {
+                return;
+            }
+
+            var inputs = new ThermalInputs
+            {
+                Mode = snapshot.Inputs.Mode,
+                SupplyTemperature = snapshot.Inputs.SupplyTemperature,
+                GroundTemperature = snapshot.Inputs.GroundTemperature,
+
+                // Доменная модель требует непустую трубу; снимок без трубы
+                // (дефолтное состояние, результата тоже нет) публикует пустой
+                // экземпляр — контекстные входы в этом состоянии ни на что
+                // не влияют (каскад будит только ThermalResult).
+                Pipe = snapshot.Inputs.Pipe?.ToPipeType() ?? new PipeType(),
+                PipeSpacing = snapshot.Inputs.PipeSpacing,
+                LambdaE = _constructionData.LambdaE
+            };
+
+            _calculationContext.UpdateThermalInputs(inputs, "Thermal");
+            if (snapshot.Result is { } result)
+            {
+                _calculationContext.UpdateThermal(ThermalPersistenceMapper.ToDomainResult(result), "Thermal");
+            }
+        }
+
+        /// <inheritdoc />
         public void Dispose()
         {
             if (_disposed)

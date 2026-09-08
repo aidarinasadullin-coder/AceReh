@@ -8,6 +8,13 @@ namespace SnowMeltingCalculator.Services.Project
         ProjectLoad,
         Calculation,
         Initialization,
-        SystemApply
+        SystemApply,
+
+        /// <summary>Undo/Redo-восстановление снимка дневника отмены (ADR-014):
+        /// dirty не создаёт.</summary>
+        Undo,
+
+        /// <summary>См. <see cref="Undo"/> (ADR-014).</summary>
+        Redo
     }
 }
