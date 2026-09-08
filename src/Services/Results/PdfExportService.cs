@@ -2,60 +2,41 @@ using System.IO;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
-using PdfSharp.Fonts;
 using SnowMeltingCalculator.Core;
+using SnowMeltingCalculator.Services.Reports.Calculation;
 
 namespace SnowMeltingCalculator.Services.Results
 {
     /// <summary>
-    /// Сервис экспорта результатов расчёта в PDF с корпоративным дизайном REHAU.
-    /// Рендер — MigraDoc/PDFsharp 6.2 (MIT); блоки отчёта соответствуют
-    /// прежнему QuestPDF-рендеру, заголовки гидравлической таблицы — по
-    /// глоссарию Ф3 (docs/design/glossary-hydraulics.md), числа — по канону
-    /// ru-RU (десятичная запятая, пробел-тысячи).
+    /// Экспорт результатов расчёта в PDF — дизайн «Корешок + плитки»
+    /// (план 2026-09-09, приёмка владельца 2026-09-09).
+    /// Композиция — пирамида «Ответ → Спека → Обоснование»: каждое число
+    /// встречается ровно один раз; красный — внимание/действие, зелёный —
+    /// подтверждение. Корешок — фирменный градиент «Активный красный»
+    /// (брендбук стр. 16), типографика: белый на насыщенном верху, тёмный
+    /// на светлой нижней зоне. Рендер — MigraDoc/PDFsharp 6.2 (MIT),
+    /// шрифт Inter через общий с ПЗ bootstrapper; числа — канон ru-RU
+    /// (десятичная запятая, пробел-тысячи).
     /// </summary>
     public class PdfExportService : IPdfExportService
     {
-        // REHAU Corporate Colors
+        // Палитра брендбука REHAU 2026
         private const string RehauRed = "#E50040";
         private const string RehauTeal = "#4FC7B5";
-        private const string RehauBlack = "#1D1D1B";
-        private const string RehauWhite = "#FFFFFF";
-        private const string Gray50 = "#FAFAFA";
-        private const string Gray100 = "#F5F5F5";
-        private const string Gray300 = "#E0E0E0";
-        private const string Gray600 = "#757575";
-        private const string Gray900 = "#212121";
+        private const string Ink = "#1D1D1B";
+        private const string Gray1 = "#4E4E4E";
+        private const string Gray2 = "#818181";
+        private const string Gray3 = "#B0B0B0";
+        private const string Gray4 = "#D9D9D9";
+        private const string White = "#FFFFFF";
 
-        private const string FontName = "Arial";
+        private const double PageWidth = 842;
+        private const double PageHeight = 595;
+        private const double SpineWidth = 120;      // ширина корешка
+        private const double ContentX = 180;        // отступ контентной зоны
+        private const double ContentWidth = PageWidth - ContentX - 48;
 
-        /// <summary>Ширина контентной области, pt: A4 landscape 842 − поля 60.</summary>
-        private const double ContentWidthPoints = 842 - 60;
-
-        // Ширины колонок таблицы контуров приложения, pt (как в прежнем отчёте)
-        private static readonly double[] CircuitColumnWidths =
-        {
-            25, 55, 55, 55, 65, 55, 65, 55, 60, 75, 55
-        };
-
-        // Путь к логотипу REHAU
-        private readonly string _logoPath;
-
-        static PdfExportService()
-        {
-            // Ревью Ф8 (P0): в Core-сборке PDFsharp 6.2 нет рабочего резолвера
-            // шрифтов «из коробки» — флаг читает системные шрифты Windows
-            // (Arial содержит кириллицу, эмбеддинг подмножеством штатный).
-            // Устанавливается один раз за процесс, до первого рендера.
-            GlobalFontSettings.UseWindowsFontsUnderWindows = true;
-        }
-
-        public PdfExportService()
-        {
-            // Путь к логотипу относительно рабочей директории
-            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            _logoPath = Path.Combine(baseDir, "Resources", "Images", "rehau_logo.png");
-        }
+        private string _fontName = "Arial";
 
         public Task<bool> ExportResultsToPdfAsync(
             string filePath,
@@ -102,643 +83,799 @@ namespace SnowMeltingCalculator.Services.Results
 
         private Document CreateDocument(ResultsPdfData data)
         {
+            // Шрифты инициализируются до любой шрифтовой операции: если
+            // Результаты рендерятся раньше ПЗ-записки, Inter-резолвер всё
+            // равно успевает встать (PDFsharp запрещает смену резолвера
+            // после первой шрифтовой операции — ревью плана 2026-09-09, P1).
+            CalculationReportPdfFontBootstrapper.EnsureInitialized();
+            _fontName = CalculationReportPdfFontBootstrapper.InterAvailable
+                ? CalculationReportInterFontResolver.FamilyName
+                : "Arial";
+            _staticFontName = _fontName;
+
             var document = new Document();
-
             var pageSetup = document.DefaultPageSetup.Clone();
-            // A4 landscape задаётся явными размерами: связка PageFormat+
-            // Orientation в PDFsharp 6.2 после Clone() не даёт альбомной
-            // страницы (подводный камень из ревью Ф8, проверено рендером).
-            pageSetup.PageWidth = Unit.FromPoint(842);
-            pageSetup.PageHeight = Unit.FromPoint(595);
-            pageSetup.LeftMargin = Unit.FromPoint(30);
-            pageSetup.RightMargin = Unit.FromPoint(30);
-            // Полосы шапки/подвала живут в полях страницы: 30pt отступ + полоса
-            pageSetup.TopMargin = Unit.FromPoint(92);
-            pageSetup.HeaderDistance = Unit.FromPoint(30);
-            pageSetup.BottomMargin = Unit.FromPoint(62);
-            pageSetup.FooterDistance = Unit.FromPoint(30);
+            // Явные размеры A4 landscape: связка PageFormat+Orientation после
+            // Clone() не даёт альбомной страницы (подводный камень из ревью Ф8).
+            pageSetup.PageWidth = Unit.FromPoint(PageWidth);
+            pageSetup.PageHeight = Unit.FromPoint(PageHeight);
+            // Нулевые поля: подложка корешка — картинка во всю страницу в
+            // Primary-хедере; сетку контента держат таблицы-обёртки.
+            pageSetup.LeftMargin = Unit.FromPoint(0);
+            pageSetup.RightMargin = Unit.FromPoint(0);
+            pageSetup.TopMargin = Unit.FromPoint(0);
+            pageSetup.BottomMargin = Unit.FromPoint(44);
+            pageSetup.HeaderDistance = Unit.FromPoint(0);
+            pageSetup.FooterDistance = Unit.FromPoint(16);
 
-            var section = document.AddSection();
-            section.PageSetup = pageSetup;
+            // Секция 1 — «Ответ + Спека» (подложка с активными ОТВЕТ/СПЕКА).
+            var section1 = document.AddSection();
+            section1.PageSetup = pageSetup;
+            SetPageBackground(section1, SpinePage.Page1);
+            var body1 = AddContentBlock(section1);
+            BuildPageOne(body1, data);
+            BuildFooter(section1);
 
-            BuildPageHeader(section.Headers.Primary, data);
-            BuildFooter(section.Footers.Primary);
-            BuildDashboardPage(section, data);
-            BuildHydraulicAppendixPage(section, data);
+            // Секция 2+ — «Обоснование и наладка»; Primary-хедер повторяет
+            // подложку на всех продолжениях при переносе таблиц контуров.
+            var section2 = document.AddSection();
+            section2.PageSetup = pageSetup.Clone();
+            SetPageBackground(section2, SpinePage.Page2Plus);
+            var body2 = AddContentBlock(section2);
+            BuildPageTwo(body2, data);
+            BuildFooter(section2);
 
             return document;
         }
 
-        private void BuildDashboardPage(Section section, ResultsPdfData data)
+        #region Каркас страницы
+
+        private void SetPageBackground(Section section, SpinePage page)
         {
-            AddSpacer(section, 2);
-            BuildProjectInfoSection(section, data);
-            AddSpacer(section, 6);
-            BuildKpiSection(section, data);
-            AddSpacer(section, 6);
+            var spineBytes = TryLoadSpineBytes(
+                page == SpinePage.Page1 ? "rehau_spine_page1.png" : "rehau_spine_page2.png");
+            if (spineBytes == null)
+            {
+                return;
+            }
 
-            // Гидравлическая сводка (2/3) + Оборудование (1/3), зазор 10pt
-            var summaryWidth = ContentWidthPoints * 2 / 3 - 5;
-            var equipmentWidth = ContentWidthPoints / 3 - 5;
-            var row2 = section.AddTable();
-            row2.AddColumn(Unit.FromPoint(summaryWidth));
-            row2.AddColumn(Unit.FromPoint(10));
-            row2.AddColumn(Unit.FromPoint(equipmentWidth));
-            var row2Row = row2.AddRow();
-            BuildHydraulicSummarySection(row2Row.Cells[0], summaryWidth, data);
-            BuildEquipmentSection(row2Row.Cells[2], equipmentWidth, data);
-            AddSpacer(section, 6);
-
-            // Конструкция (3/5) + Исходные данные (2/5)
-            var constructionWidth = ContentWidthPoints * 3 / 5 - 6;
-            var climateWidth = ContentWidthPoints * 2 / 5 - 4;
-            var row3 = section.AddTable();
-            row3.AddColumn(Unit.FromPoint(constructionWidth));
-            row3.AddColumn(Unit.FromPoint(10));
-            row3.AddColumn(Unit.FromPoint(climateWidth));
-            var row3Row = row3.AddRow();
-            BuildConstructionSection(row3Row.Cells[0], constructionWidth, data);
-            BuildClimateSection(row3Row.Cells[2], climateWidth, data);
+            var header = section.Headers.Primary;
+            var bgTable = header.AddTable();
+            bgTable.AddColumn(Unit.FromPoint(PageWidth));
+            var bgCell = bgTable.AddRow().Cells[0];
+            SetZeroPadding(bgCell);
+            var img = bgCell.AddParagraph()
+                .AddImage("base64:" + Convert.ToBase64String(spineBytes));
+            img.Width = Unit.FromPoint(PageWidth);
+            img.Height = Unit.FromPoint(PageHeight);
         }
 
-        private void BuildHydraulicAppendixPage(Section section, ResultsPdfData data)
+        private Cell AddContentBlock(Section section)
         {
-            section.AddPageBreak();
-            AddSpacer(section, 2);
-            // Оба заголовка стр. 2 — как в прежнем отчёте (ревью Ф8: поблочное
-            // соответствие; выправление дубли — отдельное решение владельца).
-            AddSectionText(section, "Приложение: подробный гидравлический расчёт", 12, bold: true, colorHex: RehauBlack);
-            AddSectionText(section, "ГИДРАВЛИЧЕСКИЙ РАСЧЁТ", 12, bold: true, colorHex: RehauBlack);
-
-            foreach (var collector in data.Collectors)
-            {
-                AddSpacer(section, 5);
-                BuildCollectorTable(section, collector);
-            }
+            var wrap = section.AddTable();
+            wrap.AddColumn(Unit.FromPoint(ContentX));
+            wrap.AddColumn(Unit.FromPoint(ContentWidth));
+            var row = wrap.AddRow();
+            var content = row.Cells[1];
+            SetZeroPadding(content);
+            return content;
         }
 
-        #region Page Header
-
-        private void BuildPageHeader(HeaderFooter header, ResultsPdfData data)
+        private void BuildFooter(Section section)
         {
-            var table = header.AddTable();
-            table.AddColumn(Unit.FromPoint(200));
-            table.AddColumn(Unit.FromPoint(ContentWidthPoints - 260));
-            table.AddColumn(Unit.FromPoint(60));
-            var row = table.AddRow();
-            row.Height = Unit.FromPoint(60);
-            row.VerticalAlignment = VerticalAlignment.Center;
+            var footer = section.Footers.Primary;
+            var t = footer.AddTable();
+            t.AddColumn(Unit.FromPoint(ContentX));
+            t.AddColumn(Unit.FromPoint(ContentWidth));
+            var row = t.AddRow();
+            SetZeroPadding(row.Cells[0]);
+            SetZeroPadding(row.Cells[1]);
 
-            // Логотип слева (если не деплоен — текстовый lockup, как раньше)
-            var logoCell = row.Cells[0];
-            logoCell.Shading.Color = Color.Parse(RehauRed);
-            logoCell.Borders.DistanceFromLeft = Unit.FromPoint(15);
-            if (File.Exists(_logoPath))
-            {
-                var image = logoCell.AddParagraph().AddImage(_logoPath);
-                image.LockAspectRatio = true;
-                // Аналог FitHeight старого рендера: логотип на всю высоту полосы 60pt
-                image.Height = Unit.FromPoint(60);
-            }
-            else
-            {
-                AddCellText(logoCell, "РЕХАУ", 18, bold: true, colorHex: RehauWhite);
-            }
+            var left = row.Cells[1].AddParagraph();
+            left.Format.Font.Name = _fontName;
+            left.Format.Font.Size = 7;
+            left.Format.Font.Color = Color.Parse(Gray2);
+            left.AddFormattedText("© РЕХАУ", TextFormat.Bold);
+            left.AddText(" · Калькулятор снеготаяния · Результаты носят рекомендательный характер");
 
-            // Центр - название
-            var titleCell = row.Cells[1];
-            titleCell.Shading.Color = Color.Parse(RehauRed);
-            AddCellText(titleCell, "Калькулятор снеготаяния", 14, bold: true, colorHex: RehauWhite,
-                alignment: ParagraphAlignment.Center);
-
-            // Справа - номер страницы
-            var pageCell = row.Cells[2];
-            pageCell.Shading.Color = Color.Parse(RehauRed);
-            pageCell.Borders.DistanceFromRight = Unit.FromPoint(15);
-            var pageParagraph = pageCell.AddParagraph();
-            pageParagraph.Format.Alignment = ParagraphAlignment.Right;
-            pageParagraph.Format.Font.Name = FontName;
-            pageParagraph.Format.Font.Size = 10;
-            pageParagraph.Format.Font.Color = Color.Parse(RehauWhite);
-            pageParagraph.AddPageField();
-            pageParagraph.AddText(" / ");
-            pageParagraph.AddNumPagesField();
+            var right = row.Cells[1].AddParagraph();
+            right.Format.Alignment = ParagraphAlignment.Right;
+            right.Format.Font.Name = _fontName;
+            right.Format.Font.Size = 7;
+            right.Format.Font.Color = Color.Parse(Gray2);
+            right.AddPageField();
+            right.AddText(" / ");
+            right.AddNumPagesField();
         }
 
         #endregion
 
-        #region Project Info Section
+        #region Страница 1 — Ответ + Спека
 
-        private void BuildProjectInfoSection(Section section, ResultsPdfData data)
+        private void BuildPageOne(Cell host, ResultsPdfData data)
         {
-            var table = section.AddTable();
-            table.AddColumn(Unit.FromPoint(ContentWidthPoints));
-            var cell = table.AddRow().Cells[0];
-            cell.Shading.Color = Color.Parse(Gray50);
-            SetPadding(cell, 8);
-            AddCellText(cell,
-                $"Проект: {data.ProjectNumber} | Объект: {data.ProjectObject} | Дата: {data.ReportDate.ToString("dd.MM.yyyy", AppCulture.Culture)}",
-                9, colorHex: Gray900);
-        }
+            var h1 = host.AddParagraph();
+            h1.Format.Font.Name = _fontName;
+            h1.Format.Font.Size = 23;
+            h1.Format.Font.Bold = true;
+            h1.Format.Font.Color = Color.Parse(Ink);
+            h1.Format.SpaceBefore = Unit.FromPoint(42);
+            h1.Format.SpaceAfter = Unit.FromPoint(0);
+            h1.AddText("Результаты расчёта");
 
-        #endregion
+            var info = host.AddParagraph();
+            info.Format.Font.Name = _fontName;
+            info.Format.Font.Size = 8.5;
+            info.Format.Font.Color = Color.Parse(Gray2);
+            info.Format.SpaceBefore = Unit.FromPoint(8);
+            info.Format.SpaceAfter = Unit.FromPoint(0);
+            InfoPair(info, "Проект", EmptyAsDash(data.ProjectNumber));
+            info.AddText("   ·   ");
+            InfoPair(info, "Объект", EmptyAsDash(data.ProjectObject));
+            info.AddText("   ·   ");
+            InfoPair(info, "Дата", data.ReportDate.ToString("dd.MM.yyyy", AppCulture.Culture));
 
-        #region KPI Section
+            // ─── ОТВЕТ: герой ───
+            AddGapInCell(host, 34);
+            var hero = host.Elements.AddTable();
+            hero.AddColumn(Unit.FromPoint(ContentWidth * 0.55));
+            hero.AddColumn(Unit.FromPoint(ContentWidth * 0.45));
+            var heroRow = hero.AddRow();
+            var heroLeft = heroRow.Cells[0];
+            SetZeroPadding(heroLeft);
+            var heroRight = heroRow.Cells[1];
+            SetZeroPadding(heroRight);
 
-        private void BuildKpiSection(Section section, ResultsPdfData data)
-        {
-            var card = AddCardCell(section, ContentWidthPoints, innerPadding: 6);
+            var qPara = heroLeft.AddParagraph();
+            qPara.Format.SpaceBefore = Unit.FromPoint(0);
+            qPara.Format.SpaceAfter = Unit.FromPoint(0);
+            var qNum = qPara.AddFormattedText(Num(data.TotalPowerDensity, "N1"));
+            qNum.Font.Name = _fontName;
+            qNum.Font.Size = 46;
+            qNum.Font.Bold = true;
+            qNum.Font.Color = Color.Parse(RehauRed);
+            var qUnit = qPara.AddFormattedText("  Вт/м²");
+            qUnit.Font.Name = _fontName;
+            qUnit.Font.Size = 15;
+            qUnit.Font.Bold = true;
+            qUnit.Font.Color = Color.Parse(Ink);
 
-            AddCellText(card, "КПИ ПОКАЗАТЕЛИ", 10, bold: true, colorHex: RehauBlack);
+            var qLabel = heroLeft.AddParagraph();
+            qLabel.Format.Font.Name = _fontName;
+            qLabel.Format.Font.Size = 8;
+            qLabel.Format.Font.Bold = true;
+            qLabel.Format.Font.Color = Color.Parse(Gray1);
+            qLabel.Format.SpaceBefore = Unit.FromPoint(6);
+            qLabel.AddText("Q СУММАРНАЯ — УДЕЛЬНАЯ МОЩНОСТЬ ПОКРЫТИЯ");
 
-            var kpiTable = card.Elements.AddTable();
-            var cardInnerWidth = ContentWidthPoints - 14; // минус паддинги и рамка карточки
-            var kpiWidth = (cardInnerWidth - 7 * 5) / 8;
-            for (var i = 0; i < 8; i++)
+            // Статус-строка: зелёный квадрат + подтверждение (зелёный = ок)
+            AddGapInCell(heroLeft, 12);
+            var status = heroLeft.Elements.AddTable();
+            status.AddColumn(Unit.FromPoint(7));
+            status.AddColumn(Unit.FromPoint(280));
+            var statusRow = status.AddRow();
+            statusRow.Height = Unit.FromPoint(7);
+            statusRow.HeightRule = RowHeightRule.Exactly;
+            var statusDot = statusRow.Cells[0];
+            statusDot.Shading.Color = Color.Parse(RehauTeal);
+            var statusPad = statusDot.AddParagraph();
+            statusPad.Format.Font.Size = 1;
+            var statusText = statusRow.Cells[1];
+            statusText.Borders.DistanceFromLeft = Unit.FromPoint(5);
+            statusText.VerticalAlignment = VerticalAlignment.Bottom;
+            var statusPara = statusText.AddParagraph();
+            statusPara.Format.Font.Name = _fontName;
+            statusPara.Format.Font.Size = 8;
+            statusPara.Format.Font.Bold = true;
+            statusPara.Format.Font.Color = Color.Parse(Ink);
+            statusPara.Format.SpaceAfter = Unit.FromPoint(0);
+            statusPara.AddText(
+                $"{OperatingModeText(data.OperatingMode)} · поверхность +{data.SurfaceTemperature} °C — расчёт подтверждён");
+
+            // Свита героя: тепловые величины
+            (string Label, string Value)[] suiteItems =
             {
-                kpiTable.AddColumn(Unit.FromPoint(kpiWidth));
-                if (i < 7)
+                ("q вверх", $"{Num(data.PowerUp, "N1")} Вт/м²"),
+                ("q вниз", $"{Num(data.PowerDown, "N1")} Вт/м²"),
+                ("R над трубой", $"{Num(data.R1, "N4")} м²·К/Вт"),
+                ("R под трубой", $"{Num(data.R2, "N4")} м²·К/Вт"),
+            };
+            var suite = heroRight.Elements.AddTable();
+            suite.AddColumn(Unit.FromPoint(ContentWidth * 0.45 * 0.42));
+            suite.AddColumn(Unit.FromPoint(ContentWidth * 0.45 * 0.58));
+            foreach (var item in suiteItems)
+            {
+                var suiteRow = suite.AddRow();
+                suiteRow.Borders.Bottom.Width = Unit.FromPoint(0.25);
+                suiteRow.Borders.Bottom.Color = Color.Parse(Gray4);
+                var suiteLabel = suiteRow.Cells[0].AddParagraph();
+                suiteLabel.Format.Font.Name = _fontName;
+                suiteLabel.Format.Font.Size = 7.5;
+                suiteLabel.Format.Font.Color = Color.Parse(Gray2);
+                suiteLabel.Format.SpaceBefore = Unit.FromPoint(5);
+                suiteLabel.Format.SpaceAfter = Unit.FromPoint(2);
+                suiteLabel.AddText(item.Label);
+                var suiteValue = suiteRow.Cells[1].AddParagraph();
+                suiteValue.Format.Alignment = ParagraphAlignment.Right;
+                suiteValue.Format.Font.Name = _fontName;
+                suiteValue.Format.Font.Size = 7.5;
+                suiteValue.Format.Font.Bold = true;
+                suiteValue.Format.Font.Color = Color.Parse(Ink);
+                suiteValue.Format.SpaceBefore = Unit.FromPoint(5);
+                suiteValue.Format.SpaceAfter = Unit.FromPoint(2);
+                suiteValue.AddText(item.Value);
+            }
+
+            // ─── ОТВЕТ: плитки теплотехники (цвета пиксель-иконки) ───
+            AddGapInCell(host, 34);
+            var tiles = host.Elements.AddTable();
+            var tileWidth = (ContentWidth - 3 * 8) / 4;
+            for (var i = 0; i < 4; i++)
+            {
+                tiles.AddColumn(Unit.FromPoint(tileWidth));
+                if (i < 3)
                 {
-                    kpiTable.AddColumn(Unit.FromPoint(5));
+                    tiles.AddColumn(Unit.FromPoint(8));
                 }
             }
 
-            var kpiRow = kpiTable.AddRow();
-            var kpis = new (string Value, string Label)[]
+            var tileRow = tiles.AddRow();
+            tileRow.Height = Unit.FromPoint(82);
+            tileRow.HeightRule = RowHeightRule.Exactly;
+            (string Value, string Label, string Fill, string Text)[] tileData =
             {
-                (Num(data.TotalThermalPower_kW, "N2"), "Мощность, кВт"),
-                (Num(data.SystemVolume_L, "N1"), "Объём, л"),
-                (Num(data.PumpFlowRate_m3h, "N2"), "Расход насоса, м³/ч"),
-                (Num(data.PumpHead_kPa, "N1"), "Напор, кПа"),
-                (Num(data.SupplyTemperature, "N1"), "Подача, °C"),
-                (Num(data.ReturnTemperature, "N1"), "Обратки, °C"),
-                (Num(data.OperatingTemperature, "N1"), "Рабочая, °C"),
-                (Num(data.ExpansionTankVolume_L, "N1"), "Бак, л")
+                ($"{Num(data.TotalThermalPower_kW, "N2")} кВт", "МОЩНОСТЬ СИСТЕМЫ", RehauRed, White),
+                // Белый на #4FC7B5 даёт контраст ~2.1:1 — на зелёной плитке текст тёмный
+                ($"{Num(data.PumpFlowRate_m3h, "N2")} м³/ч", "РАСХОД НАСОСА", RehauTeal, Ink),
+                ($"{Num(data.PumpHead_kPa, "N1")} кПа", "НАПОР НАСОСА", Gray1, White),
+                ($"{Num(data.SupplyTemperature, "N1")} → {Num(data.ReturnTemperature, "N1")}",
+                    "ПОДАЧА → ОБРАТКА, °C", Gray2, White),
             };
-
-            for (var i = 0; i < kpis.Length; i++)
+            for (var i = 0; i < 4; i++)
             {
-                BuildKpiCard(kpiRow.Cells[i * 2], kpiWidth, kpis[i].Value, kpis[i].Label);
+                var cell = tileRow.Cells[i * 2];
+                cell.Shading.Color = Color.Parse(tileData[i].Fill);
+                cell.VerticalAlignment = VerticalAlignment.Center;
+                cell.Borders.DistanceFromLeft = Unit.FromPoint(12);
+                cell.Borders.DistanceFromRight = Unit.FromPoint(6);
+                var value = cell.AddParagraph();
+                value.Format.Font.Name = _fontName;
+                value.Format.Font.Size = 17;
+                value.Format.Font.Bold = true;
+                value.Format.Font.Color = Color.Parse(tileData[i].Text);
+                value.Format.SpaceAfter = Unit.FromPoint(0);
+                value.AddText(tileData[i].Value);
+                var label = cell.AddParagraph();
+                label.Format.Font.Name = _fontName;
+                label.Format.Font.Size = 6.5;
+                label.Format.Font.Bold = true;
+                label.Format.Font.Color = Color.Parse(tileData[i].Text);
+                label.Format.SpaceBefore = Unit.FromPoint(2);
+                label.AddText(tileData[i].Label);
             }
+
+            // ─── СПЕКА ЗАКУПКИ ───
+            AddGapInCell(host, 38);
+            SectionTitle(host, ContentWidth, "Спека закупки и монтажа");
+
+            (string Label, string Value)[] spec =
+            {
+                ("Коллектор", BuildCollectorSpecLine(data)),
+                ("Труба", $"{data.PipeType} · шаг укладки {data.PipeSpacing} мм"),
+                ("Длина трассы", $"{Num(data.TotalPipeLength, "N1")} м"),
+                ("Насос циркуляционный",
+                    $"Q {Num(data.PumpFlowRate_m3h, "N2")} м³/ч · H {Num(data.PumpHead_kPa, "N1")} кПа"),
+                ("Расширительный бак", $"{Num(data.ExpansionTankVolume_L, "N1")} л"),
+                ("Теплоноситель",
+                    $"{data.GlycolTypeDisplayName} {Num(data.GlycolConcentration, "N0")} %"),
+            };
+            var specTable = host.Elements.AddTable();
+            specTable.AddColumn(Unit.FromPoint(ContentWidth * 0.34));
+            specTable.AddColumn(Unit.FromPoint(ContentWidth * 0.66));
+            foreach (var item in spec)
+            {
+                var specRow = specTable.AddRow();
+                specRow.Borders.Bottom.Width = Unit.FromPoint(0.25);
+                specRow.Borders.Bottom.Color = Color.Parse(Gray4);
+                var specLabel = specRow.Cells[0].AddParagraph();
+                specLabel.Format.Font.Name = _fontName;
+                specLabel.Format.Font.Size = 7.5;
+                specLabel.Format.Font.Color = Color.Parse(Gray2);
+                specLabel.Format.SpaceBefore = Unit.FromPoint(9);
+                specLabel.Format.SpaceAfter = Unit.FromPoint(2);
+                specLabel.AddText(item.Label.ToUpper(AppCulture.Culture));
+                var specValue = specRow.Cells[1].AddParagraph();
+                specValue.Format.Font.Name = _fontName;
+                specValue.Format.Font.Size = 11;
+                specValue.Format.Font.Bold = true;
+                specValue.Format.Font.Color = Color.Parse(Ink);
+                specValue.Format.SpaceBefore = Unit.FromPoint(6.5);
+                specValue.Format.SpaceAfter = Unit.FromPoint(2);
+                specValue.AddText(item.Value);
+            }
+
+            var note = host.Elements.AddParagraph();
+            note.Format.Font.Name = _fontName;
+            note.Format.Font.Size = 6.5;
+            note.Format.Font.Color = Color.Parse(Gray3);
+            note.Format.SpaceBefore = Unit.FromPoint(26);
+            note.AddText("Обоснование величин, конструкция и гидравлическая наладка контуров — на стр. 2.");
         }
 
-        private void BuildKpiCard(Cell container, double width, string value, string label)
+        /// <summary>Строка «Коллектор» в спеке: тип(ы), шт, суммарные контуры.</summary>
+        private static string BuildCollectorSpecLine(ResultsPdfData data)
         {
-            var table = container.Elements.AddTable();
-            table.AddColumn(Unit.FromPoint(width));
-            var cell = table.AddRow().Cells[0];
-            cell.Borders.Width = Unit.FromPoint(1);
-            cell.Borders.Color = Color.Parse(Gray300);
-            cell.Shading.Color = Color.Parse(RehauWhite);
-            SetPadding(cell, 5);
-            cell.VerticalAlignment = VerticalAlignment.Center;
+            var specs = data.CollectorSpecifications;
+            if (specs.Count == 0)
+            {
+                return "—";
+            }
 
-            AddCellText(cell, value, 12, bold: true, colorHex: RehauTeal, alignment: ParagraphAlignment.Center);
-            AddCellText(cell, label, 6, colorHex: Gray600, alignment: ParagraphAlignment.Center);
+            var unitCount = data.RzsCount > 0 ? data.RzsCount : specs.Count;
+            var circuitCount = specs.Sum(s => s.CircuitCount);
+            var types = string.Join(" · ", specs
+                .Select(s => s.Type)
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Distinct());
+
+            var circuitsSuffix = $" · {circuitCount} {PluralizeCircuits(circuitCount)}";
+            // Тип вида «HKV-D (2 контура)» уже несёт счётчик — не дублируем
+            var firstType = specs[0].Type;
+            var typeHasCounter = firstType.Contains("контур", StringComparison.OrdinalIgnoreCase);
+
+            return specs.Count == 1
+                ? typeHasCounter
+                    ? $"{firstType} — {unitCount} шт"
+                    : $"{firstType} — {unitCount} шт{circuitsSuffix}"
+                : $"{unitCount} шт · {types}{circuitsSuffix}";
+        }
+
+        private static string PluralizeCircuits(int count)
+        {
+            var mod100 = count % 100;
+            var mod10 = count % 10;
+            if (mod100 is >= 11 and <= 14 || mod10 == 0 || mod10 is >= 5 and <= 9)
+            {
+                return "контуров";
+            }
+
+            return mod10 == 1 ? "контур" : "контура";
         }
 
         #endregion
 
-        #region Climate Section
+        #region Страница 2 — Обоснование и наладка
 
-        private void BuildClimateSection(Cell container, double width, ResultsPdfData data)
+        private void BuildPageTwo(Cell host, ResultsPdfData data)
         {
-            StyleCard(container);
+            var h1 = host.AddParagraph();
+            h1.Format.Font.Name = _fontName;
+            h1.Format.Font.Size = 23;
+            h1.Format.Font.Bold = true;
+            h1.Format.Font.Color = Color.Parse(Ink);
+            h1.Format.SpaceBefore = Unit.FromPoint(42);
+            h1.Format.SpaceAfter = Unit.FromPoint(0);
+            h1.AddText("Обоснование и наладка");
 
-            AddCellText(container, "Исходные данные", 10, bold: true, colorHex: RehauBlack);
-            AddSubsection(container, width, "Климат", new[]
+            // ─── ОБОСНОВАНИЕ (притенённый справочный блок) ───
+            AddGapInCell(host, 30);
+            var obs = host.Elements.AddTable();
+            obs.AddColumn(Unit.FromPoint(ContentWidth * 0.48));
+            obs.AddColumn(Unit.FromPoint(ContentWidth * 0.04));
+            obs.AddColumn(Unit.FromPoint(ContentWidth * 0.48));
+            var obsRow = obs.AddRow();
+            var obsLeft = obsRow.Cells[0];
+            var obsRight = obsRow.Cells[2];
+            SetZeroPadding(obsLeft);
+            SetZeroPadding(obsRight);
+
+            AddReferenceCaption(obsLeft, "КЛИМАТ · РЕЖИМ · ТЕПЛОНОСИТЕЛЬ");
+            (string Label, string Value)[] climate =
             {
-                ("Город", data.City),
-                ("Расчётная t", $"{Num(data.DesignTemperature, "N1")} °C"),
-                ("Ветер", $"{Num(data.WindSpeed, "N1")} м/с"),
-                ("Снегопад", $"{Num(data.SnowfallIntensity, "N1")} мм/ч"),
-                ("Зона", data.ClimateZone.ToString()),
-                ("Холодный период", $"{data.ColdPeriodDays} дн.")
-            });
-            AddSubsection(container, width, "Труба и раскладка", new[]
+                ("Город", EmptyAsDash(data.City)),
+                ("Расчётная температура",
+                    $"{Num(data.DesignTemperature, "N1")} °C · ветер {Num(data.WindSpeed, "N1")} м/с"),
+                ("Снегопад / холодный период",
+                    $"{Num(data.SnowfallIntensity, "N1")} мм/ч · {data.ColdPeriodDays} дн. · {data.ClimateZone}"),
+                ("Режим", $"{OperatingModeText(data.OperatingMode)} · поверхность +{data.SurfaceTemperature} °C"),
+                ("Грунт / теплоноситель",
+                    $"+{Num(data.GroundTemperature, "N1")} °C · {data.GlycolTypeDisplayName} " +
+                    $"{Num(data.GlycolConcentration, "N0")} %"),
+            };
+            var climateTable = obsLeft.Elements.AddTable();
+            climateTable.AddColumn(Unit.FromPoint(ContentWidth * 0.48 * 0.52));
+            climateTable.AddColumn(Unit.FromPoint(ContentWidth * 0.48 * 0.48));
+            foreach (var item in climate)
             {
-                ("Тип трубы", data.PipeType),
-                ("Шаг укладки", $"{data.PipeSpacing} мм"),
-                ("Темп. грунта", $"{Num(data.GroundTemperature, "N1")} °C")
-            });
-            AddSubsection(container, width, "Режим работы", new[]
-            {
-                ("Режим", data.OperatingMode.ToString()),
-                ("Поверхность", $"{data.SurfaceTemperature} °C")
-            });
-            AddSubsection(container, width, "Теплоноситель", new[]
-            {
-                ("Тип", data.GlycolTypeDisplayName),
-                ("Концентрация", $"{Num(data.GlycolConcentration, "N0")} %")
-            });
-        }
-
-        private void AddSubsection(Cell container, double width, string title,
-            IReadOnlyList<(string Label, string Value)> rows)
-        {
-            AddSpacer(container, 3);
-            var outer = container.Elements.AddTable();
-            outer.AddColumn(Unit.FromPoint(width - 14));
-            var cell = outer.AddRow().Cells[0];
-            cell.Shading.Color = Color.Parse(Gray50);
-            SetPadding(cell, 4);
-            AddCellText(cell, title, 8, bold: true, colorHex: RehauBlack);
-
-            var inner = cell.Elements.AddTable();
-            inner.AddColumn(Unit.FromPoint((width - 14) * 0.55 - 8));
-            inner.AddColumn(Unit.FromPoint((width - 14) * 0.45 - 8));
-            foreach (var row in rows)
-            {
-                var innerRow = inner.AddRow();
-                AddCellText(innerRow.Cells[0], $"{row.Label}:", 7, bold: true, colorHex: Gray900);
-                AddCellText(innerRow.Cells[1], row.Value, 7, colorHex: Gray900, alignment: ParagraphAlignment.Right);
-            }
-        }
-
-        #endregion
-
-        #region Construction Section
-
-        private void BuildConstructionSection(Cell container, double width, ResultsPdfData data)
-        {
-            StyleCard(container);
-
-            AddCellText(container, "Конструкция", 10, bold: true, colorHex: RehauBlack);
-            AddSpacer(container, 3);
-
-            var imageWidth = 180.0;
-            var innerWidth = width - 14; // минус паддинги и рамка карточки
-            var columns = container.Elements.AddTable();
-            columns.AddColumn(Unit.FromPoint(innerWidth - imageWidth));
-            columns.AddColumn(Unit.FromPoint(imageWidth));
-            var row = columns.AddRow();
-
-            var leftCell = row.Cells[0];
-            var leftWidth = innerWidth - imageWidth;
-
-            var values = leftCell.Elements.AddTable();
-            values.AddColumn(Unit.FromPoint(leftWidth * 0.45));
-            values.AddColumn(Unit.FromPoint(leftWidth * 0.55));
-            AddKeyValue(values, "R1 над трубой:", $"{Num(data.R1, "N4")} м²·К/Вт", RehauBlack);
-            AddKeyValue(values, "R2 под трубой:", $"{Num(data.R2, "N4")} м²·К/Вт", RehauBlack);
-            AddKeyValue(values, "LambdaE:", $"{Num(data.LambdaE, "N3")} Вт/м·К", RehauBlack);
-            AddKeyValue(values, "q↑ вверх:", $"{Num(data.PowerUp, "N1")} Вт/м²", RehauRed);
-            AddKeyValue(values, "q↓ вниз:", $"{Num(data.PowerDown, "N1")} Вт/м²", RehauTeal);
-            AddKeyValue(values, "q суммарная:", $"{Num(data.TotalPowerDensity, "N1")} Вт/м²", RehauRed);
-
-            if (data.Layers.Count > 0)
-            {
-                AddSpacer(leftCell, 3);
-                AddCellText(leftCell, "Слои конструкции", 8, bold: true, colorHex: RehauBlack);
-
-                var layers = leftCell.Elements.AddTable();
-                layers.AddColumn(Unit.FromPoint(leftWidth * 3 / 6 - 2));
-                layers.AddColumn(Unit.FromPoint(leftWidth * 1 / 6));
-                layers.AddColumn(Unit.FromPoint(leftWidth * 1 / 6));
-                layers.AddColumn(Unit.FromPoint(leftWidth * 1 / 6));
-                var header = layers.AddRow();
-                header.HeadingFormat = true;
-                StyleHeaderCell(header.Cells[0], "Материал");
-                StyleHeaderCell(header.Cells[1], "Толщ.");
-                StyleHeaderCell(header.Cells[2], "λ");
-                StyleHeaderCell(header.Cells[3], "R");
-
-                foreach (var layer in data.Layers)
-                {
-                    var layerRow = layers.AddRow();
-                    AddCellText(layerRow.Cells[0], layer.MaterialName, 6, colorHex: Gray900);
-                    AddCellText(layerRow.Cells[1], Num(layer.Thickness, "N0"), 6, colorHex: Gray900,
-                        alignment: ParagraphAlignment.Right);
-                    AddCellText(layerRow.Cells[2], Num(layer.Lambda, "N3"), 6, colorHex: Gray900,
-                        alignment: ParagraphAlignment.Right);
-                    AddCellText(layerRow.Cells[3], Num(layer.R, "N4"), 6, colorHex: Gray900,
-                        alignment: ParagraphAlignment.Right);
-                    foreach (Cell cell in layerRow.Cells)
-                    {
-                        StyleDataCell(cell, RehauWhite);
-                    }
-                }
+                var climateRow = climateTable.AddRow();
+                var climateLabel = climateRow.Cells[0].AddParagraph();
+                climateLabel.Format.Font.Name = _fontName;
+                climateLabel.Format.Font.Size = 7.5;
+                climateLabel.Format.Font.Color = Color.Parse(Gray2);
+                climateLabel.Format.SpaceBefore = Unit.FromPoint(9);
+                climateLabel.Format.SpaceAfter = Unit.FromPoint(1.5);
+                climateLabel.AddText(item.Label);
+                var climateValue = climateRow.Cells[1].AddParagraph();
+                climateValue.Format.Alignment = ParagraphAlignment.Right;
+                climateValue.Format.Font.Name = _fontName;
+                climateValue.Format.Font.Size = 7.5;
+                climateValue.Format.Font.Color = Color.Parse(Gray1);
+                climateValue.Format.SpaceBefore = Unit.FromPoint(9);
+                climateValue.Format.SpaceAfter = Unit.FromPoint(1.5);
+                climateValue.AddText(item.Value);
             }
 
-            if (data.ConstructionImageBytes != null)
+            AddReferenceCaption(obsRight, "КОНСТРУКЦИЯ · СЛОИ СВЕРХУ ВНИЗ");
+            var layersTable = obsRight.Elements.AddTable();
+            layersTable.AddColumn(Unit.FromPoint(ContentWidth * 0.48 - 96));
+            layersTable.AddColumn(Unit.FromPoint(32));
+            layersTable.AddColumn(Unit.FromPoint(32));
+            layersTable.AddColumn(Unit.FromPoint(32));
+            var layersHeader = layersTable.AddRow();
+            layersHeader.Borders.Bottom.Width = Unit.FromPoint(0.5);
+            layersHeader.Borders.Bottom.Color = Color.Parse(Gray3);
+            LayerHead(layersHeader.Cells[0], "Слой", ParagraphAlignment.Left);
+            LayerHead(layersHeader.Cells[1], "мм", ParagraphAlignment.Right);
+            LayerHead(layersHeader.Cells[2], "λ", ParagraphAlignment.Right);
+            LayerHead(layersHeader.Cells[3], "R", ParagraphAlignment.Right);
+            foreach (var layer in data.Layers)
             {
-                var imageCell = row.Cells[1];
-                imageCell.VerticalAlignment = VerticalAlignment.Center;
-                // Ревью Ф8 (P0): ImageSource.FromBinary в официальном PDFsharp 6.x
-                // не существует — штатный путь MigraDoc: fileless base64-протокол.
-                var image = imageCell.AddParagraph()
-                    .AddImage("base64:" + Convert.ToBase64String(data.ConstructionImageBytes));
-                image.LockAspectRatio = true;
-                image.Width = Unit.FromPoint(imageWidth - 8);
+                var layerRow = layersTable.AddRow();
+                LayerCell(layerRow.Cells[0], layer.MaterialName, ParagraphAlignment.Left);
+                LayerCell(layerRow.Cells[1], Num(layer.Thickness, "N0"), ParagraphAlignment.Right);
+                LayerCell(layerRow.Cells[2], Num(layer.Lambda, "N3"), ParagraphAlignment.Right);
+                LayerCell(layerRow.Cells[3], Num(layer.R, "N4"), ParagraphAlignment.Right);
             }
-        }
 
-        #endregion
-
-        #region Hydraulics Section
-
-        private void BuildHydraulicSummarySection(Cell container, double width, ResultsPdfData data)
-        {
-            StyleCard(container);
-
-            AddCellText(container, "Гидравлический расчёт", 10, bold: true, colorHex: RehauBlack);
-
+            // ─── НАЛАДКА: проверка холодного пуска (по коллектору) ───
+            AddGapInCell(host, 44);
+            SectionTitle(host, ContentWidth, "Наладка · проверка холодного пуска");
             foreach (var collector in data.Collectors)
             {
-                BuildCollectorSummaryCard(container, width, collector);
+                if (data.Collectors.Count > 1)
+                {
+                    var collectorLabel = host.Elements.AddParagraph();
+                    collectorLabel.Format.Font.Name = _fontName;
+                    collectorLabel.Format.Font.Size = 8;
+                    collectorLabel.Format.Font.Bold = true;
+                    collectorLabel.Format.Font.Color = Color.Parse(Gray1);
+                    collectorLabel.Format.SpaceBefore = Unit.FromPoint(10);
+                    collectorLabel.Format.SpaceAfter = Unit.FromPoint(0);
+                    collectorLabel.AddText($"КОЛЛЕКТОР {collector.Number}");
+                }
+
+                var check = host.Elements.AddTable();
+                check.AddColumn(Unit.FromPoint(ContentWidth * 0.28));
+                check.AddColumn(Unit.FromPoint(ContentWidth * 0.06));
+                check.AddColumn(Unit.FromPoint(ContentWidth * 0.32));
+                check.AddColumn(Unit.FromPoint(ContentWidth * 0.34));
+                var checkRow = check.AddRow();
+                checkRow.Borders.Bottom.Width = Unit.FromPoint(0.25);
+                checkRow.Borders.Bottom.Color = Color.Parse(Gray4);
+
+                CheckValue(checkRow.Cells[0], Ink, $"{Num(collector.Summary.PressureLoss_Operating_kPa, "N2")} кПа",
+                    "РАБОЧИЙ РЕЖИМ");
+                var arrowCell = checkRow.Cells[1];
+                arrowCell.VerticalAlignment = VerticalAlignment.Center;
+                var arrow = arrowCell.AddParagraph();
+                arrow.Format.Font.Name = _fontName;
+                arrow.Format.Font.Size = 12;
+                arrow.Format.Font.Color = Color.Parse(Gray3);
+                arrow.Format.SpaceAfter = Unit.FromPoint(0);
+                arrow.AddText("→");
+                CheckValue(checkRow.Cells[2], RehauRed, $"{Num(collector.Summary.PressureLoss_Cold_kPa, "N2")} кПа",
+                    "ХОЛОДНЫЙ ПУСК (ОСТЫВШИЕ КОНТУРЫ)");
+
+                var actionCell = checkRow.Cells[3];
+                actionCell.VerticalAlignment = VerticalAlignment.Center;
+                var action = actionCell.AddParagraph();
+                action.Format.Font.Name = _fontName;
+                action.Format.Font.Size = 8;
+                action.Format.Font.Color = Color.Parse(Gray1);
+                action.Format.SpaceAfter = Unit.FromPoint(0);
+                var actionLabel = action.AddFormattedText("Действие: ", TextFormat.Bold);
+                actionLabel.Font.Color = Color.Parse(Ink);
+                action.AddText(BuildThrottlingAction(collector));
+            }
+
+            // ─── КОНТУРЫ: полная гидравлика по коллекторам ───
+            AddGapInCell(host, 44);
+            foreach (var collector in data.Collectors)
+            {
+                var head = host.AddParagraph();
+                head.Format.KeepWithNext = true;
+                head.Format.Font.Name = _fontName;
+                head.Format.Font.Size = 11.5;
+                head.Format.Font.Bold = true;
+                head.Format.Font.Color = Color.Parse(Ink);
+                head.Format.SpaceBefore = Unit.FromPoint(14);
+                head.Format.SpaceAfter = Unit.FromPoint(0);
+                var typeHasCounter = collector.Type.Contains("контур", StringComparison.OrdinalIgnoreCase);
+                head.AddText(typeHasCounter
+                    ? $"Коллектор {collector.Number} · {collector.Type}"
+                    : $"Коллектор {collector.Number} · {collector.Type} " +
+                      $"({collector.Summary.CircuitCount} {PluralizeCircuits(collector.Summary.CircuitCount)})");
+
+                AppendCircuitTable(host, collector);
             }
         }
 
-        private void BuildCollectorSummaryCard(Cell container, double width, CollectorPdfData collector)
+        /// <summary>Таблица контуров коллектора (11 колонок, дроссель > 0 — красным).</summary>
+        private void AppendCircuitTable(Cell host, CollectorPdfData collector)
         {
-            var summary = collector.Summary;
-            AddSpacer(container, 4);
-            var table = container.Elements.AddTable();
-            table.AddColumn(Unit.FromPoint(width - 14));
-            var cell = table.AddRow().Cells[0];
-            cell.Borders.Width = Unit.FromPoint(1);
-            cell.Borders.Color = Color.Parse(Gray300);
-            cell.Shading.Color = Color.Parse(Gray50);
-            SetPadding(cell, 5);
-
-            AddCellText(cell, $"Коллектор {collector.Number}: {collector.Type}", 8, bold: true, colorHex: RehauBlack);
-
-            var stats = cell.Elements.AddTable();
-            var statsWidth = width - 14 - 10 - 2;
-            stats.AddColumn(Unit.FromPoint(statsWidth / 2));
-            stats.AddColumn(Unit.FromPoint(statsWidth / 2));
-            var statsRow = stats.AddRow();
-            var left = statsRow.Cells[0];
-            var right = statsRow.Cells[1];
-
-            AddCellText(left, $"Контуров: {summary.CircuitCount}", 7, colorHex: Gray900);
-            AddCellText(left, $"Длина: {Num(summary.TotalPipeLength, "N1")} м", 7, colorHex: Gray900);
-            AddCellText(left, $"Мощность: {Num(summary.TotalPower / 1000, "N2")} кВт", 7, colorHex: Gray900);
-            AddCellText(left, $"Kv: {Num(summary.Kv, "N2")}", 7, colorHex: Gray900);
-
-            AddCellText(right, $"Расход: {Num(summary.TotalFlowRate / 1000, "N2")} м³/ч", 7, colorHex: Gray900);
-            AddCellText(right, $"ΔP рабочая: {Num(summary.PressureLoss_Operating_kPa, "N2")} кПа", 7, colorHex: Gray900);
-            AddCellText(right, $"ΔP холодная: {Num(summary.PressureLoss_Cold_kPa, "N2")} кПа", 7, colorHex: Gray900);
-            AddCellText(right, $"Тип: {summary.CollectorType}", 7, colorHex: Gray900);
-        }
-
-        private void BuildCollectorTable(Section section, CollectorPdfData collector)
-        {
-            // Внешняя рамка карточки коллектора
-            var card = AddCardCell(section, ContentWidthPoints, innerPadding: 0);
-
-            // Заголовок коллектора
-            var cardInnerWidth = ContentWidthPoints - 2;
-            var band = card.Elements.AddTable();
-            band.AddColumn(Unit.FromPoint(cardInnerWidth));
-            var bandCell = band.AddRow().Cells[0];
-            bandCell.Shading.Color = Color.Parse(RehauRed);
-            SetPadding(bandCell, 5);
-            AddCellText(bandCell, $"КОЛЛЕКТОР {collector.Number} ({collector.Type})", 10, bold: true, colorHex: RehauWhite);
-
-            // Таблица контуров - 11 столбцов (заголовки по глоссарию Ф3)
-            var table = card.Elements.AddTable();
-            foreach (var width in CircuitColumnWidths)
+            const double layoutWidth = 620;
+            var scale = ContentWidth / layoutWidth;
+            double[] widths = { 25, 55, 55, 55, 65, 55, 65, 55, 60, 75, 55 };
+            var table = host.Elements.AddTable();
+            foreach (var width in widths)
             {
-                table.AddColumn(Unit.FromPoint(width));
+                table.AddColumn(Unit.FromPoint(width * scale));
             }
-            var header = table.AddRow();
-            header.HeadingFormat = true;
-            var headers = new[]
+
+            string[] headers =
             {
-                "№", "Длина, м", "Расход, л/ч", "Скорость, м/с",
-                "R, Па/м", "Δp трубы, кПа", "Δp коллект., кПа", "Δp клап., кПа",
-                "Δp всего, кПа", "Дросс., кПа", "Обороты"
+                "№", "Длина, м", "Расход, л/ч", "Скорость, м/с", "R, Па/м", "Δp трубы, кПа",
+                "Δp коллект., кПа", "Δp клап., кПа", "Δp всего, кПа", "Дроссель, кПа", "Обороты",
             };
+            var headerRow = table.AddRow();
+            headerRow.HeadingFormat = true;
+            headerRow.Format.SpaceBefore = Unit.FromPoint(14);
             for (var i = 0; i < headers.Length; i++)
             {
-                StyleHeaderCell(header.Cells[i], headers[i], fontSize: 8);
+                var cell = headerRow.Cells[i];
+                cell.Borders.Top.Width = Unit.FromPoint(1.5);
+                cell.Borders.Top.Color = Color.Parse(RehauRed);
+                cell.Borders.Bottom.Width = Unit.FromPoint(0.75);
+                cell.Borders.Bottom.Color = Color.Parse(Ink);
+                cell.Borders.DistanceFromTop = Unit.FromPoint(4);
+                cell.Borders.DistanceFromBottom = Unit.FromPoint(3);
+                cell.Borders.DistanceFromLeft = Unit.FromPoint(3);
+                cell.VerticalAlignment = VerticalAlignment.Bottom;
+                var para = cell.AddParagraph();
+                if (i > 0)
+                {
+                    para.Format.Alignment = ParagraphAlignment.Right;
+                }
+
+                para.Format.Font.Name = _fontName;
+                para.Format.Font.Size = 7;
+                para.Format.Font.Bold = true;
+                para.Format.Font.Color = Color.Parse(Ink);
+                para.AddText(headers[i].ToUpper(AppCulture.Culture));
             }
 
-            // Данные контуров (зебра белый/Gray50)
-            var rowIndex = 0;
             foreach (var circuit in collector.Circuits)
             {
-                var background = rowIndex % 2 == 0 ? RehauWhite : Gray50;
-                var circuitRow = table.AddRow();
-                var cells = circuitRow.Cells;
-                AddCellText(cells[0], circuit.CircuitNumber.ToString(), 8, colorHex: Gray900);
-                AddCellText(cells[1], Num(circuit.Length, "N1"), 8, colorHex: Gray900);
-                AddCellText(cells[2], Num(circuit.FlowRate, "N1"), 8, colorHex: Gray900);
-                AddCellText(cells[3], Num(circuit.Velocity, "N2"), 8, colorHex: Gray900);
-                AddCellText(cells[4], Num(circuit.PressureLossPerMeter, "N1"), 8, colorHex: Gray900);
-                AddCellText(cells[5], Num(circuit.DpRohr, "N2"), 8, colorHex: Gray900);
-                AddCellText(cells[6], Num(circuit.DpVerteiler, "N2"), 8, colorHex: Gray900);
-                AddCellText(cells[7], Num(circuit.DpVent, "N2"), 8, colorHex: Gray900);
-                AddCellText(cells[8], Num(circuit.DpGesamt, "N2"), 8, colorHex: Gray900);
-                AddCellText(cells[9], Num(circuit.ZuDrosseln, "N2"), 8, colorHex: Gray900);
-                AddCellText(cells[10], Num(circuit.ValveTurns, "N1"), 8, colorHex: Gray900);
-                foreach (Cell cell in cells)
+                var row = table.AddRow();
+                string[] values =
                 {
-                    StyleDataCell(cell, background);
-                }
-
-                rowIndex++;
-            }
-
-            // Итоги по коллектору
-            AddSpacer(card, 1);
-            var totals = card.Elements.AddTable();
-            totals.AddColumn(Unit.FromPoint(cardInnerWidth));
-            var totalsCell = totals.AddRow().Cells[0];
-            totalsCell.Shading.Color = Color.Parse(Gray100);
-            SetPadding(totalsCell, 5);
-            AddCellText(totalsCell,
-                $"Итого: {collector.Summary.CircuitCount} контуров | " +
-                $"Длина {Num(collector.Summary.TotalPipeLength, "N1")} м | " +
-                $"Мощность {Num(collector.Summary.TotalPower / 1000, "N2")} кВт | " +
-                $"Расход {Num(collector.Summary.TotalFlowRate / 1000, "N2")} м³/ч | " +
-                $"Max ΔP раб. = {Num(collector.Summary.PressureLoss_Operating_kPa, "N2")} кПа | " +
-                $"Max ΔP хол. = {Num(collector.Summary.PressureLoss_Cold_kPa, "N2")} кПа",
-                8, colorHex: Gray900, alignment: ParagraphAlignment.Right);
-        }
-
-        #endregion
-
-        #region Equipment Section
-
-        private void BuildEquipmentSection(Cell container, double width, ResultsPdfData data)
-        {
-            StyleCard(container);
-
-            AddCellText(container, "ОБОРУДОВАНИЕ", 10, bold: true, colorHex: RehauBlack);
-            AddSpacer(container, 4);
-
-            var innerWidth = width - 14;
-            var table = container.Elements.AddTable();
-            table.AddColumn(Unit.FromPoint(24));
-            table.AddColumn(Unit.FromPoint(innerWidth - 24 - 34 - 42 - 42));
-            table.AddColumn(Unit.FromPoint(34));
-            table.AddColumn(Unit.FromPoint(42));
-            table.AddColumn(Unit.FromPoint(42));
-            var header = table.AddRow();
-            header.HeadingFormat = true;
-            StyleHeaderCell(header.Cells[0], "№");
-            StyleHeaderCell(header.Cells[1], "Тип");
-            StyleHeaderCell(header.Cells[2], "Конт.");
-            StyleHeaderCell(header.Cells[3], "кВт");
-            StyleHeaderCell(header.Cells[4], "м³/ч");
-
-            foreach (var spec in data.CollectorSpecifications)
-            {
-                var specRow = table.AddRow();
-                AddCellText(specRow.Cells[0], spec.Number.ToString(), 6, colorHex: Gray900);
-                AddCellText(specRow.Cells[1], spec.Type, 6, colorHex: Gray900);
-                AddCellText(specRow.Cells[2], spec.CircuitCount.ToString(), 6, colorHex: Gray900);
-                AddCellText(specRow.Cells[3], Num(spec.TotalPower_kW, "N2"), 6, colorHex: Gray900,
-                    alignment: ParagraphAlignment.Right);
-                AddCellText(specRow.Cells[4], Num(spec.TotalFlowRate_m3h, "N2"), 6, colorHex: Gray900,
-                    alignment: ParagraphAlignment.Right);
-                foreach (Cell cell in specRow.Cells)
+                    circuit.CircuitNumber.ToString(AppCulture.Culture),
+                    Num(circuit.Length, "N1"),
+                    Num(circuit.FlowRate, "N1"),
+                    Num(circuit.Velocity, "N2"),
+                    Num(circuit.PressureLossPerMeter, "N1"),
+                    Num(circuit.DpRohr, "N2"),
+                    Num(circuit.DpVerteiler, "N2"),
+                    Num(circuit.DpVent, "N2"),
+                    Num(circuit.DpGesamt, "N2"),
+                    Num(circuit.ZuDrosseln, "N2"),
+                    Num(circuit.ValveTurns, "N1"),
+                };
+                for (var i = 0; i < values.Length; i++)
                 {
-                    StyleDataCell(cell, RehauWhite);
+                    var cell = row.Cells[i];
+                    cell.Borders.Bottom.Width = Unit.FromPoint(0.25);
+                    cell.Borders.Bottom.Color = Color.Parse(Gray4);
+                    cell.Borders.DistanceFromTop = Unit.FromPoint(8);
+                    cell.Borders.DistanceFromBottom = Unit.FromPoint(8);
+                    cell.Borders.DistanceFromLeft = Unit.FromPoint(3);
+                    var para = cell.AddParagraph();
+                    if (i > 0)
+                    {
+                        para.Format.Alignment = ParagraphAlignment.Right;
+                    }
+
+                    para.Format.Font.Name = _fontName;
+                    para.Format.Font.Size = 9;
+                    var isTotal = i == 8;
+                    var isThrottling = i == 9 && circuit.ZuDrosseln > 0;
+                    para.Format.Font.Bold = isTotal || isThrottling;
+                    para.Format.Font.Color = Color.Parse(isThrottling ? RehauRed : Ink);
+                    para.AddText(values[i]);
                 }
             }
 
-            AddSpacer(container, 4);
-            var totals = container.Elements.AddTable();
-            totals.AddColumn(Unit.FromPoint(innerWidth));
-            var totalsCell = totals.AddRow().Cells[0];
-            totalsCell.Shading.Color = Color.Parse(Gray100);
-            SetPadding(totalsCell, 5);
-            AddCellText(totalsCell, $"Коллекторы РЗС: {data.RzsCount}", 7, bold: true, colorHex: Gray900);
-            AddCellText(totalsCell, $"Труба: {data.PipeType}", 7, bold: true, colorHex: Gray900);
-            AddCellText(totalsCell, $"Общая длина: {Num(data.TotalPipeLength, "N1")} м", 7, bold: true, colorHex: Gray900);
-            AddCellText(totalsCell, $"Расширительный бак: {Num(data.ExpansionTankVolume_L, "N1")} л", 7, bold: true, colorHex: Gray900);
-            AddCellText(totalsCell, $"Насос: Q={Num(data.PumpFlowRate_m3h, "N2")} м³/ч, H={Num(data.PumpHead_kPa, "N1")} кПа", 7, bold: true, colorHex: Gray900);
+            var summary = collector.Summary;
+            var totals = host.Elements.AddParagraph();
+            totals.Format.Alignment = ParagraphAlignment.Right;
+            totals.Format.Font.Name = _fontName;
+            totals.Format.Font.Size = 9.5;
+            totals.Format.Font.Bold = true;
+            totals.Format.Font.Color = Color.Parse(Ink);
+            totals.Format.SpaceBefore = Unit.FromPoint(26);
+            totals.AddText(
+                $"Итого: {summary.CircuitCount} {PluralizeCircuits(summary.CircuitCount)} · " +
+                $"{Num(summary.TotalPipeLength, "N1")} м · " +
+                $"{Num(summary.TotalPower / 1000, "N2")} кВт · " +
+                $"{Num(summary.TotalFlowRate / 1000, "N2")} м³/ч");
         }
 
-        #endregion
-
-        #region Footer
-
-        private void BuildFooter(HeaderFooter footer)
+        /// <summary>«Действие» для пуска: максимальное дросселирование контура.</summary>
+        private static string BuildThrottlingAction(CollectorPdfData collector)
         {
-            var table = footer.AddTable();
-            table.AddColumn(Unit.FromPoint(ContentWidthPoints));
-            var row = table.AddRow();
-            row.Height = Unit.FromPoint(30);
-            row.VerticalAlignment = VerticalAlignment.Center;
-            var cell = row.Cells[0];
-            cell.Shading.Color = Color.Parse(Gray100);
-            AddCellText(cell,
-                $"© {DateTime.Now.Year} РЕХАУ | Расчёт выполнен в РЕХАУ Калькуляторе снеготаяния",
-                8, colorHex: Gray600, alignment: ParagraphAlignment.Center);
-        }
-
-        #endregion
-
-        #region Helpers
-
-        /// <summary>Рамочная карточка-контейнер секции во всю ширину контента.</summary>
-        private static Cell AddCardCell(Section host, double width, double innerPadding)
-        {
-            var table = host.AddTable();
-            return FinishCardCell(table, width, innerPadding);
-        }
-
-        private static Cell FinishCardCell(Table table, double width, double innerPadding)
-        {
-            table.AddColumn(Unit.FromPoint(width));
-            var cell = table.AddRow().Cells[0];
-            cell.Borders.Width = Unit.FromPoint(1);
-            cell.Borders.Color = Color.Parse(Gray300);
-            cell.Shading.Color = Color.Parse(RehauWhite);
-            SetPadding(cell, innerPadding);
-            return cell;
-        }
-
-        /// <summary>Оформление ячейки-контейнера как карточки секции.</summary>
-        private static void StyleCard(Cell cell)
-        {
-            cell.Borders.Width = Unit.FromPoint(1);
-            cell.Borders.Color = Color.Parse(Gray300);
-            cell.Shading.Color = Color.Parse(RehauWhite);
-            SetPadding(cell, 6);
-        }
-
-        private static void SetPadding(Cell cell, double points)
-        {
-            cell.Borders.DistanceFromTop = Unit.FromPoint(points);
-            cell.Borders.DistanceFromBottom = Unit.FromPoint(points);
-            cell.Borders.DistanceFromLeft = Unit.FromPoint(points);
-            cell.Borders.DistanceFromRight = Unit.FromPoint(points);
-        }
-
-        private static void StyleDataCell(Cell cell, string background)
-        {
-            cell.Shading.Color = Color.Parse(background);
-            cell.Borders.Bottom.Width = Unit.FromPoint(0.5);
-            cell.Borders.Bottom.Color = Color.Parse(Gray300);
-            SetPadding(cell, 2);
-        }
-
-        private static void StyleHeaderCell(Cell cell, string text, double fontSize = 6)
-        {
-            cell.Shading.Color = Color.Parse(Gray100);
-            SetPadding(cell, 2);
-            AddCellText(cell, text, fontSize, bold: true, colorHex: RehauBlack);
-        }
-
-        private static void AddKeyValue(Table table, string label, string value, string valueColor)
-        {
-            var row = table.AddRow();
-            AddCellText(row.Cells[0], label, 7, bold: true, colorHex: RehauBlack);
-            AddCellText(row.Cells[1], value, 7, colorHex: valueColor, alignment: ParagraphAlignment.Right);
-        }
-
-        private static Paragraph AddCellText(Cell cell, string text, double sizePt, bool bold = false,
-            string? colorHex = null, ParagraphAlignment alignment = ParagraphAlignment.Left)
-        {
-            var paragraph = cell.AddParagraph(text);
-            paragraph.Format.Alignment = alignment;
-            paragraph.Format.Font.Name = FontName;
-            paragraph.Format.Font.Size = sizePt;
-            paragraph.Format.Font.Bold = bold;
-            if (colorHex != null)
+            if (collector.Circuits.Count == 0)
             {
-                paragraph.Format.Font.Color = Color.Parse(colorHex);
+                return "контуры не заданы";
             }
 
-            return paragraph;
-        }
-
-        private static void AddSectionText(Section section, string text, double sizePt, bool bold = false,
-            string? colorHex = null)
-        {
-            var paragraph = section.AddParagraph(text);
-            paragraph.Format.Font.Name = FontName;
-            paragraph.Format.Font.Size = sizePt;
-            paragraph.Format.Font.Bold = bold;
-            if (colorHex != null)
+            var worst = collector.Circuits.OrderByDescending(c => c.ZuDrosseln).First();
+            if (worst.ZuDrosseln <= 0)
             {
-                paragraph.Format.Font.Color = Color.Parse(colorHex);
+                return "дросселирование не требуется";
             }
-        }
 
-        private static void AddSpacer(Section host, double points)
-        {
-            AddSpacer(host.Elements, points);
-        }
-
-        private static void AddSpacer(Cell host, double points)
-        {
-            AddSpacer(host.Elements, points);
-        }
-
-        private static void AddSpacer(DocumentElements host, double points)
-        {
-            var paragraph = host.AddParagraph();
-            paragraph.Format.SpaceBefore = Unit.FromPoint(points);
-            paragraph.Format.SpaceAfter = Unit.FromPoint(0);
-            paragraph.Format.Font.Size = 1;
+            var turns = collector.Circuits.Select(c => c.ValveTurns).OrderBy(t => t).ToList();
+            return $"дросселирование {Num(worst.ZuDrosseln, "N2")} кПа (контур {worst.CircuitNumber}), " +
+                   $"обороты {Num(turns[0], "N1")}–{Num(turns[^1], "N1")}";
         }
 
         #endregion
+
+        #region Примитивы
+
+        private static void AddGapInCell(Cell host, double points)
+        {
+            var gap = host.Elements.AddParagraph();
+            gap.Format.SpaceBefore = Unit.FromPoint(points);
+            gap.Format.SpaceAfter = Unit.FromPoint(0);
+            gap.Format.Font.Size = 1;
+        }
+
+        private static void SetZeroPadding(Cell cell)
+        {
+            cell.Borders.DistanceFromTop = 0;
+            cell.Borders.DistanceFromBottom = 0;
+            cell.Borders.DistanceFromLeft = 0;
+            cell.Borders.DistanceFromRight = 0;
+        }
+
+        private static void SectionTitle(Cell host, double innerWidth, string title)
+        {
+            var titleTable = host.Elements.AddTable();
+            titleTable.AddColumn(Unit.FromPoint(7));
+            titleTable.AddColumn(Unit.FromPoint(innerWidth - 12));
+            var row = titleTable.AddRow();
+            row.Height = Unit.FromPoint(9);
+            row.HeightRule = RowHeightRule.Exactly;
+            var mark = row.Cells[0];
+            mark.Shading.Color = Color.Parse(RehauRed);
+            var markPad = mark.AddParagraph();
+            markPad.Format.Font.Size = 1;
+            var textCell = row.Cells[1];
+            textCell.Borders.DistanceFromLeft = Unit.FromPoint(5);
+            textCell.VerticalAlignment = VerticalAlignment.Bottom;
+            var para = textCell.AddParagraph();
+            para.Format.Font.Name = _staticFontName;
+            para.Format.Font.Size = 10;
+            para.Format.Font.Bold = true;
+            para.Format.Font.Color = Color.Parse(Ink);
+            para.AddText(title.ToUpper(AppCulture.Culture));
+        }
+
+        private static void CheckValue(Cell cell, string valueColor, string value, string label)
+        {
+            cell.Borders.DistanceFromTop = Unit.FromPoint(16);
+            cell.Borders.DistanceFromBottom = Unit.FromPoint(12);
+            cell.VerticalAlignment = VerticalAlignment.Center;
+            var valuePara = cell.AddParagraph();
+            valuePara.Format.Font.Name = _staticFontName;
+            valuePara.Format.Font.Size = 16;
+            valuePara.Format.Font.Bold = true;
+            valuePara.Format.Font.Color = Color.Parse(valueColor);
+            valuePara.Format.SpaceAfter = Unit.FromPoint(0);
+            valuePara.AddText(value);
+            var labelPara = cell.AddParagraph();
+            labelPara.Format.Font.Name = _staticFontName;
+            labelPara.Format.Font.Size = 6.5;
+            labelPara.Format.Font.Bold = true;
+            labelPara.Format.Font.Color = Color.Parse(Gray2);
+            labelPara.AddText(label);
+        }
+
+        private static void AddReferenceCaption(Cell host, string caption)
+        {
+            var para = host.AddParagraph();
+            para.Format.Font.Name = _staticFontName;
+            para.Format.Font.Size = 7;
+            para.Format.Font.Bold = true;
+            para.Format.Font.Color = Color.Parse(Gray3);
+            para.Format.SpaceAfter = Unit.FromPoint(4);
+            para.AddText(caption);
+        }
+
+        private static void LayerHead(Cell cell, string text, ParagraphAlignment align)
+        {
+            cell.VerticalAlignment = VerticalAlignment.Bottom;
+            var para = cell.AddParagraph();
+            para.Format.Alignment = align;
+            para.Format.Font.Name = _staticFontName;
+            para.Format.Font.Size = 6;
+            para.Format.Font.Bold = true;
+            para.Format.Font.Color = Color.Parse(Gray1);
+            para.Format.SpaceBefore = Unit.FromPoint(3);
+            para.AddText(text.ToUpper(AppCulture.Culture));
+        }
+
+        private static void LayerCell(Cell cell, string text, ParagraphAlignment align)
+        {
+            cell.Borders.Bottom.Width = Unit.FromPoint(0.25);
+            cell.Borders.Bottom.Color = Color.Parse(Gray4);
+            var para = cell.AddParagraph();
+            para.Format.Alignment = align;
+            para.Format.Font.Name = _staticFontName;
+            para.Format.Font.Size = 7;
+            para.Format.Font.Color = Color.Parse(Gray1);
+            para.Format.SpaceBefore = Unit.FromPoint(3.5);
+            para.Format.SpaceAfter = Unit.FromPoint(2);
+            para.AddText(text);
+        }
+
+        private static void InfoPair(Paragraph paragraph, string label, string value)
+        {
+            paragraph.AddText(label + " ");
+            var valueRun = paragraph.AddFormattedText(value, TextFormat.Bold);
+            valueRun.Font.Color = Color.Parse(Ink);
+        }
+
+        private static string EmptyAsDash(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? "—" : value;
+        }
+
+        /// <summary>Человекочитаемое имя режима; невалидное значение (0) — прочерк.</summary>
+        private static string OperatingModeText(Models.Thermal.OperatingMode mode)
+        {
+            return Enum.IsDefined(mode) ? mode.ToString() : "—";
+        }
+
+        /// <summary>
+        /// Подложки корешка — встроенные WPF-ресурсы (deploy-независимо,
+        /// fileless). WPF кладёт ресурсы в &lt;Assembly&gt;.g.resources;
+        /// ResourceManager сам добавляет суффикс «.resources», поэтому
+        /// корень — «.g». Паттерн TryLoadLogoBytes ПЗ-рендерера.
+        /// </summary>
+        private static byte[]? TryLoadSpineBytes(string resourceName)
+        {
+            try
+            {
+                var assembly = typeof(PdfExportService).Assembly;
+                var manager = new System.Resources.ResourceManager(assembly.GetName().Name + ".g", assembly);
+                using var stream = manager.GetStream("resources/images/" + resourceName) as Stream;
+                if (stream == null)
+                {
+                    return null;
+                }
+
+                using var ms = new MemoryStream();
+                stream.CopyTo(ms);
+                return ms.Length > 0 ? ms.ToArray() : null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Подложка отчёта не загружена: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>Шрифт для статических хелперов (заполняется до рендера).</summary>
+        private static string _staticFontName = "Arial";
+
+        #endregion
+
+        private enum SpinePage
+        {
+            Page1,
+            Page2Plus,
+        }
     }
 }

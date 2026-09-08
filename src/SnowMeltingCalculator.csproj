@@ -65,6 +65,11 @@
        читается из g.resources, без deploy-файла. -->
   <ItemGroup>
     <Resource Include="Resources\Images\rehau_logo.png" />
+    <!-- Подложки корешка и белая версия знака: PDF «Результаты расчёта»
+         (дизайн «Корешок + плитки», план 2026-09-09). -->
+    <Resource Include="Resources\Images\rehau_spine_page1.png" />
+    <Resource Include="Resources\Images\rehau_spine_page2.png" />
+    <Resource Include="Resources\Images\rehau_logo_white.png" />
   </ItemGroup>
 
   <!-- Фирменные SVG-ассеты -->
