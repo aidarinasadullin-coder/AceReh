@@ -6,25 +6,26 @@
 
 ```
 ace/
-├── docs/                           # Документация
+├── docs/                           # Документация, исследования, инструкции
 │   ├── ACE.txt                     # Техническое задание
 │   ├── Formulas_Snegotayanie.md    # Формулы расчёта
 │   └── Hydraulics_Analysis.md      # Анализ гидравлики (Excel)
 │
-├── data/                           # Базы данных (JSON)
+├── data/                           # Базы данных (JSON/YAML)
 │   ├── climate_db.json             # Климатология 550 городов РФ
 │   ├── glycol_data.json            # Свойства гликолей (ASHRAE)
 │   ├── materials_db.json           # Материалы конструкции
 │   └── rehau_products.json         # Продукция РЕХАУ
 │
-├── src/                            # Исходный код
+├── src/                            # Исходный код WPF-приложения (.NET 8)
 │   ├── Core/                       # Бизнес-логика, расчёты
-│   ├── UI/                         # WPF интерфейс
-│   └── Data/                       # Работа с БД
+│   ├── Services/                   # Сервисы приложения
+│   ├── ViewModels/                 # MVVM-адаптеры
+│   └── Views/                      # XAML-экраны
 │
-└── resources/                      # Ресурсы
-    ├── РЕХАУ_logo.svg              # Логотип
-    └── renders/                    # 3D-рендеры
+├── tests/                          # Unit-тесты (NUnit)
+├── installer/                      # Скрипт Inno Setup
+└── resources/                      # Логотип и ресурсы РЕХАУ
 ```
 
 ## Базы данных
@@ -55,15 +56,16 @@ ace/
 ## Технологии
 
 - **Язык:** C# (.NET 8)
-- **UI:** WPF (MaterialDesignInXamlToolkit)
-- **Архитектура:** MVVM (CommunityToolkit.Mvvm)
+- **UI:** WPF, собственная дизайн-система REHAU
+- **Архитектура:** MVVM (CommunityToolkit.Mvvm), `ProjectSession` — корень агрегата состояния
 - **DI:** Microsoft.Extensions.DependencyInjection
-- **БД:** SQLite (проекты), JSON (справочники)
-- **Отчёты:** QuestPDF, ClosedXML
+- **БД:** SQLite (проекты .smc), JSON/YAML (справочники)
+- **Отчёты:** PDFsharp-MigraDoc (PDF), CSharpMath.SkiaSharp (рендер формул)
+- **Установщик:** Inno Setup 6
 
 ## Разработка
 
 См. `docs/ACE.txt` — полное техническое задание.
 
 ---
-*Версия: 1.0 | Дата: 2026-01-21*
+*Версия: 1.1.2 | Дата: 2026-09-08*
