@@ -29,8 +29,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels.Hydraulics
                 .ReturnsAsync(GetTestCollectors());
 
             _repositoryMock
-                .Setup(r => r.SelectCollector(It.IsAny<int>(), It.IsAny<double>()))
-                .Returns((int circuits, double flow) =>
+                .Setup(r => r.SelectCollectorAsync(It.IsAny<int>(), It.IsAny<double>()))
+                .ReturnsAsync((int circuits, double flow) =>
                 {
                     return GetTestCollectors()
                         .FirstOrDefault(c => c.Circuits >= circuits && c.MaxFlowRate >= flow);

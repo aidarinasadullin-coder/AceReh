@@ -192,15 +192,13 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         {
             try
             {
-                await Task.CompletedTask;
-
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 
                 // Преобразование л/ч в м³/ч
                 double totalFlowRate_m3_h = TotalFlowRate / 1000.0;
 
-                var collector = _collectorRepository.SelectCollector(
+                var collector = await _collectorRepository.SelectCollectorAsync(
                     CircuitCount,
                     totalFlowRate_m3_h);
 
