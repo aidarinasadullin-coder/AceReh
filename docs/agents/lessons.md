@@ -357,6 +357,12 @@
     `docs/design/renders/`, `docs/plans/`.
     Автоматизация из уроков №17–18 (`make-installer.ps1` +
     `/DMyAppVersion=`) остаётся опциональным ускорителем, не требованием.
+    Производные места версии (в чек-лист ручной правки не входят):
+    окно «О программе» (`AboutWindow.xaml.cs`) и сплэш
+    (`SplashWindow.xaml.cs`) читают `Assembly.GetEntryAssembly().Version`
+    — AssemblyVersion выводится SDK из `<Version>` csproj, после бампа и
+    пересборки обновляются сами («v1.1.2»); захардкоженных версий в XAML
+    нет. Инвентаризацию версии выполнять grep-ом в том числе по `*.xaml`.
     Проверка: grep старой версии по дереву (вне publish/output/bin/obj и
     исторических файлов) даёт 0 вхождений в декларирующих файлах;
     csproj == `.iss` == имя сетапа == INSTALL.md == README.md; в
