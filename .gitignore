@@ -20,6 +20,10 @@ bin/
 obj/
 *.exe
 *.dll
+# Артефакты сборки — вне git (урок №18: publish/ протухает, сетап собирается
+# напрямую ISCC из свежего publish; урок №19: бинарный шум publish/ не в коммит)
+publish/
+output/
 
 # Cache
 .ruff_cache/
