@@ -9,7 +9,7 @@
 
 ## Установка (Setup.exe, рекомендуется)
 
-1. Запустите `SnowMeltingCalculator-v1.1.2-Setup.exe` (~60 MB)
+1. Запустите `SnowMeltingCalculator-v1.2.0-Setup.exe` (~60 MB)
 2. Следуйте инструкциям мастера установки:
    - Примите лицензионное соглашение
    - Выберите папку установки (по умолчанию: `C:\Program Files\REHAU\SnowMeltingCalculator`)
@@ -77,7 +77,7 @@ dotnet publish src/SnowMeltingCalculator.csproj -c Release -r win-x64 --self-con
 & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\SnowMeltingCalculator.iss
 
 # 3. Результат
-# output\SnowMeltingCalculator-v1.1.2-Setup.exe
+# output\SnowMeltingCalculator-v1.2.0-Setup.exe
 ```
 
 - Установщик пакует содержимое `publish\*` (без `*.pdb`), сжатие LZMA solid,
@@ -144,4 +144,4 @@ C:\Program Files\REHAU\SnowMeltingCalculator\
 
 ---
 
-*Версия: 1.1.2 | Дата: 2026-09-07*
+*Версия: 1.2.0 | Дата: 2026-09-09*

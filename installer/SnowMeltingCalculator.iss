@@ -1,7 +1,7 @@
-; Inno Setup Script — Калькулятор снеготаяния РЕХАУ v1.1.2
+; Inno Setup Script — Калькулятор снеготаяния РЕХАУ v1.2.0
 
 #define MyAppName "Калькулятор снеготаяния РЕХАУ"
-#define MyAppVersion "1.1.2"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "REHAU"
 #define MyAppExeName "SnowMeltingCalculator.exe"
 
@@ -15,7 +15,7 @@ DefaultGroupName=REHAU\Калькулятор снеготаяния
 DisableProgramGroupPage=yes
 LicenseFile=..\docs\license.rtf
 OutputDir=..\output
-OutputBaseFilename=SnowMeltingCalculator-v1.1.2-Setup
+OutputBaseFilename=SnowMeltingCalculator-v1.2.0-Setup
 SetupIconFile=..\src\Assets\app_icon.ico
 Compression=lzma
 SolidCompression=yes
