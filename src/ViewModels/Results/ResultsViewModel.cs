@@ -42,6 +42,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly ResultsKpiPresenter _resultsKpiPresenter;
         private readonly IThermalReportDataProvider _thermalReportDataProvider;
         private readonly IHydraulicsReportDataProvider _hydraulicsReportDataProvider;
+        private readonly Services.History.IUndoRedoService? _undoRedoService;
         private DateTime _createdDate;
 
         private bool _isResetting;
@@ -510,7 +511,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
             IProjectDisplayModeState? displayModeState = null,
             IThermalReportDataProvider? thermalReportDataProvider = null,
             ICalculationReportPdfExportService? calculationReportPdfExportService = null,
-            IHydraulicsReportDataProvider? hydraulicsReportDataProvider = null)
+            IHydraulicsReportDataProvider? hydraulicsReportDataProvider = null,
+            Services.History.IUndoRedoService? undoRedoService = null)
         {
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
@@ -533,6 +535,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 ?? new HydraulicsReportDataProvider(
                     _projectSession,
                     new Services.Hydraulics.GlycolDataService());
+            _undoRedoService = undoRedoService;
             _calculationReportPdfExportService = calculationReportPdfExportService
                 ?? new CalculationReportPdfExportService(
                     new CalculationReportDataBuilder(),
@@ -866,6 +869,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
 
             // Сброс всех модулей перед загрузкой нового проекта,
             // чтобы избежать "залипания" старых результатов и ошибок.
+            // Дневник отмены стирается ДО загрузки (ADR-014: открытие
+            // проекта стирает историю, включая фантомные записи).
+            _undoRedoService?.Clear();
             Reset();
             _projectLoadOrchestrator.ResetModules();
             _projectSession.MarkClean();
@@ -1020,6 +1026,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 StatusMessage = string.Empty;
                 _createdDate = dates.CreatedDate;
                 _projectSession.MarkClean();
+                // Точка чистоты дневника отмены (ADR-014): откат ровно к
+                // сохранённому состоянию снимет «звёздочку».
+                _undoRedoService?.SetCleanPoint();
                 return true;
             }
             catch (Exception ex)
@@ -1381,8 +1390,33 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// (подписки — в конструкторе): пересчитать только готовность.
         /// RefreshAll здесь не вызывается — гидратация контента остаётся
         /// на навигации. Обработчик только читает канон (R5: Results derived).
+        /// Исключение — откат/возврат действия (ADR-014): данные на открытой
+        /// вкладке «Результаты» иначе остались бы stale, поэтому выполняется
+        /// полный read-only refresh проекции.
         /// </summary>
-        private void OnCanonicalStateChanged(object? sender, EventArgs e) => CheckDataReadiness();
+        private void OnCanonicalStateChanged(object? sender, EventArgs e)
+        {
+            if (IsUndoRedoOrigin(e))
+            {
+                RefreshAll();
+                return;
+            }
+
+            CheckDataReadiness();
+        }
+
+        private static bool IsUndoRedoOrigin(EventArgs e) => e switch
+        {
+            ClimateStateChangedEventArgs climate => climate.Origin
+                is ClimateMutationOrigin.Undo or ClimateMutationOrigin.Redo,
+            ConstructionStateChangedEventArgs construction => construction.Origin
+                is ConstructionMutationOrigin.Undo or ConstructionMutationOrigin.Redo,
+            ThermalStateChangedEventArgs thermal => thermal.Mutation.Origin
+                is ThermalMutationOrigin.Undo or ThermalMutationOrigin.Redo,
+            HydraulicsStateChangedEventArgs hydraulics => hydraulics.Origin
+                is HydraulicsMutationOrigin.Undo or HydraulicsMutationOrigin.Redo,
+            _ => false
+        };
 
         /// <summary>
         /// Проверить готовность данных всех модулей

@@ -233,6 +233,43 @@ namespace SnowMeltingCalculator.Services.Project
             return CompleteMutation(oldSnapshot, origin, true, anyChange);
         }
 
+        public ClimateMutationResult ApplySnapshot(ClimateStateSnapshot snapshot, ClimateMutationOrigin origin)
+        {
+            // ADR-014: метод существует только для Undo/Redo-применения снимков
+            // дневника отмены; другой origin — ошибка программирования.
+            if (origin is not (ClimateMutationOrigin.Undo or ClimateMutationOrigin.Redo))
+            {
+                throw new ArgumentOutOfRangeException(nameof(origin), origin, "ApplySnapshot accepts only Undo/Redo origins.");
+            }
+
+            if (snapshot is null)
+            {
+                throw new ArgumentNullException(nameof(snapshot));
+            }
+
+            var oldSnapshot = Snapshot;
+
+            // Прямое присваивание всех 12 полей снимка: record несёт
+            // HasUserModifications/Period0Days, поэтому «Load-ветка»
+            // (пересчёт по городу) воспроизводила бы потерю этих полей
+            // (план undo/redo, ревью P2-2).
+            var anyChange = false;
+            anyChange |= SetProperty(ref _selectedCity, snapshot.SelectedCity);
+            anyChange |= SetProperty(ref _selectedRegion, snapshot.SelectedRegion);
+            anyChange |= SetProperty(ref _airTemperature, snapshot.AirTemperature);
+            anyChange |= SetProperty(ref _coldFiveDayTemperature, snapshot.ColdFiveDayTemperature);
+            anyChange |= SetProperty(ref _windSpeed, snapshot.WindSpeed);
+            anyChange |= SetProperty(ref _humidity, snapshot.Humidity);
+            anyChange |= SetProperty(ref _snowfallIntensity, snapshot.SnowfallIntensity);
+            anyChange |= SetProperty(ref _zone, snapshot.Zone);
+            anyChange |= SetProperty(ref _isHighRequirements, snapshot.IsHighRequirements);
+            anyChange |= SetProperty(ref _isCitySelected, snapshot.IsCitySelected);
+            anyChange |= SetProperty(ref _period0Days, snapshot.Period0Days);
+            anyChange |= SetProperty(ref _hasUserModifications, snapshot.HasUserModifications);
+
+            return CompleteMutation(oldSnapshot, origin, true, anyChange);
+        }
+
         private ClimateMutationResult CompleteMutation(
             ClimateStateSnapshot oldSnapshot,
             ClimateMutationOrigin origin,

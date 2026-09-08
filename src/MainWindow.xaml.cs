@@ -98,8 +98,33 @@ namespace SnowMeltingCalculator
             // Регистрируем обработчик клавиатурных сокращений
             KeyDown += MainWindow_KeyDown;
 
+            // «Отменить / Вернуть» (ADR-014, политика хоткеев): глобальный
+            // undo/redo перекрывает посимвольный undo текстбокса; tunneling —
+            // bubbling KeyDown перехватывается TextBoxBase, а почти все цели
+            // отката вводятся из текстбоксов.
+            PreviewKeyDown += MainWindow_PreviewKeyDown;
+
             // Загружаем проект, переданный через командную строку, после отображения окна
             Loaded += MainWindow_Loaded;
+        }
+
+        /// <summary>
+        /// Хоткеи «Отменить» (Ctrl+Z) и «Вернуть» (Ctrl+Y) — ADR-014.
+        /// </summary>
+        private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control && _viewModel.CanUndo)
+            {
+                _viewModel.UndoCommand.Execute(null);
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.Y && Keyboard.Modifiers == ModifierKeys.Control && _viewModel.CanRedo)
+            {
+                _viewModel.RedoCommand.Execute(null);
+                e.Handled = true;
+            }
         }
 
         /// <summary>

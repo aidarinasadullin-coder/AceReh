@@ -138,8 +138,50 @@
                                Visibility="{Binding ResultsViewModel.ProjectObject, Converter={StaticResource StringToVisibilityConverter}}"/>
                 </StackPanel>
 
-                <!-- Меню Файл -->
-                <Menu Grid.Column="5" Background="Transparent" VerticalAlignment="Center" Margin="0,0,16,0">
+                <!-- «Отменить / Вернуть» (ADR-014): правки данных, Word-стиль,
+                     слева от меню «Файл». Скрыты на welcome-заставке, гаснут
+                     при пустых краях истории и во время расчёта (CanUndo/
+                     CanRedo учитывают гейт). Глиф — Icon.Reset (стрелка
+                     против часовой = отмена); «Вернуть» — то же отражение
+                     по горизонтали (по часовой). Тултипы показывают имя
+                     действия из дневника отмены. -->
+                <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                    <Button Style="{StaticResource Button.Secondary}"
+                            Command="{Binding UndoCommand}"
+                            IsEnabled="{Binding CanUndo}"
+                            Visibility="{Binding IsWelcomeVisible, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                            ToolTip="{Binding UndoDescription, StringFormat='Отменить: {0}', TargetNullValue='Отменить'}"
+                            AutomationProperties.AutomationId="ShellUndoButton"
+                            AutomationProperties.Name="Отменить"
+                            Margin="0,0,4,0"
+                            VerticalAlignment="Center">
+                        <Path Data="{StaticResource Icon.Reset}"
+                              Width="14" Height="14"
+                              Stretch="Uniform"
+                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </Button>
+                    <Button Style="{StaticResource Button.Secondary}"
+                            Command="{Binding RedoCommand}"
+                            IsEnabled="{Binding CanRedo}"
+                            Visibility="{Binding IsWelcomeVisible, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                            ToolTip="{Binding RedoDescription, StringFormat='Вернуть: {0}', TargetNullValue='Вернуть'}"
+                            AutomationProperties.AutomationId="ShellRedoButton"
+                            AutomationProperties.Name="Вернуть"
+                            Margin="0,0,8,0"
+                            VerticalAlignment="Center">
+                        <Path Data="{StaticResource Icon.Reset}"
+                              Width="14" Height="14"
+                              Stretch="Uniform"
+                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              RenderTransformOrigin="0.5,0.5">
+                            <Path.RenderTransform>
+                                <ScaleTransform ScaleX="-1"/>
+                            </Path.RenderTransform>
+                        </Path>
+                    </Button>
+
+                    <!-- Меню Файл -->
+                    <Menu Background="Transparent" VerticalAlignment="Center">
                     <MenuItem Header="Файл" Style="{StaticResource Shell.FileMenuItem}">
                         <MenuItem Header="Сохранить"
                                   Command="{Binding ResultsViewModel.SaveProjectCommand}"
@@ -169,7 +211,8 @@
                         <Separator/>
                         <MenuItem Header="Выход" Click="CloseButton_Click"/>
                     </MenuItem>
-                </Menu>
+                    </Menu>
+                </StackPanel>
 
                 <!-- «Рассчитать» — бывшая кнопка теплового модуля, перенос в шапку
                      (Фаза 5): ThermalCalculate переехал из ThermalView, контрактный

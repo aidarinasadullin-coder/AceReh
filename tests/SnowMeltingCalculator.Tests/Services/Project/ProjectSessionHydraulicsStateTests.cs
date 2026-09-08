@@ -43,11 +43,14 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         private static HydraulicCollectorSummarySnapshot Summary() => new(1, 105, 10, 20, 30, 40, 1.2, "HKV-D");
 
         [Test]
-        public void OriginEnum_IsExactlyTheSevenMemberClosedContract()
+        public void OriginEnum_IsExactlyTheNineMemberClosedContract()
         {
+            // ADR-014: к семичленному контракту добавлены Undo/Redo
+            // (memento-дневник отмены; dirty не создают).
             Assert.That(Enum.GetNames<HydraulicsMutationOrigin>(), Is.EqualTo(new[]
             {
-                "User", "UserReset", "ProjectLoadReset", "ProjectLoad", "Calculation", "Initialization", "SystemApply"
+                "User", "UserReset", "ProjectLoadReset", "ProjectLoad", "Calculation", "Initialization",
+                "SystemApply", "Undo", "Redo"
             }));
         }
 
@@ -142,15 +145,16 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         }
 
         [Test]
-        public void DirtyIntentMatrix_HasExactlyOneUserIntentAndNoneForOtherSixOrigins()
+        public void DirtyIntentMatrix_HasExactlyOneUserIntentAndNoneForOtherOrigins()
         {
+            // ADR-014: девять origins, dirty — только User.
             foreach (var origin in Enum.GetValues<HydraulicsMutationOrigin>())
             {
                 _state.ApplyGlobalInputs(Inputs(51 + (int)origin), origin);
             }
 
             Assert.That(_dirty.Calls, Is.EqualTo(1));
-            Assert.That(_events, Is.EqualTo(7));
+            Assert.That(_events, Is.EqualTo(9));
         }
 
         #region ADR-012: инвалидация результатов при User-мутациях

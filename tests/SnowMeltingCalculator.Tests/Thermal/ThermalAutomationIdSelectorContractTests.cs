@@ -47,6 +47,10 @@ public sealed class ThermalAutomationIdSelectorContractTests
         // окна (команда ThermalViewModel.CalculateCommand); контракт ID
         // следует за кнопкой. «Сбросить» (ThermalReset) остаётся во вьюхе.
         (@"src\MainWindow.xaml", "ThermalCalculate", "Button"),
+        // ADR-014 (2026-09-08): «Отменить / Вернуть» в шапке слева от меню
+        // «Файл» — кнопки дневника отмены (MainViewModel Undo/RedoCommand).
+        (@"src\MainWindow.xaml", "ShellUndoButton", "Button"),
+        (@"src\MainWindow.xaml", "ShellRedoButton", "Button"),
         // Фаза 6 редизайна: сплит-кнопка «Отчёт PDF ▾» в шапке (бывшие
         // 5 экспорт-кнопок ResultsView) + её пункты меню; команды
         // ResultsViewModel и IsDataReady-гейт сохранены.

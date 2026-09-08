@@ -90,5 +90,15 @@ namespace SnowMeltingCalculator.Services.Project
         /// порядке (DEC-T08).
         /// </summary>
         void LoadResult(ThermalCalculationResult result, ThermalInputs inputs);
+
+        /// <summary>
+        /// Каноническое восстановление полного теплового состояния при отмене/
+        /// возврате действия (ADR-014): <c>RestoreState</c> слайса со статусом ИЗ
+        /// снимка + пере-публикации <c>UpdateThermalInputs</c> затем
+        /// <c>UpdateThermal</c> по образцу <see cref="LoadResult"/>. Источник —
+        /// <see cref="ThermalMutationOrigin.Undo"/> либо
+        /// <see cref="ThermalMutationOrigin.Redo"/>; другой origin отклоняется.
+        /// </summary>
+        void RestoreState(ThermalStateSnapshot snapshot, ThermalMutationOrigin origin);
     }
 }

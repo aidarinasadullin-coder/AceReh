@@ -403,3 +403,39 @@
     одобрения — поздно, экономия на ревью потеряна. Существенное
     изменение плана по итогам ревью — точечная перерисовка затронутых
     блоков тем же файлом.
+
+## Урок №21 (2026-09-09, сессия undo/redo ADR-014)
+
+- **Порядок событий канона: DataChanged-проекция стреляет РАНЬШЕ слайсового
+  `Changed`.** `ProjectSessionClimateState.CompleteMutation` вызывает
+  `ApplyProjection` (→ `ClimateData.DataChanged` → тепловая инвалидация) и
+  `UpdateClimate` (→ каскад гидравлики) ДО `Changed?.Invoke` — так же
+  конструкция (`RaiseDataChanged` до `Changed`). Слушатель дневника отмены в
+  момент user-события слайса ещё не видит ни инвалидации тепла, ни
+  hydraulics-каскада того же действия. Правило: событийные агрегаторы
+  (memento-дневник, будущие слушатели INV-016) обязаны держать orphan-буфер
+  пар, отложенных до открытия user-записи, и различать точку открытия
+  standalone-расчёта (тепловой `BeginCalculation`, фаза → Calculating) от
+  каскадных hydraulics Begin/Complete. Реализация —
+  `UndoRedoService.OnSliceChanged`/`_orphanSlices`. Проверка: тесты
+  `CitySelection_GroupsIntoOneEntry_WithClimateThermalAndHydraulics`,
+  `HeaderCalculate_OpensStandaloneCalculationEntry_AndClosesOnSilence`.
+
+- **«Расчёт»-запись и окно тишины.** Закрытие группы окном тишины обязано
+  ждать завершения расчёта (`IsCalculationRunning`), иначе медленный расчёт
+  разваливается на две записи (ревью P1-5 плана); при тике во время расчёта
+  таймер перезапускается. Проверка: `FlushPendingForTests` в
+  `UndoRedoServiceJournalTests`.
+
+- **Окно тишины — это интервал от последней мутации, а не «первая мутация
+  закрывает предыдущую».** Форс-закрытие на каждую user-мутацию убивает
+  склейку посимвольного ввода: сравнивать `Environment.TickCount64` с
+  `_lastUserMutationTicks`, закрытие — только по истечении 400 мс (или
+  терминально: Undo/Redo/Clear/SetCleanPoint). Любая user-мутация гасит
+  ветку Redo сразу, не дожидаясь Push. Проверка:
+  `PerCharacterEdits_AreStitchedIntoSingleEntry`, `UndoThenEdit_KillsRedo`.
+
+- **Сохранение коммитит открытое действие.** `SetCleanPoint` обязан закрыть
+  открытые группы до фиксации позиции, иначе Ctrl+S внутри окна тишины
+  даёт ложную «звёздочку» после успешного сохранения (независимое ревью
+  диффа, P1). Проверка: `Save_SetsCleanPoint_UndoBackToSavedState_ClearsDirty`.

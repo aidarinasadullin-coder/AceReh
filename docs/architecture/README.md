@@ -564,3 +564,93 @@ Note-уровня (преждесуществующие пути, диффом �
 зафиксировано до реализации; входы/результаты расчётов и wire-контракт
 `.smc` не изменяются; изменения state ownership — только описанное выше
 добавление полей с единственным writer-пайплайном.
+
+### ADR-014 — 2026-09-08 — «Отменить / Вернуть» (undo/redo, 10 действий): событийный memento-дневник по разделам, state ownership расширен санкционированными писателями
+
+Решение владельца (план
+`docs/plans/2026-09-08-undo-redo-plan.md`, §1 — 11 зафиксированных решений):
+отмена правок данных в Word-стиле для 4 разделов (Климат, Конструкция,
+Тепловой, Гидравлика), глубина 10 действий, кнопки в шапке слева от меню
+«Файл» + Ctrl+Z/Ctrl+Y. Механика — вариант Г: **событийный memento-дневник**
+`UndoRedoService` (singleton, `src/Services/History/`): сервис слушает
+существующие `Changed`-события четырёх срезов (INV-016) и накапливает
+записи «одно действие пользователя → per-slice пары (Before, After) всех
+затронутых разделов». Дневник снимки не создаёт и каноном не владеет —
+R1 не задет.
+
+Расширение state ownership (санкционируется настоящей записью; ADR-003:
+изменение списка = изменение правила):
+
+1. **Новые origins `Undo`/`Redo`** во всех четырёх enum
+   (`ClimateMutationOrigin`, `ConstructionMutationOrigin`,
+   `ThermalMutationOrigin`, `HydraulicsMutationOrigin`). Семантика как у
+   `ProjectLoad`: dirty внутри слайсов — НЕТ (списки dirty-origins не
+   расширяются), публикация контекста — ДА; `DataChanged`-проекция климата —
+   НЕТ (`PublishesCompatibility(Undo/Redo) == false`, прецедент `Load`).
+   **Асимметрия зафиксирована:** `PublishesDownstream` конструкции на
+   `Undo/Redo` НЕ расширяется — иначе `RaiseDataChanged` вызвал бы
+   инвалидацию тепла во время отката конструкции; климат публикует контекст
+   при любом changed-origin безусловно, этого достаточно.
+2. **Новые методы записи:** `IProjectSessionClimateState.ApplySnapshot(snapshot,
+   origin)` — прямое присваивание всех 12 полей снимка (включая
+   `HasUserModifications`/`Period0Days`), без нормализации и без
+   origin-пересчётов; `IProjectSessionThermalState.RestoreState(snapshot,
+   origin)` — атомарное восстановление inputs+result+статуса ИЗ снимка
+   (статус может быть `NeedsRecalculation` с сообщением), обёртка
+   `IThermalStateCoordinator.RestoreState` с пере-публикацией
+   `UpdateThermalInputs`/`UpdateThermal` по образцу `LoadResult`; guard
+   `ProjectSessionHydraulicsState.Restore` ослаблен с «только `ProjectLoad`»
+   до «`ProjectLoad`, `Undo`, `Redo`». Существующий
+   `ThermalState.Restore(inputs, savedResult)` не тронут.
+3. **`UndoRedoService.cs` добавлен в allowlists WI-1, WI-3, WI-4, WI-5,
+   WI-6** (паттерн WI-1 расширен `ApplySnapshot`, WI-3 — `RestoreState`,
+   WI-4 — `Restore`); списки dirty-origins и WI-2/WI-7/WI-8 не меняются.
+   Публикация `UpdateHydraulics` из обвязки отката НЕ требуется
+   (закрытие ревью-пункта §9.1 плана): читателей данных
+   `CalculationContext.HydraulicsResults` в `src` нет — контекст является
+   только триггером реактивного каскада и перезаписывается следующим
+   расчётом.
+4. **Guard-скоуп отката:** откат выполняется под существующим
+   `BeginProjectRestore()` (lease реентерабелен). Семантическое расширение
+   имени («load-or-undo in progress») фиксируется: все VM-гварды
+   `IsLoadProjectInProgress` глушат пользовательские присвоения и dirty во
+   время отката без правки каждого гварда. Порядок применения: Climate →
+   Construction → Thermal (координатор) → Hydraulics → повторная Hydraulics
+   сразу после Thermal (каскад `ContextChanged → CalculateAllCollectors`
+   синхронен; трюк `ProjectLoadOrchestrator`).
+5. **Правило тотального подавления:** события слайсов при
+   `IsLoadProjectInProgress == true` дневником игнорируются полностью,
+   независимо от origin (фантомные записи fallback-расчёта загрузки);
+   вторая линия — фильтр origins `Undo`/`Redo` (эхо), третья —
+   `_isApplying` вокруг всего отката.
+6. **Группировка:** user-origins (`User`, `UserReset`, `Template`)
+   открывают/пополняют активную запись и форс-закрывают предыдущую;
+   `*Invalidation` и `Calculation` при активной записи примыкают к ней;
+   `Calculation` вне активной записи открывает отдельную запись «Расчёт»,
+   живущую до первой user-мутации или очистки (таймер тишины её не
+   закрывает); lifecycle-origins не пишутся. Склейка посимвольного ввода —
+   окно тишины 400 мс (закрывает только user-группы). Лимит истории 10
+   записей, старейшая вытесняется. `Save` ставит «точку чистоты» — позицию
+   в дневнике; `IsDirty` после каждой мутации/отката корректируется
+   сравнением с точкой (`UndoRedoService` — новый санкционированный caller
+   `MarkDirty`/`MarkClean`); вытеснение точки за лимит честно оставляет
+   «изменён».
+7. **Гейт расчёта:** `CanUndo/CanRedo == false` при
+   `ThermalIsCalculating || HydraulicsIsCalculating` — иначе Ctrl+Z
+   посреди `Task.Run` перезаписывается последующим `CompleteCalculation`.
+8. **Политика хоткеев (запись правила):** глобальный undo/redo шелла
+   перекрывает посимвольный undo текстбокса; `Ctrl+Z`/`Ctrl+Y`
+   обрабатываются в `MainWindow.PreviewKeyDown` (tunneling — bubbling
+   `KeyDown` перехватывается `TextBoxBase`, а почти все цели отката —
+   из текстбоксов). Навигация по экранам, импорт в каталоги, поиск
+   городов, экспорт PDF, легаси `construction_*.json`, `ToggleMode` и
+   карточка проекта (UI-редактирование удалено с Ф6) в отмену v1 не входят.
+9. **Цензус подписок:** дневник подписан на 4 события `Changed`
+   срезов; подписки на `IProjectSession.PropertyChanged` НЕТ (карточка
+   проекта не в v1). Цензус `ReactiveSubscriptionLifecycleTests` обновлён
+   2/2/2/4 → 3/3/3/5. Дневник — память процесса, `.smc` wire не меняется
+   (R6 цел).
+
+R1–R6 проверены обновлённым `ArchitectureRulesTests`;
+`MutationBoundaryConsolidationTests` дополнен undo-сценариями (новые
+origins — lifecycle-подобные, 0 dirty).

@@ -34,6 +34,7 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         private readonly IProjectSessionThermalState _thermalState;
         private readonly IProjectSessionHydraulicsState _hydraulicsState;
         private readonly ConstructionDefaultStateInitializer _constructionDefaultStateInitializer;
+        private readonly Services.History.IUndoRedoService? _undoRedoService;
 
         public ResultsViewModel ResultsViewModel => _resultsViewModel;
         public ClimateViewModel ClimateViewModel => _climateViewModel;
@@ -52,7 +53,8 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             IDialogService dialogService,
             CalculationContext calculationContext,
             IProjectSession? projectSession = null,
-            ConstructionDefaultStateInitializer? constructionDefaultStateInitializer = null)
+            ConstructionDefaultStateInitializer? constructionDefaultStateInitializer = null,
+            Services.History.IUndoRedoService? undoRedoService = null)
         {
             _climateViewModel = climateViewModel;
             _thermalViewModel = thermalViewModel;
@@ -70,6 +72,13 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             _hydraulicsState = session.HydraulicsState;
             _constructionDefaultStateInitializer = constructionDefaultStateInitializer
                 ?? throw new ArgumentNullException(nameof(constructionDefaultStateInitializer));
+            _undoRedoService = undoRedoService;
+            if (_undoRedoService is not null)
+            {
+                // Кнопки/тултипы «Отменить / Вернуть» (ADR-014). Отписки не
+                // нужны: VM и дневник — app-lifetime singletons.
+                _undoRedoService.HistoryChanged += (_, _) => RefreshUndoRedoProjection();
+            }
 
             // Подписка на изменения состояния
             _calculationStateService.StateChanged += OnCalculationStateChanged;
@@ -371,12 +380,19 @@ namespace SnowMeltingCalculator.ViewModels.Shell
             // (DEC-T08, Todo 9); адаптер ниже зеркалит дефолты без мутаций.
             _thermalState.ResetToDefaults(ThermalMutationOrigin.ProjectLoadReset);
             _thermalViewModel.Reset();
-            _hydraulicsState.ResetToDefaults(HydraulicsMutationOrigin.UserReset);
+            // Origin — ProjectLoadReset, консистентно с климатом/теплом выше
+            // (план undo/redo, ревью P0-3): UserReset означал бы пользовательский
+            // сброс и порождал фантомные записи дневника отмены.
+            _hydraulicsState.ResetToDefaults(HydraulicsMutationOrigin.ProjectLoadReset);
             _circuitsViewModel.Reset();
             _projectStateService.MarkClean();
             // Новый расчёт — снова пустое состояние (Ф7.1): welcome-слой
             // возвращается, пока пользователь не начнёт работу.
             IsWelcomeVisible = true;
+            // Дневник отмены стирается строго последним оператором (план §5.2,
+            // ревью P0-3): lifecycle-origins сброса в историю не пишутся, а
+            // Clear() гарантирует пустой дневник для чистого бланка.
+            _undoRedoService?.Clear();
         }
 
         private string _currentTitle = "Климатические данные";
@@ -450,7 +466,54 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         {
             RefreshStepStatuses();
             RefreshStatusBar();
+            RefreshUndoRedoProjection();
         }
+
+        #region Отменить / Вернуть (ADR-014)
+
+        /// <summary>
+        /// Гейт кнопки «Отменить»: дневник не пуст И не идёт расчёт
+        /// (тепловой расчёт асинхронен — Ctrl+Z посреди Task.Run запрещён;
+        /// гидравлика синхронна, UI-поток занят и клик невозможен).
+        /// </summary>
+        public bool CanUndo =>
+            (_undoRedoService?.CanUndo ?? false)
+            && !_thermalViewModel.IsCalculating
+            && !_circuitsViewModel.IsCalculating;
+
+        /// <summary>Гейт кнопки «Вернуть» — симметрично <see cref="CanUndo"/>.</summary>
+        public bool CanRedo =>
+            (_undoRedoService?.CanRedo ?? false)
+            && !_thermalViewModel.IsCalculating
+            && !_circuitsViewModel.IsCalculating;
+
+        /// <summary>Имя действия, которое отменит Ctrl+Z (тултип); null — нечего отменять.</summary>
+        public string? UndoDescription => CanUndo ? _undoRedoService!.UndoDescription : null;
+
+        /// <summary>Имя действия, которое вернёт Ctrl+Y (тултип); null — нечего возвращать.</summary>
+        public string? RedoDescription => CanRedo ? _undoRedoService!.RedoDescription : null;
+
+        /// <summary>
+        /// Уведомить кнопки/тултипы: вызывается из HistoryChanged дневника и
+        /// RefreshShellStatus (любое изменение модульных VM — гейт расчёта).
+        /// </summary>
+        private void RefreshUndoRedoProjection()
+        {
+            OnPropertyChanged(nameof(CanUndo));
+            OnPropertyChanged(nameof(CanRedo));
+            OnPropertyChanged(nameof(UndoDescription));
+            OnPropertyChanged(nameof(RedoDescription));
+        }
+
+        /// <summary>Команда кнопки «Отменить» / Ctrl+Z.</summary>
+        [RelayCommand]
+        private void Undo() => _undoRedoService?.Undo();
+
+        /// <summary>Команда кнопки «Вернуть» / Ctrl+Y.</summary>
+        [RelayCommand]
+        private void Redo() => _undoRedoService?.Redo();
+
+        #endregion
 
         private void RefreshStepStatuses()
         {
