@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Show-me: ручной ввод температуры поверхности +1…+7 (вариант B)</title>
+<style>
+  /* REHAU tokens: src/Themes/Tokens.Colors.xaml + brandbook-2026 */
+  :root {
+    --brand-red: #E50040;
+    --brand-red-dark: #B60034;
+    --brand-teal: #4FC7B5;
+    --brand-teal-deep: #2F776D;
+    --brand-teal-success: #3F9F91;
+    --ink: #1D1D1B;
+    --gray-100: #E4E4E4;
+    --gray-300: #B0B0B0;
+    --gray-600: #818181;
+    --gray-800: #4E4E4E;
+    --bg: #F7F7F6;
+    --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', 'Inter', Arial, sans-serif; background: var(--bg); color: var(--ink); padding: 28px 20px 60px; }
+  .wrap { max-width: 1020px; margin: 0 auto; }
+
+  header.hero { background: linear-gradient(115deg, var(--brand-red) 0%, var(--brand-red-dark) 100%); color: #fff; border-radius: 14px; padding: 26px 30px; margin-bottom: 22px; }
+  header.hero h1 { font-size: 24px; font-weight: 700; }
+  header.hero p { margin-top: 8px; font-size: 14px; opacity: .92; max-width: 840px; line-height: 1.5; }
+  header.hero .tag { display: inline-block; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 3px 12px; font-size: 12px; margin-bottom: 12px; }
+  header.hero .two { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  header.hero .two span { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); border-radius: 8px; padding: 7px 12px; font-size: 13px; }
+
+  h2.sec { font-size: 17px; font-weight: 700; margin: 30px 0 4px; }
+  h2.sec .num { color: var(--brand-red); margin-right: 6px; }
+  p.secsub { font-size: 13px; color: var(--gray-600); margin-bottom: 12px; line-height: 1.5; }
+
+  .card { background: var(--card); border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(29,29,27,.07); }
+
+  /* --- макет секции Thermal --- */
+  .mock { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .mock h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 12px; color: var(--gray-800); }
+  .mock h3 .pill { margin-left: 8px; }
+  .fld { margin-bottom: 14px; }
+  .fld label { display: block; font-size: 11.5px; font-weight: 700; color: var(--gray-800); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .6px; }
+  select, input.txt { width: 100%; padding: 10px 12px; font-size: 14px; border: 1.5px solid var(--gray-300); border-radius: 8px; background: #fff; color: var(--ink); outline: none; }
+  select:focus, input.txt:focus { border-color: var(--brand-teal-deep); }
+  .ro { border: 1.5px solid var(--gray-300); border-radius: 8px; background: #F4F4F3; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .ro .v { font-weight: 700; font-size: 15px; }
+  .ro .c { font-size: 12px; color: var(--gray-600); }
+  .hintline { font-size: 12.5px; color: var(--gray-600); margin-top: 6px; min-height: 17px; }
+  .hintline.err { color: var(--brand-red-dark); font-weight: 600; }
+  .warnbox { display: none; margin-top: 10px; border: 1.5px solid #EAD9A8; background: #FDF7E8; color: #8A6D1F; border-radius: 8px; padding: 9px 12px; font-size: 12.5px; line-height: 1.45; }
+  .warnbox.show { display: block; }
+  .airrow { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 12.5px; color: var(--gray-800); }
+  .airrow input { width: 80px; padding: 6px 8px; border: 1.5px solid var(--gray-300); border-radius: 6px; font-size: 13px; }
+
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+  .pill.was { background: #F4F4F3; color: var(--gray-600); border: 1px solid var(--gray-300); }
+  .pill.now { background: #FDF2F5; color: var(--brand-red-dark); border: 1px solid var(--brand-red); }
+  .pill.keep { background: #EAF6F3; color: var(--brand-teal-deep); border: 1px solid var(--brand-teal); }
+
+  /* --- поток мутации --- */
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+  .fnode { background: #fff; border: 1.5px solid var(--gray-300); border-radius: 10px; padding: 10px 14px; font-size: 12.5px; min-width: 150px; flex: 1; }
+  .fnode b { display: block; font-size: 12.5px; margin-bottom: 3px; }
+  .fnode code { font-size: 11.5px; }
+  .fnode.same { border-color: var(--brand-teal); background: #F3FBF9; }
+  .fnode .badge { display: inline-block; margin-top: 6px; font-size: 10.5px; font-weight: 700; color: var(--brand-teal-deep); background: #EAF6F3; border: 1px solid var(--brand-teal); border-radius: 999px; padding: 1px 8px; }
+  .fnode .badge.hot { color: var(--brand-red-dark); background: #FDF2F5; border-color: var(--brand-red); }
+  .farrow { align-self: center; color: var(--gray-600); font-size: 16px; }
+  code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+
+  /* --- таблицы --- */
+  table.t { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(29,29,27,.07); }
+  table.t th { background: var(--ink); color: #fff; text-align: left; padding: 9px 13px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .6px; }
+  table.t td { padding: 8px 13px; border-top: 1px solid var(--gray-100); }
+  table.t tr.newrow td { background: #FDF2F5; }
+  table.t tr.pres td { background: #F3FBF9; }
+  .mono { font-family: Consolas, 'Courier New', monospace; font-size: 12.5px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  ul.clean { list-style: none; font-size: 13px; line-height: 1.75; }
+  ul.clean li::before { content: '— '; color: var(--gray-600); }
+  ul.check { list-style: none; font-size: 13px; line-height: 1.8; }
+  ul.check li::before { content: '☐ '; color: var(--brand-red); margin-right: 6px; }
+  .yes b { color: var(--brand-teal-deep); }
+  .no b { color: var(--brand-red-dark); }
+
+  footer { margin-top: 28px; font-size: 12px; color: var(--gray-600); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  @media (max-width: 880px) { .mock, .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="tag">План 2026-09-13 · вариант B · на приёмке владельца · show-me</span>
+    <h1>Ручной ввод температуры поверхности +1…+7</h1>
+    <p>Три режима +3/+5/+7 остаются как есть. Enum <b>OperatingMode</b> дополняется членами
+    1/2/4/6 — его значение и есть t<sub>пов</sub>, поэтому расчёт, Undo/Redo, .smc и PDF
+    продолжают работать через <code>(int)Mode</code> без изменений. В UI поле
+    «Температура поверхности» становится редактируемым и синхронизировано с пресетами.</p>
+    <div class="two">
+      <span><b>V1.</b> Один владелец величины: поле <code>Mode</code>, один канал мутации <code>ForMode</code></span>
+      <span><b>V2.</b> Необлокирующее предупреждение «t<sub>пов</sub> ≤ t<sub>нар</sub>»</span>
+      <span><b>V3.</b> Подписи «Пользовательский (+4 °C)» вместо «Manual4»</span>
+      <span><b>V4.</b> Целые +1…+7; список режимов расширяется до 7 пунктов</span>
+      <span><b>V5.</b> Порядок в списке: 3 пресета сверху, затем ручные</span>
+      <span><b>Wire .smc:</b> старые файлы читаются, новые имена — <code>manual1…manual6</code></span>
+    </div>
+  </header>
+
+  <!-- ============ 1. Сегодня / Целевое ============ -->
+  <h2 class="sec"><span class="num">1</span>Секция «Режим работы» — сегодня и в целевом состоянии</h2>
+  <p class="secsub">Слева — текущий вид (поле поверхности read-only). Справа — интерактивный макет целевого:
+  попробуйте выбрать пресет в списке, ввести 1…7 в поле, ввести 0, 8 или 4,5 — и подвигать температуру воздуха.</p>
+
+  <div class="card">
+    <div class="mock">
+      <div>
+        <h3>Сегодня <span class="pill was">как есть</span></h3>
+        <div class="fld">
+          <label>Режим работы</label>
+          <select disabled>
+            <option>Антиобледенение (t_П = +3°C) — минимальная мощность</option>
+            <option selected>Таяние (t_П = +5°C) — стандартный режим</option>
+            <option>Интенсивное (t_П = +7°C) — максимальная мощность</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label>Температура поверхности</label>
+          <div class="ro"><span class="v">+5,0 °C</span><span class="c">из режима</span></div>
+        </div>
+        <div class="hintline">Стандартный режим, температура поверхности +5°C. Оптимальный баланс мощности и эффективности.</div>
+      </div>
+      <div>
+        <h3>Целевое <span class="pill now">вариант B</span></h3>
+        <div class="fld">
+          <label>Режим работы</label>
+          <select id="modeSel">
+            <option value="3">Антиобледенение (t_П = +3°C) — минимальная мощность</option>
+            <option value="5" selected>Таяние (t_П = +5°C) — стандартный режим</option>
+            <option value="7">Интенсивное (t_П = +7°C) — максимальная мощность</option>
+            <option value="1">Своё значение (t_П = +1°C)</option>
+            <option value="2">Своё значение (t_П = +2°C)</option>
+            <option value="4">Своё значение (t_П = +4°C)</option>
+            <option value="6">Своё значение (t_П = +6°C)</option>
+          </select>
+          <div class="hintline" id="comboHint">Стандартный режим, температура поверхности +5°C. Оптимальный баланс мощности и эффективности.</div>
+        </div>
+        <div class="fld">
+          <label>Температура поверхности</label>
+          <input class="txt" id="surfIn" value="+5" inputmode="numeric">
+          <div class="hintline" id="surfErr"></div>
+        </div>
+        <div class="ro"><span class="v" id="surfBig">+5 °C</span><span class="c" id="surfCap">из режима «Таяние»</span></div>
+        <div class="warnbox" id="warnBox">Температура поверхности не выше температуры воздуха — расчётная мощность будет отрицательной. Расчёт не блокируется.</div>
+        <div class="airrow">Температура наружного воздуха, °C:
+          <input id="airIn" value="-10" inputmode="numeric">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 2. Одна величина — один владелец ============ -->
+  <h2 class="sec"><span class="num">2</span>Одна величина — один владелец, один канал мутации</h2>
+  <p class="secsub">Оба UI-входа (список и поле) публикуют одну и ту же мутацию — механики ниже
+  не меняются (зелёное). Красным — единственные новые поверхности: состав членов enum и подписи.</p>
+
+  <div class="card">
+    <div class="flow">
+      <div class="fnode"><b>UI: список + поле</b><code>AvailableModes (7) · SurfaceTemperatureEntry</code><span class="badge hot">новый ввод</span></div>
+      <div class="farrow">→</div>
+      <div class="fnode same"><b>Мутация</b><code>ThermalInputEdit.ForMode((OperatingMode)v)</code><span class="badge">без изменений</span></div>
+      <div class="farrow">→</div>
+      <div class="fnode same"><b>Координатор</b><code>ProjectSessionThermalState · Enum.IsDefined + 1..7</code><span class="badge">+ defensive-проверка</span></div>
+      <div class="farrow">→</div>
+      <div class="fnode same"><b>Расчёт</b><code>surfaceTemp = (int)Mode</code><span class="badge">без изменений</span></div>
+      <div class="farrow">→</div>
+      <div class="fnode same"><b>Undo/Redo</b><code>ThermalInputsSnapshot.Mode</code><span class="badge">без изменений</span></div>
+      <div class="farrow">→</div>
+      <div class="fnode same"><b>.smc</b><code>"melting" · "manual4"</code><span class="badge">штатный JSON</span></div>
+    </div>
+    <p style="margin-top:14px;font-size:13px;line-height:1.55">
+      <b>SurfaceTemperature остаётся проекцией</b> <code>(double)SelectedMode</code> — не параллельным полем
+      (урок №22: две производные одной величины, считающиеся независимо, — кандидаты на консолидацию).
+      Вариант с отдельным полем-переопределением отклонён: два владельца t<sub>пов</sub>.</p>
+  </div>
+
+  <!-- ============ 3. Enum до/после ============ -->
+  <h2 class="sec"><span class="num">3</span>OperatingMode: состав членов и wire .smc</h2>
+  <p class="secsub">Имена трёх пресетов заморожены — старые проекты читаются как есть.
+  Ручные значения пишутся новыми именами штатным <code>JsonStringEnumConverter</code> (camelCase).</p>
+  <table class="t">
+    <tr><th>Член enum</th><th>Значение = t<sub>пов</sub></th><th>Имя в .smc</th><th>Подпись в UI/PDF</th></tr>
+    <tr class="newrow"><td class="mono">Manual1</td><td>+1 °C</td><td class="mono">"manual1"</td><td>Пользовательский (+1 °C)</td></tr>
+    <tr class="newrow"><td class="mono">Manual2</td><td>+2 °C</td><td class="mono">"manual2"</td><td>Пользовательский (+2 °C)</td></tr>
+    <tr class="pres"><td class="mono">AntiIcing</td><td>+3 °C</td><td class="mono">"antiIcing" (без изменений)</td><td>Антиобледенение (+3 °C)</td></tr>
+    <tr class="newrow"><td class="mono">Manual4</td><td>+4 °C</td><td class="mono">"manual4"</td><td>Пользовательский (+4 °C)</td></tr>
+    <tr class="pres"><td class="mono">Melting</td><td>+5 °C</td><td class="mono">"melting" (без изменений)</td><td>Таяние (+5 °C)</td></tr>
+    <tr class="newrow"><td class="mono">Manual6</td><td>+6 °C</td><td class="mono">"manual6"</td><td>Пользовательский (+6 °C)</td></tr>
+    <tr class="pres"><td class="mono">Intensive</td><td>+7 °C</td><td class="mono">"intensive" (без изменений)</td><td>Интенсивное (+7 °C)</td></tr>
+  </table>
+
+  <!-- ============ 4. Подписи ============ -->
+  <h2 class="sec"><span class="num">4</span>Подписи: один источник правил</h2>
+  <p class="secsub">Сегодня Results и PDF показывают сырое <code>mode.ToString()</code> («Melting»).
+  Новый форматтер <code>OperatingModeDisplay.ToDisplayText()</code> — единый для Results и PDF.</p>
+  <div class="card grid2">
+    <div class="yes">
+      <b style="font-size:13.5px">Стало (V3)</b>
+      <ul class="clean">
+        <li>Results «Режим»: <b>Таяние (+5 °C)</b></li>
+        <li>PDF «Режим»: <b>Пользовательский (+4 °C) · поверхность +4 °C</b></li>
+        <li>Поле: <b>из режима «Таяние»</b> / <b>своё значение</b></li>
+      </ul>
+    </div>
+    <div class="no">
+      <b style="font-size:13.5px">Было</b>
+      <ul class="clean">
+        <li>Results «Режим»: <b>Melting</b></li>
+        <li>PDF: <b>Melting · поверхность +5 °C</b></li>
+        <li>Поле: «из режима» — всегда, для любого значения</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 5. Меняется / не меняется ============ -->
+  <h2 class="sec"><span class="num">5</span>Поверхности изменений</h2>
+  <div class="card grid2">
+    <div class="no">
+      <b style="font-size:13.5px">Меняется (≈20 файлов с тестами)</b>
+      <ul class="clean">
+        <li><code>OperatingMode.cs</code> — +4 члена, doc-comment</li>
+        <li><code>ValidationConstants.cs</code> — Min/Max 1/7</li>
+        <li><code>ProjectSessionThermalState</code> — defensive 1..7</li>
+        <li><code>OperatingModeDisplay.cs</code> — новый форматтер</li>
+        <li><code>ThermalViewModel</code> — ввод + caption + hint t≤t_нар + список 7</li>
+        <li><code>ThermalView.xaml</code> — TextBox + подписи + AutomationId</li>
+        <li><code>Converters.cs</code> — описания Manual*</li>
+        <li><code>ResultsViewModel / ResultsView.xaml / PdfExportService</code> — подписи</li>
+        <li>Тесты (VM, координатор, round-trip, undo, пины, контракт ID), инструкция, CHANGELOG, версия 1.4.0</li>
+      </ul>
+    </div>
+    <div class="yes">
+      <b style="font-size:13.5px">Не меняется</b>
+      <ul class="clean">
+        <li>Владелец t<sub>пов</sub> и санкционированные писатели (ADR не нужен)</li>
+        <li><code>ThermalInputs</code>, снапшоты, <code>ProjectData</code>, мапперы</li>
+        <li>Физика <code>ThermalCalculator</code>, формула t_P в ПЗ</li>
+        <li>Механика Undo/Redo и каскад инвалидации</li>
+        <li>Wire .smc: имена пресетов заморожены, старые файлы читаются</li>
+        <li>Reset → Таяние (+5), DEC-T01</li>
+        <li>Гидравлика, <code>ArchitectureRulesTests</code></li>
+        <li>ComboBox «Режим работы» и его AutomationId <code>ThermalMode</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 6. Гейты и приёмка ============ -->
+  <h2 class="sec"><span class="num">6</span>Гейты и ручная приёмка</h2>
+  <div class="card">
+    <p style="font-size:13px;line-height:1.6;margin-bottom:10px">
+      <b>Порядок:</b> приёмка плана (этот show-me) → owner-signal «делай» → фазы Ф1 модель → Ф2 UI →
+      Ф3 предупреждение → Ф4 подписи → Ф5 тесты → Ф6 документация → зелёный <code>dotnet test</code> →
+      независимый ревью диффа → handover некоммиченным деревом → версия 1.4.0.</p>
+    <ul class="check">
+      <li>«Таяние» → поле +5, подпись «из режима «Таяние»</li>
+      <li>Ввод +4 → «своё значение», пересчёт, q↑/q↓ обновились</li>
+      <li>Ввод 0 / 8 / 4,5 → состояние не тронуто, подсказка «от +1 до +7»</li>
+      <li>PDF «Результаты расчёта» → «Пользовательский (+4 °C) · поверхность +4 °C»</li>
+      <li>Undo/Redo 5 ↔ 4 — одна запись дневника на правку</li>
+      <li>Сохранить .smc → <code>"manual4"</code>; открыть старый .smc (<code>"melting"</code>) → «Таяние»</li>
+      <li>t<sub>пов</sub> +1 при воздухе +10 → предупреждение; расчёт идёт</li>
+      <li>«Сбросить» → +5, «Таяние»; в списке 7 пунктов: 3 пресета сверху, затем ручные (V5)</li>
+    </ul>
+  </div>
+
+  <footer>
+    <span>План: docs/plans/2026-09-13-surface-temperature-manual-input-plan.md · исследование и решения владельца — 2026-09-13</span>
+    <span>REHAU tokens · self-contained · реализация только после owner-signal</span>
+  </footer>
+</div>
+
+<script>
+  var PRESET_NAMES = { 3: 'Антиобледенение', 5: 'Таяние', 7: 'Интенсивное' };
+  var HINTS = {
+    3: 'Минимальная мощность, температура поверхности +3°C. Подходит для предотвращения образования льда.',
+    5: 'Стандартный режим, температура поверхности +5°C. Оптимальный баланс мощности и эффективности.',
+    7: 'Максимальная мощность, температура поверхности +7°C. Для интенсивного снегопада.'
+  };
+  function el(id) { return document.getElementById(id); }
+  function fmt(v) { return (v > 0 ? '+' : '') + v + ' °C'; }
+
+  function render() {
+    var raw = el('surfIn').value.replace(/\s/g, '').replace(',', '.');
+    var v = parseInt(raw, 10);
+    var isInt = /^[-+]?\d+$/.test(raw);
+    var ok = isInt && v >= 1 && v <= 7;
+    var err = el('surfErr');
+    if (raw === '') { err.textContent = ''; err.className = 'hintline'; }
+    else if (!ok) { err.textContent = 'Введите целое число от +1 до +7'; err.className = 'hintline err'; }
+    else { err.textContent = ''; err.className = 'hintline'; }
+
+    if (ok) {
+      el('modeSel').value = String(v);
+      var isPreset = PRESET_NAMES[v] !== undefined;
+      el('surfBig').textContent = fmt(v);
+      el('surfCap').textContent = isPreset ? ('из режима «' + PRESET_NAMES[v] + '»') : 'своё значение';
+      el('comboHint').textContent = isPreset ? HINTS[v] : ('Своё значение: +' + v + '°C. Температура поверхности задана вручную.');
+    }
+
+    var air = parseFloat(String(el('airIn').value).replace(',', '.'));
+    var warn = el('warnBox');
+    if (ok && !isNaN(air) && v <= air) { warn.className = 'warnbox show'; } else { warn.className = 'warnbox'; }
+  }
+
+  el('modeSel').addEventListener('change', function () {
+    el('surfIn').value = this.value === '3' || this.value === '5' || this.value === '7' ? '+' + this.value : this.value;
+    render();
+  });
+  el('surfIn').addEventListener('input', render);
+  el('airIn').addEventListener('input', render);
+  render();
+</script>
+</body>
+</html>
