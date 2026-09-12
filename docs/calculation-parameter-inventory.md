@@ -56,10 +56,10 @@
 | Город | - | Выбор пользователя | - | UserInput | `ProjectData`, `ResultsPdfData` | Климатические параметры | Да |
 | Регион | - | Из климатической базы, если доступен | - | ProgramDatabase | `ProjectData`, `README v.2.1.md` | Исходные данные | Да, если доступен |
 | Расчётная температура воздуха | `t_H` | Из климатической логики/ручного ввода | °C | ProgramDatabase / UserInput | `ProjectData`, `ResultsPdfData`, `README v.2.1.md` | `alpha`, `Q_таяние`, `JHmu` | Да |
-| Скорость ветра | `v_H` | Из климатической базы или ручного ввода | м/с | ProgramDatabase / UserInput | `ProjectData`, `ResultsPdfData` | `alpha` | Да |
+| Скорость ветра | `v_H` | climate_db.json (`wind_max_jan` — максимальная из средних скоростей ветра по румбам за январь) или ручной ввод | м/с | ProgramDatabase / UserInput | `ProjectData`, `ResultsPdfData` | `alpha` | Да |
 | Влажность | `phi` | Из климатической базы; в docs указано как информационное значение | % | ProgramDatabase / UserInput | `README v.2.1.md`, `ProjectData` | Исходные данные | Условно, с пометкой о неиспользовании, если не участвует в коде |
 | Интенсивность снегопада | `h` | Ввод пользователя | мм/ч | UserInput | `ProjectData`, `ResultsPdfData` | `Q_таяние` | Да |
-| Климатическая зона | - | Из климатической логики | - | ProgramDatabase / Calculated | `ProjectData`, `ResultsPdfData` | Исходные данные | Да |
+| Климатическая зона | - | Производная итоговой расчётной температуры (ClimateZoneRules: −10/−15/−20 °C → M10/M15/M20) | - | Calculated | `ProjectData`, `ResultsPdfData` | Исходные данные | Да |
 | Холодный период | - | Из климатической базы, если доступен | дн. | ProgramDatabase | `ResultsPdfData` | Исходные данные | Да, если доступен |
 | Температура поверхности | `t_P` | Выбранный режим: антиобледенение/таяние/интенсивный режим | °C | UserInput / Derived | `ResultsPdfData`, `docs/Formulas_Snegotayanie.md` | `alpha`, `Q_таяние` | Да |
 | Температура грунта | `t_G` | Ввод пользователя, default описан как `+10 °C` | °C | UserInput | `ProjectData`, `ResultsPdfData`, `docs/Formulas_Snegotayanie.md` | `C`, `PowerDown` | Да |

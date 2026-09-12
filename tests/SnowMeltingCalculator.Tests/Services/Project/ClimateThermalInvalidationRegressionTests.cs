@@ -54,7 +54,7 @@ public sealed class ClimateThermalInvalidationRegressionTests
             Name = "Reset city",
             Region = "Reset region",
             T5Days092 = -30.0,
-            WindAvgTempLe8 = 4.0,
+            WindMaxJan = 4.0,
             Humidity15hCold = 60.0
         };
         fixture.ClimateViewModel.SelectedCity = city;

@@ -113,7 +113,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 Name = "Тестовый город",
                 Region = "Тестовый регион",
                 T5Days092 = -25,
-                WindAvgTempLe8 = 3,
+                WindMaxJan = 3,
                 Humidity15hCold = 70
             });
             climateServiceMock.Setup(s => s.DetermineZone(It.IsAny<double>(), It.IsAny<bool>()))
@@ -137,7 +137,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 Name = "Тестовый город",
                 Region = "Тестовый регион",
                 T5Days092 = -25,
-                WindAvgTempLe8 = 3,
+                WindMaxJan = 3,
                 Humidity15hCold = 70
             });
             climateServiceMock.Setup(s => s.DetermineZone(It.IsAny<double>(), It.IsAny<bool>()))

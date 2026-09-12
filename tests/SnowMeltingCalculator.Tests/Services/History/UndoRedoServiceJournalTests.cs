@@ -46,8 +46,8 @@ namespace SnowMeltingCalculator.Tests.Services.History
                 ReactiveSubscriptionLifecycleTests.ReactiveGraph.CreateThermalProjectData(OperatingMode.Melting, 55.0, 8.0, 200));
             Assert.That(_graph.UndoRedo.CanUndo, Is.False, "Sanity: load under the guard records nothing (P0-1).");
 
-            var city = new CityInfo { Name = "Тестоград", Region = "Тест", T5Days092 = -30.0, WindAvgTempLe8 = 4.0, Humidity15hCold = 75.0, Period_0_Days = 220 };
-            _graph.Session.ClimateState.ApplyCitySelection(city, isHighRequirements: false, ClimateMutationOrigin.User);
+            var city = new CityInfo { Name = "Тестоград", Region = "Тест", T5Days092 = -30.0, WindMaxJan = 4.0, Humidity15hCold = 75.0, Period_0_Days = 220 };
+            _graph.Session.ClimateState.ApplyCitySelection(city, ClimateMutationOrigin.User);
             _graph.UndoRedo.FlushPendingForTests();
 
             Assert.That(_graph.UndoRedo.UndoStackForTests, Has.Count.EqualTo(1),
@@ -77,6 +77,34 @@ namespace SnowMeltingCalculator.Tests.Services.History
             Assert.That(_graph.UndoRedo.UndoStackForTests, Has.Count.EqualTo(1),
                 "Consecutive user edits within the silence window stitch into one entry.");
             Assert.That(_graph.UndoRedo.UndoDescription, Is.EqualTo("Изменение климатических данных"));
+        }
+
+        [Test]
+        public async Task HighRequirementsStep_UndoRestoresTemperatureAndZone()
+        {
+            // План 2026-09-12, кейс 6: ступень чекбокса — одна запись дневника,
+            // откат возвращает и температуру, и зону.
+            await _graph.ResultsVm.LoadProjectDataAsync(
+                ReactiveSubscriptionLifecycleTests.ReactiveGraph.CreateThermalProjectData(OperatingMode.Melting, 55.0, 8.0, 200));
+
+            var city = new CityInfo { Name = "Тестоград", Region = "Тест", T5Days092 = -23.0, WindMaxJan = 4.0, Humidity15hCold = 75.0, Period_0_Days = 220 };
+            _graph.Session.ClimateState.ApplyCitySelection(city, ClimateMutationOrigin.User);
+            _graph.UndoRedo.FlushPendingForTests();
+            var beforeStep = _graph.Session.ClimateState.Snapshot;
+            Assert.That(beforeStep.AirTemperature, Is.EqualTo(-10.0), "Sanity: автоматика города -10.");
+
+            _graph.Session.ClimateState.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.IsHighRequirements, 1.0), ClimateMutationOrigin.User);
+            _graph.UndoRedo.FlushPendingForTests();
+
+            Assert.That(_graph.Session.ClimateState.Snapshot.AirTemperature, Is.EqualTo(-15.0), "Ступень: -10 → -15.");
+            Assert.That(_graph.Session.ClimateState.Snapshot.Zone, Is.EqualTo(ClimateZone.Zone_M15));
+
+            _graph.UndoRedo.Undo();
+
+            var restored = _graph.Session.ClimateState.Snapshot;
+            Assert.That(restored.AirTemperature, Is.EqualTo(beforeStep.AirTemperature));
+            Assert.That(restored.Zone, Is.EqualTo(beforeStep.Zone));
+            Assert.That(restored.IsHighRequirements, Is.False);
         }
 
         [Test]
@@ -231,8 +259,8 @@ namespace SnowMeltingCalculator.Tests.Services.History
             var thermalBefore = _graph.Session.ThermalState.Snapshot;
             Assert.That(thermalBefore.Result, Is.Not.Null, "Sanity: loaded project has a thermal result.");
 
-            var city = new CityInfo { Name = "Тестоград", Region = "Тест", T5Days092 = -30.0, WindAvgTempLe8 = 4.0, Humidity15hCold = 75.0, Period_0_Days = 220 };
-            _graph.Session.ClimateState.ApplyCitySelection(city, isHighRequirements: false, ClimateMutationOrigin.User);
+            var city = new CityInfo { Name = "Тестоград", Region = "Тест", T5Days092 = -30.0, WindMaxJan = 4.0, Humidity15hCold = 75.0, Period_0_Days = 220 };
+            _graph.Session.ClimateState.ApplyCitySelection(city, ClimateMutationOrigin.User);
             _graph.UndoRedo.FlushPendingForTests();
             Assert.That(_graph.Session.ThermalState.Snapshot.Result, Is.Null, "Sanity: the user edit invalidated the thermal result.");
 

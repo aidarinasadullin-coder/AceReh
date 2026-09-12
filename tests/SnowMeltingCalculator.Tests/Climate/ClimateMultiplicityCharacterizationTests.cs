@@ -54,7 +54,7 @@ public class ClimateMultiplicityCharacterizationTests
         probe.ViewModel.IsHighRequirements = true;
 
         AssertCounts(probe, markDirtyCalls: 1, climateDataChanged: 1, viewModelDataChanged: 1, contextChanged: 1);
-        Assert.That(probe.ViewModel.SelectedZone, Is.EqualTo(ClimateZone.Zone_M20_Plus));
+        Assert.That(probe.ViewModel.MirroredZone, Is.EqualTo(ClimateZone.Zone_M20));
         Assert.That(probe.ClimateData.AirTemperature, Is.EqualTo(-20));
     }
 
@@ -157,7 +157,7 @@ public class ClimateMultiplicityCharacterizationTests
         Name = "Москва",
         Region = "Московская область",
         T5Days092 = -28,
-        WindAvgTempLe8 = 4.5,
+        WindMaxJan = 4.5,
         Humidity15hCold = 85
     };
 

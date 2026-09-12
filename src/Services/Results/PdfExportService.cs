@@ -3,6 +3,7 @@ using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using SnowMeltingCalculator.Core;
+using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Services.Reports.Calculation;
 
 namespace SnowMeltingCalculator.Services.Results
@@ -476,7 +477,7 @@ namespace SnowMeltingCalculator.Services.Results
                 ("Расчётная температура",
                     $"{Num(data.DesignTemperature, "N1")} °C · ветер {Num(data.WindSpeed, "N1")} м/с"),
                 ("Снегопад / холодный период",
-                    $"{Num(data.SnowfallIntensity, "N1")} мм/ч · {data.ColdPeriodDays} дн. · {data.ClimateZone}"),
+                    $"{Num(data.SnowfallIntensity, "N1")} мм/ч · {data.ColdPeriodDays} дн. · {ClimateZoneRules.ZoneText(data.ClimateZone)}"),
                 ("Режим", $"{OperatingModeText(data.OperatingMode)} · поверхность +{data.SurfaceTemperature} °C"),
                 ("Грунт / теплоноситель",
                     $"+{Num(data.GroundTemperature, "N1")} °C · {data.GlycolTypeDisplayName} " +

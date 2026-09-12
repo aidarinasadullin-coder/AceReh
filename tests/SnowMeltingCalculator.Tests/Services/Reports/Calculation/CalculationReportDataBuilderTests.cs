@@ -293,7 +293,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             Assert.That(report.ClimateSection.WindSpeed.Value, Is.EqualTo(3.5));
             Assert.That(report.ClimateSection.Humidity.Value, Is.EqualTo(85.0));
             Assert.That(report.ClimateSection.SnowfallIntensity.Value, Is.EqualTo(0.5));
-            Assert.That(report.ClimateSection.ClimateZone.Value, Is.EqualTo(ClimateZone.Zone_M20.ToString()));
+            Assert.That(report.ClimateSection.ClimateZone.Value, Is.EqualTo(ClimateZoneRules.ZoneText(ClimateZone.Zone_M20)));
             Assert.That(report.ClimateSection.SurfaceTemperature.Value, Is.EqualTo(5.0));
             Assert.That(report.ClimateSection.GroundTemperature.Value, Is.EqualTo(10.0));
             Assert.That(report.ClimateSection.SupplyTemperature.Value, Is.EqualTo(55.0));

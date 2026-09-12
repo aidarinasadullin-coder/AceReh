@@ -84,7 +84,7 @@ public class HeaderCalculateCascadeTests
         await climateService.LoadClimateDataAsync(); // база городов грузится лениво
         var city = climateService.GetCityByName("Москва")
             ?? throw new AssertionException("Город «Москва» должен находиться в базе городов.");
-        climateState.ApplyCitySelection(city, isHighRequirements: false, ClimateMutationOrigin.User);
+        climateState.ApplyCitySelection(city, ClimateMutationOrigin.User);
 
         var materials = _provider.GetRequiredService<IMaterialRepository>();
         await materials.LoadMaterialsAsync(); // справочник материалов грузится лениво

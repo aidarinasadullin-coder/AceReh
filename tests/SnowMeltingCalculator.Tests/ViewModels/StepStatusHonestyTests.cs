@@ -401,7 +401,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             // 1. Климат: город выбран (User-мутация канона).
             _graph.Session.ClimateState.ApplyCitySelection(
                 new CityInfo { Name = "Тест-город", Region = "Тест", T5Days092 = -25 },
-                false,
                 ClimateMutationOrigin.User);
             // 2. Конструкция: валидный канонический снапшот (слой над трубой
             //    ≥ 40 мм суммарно, УГВ в диапазоне 0–10).

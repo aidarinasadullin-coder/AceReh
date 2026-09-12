@@ -22,9 +22,10 @@ namespace SnowMeltingCalculator.Models.Climate
         public double T5Days092 { get; set; }
 
         /// <summary>
-        /// Средняя скорость ветра за период со средней суточной температурой ≤8°C (отопительный период), м/с
+        /// Максимальная из средних скоростей ветра по румбам за январь, м/с (СП 131.13330.2025)
+        /// Источник v_H для расчёта теплоотдачи; у городов без данных — 0
         /// </summary>
-        public double WindAvgTempLe8 { get; set; }
+        public double WindMaxJan { get; set; }
 
         /// <summary>
         /// Влажность в 15 часов холодного периода, %

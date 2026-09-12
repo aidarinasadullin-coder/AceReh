@@ -315,11 +315,11 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 Name = "Граница",
                 Region = "Тест",
                 T5Days092 = -30.0,
-                WindAvgTempLe8 = 4.0,
+                WindMaxJan = 4.0,
                 Humidity15hCold = 75.0,
                 Period_0_Days = 220
             };
-            _graph.Session.ClimateState.ApplyCitySelection(city, isHighRequirements: false, ClimateMutationOrigin.User);
+            _graph.Session.ClimateState.ApplyCitySelection(city, ClimateMutationOrigin.User);
             Assert.That(_graph.Session.IsDirty, Is.True, "Sanity: the user edit dirtied the project.");
             _graph.UndoRedo.FlushPendingForTests();
 
