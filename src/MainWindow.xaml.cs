@@ -153,8 +153,8 @@ namespace SnowMeltingCalculator
         }
 
         /// <summary>
-        /// «Файл → Инструкция»: открывает полную инструкцию пользователя
-        /// (docs\Инструкция полная\README.html, деплоится рядом с exe)
+        /// «Файл → Инструкция»: открывает инструкцию пользователя
+        /// (docs\manual\README.html, деплоится рядом с exe)
         /// в браузере по умолчанию. Отсутствие файла и ошибки запуска
         /// не роняют приложение — показываются через диалог.
         /// </summary>
@@ -162,7 +162,7 @@ namespace SnowMeltingCalculator
         {
             var path = System.IO.Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory,
-                "docs", "Инструкция полная", "README.html");
+                "docs", "manual", "README.html");
 
             if (!System.IO.File.Exists(path))
             {

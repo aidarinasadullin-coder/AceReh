@@ -43,16 +43,12 @@
     </None>
   </ItemGroup>
 
-  <!-- Полная инструкция пользователя (Файл → Инструкция): README.html и
-       media/ деплоятся рядом с exe, относительные ссылки HTML работают. -->
+  <!-- Инструкция пользователя (Файл → Инструкция): self-contained HTML
+       (скриншоты встроены base64), деплоится рядом с exe. -->
   <ItemGroup>
-    <None Include="..\docs\Инструкция полная\README.html">
+    <None Include="..\docs\manual\README.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>docs\Инструкция полная\README.html</TargetPath>
-    </None>
-    <None Include="..\docs\Инструкция полная\media\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>docs\Инструкция полная\media\%(Filename)%(Extension)</TargetPath>
+      <TargetPath>docs\manual\README.html</TargetPath>
     </None>
   </ItemGroup>
 
