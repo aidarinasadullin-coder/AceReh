@@ -42,7 +42,7 @@ namespace SnowMeltingCalculator.Tests.Climate
                 Name = "Москва",
                 Region = "Московская область",
                 T5Days092 = -28, // -27 < -28 < -37, поэтому расчётная температура = -15°C
-                WindAvgTempLe8 = 4.5,
+                WindMaxJan = 4.5,
                 Humidity15hCold = 85
             };
 
@@ -65,19 +65,19 @@ namespace SnowMeltingCalculator.Tests.Climate
 
             // Act - Zone_M10 (t >= -27)
             _viewModel.SelectedCity = new CityInfo { Name = "Сочи", T5Days092 = -5 };
-            Assert.That(_viewModel.SelectedZone, Is.EqualTo(ClimateZone.Zone_M10));
+            Assert.That(_viewModel.MirroredZone, Is.EqualTo(ClimateZone.Zone_M10));
             // По таблице 1.6: -5 >= -27 → расчётная температура = -10°C
             Assert.That(_viewModel.AirTemperature, Is.EqualTo(-10));
 
             // Act - Zone_M15 (-37 < t < -27)
             _viewModel.SelectedCity = new CityInfo { Name = "Москва", T5Days092 = -28 };
-            Assert.That(_viewModel.SelectedZone, Is.EqualTo(ClimateZone.Zone_M15));
+            Assert.That(_viewModel.MirroredZone, Is.EqualTo(ClimateZone.Zone_M15));
             // По таблице 1.6: -28 >= -37 и -28 < -27 → расчётная температура = -15°C
             Assert.That(_viewModel.AirTemperature, Is.EqualTo(-15));
 
             // Act - Zone_M20 (t <= -37)
             _viewModel.SelectedCity = new CityInfo { Name = "Норильск", T5Days092 = -42 };
-            Assert.That(_viewModel.SelectedZone, Is.EqualTo(ClimateZone.Zone_M20));
+            Assert.That(_viewModel.MirroredZone, Is.EqualTo(ClimateZone.Zone_M20));
             // По таблице 1.6: -42 < -37 → расчётная температура = -20°C
             Assert.That(_viewModel.AirTemperature, Is.EqualTo(-20));
         }
@@ -95,21 +95,23 @@ namespace SnowMeltingCalculator.Tests.Climate
             _viewModel.SelectedCity = new CityInfo { Name = "Краснодар", T5Days092 = -27 };
             Assert.That(_viewModel.AirTemperature, Is.EqualTo(-10), "T5Days = -27 should give AirTemp = -10");
 
-            // Test case 2: от -27°C до -37°C → -15°C
+            // Test case 2: -27 < t < -37 → -15°C
             _viewModel.SelectedCity = new CityInfo { Name = "Москва", T5Days092 = -32 };
             Assert.That(_viewModel.AirTemperature, Is.EqualTo(-15), "T5Days = -32 should give AirTemp = -15");
 
+            // Граница t = -37 → зона M20, температура -20 (согласовано с зоной,
+            // план 2026-09-12; ранее температура -15 расходилась с зоной M20)
             _viewModel.SelectedCity = new CityInfo { Name = "Новосибирск", T5Days092 = -37 };
-            Assert.That(_viewModel.AirTemperature, Is.EqualTo(-15), "T5Days = -37 should give AirTemp = -15");
+            Assert.That(_viewModel.AirTemperature, Is.EqualTo(-20), "T5Days = -37 should give AirTemp = -20 (consistent with Zone M20)");
 
             // Test case 3: -37°C и ниже → -20°C
             _viewModel.SelectedCity = new CityInfo { Name = "Норильск", T5Days092 = -40 };
             Assert.That(_viewModel.AirTemperature, Is.EqualTo(-20), "T5Days = -40 should give AirTemp = -20");
 
-            // Test case 4: Повышенные требования → -20°C
+            // Test case 4: Повышенные требования → ступень вниз: -10 → -15
             _viewModel.SelectedCity = new CityInfo { Name = "Сочи", T5Days092 = -5 };
             _viewModel.IsHighRequirements = true;
-            Assert.That(_viewModel.AirTemperature, Is.EqualTo(-20), "High requirements should give AirTemp = -20");
+            Assert.That(_viewModel.AirTemperature, Is.EqualTo(-15), "High requirements should step AirTemp from -10 to -15");
         }
 
         #endregion
@@ -117,17 +119,18 @@ namespace SnowMeltingCalculator.Tests.Climate
         #region HighRequirements Tests
 
         [Test]
-        public void SetHighRequirements_ChangesZone()
+        public void SetHighRequirements_StepsDownZone()
         {
             // Arrange
             _viewModel.SelectedCity = new CityInfo { Name = "Москва", T5Days092 = -28 };
-            Assert.That(_viewModel.SelectedZone, Is.EqualTo(ClimateZone.Zone_M15));
+            Assert.That(_viewModel.MirroredZone, Is.EqualTo(ClimateZone.Zone_M15));
 
             // Act
             _viewModel.IsHighRequirements = true;
 
-            // Assert
-            Assert.That(_viewModel.SelectedZone, Is.EqualTo(ClimateZone.Zone_M20_Plus));
+            // Assert: ступень -15 → -20, зона по итоговой температуре
+            Assert.That(_viewModel.AirTemperature, Is.EqualTo(-20));
+            Assert.That(_viewModel.MirroredZone, Is.EqualTo(ClimateZone.Zone_M20));
         }
 
         [Test]
@@ -140,8 +143,40 @@ namespace SnowMeltingCalculator.Tests.Climate
             // Act
             _viewModel.IsHighRequirements = false;
 
-            // Assert
-            Assert.That(_viewModel.SelectedZone, Is.EqualTo(ClimateZone.Zone_M15));
+            // Assert: возврат к автоматике города
+            Assert.That(_viewModel.MirroredZone, Is.EqualTo(ClimateZone.Zone_M15));
+        }
+
+        [Test]
+        public void HighRequirementsEnabled_OnlyWithCityAndStepAvailable()
+        {
+            // Без города чекбокс неактивен
+            Assert.That(_viewModel.IsHighRequirementsEnabled, Is.False);
+
+            // Город с автоматикой -10: ступень доступна
+            _viewModel.SelectedCity = new CityInfo { Name = "Сочи", T5Days092 = -5 };
+            Assert.That(_viewModel.IsHighRequirementsEnabled, Is.True);
+
+            // Город с автоматикой -20: чекбокс неактивен
+            _viewModel.SelectedCity = new CityInfo { Name = "Норильск", T5Days092 = -42 };
+            Assert.That(_viewModel.IsHighRequirementsEnabled, Is.False);
+        }
+
+        [Test]
+        public void SelectCity_ResetsHighRequirements()
+        {
+            // Arrange: город с автоматикой -10, ступень включена
+            _viewModel.SelectedCity = new CityInfo { Name = "Сочи", T5Days092 = -5 };
+            _viewModel.IsHighRequirements = true;
+            Assert.That(_viewModel.AirTemperature, Is.EqualTo(-15));
+
+            // Act: смена города сбрасывает чекбокс (план 2026-09-12, B5)
+            _viewModel.SelectedCity = new CityInfo { Name = "Москва", T5Days092 = -28 };
+
+            // Assert: новый город начинается с чистой автоматики -15
+            Assert.That(_viewModel.IsHighRequirements, Is.False);
+            Assert.That(_viewModel.AirTemperature, Is.EqualTo(-15));
+            Assert.That(_viewModel.MirroredZone, Is.EqualTo(ClimateZone.Zone_M15));
         }
 
         #endregion
@@ -228,14 +263,14 @@ namespace SnowMeltingCalculator.Tests.Climate
             Assert.That(_viewModel.WindSpeed, Is.EqualTo(5.0));
             Assert.That(_viewModel.Humidity, Is.EqualTo(70.0));
             Assert.That(_viewModel.SnowfallIntensity, Is.EqualTo(0));  // По умолчанию 0 мм/ч
-            Assert.That(_viewModel.SelectedZone, Is.EqualTo(ClimateZone.Zone_M15));
+            Assert.That(_viewModel.MirroredZone, Is.EqualTo(ClimateZone.Zone_M15));
         }
 
         [Test]
         public void ResetToCityData_RestoresCityValues()
         {
             // Arrange
-            _viewModel.SelectedCity = new CityInfo { Name = "Москва", T5Days092 = -28, WindAvgTempLe8 = 4.5, Humidity15hCold = 85 };
+            _viewModel.SelectedCity = new CityInfo { Name = "Москва", T5Days092 = -28, WindMaxJan = 4.5, Humidity15hCold = 85 };
             // После выбора города AirTemperature = -15 (по таблице 1.6)
             _viewModel.AirTemperature = -20; // Изменено пользователем
             _viewModel.WindSpeed = 10;
@@ -292,7 +327,7 @@ namespace SnowMeltingCalculator.Tests.Climate
                 Name = "Москва",
                 Region = "Московская область",
                 T5Days092 = -28,
-                WindAvgTempLe8 = 4.5,
+                WindMaxJan = 4.5,
                 Humidity15hCold = 85
             };
 
@@ -405,9 +440,9 @@ namespace SnowMeltingCalculator.Tests.Climate
             // Act
             _viewModel.IsHighRequirements = true;
 
-            // Assert
-            Assert.That(_climateData.Zone, Is.EqualTo(ClimateZone.Zone_M20_Plus));
-            Assert.That(_climateData.AirTemperature, Is.EqualTo(-20)); // Повышенные требования → -20°C
+            // Assert: ступень -15 → -20, зона по итоговой температуре
+            Assert.That(_climateData.Zone, Is.EqualTo(ClimateZone.Zone_M20));
+            Assert.That(_climateData.AirTemperature, Is.EqualTo(-20));
         }
 
         [Test]

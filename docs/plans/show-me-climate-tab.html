@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Show-me: вкладка «Климат» — две задачи (ветер + ступень требований)</title>
+<style>
+  /* REHAU tokens: src/Themes/Tokens.Colors.xaml + brandbook-2026 */
+  :root {
+    --brand-red: #E50040;
+    --brand-red-dark: #B60034;
+    --brand-teal: #4FC7B5;
+    --brand-teal-deep: #2F776D;
+    --brand-teal-success: #3F9F91;
+    --ink: #1D1D1B;
+    --gray-100: #E4E4E4;
+    --gray-300: #B0B0B0;
+    --gray-600: #818181;
+    --gray-800: #4E4E4E;
+    --bg: #F7F7F6;
+    --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', 'Inter', Arial, sans-serif; background: var(--bg); color: var(--ink); padding: 28px 20px 60px; }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+
+  header.hero { background: linear-gradient(115deg, var(--brand-red) 0%, var(--brand-red-dark) 100%); color: #fff; border-radius: 14px; padding: 26px 30px; margin-bottom: 22px; }
+  header.hero h1 { font-size: 24px; font-weight: 700; }
+  header.hero p { margin-top: 8px; font-size: 14px; opacity: .92; max-width: 800px; line-height: 1.5; }
+  header.hero .tag { display: inline-block; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 3px 12px; font-size: 12px; margin-bottom: 12px; }
+  header.hero .two { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  header.hero .two span { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); border-radius: 8px; padding: 7px 12px; font-size: 13px; }
+
+  h2.sec { font-size: 17px; font-weight: 700; margin: 30px 0 4px; }
+  h2.sec .num { color: var(--brand-red); margin-right: 6px; }
+  p.secsub { font-size: 13px; color: var(--gray-600); margin-bottom: 12px; line-height: 1.5; }
+
+  .card { background: var(--card); border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(29,29,27,.07); }
+
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-800); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .6px; }
+  select, input[type=number] { width: 100%; padding: 10px 12px; font-size: 14px; border: 1.5px solid var(--gray-300); border-radius: 8px; background: #fff; color: var(--ink); outline: none; }
+  select:focus, input[type=number]:focus { border-color: var(--brand-teal-deep); }
+
+  /* --- A: wind --- */
+  .wind { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+  .stages { display: flex; flex-direction: column; gap: 10px; }
+  .stage { border-radius: 10px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .stage .lbl { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; }
+  .stage .val { font-size: 20px; font-weight: 700; white-space: nowrap; }
+  .stage .sub { font-size: 12px; margin-top: 2px; color: var(--gray-600); }
+  .stage.was   { background: #F4F4F3; border: 1.5px solid var(--gray-300); }
+  .stage.was   .lbl { color: var(--gray-600); }
+  .stage.was   .val { text-decoration: line-through; color: var(--gray-600); }
+  .stage.now   { background: #FDF2F5; border: 1.5px solid var(--brand-red); }
+  .stage.now   .lbl { color: var(--brand-red-dark); }
+  .stage.alpha { background: var(--ink); color: #fff; border: 1.5px solid var(--ink); }
+  .stage.alpha .lbl { color: var(--brand-teal); }
+  .stage.nullc { background: #FDF7E8; border: 1.5px solid #EAD9A8; }
+  .stage.nullc .lbl { color: #8A6D1F; }
+  .stage .val small { font-size: 12px; font-weight: 400; opacity: .75; }
+
+  /* --- B: checkbox --- */
+  .demoB { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+  .cbx { margin-top: 16px; border: 1.5px solid var(--gray-300); border-radius: 10px; padding: 13px 14px; display: flex; gap: 10px; align-items: flex-start; cursor: pointer; transition: border-color .15s; user-select: none; }
+  .cbx:hover:not(.disabled) { border-color: var(--brand-teal-deep); }
+  .cbx.checked { border-color: var(--brand-teal); background: #F3FBF9; }
+  .cbx.disabled { opacity: .45; cursor: not-allowed; background: var(--bg); }
+  .cbx input { margin-top: 2px; accent-color: var(--brand-teal-success); width: 16px; height: 16px; }
+  .cbx .t { font-size: 13.5px; line-height: 1.4; }
+  .cbx .hint { font-size: 12px; color: var(--gray-600); margin-top: 4px; }
+  .cbx .lock { font-size: 12px; color: var(--brand-red); margin-top: 4px; display: none; }
+  .cbx.disabled .lock { display: block; }
+  .cbx.checked.disabled .lock { color: var(--gray-600); }
+  .noCity { margin-top: 14px; font-size: 12.5px; color: var(--brand-red); display: none; }
+  .noCity.show { display: block; }
+  .manual { margin-top: 14px; border-top: 1px dashed var(--gray-300); padding-top: 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .manual label { font-size: 12.5px; color: var(--gray-800); }
+  .manual input { width: 90px; }
+  .manual .z { font-size: 13px; font-weight: 700; }
+  .manual button { border: 1.5px solid var(--gray-300); background: #fff; border-radius: 8px; padding: 7px 12px; font-size: 12.5px; cursor: pointer; color: var(--gray-800); }
+  .manual button:hover { border-color: var(--brand-teal-deep); color: var(--brand-teal-deep); }
+
+  .stage.city  { background: #FDF2F5; border: 1.5px solid #F8C2D2; }
+  .stage.city  .lbl { color: var(--brand-red-dark); }
+  .stage.auto  { background: #F4F4F3; border: 1.5px solid var(--gray-300); }
+  .stage.auto  .lbl { color: var(--gray-600); }
+  .stage.step  { background: #EAF6F3; border: 1.5px solid var(--brand-teal); }
+  .stage.step  .lbl { color: var(--brand-teal-deep); }
+  .stage.final { background: var(--ink); color: #fff; border: 1.5px solid var(--ink); }
+  .stage.final .lbl { color: var(--brand-teal); }
+  .stage.off { opacity: .5; }
+  .stage.off .val { text-decoration: line-through; }
+  .resetnote { margin-top: 10px; font-size: 12.5px; color: var(--brand-teal-deep); background: #EAF6F3; border: 1px dashed var(--brand-teal); border-radius: 8px; padding: 8px 12px; }
+
+  table.rules { width: 100%; border-collapse: collapse; font-size: 13.5px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(29,29,27,.07); }
+  table.rules th { background: var(--ink); color: #fff; text-align: left; padding: 10px 14px; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; }
+  table.rules td { padding: 10px 14px; border-top: 1px solid var(--gray-100); }
+  table.rules tr.hl td { background: #FDF2F5; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .pill.on  { background: #EAF6F3; color: var(--brand-teal-deep); border: 1px solid var(--brand-teal); }
+  .pill.off { background: #F4F4F3; color: var(--gray-600); border: 1px solid var(--gray-300); }
+
+  .fixed { margin-top: 16px; font-size: 13.5px; line-height: 1.6; }
+  .fixed b { color: var(--brand-red-dark); }
+  code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+
+  footer { margin-top: 28px; font-size: 12px; color: var(--gray-600); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  @media (max-width: 880px) { .wind, .demoB { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="tag">Единый план 2026-09-12 · на приёмке владельца · show-me</span>
+    <h1>Вкладка «Климат»: две задачи одной волной</h1>
+    <p>Обе правки касаются одних файлов (каноническое состояние климата, форма «Климат»,
+    климат-тесты) и идут одним релизом 1.3.0: сначала источник ветра, затем ступень требований.</p>
+    <div class="two">
+      <span><b>A.</b> Ветер v_H → максимум из средних по румбам за январь (wind_max_jan)</span>
+      <span><b>B.</b> Чекбокс «Повышенные требования» → ступень вниз; список зоны убирается</span>
+    </div>
+  </header>
+
+  <!-- ============ A. WIND ============ -->
+  <h2 class="sec"><span class="num">A</span>Ветер: новый источник из климатической базы</h2>
+  <p class="secsub">Формула α = 2,26·(t<sub>П</sub> − t<sub>H</sub>)^0,33 + 2,6·v<sub>H</sub> не меняется — меняется только источник v<sub>H</sub>.
+  Данные уже в <code>climate_db.json</code> (поле <code>wind_max_jan</code>, СП 131.13330.2025); в доменную модель поле прокидывается впервые.</p>
+  <div class="card wind">
+    <div>
+      <div class="field">
+        <label for="wcity">Город (climate_db.json, 550 городов)</label>
+        <select id="wcity"></select>
+      </div>
+      <div class="resetnote" id="winfo"></div>
+    </div>
+    <div class="stages">
+      <div class="stage was">
+        <div><div class="lbl">Было · средняя за период ≤ 8 °С</div><div class="sub">wind_avg_t_le_8</div></div>
+        <div class="val" id="wWas">—</div>
+      </div>
+      <div class="stage now">
+        <div><div class="lbl">Станет · макс. из средних по румбам за январь</div><div class="sub">wind_max_jan</div></div>
+        <div class="val" id="wNow">—</div>
+      </div>
+      <div class="stage alpha">
+        <div><div class="lbl">Эффект · прирост теплоотдачи</div><div class="sub">Δα = 2,6 · (v<sub>нов</sub> − v<sub>стар</sub>), Вт/м²·К → мощность растёт (цель изменения)</div></div>
+        <div class="val" id="wAlpha">—</div>
+      </div>
+      <div class="stage nullc" id="wNullBox">
+        <div><div class="lbl">Города без данных (3 из 550)</div><div class="sub">Мариуполь · Запорожье · Аскания-Нова → подставляется 0, поле подсвечивает валидация климата, ввод вручную</div></div>
+        <div class="val" id="wNull">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ B. CHECKBOX ============ -->
+  <h2 class="sec"><span class="num">B</span>Чекбокс «Повышенные требования» — ступень вниз; зона без списка</h2>
+  <p class="secsub">Сегодня список зоны ни на что не влияет (выбор не публикуется в каноническое состояние),
+  а чекбокс всегда ставит −20 °C. Станет: списка нет, чекбокс — ступень вниз <b>от автоматики города</b>
+  (−10 → −15, −15 → −20, при −20 неактивен), смена города сбрасывает чекбокс, зона следует за итоговой температурой.</p>
+  <div class="card demoB">
+    <div>
+      <div class="field">
+        <label for="bcity">Город (climate_db.json, СП 131.13330.2025)</label>
+        <select id="bcity"></select>
+      </div>
+      <div class="cbx" id="cbx" role="checkbox" aria-checked="false" tabindex="0">
+        <input type="checkbox" id="cbxInput">
+        <div class="t">
+          <b>Повышенные требования</b> (ступень вниз: −10 → −15, −15 → −20)
+          <div class="hint">Клик перезаписывает расчётную температуру значением «автоматика + ступень». Сбрасывается при смене города.</div>
+          <div class="lock" id="cbxLock"></div>
+        </div>
+      </div>
+      <div class="noCity" id="noCity">Город не выбран — ступень считать не от чего. Выберите город.</div>
+      <div class="manual">
+        <label>Ручная правка итоговой T°:</label>
+        <input type="number" id="manualT" step="1" min="-50" max="10">
+        <button id="manualReset">Вернуть итог</button>
+        <span class="z" id="manualZone"></span>
+      </div>
+    </div>
+    <div class="stages">
+      <div class="stage city">
+        <div><div class="lbl">Пятидневка города (t₅)</div><div class="sub" id="stRegion">—</div></div>
+        <div class="val" id="stT5">—</div>
+      </div>
+      <div class="stage auto">
+        <div><div class="lbl">Автоматика города</div><div class="sub">t₅ ≥ −27 → −10 · −37 &lt; t₅ &lt; −27 → −15 · t₅ ≤ −37 → −20</div></div>
+        <div class="val" id="stAuto">—</div>
+      </div>
+      <div class="stage step" id="stStepBox">
+        <div><div class="lbl">Ступень (чекбокс)</div><div class="sub" id="stStepSub">—</div></div>
+        <div class="val" id="stStep">—</div>
+      </div>
+      <div class="stage final">
+        <div><div class="lbl">Итог: в расчёт и в .smc</div><div class="sub" id="stFinalSub">расчётная температура · зона</div></div>
+        <div class="val" id="stFinal">—</div>
+      </div>
+      <div class="resetnote" id="smcLine"></div>
+    </div>
+  </div>
+
+  <h2 class="sec"><span class="num">·</span>Таблица правил части B (зафиксировано владельцем 2026-09-12)</h2>
+  <table class="rules">
+    <tr><th>Пятидневка t₅</th><th>Автоматика</th><th>Чекбокс</th><th>Ступень</th><th>Итог с чекбоксом</th></tr>
+    <tr><td>t₅ ≥ −27 <span style="color:var(--gray-600)">(Москва −23)</span></td><td>−10 °C · M10</td><td><span class="pill on">активен</span></td><td>−10 → −15</td><td>−15 °C · M15</td></tr>
+    <tr><td>−27 &lt; t₅ &lt; −37 <span style="color:var(--gray-600)">(Казань −28, Новосибирск −36)</span></td><td>−15 °C · M15</td><td><span class="pill on">активен</span></td><td>−15 → −20</td><td>−20 °C · M20</td></tr>
+    <tr class="hl"><td>t₅ ≤ −37 <span style="color:var(--gray-600)">(Красноярск −37, Якутск −51)</span></td><td>−20 °C · M20</td><td><span class="pill off">неактивен</span></td><td>—</td><td>−20 °C · M20</td></tr>
+  </table>
+
+  <div class="card fixed">
+    <b>Дополнительно зафиксировано.</b>
+    Задача A: null → <code>0</code> (валидация подсветит), дефолт 5,0 м/с до выбора города остаётся,
+    лейблы «Скорость ветра» не меняются, <code>climate_db.json</code> не переписывается.<br>
+    Задача B: зона при ручной правке температуры — ближайшая колонка {−10, −15, −20} (границы −12.5 / −17.5);
+    без города чекбокс неактивен; <b>смена города и «Сбросить к данным города» сбрасывают чекбокс</b> —
+    новый город всегда начинается с чистой автоматики; M20_Plus — legacy (читается из старых .smc, не порождается);
+    PDF печатает «M15 · колонка −15 °C» вместо сырое имени enum; undo/redo — существующий дневник ADR-014;
+    .smc wire, state ownership, R1–R6 — без изменений, ADR не требуется.
+  </div>
+
+  <footer>
+    <span>План: docs/plans/2026-09-12-climate-tab-plan.md · версия 1.2.0 → 1.3.0 (правило №20) · порядок реализации A → B</span>
+    <span>Города — реальные записи climate_db.json · REHAU tokens</span>
+  </footer>
+</div>
+
+<script>
+  // Реальные записи src/bin/.../data/climate_db.json:
+  // t_5days_092, wind_avg_t_le_8, wind_max_jan
+  var CITIES = [
+    { name: 'Майкоп',          region: 'Республика Адыгея',          t5: -15, avg: 3.1, max: 5.4 },
+    { name: 'Ростов-на-Дону',  region: 'Ростовская область',         t5: -18, avg: 2.3, max: 3.3 },
+    { name: 'Волгоград',       region: 'Волгоградская область',      t5: -21, avg: 3.3, max: 5.5 },
+    { name: 'Москва',          region: 'Москва',                     t5: -23, avg: 1.7, max: 2.0 },
+    { name: 'Санкт-Петербург', region: 'Санкт-Петербург',            t5: -23, avg: 2.4, max: 3.1 },
+    { name: 'Казань',          region: 'Республика Татарстан',       t5: -28, avg: 2.8, max: 3.5 },
+    { name: 'Екатеринбург',    region: 'Свердловская область',       t5: -30, avg: 3.1, max: 4.0 },
+    { name: 'Иркутск',         region: 'Иркутская область',          t5: -33, avg: 2.1, max: 3.0 },
+    { name: 'Омск',            region: 'Омская область',             t5: -34, avg: 2.6, max: 2.7 },
+    { name: 'Новосибирск',     region: 'Новосибирская область',      t5: -36, avg: 3.5, max: 4.5 },
+    { name: 'Красноярск',      region: 'Красноярский край',          t5: -37, avg: 2.5, max: 3.8 },
+    { name: 'Салехард',        region: 'Ямало-Ненецкий авт. округ',  t5: -42, avg: 2.9, max: 2.9 },
+    { name: 'Якутск',          region: 'Республика Саха (Якутия)',   t5: -51, avg: 1.5, max: 1.7 },
+    { name: 'Мариуполь',       region: 'Донецкая область',           t5: -16, avg: 5.6, max: null },
+    { name: 'Запорожье',       region: 'Запорожская область',        t5: -18, avg: 4.5, max: null }
+  ];
+
+  function fill(id) {
+    var sel = document.getElementById(id);
+    var o = document.createElement('option');
+    o.value = ''; o.textContent = '— город не выбран —';
+    sel.appendChild(o);
+    CITIES.forEach(function (c, i) {
+      var opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = c.name + (id === 'wcity'
+        ? ' (≤8°: ' + c.avg.toFixed(1) + ' · янв: ' + (c.max === null ? '—' : c.max.toFixed(1)) + ')'
+        : ' (t₅ ' + c.t5 + ' °C)');
+      sel.appendChild(opt);
+    });
+    return sel;
+  }
+  var wsel = fill('wcity');
+  var bsel = fill('bcity');
+
+  function fmtT(t) { return (t > 0 ? '+' : '') + t + ' °C'; }
+  function autoTemp(t5) { return t5 >= -27 ? -10 : (t5 > -37 ? -15 : -20); }
+  function stepFrom(auto) { return auto === -10 ? -15 : (auto === -15 ? -20 : null); }
+  function zoneOf(temp) { return temp >= -12.5 ? 'M10' : (temp > -17.5 ? 'M15' : 'M20'); }
+  function zoneText(z) {
+    return z + ' · колонка ' + (z === 'M10' ? '-10' : z === 'M15' ? '-15' : '-20') + ' °C';
+  }
+
+  /* ---------- A: wind ---------- */
+  function renderWind() {
+    var i = wsel.value;
+    var el = function (id) { return document.getElementById(id); };
+    if (i === '') {
+      el('wWas').textContent = '—'; el('wNow').textContent = '—'; el('wAlpha').textContent = '—';
+      el('wNull').textContent = '—'; el('winfo').textContent = 'Выберите город — карточки покажут старый и новый источник v_H.';
+      return;
+    }
+    var c = CITIES[+i];
+    el('wWas').textContent = c.avg.toFixed(1) + ' м/с';
+    var alphaStr, infoStr;
+    if (c.max === null) {
+      el('wNow').innerHTML = '0 <small>м/с (null → 0)</small>';
+      alphaStr = '0 (без ветра)';
+      infoStr = 'У «' + c.name + '» в базе нет wind_max_jan: подставляется 0, поле подсвечивает валидация климата (min 0.1) — значение вводится вручную.';
+    } else {
+      el('wNow').textContent = c.max.toFixed(1) + ' м/с';
+      var dAlpha = 2.6 * (c.max - c.avg);
+      alphaStr = (dAlpha >= 0 ? '+' : '') + dAlpha.toFixed(1);
+      infoStr = '«' + c.name + '»: после выбора города поле «Скорость ветра» = ' + c.max.toFixed(1) +
+        ' м/с — это значение уйдёт в расчёт, «Результаты» и PDF.';
+    }
+    el('wAlpha').textContent = alphaStr;
+    el('wNull').textContent = c.max === null ? 'этот город' : 'не этот';
+    el('winfo').textContent = infoStr;
+  }
+  wsel.addEventListener('change', renderWind);
+
+  /* ---------- B: checkbox ---------- */
+  var manualOverride = null;
+  var prevCityIdx = null;
+
+  function renderB() {
+    var el = function (id) { return document.getElementById(id); };
+    var i = bsel.value;
+    var hasCity = i !== '';
+    var c = hasCity ? CITIES[+i] : null;
+
+    // B5: смена города сбрасывает чекбокс
+    if (prevCityIdx !== null && i !== prevCityIdx) {
+      document.getElementById('cbxInput').checked = false;
+      manualOverride = null;
+    }
+    prevCityIdx = i;
+
+    var t5 = c ? c.t5 : null;
+    var auto = hasCity ? autoTemp(t5) : null;
+    var step = hasCity ? stepFrom(auto) : null;
+    var stepPossible = hasCity && step !== null;
+
+    el('stRegion').textContent = c ? c.region : 'выберите город из списка';
+    el('stT5').textContent = hasCity ? fmtT(t5) : '—';
+    el('stAuto').textContent = hasCity ? fmtT(auto) + '  ' + zoneText(zoneOf(auto)) : '—';
+
+    var cbx = el('cbx'), input = el('cbxInput'), lock = el('cbxLock');
+    var checked = input.checked;
+    if (!stepPossible) { input.checked = false; checked = false; }
+    cbx.classList.toggle('disabled', !stepPossible);
+    cbx.classList.toggle('checked', checked);
+    input.disabled = !stepPossible;
+    cbx.setAttribute('aria-checked', checked ? 'true' : 'false');
+    if (hasCity && !stepPossible) lock.textContent = 'Город уже в зоне −20 °C — ступень не требуется';
+    else if (!hasCity) lock.textContent = 'Выберите город';
+    else lock.textContent = '';
+    el('noCity').classList.toggle('show', !hasCity);
+
+    var stepBox = el('stStepBox'), stStep = el('stStep'), stStepSub = el('stStepSub');
+    if (checked && stepPossible) {
+      stepBox.classList.remove('off');
+      stStep.textContent = fmtT(step);
+      stStepSub.textContent = 'ступень вниз применена к автоматике ' + fmtT(auto);
+    } else if (stepPossible) {
+      stepBox.classList.remove('off');
+      stStep.textContent = 'выкл';
+      stStepSub.textContent = 'итог = автоматика города';
+    } else {
+      stepBox.classList.add('off');
+      stStep.textContent = 'недоступна';
+      stStepSub.textContent = hasCity ? 'автоматика уже −20 °C' : 'нужен выбранный город';
+    }
+
+    var finalT;
+    if (!hasCity) finalT = -15;
+    else if (checked && stepPossible) finalT = step;
+    else finalT = auto;
+    if (manualOverride !== null) finalT = manualOverride;
+    var z = zoneOf(finalT);
+    el('stFinal').innerHTML = fmtT(finalT) + '  <small>' + zoneText(z) + '</small>';
+    el('stFinalSub').textContent = 'расчётная температура · зона' + (manualOverride !== null ? ' · ручная правка (зона — ближайшая колонка)' : '');
+
+    el('smcLine').innerHTML = !hasCity && manualOverride === null
+      ? 'Дефолт без города: <code>-15.0</code>, <code>M15</code>. Чекбокс активен после выбора города; смена города сбрасывает его.'
+      : 'В .smc: <code>AirTemperature=' + finalT.toFixed(1) + '</code>, <code>Zone=' + z + '</code>, <code>IsHighRequirements=' + (checked && stepPossible && manualOverride === null ? 'true' : 'false') + '</code>'
+        + ' · PDF: «… · ' + zoneText(z) + '»'
+        + (manualOverride !== null ? ' · <i>ручная правка: зона следует за температурой</i>' : '');
+
+    var mt = el('manualT');
+    if (document.activeElement !== mt) mt.value = manualOverride !== null ? manualOverride : '';
+    el('manualZone').textContent = manualOverride !== null ? '→ ' + zoneOf(manualOverride) : '';
+  }
+
+  bsel.addEventListener('change', renderB);
+  document.getElementById('cbxInput').addEventListener('change', function () { manualOverride = null; renderB(); });
+  document.getElementById('cbx').addEventListener('click', function (e) {
+    if (e.target.tagName !== 'INPUT') {
+      var input = document.getElementById('cbxInput');
+      if (!input.disabled) { input.checked = !input.checked; manualOverride = null; renderB(); }
+    }
+  });
+  document.getElementById('cbx').addEventListener('keydown', function (e) {
+    if (e.key === ' ' || e.key === 'Enter') {
+      var input = document.getElementById('cbxInput');
+      if (!input.disabled) { e.preventDefault(); input.checked = !input.checked; manualOverride = null; renderB(); }
+    }
+  });
+  document.getElementById('manualT').addEventListener('input', function () {
+    var v = parseFloat(this.value);
+    manualOverride = (isNaN(v) || v < -50 || v > 10) ? null : v;
+    renderB();
+  });
+  document.getElementById('manualReset').addEventListener('click', function () { manualOverride = null; renderB(); });
+
+  renderWind();
+  renderB();
+</script>
+</body>
+</html>

@@ -57,7 +57,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var city = CreateCity();
             var events = CaptureChangedEvents();
 
-            var result = _climate.ApplyCitySelection(city, false, ClimateMutationOrigin.User);
+            var result = _climate.ApplyCitySelection(city, ClimateMutationOrigin.User);
 
             Assert.That(result.IsChanged, Is.True);
             Assert.That(result.IsValid, Is.True);
@@ -76,7 +76,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         {
             var city = CreateCity();
 
-            var result = _climate.ApplyCitySelection(city, false, ClimateMutationOrigin.Load);
+            var result = _climate.ApplyCitySelection(city, ClimateMutationOrigin.Load);
 
             Assert.That(result.IsChanged, Is.True);
             Assert.That(result.NewSnapshot.HasUserModifications, Is.False);
@@ -87,11 +87,11 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void ApplyCitySelection_SameCity_IsNoOp_NoEvent_NoDirty()
         {
             var city = CreateCity();
-            _climate.ApplyCitySelection(city, false, ClimateMutationOrigin.User);
+            _climate.ApplyCitySelection(city, ClimateMutationOrigin.User);
             _session.MarkClean();
             var events = CaptureChangedEvents();
 
-            var result = _climate.ApplyCitySelection(city, false, ClimateMutationOrigin.User);
+            var result = _climate.ApplyCitySelection(city, ClimateMutationOrigin.User);
 
             Assert.That(result.IsChanged, Is.False);
             Assert.That(events, Is.Empty);
@@ -102,10 +102,10 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void ApplyCitySelection_NullCity_ClearsCityFields()
         {
             var city = CreateCity();
-            _climate.ApplyCitySelection(city, false, ClimateMutationOrigin.User);
+            _climate.ApplyCitySelection(city, ClimateMutationOrigin.User);
             var events = CaptureChangedEvents();
 
-            var result = _climate.ApplyCitySelection(null, false, ClimateMutationOrigin.ProjectLoadReset);
+            var result = _climate.ApplyCitySelection(null, ClimateMutationOrigin.ProjectLoadReset);
 
             Assert.That(result.IsChanged, Is.True);
             Assert.That(result.NewSnapshot.IsCitySelected, Is.False);
@@ -172,15 +172,130 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         }
 
         [Test]
-        public void ApplyIndividualEdit_IsHighRequirements_True_ChangesZone()
+        public void ApplyIndividualEdit_IsHighRequirements_True_StepsDownFromCityAutomatics()
         {
+            // Город с t5 = -30 → автоматика -15; ступень → -20, зона M20
             var city = CreateCity(t5days: -30.0);
-            _climate.ApplyCitySelection(city, false, ClimateMutationOrigin.User);
+            _climate.ApplyCitySelection(city, ClimateMutationOrigin.User);
 
             var result = _climate.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.IsHighRequirements, 1.0), ClimateMutationOrigin.User);
 
             Assert.That(result.IsChanged, Is.True);
-            Assert.That(result.NewSnapshot.Zone, Is.EqualTo(ClimateZone.Zone_M20_Plus));
+            Assert.That(result.NewSnapshot.AirTemperature, Is.EqualTo(-20.0));
+            Assert.That(result.NewSnapshot.Zone, Is.EqualTo(ClimateZone.Zone_M20));
+        }
+
+        [Test]
+        public void ApplyIndividualEdit_IsHighRequirements_AtColdestAutomatics_TemperatureUnchangedAndIdempotent()
+        {
+            // Город с t5 = -40 → автоматика -20: ступени нет, температура не меняется,
+            // повторная мутация — no-op (план 2026-09-12, кейс 1)
+            var city = CreateCity(t5days: -40.0);
+            _climate.ApplyCitySelection(city, ClimateMutationOrigin.User);
+            _session.MarkClean();
+            var events = CaptureChangedEvents();
+
+            var first = _climate.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.IsHighRequirements, 1.0), ClimateMutationOrigin.User);
+            var second = _climate.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.IsHighRequirements, 1.0), ClimateMutationOrigin.User);
+
+            Assert.That(first.NewSnapshot.AirTemperature, Is.EqualTo(-20.0));
+            Assert.That(second.IsChanged, Is.False);
+            Assert.That(events, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void ApplyIndividualEdit_IsHighRequirements_Off_RestoresCityAutomatics()
+        {
+            // Включили ступень, выключили → автоматика города (план 2026-09-12, кейс 2)
+            var city = CreateCity(t5days: -23.0);
+            _climate.ApplyCitySelection(city, ClimateMutationOrigin.User);
+            var automatics = _climate.Snapshot;
+
+            _climate.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.IsHighRequirements, 1.0), ClimateMutationOrigin.User);
+            var result = _climate.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.IsHighRequirements, 0.0), ClimateMutationOrigin.User);
+
+            Assert.That(result.NewSnapshot.AirTemperature, Is.EqualTo(automatics.AirTemperature));
+            Assert.That(result.NewSnapshot.Zone, Is.EqualTo(automatics.Zone));
+            Assert.That(result.NewSnapshot.IsHighRequirements, Is.False);
+        }
+
+        [Test]
+        public void ApplyCitySelection_ResetsHighRequirements_NewCityStartsFromAutomatics()
+        {
+            // Смена города сбрасывает чекбокс: новый город — чистая автоматика (план 2026-09-12, кейс 3)
+            var sochi = CreateCity(t5days: -5.0);
+            var moscow = CreateCity(t5days: -28.0);
+            _climate.ApplyCitySelection(sochi, ClimateMutationOrigin.User);
+            _climate.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.IsHighRequirements, 1.0), ClimateMutationOrigin.User);
+            Assert.That(_climate.Snapshot.IsHighRequirements, Is.True);
+            Assert.That(_climate.Snapshot.AirTemperature, Is.EqualTo(-15.0));
+
+            var result = _climate.ApplyCitySelection(moscow, ClimateMutationOrigin.User);
+
+            Assert.That(result.NewSnapshot.IsHighRequirements, Is.False);
+            Assert.That(result.NewSnapshot.AirTemperature, Is.EqualTo(-15.0));
+            Assert.That(result.NewSnapshot.Zone, Is.EqualTo(ClimateZone.Zone_M15));
+        }
+
+        [Test]
+        public void ApplyIndividualEdit_AirTemperature_ZoneFollowsTemperature()
+        {
+            // Ручная правка температуры: зона — ближайшая колонка (план 2026-09-12, кейс 4);
+            // границы −12.5/−17.5 tie трактовались в холодную сторону
+            var cases = new[]
+            {
+                (-12.0, ClimateZone.Zone_M10),
+                (-12.5, ClimateZone.Zone_M15),
+                (-13.0, ClimateZone.Zone_M15),
+                (-16.0, ClimateZone.Zone_M15),
+                (-17.5, ClimateZone.Zone_M20),
+                (-22.0, ClimateZone.Zone_M20)
+            };
+
+            foreach (var (temperature, expectedZone) in cases)
+            {
+                var session = new ProjectSession();
+                var climate = session.ClimateState;
+                var result = climate.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.AirTemperature, temperature), ClimateMutationOrigin.User);
+
+                Assert.That(result.NewSnapshot.Zone, Is.EqualTo(expectedZone), $"AirTemperature {temperature}");
+            }
+        }
+
+        [Test]
+        public void ApplyIndividualEdit_IsHighRequirements_WithoutCity_FlagOnly_NoTemperatureChange()
+        {
+            // Без города ступень не определена: флаг ставится, температура не трогается;
+            // последующий выбор города флаг сбросит (B5, план 2026-09-12)
+            var result = _climate.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.IsHighRequirements, 1.0), ClimateMutationOrigin.User);
+
+            Assert.That(result.IsChanged, Is.True);
+            Assert.That(result.NewSnapshot.IsHighRequirements, Is.True);
+            Assert.That(result.NewSnapshot.AirTemperature, Is.EqualTo(-15.0));
+        }
+
+        [Test]
+        public void ApplyProjectSnapshot_LegacyM20Plus_ZoneNormalizedToTemperature()
+        {
+            // Старый .smc: Zone=M20_Plus, Air=-20 → зона нормализуется в M20,
+            // флаг читается как есть (план 2026-09-12, кейс 5)
+            var data = new ClimateProjectData
+            {
+                SelectedCity = "Norilsk",
+                Region = "Krasnoyarsk Krai",
+                AirTemperature = -20.0,
+                WindSpeed = 3.0,
+                Humidity = 70.0,
+                SnowfallIntensity = 0.0,
+                SelectedZone = ClimateZone.Zone_M20_Plus,
+                IsHighRequirements = true
+            };
+
+            var result = _climate.ApplyProjectSnapshot(data, null, ClimateMutationOrigin.Load);
+
+            Assert.That(result.NewSnapshot.Zone, Is.EqualTo(ClimateZone.Zone_M20));
+            Assert.That(result.NewSnapshot.IsHighRequirements, Is.True);
+            Assert.That(result.NewSnapshot.AirTemperature, Is.EqualTo(-20.0));
         }
 
         [Test]
@@ -255,7 +370,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void ResetToDefaults_Reset_ChangesStateDoesNotMarkDirty()
         {
             var city = CreateCity();
-            _climate.ApplyCitySelection(city, true, ClimateMutationOrigin.User);
+            _climate.ApplyCitySelection(city, ClimateMutationOrigin.User);
             _session.MarkClean();
             var events = CaptureChangedEvents();
 
@@ -273,7 +388,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void ResetToDefaults_User_ChangesStateAndMarksDirty()
         {
             var city = CreateCity();
-            _climate.ApplyCitySelection(city, false, ClimateMutationOrigin.User);
+            _climate.ApplyCitySelection(city, ClimateMutationOrigin.User);
             _session.MarkClean();
 
             var result = _climate.ResetToDefaults(ClimateMutationOrigin.User);
@@ -287,8 +402,9 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void ResetToCityData_WithCity_ChangesScalarsToCityData()
         {
             var city = CreateCity(t5days: -30.0, wind: 4.0, humidity: 60.0);
-            _climate.ApplyCitySelection(city, false, ClimateMutationOrigin.User);
+            _climate.ApplyCitySelection(city, ClimateMutationOrigin.User);
             _climate.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.AirTemperature, -10.0), ClimateMutationOrigin.User);
+            _climate.ApplyIndividualEdit(new ClimateEdit(ClimateEditField.IsHighRequirements, 1.0), ClimateMutationOrigin.User);
             _session.MarkClean();
 
             var result = _climate.ResetToCityData(city, ClimateMutationOrigin.ProjectLoadReset);
@@ -297,6 +413,8 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             Assert.That(result.NewSnapshot.AirTemperature, Is.EqualTo(-15.0));
             Assert.That(result.NewSnapshot.WindSpeed, Is.EqualTo(4.0));
             Assert.That(result.NewSnapshot.Humidity, Is.EqualTo(60.0));
+            // Сброс к данным города — чистая автоматика: флаг сброшен (план 2026-09-12, B5)
+            Assert.That(result.NewSnapshot.IsHighRequirements, Is.False);
             Assert.That(result.NewSnapshot.HasUserModifications, Is.False);
             Assert.That(_session.IsDirty, Is.False);
         }
@@ -313,7 +431,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void Snapshot_Equality_CoversAllFields()
         {
             var city = CreateCity();
-            _climate.ApplyCitySelection(city, false, ClimateMutationOrigin.User);
+            _climate.ApplyCitySelection(city, ClimateMutationOrigin.User);
             var snapshot = _climate.Snapshot;
 
             var equalSnapshot = snapshot with { };
@@ -328,7 +446,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         {
             var events = CaptureChangedEvents();
 
-            _climate.ApplyCitySelection(CreateCity(), false, ClimateMutationOrigin.Restore);
+            _climate.ApplyCitySelection(CreateCity(), ClimateMutationOrigin.Restore);
 
             Assert.That(events, Has.Count.EqualTo(1));
             Assert.That(events[0].Origin, Is.EqualTo(ClimateMutationOrigin.Restore));
@@ -343,7 +461,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 Name = "Yekaterinburg",
                 Region = "Sverdlovsk Oblast",
                 T5Days092 = t5days,
-                WindAvgTempLe8 = wind,
+                WindMaxJan = wind,
                 Humidity15hCold = humidity,
                 TColdDays098 = t5days - 5.0,
                 TAbsMin = t5days - 10.0,

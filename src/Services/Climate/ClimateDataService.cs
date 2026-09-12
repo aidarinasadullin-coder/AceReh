@@ -108,11 +108,15 @@ namespace SnowMeltingCalculator.Services.Climate
         /// <param name="isHighRequirements">Признак повышенных требований</param>
         /// <returns>Климатическая зона</returns>
         /// <remarks>
-        /// Логика определения зоны:
+        /// Логика определения зоны (автоматика города, для подсказок поиска):
         /// - t ≥ -27°C → Zone_M10 (колонка -10°C)
         /// - -37°C < t < -27°C → Zone_M15 (колонка -15°C)
         /// - t ≤ -37°C → Zone_M20 (колонка -20°C)
-        /// - Повышенные требования → Zone_M20_Plus (колонка -20°C)
+        /// - Повышенные требования → Zone_M20_Plus
+        ///
+        /// С 1.3.0 (план 2026-09-12, часть B) Zone_M20_Plus не порождается:
+        /// User-поток параметр не передаёт, каноническая зона считается через
+        /// ClimateZoneRules. Ветка оставлена для характеризационных тестов.
         /// </remarks>
         public ClimateZone DetermineZone(double t5days, bool isHighRequirements = false)
         {

@@ -50,8 +50,8 @@ namespace SnowMeltingCalculator.Models.Climate
         public ClimateZone Zone { get; set; } = ClimateZone.Zone_M15;
 
         /// <summary>
-        /// Признак повышенных требований
-        /// Если true, используется Zone_M20_Plus
+        /// Признак повышенных требований (ступень вниз от автоматики города:
+        /// −10 → −15, −15 → −20; план 2026-09-12, часть B)
         /// </summary>
         public bool IsHighRequirements { get; set; } = false;
 

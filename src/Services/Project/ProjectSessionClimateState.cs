@@ -57,19 +57,21 @@ namespace SnowMeltingCalculator.Services.Project
 
         public event EventHandler<ClimateStateChangedEventArgs>? Changed;
 
-        public ClimateMutationResult ApplyCitySelection(CityInfo? city, bool isHighRequirements, ClimateMutationOrigin origin)
+        public ClimateMutationResult ApplyCitySelection(CityInfo? city, ClimateMutationOrigin origin)
         {
             var oldSnapshot = Snapshot;
 
             var newCity = city?.Name ?? string.Empty;
             var newRegion = city?.Region ?? string.Empty;
             var t5Days = city?.T5Days092 ?? 0.0;
-            var newAirTemperature = city == null ? -15.0 : DetermineAirTemperature(t5Days, isHighRequirements);
+            // Повышенные требования сбрасываются при смене города (план 2026-09-12, B5):
+            // новый город всегда начинается с чистой автоматики.
+            var newAirTemperature = city == null ? -15.0 : ClimateZoneRules.AutoAirTemperature(t5Days);
             var newColdFiveDayTemperature = city?.T5Days092 ?? 0.0;
-            var newWindSpeed = city?.WindAvgTempLe8 ?? 0.0;
+            var newWindSpeed = city?.WindMaxJan ?? 0.0;
             var newHumidity = city?.Humidity15hCold ?? 0.0;
             var newSnowfallIntensity = 0.0;
-            var newZone = DetermineZone(t5Days, isHighRequirements);
+            var newZone = ClimateZoneRules.FromTemperature(newAirTemperature);
             var newIsCitySelected = city != null;
             var newPeriod0Days = city?.Period_0_Days ?? 0;
             var newHasUserModifications = origin == ClimateMutationOrigin.User;
@@ -83,7 +85,7 @@ namespace SnowMeltingCalculator.Services.Project
             anyChange |= SetProperty(ref _humidity, newHumidity);
             anyChange |= SetProperty(ref _snowfallIntensity, newSnowfallIntensity);
             anyChange |= SetProperty(ref _zone, newZone);
-            anyChange |= SetProperty(ref _isHighRequirements, isHighRequirements);
+            anyChange |= SetProperty(ref _isHighRequirements, false);
             anyChange |= SetProperty(ref _isCitySelected, newIsCitySelected);
             anyChange |= SetProperty(ref _period0Days, newPeriod0Days);
             anyChange |= SetProperty(ref _hasUserModifications, newHasUserModifications);
@@ -119,6 +121,9 @@ namespace SnowMeltingCalculator.Services.Project
                     {
                         anyChange |= SetProperty(ref _coldFiveDayTemperature, edit.Value);
                     }
+                    // Зона следует за итоговой температурой (план 2026-09-12, B4):
+                    // ручная правка держит строку «Зона:» и PDF согласованными.
+                    anyChange |= SetProperty(ref _zone, ClimateZoneRules.FromTemperature(_airTemperature));
                     break;
                 case ClimateEditField.ColdFiveDayTemperature:
                     anyChange |= SetProperty(ref _coldFiveDayTemperature, edit.Value);
@@ -135,11 +140,19 @@ namespace SnowMeltingCalculator.Services.Project
                 case ClimateEditField.IsHighRequirements:
                     var newHigh = edit.Value != 0.0;
                     anyChange |= SetProperty(ref _isHighRequirements, newHigh);
-                    anyChange |= SetProperty(ref _zone, DetermineZone(_coldFiveDayTemperature, newHigh));
+                    // Ступень вниз от автоматики города (план 2026-09-12, B1–B3):
+                    // вкл → «автоматика + ступень»; выкл → возврат автоматики.
                     if (_isCitySelected)
                     {
-                        anyChange |= SetProperty(ref _airTemperature, DetermineAirTemperature(_coldFiveDayTemperature, newHigh));
+                        var auto = ClimateZoneRules.AutoAirTemperature(_coldFiveDayTemperature);
+                        var target = newHigh ? ClimateZoneRules.StepDown(auto) : auto;
+                        if (target.HasValue)
+                        {
+                            anyChange |= SetProperty(ref _airTemperature, target.Value);
+                        }
                     }
+
+                    anyChange |= SetProperty(ref _zone, ClimateZoneRules.FromTemperature(_airTemperature));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(edit), edit.Field, "Unknown climate edit field.");
@@ -162,7 +175,10 @@ namespace SnowMeltingCalculator.Services.Project
             var newIsCitySelected = !string.IsNullOrEmpty(data.SelectedCity);
             var coldFiveDay = city?.T5Days092 ?? data.AirTemperature;
             var newPeriod0Days = city?.Period_0_Days ?? 0;
-            var newZone = data.SelectedZone;
+            // Зона нормализуется по сохранённой температуре: M20_Plus из старых
+            // .smc и расхождения legacy-записей приводятся к текущей семантике
+            // (план 2026-09-12, B5 — совместимость .smc).
+            var newZone = ClimateZoneRules.FromTemperature(data.AirTemperature);
 
             var anyChange = false;
             anyChange |= SetProperty(ref _selectedCity, data.SelectedCity ?? string.Empty);
@@ -218,15 +234,18 @@ namespace SnowMeltingCalculator.Services.Project
             }
 
             var newHasUserModifications = origin == ClimateMutationOrigin.User;
-            var newZone = DetermineZone(city.T5Days092, _isHighRequirements);
+            // Чистая автоматика города: повышенные требования сбрасываются вместе
+            // с ручными правками (план 2026-09-12, B5).
+            var newAirTemperature = ClimateZoneRules.AutoAirTemperature(city.T5Days092);
 
             var anyChange = false;
-            anyChange |= SetProperty(ref _airTemperature, DetermineAirTemperature(city.T5Days092, _isHighRequirements));
+            anyChange |= SetProperty(ref _airTemperature, newAirTemperature);
             anyChange |= SetProperty(ref _coldFiveDayTemperature, city.T5Days092);
-            anyChange |= SetProperty(ref _windSpeed, city.WindAvgTempLe8);
+            anyChange |= SetProperty(ref _windSpeed, city.WindMaxJan);
             anyChange |= SetProperty(ref _humidity, city.Humidity15hCold);
             anyChange |= SetProperty(ref _snowfallIntensity, 0.0);
-            anyChange |= SetProperty(ref _zone, newZone);
+            anyChange |= SetProperty(ref _zone, ClimateZoneRules.FromTemperature(newAirTemperature));
+            anyChange |= SetProperty(ref _isHighRequirements, false);
             anyChange |= SetProperty(ref _period0Days, city.Period_0_Days);
             anyChange |= SetProperty(ref _hasUserModifications, newHasUserModifications);
 
@@ -364,41 +383,6 @@ namespace SnowMeltingCalculator.Services.Project
 
             field = value;
             return true;
-        }
-
-        private static ClimateZone DetermineZone(double t5days, bool isHighRequirements)
-        {
-            if (isHighRequirements)
-            {
-                return ClimateZone.Zone_M20_Plus;
-            }
-
-            if (t5days >= -27.0)
-            {
-                return ClimateZone.Zone_M10;
-            }
-
-            if (t5days > -37.0)
-            {
-                return ClimateZone.Zone_M15;
-            }
-
-            return ClimateZone.Zone_M20;
-        }
-
-        private static double DetermineAirTemperature(double t5days, bool isHighRequirements)
-        {
-            if (isHighRequirements)
-            {
-                return -20.0;
-            }
-
-            if (t5days >= -27.0)
-            {
-                return -10.0;
-            }
-
-            return t5days >= -37.0 ? -15.0 : -20.0;
         }
     }
 }

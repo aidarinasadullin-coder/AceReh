@@ -37,7 +37,7 @@ namespace SnowMeltingCalculator.Tests.Services.History
         public void Climate_ApplySnapshot_Undo_RestoresAllTwelveFieldsBitForBit()
         {
             var city = MakeCity("Норильск", -45.0, period0Days: 277);
-            _session.ClimateState.ApplyCitySelection(city, isHighRequirements: false, ClimateMutationOrigin.User);
+            _session.ClimateState.ApplyCitySelection(city, ClimateMutationOrigin.User);
             var expected = _session.ClimateState.Snapshot;
             Assert.That(expected.IsCitySelected, Is.True, "Sanity: city selected.");
             Assert.That(expected.HasUserModifications, Is.True, "Sanity: user origin keeps the flag.");
@@ -66,7 +66,7 @@ namespace SnowMeltingCalculator.Tests.Services.History
         public void Climate_ApplySnapshot_Undo_DoesNotRaiseDataChanged_PublishesContext_DoesNotDirty()
         {
             var city = MakeCity("Сургут", -32.0, period0Days: 224);
-            _session.ClimateState.ApplyCitySelection(city, isHighRequirements: false, ClimateMutationOrigin.User);
+            _session.ClimateState.ApplyCitySelection(city, ClimateMutationOrigin.User);
             var saved = _session.ClimateState.Snapshot;
             _session.ClimateState.ApplyIndividualEdit(
                 new ClimateEdit(ClimateEditField.WindSpeed, 9.0),
@@ -206,7 +206,7 @@ namespace SnowMeltingCalculator.Tests.Services.History
             Name = name,
             Region = "Тестовый регион",
             T5Days092 = t5days,
-            WindAvgTempLe8 = 4.0,
+            WindMaxJan = 4.0,
             Humidity15hCold = 76.0,
             Period_0_Days = period0Days
         };

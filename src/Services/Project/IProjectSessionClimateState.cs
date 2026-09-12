@@ -20,13 +20,13 @@ namespace SnowMeltingCalculator.Services.Project
         event EventHandler<ClimateStateChangedEventArgs>? Changed;
 
         /// <summary>
-        /// Применить выбор города.
+        /// Применить выбор города. Повышенные требования сбрасываются:
+        /// новый город всегда начинается с чистой автоматики (план 2026-09-12, B5).
         /// </summary>
         /// <param name="city">Выбранный город или <c>null</c> для сброса.</param>
-        /// <param name="isHighRequirements">Повышенные требования.</param>
         /// <param name="origin">Источник мутации.</param>
         /// <returns>Результат мутации с origin и срезами до/после.</returns>
-        ClimateMutationResult ApplyCitySelection(CityInfo? city, bool isHighRequirements, ClimateMutationOrigin origin);
+        ClimateMutationResult ApplyCitySelection(CityInfo? city, ClimateMutationOrigin origin);
 
         /// <summary>
         /// Применить одну индивидуальную правку скалярного значения.

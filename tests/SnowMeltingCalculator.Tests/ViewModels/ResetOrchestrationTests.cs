@@ -60,7 +60,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(vm.WindSpeed, Is.EqualTo(5.0));
             Assert.That(vm.Humidity, Is.EqualTo(70.0));
             Assert.That(vm.SnowfallIntensity, Is.EqualTo(0));
-            Assert.That(vm.SelectedZone, Is.EqualTo(ClimateZone.Zone_M15));
+            Assert.That(vm.MirroredZone, Is.EqualTo(ClimateZone.Zone_M15));
             Assert.That(vm.IsHighRequirements, Is.False);
             Assert.That(vm.HasUserModifications, Is.False);
             Assert.That(vm.SearchQuery, Is.Empty);

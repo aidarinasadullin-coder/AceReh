@@ -420,7 +420,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(climateVm.WindSpeed, Is.EqualTo(savedWindSpeed));
             Assert.That(climateVm.Humidity, Is.EqualTo(savedHumidity));
             Assert.That(climateVm.SnowfallIntensity, Is.EqualTo(savedSnowfallIntensity));
-            Assert.That(climateVm.SelectedZone, Is.EqualTo(ClimateZone.Zone_M15));
+            // Зона нормализуется по сохранённой температуре (план 2026-09-12, B5):
+            // savedAirTemperature = -18 → M20, несмотря на SelectedZone=M15 в файле.
+            Assert.That(climateVm.MirroredZone, Is.EqualTo(ClimateZone.Zone_M20));
         }
 
         [Test]
@@ -479,7 +481,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(climateDataSingleton.WindSpeed, Is.EqualTo(savedWindSpeed));
             Assert.That(climateDataSingleton.Humidity, Is.EqualTo(savedHumidity));
             Assert.That(climateDataSingleton.SnowfallIntensity, Is.EqualTo(savedSnowfallIntensity));
-            Assert.That(climateDataSingleton.Zone, Is.EqualTo(ClimateZone.Zone_M15));
+            // Singleton получает зону, нормализованную по температуре (-18 → M20)
+            Assert.That(climateDataSingleton.Zone, Is.EqualTo(ClimateZone.Zone_M20));
         }
 
         [Test]
@@ -502,7 +505,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                         Name = cityName,
                         Region = region,
                         T5Days092 = -28,
-                        WindAvgTempLe8 = 4.0,
+                        WindMaxJan = 4.0,
                         Humidity15hCold = 70.0
                     }
                 });
@@ -524,7 +527,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             climateVm.WindSpeed = savedWindSpeed;
             climateVm.Humidity = savedHumidity;
             climateVm.SnowfallIntensity = savedSnowfallIntensity;
-            climateVm.SelectedZone = ClimateZone.Zone_M15;
 
             var viewModel = CreateViewModel(
                 climateVm,
@@ -649,7 +651,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.That(saved.ClimateData.WindSpeed, Is.Not.EqualTo(climateVm.WindSpeed));
             Assert.That(saved.ClimateData.Humidity, Is.Not.EqualTo(climateVm.Humidity));
             Assert.That(saved.ClimateData.SnowfallIntensity, Is.Not.EqualTo(climateVm.SnowfallIntensity));
-            Assert.That(saved.ClimateData.SelectedZone, Is.Not.EqualTo(climateVm.SelectedZone));
+            Assert.That(saved.ClimateData.SelectedZone, Is.Not.EqualTo(climateVm.MirroredZone));
             Assert.That(saved.ClimateData.IsHighRequirements, Is.Not.EqualTo(climateVm.IsHighRequirements));
         }
 
@@ -1946,7 +1948,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 Name = cityName,
                 Region = region,
                 T5Days092 = t5Days,
-                WindAvgTempLe8 = windAvg,
+                WindMaxJan = windAvg,
                 Humidity15hCold = humidity
             });
             climateServiceMock.Setup(s => s.DetermineZone(It.IsAny<double>(), It.IsAny<bool>()))

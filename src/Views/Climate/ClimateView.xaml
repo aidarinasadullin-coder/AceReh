@@ -16,10 +16,13 @@
     <!--
         Фаза 5 редизайна (эталон docs/design/renders/01-shell-climate.png):
         одна форм-карточка «Город и климатические параметры» — город (выбор
-        завершается в дропдауне, повторной строки города нет), зона, 2×2
-        поля, чекбокс повышенных требований; «пятидневка»/зона — приглушённые
-        строки. Обе кнопки сброса сохраняются (разные операции) — в заголовке
-        карточки. Валидация — статус-бар каркаса (Фаза 1).
+        завершается в дропдауне, повторной строки города нет), 2×2 поля,
+        чекбокс повышенных требований; «пятидневка»/зона — приглушённые
+        строки. План 2026-09-12 (часть B): выпадающий список зоны удалён —
+        зона выводится из итоговой температуры (приглушённая строка),
+        чекбокс — ступень вниз от автоматики города. Обе кнопки сброса
+        сохраняются (разные операции) — в заголовке карточки. Валидация —
+        статус-бар каркаса (Фаза 1).
     -->
     <UserControl.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
@@ -70,33 +73,19 @@
                         </StackPanel>
                     </Grid>
 
-                    <!-- Город + климатическая зона. Выбор города завершается в
-                         дропдауне (клик = выбор и закрытие, Ф5.2) -->
-                    <Grid Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                            <TextBlock Text="Город" Style="{StaticResource FormCard.Label}"/>
-                            <controls:CityAutoCompleteBox
-                                AutomationProperties.AutomationId="ClimateCitySearch"
-                                SearchQuery="{Binding SearchQuery, Mode=TwoWay}"
-                                SelectedCity="{Binding SelectedCity, Mode=TwoWay}"
-                                FilteredCities="{Binding FilteredCitiesWithHighlight, Mode=OneWay}"
-                                PlaceholderText="Введите город..."
-                                ToolTip="Введите название города для поиска"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                            <TextBlock Text="Климатическая зона" Style="{StaticResource FormCard.Label}"/>
-                            <ComboBox ItemsSource="{Binding Source={StaticResource ClimateZoneValues}}"
-                                      SelectedItem="{Binding SelectedZone}"
-                                      ToolTip="Климатическая зона для выбора мощности системы"
-                                      AutomationProperties.AutomationId="ClimateZone"
-                                      Style="{StaticResource ComboBox.Field}"
-                                      HorizontalAlignment="Stretch"/>
-                        </StackPanel>
-                    </Grid>
+                    <!-- Город. Выбор города завершается в дропдауне
+                         (клик = выбор и закрытие, Ф5.2). Климатическая зона
+                         выводится автоматически (приглушённая строка ниже) -->
+                    <StackPanel Margin="0,0,0,12">
+                        <TextBlock Text="Город" Style="{StaticResource FormCard.Label}"/>
+                        <controls:CityAutoCompleteBox
+                            AutomationProperties.AutomationId="ClimateCitySearch"
+                            SearchQuery="{Binding SearchQuery, Mode=TwoWay}"
+                            SelectedCity="{Binding SelectedCity, Mode=TwoWay}"
+                            FilteredCities="{Binding FilteredCitiesWithHighlight, Mode=OneWay}"
+                            PlaceholderText="Введите город..."
+                            ToolTip="Введите название города для поиска"/>
+                    </StackPanel>
 
                     <!-- 2×2: температура / ветер / влажность / снегопад -->
                     <Grid>
@@ -134,7 +123,7 @@
                             <TextBlock Text="Скорость ветра" Style="{StaticResource FormCard.Label}"/>
                             <TextBox Style="{StaticResource TextBox.Default}"
                                      Text="{Binding WindSpeed, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="Скорость ветра в январе (от 0.1 до 30 м/с)"
+                                     ToolTip="Максимальная из средних скоростей ветра по румбам за январь (от 0.1 до 30 м/с); подставляется из климатической базы при выборе города"
                                      AutomationProperties.AutomationId="ClimateWindSpeed"
                                      ap:Field.Unit="м/с"
                                      behaviors:TextBoxBehavior.SelectAllOnFocus="True"
@@ -169,11 +158,15 @@
                         </StackPanel>
                     </Grid>
 
-                    <!-- Повышенные требования -->
-                    <CheckBox Content="Повышенные требования (колонка -20°C)"
+                    <!-- Повышенные требования: ступень вниз от автоматики города
+                         (−10 → −15, −15 → −20); при автоматике −20 или без
+                         выбранного города — неактивен; сбрасывается при смене
+                         города (план 2026-09-12, часть B) -->
+                    <CheckBox Content="Повышенные требования (ступень вниз: −10 → −15, −15 → −20)"
                               IsChecked="{Binding IsHighRequirements}"
+                              IsEnabled="{Binding IsHighRequirementsEnabled}"
                               Margin="0,12,0,0"
-                              ToolTip="Принудительно использовать колонку -20°C для расчёта мощности"
+                              ToolTip="Применить следующую, более холодную колонку таблицы мощности поверх данных города. Сбрасывается при смене города. При расчётной температуре −20 °C недоступен."
                               AutomationProperties.AutomationId="ClimateHighRequirements"/>
 
                     <!-- Приглушённые строки: «пятидневка» (по городу) и зона -->

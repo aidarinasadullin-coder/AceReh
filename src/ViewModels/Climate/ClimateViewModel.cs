@@ -135,16 +135,24 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         private double _snowfallIntensity = 0;
 
         /// <summary>
-        /// Выбранная климатическая зона
+        /// Выбранная климатическая зона — зеркало канонического состояния.
+        /// UI-входа нет: зона выводится автоматически (план 2026-09-12, часть B).
         /// </summary>
-        [ObservableProperty]
-        private ClimateZone _selectedZone = ClimateZone.Zone_M15;
+        public ClimateZone MirroredZone { get; private set; } = ClimateZone.Zone_M15;
 
         /// <summary>
         /// Признак повышенных требований
         /// </summary>
         [ObservableProperty]
         private bool _isHighRequirements;
+
+        /// <summary>
+        /// Доступность чекбокса повышенных требований:
+        /// нужен выбранный город, автоматика которого холоднее −20 не должна быть
+        /// (при автоматике −20 ступени нет — чекбокс неактивен)
+        /// </summary>
+        [ObservableProperty]
+        private bool _isHighRequirementsEnabled;
 
         /// <summary>
         /// Сообщение об ошибке валидации
@@ -174,16 +182,9 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         public bool IsValid => ValidateAll();
 
         /// <summary>
-        /// Описание климатической зоны
+        /// Описание климатической зоны (производная итоговой температуры)
         /// </summary>
-        public string ZoneDescription => SelectedZone switch
-        {
-            ClimateZone.Zone_M10 => "Колонка -10°C (t ≥ -27°C)",
-            ClimateZone.Zone_M15 => "Колонка -15°C (-37°C < t < -27°C)",
-            ClimateZone.Zone_M20 => "Колонка -20°C (t ≤ -37°C)",
-            ClimateZone.Zone_M20_Plus => "Колонка -20°C (повышенные требования)",
-            _ => string.Empty
-        };
+        public string ZoneDescription => ClimateZoneRules.ZoneText(MirroredZone);
 
         /// <summary>
         /// Признак того, что данные загружены
@@ -500,7 +501,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 WindSpeed = WindSpeed,
                 Humidity = Humidity,
                 SnowfallIntensity = SnowfallIntensity,
-                Zone = SelectedZone
+                Zone = MirroredZone
             };
         }
 
@@ -513,7 +514,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             WindSpeed = parameters.WindSpeed;
             Humidity = parameters.Humidity;
             SnowfallIntensity = parameters.SnowfallIntensity;
-            SelectedZone = parameters.Zone;
+            SetMirroredZone(parameters.Zone);
             IsHighRequirements = parameters.IsHighRequirements;
             HasUserModifications = parameters.HasUserModifications;
         }
@@ -560,7 +561,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                     return;
                 }
 
-                _climateState.ApplyCitySelection(value, IsHighRequirements, ClimateMutationOrigin.User);
+                _climateState.ApplyCitySelection(value, ClimateMutationOrigin.User);
 
                 if (_historyService != null)
                 {
@@ -570,7 +571,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 return;
             }
 
-            _climateState.ApplyCitySelection(null, IsHighRequirements, ClimateMutationOrigin.User);
+            _climateState.ApplyCitySelection(null, ClimateMutationOrigin.User);
         }
 
         /// <summary>
@@ -697,14 +698,27 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 WindSpeed = snapshot.WindSpeed;
                 Humidity = snapshot.Humidity;
                 SnowfallIntensity = snapshot.SnowfallIntensity;
-                SelectedZone = snapshot.Zone;
+                SetMirroredZone(snapshot.Zone);
                 IsHighRequirements = snapshot.IsHighRequirements;
+                IsHighRequirementsEnabled = snapshot.IsCitySelected
+                    && ClimateZoneRules.StepDown(ClimateZoneRules.AutoAirTemperature(snapshot.ColdFiveDayTemperature)).HasValue;
                 HasUserModifications = snapshot.HasUserModifications;
             }
             finally
             {
                 _isMirroringClimateState = false;
             }
+        }
+
+        private void SetMirroredZone(ClimateZone zone)
+        {
+            if (MirroredZone == zone)
+            {
+                return;
+            }
+
+            MirroredZone = zone;
+            OnPropertyChanged(nameof(ZoneDescription));
         }
 
         #endregion

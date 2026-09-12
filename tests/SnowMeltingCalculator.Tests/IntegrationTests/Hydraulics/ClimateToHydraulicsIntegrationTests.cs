@@ -560,8 +560,8 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 .SetName("Условный_T5Days-30_ZoneM15");
             yield return new TestCaseData("Норильск", -42.0, -20.0, false)
                 .SetName("Норильск_T5Days-42_ZoneM20");
-            yield return new TestCaseData("Сочи", -23.0, -20.0, true)
-                .SetName("Сочи_HighRequirements_ZoneM20Plus");
+            yield return new TestCaseData("Сочи", -23.0, -10.0, true)
+                .SetName("Сочи_HighRequirementsResetByCitySelection_AutomaticsWins");
         }
 
         [TestCaseSource(nameof(CityScenarios))]
@@ -577,15 +577,22 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                 Name = cityName,
                 Region = "Тестовый регион",
                 T5Days092 = t5Days092,
-                WindAvgTempLe8 = 3.0,
+                WindMaxJan = 3.0,
                 Humidity15hCold = 80.0
             };
 
-            // Act
+            // Act: флаг, включённый до выбора города, сбрасывается при выборе
+            // (план 2026-09-12, B5) — итог = чистая автоматика города.
             _climateViewModel.IsHighRequirements = isHighRequirements;
             _climateViewModel.SelectedCity = city;
 
             // Assert
+            if (isHighRequirements)
+            {
+                Assert.That(_climateViewModel.IsHighRequirements, Is.False,
+                    "Выбор города сбрасывает повышенные требования (B5)");
+            }
+
             Assert.That(_climateData.AirTemperature, Is.EqualTo(expectedAirTemperature),
                 $"AirTemperature должна быть {expectedAirTemperature}°C по таблице 1.6 для {cityName}");
             Assert.That(_viewModel.DesignTemperatureValue, Is.EqualTo(expectedAirTemperature),
