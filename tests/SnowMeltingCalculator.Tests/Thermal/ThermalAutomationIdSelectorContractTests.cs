@@ -65,8 +65,8 @@ public sealed class ThermalAutomationIdSelectorContractTests
         // (решение владельца 2026-09-07, спека §7.2/план §3 PDF-4).
         (@"src\MainWindow.xaml", "ReportExportPdfReportOperating", "MenuItem"),
         (@"src\MainWindow.xaml", "ReportExportPdfReportDesignCold", "MenuItem"),
-        // «Файл → Инструкция» (2026-09-08): полная инструкция пользователя
-        // (docs/Инструкция полная/README.html) открывается в браузере
+        // «Файл → Инструкция» (2026-09-08): инструкция пользователя
+        // (docs/manual/README.html) открывается в браузере
         // по умолчанию; контракт ID закреплён за пунктом меню шапки.
         (@"src\MainWindow.xaml", "InstructionMenuItem", "MenuItem"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalMode", "ComboBox"),
