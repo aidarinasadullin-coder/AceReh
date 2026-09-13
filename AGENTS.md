@@ -56,6 +56,10 @@ direction and follows the dossier workflow
   (`.github/workflows/ci.yml`: сборка Release + архитектурные тесты + полный
   набор без UiSmoke); зелёный прогон на последнем коммите — условие
   готовности handover, красный `master` блокирует старт новых фаз.
+- Чек независимого ревью материальных изменений оформляется по шаблону
+  `docs/agents/review-receipt-template.md` (`REVIEW_ID`/`VERDICT`/
+  `FINDINGS` со статусами) и живёт в `docs/reviews/`; ADR и коммит
+  ссылаются на путь чека.
 
 ## Эволюция правил и манера работы
 
