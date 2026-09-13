@@ -4,12 +4,12 @@
 
 - **ОС:** Windows 10/11 (64-бит)
 - **RAM:** 4 GB минимум
-- **Диск:** ~250 MB свободного места (развёрнутая поставка ~200 MB)
+- **Диск:** ~300 MB свободного места (развёрнутая поставка ~226 MB)
 - **.NET устанавливать не нужно:** рантайм .NET 8 входит в состав поставки (self-contained)
 
 ## Установка (Setup.exe, рекомендуется)
 
-1. Запустите `SnowMeltingCalculator-v1.5.0-Setup.exe` (~60 MB)
+1. Запустите `SnowMeltingCalculator-v1.5.0-Setup.exe` (~68 MB)
 2. Следуйте инструкциям мастера установки:
    - Примите лицензионное соглашение
    - Выберите папку установки (по умолчанию: `C:\Program Files\REHAU\SnowMeltingCalculator`)
@@ -102,7 +102,7 @@ dotnet publish src/SnowMeltingCalculator.csproj -c Release -r win-x64 --self-con
 ```
 
 - Установщик пакует содержимое `publish\*` (без `*.pdb`), сжатие LZMA solid,
-  итоговый размер ~60 MB.
+  итоговый размер ~68 MB.
 - Версия установщика берётся автоматически из `publish\SnowMeltingCalculator.exe`
   (FileVersion — та же, что `<Version>` в `src/SnowMeltingCalculator.csproj`).
   Править версию в `.iss` не нужно; папка `publish\` должна существовать до
@@ -146,10 +146,8 @@ C:\Program Files\REHAU\SnowMeltingCalculator\
 │   ├── glycol_data.json          # свойства этилен-/пропиленгликоля
 │   ├── materials_db.json         # теплопроводность материалов
 │   └── rehau_products.json       # трубы RAUTHERM S, коллекторы HKV и IV
-├── docs\Инструкция полная\       # полная инструкция пользователя
-│   ├── README.html               # открывается из меню «Файл → Инструкция»
-│   └── media\                    # скриншоты и GIF-демонстрации инструкции
-├── LatoFont\                     # шрифты (лицензия OFL)
+├── docs\manual\
+│   └── README.html               # полная инструкция (открывается из меню «Файл → Инструкция»)
 └── cs\ de\ … zh-Hant\            # локализованные ресурсы .NET-рантайма
 ```
 
