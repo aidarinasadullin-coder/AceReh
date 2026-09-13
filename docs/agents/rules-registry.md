@@ -28,6 +28,7 @@
 | ARCH-UNDO | undo/redo — событийный memento-дневник по разделам; склейка, окно тишины, orphan-буфер | ADR-014, урок №21 | test | UndoRedoServiceJournalTests, CitySelection_GroupsIntoOneEntry_WithClimateThermalAndHydraulics, HeaderCalculate_OpensStandaloneCalculationEntry_AndClosesOnSilence, PerCharacterEdits_AreStitchedIntoSingleEntry, UndoThenEdit_KillsRedo, Save_SetsCleanPoint_UndoBackToSavedState_ClearsDirty |
 | ARCH-XAML | ratchet-гигиена токенов XAML: только канон `Tokens.Colors.xaml` | ADR-006, ADR-007, ADR-008 | test | ViewTokenHygieneTests |
 | ARCH-AUTID | AutomationId-контракты UI-элементов закреплены тестами | контракт AutomationId (Thermal) | test | ThermalAutomationIdSelectorContractTests |
+| ARCH-AUTID-PEER | AutomationId — на контроле с automation peer (TextBlock/Button/TextBox/ComboBox/ListBox); на Border/Panel ID в UIA-дерево не попадает | урок №32 | test | ThermalAutomationIdSelectorContractTests |
 | ARCH-CULT | культура WPF-биндинга числовых полей закреплена (ru-RU пин на запятую) | урок 2026-09-04 (культура биндинга) | test | RussianNumberCultureTests |
 | ARCH-DEDUPE | ratchet `baseline_refactor_dedupe.json`: дедупликация не откатывается | baseline-файл фазы дедупликации | test | ThermalBaselineTests, CircuitsBaselineTests |
 | CONSTR-UGV | семантика УГВ при жизненном цикле проекта и шаблонах | ADR-004 | test | ConstructionDefaultStateInitializerGroundwaterTests, ConstructionServiceTests, ConstructionViewModelTests |
