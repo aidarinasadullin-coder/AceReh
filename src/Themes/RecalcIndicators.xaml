@@ -5,7 +5,7 @@
     
     Назначение: Стили для индикаторов состояния пересчёта данных
     
-    Соответствует: design_guidelines.md
+    Соответствует: docs/recalc_indicators_design.md (дизайн по брендбуку REHAU 2026)
     - Цвета: RehauRed #E50040, RehauTeal #4FC7B5
     - Типографика: Inter Medium 11-14px
     - Отступы: 8px, 12px, 16px

@@ -4,7 +4,7 @@
 //
 // Назначение: Готовый компонент для отображения статуса пересчёта
 //
-// Соответствует: design_guidelines.md
+// Соответствует: docs/recalc_indicators_design.md (дизайн по брендбуку REHAU 2026)
 // - Цвета: Warning (жёлтый), Processing (синий), Success (зелёный)
 // - Типографика: Inter Medium 14px
 // - Отступы: 16,12 (padding)

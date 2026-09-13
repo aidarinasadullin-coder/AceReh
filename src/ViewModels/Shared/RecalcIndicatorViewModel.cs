@@ -4,7 +4,7 @@
 //
 // Назначение: ViewModel для управления состоянием индикатора пересчёта
 //
-// Соответствует: design_guidelines.md
+// Соответствует: docs/recalc_indicators_design.md (дизайн по брендбуку REHAU 2026)
 // - RecalcState: Info/Warning/Processing/Success
 // - Warning: жёлтый фон (#FFF8E8), оранжевая рамка (#FFB300)
 // - Processing: синий фон (#E3F2FD), синяя рамка (#2196F3)

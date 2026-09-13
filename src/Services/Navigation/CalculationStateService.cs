@@ -2,7 +2,7 @@
 // REHAU Снеготаяние - Реализация сервиса состояния расчёта
 // ================================================================================
 //
-// Соответствует: design_guidelines.md
+// Соответствует: docs/recalc_indicators_design.md (дизайн по брендбуку REHAU 2026)
 // Реализует: ICalculationStateService
 //
 // Phase 4 (AMZ-1, DEC-T06/T07): все Thermal backing stores удалены. Геттеры
