@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>show-me · Спецификация закупки — Excel-экспорт</title>
+<style>
+  :root{
+    --red:#E50040; --red-dark:#B60034; --red-tint:#FCC2B8;
+    --teal:#4FC7B5; --teal-deep:#2F776D; --teal-pale:#95DDD3;
+    --gray-100:#E4E4E4; --gray-300:#B0B0B0; --ink:#000; --paper:#FFFFFF;
+    --bg:#F7F7F7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Inter,"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;padding:0 0 48px}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+
+  /* Шапка */
+  header{background:var(--paper);border-bottom:4px solid var(--red);padding:28px 0 22px;margin-bottom:28px}
+  .brandline{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .logo{background:var(--red);color:#fff;font-weight:800;letter-spacing:.08em;padding:8px 14px;font-size:20px}
+  h1{font-size:26px;font-weight:700}
+  .sub{color:#555;margin-top:6px;font-size:14px}
+  .badge{display:inline-block;background:var(--red-tint);color:var(--red-dark);font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px}
+  .badge.teal{background:var(--teal-pale);color:var(--teal-deep)}
+
+  h2{font-size:18px;margin:34px 0 12px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:10px;height:10px;background:var(--red);display:inline-block;flex:none}
+  h2.tealhead::before{background:var(--teal)}
+  p.lead{font-size:15px;max-width:860px}
+
+  /* Меню-мокап */
+  .menu-mock{display:inline-block;background:var(--paper);border:1px solid var(--gray-300);border-radius:8px;padding:14px 18px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .menubtn{background:var(--paper);border:1px solid var(--gray-300);border-radius:6px;padding:8px 16px;font-size:14px;font-weight:600}
+  .menudrop{margin-top:10px;border:1px solid var(--gray-300);border-radius:6px;overflow:hidden;width:320px}
+  .menuitem{padding:8px 14px;font-size:13.5px;border-bottom:1px solid var(--gray-100);display:flex;justify-content:space-between;gap:12px}
+  .menuitem:last-child{border-bottom:none}
+  .menuitem.new{background:var(--teal-pale);font-weight:700;color:var(--teal-deep)}
+  .menuitem .tag{font-size:11px;background:var(--teal);color:#fff;border-radius:999px;padding:1px 8px;align-self:center}
+  .menunote{font-size:12.5px;color:#666;margin-top:8px}
+
+  /* Вкладки листов */
+  .tabs{display:flex;gap:6px;margin:14px 0 0}
+  .tab{border:1px solid var(--gray-300);border-bottom:none;background:var(--gray-100);padding:8px 20px;font-size:14px;font-weight:600;cursor:pointer;border-radius:8px 8px 0 0;color:#444}
+  .tab.is-active{background:var(--paper);color:var(--ink);box-shadow:0 -2px 0 var(--red) inset}
+  .sheet{background:var(--paper);border:1px solid var(--gray-300);border-top:none;padding:0;display:none}
+  .sheet.is-active{display:block}
+  .sheetbar{background:var(--red);color:#fff;padding:10px 18px;font-weight:700;font-size:15px;letter-spacing:.01em}
+  .sheet.teal .sheetbar{background:var(--teal-deep)}
+  .sheetbody{padding:16px 18px 20px;overflow-x:auto}
+
+  table.grid{border-collapse:collapse;width:100%;font-size:13.5px;min-width:640px}
+  table.grid th{background:var(--gray-100);border:1px solid var(--gray-300);padding:7px 10px;text-align:left;font-weight:700;white-space:nowrap}
+  table.grid td{border:1px solid var(--gray-300);padding:6px 10px}
+  table.grid tr:nth-child(even) td{background:#FAFAFA}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  td.art{font-family:Consolas,"Courier New",monospace;font-size:12.5px;white-space:nowrap}
+  .sectrow td{background:var(--red-tint);font-weight:700;color:var(--red-dark)}
+  .sectrow.tealrow td{background:var(--teal-pale);color:var(--teal-deep)}
+  .totalrow td{background:var(--gray-100);font-weight:700}
+  .sheetnote{font-size:12.5px;color:#666;margin-top:12px}
+
+  /* Решения и вопросы */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+  .card{background:var(--paper);border:1px solid var(--gray-300);border-radius:8px;padding:14px 16px;font-size:13.5px}
+  .card b{display:block;margin-bottom:4px}
+  .card .k{color:var(--teal-deep);font-weight:800;margin-right:6px}
+  .card.red{border-left:4px solid var(--red)}
+  .card.teal{border-left:4px solid var(--teal)}
+
+  .q{background:var(--paper);border:1px solid var(--gray-300);border-radius:8px;padding:14px 16px;margin-bottom:12px}
+  .q .qt{font-weight:700;font-size:14px;margin-bottom:8px}
+  .q .qn{color:var(--red);font-weight:800;margin-right:8px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{border:1px solid var(--gray-300);background:var(--paper);border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer}
+  .opt:hover{border-color:var(--teal-deep)}
+  .opt.is-picked{background:var(--teal-pale);border-color:var(--teal-deep);color:var(--teal-deep);font-weight:700}
+  .opt .rec{font-size:11px;background:var(--red);color:#fff;border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+  .qhint{font-size:12px;color:#777;margin-top:8px}
+
+  footer{margin-top:40px;padding-top:16px;border-top:2px solid var(--gray-100);font-size:12.5px;color:#666}
+  footer a{color:var(--red-dark)}
+  .mono{font-family:Consolas,"Courier New",monospace;font-size:12px;background:var(--gray-100);padding:1px 6px;border-radius:4px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brandline">
+      <span class="logo">REHAU</span>
+      <h1>Спецификация закупки — экспорт в Excel</h1>
+      <span class="badge">на приёмке владельца</span>
+      <span class="badge teal">идея №3 · одобрена 2026-09-13</span>
+    </div>
+    <div class="sub">show-me к плану <b>2026-09-13-excel-specification-plan.md</b> · шаг «Результаты» · листы «Спецификация» и «Контуры» · числа в макете — демонстрационные, артикулы и типоразмеры — реальные (rehau_products.json)</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <h2>Где появляется экспорт</h2>
+  <p class="lead">Пункт «Спецификация XLSX» добавляется в меню существующей сплит-кнопки
+  на шаге «Результаты» и реализует уже имеющуюся заглушку
+  <span class="mono">ExportExcelCommand</span>. Открыть вопрос — имя кнопки (ОВ-3).</p>
+  <div class="menu-mock">
+    <button class="menubtn" type="button">Отчёт PDF ▾</button>
+    <div class="menudrop">
+      <div class="menuitem">Предпросмотр PDF</div>
+      <div class="menuitem">Печать</div>
+      <div class="menuitem">Сохранить PDF...</div>
+      <div class="menuitem">Пояснительная записка (PDF) — рабочий режим</div>
+      <div class="menuitem">Пояснительная записка (PDF) — холодный пуск</div>
+      <div class="menuitem new">Спецификация XLSX <span class="tag">новое</span></div>
+    </div>
+    <div class="menunote">Пункт активен при <span class="mono">IsDataReady</span> — как остальные экспорты.</div>
+  </div>
+
+  <h2>Что получается в файле</h2>
+  <p class="lead">Демонстрационный проект «Пермь, площадка»: 10 контуров, 2 коллектора РЗС.
+  Числа — числовые ячейки (суммируются в Excel), разделитель рисует Excel по своей локали.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="tab is-active" type="button" data-tab="spec">Лист «Спецификация»</button>
+    <button class="tab" type="button" data-tab="circuits">Лист «Контуры»</button>
+  </div>
+
+  <section class="sheet is-active" id="panel-spec">
+    <div class="sheetbar">РЕХАУ Калькулятор снеготаяния — спецификация закупки</div>
+    <div class="sheetbody">
+      <table class="grid">
+        <tr><th>Раздел</th><th>Наименование</th><th>Артикул</th><th>Ед.</th><th class="num">Кол-во</th></tr>
+        <tr class="sectrow"><td colspan="5">Труба</td></tr>
+        <tr><td>Труба</td><td>RAUTHERM S 17×2,0</td><td class="art">1200170000</td><td>м</td><td class="num">529,7</td></tr>
+        <tr class="sectrow"><td colspan="5">Резьбозажимные соединения</td></tr>
+        <tr><td>РЗС</td><td>Резьбозажимное соединение THERM S 17×2 (G3/4&quot;)</td><td class="art">12506073002</td><td>шт</td><td class="num">20</td></tr>
+        <tr class="sectrow"><td colspan="5">Коллекторы HKV</td></tr>
+        <tr><td>Коллектор</td><td>HKV 6 (6 контуров)</td><td class="art">12180613001</td><td>шт</td><td class="num">1</td></tr>
+        <tr><td>Коллектор</td><td>HKV 4 (4 контура)</td><td class="art">12180413001</td><td>шт</td><td class="num">1</td></tr>
+        <tr class="totalrow"><td colspan="4">Итого по проекту: контуров — 10 · труба, м</td><td class="num">529,7</td></tr>
+        <tr class="totalrow"><td colspan="4">Итого по проекту: мощность, кВт</td><td class="num">9,8</td></tr>
+      </table>
+      <div class="sheetnote">РЗС — 2 шт на каждый контур (подача + обратка), типоразмер — по трубе контуров;
+      арты владельца 2026-09-13. РЗС под 25×2,3 — вопрос ОВ-5 (розничный артикул не подтверждён).
+      Коэффициент запаса на трубу — ОВ-4.</div>
+    </div>
+  </section>
+
+  <section class="sheet teal" id="panel-circuits">
+    <div class="sheetbar">Наладка по контурам — коллекторы №1–2</div>
+    <div class="sheetbody">
+      <table class="grid">
+        <tr><th>Коллектор</th><th>№</th><th class="num">Петля, м</th><th class="num">Подача, м</th><th class="num">Площадь, м²</th><th class="num">Мощность, Вт</th><th class="num">Расход, л/ч</th><th class="num">Δp, кПа</th><th class="num">Обороты клапана</th><th class="num">Преднастройка</th></tr>
+        <tr class="sectrow tealrow"><td colspan="10">Коллектор №1 — HKV 6</td></tr>
+        <tr><td>HKV 6</td><td>1</td><td class="num">54,0</td><td class="num">2,5</td><td class="num">9,2</td><td class="num">1050</td><td class="num">181</td><td class="num">18,4</td><td class="num">3,0</td><td class="num">2,5</td></tr>
+        <tr><td>HKV 6</td><td>2</td><td class="num">61,5</td><td class="num">3,0</td><td class="num">10,4</td><td class="num">1180</td><td class="num">203</td><td class="num">21,2</td><td class="num">3,5</td><td class="num">3,0</td></tr>
+        <tr><td>HKV 6</td><td>3</td><td class="num">47,2</td><td class="num">2,5</td><td class="num">8,1</td><td class="num">920</td><td class="num">159</td><td class="num">16,1</td><td class="num">2,5</td><td class="num">2,5</td></tr>
+        <tr><td>HKV 6</td><td>4</td><td class="num">39,8</td><td class="num">2,0</td><td class="num">6,9</td><td class="num">780</td><td class="num">135</td><td class="num">13,7</td><td class="num">2,0</td><td class="num">2,0</td></tr>
+        <tr><td>HKV 6</td><td>5</td><td class="num">58,1</td><td class="num">3,0</td><td class="num">9,9</td><td class="num">1110</td><td class="num">191</td><td class="num">20,0</td><td class="num">3,0</td><td class="num">3,0</td></tr>
+        <tr><td>HKV 6</td><td>6</td><td class="num">50,6</td><td class="num">2,5</td><td class="num">8,7</td><td class="num">990</td><td class="num">171</td><td class="num">17,3</td><td class="num">2,5</td><td class="num">2,5</td></tr>
+        <tr class="sectrow tealrow"><td colspan="10">Коллектор №2 — HKV 4</td></tr>
+        <tr><td>HKV 4</td><td>7</td><td class="num">56,3</td><td class="num">2,5</td><td class="num">9,6</td><td class="num">1090</td><td class="num">188</td><td class="num">19,1</td><td class="num">3,0</td><td class="num">3,0</td></tr>
+        <tr><td>HKV 4</td><td>8</td><td class="num">44,9</td><td class="num">2,0</td><td class="num">7,7</td><td class="num">870</td><td class="num">150</td><td class="num">15,0</td><td class="num">2,5</td><td class="num">2,0</td></tr>
+        <tr><td>HKV 4</td><td>9</td><td class="num">52,7</td><td class="num">2,5</td><td class="num">9,0</td><td class="num">1020</td><td class="num">176</td><td class="num">17,8</td><td class="num">3,0</td><td class="num">2,5</td></tr>
+        <tr><td>HKV 4</td><td>10</td><td class="num">40,1</td><td class="num">2,0</td><td class="num">6,9</td><td class="num">790</td><td class="num">136</td><td class="num">13,9</td><td class="num">2,0</td><td class="num">2,0</td></tr>
+        <tr class="totalrow"><td colspan="2">Итого по контурам</td><td class="num">505,2</td><td class="num">24,5</td><td class="num">—</td><td class="num">9 800</td><td class="num">1690</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+      </table>
+      <div class="sheetnote">Состав колонок — предложение P5: петля/подача из
+      <span class="mono">HydraulicCircuitSnapshot</span>, потери и обороты — из
+      <span class="mono">HydraulicCircuitResultSnapshot</span>, преднастройка —
+      <span class="mono">OperatingResult.Throttling</span> (то же значение, что ZuDrosseln отчёта).
+      Владелец может исключить или добавить колонки на приёмке.</div>
+    </div>
+  </section>
+
+  <h2>Ключевые решения (предложения плана)</h2>
+  <div class="cards">
+    <div class="card teal"><span class="k">P1</span><b>ClosedXML (MIT)</b>Пишет .xlsx без установленного Office. EPPlus отклонён — лицензия Polyform Noncommercial не годится коммерческому продукту.</div>
+    <div class="card teal"><span class="k">P2</span><b>Артикулы труб — канон json</b>Арты <span class="mono">StandardPipes</span> приводятся к <span class="mono">rehau_products.json</span> (1200170000/1200200000/1200250000) — арт в спецификации берётся из снимка, без резолва в рантайме (ОВ-1).</div>
+    <div class="card teal"><span class="k">P4</span><b>Лист «Спецификация»</b>Секции «Труба», «Резьбозажимные соединения» (2 шт/контур, арты владельца), «Коллекторы HKV», «Итого по проекту».</div>
+    <div class="card teal"><span class="k">P5</span><b>Лист «Контуры»</b>Наладка: длины, площадь, мощность, расход, Δp, обороты клапана, преднастройка.</div>
+  </div>
+
+  <h2 class="tealhead">Открытые вопросы — выберите вариант (кликабельно)</h2>
+
+  <div class="q">
+    <div class="qt"><span class="qn">ОВ-1</span>Канонический источник артикулов труб: <span class="mono">StandardPipes</span> vs <span class="mono">rehau_products.json</span></div>
+    <div class="opts">
+      <button class="opt is-picked" type="button">Привести StandardPipes к json-артам<span class="rec">рекомендую</span></button>
+      <button class="opt" type="button">Резолв в билдере по имени из json</button>
+      <button class="opt" type="button">Оставить как есть</button>
+    </div>
+    <div class="qhint">Сейчас в <span class="mono">PipeType.cs:49-78</span> зашиты 12180501001 / 12180502001 / 12180503001, в json — 1200170000 (17×2,0), 1200200000 (20×2,0), 1200250000 (25×2,3). Вне снапшотов <span class="mono">.Article</span> никто не читает.</div>
+  </div>
+
+  <div class="q">
+    <div class="qt"><span class="qn">ОВ-2</span>Показывать ли артикулы в PDF-отчёте «Результаты»</div>
+    <div class="opts">
+      <button class="opt" type="button">Да, заодно в этой фазе</button>
+      <button class="opt is-picked" type="button">Отдельной мини-фазой после xlsx<span class="rec">рекомендую</span></button>
+      <button class="opt" type="button">Нет, только в xlsx</button>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qt"><span class="qn">ОВ-3</span>Имя сплит-кнопки после появления пункта xlsx</div>
+    <div class="opts">
+      <button class="opt" type="button">Переименовать в «Экспорт ▾»</button>
+      <button class="opt" type="button">Оставить «Отчёт PDF ▾»</button>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qt"><span class="qn">ОВ-4</span>Коэффициент запаса на трубу в спецификации</div>
+    <div class="opts">
+      <button class="opt is-picked" type="button">Нет — расчётный метраж как есть<span class="rec">рекомендую</span></button>
+      <button class="opt" type="button">Фиксированный процент</button>
+      <button class="opt" type="button">Настраиваемый в UI</button>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qt"><span class="qn">ОВ-5</span>РЗС под трубу 25×2,3 — розничный артикул не подтверждён</div>
+    <div class="opts">
+      <button class="opt is-picked" type="button">Пустой артикул + примечание, уточнить позже<span class="rec">рекомендую</span></button>
+      <button class="opt" type="button">Не включать при контурах 25-й трубой</button>
+      <button class="opt" type="button">Сначала уточнить артикул у дистрибьютора</button>
+    </div>
+    <div class="qhint">РЗС 17×2 (12506073002) и 20×2 (12506173002) — G3/4&quot; евроконус: подходят к отводам всех бытовых HKV
+    (отводы контуров G3/4&quot;, подводка 1&quot; — это главный подвод). Фитинг под 25×2,3 существует — в комплекте
+    промышленных IVKK (12488901001, краны/вентили с евроконусом под 25×2,3), но в рознице отдельно не находится.</div>
+  </div>
+
+  <footer>
+    План: <a href="2026-09-13-excel-specification-plan.md">docs/plans/2026-09-13-excel-specification-plan.md</a> ·
+    файлы-якоря: <span class="mono">ResultsViewModel.cs:784</span> (заглушка),
+    <span class="mono">MainWindow.xaml:238-290</span> (меню),
+    <span class="mono">ResultsKpiPresenter.cs:84</span> (метраж),
+    <span class="mono">rehau_products.json</span> (артикулы).
+    Реализация — только после owner-signal.
+  </footer>
+</div>
+
+<script>
+  function initShowMe(){
+    var tabs = document.querySelectorAll('.tab');
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].addEventListener('click', function(){
+        for (var j = 0; j < tabs.length; j++) { tabs[j].classList.remove('is-active'); }
+        this.classList.add('is-active');
+        var panels = document.querySelectorAll('.sheet');
+        for (var k = 0; k < panels.length; k++) { panels[k].classList.remove('is-active'); }
+        var target = document.getElementById('panel-' + this.getAttribute('data-tab'));
+        if (target) { target.classList.add('is-active'); }
+      });
+    }
+    var groups = document.querySelectorAll('.q .opts');
+    for (var g = 0; g < groups.length; g++) {
+      var opts = groups[g].querySelectorAll('.opt');
+      for (var o = 0; o < opts.length; o++) {
+        opts[o].addEventListener('click', function(){
+          var siblings = this.parentNode.querySelectorAll('.opt');
+          for (var s = 0; s < siblings.length; s++) { siblings[s].classList.remove('is-picked'); }
+          this.classList.add('is-picked');
+        });
+      }
+    }
+  }
+  initShowMe();
+</script>
+</body>
+</html>
