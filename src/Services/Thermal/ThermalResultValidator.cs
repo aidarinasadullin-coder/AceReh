@@ -34,7 +34,7 @@ namespace SnowMeltingCalculator.Services.Thermal
             {
                 validationResult.AddError(
                     "ReturnTemperature",
-                    $"Расчётная температура обратки ({returnTemperature:F1}°C) отрицательна");
+                    $"Расчётная температура обратки ({returnTemperature.ToString("F1", AppCulture.Culture)}°C) отрицательна");
             }
 
             // Температурный перепад должен быть положительным
@@ -49,7 +49,7 @@ namespace SnowMeltingCalculator.Services.Thermal
             {
                 validationResult.AddError(
                     "DeltaT",
-                    $"Температурный перепад ({result.DeltaT:F1}°C) превышает максимально допустимый ({ValidationConstants.MaxDeltaT}°C)");
+                    $"Температурный перепад ({result.DeltaT.ToString("F1", AppCulture.Culture)}°C) превышает максимально допустимый ({ValidationConstants.MaxDeltaT.ToString("0.#", AppCulture.Culture)}°C)");
             }
 
             return validationResult;
