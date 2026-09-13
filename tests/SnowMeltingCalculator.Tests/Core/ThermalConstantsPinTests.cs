@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Thermal;
+using System.Linq;
 
 namespace SnowMeltingCalculator.Tests.Core
 {
@@ -53,6 +54,24 @@ namespace SnowMeltingCalculator.Tests.Core
                 Assert.That(ThermalConstants.SurfaceTempPrevention, Is.Not.EqualTo((int)OperatingMode.Melting));
                 Assert.That(ThermalConstants.SurfaceTempAntiIce, Is.Not.EqualTo((int)OperatingMode.AntiIcing));
             });
+        }
+
+        /// <summary>
+        /// План 2026-09-13 (вариант B): множество допустимых t_пов = целые
+        /// 1..7 (пресеты 3/5/7 + ручные Manual1/2/4/6). Пин — любое
+        /// расширение/сужение диапазона должно быть явным решением владельца.
+        /// </summary>
+        [Test]
+        public void OperatingMode_DefinedValues_AreExactlyIntegersOneToSeven()
+        {
+            var defined = Enum.GetValues<OperatingMode>()
+                .Select(m => (int)m)
+                .OrderBy(v => v)
+                .ToArray();
+
+            Assert.That(defined, Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6, 7 }));
+            Assert.That(ValidationConstants.MinSurfaceTemperature, Is.EqualTo(1));
+            Assert.That(ValidationConstants.MaxSurfaceTemperature, Is.EqualTo(7));
         }
     }
 }

@@ -392,6 +392,18 @@ namespace SnowMeltingCalculator.Services.Project
             {
                 errors.Add("OperatingMode must be a defined value.");
             }
+            else
+            {
+                // План 2026-09-13: t_П = (int)Mode допускается только в 1..7
+                // (пресеты 3/5/7 + ручной ввод 1/2/4/6). Defensive-проверка —
+                // расчеты принимают любое число, диапазон фиксируем здесь.
+                int surfaceTemperature = (int)candidate.Mode;
+                if (surfaceTemperature < ValidationConstants.MinSurfaceTemperature
+                    || surfaceTemperature > ValidationConstants.MaxSurfaceTemperature)
+                {
+                    errors.Add($"Surface temperature must be between {ValidationConstants.MinSurfaceTemperature} and {ValidationConstants.MaxSurfaceTemperature}.");
+                }
+            }
 
             if (double.IsNaN(candidate.SupplyTemperature)
                 || candidate.SupplyTemperature < ValidationConstants.MinSupplyTemperature

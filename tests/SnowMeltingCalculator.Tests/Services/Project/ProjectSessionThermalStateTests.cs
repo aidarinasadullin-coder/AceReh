@@ -524,6 +524,46 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             Assert.That(_completions, Is.EqualTo(6));
         }
 
+        /// <summary>
+        /// План 2026-09-13 (вариант B): ручные значения t_пов (Manual1/2/4/6)
+        /// — валидные режимы; пресеты 3/5/7 не тронуты (границы 1 и 7 включены).
+        /// </summary>
+        [Test]
+        public void ApplyInputEdit_ModeManualValues_Accepted()
+        {
+            ArrangeWithResult();
+
+            foreach (var mode in new[]
+                     {
+                         OperatingMode.Manual1, OperatingMode.Manual2,
+                         OperatingMode.Manual4, OperatingMode.Manual6,
+                         OperatingMode.AntiIcing, OperatingMode.Melting, OperatingMode.Intensive
+                     })
+            {
+                var result = _state.ApplyInputEdit(ThermalInputEdit.ForMode(mode), ThermalMutationOrigin.User);
+
+                Assert.That(result.IsRejected, Is.False, $"Режим {mode} должен приниматься.");
+                Assert.That(_state.Snapshot.Inputs.Mode, Is.EqualTo(mode));
+            }
+
+            Assert.That(_completions, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void ApplyInputEdit_ModeUndefinedValue_RejectedAtomically()
+        {
+            ArrangeWithResult();
+            var before = _state.Snapshot;
+
+            var result = _state.ApplyInputEdit(
+                ThermalInputEdit.ForMode((OperatingMode)100), ThermalMutationOrigin.User);
+
+            Assert.That(result.IsRejected, Is.True);
+            Assert.That(result.Before, Is.SameAs(result.After));
+            Assert.That(_state.Snapshot, Is.EqualTo(before));
+            Assert.That(_completions, Is.Zero);
+        }
+
         #endregion
 
         #region Completion multiplicity (DEC-T02)

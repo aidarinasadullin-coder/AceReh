@@ -141,11 +141,38 @@ namespace SnowMeltingCalculator.Converters
                     Models.Thermal.OperatingMode.AntiIcing => "Минимальная мощность, температура поверхности +3°C. Подходит для предотвращения образования льда.",
                     Models.Thermal.OperatingMode.Melting => "Стандартный режим, температура поверхности +5°C. Оптимальный баланс мощности и эффективности.",
                     Models.Thermal.OperatingMode.Intensive => "Максимальная мощность, температура поверхности +7°C. Для интенсивного снегопада.",
+                    Models.Thermal.OperatingMode.Manual1 => "Своё значение: +1°C. Температура поверхности задана вручную.",
+                    Models.Thermal.OperatingMode.Manual2 => "Своё значение: +2°C. Температура поверхности задана вручную.",
+                    Models.Thermal.OperatingMode.Manual4 => "Своё значение: +4°C. Температура поверхности задана вручную.",
+                    Models.Thermal.OperatingMode.Manual6 => "Своё значение: +6°C. Температура поверхности задана вручную.",
                     _ => mode.ToString()
                 };
             }
 
             return value.ToString() ?? string.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Конвертер: человекочитаемая подпись режима работы
+    /// (<see cref="Models.Thermal.OperatingModeDisplay.ToDisplayText"/>) —
+    /// единый источник правил с Results и PDF (план 2026-09-13, V3).
+    /// </summary>
+    public class OperatingModeDisplayTextConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Models.Thermal.OperatingMode mode)
+            {
+                return Models.Thermal.OperatingModeDisplay.ToDisplayText(mode);
+            }
+
+            return value?.ToString() ?? string.Empty;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -11,6 +11,7 @@
     <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
     <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
     <converters:OperatingModeDescriptionConverter x:Key="OperatingModeDescriptionConverter"/>
+    <converters:OperatingModeDisplayTextConverter x:Key="OperatingModeDisplayTextConverter"/>
     <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
     <converters:BoolToAlertIconConverter x:Key="BoolToAlertIconConverter"/>
     <converters:BoolToValidationColorConverter x:Key="BoolToValidationColorConverter"/>

@@ -15,7 +15,8 @@
     <!--
         Фаза 5 редизайна (эталон docs/design/renders/04-thermal.png):
         одна форм-карточка «Параметры расчёта» (Режим / Температуры / Труба),
-        «Температура поверхности» — отдельное read-only поле по режиму,
+        «Температура поверхности» — редактируемое целое +1…+7, синхронизировано
+        с режимом (план 2026-09-13, вариант B),
         «Рассчитать» перенесена в шапку окна (ThermalCalculate, MainWindow).
         Результаты — HeroKPI + 6 KPI-чипов + свёрнутый блок «Дополнительные
         параметры»; дубль R₁/R₂ убран (панель «Сводка» каркаса, Фаза 4).
@@ -94,9 +95,11 @@
                                 VerticalAlignment="Center"/>
                     </Grid>
 
-                    <!-- Секция «Режим работы»: подписи режима — как в приложении
-                         (OperatingModeDescriptionConverter, +3/+5/+7 °C в описании);
-                         условия «ветер/снег» в карточке режима не показываются (Ф5.1) -->
+                    <!-- Секция «Режим работы»: 3 пресета (+3/+5/+7) и ручные
+                         значения t_П (план 2026-09-13, вариант B); bold-строка
+                         пункта — OperatingModeDisplayTextConverter (человекочитаемая
+                         подпись, V3); условия «ветер/снег» в карточке режима
+                         не показываются (Ф5.1) -->
                     <TextBlock Text="Режим работы" Style="{StaticResource Thv.SectionTitle}" Margin="0,8,0,8"/>
                     <ComboBox ItemsSource="{Binding AvailableModes}"
                               SelectedItem="{Binding SelectedMode}"
@@ -107,7 +110,7 @@
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>
-                                    <TextBlock Text="{Binding}" FontWeight="Bold" Foreground="{DynamicResource Brand.Black.Brush}"/>
+                                    <TextBlock Text="{Binding Converter={StaticResource OperatingModeDisplayTextConverter}}" FontWeight="Bold" Foreground="{DynamicResource Brand.Black.Brush}"/>
                                     <TextBlock Style="{StaticResource Card.Subtitle}"
                                                TextWrapping="Wrap"
                                                MaxWidth="450"
@@ -119,8 +122,9 @@
                     <TextBlock Style="{StaticResource FormCard.Hint}"
                                Text="{Binding SelectedMode, Converter={StaticResource OperatingModeDescriptionConverter}}"/>
 
-                    <!-- Секция «Температуры»: 2×2 — подача / поверхность (read-only,
-                         следует режиму) / перепад (read-only) / грунт -->
+                    <!-- Секция «Температуры»: 2×2 — подача / поверхность
+                         (целое +1…+7, синхронизировано с режимом, план
+                         2026-09-13) / перепад (read-only) / грунт -->
                     <TextBlock Text="Температуры" Style="{StaticResource Thv.SectionTitle}"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -150,22 +154,24 @@
 
                         <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,10">
                             <TextBlock Text="Температура поверхности" Style="{StaticResource FormCard.Label}"/>
-                            <Border Style="{StaticResource Thv.ReadOnlyField}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding SurfaceTemperature, StringFormat={}{0:+0.0}°C}"
-                                               FontWeight="SemiBold"
-                                               VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="1"
-                                               Text="из режима"
-                                               Style="{StaticResource Card.Subtitle}"
-                                               Margin="6,0,0,0"
-                                               VerticalAlignment="Center"/>
-                                </Grid>
-                            </Border>
+                            <TextBox Style="{StaticResource TextBox.Default}"
+                                     Text="{Binding SurfaceTemperatureEntry, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Целая температура поверхности от +1 до +7 °C. Значения +3, +5, +7 соответствуют режимам «Антиобледенение», «Таяние», «Интенсивное»."
+                                     AutomationProperties.AutomationId="ThermalSurfaceTemperature"
+                                     ap:Field.Unit="°C"
+                                     behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                                     behaviors:TextBoxBehavior.RestoreOnEscape="True"/>
+                            <TextBlock Text="{Binding SurfaceTemperatureCaption}"
+                                       Style="{StaticResource Card.Subtitle}"
+                                       Margin="0,4,0,0"/>
+                            <TextBlock Text="{Binding SurfaceTemperatureError}"
+                                       Style="{StaticResource FormCard.Hint}"
+                                       Foreground="{DynamicResource Brand.Red.Brush}"
+                                       Visibility="{Binding SurfaceTemperatureError, Converter={StaticResource StringToVisibilityConverter}}"/>
+                            <TextBlock Text="{Binding SurfaceTemperatureHint}"
+                                       Style="{StaticResource FormCard.Hint}"
+                                       Foreground="{DynamicResource Brand.Red.Brush}"
+                                       Visibility="{Binding SurfaceTemperatureHint, Converter={StaticResource StringToVisibilityConverter}}"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,10">

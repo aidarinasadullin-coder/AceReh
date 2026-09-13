@@ -669,6 +669,49 @@ namespace SnowMeltingCalculator.Tests.Project
         }
 
         /// <summary>
+        /// План 2026-09-13 (вариант B): ручное значение t_пов (Manual4)
+        /// проходит round-trip; wire — новое имя enum ("manual4") тем же
+        /// JsonStringEnumConverter, старые имена не затронуты.
+        /// </summary>
+        [Test]
+        public async Task ThermalRoundTrip_ManualSurfaceTemperature_WireNameIsCamelCaseEnum()
+        {
+            var inputs = new ThermalInputsSnapshot(
+                OperatingMode.Manual4, 50.0, 10.0,
+                ThermalPipeSnapshot.FromPipeType(PipeType.StandardPipes[1]), 200);
+            var session = new ProjectSession();
+            session.ThermalState.Restore(inputs, null);
+
+            var data = new ProjectData
+            {
+                Version = "1.1",
+                ProjectNumber = "THM-RT-MANUAL",
+                ThermalData = ThermalPersistenceMapper.BuildThermalProjectData(
+                    session.ThermalState.Snapshot)
+            };
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"thm-rt-manual-{Guid.NewGuid()}.smc");
+            try
+            {
+                Assert.That(await _service.SaveProjectAsync(tempPath, data), Is.True);
+
+                // Wire: camelCase-имя члена enum, а не число
+                var json = await File.ReadAllTextAsync(tempPath);
+                Assert.That(json, Does.Contain("\"selectedMode\": \"manual4\""));
+
+                var loaded = await _service.LoadProjectAsync(tempPath);
+                Assert.That(loaded, Is.Not.Null);
+                var restoredInputs = ThermalPersistenceMapper.BuildInputsCandidate(
+                    loaded.ThermalData, PipeType.StandardPipes);
+                Assert.That(restoredInputs.Mode, Is.EqualTo(OperatingMode.Manual4));
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
+        }
+
+        /// <summary>
         /// Todo 10: v1.0-файл с каноническим Thermal-состоянием проходит тот же
         /// семантический round-trip — версия не меняет wire-контракт.
         /// </summary>
