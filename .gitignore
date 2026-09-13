@@ -55,3 +55,11 @@ console.log*
 
 # Вспомогательные рабочие материалы (брендбук, презентации, скриншоты, генераты) — вне git
 docs/workspace/
+
+# Презентация 2026-09-13: сборочный харнесс — зависимости и промежуточные деки вне git
+# (финалы — в Презентация/готовые/, скрипты и исходные ассеты коммитятся)
+node_modules/
+Презентация/harness-assets/vid/
+Презентация/harness-assets/harness-deck.pptx
+Презентация/harness-assets/harness-deck-v2.pptx
+Презентация/harness-assets/harness-deck.html
