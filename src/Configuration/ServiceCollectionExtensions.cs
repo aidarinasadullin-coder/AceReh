@@ -132,6 +132,7 @@ namespace SnowMeltingCalculator.Configuration
         {
             // Repositories - Singleton для кэширования данных
             services.AddSingleton<ICollectorRepository, CollectorRepository>();
+            services.AddSingleton<Repositories.Fittings.IFittingsRepository, Repositories.Fittings.FittingsRepository>();
 
             // Services - Singleton для кэширования данных
             services.AddSingleton<IGlycolDataService, GlycolDataService>();
@@ -242,6 +243,9 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<ResultsPdfDataBuilder>();
             services.AddSingleton<HydraulicSummaryBuilder>();
             services.AddSingleton<ResultsKpiPresenter>();
+            // Экспорт спецификации закупки в Excel (план 2026-09-13)
+            services.AddSingleton<ResultsSpecificationDataBuilder>();
+            services.AddSingleton<IResultsExcelExportService, ExcelExportService>();
 
             // ADR-014: событийный memento-дневник «Отменить / Вернуть».
             // Синглтон, слушает Changed 4 срезов сессии; диспетчер UI-потока

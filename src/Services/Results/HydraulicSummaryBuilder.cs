@@ -201,22 +201,13 @@ namespace SnowMeltingCalculator.Services.Results
             };
         }
 
+        // Форматтеры вынесены в CollectorTypeDisplay — один источник правил
+        // для Results (карточки/спецификации) и экспорта спецификации (урок №22).
         private static string FormatCollectorTypeDisplay(ValveType valveType, int circuitCount) =>
-            $"{FormatCollectorTypeName(valveType)} ({FormatCircuitCount(circuitCount)})";
+            CollectorTypeDisplay.Format(valveType, circuitCount);
 
-        private static string FormatCollectorTypeName(ValveType valveType) => valveType switch
-        {
-            ValveType.HKV_D => "HKV-D",
-            ValveType.IV_1_25 => "IV 1¼\"",
-            ValveType.IV_1_5 => "IV 1½\"",
-            _ => "Unknown"
-        };
+        private static string FormatCollectorTypeName(ValveType valveType) => CollectorTypeDisplay.FormatName(valveType);
 
-        private static string FormatCircuitCount(int count) => count switch
-        {
-            1 => "1 контур",
-            2 or 3 or 4 => $"{count} контура",
-            _ => $"{count} контуров"
-        };
+        private static string FormatCircuitCount(int count) => CollectorTypeDisplay.FormatCircuitCount(count);
     }
 }

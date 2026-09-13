@@ -43,6 +43,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly IThermalReportDataProvider _thermalReportDataProvider;
         private readonly IHydraulicsReportDataProvider _hydraulicsReportDataProvider;
         private readonly Services.History.IUndoRedoService? _undoRedoService;
+        private readonly ResultsSpecificationDataBuilder _specificationDataBuilder;
+        private readonly IResultsExcelExportService _excelExportService;
         private DateTime _createdDate;
 
         private bool _isResetting;
@@ -527,7 +529,9 @@ namespace SnowMeltingCalculator.ViewModels.Results
             IThermalReportDataProvider? thermalReportDataProvider = null,
             ICalculationReportPdfExportService? calculationReportPdfExportService = null,
             IHydraulicsReportDataProvider? hydraulicsReportDataProvider = null,
-            Services.History.IUndoRedoService? undoRedoService = null)
+            Services.History.IUndoRedoService? undoRedoService = null,
+            ResultsSpecificationDataBuilder? specificationDataBuilder = null,
+            IResultsExcelExportService? excelExportService = null)
         {
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
@@ -555,6 +559,11 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 ?? new CalculationReportPdfExportService(
                     new CalculationReportDataBuilder(),
                     new CalculationReportPdfRenderer());
+            _specificationDataBuilder = specificationDataBuilder
+                ?? new ResultsSpecificationDataBuilder(
+                    new Repositories.Hydraulics.CollectorRepository(),
+                    new Repositories.Fittings.FittingsRepository());
+            _excelExportService = excelExportService ?? new ExcelExportService();
             if (_displayModeState is not null)
             {
                 _displayModeState.IsOperatingMode = IsOperatingMode;
@@ -782,17 +791,55 @@ namespace SnowMeltingCalculator.ViewModels.Results
         }
 
         /// <summary>
-        /// Команда экспорта в Excel (заглушка)
+        /// Команда экспорта спецификации закупки в Excel (план
+        /// docs/plans/2026-09-13-excel-specification-plan.md)
         /// </summary>
         [RelayCommand]
         private async Task ExportExcel()
         {
             RefreshAll();
 
-            // TODO: Реализовать экспорт в Excel
-            StatusMessage = "Экспорт в Excel будет реализован в следующей версии";
-            await Task.Delay(2000);
-            StatusMessage = string.Empty;
+            if (!IsDataReady)
+            {
+                StatusMessage = "Невозможно экспортировать: не все данные готовы";
+                await Task.Delay(3000);
+                StatusMessage = string.Empty;
+                return;
+            }
+
+            var fileName = _dialogService.ShowSaveFileDialog(
+                $"Спецификация_{ProjectNumber}_{DateTime.Now:yyyyMMdd}.xlsx",
+                "Книга Excel (*.xlsx)|*.xlsx",
+                title: "Экспорт спецификации в Excel",
+                defaultExt: "xlsx");
+
+            if (fileName == null)
+                return;
+
+            try
+            {
+                StatusMessage = "Экспорт спецификации...";
+                var data = await _specificationDataBuilder.BuildAsync(_projectSession, ProjectNumber, ProjectObject);
+                var success = await _excelExportService.ExportSpecificationToXlsxAsync(fileName, data);
+
+                if (success)
+                {
+                    StatusMessage = $"Спецификация сохранена: {Path.GetFileName(fileName)}";
+                }
+                else
+                {
+                    StatusMessage = "Ошибка при экспорте спецификации";
+                }
+
+                await Task.Delay(3000);
+                StatusMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Ошибка экспорта: {ex.Message}";
+                await Task.Delay(5000);
+                StatusMessage = string.Empty;
+            }
         }
 
         /// <summary>

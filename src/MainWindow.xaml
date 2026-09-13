@@ -285,6 +285,10 @@
                                       Style="{StaticResource Shell.ReportMenuItem}"
                                       Command="{Binding ResultsViewModel.ExportDesignColdPdfReportCommand}"
                                       AutomationProperties.AutomationId="ReportExportPdfReportDesignCold"/>
+                            <MenuItem Header="Спецификация XLSX"
+                                      Style="{StaticResource Shell.ReportMenuItem}"
+                                      Command="{Binding ResultsViewModel.ExportExcelCommand}"
+                                      AutomationProperties.AutomationId="ReportExportSpecificationXlsx"/>
                         </ContextMenu>
                     </Button.ContextMenu>
                 </Button>

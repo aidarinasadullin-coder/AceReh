@@ -51,7 +51,9 @@ namespace SnowMeltingCalculator.Models.Thermal
             new PipeType
             {
                 Name = "RAUTHERM S 17x2,0",
-                Article = "12180501001",
+                // Артикулы — канон rehau_products.json (ОВ-1а плана
+                // 2026-09-13-excel-specification-plan.md)
+                Article = "1200170000",
                 OuterDiameter = 17,
                 InnerDiameter = 13,
                 WallThickness = 2.0,
@@ -60,7 +62,7 @@ namespace SnowMeltingCalculator.Models.Thermal
             new PipeType
             {
                 Name = "RAUTHERM S 20x2,0",
-                Article = "12180502001",
+                Article = "1200200000",
                 OuterDiameter = 20,
                 InnerDiameter = 16,
                 WallThickness = 2.0,
@@ -69,7 +71,7 @@ namespace SnowMeltingCalculator.Models.Thermal
             new PipeType
             {
                 Name = "RAUTHERM S 25x2,3",
-                Article = "12180503001",
+                Article = "1200250000",
                 OuterDiameter = 25,
                 InnerDiameter = 20.4,
                 WallThickness = 2.3,
