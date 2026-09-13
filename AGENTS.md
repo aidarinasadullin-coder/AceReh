@@ -47,6 +47,11 @@ direction and follows the dossier workflow
   real entities, in REHAU token colors. The artifact is committed next
   to the plan as `docs/plans/show-me-*.html`. Check: the owner opens
   the artifact during plan review (`docs/agents/lessons.md`, урок №21).
+- Независимое ревью выполняется в атакующем режиме: промпт перечисляет
+  вектора атаки (урок №26), вердикт требует находок; три ревью подряд
+  без находок — сигнал ротации векторов (журнал `docs/agents/quality-log.md`).
+- show-me артефакт регенерируется из плана и не правится вручную;
+  сверка артефакта с планом — обязательный шаг ревью (урок №27).
 
 ## Эволюция правил и манера работы
 
