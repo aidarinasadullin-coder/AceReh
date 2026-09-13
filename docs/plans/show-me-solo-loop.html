@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me · Закалка соло-контура</title>
+<style>
+  :root{
+    --red:#E50040; --red-dark:#B60034; --red-soft:#F4555E; --red-pale:#FCC2B8;
+    --teal:#4FC7B5; --teal-deep:#2F776D; --teal-success:#3F9F91; --teal-pale:#95DDD3;
+    --ink:#000000; --text:#4E4E4E; --bg:#F6F6F7; --card:#FFFFFF; --line:#E7E7EA;
+    --mono:"Cascadia Code",Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 64px}
+
+  header{background:linear-gradient(135deg,var(--red) 0%,var(--red-dark) 100%);color:#fff;padding:44px 24px 38px;margin-bottom:32px}
+  header .wrap{padding-bottom:0}
+  .kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.85;margin-bottom:10px}
+  h1{font-size:30px;font-weight:700;color:#fff;line-height:1.2;max-width:780px}
+  .sub{margin-top:12px;font-size:14.5px;opacity:.92;max-width:760px}
+  .badges{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+  .badge{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:4px 14px;font-size:12.5px}
+  .badge b{color:#fff}
+
+  h2{font-size:19px;color:var(--ink);margin:40px 0 6px;display:flex;align-items:center;gap:10px}
+  h2 .n{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:var(--red);color:#fff;font-size:13px;flex:0 0 auto}
+  .lead{font-size:14px;color:var(--text);margin-bottom:18px;max-width:860px}
+
+  /* контур петли */
+  .toggle{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:18px}
+  .toggle button{border:0;background:transparent;padding:9px 22px;font-size:14px;font-family:inherit;cursor:pointer;color:var(--text)}
+  .toggle button.on{background:var(--red);color:#fff;font-weight:600}
+  .flow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+  .node{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 8px;text-align:center;position:relative;transition:all .25s}
+  .node .ico{font-size:20px;line-height:1}
+  .node .t{font-size:12.5px;font-weight:600;color:var(--ink);margin-top:6px}
+  .node .d{font-size:11px;color:var(--text);margin-top:3px;min-height:30px}
+  .node.gate{border-top:3px solid var(--teal)}
+  .node.auto{border-top:3px solid var(--red)}
+  .node.ghost{opacity:.55;border-style:dashed;border-top:3px dashed #C9C9CE}
+  .node.hot{background:var(--red-pale);border-color:var(--red-soft);opacity:1}
+  .node.ok{background:var(--teal-pale);border-color:var(--teal);opacity:1}
+  .arrow{position:absolute;right:-9px;top:50%;transform:translateY(-50%);color:#B9B9BF;font-size:13px;z-index:1}
+  .flow-note{margin-top:14px;font-size:13.5px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:0 10px 10px 0;padding:12px 16px}
+  .flow-note b{color:var(--ink)}
+  .flow-note.warn{border-left-color:var(--red-soft)}
+
+  /* симуляции */
+  .sims{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+  .sims button{font-family:inherit;font-size:13.5px;padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;color:var(--text)}
+  .sims button.on{border-color:var(--red);color:var(--red);font-weight:600;background:var(--red-pale)}
+  .sim-out{border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+  .sim-col{padding:16px 18px}
+  .sim-col+.sim-col{border-top:1px solid var(--line)}
+  .sim-head{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+  .sim-before .sim-head{color:#8A8A90}
+  .sim-after .sim-head{color:var(--teal-deep)}
+  .sim-body{font-size:13.5px}
+  .sim-body .who{font-weight:700;color:var(--ink)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:1px 8px;margin-left:8px;vertical-align:1px}
+  .tag.bad{background:var(--red-pale);color:var(--red-dark)}
+  .tag.good{background:var(--teal-pale);color:var(--teal-deep)}
+
+  /* артефакты */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .card .cap{padding:10px 14px;font-size:12.5px;font-weight:700;color:var(--ink);border-bottom:1px solid var(--line);background:#FAFAFB}
+  .card .cap .path{font-family:var(--mono);font-size:11px;color:var(--red-dark);display:block;font-weight:400;margin-top:2px}
+  .card pre{font-family:var(--mono);font-size:11px;line-height:1.6;padding:12px 14px;color:var(--text);overflow-x:auto;white-space:pre-wrap}
+  .card .cmt{color:#9A9AA0}
+  .card .kw{color:var(--red-dark);font-weight:600}
+  .card .add{color:var(--teal-deep)}
+  .card table{width:100%;border-collapse:collapse;font-size:11.5px}
+  .card th{text-align:left;padding:6px 10px;background:#FAFAFB;color:var(--ink);border-bottom:1px solid var(--line);font-weight:700}
+  .card td{padding:6px 10px;border-bottom:1px solid var(--line)}
+  .pill{display:inline-block;font-size:10px;font-weight:700;border-radius:5px;padding:0 7px}
+  .pill.t{background:var(--teal-pale);color:var(--teal-deep)}
+  .pill.r{background:var(--red-pale);color:var(--red-dark)}
+
+  /* шкала зрелости */
+  .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 12px 14px;position:relative}
+  .step .lvl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9A9AA0}
+  .step .name{font-size:13px;font-weight:700;color:var(--ink);margin-top:4px}
+  .step .desc{font-size:11px;margin-top:4px;min-height:58px}
+  .step.now{border:2px solid var(--red-soft)}
+  .step.target{border:2px solid var(--teal);background:var(--teal-pale)}
+  .mark{position:absolute;top:-11px;left:10px;font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 10px;color:#fff}
+  .mark.m-now{background:var(--red)}
+  .mark.m-goal{background:var(--teal-deep)}
+
+  footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;font-size:12.5px;color:#8A8A90}
+  footer b{color:var(--text)}
+  .gates{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  .gate-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+  .gate-card .g{font-size:11px;font-weight:700;color:var(--red-dark);letter-spacing:.06em}
+  .gate-card .gt{font-size:12.5px;color:var(--ink);margin-top:2px}
+
+  @media (max-width:900px){
+    .flow{grid-template-columns:repeat(3,1fr)}
+    .arrow{display:none}
+    .cards{grid-template-columns:1fr}
+    .scale{grid-template-columns:1fr}
+    .gates{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">show-me · план 2026-09-13 · docs/plans</div>
+    <h1>Закалка соло-контура: атака вместо подтверждения</h1>
+    <div class="sub">Один владелец + агент: все гейты замкнуты на одну голову.
+    План закрывает две слепые зоны — эхо-камеру ревью и невидимость гниения
+    процесса — и фиксирует гигиену show-me. Цена для владельца — ноль.</div>
+    <div class="badges">
+      <span class="badge">ревью: <b>APPROVE-WITH-EDITS · 9 находок внесено</b></span>
+      <span class="badge">доки-only, <b>src/ не трогается</b></span>
+      <span class="badge">3 урока: <b>№26–28</b></span>
+      <span class="badge">show-me регенерируется <b>из плана</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 1. соло-петля -->
+  <h2><span class="n">1</span>Соло-петля: до и после</h2>
+  <p class="lead">Гейты не прибавились и не убавились — меняется то,
+  что <b>спрашивает</b> ревью и что <b>измеряет</b> контур. Красная полоса —
+  делает агент, бирюзовая — гейт владельца.</p>
+  <div class="toggle" role="tablist">
+    <button id="btn-before" onclick="setMode('before')">До</button>
+    <button id="btn-after" class="on" onclick="setMode('after')">После</button>
+  </div>
+  <div class="flow" id="flow"></div>
+  <div class="flow-note" id="flow-note"></div>
+
+  <!-- 2. симуляции -->
+  <h2><span class="n">2</span>Как это работает: три симуляции</h2>
+  <p class="lead">Каждый сценарий — реальный тип ошибки из практики чеков
+  R-2026-09-13-01/-02. Колонка «до» — то, что случилось бы без плана.</p>
+  <div class="sims">
+    <button id="sim-1" class="on" onclick="setSim(1)">План называет несуществующее поле</button>
+    <button id="sim-2" onclick="setSim(2)">Три ревью подряд без находок</button>
+    <button id="sim-3" onclick="setSim(3)">show-me поправили руками</button>
+  </div>
+  <div class="sim-out">
+    <div class="sim-col sim-before"><div class="sim-head">До</div><div class="sim-body" id="sim-before"></div></div>
+    <div class="sim-col sim-after"><div class="sim-head">После</div><div class="sim-body" id="sim-after"></div></div>
+  </div>
+
+  <!-- 3. артефакты -->
+  <h2><span class="n">3</span>Три артефакта плана</h2>
+  <p class="lead">Фаза A — уроки №26–28 в <span style="font-family:var(--mono);font-size:12.5px">lessons.md</span>
+  (append-only), фаза B — журнал качества с бэкфиллом трёх чеков, фаза C —
+  промоция двух строк в AGENTS.md по owner-гейту G2.</p>
+  <div class="cards">
+
+    <div class="card">
+      <div class="cap">Журнал качества<span class="path">docs/agents/quality-log.md · фаза B</span></div>
+      <pre><span class="cmt"># Журнал качества ревью (append-only)</span>
+<span class="cmt">&gt; Пишет агент в handover. Два действия:
+&gt; 3 ревью с 0 находок → ротация векторов;
+&gt; rework на 2 планах подряд → урок.</span>
+
+<span class="kw">##</span> R-2026-09-13-02 · excel-specification
+- находок: <b>10</b> (P1×2, P2×2, P3×6)
+- rework после приёмки: <i>не отслеживалось</i>
+
+<span class="cmt"># бэкфилл трёх чеков — числа сходятся
+# с docs/reviews/; rework честно помечен</span></pre>
+    </div>
+
+    <div class="card">
+      <div class="cap">Вектора атаки ревью<span class="path">урок №26 · блок A1–A8</span></div>
+      <table>
+        <tr><th>#</th><th>Проход ревьюера</th></tr>
+        <tr><td>A1</td><td>якоря «файл:строка» — сверить каждый</td></tr>
+        <tr><td>A2</td><td>поля/методы плана — существуют ли</td></tr>
+        <tr><td>A3</td><td>ripple: ctor, тесты, XAML, деплой</td></tr>
+        <tr><td>A4</td><td>R1–R6, writers, wire .smc</td></tr>
+        <tr><td>A5</td><td>арифметика плана и show-me</td></tr>
+        <tr><td>A6</td><td>show-me ↔ план, токены канона</td></tr>
+        <tr><td>A7</td><td>гейты: нет ли присвоения owner-решений</td></tr>
+        <tr><td>A8</td><td>процесс: чек есть, журнал ведётся</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="cap">Промоция в AGENTS.md<span class="path">раздел «Review» · фаза C, гейт G2</span></div>
+      <pre><span class="cmt"># Review</span>
+<span class="add">+ Независимое ревью — в атакующем
++   режиме: вектора атаки, вердикт
++   требует находок (урок №26); три
++   ревью подряд без находок —
++   сигнал ротации векторов.</span>
+<span class="add">+ show-me регенерируется из плана
++   и не правится вручную; сверка
++   артефакта с планом — шаг
++   ревью (урок №27).</span>
+<span class="cmt"># отдельным коммитом, только по
+# решению владельца</span></pre>
+    </div>
+
+  </div>
+
+  <!-- 4. бэкфилл -->
+  <h2><span class="n">4</span>С чего начинается журнал</h2>
+  <p class="lead">Бэкфилл — три уже существующих чека. Цифры показывают,
+  что атакующий проход уже де-факто работает и что он находит.</p>
+  <div class="cards">
+    <div class="card">
+      <div class="cap">R-2026-09-12-01<span class="path">process-gates · план</span></div>
+      <table>
+        <tr><td>находок</td><td><b>11</b> <span class="pill r">P1×3</span> <span class="pill r">P2×3</span> <span class="pill t">P3×5</span></td></tr>
+        <tr><td>судьба</td><td>внесены в дифф (§11)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="cap">R-2026-09-13-01<span class="path">surface-temperature · план</span></div>
+      <table>
+        <tr><td>находок</td><td><b>6</b> <span class="pill r">P2×2</span> <span class="pill t">P3×4</span></td></tr>
+        <tr><td>судьба</td><td>внесены в план/show-me</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="cap">R-2026-09-13-02<span class="path">excel-specification · план</span></div>
+      <table>
+        <tr><td>находок</td><td><b>10</b> <span class="pill r">P1×2</span> <span class="pill r">P2×2</span> <span class="pill t">P3×6</span></td></tr>
+        <tr><td>судьба</td><td>внесены в дифф</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="cap">R-2026-09-13-03<span class="path">solo-loop · этот план</span></div>
+      <table>
+        <tr><td>находок</td><td><b>9</b> <span class="pill r">P1×1</span> <span class="pill r">P2×3</span> <span class="pill t">P3×5</span></td></tr>
+        <tr><td>судьба</td><td>внесены в дифф (§12)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 5. шкала -->
+  <h2><span class="n">5</span>Позиция на шкале зрелости AI-SDLC</h2>
+  <p class="lead">План не двигает уровень — машинный слой строит процессный
+  план 2026-09-12. Он делает соло-контур устойчивым: журнал с первого дня
+  собирает данные уровня 5.</p>
+  <div class="scale">
+    <div class="step now">
+      <span class="mark m-now">сейчас · 2+</span>
+      <div class="lvl">Уровень 1</div>
+      <div class="name">Личный инструмент</div>
+      <div class="desc">Пройден: агент пишет код, тесты, разбирается в кодовой базе.</div>
+    </div>
+    <div class="step now">
+      <div class="lvl">Уровень 2</div>
+      <div class="name">Командная среда</div>
+      <div class="desc">AGENTS.md, инварианты R1–R6, lessons.md, планы с show-me и owner-гейтами.</div>
+    </div>
+    <div class="step">
+      <div class="lvl">Уровень 3</div>
+      <div class="name">AI в SDLC</div>
+      <div class="desc">Строит процессный план 2026-09-12: CI, реестр правил, чеки ревью.</div>
+    </div>
+    <div class="step target">
+      <span class="mark m-goal">цель · устойчивый соло-контур</span>
+      <div class="lvl">Уровень 4</div>
+      <div class="name">Агентные процессы</div>
+      <div class="desc">Частично есть: планы, тесты, ревью, доки — целые куски за агентом. План закрывает слепую зону — эхо-камеру.</div>
+    </div>
+    <div class="step">
+      <div class="lvl">Уровень 5</div>
+      <div class="name">Самоулучшающийся SDLC</div>
+      <div class="desc">Журнал качества копит данные (находки, rework) с первого дня — без скриптов и дашбордов.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <b>Owner-гейты плана.</b> Токены REHAU (канон Tokens.Colors.xaml).
+    Владелец открывает артефакт при ревью плана (урок №21). План:
+    <b>docs/plans/2026-09-13-solo-loop-hardening-plan.md</b>.
+    <div class="gates">
+      <div class="gate-card"><div class="g">G1</div><div class="gt">Аппрув плана → сигнал «делай» (фазы A–B)</div></div>
+      <div class="gate-card"><div class="g">G2</div><div class="gt">Промоция строк в AGENTS.md (фаза C, отдельный коммит)</div></div>
+      <div class="gate-card"><div class="g">G3</div><div class="gt">Приёмка фаз — обычный handover</div></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var flowBefore = [
+    {ico:'📝', t:'План',        d:'сущности, решения',  cls:'auto'},
+    {ico:'🖼️', t:'show-me',     d:'артефакт рядом',     cls:'auto'},
+    {ico:'🔍', t:'Ревью',       d:'«выглядит ок» — подтверждение', cls:'ghost'},
+    {ico:'👤', t:'Гейт владельца', d:'утверждает план', cls:'gate'},
+    {ico:'⚙️', t:'Реализация',  d:'код по плану',       cls:'auto'},
+    {ico:'✅', t:'Handover',    d:'тесты зелёные',      cls:'auto'},
+    {ico:'❓', t:'Метрик нет',  d:'гниение невидимо',   cls:'ghost'}
+  ];
+  var flowAfter = [
+    {ico:'📝', t:'План',        d:'2 варианта в спорных решениях', cls:'auto'},
+    {ico:'🖼️', t:'show-me',     d:'регенерируется из плана',       cls:'auto'},
+    {ico:'⚔️', t:'Ревью-атака', d:'вектора A1–A8, находки',        cls:'hot'},
+    {ico:'👤', t:'Гейт владельца', d:'утверждает план',            cls:'gate'},
+    {ico:'⚙️', t:'Реализация',  d:'после owner-signal',            cls:'auto'},
+    {ico:'✅', t:'Handover',    d:'тесты зелёные',                 cls:'auto'},
+    {ico:'📊', t:'Журнал качества', d:'находки + rework, ротация', cls:'ok'}
+  ];
+  var noteBefore = 'Ревью спрашивает <b>«всё ли в порядке?»</b> — и получает согласие. '
+    + 'Артефакт правится руками и разъезжается с планом. О качестве процесса '
+    + 'известно только из памяти владельца.';
+  var noteAfter = 'Ревью спрашивает <b>«чем это провалится?»</b> — и отвечает находками '
+    + 'P0–P3. Петля ротации: <b>3 ревью подряд с 0 находок → пересборка векторов</b>; '
+    + '<b>rework на 2 планах подряд → урок о системной причине</b> (урок №26).';
+
+  function renderFlow(mode){
+    var data = mode === 'before' ? flowBefore : flowAfter;
+    var html = '';
+    for (var i = 0; i < data.length; i++){
+      var n = data[i];
+      html += '<div class="node ' + n.cls + '"><div class="ico">' + n.ico
+        + '</div><div class="t">' + n.t + '</div><div class="d">' + n.d + '</div>';
+      if (i < data.length - 1) html += '<span class="arrow">➜</span>';
+      html += '</div>';
+    }
+    var f = document.getElementById('flow');
+    if (f) f.innerHTML = html;
+    var note = document.getElementById('flow-note');
+    if (note){
+      note.innerHTML = mode === 'before' ? noteBefore : noteAfter;
+      note.className = 'flow-note' + (mode === 'before' ? ' warn' : '');
+    }
+    var b = document.getElementById('btn-before');
+    var a = document.getElementById('btn-after');
+    if (b) b.className = mode === 'before' ? 'on' : '';
+    if (a) a.className = mode === 'after' ? 'on' : '';
+  }
+
+  var sims = {
+    1: {
+      before: '<span class="who">Агент</span> пишет код по плану — поля '
+        + '<span class="tag bad">не существует</span><br>Ошибка вскрывается на '
+        + 'компиляции или в тестах уже <b>после</b> гейта владельца: переделка, '
+        + 'сдвиг handover. Ровно это поймало ревью excel-плана (P1: поле без '
+        + 'источника).',
+      after: '<span class="who">Ревьюер</span> проходит вектор <b>A2</b> — '
+        + 'поля нет в заявленном источнике <span class="tag good">P1 в чеке</span>'
+        + '<br>План правится <b>до</b> сигнала «делай»; владелец утверждает '
+        + 'исправленный план, а не надежду.'
+    },
+    2: {
+      before: '<span class="who">Выглядит как успех</span> — «ревью ничего не '
+        + 'нашло, значит всё хорошо» <span class="tag bad">слепая зона</span>'
+        + '<br>На деле ревью протухло: ищет то, что уже научилось находить, и '
+        + 'не замечает новых классов ошибок.',
+      after: '<span class="who">Журнал качества</span> считает: 3 ревью подряд '
+        + 'с 0 находок <span class="tag good">ротация</span><br>Вектора атаки '
+        + 'пересобираются под новые классы ошибок, запись об ротации — в '
+        + 'журнал (урок №26).'
+    },
+    3: {
+      before: '<span class="who">Артефакт</span> отредактирован по месту и '
+        + 'разъехался с планом <span class="tag bad">врёт</span><br>Владелец '
+        + 'утверждает картинку, а не содержание; расхождения всплывают на '
+        + 'реализации. В чеке -02 четыре находки из десяти — ровно об этом.',
+      after: '<span class="who">Правило №27</span>: правка плана → '
+        + '<b>регенерация</b> артефакта, не патч <span class="tag good">сходится</span>'
+        + '<br>Вектор A6 сверяет show-me с планом и каноном токенов '
+        + 'Tokens.Colors.xaml до гейта владельца.'
+    }
+  };
+
+  function setSim(k){
+    var s = sims[k];
+    if (!s) return;
+    var b = document.getElementById('sim-before');
+    var a = document.getElementById('sim-after');
+    if (b) b.innerHTML = s.before;
+    if (a) a.innerHTML = s.after;
+    for (var i = 1; i <= 3; i++){
+      var btn = document.getElementById('sim-' + i);
+      if (btn) btn.className = (i === k) ? 'on' : '';
+    }
+  }
+
+  window.setMode = renderFlow;
+  window.setSim = setSim;
+
+  renderFlow('after');
+  setSim(1);
+})();
+</script>
+</body>
+</html>
