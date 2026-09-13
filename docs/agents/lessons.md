@@ -502,3 +502,18 @@
   двухзнаковый мусор (`"+5"` после второго среза парсится с ведущим знаком). После
   явного среза «+» парсить с `AllowLeadingWhite | AllowTrailingWhite` без знакового
   флага. Проверка: `SurfaceTemperatureEntry_DoublePlus_IsRejected`.
+
+## Урок №25 (2026-09-13, реализация «Excel-спецификация»: тихая подмена данных репозитория)
+
+- **JSON-каталог со snake_case-ключами может молча не читаться:
+  `PropertyNameCaseInsensitive` подчёркивания не убирает.** `CollectorRepository`
+  десериализовал контейнер со свойствами `CollectorsHkv`/`CollectorsIndustrial`
+  против ключей `collectors_hkv`/`collectors_industrial` — совпадения не было,
+  контейнер всегда приходил пустым, и репозиторий молча подменял данные
+  встроенными дефолтами (`GetDefaultCollectors`): данные из
+  `rehau_products.json` не поступали потребителям никогда (артикулы,
+  `max_flow_m3h`, `max_pressure_mbar` и пр.). Фикс — `[JsonPropertyName]`
+  на корневых ключах и всех snake_case-полях обоих DTO. Проверка:
+  пин-тест реального каталога `RealProductCatalog_BindsArticlesFromJson`
+  (ResultsSpecificationDataBuilderTests) — при поломке биндинга тест падает,
+  а не молчит.

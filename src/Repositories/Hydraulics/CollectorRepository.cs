@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using SnowMeltingCalculator.Models.Hydraulics;
 
@@ -497,7 +498,12 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// </summary>
         internal class RehauProductsContainer
         {
+            // Корневые ключи в snake_case — без JsonPropertyName контейнер
+            // десериализуется пустым и молча подменяется дефолтами
+            [JsonPropertyName("collectors_hkv")]
             public List<CollectorHkvJson>? CollectorsHkv { get; set; }
+
+            [JsonPropertyName("collectors_industrial")]
             public List<CollectorIndustrialJson>? CollectorsIndustrial { get; set; }
         }
 
@@ -508,13 +514,29 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         {
             public string? Id { get; set; }
             public string? Name { get; set; }
+
+            [JsonPropertyName("full_name")]
             public string? FullName { get; set; }
+
             public int Circuits { get; set; }
+
+            [JsonPropertyName("connection_size")]
             public string? ConnectionSize { get; set; }
+
+            // json в snake_case; PropertyNameCaseInsensitive подчёркивания
+            // не убирает — поля без явного маппинга не биндятся (урок №25)
+            [JsonPropertyName("max_flow_m3h")]
             public double MaxFlowM3h { get; set; }
+
+            [JsonPropertyName("max_pressure_mbar")]
             public double MaxPressureMbar { get; set; }
+
+            [JsonPropertyName("max_setting")]
             public int MaxSetting { get; set; } = 8;
+
+            [JsonPropertyName("article_number")]
             public string? ArticleNumber { get; set; }
+
             public string? Notes { get; set; }
         }
 
@@ -525,13 +547,28 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         {
             public string? Id { get; set; }
             public string? Name { get; set; }
+
+            [JsonPropertyName("full_name")]
             public string? FullName { get; set; }
+
+            [JsonPropertyName("connection_size")]
             public string? ConnectionSize { get; set; }
+
+            [JsonPropertyName("min_flow_m3h")]
             public double? MinFlowM3h { get; set; }
+
+            [JsonPropertyName("max_flow_m3h")]
             public double? MaxFlowM3h { get; set; }
+
+            [JsonPropertyName("max_pressure_mbar")]
             public double MaxPressureMbar { get; set; }
+
+            [JsonPropertyName("max_setting")]
             public int MaxSetting { get; set; } = 8;
+
+            [JsonPropertyName("article_number")]
             public string? ArticleNumber { get; set; }
+
             public string? Notes { get; set; }
         }
 
