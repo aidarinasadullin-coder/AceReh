@@ -261,5 +261,5 @@ Info → Warning → Processing → Success → Info
 ---
 
 **Связанные документы:**
-- [design_guidelines.md](../docs/design_guidelines.md)
+- [brandbook-2026-application.md](../docs/design/brandbook-2026-application.md)
 - [recalc_indicators_design.md](../docs/recalc_indicators_design.md)
