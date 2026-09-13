@@ -124,8 +124,9 @@
     решения владельца. Переключите контур «До / После», запустите симуляции —
     и посмотрите, как выглядит каждый артефакт.</div>
     <div class="badges">
-      <div class="badge">Статус: <b>на owner-ревью</b></div>
-      <div class="badge">План: <b>docs/plans/2026-09-12-process-gates-plan.md</b></div>
+      <div class="badge">Статус: <b>актуализация 2026-09-13 · §12</b></div>
+      <div class="badge">Фаза A: <b>внедрена · 79b6145</b></div>
+      <div class="badge">Остаток: <b>фаза B + хвост C</b></div>
       <div class="badge">Продукт: <b>без изменений</b></div>
     </div>
   </div>
@@ -135,13 +136,14 @@
 
   <!-- ═══ 1. КОНТУР ═══ -->
   <h2><span class="n">1</span>Контур одной фазы</h2>
-  <p class="lead">Серые пунктирные узлы — то, чего сегодня нет: их роль играет память
-  агента и добросовестность. В режиме «После» каждый узел становится машинным гейтом,
-  но два человеческих узла — ревью владельца и приёмка — остаются людьми.</p>
+  <p class="lead">Слева — фактическое состояние на 2026-09-13: CI живой (фаза A,
+  коммит 79b6145), ревью живёт чеками; реестра правил и чек-шаблона ещё нет.
+  Справа — полный план: остаток переводится из дисциплины в машину. Два
+  человеческих узла — ревью владельца и приёмка — остаются людьми в обоих режимах.</p>
 
   <div class="toggle" role="tablist">
-    <button id="btnBefore" onclick="setMode('before')">До — сегодня</button>
-    <button id="btnAfter" class="on" onclick="setMode('after')">После — план</button>
+    <button id="btnBefore" onclick="setMode('before')">Сейчас · 2026-09-13</button>
+    <button id="btnAfter" class="on" onclick="setMode('after')">После · полный план</button>
   </div>
 
   <div class="flow" id="flow">
@@ -159,17 +161,17 @@
   <p class="lead" style="margin-top:26px"><b style="color:var(--ink)">Симуляции.</b>
   Нажмите сценарий и сравните, где проблема остановлена.</p>
   <div class="sims">
-    <button id="sim0" onclick="runSim(0,this)">Агент забыл прогнать тесты</button>
+    <button id="sim0" onclick="runSim(0,this)">Версия поднята не во всех местах</button>
     <button id="sim1" onclick="runSim(1,this)">Новая ADR без строки в реестре</button>
-    <button id="sim2" onclick="runSim(2,this)">Материальное ревью «устно»</button>
+    <button id="sim2" onclick="runSim(2,this)">Материальное ревью без шаблона</button>
   </div>
   <div class="sim-out">
     <div class="sim-col sim-before">
-      <div class="sim-head">До · сегодня</div>
+      <div class="sim-head">Сейчас · 2026-09-13</div>
       <div class="sim-body" id="simBefore">— выберите сценарий —</div>
     </div>
     <div class="sim-col sim-after">
-      <div class="sim-head">После · план</div>
+      <div class="sim-head">После · полный план</div>
       <div class="sim-body" id="simAfter">— выберите сценарий —</div>
     </div>
   </div>
@@ -180,7 +182,7 @@
   <div class="cards">
 
     <div class="card">
-      <div class="cap">CI-гейт<span class="path">.github/workflows/ci.yml</span></div>
+      <div class="cap">CI-гейт — внедрён<span class="path">.github/workflows/ci.yml · 2026-09-13 · 79b6145</span></div>
       <pre><span class="cmt"># windows: проект WPF (net8.0-windows)</span>
 <span class="kw">on</span>: push → master, pull_request
 steps:
@@ -193,7 +195,7 @@ steps:
     </div>
 
     <div class="card">
-      <div class="cap">Реестр «правило → проверка»<span class="path">docs/agents/rules-registry.md</span></div>
+      <div class="cap">Реестр «правило → проверка»<span class="path">docs/agents/rules-registry.md · остаток — фаза B</span></div>
       <table>
         <tr><th>Правило</th><th>Проверка</th></tr>
         <tr><td>R1…R6 — инварианты</td><td><span class="pill t">test</span> ArchitectureRulesTests</td></tr>
@@ -208,7 +210,7 @@ steps:
     </div>
 
     <div class="card">
-      <div class="cap">Ревью-чек<span class="path">docs/reviews/2026-09-12-…-review.md</span></div>
+      <div class="cap">Ревью-чек<span class="path">docs/reviews/…-review.md · практика живёт, шаблон — хвост C</span></div>
       <div class="doc">
         <span class="fld">REVIEW_ID:</span> <span class="val">R-2026-09-12-01</span><br>
         <span class="fld">SUBJECT:</span> <span class="val">план process-gates</span><br>
@@ -229,7 +231,8 @@ steps:
   <!-- ═══ 3. ШКАЛА ═══ -->
   <h2><span class="n">3</span>Где мы на шкале зрелости AI-SDLC</h2>
   <p class="lead">План закрывает уровень 3 инфраструктурно и готовит данные уровня 5 —
-  не двигая ни одного human-гейта.</p>
+  не двигая ни одного human-гейта. Обновлено 2026-09-13: первый машинный гейт
+  (CI) живой; уровень 3 добивает остаток — реестр правил и чек-шаблон.</p>
   <div class="scale">
     <div class="step"><div class="lvl">Уровень 1</div><div class="name">Личный инструмент</div><div class="desc">агент пишет код, тесты, разбирается в кодовой базе</div></div>
     <div class="step now"><div class="mark m-now">сейчас · 2+</div><div class="lvl">Уровень 2</div><div class="name">Командная среда</div><div class="desc">AGENTS.md, ADR, уроки, фазовый цикл, show-me — уже сильный</div></div>
@@ -244,8 +247,8 @@ steps:
     заявленному», владелец — «принимать ли результат». Продукт, <b>.smc</b>, state
     ownership, R1–R6, замороженное досье — без изменений.
     <div class="gates">
-      <div class="gate-card"><div class="g">G1 · сейчас</div><div class="gt">Аппрув плана → сигнал «делай»</div></div>
-      <div class="gate-card"><div class="g">G2 · после фазы A</div><div class="gt">Branch protection «только зелёный в master» — настройка GitHub</div></div>
+      <div class="gate-card"><div class="g">G1 · сейчас</div><div class="gt">Сигнал «делай» на остаток: фаза B + хвост C</div></div>
+      <div class="gate-card"><div class="g">G2 · решение владельца</div><div class="gt">Branch protection «только зелёный в master» — настройка GitHub (фаза A готова)</div></div>
       <div class="gate-card"><div class="g">G3 · по ходу</div><div class="gt">Приёмка каждой фазы на обычном handover</div></div>
     </div>
   </footer>
@@ -255,10 +258,10 @@ steps:
 <script>
 /* ── контур: до/после ── */
 const BEFORE = {
-  review:{cls:'ghost', d:'запускается вручную, вердикт — в переписке сессии'},
-  commit:{cls:'',      d:'«2237 passed» — обещание агента в сообщении'},
-  ci:{cls:'ghost',     d:'нет — вместо него память и дисциплина'},
-  note:'<b>Сегодня.</b> Контур держится на дисциплине конкретного агента в конкретной сессии: зелёность прогона, покрытие правил, формат ревью — всё это обещания, которые нельзя перечитать. Owner-гейты при этом полные — но владелец проверяет формальности вручную.'
+  review:{cls:'gate',  d:'чеки docs/reviews/ — практика с 2026-09-12 (4 чека)'},
+  commit:{cls:'',      d:'галочка CI — с 2026-09-13 (79b6145)'},
+  ci:{cls:'auto',      d:'живой: Release + Architecture + полный без UiSmoke'},
+  note:'<b>Сейчас (2026-09-13).</b> Фаза A внедрена, чек-практика живёт. Осталось перевести в машину: реестр «правило → проверка» с верификатором (фаза B) и шаблон чека со строкой AGENTS.md (хвост C) — пока они держатся на дисциплине, а не на машине.'
 };
 const AFTER = {
   review:{cls:'gate',  d:'вердикт — чеком в docs/reviews/'},
@@ -282,12 +285,12 @@ function setMode(m){
 
 /* ── симуляции ── */
 const SIMS=[
- {b:'<span class="who">Владелец.</span> Верит строке «2237 passed» в коммит-сообщении — или узнаёт о поломке позже, на чужой фазе. <span class="tag bad">проблема доезжает до человека</span>',
-  a:'<span class="who">CI.</span> Красный крест на коммите через несколько минут после пуша. Инвариант R2 не дал проехать дальше. Handover даже не открывается. <span class="tag good">гейт поймал до владельца</span>'},
+ {b:'<span class="who">Ручной grep.</span> Девять мест версии (csproj, .iss ×3, INSTALL.md ×3, README, CHANGELOG) сверяются глазами по чек-листу урока №20 — одно место забыто, рассинхрон всплывает на сборке сетапа. <span class="tag bad">ловит человек</span>',
+  a:'<span class="who">VersionSyncTests.</span> Одна каноническая строка против девяти мест; расхождение — падение с диагностикой всех девяти значений в том же прогоне. <span class="tag good">ловит машина</span>'},
  {b:'<span class="who">Никто.</span> Правило записано, проверка не придумана — живёт «на честном слове» до первого нарушения, потом разбираемся по памяти. <span class="tag bad">дыра не видна</span>',
   a:'<span class="who">RulesRegistryTests.</span> Падает: «ADR-015 не упомянута в реестре». Агент добавляет строку в том же коммите — дисциплина «обнови в том же коммите», теперь с машиной. <span class="tag good">реестр не протухает</span>'},
- {b:'<span class="who">Будущий читатель.</span> Ищет вердикт в простыне коммит-сообщения и переписке закрытой сессии. Через месяц — не находит. <span class="tag bad">след не остался</span>',
-  a:'<span class="who">Чек-контракт.</span> docs/reviews/2026-09-12-….md: VERDICT, находки P0–P3 со статусами, ссылки. Чек пишет независимый ревьюер; ADR ссылается на путь. <span class="tag good">проверяемый след</span>'}
+ {b:'<span class="who">Практика без шаблона.</span> Четыре чека уже существуют, но формат не кодифицирован — следующий чек может разъехаться с предыдущими. <span class="tag bad">формат держится на памяти</span>',
+  a:'<span class="who">Чек-контракт.</span> review-receipt-template.md: поля + вектора атаки A1–A8 (урок №26). VERDICT, находки P0–P3 со статусами, ссылки; ADR и коммит ссылаются на путь. <span class="tag good">проверяемый след</span>'}
 ];
 function runSim(i,btn){
   document.querySelectorAll('.sims button').forEach(b=>b.classList.remove('on'));
