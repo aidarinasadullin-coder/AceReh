@@ -61,7 +61,7 @@
 | Интенсивность снегопада | `h` | Ввод пользователя | мм/ч | UserInput | `ProjectData`, `ResultsPdfData` | `Q_таяние` | Да |
 | Климатическая зона | - | Производная итоговой расчётной температуры (ClimateZoneRules: −10/−15/−20 °C → M10/M15/M20) | - | Calculated | `ProjectData`, `ResultsPdfData` | Исходные данные | Да |
 | Холодный период | - | Из климатической базы, если доступен | дн. | ProgramDatabase | `ResultsPdfData` | Исходные данные | Да, если доступен |
-| Температура поверхности | `t_P` | Выбранный режим: антиобледенение/таяние/интенсивный режим | °C | UserInput / Derived | `ResultsPdfData`, `docs/Formulas_Snegotayanie.md` | `alpha`, `Q_таяние` | Да |
+| Температура поверхности | `t_P` | Пресет (антиобледенение +3/таяние +5/интенсивный +7) или ручной ввод целого +1…+7 (с 1.4.0); канонический владелец — `OperatingMode` теплового среза | °C | UserInput / Derived | `ResultsPdfData`, `docs/Formulas_Snegotayanie.md` | `alpha`, `Q_таяние` | Да |
 | Температура грунта | `t_G` | Ввод пользователя, default описан как `+10 °C` | °C | UserInput | `ProjectData`, `ResultsPdfData`, `docs/Formulas_Snegotayanie.md` | `C`, `PowerDown` | Да |
 | Температура подачи | `T_supply` | Ввод пользователя | °C | UserInput | `ProjectData`, `ResultsPdfData` | `T_return`, `DeltaT`, гидравлика | Да |
 | Температура обратки | `T_return` | `T_return = 2 * T_mean - T_supply` | °C | Calculated | `ThermalCalculationResult`, `ProjectData`, `ResultsPdfData`, `README v.2.1.md` | `DeltaT`, гидравлика | Да |
