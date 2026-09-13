@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -30,6 +31,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         private readonly ICalculationStateService _calculationStateService;
         private readonly IValidator<ThermalInputs> _thermalValidator;
         private readonly IThermalStateCoordinator _coordinator;
+        private readonly IThermalAdviceService _adviceService;
         private bool _isResetting;
 
         /// <summary>
@@ -151,6 +153,10 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             OnPropertyChanged(nameof(SurfaceTemperatureHint));
             OnPropertyChanged(nameof(PowerSummary));
             OnPropertyChanged(nameof(AdditionalSummary));
+            OnPropertyChanged(nameof(AdviceList));
+            OnPropertyChanged(nameof(AdviceVisibility));
+            OnPropertyChanged(nameof(AdviceSupplyHint));
+            OnPropertyChanged(nameof(AdviceSpacingHint));
         }
 
         /// <summary>
@@ -315,10 +321,37 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         /// на не-RU ОС интерполяция давала бы точки (Ф7.0, ревью диффа Ф5).
         /// </summary>
         public string SupplyTemperatureHint =>
-            RecommendedSupplyTemperature.HasValue
-                ? string.Create(AppCulture.Culture,
-                    $"Рекомендуется: {RecommendedSupplyTemperature.Value:F0}°C (для ΔT ≈ 15 К)")
-                : string.Empty;
+            AdviceList.Count > 0
+                ? string.Empty
+                : RecommendedSupplyTemperature.HasValue
+                    ? string.Create(AppCulture.Culture,
+                        $"Рекомендуется: {RecommendedSupplyTemperature.Value:F0}°C (для ΔT ≈ 15 К)")
+                    : string.Empty;
+
+        /// <summary>
+        /// Советы текущего результата — derived-слой поверх валидации
+        /// (план thermal-advice §3): ничего не гейтят, канонического состояния
+        /// не создают. Пустой список при отсутствии нарушений.
+        /// </summary>
+        public IReadOnlyList<ThermalAdvice> AdviceList =>
+            Result is null ? Array.Empty<ThermalAdvice>() : _adviceService.Build(Result);
+
+        /// <summary>Видимость карточки «Рекомендации» (советы есть — видима)</summary>
+        public System.Windows.Visibility AdviceVisibility =>
+            AdviceList.Count > 0 ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+
+        /// <summary>
+        /// Хинт совета под полем подачи — текст первого совета (решение №1);
+        /// решение №8 (вариант A): постоянный «Рекомендуется: …» при активных
+        /// советах скрыт — SupplyTemperatureHint возвращает пустую строку.
+        /// </summary>
+        public string? AdviceSupplyHint => AdviceList.FirstOrDefault()?.Message;
+
+        /// <summary>Хинт совета под полем шага укладки</summary>
+        public string? AdviceSpacingHint =>
+            AdviceList.Count > 0
+                ? "Увеличьте шаг укладки — это снизит перепад и поднимет обратку"
+                : null;
 
         /// <summary>
         /// Детальная строка HeroKPI результатов: потоки вверх/вниз и
@@ -396,12 +429,16 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             IValidator<ThermalInputs> thermalValidator,
             IValidator<ThermalCalculationResult> thermalResultValidator,
             IMarkDirtyService markDirtyService,
-            IThermalStateCoordinator? coordinator = null)
+            IThermalStateCoordinator? coordinator = null,
+            IThermalAdviceService? adviceService = null)
         {
             _constructionData = constructionData ?? throw new ArgumentNullException(nameof(constructionData));
             _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _thermalValidator = thermalValidator ?? throw new ArgumentNullException(nameof(thermalValidator));
+            // Опциональный параметр — прецедент coordinator = null: ~30 тестовых
+            // мест конструирования не ломаются (план thermal-advice §3, ревью P2-7)
+            _adviceService = adviceService ?? new ThermalAdviceService();
 
             // Инициализация коллекций
             AvailablePipes = new ObservableCollection<PipeType>(PipeType.StandardPipes);
