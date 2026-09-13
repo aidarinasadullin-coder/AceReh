@@ -150,6 +150,11 @@
                                        Style="{StaticResource FormCard.Hint}"
                                        Foreground="{DynamicResource Brand.Teal.Deep.Brush}"
                                        Visibility="{Binding SupplyTemperatureHint, Converter={StaticResource StringToVisibilityConverter}}"/>
+                            <TextBlock Text="{Binding AdviceSupplyHint}"
+                                       Style="{StaticResource FormCard.Hint}"
+                                       Foreground="{DynamicResource Brand.Red.Dark.Brush}"
+                                       TextWrapping="Wrap"
+                                       Visibility="{Binding AdviceSupplyHint, Converter={StaticResource StringToVisibilityConverter}}"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,10">
@@ -258,6 +263,11 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
+                            <TextBlock Text="{Binding AdviceSpacingHint}"
+                                       Style="{StaticResource FormCard.Hint}"
+                                       Foreground="{DynamicResource Brand.Red.Dark.Brush}"
+                                       TextWrapping="Wrap"
+                                       Visibility="{Binding AdviceSpacingHint, Converter={StaticResource StringToVisibilityConverter}}"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>
@@ -361,6 +371,48 @@
                         </Border>
                     </Grid>
                 </Grid>
+
+                <!-- Советы (план thermal-advice): derived-слой поверх валидации,
+                     ничего не гейтит; рендерится только при наличии советов -->
+                <Border Background="{DynamicResource Brand.Red.Tint.Brush}"
+                        BorderBrush="{DynamicResource Brand.Red.Brush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12,10"
+                        Margin="0,0,0,10"
+                        Visibility="{Binding AdviceVisibility}">
+                    <StackPanel>
+                        <!-- AutomationId на TextBlock: у Border нет automation peer,
+                             Border в UIA-дерево не попадает -->
+                        <TextBlock Text="Рекомендации"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brand.Red.Dark.Brush}"
+                                   AutomationProperties.AutomationId="ThermalAdviceCard"/>
+                        <ItemsControl ItemsSource="{Binding AdviceList}" Margin="0,6,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource Brand.White.Brush}"
+                                            BorderBrush="{DynamicResource Brand.Gray.100.Brush}"
+                                            BorderThickness="1"
+                                            CornerRadius="6"
+                                            Padding="8,6"
+                                            Margin="0,0,0,6">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+                                            <Button Content="{Binding TargetTitle, StringFormat=Перейти: {0}}"
+                                                    HorizontalAlignment="Left"
+                                                    Margin="0,6,0,0"
+                                                    Style="{StaticResource Button.Secondary}"
+                                                    Command="{Binding DataContext.NavigateToTargetCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding TargetStep}"
+                                                    AutomationProperties.AutomationId="ThermalAdviceGoToButton"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
 
                 <!-- Дополнительные параметры: свёрнутый справочный блок
                      (данные сохраняются; summary-строка — значения-кратко) -->

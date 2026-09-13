@@ -513,6 +513,22 @@ namespace SnowMeltingCalculator.ViewModels.Shell
         [RelayCommand]
         private void Redo() => _undoRedoService?.Redo();
 
+        /// <summary>
+        /// Переход к шагу по типизированному ключу (советы теплового расчёта,
+        /// план thermal-advice §3): по прецеденту HeaderCalculate — поиск
+        /// MenuItem по Target и присвоение SelectedMenuItem (сеттер обновляет
+        /// заголовок, статус-бар и закрывает welcome).
+        /// </summary>
+        [RelayCommand]
+        private void NavigateToTarget(NavigationTarget target)
+        {
+            var menuItem = MenuItems.FirstOrDefault(m => m.Target == target);
+            if (menuItem != null)
+            {
+                SelectedMenuItem = menuItem;
+            }
+        }
+
         #endregion
 
         private void RefreshStepStatuses()

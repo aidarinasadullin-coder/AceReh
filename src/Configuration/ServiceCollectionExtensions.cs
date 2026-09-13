@@ -288,6 +288,7 @@ namespace SnowMeltingCalculator.Configuration
             services.AddTransient<IValidator<ConstructionModel>, ConstructionValidator>();
             services.AddTransient<IValidator<ThermalInputs>, ThermalValidator>();
             services.AddTransient<IValidator<ThermalCalculationResult>, ThermalResultValidator>();
+            services.AddTransient<IThermalAdviceService, ThermalAdviceService>();
             services.AddTransient<IValidator<HydraulicInputData>, HydraulicValidator>();
             services.AddTransient<IValidator<CircuitRow>, CircuitValidator>();
             services.AddTransient<IValidator<Material>, MaterialCrudValidator>();

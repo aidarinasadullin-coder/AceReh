@@ -79,6 +79,12 @@ public sealed class ThermalAutomationIdSelectorContractTests
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalReset", "Button"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalDeltaT", "TextBlock"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalPowerTotal", "TextBlock"),
+        // План 2026-09-13 thermal-advice: карточка «Рекомендации» (derived-советы).
+        // ID закреплён за заголовочным TextBlock: у Border нет automation peer —
+        // в UIA-дерево не попадает. Item-советы генерируются ItemsControl в
+        // рантайме — XAML-контрактом не пиннятся (ревью P2-8), покрываются
+        // UiSmoke-сценарием.
+        (@"src\Views\Thermal\ThermalView.xaml", "ThermalAdviceCard", "TextBlock"),
         (@"src\Views\Hydraulics\CircuitsView.xaml", "HydraulicsPipeSpacing", "TextBlock"),
         (@"src\Views\Hydraulics\CircuitsView.xaml", "HydraulicsSupplyTemperature", "TextBlock"),
         (@"src\Views\Hydraulics\CircuitsView.xaml", "HydraulicsReturnTemperature", "TextBlock"),
