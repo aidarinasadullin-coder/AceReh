@@ -17,9 +17,8 @@ namespace SnowMeltingCalculator.Tests.Architecture
     /// проверяются структурно), INSTALL.md ×3 (имя сетапа — ровно 2
     /// вхождения, подвал «Версия: …»), README.md подвал, CHANGELOG.md секция.
     /// Расхождение любого места — падение с диагностикой всех проблемных
-    /// мест и канона. Файловые проверки — CRLF-стойкие (построчные, с
-    /// нормализацией концов строк): windows-latest чекаутит с
-    /// core.autocrlf=true, локальное дерево — LF (урок №30).
+    /// мест и канона. Файловые проверки — построчные, устойчивые к разным
+    /// нормам концов строк.
     /// </summary>
     [TestFixture]
     public class VersionSyncTests
@@ -39,7 +38,7 @@ namespace SnowMeltingCalculator.Tests.Architecture
             return dir!.FullName;
         }
 
-        // Построчное чтение, устойчивое к LF и CRLF (autocrlf=true на раннере).
+        // Построчное чтение, устойчивое к LF и CRLF.
         private static string[] CrLfSafeLines(string text) =>
             text.Replace("\r\n", "\n").Split('\n');
 
