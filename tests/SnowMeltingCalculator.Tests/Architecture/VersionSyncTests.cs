@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 
@@ -16,7 +17,9 @@ namespace SnowMeltingCalculator.Tests.Architecture
     /// проверяются структурно), INSTALL.md ×3 (имя сетапа — ровно 2
     /// вхождения, подвал «Версия: …»), README.md подвал, CHANGELOG.md секция.
     /// Расхождение любого места — падение с диагностикой всех проблемных
-    /// мест и канона.
+    /// мест и канона. Файловые проверки — CRLF-стойкие (построчные, с
+    /// нормализацией концов строк): windows-latest чекаутит с
+    /// core.autocrlf=true, локальное дерево — LF (урок №30).
     /// </summary>
     [TestFixture]
     public class VersionSyncTests
@@ -35,6 +38,10 @@ namespace SnowMeltingCalculator.Tests.Architecture
                 + AppContext.BaseDirectory);
             return dir!.FullName;
         }
+
+        // Построчное чтение, устойчивое к LF и CRLF (autocrlf=true на раннере).
+        private static string[] CrLfSafeLines(string text) =>
+            text.Replace("\r\n", "\n").Split('\n');
 
         [Test]
         public void Version_IsConsistent_AcrossNinePlaces()
@@ -59,16 +66,14 @@ namespace SnowMeltingCalculator.Tests.Architecture
                     + $"литерал \"v{version}\".");
 
             // Место 3 — #define MyAppVersion (макро-место, проверка структурная).
-            if (!Regex.IsMatch(iss, @"^#define MyAppVersion\b", RegexOptions.Multiline))
+            if (!CrLfSafeLines(iss).Any(l => l.TrimStart().StartsWith("#define MyAppVersion", StringComparison.Ordinal)))
                 problems.Add(
                     "Место 3: installer/SnowMeltingCalculator.iss — не найдено ни одного "
                     + "'#define MyAppVersion'.");
 
             // Место 4 — OutputBaseFilename (макро-место, шаблон с макросом).
-            if (!Regex.IsMatch(
-                    iss,
-                    @"^OutputBaseFilename=SnowMeltingCalculator-v\{#MyAppVersion\}-Setup\s*$",
-                    RegexOptions.Multiline))
+            if (!CrLfSafeLines(iss).Any(l => l.TrimStart().StartsWith(
+                    "OutputBaseFilename=SnowMeltingCalculator-v{#MyAppVersion}-Setup", StringComparison.Ordinal)))
                 problems.Add(
                     "Место 4: installer/SnowMeltingCalculator.iss — OutputBaseFilename не соответствует "
                     + "шаблону 'OutputBaseFilename=SnowMeltingCalculator-v{#MyAppVersion}-Setup'.");
@@ -90,7 +95,7 @@ namespace SnowMeltingCalculator.Tests.Architecture
                 problems.Add($"Место 8: README.md — подвал не содержит «Версия: {version}».");
 
             // Место 9 — CHANGELOG.md, секция «## [<канон>]».
-            if (!Regex.IsMatch(changelog, @"^## \[" + Regex.Escape(version) + @"\]", RegexOptions.Multiline))
+            if (!CrLfSafeLines(changelog).Any(l => l.StartsWith("## [" + version + "]", StringComparison.Ordinal)))
                 problems.Add($"Место 9: CHANGELOG.md — нет секции «## [{version}]».");
 
             Assert.That(problems, Is.Empty,
