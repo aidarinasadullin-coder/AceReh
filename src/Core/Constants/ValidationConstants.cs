@@ -75,6 +75,17 @@ namespace SnowMeltingCalculator.Core.Constants
         public const double MaxSupplyTemperature = 90.0;
 
         /// <summary>
+        /// Минимальная температура поверхности, °C
+        /// (план 2026-09-13: ручной ввод t_П, вариант B)
+        /// </summary>
+        public const int MinSurfaceTemperature = 1;
+
+        /// <summary>
+        /// Максимальная температура поверхности, °C
+        /// </summary>
+        public const int MaxSurfaceTemperature = 7;
+
+        /// <summary>
         /// Минимальный температурный перепад, К
         /// </summary>
         public const double MinDeltaT = 1.0;

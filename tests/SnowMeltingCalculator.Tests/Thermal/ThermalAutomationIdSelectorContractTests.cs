@@ -71,6 +71,8 @@ public sealed class ThermalAutomationIdSelectorContractTests
         (@"src\MainWindow.xaml", "InstructionMenuItem", "MenuItem"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalMode", "ComboBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalSupplyTemperature", "TextBox"),
+        // План 2026-09-13 (вариант B): t_пов — редактируемое поле (было read-only)
+        (@"src\Views\Thermal\ThermalView.xaml", "ThermalSurfaceTemperature", "TextBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalGroundTemperature", "TextBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalPipe", "ComboBox"),
         (@"src\Views\Thermal\ThermalView.xaml", "ThermalPipeSpacing", "ComboBox"),

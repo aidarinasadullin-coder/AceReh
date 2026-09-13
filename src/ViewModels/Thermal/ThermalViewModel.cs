@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -11,6 +12,7 @@ using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Thermal;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Core;
+using SnowMeltingCalculator.Core.Constants;
 
 namespace SnowMeltingCalculator.ViewModels.Thermal
 {
@@ -24,10 +26,18 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
     public partial class ThermalViewModel : ObservableObject, Services.Project.IProjectLoadThermalAdapter
     {
         private readonly IConstructionData _constructionData;
+        private readonly IClimateData _climateData;
         private readonly ICalculationStateService _calculationStateService;
         private readonly IValidator<ThermalInputs> _thermalValidator;
         private readonly IThermalStateCoordinator _coordinator;
         private bool _isResetting;
+
+        /// <summary>
+        /// Guard синхронизации поля ввода t_пов с каноническим режимом:
+        /// присваивания из <see cref="SyncSurfaceEntryFromMode"/> мутаций
+        /// не создают (план 2026-09-13, Ф2).
+        /// </summary>
+        private bool _isSyncingSurfaceEntry;
 
         #region Observable Properties
 
@@ -67,10 +77,52 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         private int _pipeSpacing = 200;
 
         /// <summary>
-        /// Температура поверхности, °C (только чтение): следует режиму
-        /// работы (AntiIcing=3, Melting=5, Intensive=7); проекция для UI.
+        /// Температура поверхности, °C (проекция): числовое значение режима
+        /// работы (AntiIcing=3, Melting=5, Intensive=7, Manual1/2/4/6=1/2/4/6).
+        /// Единственный владелец величины — поле Mode канонического состояния.
         /// </summary>
         public double SurfaceTemperature => (double)SelectedMode;
+
+        /// <summary>
+        /// Поле ручного ввода температуры поверхности (целое от +1 до +7).
+        /// Мутация — только через <see cref="ThermalInputEdit.ForMode"/>:
+        /// валидный ввод присваивает <see cref="SelectedMode"/>, невалидный
+        /// поднимает <see cref="SurfaceTemperatureError"/> и состояние не трогает.
+        /// </summary>
+        [ObservableProperty]
+        private string _surfaceTemperatureEntry = "+5";
+
+        /// <summary>
+        /// Подсказка об ошибке ввода t_пов («Введите целое число от +1 до +7»);
+        /// пустая строка — ошибок нет.
+        /// </summary>
+        [ObservableProperty]
+        private string _surfaceTemperatureError = string.Empty;
+
+        /// <summary>
+        /// Подпись происхождения значения t_пов: «из режима „<имя>“» для
+        /// пресетов +3/+5/+7, «своё значение» для ручного ввода.
+        /// </summary>
+        public string SurfaceTemperatureCaption => (int)SelectedMode switch
+        {
+            3 => "из режима «Антиобледенение»",
+            5 => "из режима «Таяние»",
+            7 => "из режима «Интенсивное»",
+            _ => "своё значение"
+        };
+
+        /// <summary>
+        /// Необлокирующее предупреждение (решение V2 плана 2026-09-13):
+        /// t_П не выше температуры наружного воздуха — расчётная мощность
+        /// будет отрицательной. Форматирование — по канону
+        /// <see cref="AppCulture.Culture"/> (Ф7.0).
+        /// </summary>
+        public string SurfaceTemperatureHint =>
+            Result is not null
+                && (double)SelectedMode <= _climateData.AirTemperature
+                ? string.Create(AppCulture.Culture,
+                    $"Температура поверхности не выше температуры воздуха ({_climateData.AirTemperature:+0.0;−0.0} °C) — расчётная мощность будет отрицательной. Расчёт не блокируется.")
+                : string.Empty;
 
         /// <summary>
         /// Доступные значения шага укладки, мм
@@ -96,6 +148,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             OnPropertyChanged(nameof(DeltaT));
             OnPropertyChanged(nameof(RecommendedSupplyTemperature));
             OnPropertyChanged(nameof(SupplyTemperatureHint));
+            OnPropertyChanged(nameof(SurfaceTemperatureHint));
             OnPropertyChanged(nameof(PowerSummary));
             OnPropertyChanged(nameof(AdditionalSummary));
         }
@@ -154,20 +207,101 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
 
         /// <summary>
         /// Уведомление об изменении режима работы: правка уходит в координатор.
-        /// Notify UI-проекций (температура поверхности, строка HeroKPI) —
-        /// до guard'ов: загрузка проекта и сброс присваивают режим под ними,
-        /// и без этого поле показывало бы значение предыдущего состояния
-        /// (ревью Ф5, P1). Проекции мутаций не создают.
+        /// Notify UI-проекций (температура поверхности, подпись происхождения,
+        /// предупреждение, строка HeroKPI) — до guard'ов: загрузка проекта и
+        /// сброс присваивают режим под ними, и без этого поле показывало бы
+        /// значение предыдущего состояния (ревью Ф5, P1). Проекции мутаций
+        /// не создают.
         /// </summary>
         partial void OnSelectedModeChanged(OperatingMode value)
         {
             OnPropertyChanged(nameof(SurfaceTemperature));
+            OnPropertyChanged(nameof(SurfaceTemperatureCaption));
+            OnPropertyChanged(nameof(SurfaceTemperatureHint));
             OnPropertyChanged(nameof(PowerSummary));
+            SyncSurfaceEntryFromMode(value);
 
             if (_isResetting) return;
             if (_calculationStateService.IsLoadProjectInProgress) return;
 
             _coordinator.ApplyInputEdit(ThermalInputEdit.ForMode(value));
+        }
+
+        /// <summary>
+        /// Правка поля ввода t_пов: валидное целое 1..7 присваивает
+        /// <see cref="SelectedMode"/> (мутация идёт единственным каноном —
+        /// <see cref="OnSelectedModeChanged"/> → <c>ForMode</c>); невалидный
+        /// ввод поднимает подсказку и состояние не трогает. Эхо-присваивания
+        /// из синхронизации пропускаются guard'ом.
+        /// </summary>
+        partial void OnSurfaceTemperatureEntryChanged(string value)
+        {
+            if (_isSyncingSurfaceEntry) return;
+            if (_isResetting) return;
+            if (_calculationStateService.IsLoadProjectInProgress) return;
+
+            if (!TryParseSurfaceTemperature(value, out int temperature))
+            {
+                SurfaceTemperatureError = "Введите целое число от +1 до +7";
+                return;
+            }
+
+            SurfaceTemperatureError = string.Empty;
+            if ((int)SelectedMode == temperature) return;
+
+            SelectedMode = (OperatingMode)temperature;
+        }
+
+        /// <summary>
+        /// Синхронизация поля ввода с каноническим режимом (вызывается из
+        /// <see cref="OnSelectedModeChanged"/>, а также форсированно из
+        /// <see cref="Reset"/> и <see cref="ApplyStateSnapshotToAdapter"/> —
+        /// присваивание равного значения не поднимает PropertyChanged, без
+        /// форса мусорный текст/ошибка пережили бы сброс и Undo/Redo).
+        /// Поле всегда показывает актуальное t_пов, ошибка ввода гасится.
+        /// </summary>
+        private void SyncSurfaceEntryFromMode(OperatingMode value)
+        {
+            _isSyncingSurfaceEntry = true;
+            try
+            {
+                SurfaceTemperatureEntry = $"+{(int)value}";
+            }
+            finally
+            {
+                _isSyncingSurfaceEntry = false;
+            }
+
+            SurfaceTemperatureError = string.Empty;
+        }
+
+        /// <summary>
+        /// Разбор ввода t_пов: целое число в диапазоне
+        /// [<see cref="ValidationConstants.MinSurfaceTemperature"/>,
+        /// <see cref="ValidationConstants.MaxSurfaceTemperature"/>].
+        /// Ведущий «+» (ровно один) и пробелы допускаются; второй знак,
+        /// полуцелые и вне диапазона — отказ.
+        /// </summary>
+        private static bool TryParseSurfaceTemperature(string? text, out int temperature)
+        {
+            temperature = 0;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return false;
+            }
+
+            var trimmed = text.Trim();
+            var normalized = trimmed.StartsWith('+') ? trimmed[1..] : trimmed;
+
+            // Без AllowLeadingSign: знак «+» учтён выше явно, «++5»/«-1» — мусор
+            const NumberStyles unsigned = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
+            if (!int.TryParse(normalized, unsigned, AppCulture.Culture, out temperature))
+            {
+                return false;
+            }
+
+            return temperature >= ValidationConstants.MinSurfaceTemperature
+                && temperature <= ValidationConstants.MaxSurfaceTemperature;
         }
 
         /// <summary>
@@ -265,16 +399,23 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             IThermalStateCoordinator? coordinator = null)
         {
             _constructionData = constructionData ?? throw new ArgumentNullException(nameof(constructionData));
+            _climateData = climateData ?? throw new ArgumentNullException(nameof(climateData));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             _thermalValidator = thermalValidator ?? throw new ArgumentNullException(nameof(thermalValidator));
 
             // Инициализация коллекций
             AvailablePipes = new ObservableCollection<PipeType>(PipeType.StandardPipes);
+            // Порядок V5 (план 2026-09-13): три семантических пресета сверху,
+            // затем ручные значения по возрастанию температуры
             AvailableModes = new ObservableCollection<OperatingMode>
             {
                 OperatingMode.AntiIcing,
                 OperatingMode.Melting,
-                OperatingMode.Intensive
+                OperatingMode.Intensive,
+                OperatingMode.Manual1,
+                OperatingMode.Manual2,
+                OperatingMode.Manual4,
+                OperatingMode.Manual6
             };
 
             // Каноническая граница применения команд (DEC-T04A). В DI-композиции
@@ -397,6 +538,12 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 PipeSpacing = 200;
                 Result = null;
                 ValidationMessage = string.Empty;
+
+                // Ревью P2-1: присваивание равного SelectedMode не поднимает
+                // PropertyChanged — форс-синхронизация гасит «застрявшие»
+                // мусорный текст и ошибку ввода t_пов (также покрывает
+                // ProjectLoadOrchestrator, вызывающий Reset перед загрузкой).
+                SyncSurfaceEntryFromMode(SelectedMode);
             }
             finally
             {
@@ -506,6 +653,9 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 Result = snapshot.Result is null
                     ? null
                     : ThermalPersistenceMapper.ToDomainResult(snapshot.Result);
+
+                // Ревью P2-1: форс-синхронизация поля t_пов при откате/возврате
+                SyncSurfaceEntryFromMode(SelectedMode);
             }
             finally
             {
@@ -514,13 +664,15 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         }
 
         /// <summary>
-        /// Refresh-сигнал upstream-проекций (подсказки подачи).
+        /// Refresh-сигнал upstream-проекций (подсказки подачи, предупреждение
+        /// t_пов ≤ t_нар).
         /// R1Total/R2Total ушли из UI в панель «Сводка» каркаса (Фаза 4).
         /// </summary>
         private void OnUpstreamObserved(object? sender, EventArgs e)
         {
             OnPropertyChanged(nameof(RecommendedSupplyTemperature));
             OnPropertyChanged(nameof(SupplyTemperatureHint));
+            OnPropertyChanged(nameof(SurfaceTemperatureHint));
         }
 
         /// <summary>

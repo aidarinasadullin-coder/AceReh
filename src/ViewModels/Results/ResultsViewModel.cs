@@ -250,6 +250,21 @@ namespace SnowMeltingCalculator.ViewModels.Results
         [ObservableProperty]
         private OperatingMode _operatingMode;
 
+        /// <summary>
+        /// Человекочитаемая подпись режима (план 2026-09-13, V3): единый
+        /// источник правил с PDF — <see cref="OperatingModeDisplay.ToDisplayText"/>
+        /// вместо сырого <c>ToString()</c>.
+        /// </summary>
+        public string OperatingModeText => OperatingMode.ToDisplayText();
+
+        /// <summary>
+        /// Смена режима обновляет и текстовую проекцию
+        /// </summary>
+        partial void OnOperatingModeChanged(OperatingMode value)
+        {
+            OnPropertyChanged(nameof(OperatingModeText));
+        }
+
         // ============================================
         // Блок 3 - Конструкция
         // ============================================

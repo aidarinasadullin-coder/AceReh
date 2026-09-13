@@ -706,7 +706,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="Режим" Style="{StaticResource Rsv.InfoRowLabel}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding OperatingMode}" Style="{StaticResource Rsv.InfoRowValue}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding OperatingModeText}" Style="{StaticResource Rsv.InfoRowValue}"/>
                                 </Grid>
                                 <Grid Style="{StaticResource Rsv.InfoRow}">
                                     <Grid.ColumnDefinitions>

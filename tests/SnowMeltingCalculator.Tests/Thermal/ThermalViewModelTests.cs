@@ -95,12 +95,20 @@ namespace SnowMeltingCalculator.Tests.Thermal
         [Test]
         public void Constructor_InitializesCollections()
         {
-            // Assert
+            // Assert — план 2026-09-13 (V4/V5): 7 значений — три пресета
+            // сверху, затем ручные по возрастанию температуры
             Assert.That(_viewModel.AvailablePipes.Count, Is.EqualTo(3));
-            Assert.That(_viewModel.AvailableModes.Count, Is.EqualTo(3));
-            Assert.That(_viewModel.AvailableModes, Contains.Item(OperatingMode.AntiIcing));
-            Assert.That(_viewModel.AvailableModes, Contains.Item(OperatingMode.Melting));
-            Assert.That(_viewModel.AvailableModes, Contains.Item(OperatingMode.Intensive));
+            Assert.That(_viewModel.AvailableModes.Count, Is.EqualTo(7));
+            Assert.That(_viewModel.AvailableModes, Is.EqualTo(new[]
+            {
+                OperatingMode.AntiIcing,
+                OperatingMode.Melting,
+                OperatingMode.Intensive,
+                OperatingMode.Manual1,
+                OperatingMode.Manual2,
+                OperatingMode.Manual4,
+                OperatingMode.Manual6
+            }));
             Assert.That(_viewModel.AvailablePipeSpacings, Is.EqualTo(new[] { 150, 200, 250, 300 }));
         }
 
@@ -323,6 +331,171 @@ namespace SnowMeltingCalculator.Tests.Thermal
             };
             Assert.That(_viewModel.PowerSummary, Does.Contain("поверхность +5,0 °C"));
             Assert.That(_viewModel.AdditionalSummary, Does.Contain("КПД ребра 0,962"));
+        }
+
+        #endregion
+
+        #region Surface Temperature Input Tests (план 2026-09-13, вариант B)
+
+        [Test]
+        public void SurfaceTemperatureEntry_DefaultsToMeltingPreset()
+        {
+            Assert.That(_viewModel.SurfaceTemperatureEntry, Is.EqualTo("+5"));
+            Assert.That(_viewModel.SurfaceTemperatureCaption, Is.EqualTo("из режима «Таяние»"));
+            Assert.That(_viewModel.SurfaceTemperatureError, Is.Empty);
+            Assert.That(_viewModel.SurfaceTemperatureHint, Is.Empty);
+        }
+
+        [Test]
+        public void SurfaceTemperatureEntry_ManualValue_MutatesCanonicalState()
+        {
+            // Ввод +4: единственный канал мутации — ForMode через SelectedMode
+            _viewModel.SurfaceTemperatureEntry = "+4";
+
+            Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Manual4));
+            Assert.That(_session.ThermalState.Snapshot.Inputs.Mode, Is.EqualTo(OperatingMode.Manual4),
+                "Каноническое состояние — единственный владелец t_пов.");
+            Assert.That(_viewModel.SurfaceTemperature, Is.EqualTo(4.0));
+            Assert.That(_viewModel.SurfaceTemperatureCaption, Is.EqualTo("своё значение"));
+            Assert.That(_viewModel.SurfaceTemperatureError, Is.Empty);
+            Assert.That(_viewModel.SurfaceTemperatureEntry, Is.EqualTo("+4"),
+                "Эхо-синхронизация не должна искажать введённое значение.");
+        }
+
+        [Test]
+        public void SurfaceTemperatureEntry_PresetValue_SnapsToPreset()
+        {
+            _viewModel.SurfaceTemperatureEntry = "+3";
+
+            Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.AntiIcing));
+            Assert.That(_viewModel.SurfaceTemperatureCaption, Is.EqualTo("из режима «Антиобледенение»"));
+            Assert.That(_session.ThermalState.Snapshot.Inputs.Mode, Is.EqualTo(OperatingMode.AntiIcing));
+        }
+
+        [Test]
+        public void SurfaceTemperatureEntry_PresetValue5_NoRedundantMutation()
+        {
+            // Значение совпадает с текущим режимом — мутации нет
+            var mutations = 0;
+            _session.ThermalState.Changed += (_, _) => mutations++;
+
+            _viewModel.SurfaceTemperatureEntry = "+5";
+
+            Assert.That(mutations, Is.Zero);
+            Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting));
+        }
+
+        [Test]
+        public void SurfaceTemperatureEntry_InvalidInput_RejectsAndShowsHint()
+        {
+            foreach (var invalid in new[] { "0", "8", "-1", "4,5", "abc", "" })
+            {
+                _viewModel.SurfaceTemperatureEntry = invalid;
+
+                Assert.That(_viewModel.SurfaceTemperatureError,
+                    Is.EqualTo("Введите целое число от +1 до +7"),
+                    $"Ввод «{invalid}» должен отклоняться с подсказкой.");
+                Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting),
+                    $"Ввод «{invalid}» не должен менять состояние.");
+                Assert.That(_session.ThermalState.Snapshot.Inputs.Mode, Is.EqualTo(OperatingMode.Melting),
+                    $"Ввод «{invalid}» не должен менять канон.");
+            }
+        }
+
+        [Test]
+        public void SelectingModeFromComboBox_SyncsEntryAndCaption()
+        {
+            _viewModel.SelectedMode = OperatingMode.Intensive;
+
+            Assert.That(_viewModel.SurfaceTemperatureEntry, Is.EqualTo("+7"));
+            Assert.That(_viewModel.SurfaceTemperatureCaption, Is.EqualTo("из режима «Интенсивное»"));
+
+            _viewModel.SelectedMode = OperatingMode.Manual6;
+            Assert.That(_viewModel.SurfaceTemperatureEntry, Is.EqualTo("+6"));
+            Assert.That(_viewModel.SurfaceTemperatureCaption, Is.EqualTo("своё значение"));
+        }
+
+        [Test]
+        public void ApplyStateSnapshotToAdapter_ManualMode_SyncsEntry()
+        {
+            // ADR-014: Undo/Redo восстанавливает адаптер полным снимком;
+            // поле ввода t_пов обязано последовать (в т.ч. под guard'ами)
+            var inputs = new ThermalInputsSnapshot(
+                OperatingMode.Manual4, 50.0, 10.0,
+                ThermalPipeSnapshot.FromPipeType(PipeType.StandardPipes[1]), 200);
+            var snapshot = new ThermalStateSnapshot(inputs, null, ThermalStatusSnapshot.Default);
+
+            _viewModel.ApplyStateSnapshotToAdapter(snapshot);
+
+            Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Manual4));
+            Assert.That(_viewModel.SurfaceTemperatureEntry, Is.EqualTo("+4"));
+            Assert.That(_viewModel.SurfaceTemperatureError, Is.Empty);
+        }
+
+        /// <summary>
+        /// Ревью P2-1: присваивание равного SelectedMode не поднимает
+        /// PropertyChanged — Reset и снапшот обязаны форс-гасить «застрявший»
+        /// мусорный текст и ошибку ввода t_пов.
+        /// </summary>
+        [Test]
+        public void Reset_AfterInvalidEntry_ClearsErrorAndResyncsField()
+        {
+            _viewModel.SurfaceTemperatureEntry = "8";
+            Assert.That(_viewModel.SurfaceTemperatureError, Is.Not.Empty, "Sanity: ошибка показана.");
+
+            _viewModel.Reset();
+
+            Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting));
+            Assert.That(_viewModel.SurfaceTemperatureEntry, Is.EqualTo("+5"));
+            Assert.That(_viewModel.SurfaceTemperatureError, Is.Empty);
+
+            _viewModel.SurfaceTemperatureEntry = "0";
+            var inputs = new ThermalInputsSnapshot(
+                OperatingMode.Manual4, 50.0, 10.0,
+                ThermalPipeSnapshot.FromPipeType(PipeType.StandardPipes[1]), 200);
+            _viewModel.ApplyStateSnapshotToAdapter(
+                new ThermalStateSnapshot(inputs, null, ThermalStatusSnapshot.Default));
+
+            Assert.That(_viewModel.SurfaceTemperatureEntry, Is.EqualTo("+4"));
+            Assert.That(_viewModel.SurfaceTemperatureError, Is.Empty);
+        }
+
+        [Test]
+        public void SurfaceTemperatureEntry_DoublePlus_IsRejected()
+        {
+            _viewModel.SurfaceTemperatureEntry = "++5";
+
+            Assert.That(_viewModel.SurfaceTemperatureError, Is.EqualTo("Введите целое число от +1 до +7"));
+            Assert.That(_viewModel.SelectedMode, Is.EqualTo(OperatingMode.Melting));
+        }
+
+        [Test]
+        public async Task SurfaceTemperatureHint_WarnsOnlyWhenResultPresentAndSurfaceNotAboveAir()
+        {
+            // Без результата подсказки нет
+            _mockClimateData.AirTemperature = 10.0;
+            Assert.That(_viewModel.SurfaceTemperatureHint, Is.Empty);
+
+            // Расчёт при t_пов (+5) ≤ t_нар (+10) → предупреждение, расчёт идёт
+            _viewModel.SelectedPipe = PipeType.StandardPipes[1];
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
+            Assert.That(_viewModel.Result, Is.Not.Null);
+            Assert.That(_viewModel.SurfaceTemperatureHint, Does.Contain("расчётная мощность будет отрицательной"));
+            Assert.That(_viewModel.SurfaceTemperatureHint, Does.Contain("Расчёт не блокируется."));
+
+            // Тёплый воздух ушёл — предупреждение гаснет (пересчёт по климату)
+            _mockClimateData.AirTemperature = -20.0;
+            await _viewModel.CalculateCommand.ExecuteAsync(null);
+            Assert.That(_viewModel.SurfaceTemperatureHint, Is.Empty);
+        }
+
+        [Test]
+        public void OperatingModeDisplayText_MatchesSingleSourceOfTruth()
+        {
+            Assert.That(OperatingMode.AntiIcing.ToDisplayText(), Is.EqualTo("Антиобледенение (+3 °C)"));
+            Assert.That(OperatingMode.Melting.ToDisplayText(), Is.EqualTo("Таяние (+5 °C)"));
+            Assert.That(OperatingMode.Intensive.ToDisplayText(), Is.EqualTo("Интенсивное (+7 °C)"));
+            Assert.That(OperatingMode.Manual4.ToDisplayText(), Is.EqualTo("Пользовательский (+4 °C)"));
         }
 
         #endregion

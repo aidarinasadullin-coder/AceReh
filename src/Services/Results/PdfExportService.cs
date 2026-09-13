@@ -271,7 +271,7 @@ namespace SnowMeltingCalculator.Services.Results
             statusPara.Format.Font.Color = Color.Parse(Ink);
             statusPara.Format.SpaceAfter = Unit.FromPoint(0);
             statusPara.AddText(
-                $"{OperatingModeText(data.OperatingMode)} · поверхность +{data.SurfaceTemperature} °C — расчёт подтверждён");
+                $"{OperatingModeText(data.OperatingMode)} — расчёт подтверждён");
 
             // Свита героя: тепловые величины
             (string Label, string Value)[] suiteItems =
@@ -478,7 +478,7 @@ namespace SnowMeltingCalculator.Services.Results
                     $"{Num(data.DesignTemperature, "N1")} °C · ветер {Num(data.WindSpeed, "N1")} м/с"),
                 ("Снегопад / холодный период",
                     $"{Num(data.SnowfallIntensity, "N1")} мм/ч · {data.ColdPeriodDays} дн. · {ClimateZoneRules.ZoneText(data.ClimateZone)}"),
-                ("Режим", $"{OperatingModeText(data.OperatingMode)} · поверхность +{data.SurfaceTemperature} °C"),
+                ("Режим", OperatingModeText(data.OperatingMode)),
                 ("Грунт / теплоноситель",
                     $"+{Num(data.GroundTemperature, "N1")} °C · {data.GlycolTypeDisplayName} " +
                     $"{Num(data.GlycolConcentration, "N0")} %"),
@@ -833,10 +833,11 @@ namespace SnowMeltingCalculator.Services.Results
             return string.IsNullOrWhiteSpace(value) ? "—" : value;
         }
 
-        /// <summary>Человекочитаемое имя режима; невалидное значение (0) — прочерк.</summary>
+        /// <summary>Человекочитаемая подпись режима — единый источник правил
+        /// с Results (план 2026-09-13, V3); невалидное значение — прочерк.</summary>
         private static string OperatingModeText(Models.Thermal.OperatingMode mode)
         {
-            return Enum.IsDefined(mode) ? mode.ToString() : "—";
+            return Models.Thermal.OperatingModeDisplay.ToDisplayText(mode);
         }
 
         /// <summary>
