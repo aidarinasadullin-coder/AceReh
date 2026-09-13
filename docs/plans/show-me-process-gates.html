@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me · Процессные гейты уровня 3</title>
+<style>
+  :root{
+    --red:#E50040; --red-dark:#B60034; --red-soft:#F4555E; --red-pale:#FCC2B8;
+    --teal:#4FC7B5; --teal-deep:#2F776D; --teal-success:#3F9F91; --teal-pale:#95DDD3;
+    --ink:#000000; --text:#4E4E4E; --bg:#F6F6F7; --card:#FFFFFF; --line:#E7E7EA;
+    --mono:"Cascadia Code",Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 64px}
+
+  /* ── шапка: фирменный градиент «Активный красный» ── */
+  header{background:linear-gradient(135deg,var(--red) 0%,var(--red-dark) 100%);color:#fff;padding:44px 24px 38px;margin-bottom:32px}
+  header .wrap{padding-bottom:0}
+  .kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.85;margin-bottom:10px}
+  h1{font-size:30px;font-weight:700;color:#fff;line-height:1.2;max-width:760px}
+  .sub{margin-top:12px;font-size:14.5px;opacity:.92;max-width:720px}
+  .badges{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+  .badge{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:4px 14px;font-size:12.5px}
+  .badge b{color:#fff}
+
+  /* ── секции ── */
+  h2{font-size:19px;color:var(--ink);margin:40px 0 6px;display:flex;align-items:center;gap:10px}
+  h2 .n{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:var(--red);color:#fff;font-size:13px;flex:0 0 auto}
+  .lead{font-size:14px;color:var(--text);margin-bottom:18px;max-width:840px}
+
+  /* ── контур процесса ── */
+  .toggle{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:18px}
+  .toggle button{border:0;background:transparent;padding:9px 22px;font-size:14px;font-family:inherit;cursor:pointer;color:var(--text)}
+  .toggle button.on{background:var(--red);color:#fff;font-weight:600}
+  .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  .node{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:center;position:relative;transition:all .25s}
+  .node .ico{font-size:20px;line-height:1}
+  .node .t{font-size:12.5px;font-weight:600;color:var(--ink);margin-top:6px}
+  .node .d{font-size:11px;color:var(--text);margin-top:3px;min-height:26px}
+  .node.gate{border-top:3px solid var(--teal)}
+  .node.auto{border-top:3px solid var(--red)}
+  .node.ghost{opacity:.55;border-style:dashed;border-top:3px dashed #C9C9CE}
+  .node.hot{background:var(--red-pale);border-color:var(--red-soft);opacity:1}
+  .node.ok{background:var(--teal-pale);border-color:var(--teal)}
+  .arrow{position:absolute;right:-9px;top:50%;transform:translateY(-50%);color:#B9B9BF;font-size:13px;z-index:1}
+  .flow-note{margin-top:14px;font-size:13.5px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:0 10px 10px 0;padding:12px 16px}
+  .flow-note b{color:var(--ink)}
+
+  /* ── симуляции ── */
+  .sims{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+  .sims button{font-family:inherit;font-size:13.5px;padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;color:var(--text)}
+  .sims button.on{border-color:var(--red);color:var(--red);font-weight:600;background:var(--red-pale)}
+  .sim-out{border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+  .sim-col{padding:16px 18px}
+  .sim-col+.sim-col{border-top:1px solid var(--line)}
+  .sim-head{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+  .sim-before .sim-head{color:#8A8A90}
+  .sim-after .sim-head{color:var(--teal-deep)}
+  .sim-body{font-size:13.5px}
+  .sim-body .who{font-weight:700;color:var(--ink)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:1px 8px;margin-left:8px;vertical-align:1px}
+  .tag.bad{background:var(--red-pale);color:var(--red-dark)}
+  .tag.good{background:var(--teal-pale);color:var(--teal-deep)}
+
+  /* ── артефакты ── */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .card .cap{padding:10px 14px;font-size:12.5px;font-weight:700;color:var(--ink);border-bottom:1px solid var(--line);background:#FAFAFB}
+  .card .cap .path{font-family:var(--mono);font-size:11px;color:var(--red-dark);display:block;font-weight:400;margin-top:2px}
+  .card pre{font-family:var(--mono);font-size:11px;line-height:1.6;padding:12px 14px;color:var(--text);overflow-x:auto}
+  .card .cmt{color:#9A9AA0}
+  .card .kw{color:var(--red-dark);font-weight:600}
+  .card table{width:100%;border-collapse:collapse;font-size:11.5px}
+  .card th{text-align:left;padding:6px 10px;background:#FAFAFB;color:var(--ink);border-bottom:1px solid var(--line);font-weight:700}
+  .card td{padding:6px 10px;border-bottom:1px solid var(--line)}
+  .pill{display:inline-block;font-size:10px;font-weight:700;border-radius:5px;padding:0 7px}
+  .pill.t{background:var(--teal-pale);color:var(--teal-deep)}
+  .pill.r{background:var(--red-pale);color:var(--red-dark)}
+  .pill.g{background:#F0F0F2;color:var(--text)}
+  .doc{padding:12px 14px;font-size:11.5px;font-family:var(--mono)}
+  .doc .fld{color:var(--red-dark);font-weight:600}
+  .doc .val{color:var(--text)}
+  .doc .p0{color:var(--red-dark)}
+  .doc .p2{color:var(--teal-deep)}
+
+  /* ── шкала зрелости ── */
+  .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 12px 14px;position:relative}
+  .step .lvl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9A9AA0}
+  .step .name{font-size:13px;font-weight:700;color:var(--ink);margin-top:4px}
+  .step .desc{font-size:11px;margin-top:4px;min-height:44px}
+  .step.now{border:2px solid var(--red-soft)}
+  .step.target{border:2px solid var(--teal);background:var(--teal-pale)}
+  .mark{position:absolute;top:-11px;left:10px;font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 10px;color:#fff}
+  .mark.m-now{background:var(--red)}
+  .mark.m-goal{background:var(--teal-deep)}
+
+  /* ── футер ── */
+  footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;font-size:12.5px;color:#8A8A90}
+  footer b{color:var(--text)}
+  .gates{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  .gate-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+  .gate-card .g{font-size:11px;font-weight:700;color:var(--red-dark);letter-spacing:.06em}
+  .gate-card .gt{font-size:12.5px;color:var(--ink);margin-top:2px}
+
+  @media (max-width:860px){
+    .flow{grid-template-columns:repeat(3,1fr)}
+    .arrow{display:none}
+    .cards{grid-template-columns:1fr}
+    .scale{grid-template-columns:1fr}
+    .gates{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">show-me · план 2026-09-12 · REHAU</div>
+    <h1>Процессные гейты уровня 3: CI, реестр правил, ревью-чеки</h1>
+    <div class="sub">Как машинные проверки встраивают AI в SDLC, не отменяя ни одного
+    решения владельца. Переключите контур «До / После», запустите симуляции —
+    и посмотрите, как выглядит каждый артефакт.</div>
+    <div class="badges">
+      <div class="badge">Статус: <b>на owner-ревью</b></div>
+      <div class="badge">План: <b>docs/plans/2026-09-12-process-gates-plan.md</b></div>
+      <div class="badge">Продукт: <b>без изменений</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ═══ 1. КОНТУР ═══ -->
+  <h2><span class="n">1</span>Контур одной фазы</h2>
+  <p class="lead">Серые пунктирные узлы — то, чего сегодня нет: их роль играет память
+  агента и добросовестность. В режиме «После» каждый узел становится машинным гейтом,
+  но два человеческих узла — ревью владельца и приёмка — остаются людьми.</p>
+
+  <div class="toggle" role="tablist">
+    <button id="btnBefore" onclick="setMode('before')">До — сегодня</button>
+    <button id="btnAfter" class="on" onclick="setMode('after')">После — план</button>
+  </div>
+
+  <div class="flow" id="flow">
+    <div class="node" id="nd-change"><div class="ico">✏️</div><div class="t">Изменение</div><div class="d">план → реализация агентом</div></div>
+    <div class="node gate" id="nd-review"><div class="ico">🔍</div><div class="t">Независимое ревью</div><div class="d" id="nd-review-d"></div><div class="arrow">›</div></div>
+    <div class="node" id="nd-commit"><div class="ico">📦</div><div class="t">Коммит</div><div class="d" id="nd-commit-d"></div><div class="arrow">›</div></div>
+    <div class="node auto" id="nd-ci"><div class="ico">⚙️</div><div class="t">CI</div><div class="d" id="nd-ci-d"></div><div class="arrow">›</div></div>
+    <div class="node gate" id="nd-owner"><div class="ico">🧑</div><div class="t">Owner-ревью</div><div class="d">решение о приёмке — только человек</div><div class="arrow">›</div></div>
+    <div class="node" id="nd-accept"><div class="ico">✅</div><div class="t">Приёмка</div><div class="d">handover владельцу</div></div>
+  </div>
+
+  <div class="flow-note" id="flowNote"></div>
+
+  <!-- симуляции -->
+  <p class="lead" style="margin-top:26px"><b style="color:var(--ink)">Симуляции.</b>
+  Нажмите сценарий и сравните, где проблема остановлена.</p>
+  <div class="sims">
+    <button id="sim0" onclick="runSim(0,this)">Агент забыл прогнать тесты</button>
+    <button id="sim1" onclick="runSim(1,this)">Новая ADR без строки в реестре</button>
+    <button id="sim2" onclick="runSim(2,this)">Материальное ревью «устно»</button>
+  </div>
+  <div class="sim-out">
+    <div class="sim-col sim-before">
+      <div class="sim-head">До · сегодня</div>
+      <div class="sim-body" id="simBefore">— выберите сценарий —</div>
+    </div>
+    <div class="sim-col sim-after">
+      <div class="sim-head">После · план</div>
+      <div class="sim-body" id="simAfter">— выберите сценарий —</div>
+    </div>
+  </div>
+
+  <!-- ═══ 2. АРТЕФАКТЫ ═══ -->
+  <h2><span class="n">2</span>Три артефакта плана</h2>
+  <p class="lead">Каждый гейт имеет осязаемый след в репозитории.</p>
+  <div class="cards">
+
+    <div class="card">
+      <div class="cap">CI-гейт<span class="path">.github/workflows/ci.yml</span></div>
+      <pre><span class="cmt"># windows: проект WPF (net8.0-windows)</span>
+<span class="kw">on</span>: push → master, pull_request
+steps:
+  - checkout + dotnet 8.0.x
+  - dotnet build -c Release
+  - <span class="kw">test</span> ~Architecture  <span class="cmt">← инварианты R1–R6, быстро</span>
+  - <span class="kw">test</span> Category!=UiSmoke
+    <span class="cmt"># UiSmoke (реальные окна) — только локально,</span>
+    <span class="cmt"># остаётся обязательным шагом handover</span></pre>
+    </div>
+
+    <div class="card">
+      <div class="cap">Реестр «правило → проверка»<span class="path">docs/agents/rules-registry.md</span></div>
+      <table>
+        <tr><th>Правило</th><th>Проверка</th></tr>
+        <tr><td>R1…R6 — инварианты</td><td><span class="pill t">test</span> ArchitectureRulesTests</td></tr>
+        <tr><td>№20 — версия инсталла</td><td><span class="pill t">test</span> VersionSyncTests</td></tr>
+        <tr><td>№21 — план + show-me</td><td><span class="pill g">review-step</span></td></tr>
+        <tr><td>.smc — hash-пин, round-trip</td><td><span class="pill t">test</span> SnapshotContract</td></tr>
+      </table>
+      <pre><span class="cmt"># верификатор RulesRegistryTests:</span>
+<span class="cmt">#  тест существует · ADR покрыта ·</span>
+<span class="cmt">#  правило владельца покрыто</span>
+<span class="cmt">#  реестр протухнуть не может</span></pre>
+    </div>
+
+    <div class="card">
+      <div class="cap">Ревью-чек<span class="path">docs/reviews/2026-09-12-…-review.md</span></div>
+      <div class="doc">
+        <span class="fld">REVIEW_ID:</span> <span class="val">R-2026-09-12-01</span><br>
+        <span class="fld">SUBJECT:</span> <span class="val">план process-gates</span><br>
+        <span class="fld">REVIEWER:</span> <span class="val">независимый read-only</span><br>
+        <span class="fld">DATE:</span> <span class="val">2026-09-12</span><br>
+        <span class="fld">RECEIPT:</span> <span class="val">docs/reviews/…-plan-review.md</span><br>
+        <span class="fld">VERDICT:</span> <span class="val" style="color:var(--teal-deep);font-weight:700">APPROVE-WITH-EDITS</span><br>
+        <span class="fld">FINDINGS:</span><br>
+        &nbsp;&nbsp;<span class="p0">P0</span> <span class="val">— нет</span><br>
+        &nbsp;&nbsp;<span class="p2">P1-1</span> <span class="val">JS show-me — чинить</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="val" style="color:#9A9AA0">↳ исправлено в этом же диффе</span><br>
+        <span class="fld">REASON:</span> <span class="val">гейты согласованы…</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ 3. ШКАЛА ═══ -->
+  <h2><span class="n">3</span>Где мы на шкале зрелости AI-SDLC</h2>
+  <p class="lead">План закрывает уровень 3 инфраструктурно и готовит данные уровня 5 —
+  не двигая ни одного human-гейта.</p>
+  <div class="scale">
+    <div class="step"><div class="lvl">Уровень 1</div><div class="name">Личный инструмент</div><div class="desc">агент пишет код, тесты, разбирается в кодовой базе</div></div>
+    <div class="step now"><div class="mark m-now">сейчас · 2+</div><div class="lvl">Уровень 2</div><div class="name">Командная среда</div><div class="desc">AGENTS.md, ADR, уроки, фазовый цикл, show-me — уже сильный</div></div>
+    <div class="step target"><div class="mark m-goal">цель плана · 3</div><div class="lvl">Уровень 3</div><div class="name">AI внутри SDLC</div><div class="desc">CI-гейты, реестр правил, чеки — процесс проверяется машиной</div></div>
+    <div class="step"><div class="lvl">Уровень 4</div><div class="name">Агентные процессы</div><div class="desc">PR-циклы, автономное расследование — фундамент теперь есть</div></div>
+    <div class="step"><div class="lvl">Уровень 5</div><div class="name">Самоулучшение</div><div class="desc">чеки = данные «находок на фазу»; эвалы — следующим решением</div></div>
+  </div>
+
+  <footer>
+    <b>Owner-гейты сохраняются полностью</b> — CI и реестр стоят рядом с правилом
+    «нет коммита без owner-ревью», а не вместо него: CI отвечает «соответствует ли код
+    заявленному», владелец — «принимать ли результат». Продукт, <b>.smc</b>, state
+    ownership, R1–R6, замороженное досье — без изменений.
+    <div class="gates">
+      <div class="gate-card"><div class="g">G1 · сейчас</div><div class="gt">Аппрув плана → сигнал «делай»</div></div>
+      <div class="gate-card"><div class="g">G2 · после фазы A</div><div class="gt">Branch protection «только зелёный в master» — настройка GitHub</div></div>
+      <div class="gate-card"><div class="g">G3 · по ходу</div><div class="gt">Приёмка каждой фазы на обычном handover</div></div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* ── контур: до/после ── */
+const BEFORE = {
+  review:{cls:'ghost', d:'запускается вручную, вердикт — в переписке сессии'},
+  commit:{cls:'',      d:'«2237 passed» — обещание агента в сообщении'},
+  ci:{cls:'ghost',     d:'нет — вместо него память и дисциплина'},
+  note:'<b>Сегодня.</b> Контур держится на дисциплине конкретного агента в конкретной сессии: зелёность прогона, покрытие правил, формат ревью — всё это обещания, которые нельзя перечитать. Owner-гейты при этом полные — но владелец проверяет формальности вручную.'
+};
+const AFTER = {
+  review:{cls:'gate',  d:'вердикт — чеком в docs/reviews/'},
+  commit:{cls:'',      d:'галочка/крест CI висит на коммите'},
+  ci:{cls:'auto',      d:'архитектура + полный набор, машинно'},
+  note:'<b>После.</b> Формальности пойманы машиной: инварианты нельзя закоммитить сломанными, у каждого правила — адресная проверка, у каждого материального ревью — перечитываемый след. Владелец смотрит только то, что требует человека: смысл, дизайн, приёмку.'
+};
+function setMode(m){
+  const cfg = m==='before' ? BEFORE : AFTER;
+  document.getElementById('btnBefore').classList.toggle('on', m==='before');
+  document.getElementById('btnAfter').classList.toggle('on', m==='after');
+  [['nd-review',cfg.review],['nd-commit',cfg.commit],['nd-ci',cfg.ci]].forEach(([id,c])=>{
+    const el=document.getElementById(id);
+    el.classList.remove('ghost','gate','auto');
+    if(c.cls) el.classList.add(c.cls);
+    document.getElementById(id+'-d').textContent=c.d;
+  });
+  document.getElementById('flowNote').innerHTML=cfg.note;
+  clearSim();
+}
+
+/* ── симуляции ── */
+const SIMS=[
+ {b:'<span class="who">Владелец.</span> Верит строке «2237 passed» в коммит-сообщении — или узнаёт о поломке позже, на чужой фазе. <span class="tag bad">проблема доезжает до человека</span>',
+  a:'<span class="who">CI.</span> Красный крест на коммите через несколько минут после пуша. Инвариант R2 не дал проехать дальше. Handover даже не открывается. <span class="tag good">гейт поймал до владельца</span>'},
+ {b:'<span class="who">Никто.</span> Правило записано, проверка не придумана — живёт «на честном слове» до первого нарушения, потом разбираемся по памяти. <span class="tag bad">дыра не видна</span>',
+  a:'<span class="who">RulesRegistryTests.</span> Падает: «ADR-015 не упомянута в реестре». Агент добавляет строку в том же коммите — дисциплина «обнови в том же коммите», теперь с машиной. <span class="tag good">реестр не протухает</span>'},
+ {b:'<span class="who">Будущий читатель.</span> Ищет вердикт в простыне коммит-сообщения и переписке закрытой сессии. Через месяц — не находит. <span class="tag bad">след не остался</span>',
+  a:'<span class="who">Чек-контракт.</span> docs/reviews/2026-09-12-….md: VERDICT, находки P0–P3 со статусами, ссылки. Чек пишет независимый ревьюер; ADR ссылается на путь. <span class="tag good">проверяемый след</span>'}
+];
+function runSim(i,btn){
+  document.querySelectorAll('.sims button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('simBefore').innerHTML=SIMS[i].b;
+  document.getElementById('simAfter').innerHTML=SIMS[i].a;
+  const flow={0:['nd-ci','ok'],1:['nd-commit','hot'],2:['nd-review','ok']};
+  ['nd-ci','nd-commit','nd-review'].forEach(id=>document.getElementById(id).classList.remove('ok','hot'));
+  const [id,cls]=flow[i];
+  document.getElementById(id).classList.add(cls);
+}
+function clearSim(){
+  document.querySelectorAll('.sims button').forEach(b=>b.classList.remove('on'));
+  ['nd-ci','nd-commit','nd-review'].forEach(id=>document.getElementById(id).classList.remove('ok','hot'));
+  document.getElementById('simBefore').textContent='— выберите сценарий —';
+  document.getElementById('simAfter').textContent='— выберите сценарий —';
+}
+setMode('after');
+</script>
+</body>
+</html>
