@@ -17,8 +17,8 @@
 ; директивы парсится как константа, поэтому там нужна форма «{{…}».
 #define MyAppId "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
 
-; FileVersion всегда четырёхчастная ("1.5.0.0"), а имя установщика исторически
-; трёхчастное ("v1.5.0") — срезаем ровно один хвостовой ".0". Маркер "#"
+; FileVersion всегда четырёхчастная ("1.6.0.0"), а имя установщика исторически
+; трёхчастное ("v1.6.0") — срезаем ровно один хвостовой ".0". Маркер "#"
 ; помечает конец строки, чтобы Pos нашёл именно хвостовое ".0".
 #define VerRaw GetVersionNumbersString("..\publish\SnowMeltingCalculator.exe")
 #define VerDot0Pos Pos(".0#", VerRaw + "#")
@@ -92,7 +92,7 @@ Type: dirifempty; Name: "{app}"
 Type: dirifempty; Name: "{autopf}\REHAU"
 
 [Code]
-// Упаковывает строку версии («1.5», «1.5.0», «1.5.0.0») в Int64 для
+// Упаковывает строку версии («1.6», «1.6.0», «1.6.0.0») в Int64 для
 // ComparePackedVersion: она принимает только упакованные Int64 и на строках
 // падает Type Mismatch (R-2026-09-13-05, найдено smoke-стендом).
 function PackVersionStr(const Version: String): Int64;
