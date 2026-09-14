@@ -36,14 +36,20 @@
     <Color x:Key="Brand.Gray.800">#4E4E4E</Color>
 
     <!--
-        Семантика статусов (§2.3 бренд-дока):
+        Семантика статусов (§2.3 бренд-дока docs/design/brandbook-2026-application.md —
+        первичный, tracked источник; вторичный — tokens.json канона презентаций,
+        app.status_semantics):
         ошибка  — Brand.Red на фоне Brand.Red.Tint (альфа ~28 %);
+        предупреждение — Status.Warning (FFB300, осознанное исключение — в палитре
+        нет янтарного): только статусные полосы и бейджи, никогда декоративно;
+        текст на тинте — чёрный, тинт 12 % (#1F) — решение владельца 2026-09-14;
         успех   — Brand.Teal.Success на фоне Brand.Teal.Pale tint;
         инфо/процесс — Brand.Teal.Deep / Brand.Teal на фоне Brand.Teal.Pale tint.
     -->
     <Color x:Key="Status.Error">#E50040</Color>
     <Color x:Key="Status.Error.Background">#47FCC2B8</Color>
     <Color x:Key="Status.Warning">#FFB300</Color>
+    <Color x:Key="Status.Warning.Background">#1FFFB300</Color>
     <Color x:Key="Status.Success">#3F9F91</Color>
     <Color x:Key="Status.Success.Background">#4795DDD3</Color>
     <Color x:Key="Status.Info">#2F776D</Color>
@@ -74,6 +80,7 @@
     <SolidColorBrush x:Key="Status.Error.Brush" Color="{StaticResource Status.Error}"/>
     <SolidColorBrush x:Key="Status.Error.Background.Brush" Color="{StaticResource Status.Error.Background}"/>
     <SolidColorBrush x:Key="Status.Warning.Brush" Color="{StaticResource Status.Warning}"/>
+    <SolidColorBrush x:Key="Status.Warning.Background.Brush" Color="{StaticResource Status.Warning.Background}"/>
     <SolidColorBrush x:Key="Status.Success.Brush" Color="{StaticResource Status.Success}"/>
     <SolidColorBrush x:Key="Status.Success.Background.Brush" Color="{StaticResource Status.Success.Background}"/>
     <SolidColorBrush x:Key="Status.Info.Brush" Color="{StaticResource Status.Info}"/>

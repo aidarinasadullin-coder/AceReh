@@ -7,7 +7,7 @@
 //  2) выбор трубы клавиатурой (канал из урока п.17: Expand → Down → Enter) +
 //    подача 90 °C на дефолтных климате/конструкции → ΔT = 2×(90 − T_средняя) > 30
 //    при T_средняя < 45 °C → карточка рендерится с советом DELTAT_MAX
-//    («уменьшите подачу»), кнопка перехода работает.
+//    («уменьшите подачу»); кнопки перехода нет (решение владельца 2026-09-14).
 //
 // Item-советы генерируются ItemsControl в рантайме и не пиннятся
 // ThermalAutomationIdSelectorContractTests (ревью P2-8) — здесь их контракт.
@@ -39,7 +39,7 @@ public sealed class ThermalAdviceSmokeTests : UiSmokeFixtureBase
     }
 
     [Test, Order(2)]
-    public void ExcessiveSupply90_ShowsAdviceCard_WithGoToButton()
+    public void ExcessiveSupply90_ShowsAdviceCard_WithoutGoToButton()
     {
         App.NavigateTo("Тепловой расчёт");
         App.WaitModulePlate("ТЕПЛОВОЙ");
@@ -75,8 +75,9 @@ public sealed class ThermalAdviceSmokeTests : UiSmokeFixtureBase
         Assert.That(card.Name, Does.Contain("Рекомендации"),
             "Заголовок карточки советов — «Рекомендации».");
 
-        // Item-контракт: совет перепада с лечением «уменьшите подачу» и кнопка перехода.
-        // Тексты советов ищем в окне: от TextBlock-заголовка потомков нет.
+        // Контракт текстов: совет перепада с лечением «уменьшите подачу».
+        // Кнопки перехода в v1 нет (решение владельца 2026-09-14: советы v1
+        // ведут на текущий шаг) — каркас проверки текстов остаётся пином.
         var texts = App.Window.FindAllDescendants(cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.Text))
             .Select(e => e.Name)
             .ToArray();
@@ -84,13 +85,7 @@ public sealed class ThermalAdviceSmokeTests : UiSmokeFixtureBase
             "Совет DELTAT_MAX не найден в карточке.");
         Assert.That(texts, Has.Some.Contains("уменьшите подачу"),
             "Совет перепада должен предлагать уменьшить подачу (ревью P1-3).");
-
-        var goToButton = App.WaitForElement("ThermalAdviceGoToButton")
-            ?? throw new AssertionException("Кнопка перехода совета (ThermalAdviceGoToButton) не найдена.");
-        Assert.That(goToButton.Name, Does.Contain("Тепловой расчёт"),
-            "Советы v1 ведут на шаг «Тепловой расчёт».");
-
-        goToButton.Patterns.Invoke.Pattern.Invoke();
-        App.WaitModulePlate("ТЕПЛОВОЙ");
+        Assert.That(App.FindInAnyWindow("ThermalAdviceGoToButton"), Is.Null,
+            "Кнопки перехода в v1 нет — совет не должен рендерить кнопку.");
     }
 }

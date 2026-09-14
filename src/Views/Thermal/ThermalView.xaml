@@ -150,11 +150,16 @@
                                        Style="{StaticResource FormCard.Hint}"
                                        Foreground="{DynamicResource Brand.Teal.Deep.Brush}"
                                        Visibility="{Binding SupplyTemperatureHint, Converter={StaticResource StringToVisibilityConverter}}"/>
-                            <TextBlock Text="{Binding AdviceSupplyHint}"
-                                       Style="{StaticResource FormCard.Hint}"
-                                       Foreground="{DynamicResource Brand.Red.Dark.Brush}"
-                                       TextWrapping="Wrap"
-                                       Visibility="{Binding AdviceSupplyHint, Converter={StaticResource StringToVisibilityConverter}}"/>
+                            <Border Background="{DynamicResource Status.Warning.Background.Brush}"
+                                    CornerRadius="6"
+                                    Padding="8,5"
+                                    Margin="0,5,0,0"
+                                    Visibility="{Binding AdviceSupplyHint, Converter={StaticResource StringToVisibilityConverter}}">
+                                <TextBlock Text="{Binding AdviceSupplyHint}"
+                                           Style="{StaticResource FormCard.Hint}"
+                                           Foreground="{DynamicResource Brand.Black.Brush}"
+                                           Margin="0"/>
+                            </Border>
                         </StackPanel>
 
                         <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,10">
@@ -263,11 +268,16 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <TextBlock Text="{Binding AdviceSpacingHint}"
-                                       Style="{StaticResource FormCard.Hint}"
-                                       Foreground="{DynamicResource Brand.Red.Dark.Brush}"
-                                       TextWrapping="Wrap"
-                                       Visibility="{Binding AdviceSpacingHint, Converter={StaticResource StringToVisibilityConverter}}"/>
+                            <Border Background="{DynamicResource Status.Warning.Background.Brush}"
+                                    CornerRadius="6"
+                                    Padding="8,5"
+                                    Margin="0,5,0,0"
+                                    Visibility="{Binding AdviceSpacingHint, Converter={StaticResource StringToVisibilityConverter}}">
+                                <TextBlock Text="{Binding AdviceSpacingHint}"
+                                           Style="{StaticResource FormCard.Hint}"
+                                           Foreground="{DynamicResource Brand.Black.Brush}"
+                                           Margin="0"/>
+                            </Border>
                         </StackPanel>
                     </Grid>
                 </StackPanel>
@@ -372,22 +382,29 @@
                     </Grid>
                 </Grid>
 
-                <!-- Советы (план thermal-advice): derived-слой поверх валидации,
-                     ничего не гейтит; рендерится только при наличии советов -->
-                <Border Background="{DynamicResource Brand.Red.Tint.Brush}"
-                        BorderBrush="{DynamicResource Brand.Red.Brush}"
+                <!-- Советы (план thermal-advice, палитра B — выбор владельца
+                     2026-09-14): тихая карточка с янтарной статусной полосой
+                     (канон tokens.json: warning — только полосы и бейджи);
+                     красным говорит только shell -->
+                <Border Background="{DynamicResource Brand.White.Brush}"
+                        BorderBrush="{DynamicResource Brand.Gray.300.Brush}"
                         BorderThickness="1"
                         CornerRadius="8"
-                        Padding="12,10"
                         Margin="0,0,0,10"
                         Visibility="{Binding AdviceVisibility}">
-                    <StackPanel>
-                        <!-- AutomationId на TextBlock: у Border нет automation peer,
-                             Border в UIA-дерево не попадает -->
-                        <TextBlock Text="Рекомендации"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource Brand.Red.Dark.Brush}"
-                                   AutomationProperties.AutomationId="ThermalAdviceCard"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="{DynamicResource Status.Warning.Brush}" CornerRadius="7,0,0,7"/>
+                        <StackPanel Grid.Column="1" Margin="12,10">
+                            <!-- AutomationId на TextBlock: у Border нет automation peer,
+                                 Border в UIA-дерево не попадает -->
+                            <TextBlock Text="Рекомендации"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Brand.Gray.800.Brush}"
+                                       AutomationProperties.AutomationId="ThermalAdviceCard"/>
                         <ItemsControl ItemsSource="{Binding AdviceList}" Margin="0,6,0,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -397,21 +414,16 @@
                                             CornerRadius="6"
                                             Padding="8,6"
                                             Margin="0,0,0,6">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
-                                            <Button Content="{Binding TargetTitle, StringFormat=Перейти: {0}}"
-                                                    HorizontalAlignment="Left"
-                                                    Margin="0,6,0,0"
-                                                    Style="{StaticResource Button.Secondary}"
-                                                    Command="{Binding DataContext.NavigateToTargetCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                    CommandParameter="{Binding TargetStep}"
-                                                    AutomationProperties.AutomationId="ThermalAdviceGoToButton"/>
-                                        </StackPanel>
+                                        <!-- Кнопка-переход убрана (решение владельца
+                                             2026-09-14): советы v1 ведут на текущий шаг;
+                                             TargetStep/TargetTitle в модели — под v2 -->
+                                        <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </StackPanel>
+                        </StackPanel>
+                    </Grid>
                 </Border>
 
                 <!-- Дополнительные параметры: свёрнутый справочный блок
