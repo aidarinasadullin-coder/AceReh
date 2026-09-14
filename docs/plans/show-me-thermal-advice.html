@@ -9,7 +9,7 @@
     --red:#E50040; --red-dark:#B60034; --red-soft:#F4555E; --red-pale:#FA8A86; --red-tint:#FCC2B8;
     --teal:#4FC7B5; --teal-deep:#2F776D; --teal-success:#3F9F91; --teal-soft:#72D2C4; --teal-pale:#95DDD3;
     --black:#000000; --white:#FFFFFF; --gray100:#E4E4E4; --gray300:#B0B0B0; --gray600:#818181; --gray800:#4E4E4E;
-    --warning:#FFB300;
+    --warning:#FFB300; --amber-tint:rgba(255,179,0,.12);
     --red-tint-bg:rgba(252,194,184,.32); --teal-pale-bg:rgba(149,221,211,.30);
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -37,16 +37,18 @@
   .field .lbl{font-size:11px;color:var(--gray600)}
   .field .val{font-weight:600;font-size:14px}
   .hint{margin-top:5px;font-size:12px;color:var(--teal-deep);background:var(--teal-pale-bg);border-radius:6px;padding:5px 8px}
-  .hint.warn{color:var(--red-dark);background:var(--red-tint-bg)}
+  .hint.warn{color:var(--black);background:var(--amber-tint)}
   .kpi{border:1px solid var(--gray300);border-radius:8px;padding:10px;background:var(--white)}
   .kpi .big{font-size:20px;font-weight:700}
   .kpi .unit{font-size:12px;color:var(--gray600)}
-  .advice-card{border:1.5px solid var(--red);border-radius:8px;background:var(--red-tint-bg);padding:10px 12px}
-  .advice-card.warn{border-color:var(--warning);background:rgba(255,179,0,.14)}
+  .advice-card{border:1px solid var(--gray300);border-radius:8px;background:var(--white);padding:0;overflow:hidden}
+  .advice-inner{display:flex}
+  .advice-strip{width:6px;flex:none;background:var(--warning)}
+  .advice-content{padding:10px 12px;flex:1}
+  .advice-card.warn .advice-strip{background:var(--warning)}
   .advice-card.clean{border-color:var(--teal-success);background:var(--teal-pale-bg)}
-  .advice-card .ttl{font-weight:700;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+  .advice-card .ttl{font-weight:700;font-size:13px;display:flex;justify-content:space-between;align-items:center;color:var(--gray800)}
   .advice-item{margin-top:8px;font-size:13px;padding:7px 9px;background:var(--white);border-radius:6px;border:1px solid var(--gray100)}
-  .goto{display:inline-block;margin-top:6px;font-size:12px;font-weight:600;color:var(--teal-deep);background:var(--teal-pale-bg);border-radius:10px;padding:2px 10px}
   .shell{border-top:1px solid var(--gray300);background:var(--gray100);padding:8px 14px;font-size:12px;display:flex;gap:8px;align-items:center}
   .dot{width:10px;height:10px;border-radius:50%;flex:none}
   /* кнопки симуляций */
@@ -59,7 +61,7 @@
   td{border-top:1px solid var(--gray100);padding:7px 9px;vertical-align:top}
   code{font-family:Consolas,monospace;font-size:12px;background:var(--gray100);border-radius:4px;padding:1px 5px}
   .sev{font-size:11px;font-weight:700;border-radius:9px;padding:1px 8px;white-space:nowrap}
-  .sev.error{background:var(--red-tint-bg);color:var(--red-dark)}
+  .sev.warning{background:var(--amber-tint);color:var(--black);border:1px solid var(--warning)}
   .chosen{font-size:11px;font-weight:700;color:var(--teal-success);white-space:nowrap}
   .open{font-size:11px;font-weight:700;color:var(--red-dark);white-space:nowrap}
   /* поток */
@@ -91,6 +93,7 @@
     <span class="badge owner">атакующее ревью: REJECT → 11 находок внесены</span>
     <span class="badge owner">решение №8 (A) подтверждено владельцем (G2, 2026-09-14)</span>
     <span class="badge gray">2 совета в каталоге v1</span>
+    <span class="badge owner">палитра B (бейдж-амбер) — выбор владельца 2026-09-14</span>
   </div>
 
   <h2>1. Принцип: ошибка и совет — разные вещи</h2>
@@ -139,17 +142,17 @@
       <div class="body">
         <div class="field"><div class="lbl">ТЕМПЕРАТУРА ПОДАЧИ</div><div class="val">50 °C</div>
           <div class="hint">Рекомендуется: 22 °C (для ΔT ≈ 15 К)</div>
-          <div class="hint warn" id="mock-hint">↑ Уменьшите подачу до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг</div>
+          <div class="hint warn" id="mock-hint" style="border-radius:6px;padding:5px 8px;background:var(--amber-tint);color:var(--black)">↑ Уменьшите подачу до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг</div>
         </div>
         <div class="kpi"><span class="big">345,2</span> <span class="unit">Вт/м²</span></div>
-        <div class="advice-card" id="mock-card">
-          <div class="ttl"><span>Рекомендации (2)</span><span class="sev error">error</span></div>
-          <div class="advice-item">Обратка −20,8 °C: уменьшите температуру подачи до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг укладки.<br><span class="goto">Перейти: Тепловой расчёт</span></div>
-          <div class="advice-item">Перепад 70,8 K превышает 30 K: уменьшите подачу до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг.<br><span class="goto">Перейти: Тепловой расчёт</span></div>
-        </div>
+        <div class="advice-card" id="mock-card"><div class="advice-inner"><div class="advice-strip"></div><div style="flex:1">
+          <div class="ttl"><span>Рекомендации (2)</span><span class="sev warning">warning</span></div>
+          <div class="advice-item">Обратка −20,8 °C: уменьшите температуру подачи до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг укладки.</div>
+          <div class="advice-item">Перепад 70,8 K превышает 30 K: уменьшите подачу до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг.</div>
+        </div></div></div>
         <div class="shell"><span class="dot" style="background:var(--red)"></span> Расчётная температура обратки (−20,8 °C) отрицательна</div>
       </div>
-      <div style="padding:8px 14px;font-size:12px;color:var(--gray600)">ПОСЛЕ: два совета — два нарушения этого входа; ошибка осталась в shell. Сосуществование с «Рекомендуется: …» — решение №8, вариант A подтверждён владельцем (G2).</div>
+      <div style="padding:8px 14px;font-size:12px;color:var(--gray600)">ПОСЛЕ: два совета — два нарушения этого входа; красным говорит только shell (канон: warning — полосы и бейджи, не более одного активного красного пятна на зону). Решение №8, вариант A подтверждён владельцем (G2); палитра B.</div>
     </div>
   </div>
 
@@ -159,17 +162,17 @@
     <button class="simbtn" id="btn-b" onclick="window.setScenario('b')">Подача 29,5 °C → 1 совет</button>
     <button class="simbtn" id="btn-c" onclick="window.setScenario('c')">Подача 28 °C → чисто</button>
   </div>
-  <div class="advice-card" id="sim-card">
-    <div class="ttl"><span id="sim-title">Рекомендации (2)</span><span class="sev error" id="sim-sev">error</span></div>
+  <div class="advice-card" id="sim-card"><div class="advice-inner"><div class="advice-strip"></div><div style="flex:1">
+    <div class="ttl"><span id="sim-title">Рекомендации (2)</span><span class="sev warning" id="sim-sev">warning</span></div>
     <div id="sim-items"></div>
-  </div>
+  </div></div></div>
   <p class="sub" id="sim-note"></p>
 
   <h2>5. Каталог советов v1</h2>
   <table>
-    <tr><th>Id</th><th>Условие (якорь кода)</th><th>Severity</th><th>Основа текста</th><th>Переход</th></tr>
-    <tr><td><code>RETURN_NEGATIVE</code></td><td>2×T_средняя − T_подача &lt; 0 · <code>ThermalResultValidator.cs:32–38</code></td><td><span class="sev error">Error</span></td><td>Уменьшите подачу до ≈T_средняя+7,5 °C (для ΔT ≈ 15 К) или увеличьте шаг</td><td>Тепловой</td></tr>
-    <tr><td><code>DELTAT_MAX</code></td><td>ΔT &gt; 30 K (<code>ValidationConstants.MaxDeltaT</code>) · <code>ThermalResultValidator.cs:48–53</code></td><td><span class="sev error">Error</span></td><td>Та же цель: уменьшите подачу (для ΔT ≈ 15 К) или увеличьте шаг</td><td>Тепловой</td></tr>
+    <tr><th>Id</th><th>Условие (якорь кода)</th><th>Severity</th><th>Основа текста</th><th>Переход (v2)</th></tr>
+    <tr><td><code>RETURN_NEGATIVE</code></td><td>2×T_средняя − T_подача &lt; 0 · <code>ThermalResultValidator.cs:32–38</code></td><td><span class="sev warning">Warning</span></td><td>Уменьшите подачу до ≈T_средняя+7,5 °C (для ΔT ≈ 15 К) или увеличьте шаг</td><td>— кнопок нет (советы v1 ведут на текущий шаг)</td></tr>
+    <tr><td><code>DELTAT_MAX</code></td><td>ΔT &gt; 30 K (<code>ValidationConstants.MaxDeltaT</code>) · <code>ThermalResultValidator.cs:48–53</code></td><td><span class="sev warning">Warning</span></td><td>Та же цель: уменьшите подачу (для ΔT ≈ 15 К) или увеличьте шаг</td><td>—</td></tr>
     <tr><td>хинты полей</td><td>те же условия у полей подачи/шага</td><td>—</td><td>короткий текст у поля</td><td>—</td></tr>
   </table>
   <div class="excluded">
@@ -195,10 +198,10 @@
       <ul><li>ThermalAdvice + IThermalAdviceService + ThermalAdviceService</li><li>DI + опциональный ctor-параметр (30 тест-мест не ломаются)</li><li>Тесты: 50 °C → 2 совета; 29,5 → 1; 28 → пусто</li><li>Сверка с валидатором: ветки обратки и ΔT&gt;30</li></ul>
       <p class="sub">Ни от чего не зависит — можно начинать сразу</p></div>
     <div class="phase"><div class="ph-t">Фаза B — UI</div>
-      <ul><li>Карточка + хинты в ThermalView</li><li>AdviceList в ThermalViewModel (адаптер)</li><li>Переход: SelectedMenuItem (прецедент HeaderCalculate)</li><li>Контракт: только ThermalAdviceCard (item-ID — рантайм)</li></ul>
+      <ul><li>Карточка + хинты в ThermalView</li><li>AdviceList в ThermalViewModel (адаптер)</li><li>Кнопки перехода убраны (решение владельца 2026-09-14): советы v1 — на текущем шаге</li><li>Контракт: только ThermalAdviceCard (item-ID — рантайм)</li></ul>
       <p class="sub">Зависимость от surface-temperature снята (уже реализована)</p></div>
     <div class="phase"><div class="ph-t">Фаза C — полировка</div>
-      <ul><li>Locale-тест чисел советов</li><li>UiSmoke: карточка при отрицательной обратке + item-кнопки</li><li>Раздел в Руководстве_пользователя</li></ul>
+      <ul><li>Locale-тест чисел советов</li><li>UiSmoke: карточка + пин отсутствия кнопки перехода (решение 2026-09-14)</li><li>Раздел в Руководстве_пользователя</li></ul>
     </div>
   </div>
   <div class="gates">
@@ -226,16 +229,16 @@
     if (key === 'a') {
       card.className = 'advice-card';
       title.textContent = 'Рекомендации (2)';
-      sev.className = 'sev error'; sev.textContent = 'error';
+      sev.className = 'sev warning'; sev.textContent = 'warning';
       items.innerHTML =
-        '<div class="advice-item">Обратка −20,8 °C: уменьшите температуру подачи до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг укладки.<br><span class="goto">Перейти: Тепловой расчёт</span></div>' +
-        '<div class="advice-item">Перепад 70,8 K превышает 30 K: уменьшите подачу до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг.<br><span class="goto">Перейти: Тепловой расчёт</span></div>';
+        '<div class="advice-item">Обратка −20,8 °C: уменьшите температуру подачи до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг укладки.</div>' +
+        '<div class="advice-item">Перепад 70,8 K превышает 30 K: уменьшите подачу до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг.</div>';
       note.textContent = 'Подача 50 °C / средняя 14,6 °C: нарушаются оба лимита одновременно — тест-таблица фазы A проверяет именно этот вход.';
     } else if (key === 'b') {
       card.className = 'advice-card';
       title.textContent = 'Рекомендации (1)';
-      sev.className = 'sev error'; sev.textContent = 'error';
-      items.innerHTML = '<div class="advice-item">Обратка −0,3 °C: уменьшите температуру подачи до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг укладки.<br><span class="goto">Перейти: Тепловой расчёт</span></div>';
+      sev.className = 'sev warning'; sev.textContent = 'warning';
+      items.innerHTML = '<div class="advice-item">Обратка −0,3 °C: уменьшите температуру подачи до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг укладки.</div>';
       note.textContent = 'Подача 29,5 °C: обратка −0,3 °C — одно нарушение; ΔT = 29,8 K ≤ 30 — второй совет не выдаётся.';
     } else {
       card.className = 'advice-card clean';
