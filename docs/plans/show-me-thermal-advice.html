@@ -3,32 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>show-me · Советы теплового расчёта (идея №2) — после ревью</title>
+<title>show-me · Советы теплового расчёта — подписи вместо карточки</title>
 <style>
   :root{
-    --red:#E50040; --red-dark:#B60034; --red-soft:#F4555E; --red-pale:#FA8A86; --red-tint:#FCC2B8;
+    --red:#E50040; --red-dark:#B60034; --red-tint:#FCC2B8;
     --teal:#4FC7B5; --teal-deep:#2F776D; --teal-success:#3F9F91; --teal-soft:#72D2C4; --teal-pale:#95DDD3;
+    --amber:#FFB300; --amber-dark:#8A6100; --amber-tint:rgba(255,179,0,.12);
     --black:#000000; --white:#FFFFFF; --gray100:#E4E4E4; --gray300:#B0B0B0; --gray600:#818181; --gray800:#4E4E4E;
-    --warning:#FFB300; --amber-tint:rgba(255,179,0,.12);
-    --red-tint-bg:rgba(252,194,184,.32); --teal-pale-bg:rgba(149,221,211,.30);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',Arial,sans-serif;color:var(--black);background:var(--white);line-height:1.5;font-size:15px}
+  body{font-family:Inter,Arial,sans-serif;color:var(--black);background:var(--white);line-height:1.5;font-size:15px}
   .wrap{max-width:1080px;margin:0 auto;padding:28px 24px 60px}
-  h1{font-size:26px;font-weight:700;letter-spacing:.2px}
-  h2{font-size:19px;font-weight:700;margin:34px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--teal)}
+  h1{font-size:25px;font-weight:700}
+  h2{font-size:19px;font-weight:700;margin:32px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--teal)}
   h3{font-size:15px;font-weight:600;margin:0 0 8px}
   p{margin:6px 0}
   .sub{color:var(--gray600);font-size:13px}
   .badges{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
-  .badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--teal-pale-bg);color:var(--teal-deep)}
-  .badge.owner{background:var(--red-tint-bg);color:var(--red-dark)}
+  .badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--teal-pale);color:var(--teal-deep)}
+  .badge.owner{background:rgba(252,194,184,.4);color:var(--red-dark)}
   .badge.gray{background:var(--gray100);color:var(--gray800)}
   .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .card{border:1px solid var(--gray300);border-radius:10px;background:var(--white);padding:16px;margin:10px 0}
-  .formula{background:var(--teal-pale-bg);border:1px solid var(--teal-soft);border-radius:10px;padding:12px 16px;font-size:14px;margin:10px 0}
-  .formula code{background:var(--white)}
-  /* мок ThermalView */
+  code{font-family:Consolas,monospace;font-size:12px;background:var(--gray100);border-radius:4px;padding:1px 5px}
   .mock{border:1px solid var(--gray300);border-radius:10px;overflow:hidden;font-size:13px}
   .mock .head{background:var(--gray100);padding:10px 14px;font-weight:600}
   .mock .head span{display:block;font-weight:400;color:var(--gray600);font-size:12px}
@@ -36,219 +32,117 @@
   .field{border:1px solid var(--gray300);border-radius:8px;padding:8px 10px;background:var(--white)}
   .field .lbl{font-size:11px;color:var(--gray600)}
   .field .val{font-weight:600;font-size:14px}
-  .hint{margin-top:5px;font-size:12px;color:var(--teal-deep);background:var(--teal-pale-bg);border-radius:6px;padding:5px 8px}
-  .hint.warn{color:var(--black);background:var(--amber-tint)}
-  .kpi{border:1px solid var(--gray300);border-radius:8px;padding:10px;background:var(--white)}
-  .kpi .big{font-size:20px;font-weight:700}
-  .kpi .unit{font-size:12px;color:var(--gray600)}
-  .advice-card{border:1px solid var(--gray300);border-radius:8px;background:var(--white);padding:0;overflow:hidden}
-  .advice-inner{display:flex}
-  .advice-strip{width:6px;flex:none;background:var(--warning)}
-  .advice-content{padding:10px 12px;flex:1}
-  .advice-card.warn .advice-strip{background:var(--warning)}
-  .advice-card.clean{border-color:var(--teal-success);background:var(--teal-pale-bg)}
-  .advice-card .ttl{font-weight:700;font-size:13px;display:flex;justify-content:space-between;align-items:center;color:var(--gray800)}
-  .advice-item{margin-top:8px;font-size:13px;padding:7px 9px;background:var(--white);border-radius:6px;border:1px solid var(--gray100)}
+  .hint{margin-top:5px;font-size:12px;color:var(--teal-deep);border-radius:6px;padding:5px 8px}
+  .hint.warm{color:var(--amber-dark)}
+  .kpi{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+  .chip{border:1px solid var(--gray300);border-radius:8px;padding:8px 10px;background:var(--white)}
+  .chip .v{font-weight:700;font-size:15px}
+  .chip .k{font-size:11px;color:var(--gray600)}
+  .warm{color:var(--amber-dark)}
   .shell{border-top:1px solid var(--gray300);background:var(--gray100);padding:8px 14px;font-size:12px;display:flex;gap:8px;align-items:center}
-  .dot{width:10px;height:10px;border-radius:50%;flex:none}
-  /* кнопки симуляций */
-  .simbtns{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
-  .simbtn{border:1.5px solid var(--gray600);background:var(--white);color:var(--black);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer}
-  .simbtn.active{border-color:var(--teal-deep);background:var(--teal-pale-bg);color:var(--teal-deep)}
-  /* таблицы */
+  .dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--red)}
+  .formula{background:var(--teal-pale);border:1px solid var(--teal-soft);border-radius:10px;padding:12px 16px;font-size:14px;margin:10px 0}
   table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
   th{background:var(--gray100);text-align:left;padding:7px 9px;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--gray800)}
   td{border-top:1px solid var(--gray100);padding:7px 9px;vertical-align:top}
-  code{font-family:Consolas,monospace;font-size:12px;background:var(--gray100);border-radius:4px;padding:1px 5px}
-  .sev{font-size:11px;font-weight:700;border-radius:9px;padding:1px 8px;white-space:nowrap}
-  .sev.warning{background:var(--amber-tint);color:var(--black);border:1px solid var(--warning)}
-  .chosen{font-size:11px;font-weight:700;color:var(--teal-success);white-space:nowrap}
-  .open{font-size:11px;font-weight:700;color:var(--red-dark);white-space:nowrap}
-  /* поток */
-  .flow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .lane{border:1px solid var(--gray300);border-radius:10px;padding:12px}
-  .lane .step{border:1px solid var(--gray300);border-radius:8px;padding:7px 10px;margin-top:8px;font-size:13px;background:var(--white)}
-  .lane .step.gate{border-color:var(--red);background:var(--red-tint-bg)}
-  .lane .step.derived{border-color:var(--teal);background:var(--teal-pale-bg)}
-  .arrow{text-align:center;color:var(--gray600);font-size:12px;margin-top:4px}
-  /* фазы */
-  .phases{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-  .phase{border:1px solid var(--gray300);border-radius:10px;padding:12px;font-size:13px}
-  .phase .ph-t{font-weight:700;color:var(--teal-deep)}
-  .phase ul{margin:6px 0 0 16px}
-  .gates{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}
-  .gate-chip{border:1.5px dashed var(--gray600);border-radius:8px;padding:6px 12px;font-size:12.5px}
-  .excluded{border:1.5px dashed var(--red);border-radius:10px;padding:12px 16px;font-size:13.5px;background:var(--red-tint-bg);margin:10px 0}
-  .footer{margin-top:36px;padding-top:12px;border-top:1px solid var(--gray300);font-size:12.5px;color:var(--gray600)}
+  .history{border:1px solid var(--gray300);border-left:4px solid var(--gray300);border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;margin:10px 0;color:var(--gray800)}
+  .decision{border:1.5px dashed var(--gray600);border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14px}
+  .footer{margin-top:34px;padding-top:12px;border-top:1px solid var(--gray300);font-size:12.5px;color:var(--gray600)}
   .footer b{color:var(--gray800)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Советы теплового расчёта: подсказки при нарушении лимитов</h1>
-  <p class="sub">show-me к плану <b>docs/plans/2026-09-13-thermal-advice-plan.md</b> · идея №2 из docs/Идеи.md · 2026-09-13 · артефакт регенерирован из плана после ревью (урок №27)</p>
+  <h1>Советы теплового расчёта: подписи вместо карточки</h1>
+  <p class="sub">show-me к плану <b>docs/plans/2026-09-13-thermal-advice-plan.md</b> (§13) · отзыв владельца 2026-09-15 «выглядит грязно» → карточка убрана, советы — тёплые подписи под полями · артефакт регенерируется (урок №27)</p>
   <div class="badges">
-    <span class="badge">derived-слой поверх валидации</span>
-    <span class="badge">токены: Tokens.Colors.xaml · разделитель — запятая (ru-RU)</span>
-    <span class="badge owner">атакующее ревью: REJECT → 11 находок внесены</span>
-    <span class="badge owner">решение №8 (A) подтверждено владельцем (G2, 2026-09-14)</span>
-    <span class="badge gray">2 совета в каталоге v1</span>
-    <span class="badge owner">палитра B (бейдж-амбер) — выбор владельца 2026-09-14</span>
+    <span class="badge">токен Status.Warning.Dark #8A6100 — без заливки</span>
+    <span class="badge owner">решения владельца 2026-09-15 внесены</span>
+    <span class="badge gray">красный — только shell · HeroKPI — бренд-градиент</span>
   </div>
 
-  <h2>1. Принцип: ошибка и совет — разные вещи</h2>
-  <p>Валидатор <code>ThermalResultValidator</code> гейтит расчёт и честно говорит, <i>что сломано</i>. Советы ничего не гейтят и говорят, <i>что делать</i>. Оба слоя читают один и тот же результат — двойной истины нет.</p>
-  <div class="flow">
-    <div class="lane">
-      <h3>Гейт (сегодня, не меняется)</h3>
-      <div class="step">Тепловой расчёт → <code>ThermalCalculationResult</code></div>
-      <div class="arrow">↓</div>
-      <div class="step gate"><code>ThermalResultValidator</code> · обратка &lt; 0, ΔT &gt; 30 K → ошибки</div>
-      <div class="arrow">↓</div>
-      <div class="step">Строка статуса shell — <code>ShellValidationMessage</code>, красная, расчёт заблокирован</div>
-    </div>
-    <div class="lane">
-      <h3>Советы (новое, derived)</h3>
-      <div class="step">Тот же <code>ThermalCalculationResult</code> + <code>ThermalInputs</code></div>
-      <div class="arrow">↓</div>
-      <div class="step derived"><code>ThermalAdviceService</code> · чистая функция → список советов</div>
-      <div class="arrow">↓</div>
-      <div class="step">Карточка «Рекомендации» + хинты у полей в ThermalView — ничего не блокируют</div>
-    </div>
-  </div>
-
-  <h2>2. Физика направлений (проверена ревью, P1×2)</h2>
-  <div class="formula">
-    <code>T_обратка = 2×T_средняя − T_подача</code> &nbsp;·&nbsp; <code>ΔT = 2×(T_подача − T_средняя)</code><br>
-    → рычаги одного направления: <b>уменьшить подачу</b> или <b>увеличить шаг</b>
-    (шаг ↑ → мощность ↑ → T_средняя ↑ → обратка ↑ и ΔT ↓).<br>
-    <span class="sub">Увеличение подачи ведёт в обратную сторону; гликоль на ΔT не влияет (только расход).</span>
-  </div>
-
-  <h2>3. До / после (мок теплового шага: подача 50 °C, T_средняя 14,6 °C)</h2>
+  <h2>1. Итоговый вид теплового шага</h2>
   <div class="cols">
     <div class="mock">
-      <div class="head">Тепловой расчёт <span>Шаг 3 из 5 — режим, температуры, труба</span></div>
+      <div class="head">Тепловой расчёт <span>Шаг 3 из 5 — нарушение лимитов (подача 50,0)</span></div>
       <div class="body">
-        <div class="field"><div class="lbl">ТЕМПЕРАТУРА ПОДАЧИ</div><div class="val">50 °C</div></div>
-        <div class="field"><div class="lbl">ТЕМПЕРАТУРНЫЙ ПЕРЕПАД</div><div class="val">70,8 K</div></div>
-        <div class="kpi"><span class="big">345,2</span> <span class="unit">Вт/м²</span></div>
-        <div class="shell"><span class="dot" style="background:var(--red)"></span> Расчётная температура обратки (−20,8 °C) отрицательна</div>
+        <div class="field"><div class="lbl">ТЕМПЕРАТУРА ПОДАЧИ</div><div class="val">50,0 °C</div>
+          <div class="hint warm">Обратка −4,1 °C: уменьшите температуру подачи до ≈30,5 °C (для ΔT ≈ 15 К) или увеличьте шаг укладки</div>
+        </div>
+        <div class="field"><div class="lbl">ШАГ УКЛАДКИ</div><div class="val">200 мм</div>
+          <div class="hint warm">Увеличьте шаг укладки — это снизит перепад и поднимет обратку</div>
+        </div>
+        <div class="kpi">
+          <div class="chip"><span class="v">162,9</span> Вт/м²<div class="k">Суммарная мощность</div></div>
+          <div class="chip"><span class="v warm">2,0</span><div class="k">Поток вниз q↓</div></div>
+          <div class="chip"><span class="v warm">−4,1</span><div class="k">Обратка, °C</div></div>
+        </div>
+        <div class="shell"><span class="dot"></span> Расчётная температура обратки (−4,1 °C) отрицательна; Перепад (54,1 °C) превышает 30 °C</div>
       </div>
-      <div style="padding:8px 14px;font-size:12px;color:var(--gray600)">ДО: что делать — не сказано. Пользователь подбирает вручную.</div>
+      <div style="padding:8px 14px;font-size:12px;color:var(--gray600)">Совет сидит под своим полем; тёплым отмечены обратка &lt; 0 и потери q↓; красным — только shell.</div>
     </div>
     <div class="mock">
-      <div class="head">Тепловой расчёт <span>Шаг 3 из 5 — режим, температуры, труба</span></div>
+      <div class="head">Тепловой расчёт <span>Шаг 3 из 5 — лимиты соблюдены (подача 28,0 · T_средняя 14,6)</span></div>
       <div class="body">
-        <div class="field"><div class="lbl">ТЕМПЕРАТУРА ПОДАЧИ</div><div class="val">50 °C</div>
-          <div class="hint">Рекомендуется: 22 °C (для ΔT ≈ 15 К)</div>
-          <div class="hint warn" id="mock-hint" style="border-radius:6px;padding:5px 8px;background:var(--amber-tint);color:var(--black)">↑ Уменьшите подачу до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг</div>
+        <div class="field"><div class="lbl">ТЕМПЕРАТУРА ПОДАЧИ</div><div class="val">28,0 °C</div>
+          <div class="hint">Рекомендуется: 22,1 °C (для ΔT ≈ 15 К)</div>
         </div>
-        <div class="kpi"><span class="big">345,2</span> <span class="unit">Вт/м²</span></div>
-        <div class="advice-card" id="mock-card"><div class="advice-inner"><div class="advice-strip"></div><div style="flex:1">
-          <div class="ttl"><span>Рекомендации (2)</span><span class="sev warning">warning</span></div>
-          <div class="advice-item">Обратка −20,8 °C: уменьшите температуру подачи до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг укладки.</div>
-          <div class="advice-item">Перепад 70,8 K превышает 30 K: уменьшите подачу до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг.</div>
-        </div></div></div>
-        <div class="shell"><span class="dot" style="background:var(--red)"></span> Расчётная температура обратки (−20,8 °C) отрицательна</div>
+        <div class="field"><div class="lbl">ШАГ УКЛАДКИ</div><div class="val">200 мм</div></div>
+        <div class="kpi">
+          <div class="chip"><span class="v">162,9</span> Вт/м²<div class="k">Суммарная мощность</div></div>
+          <div class="chip"><span class="v warm">2,0</span><div class="k">Поток вниз q↓</div></div>
+          <div class="chip"><span class="v">+1,2</span><div class="k">Обратка, °C</div></div>
+        </div>
+        <div class="shell"><span class="dot" style="background:var(--teal-success)"></span> Расчёт выполнен</div>
       </div>
-      <div style="padding:8px 14px;font-size:12px;color:var(--gray600)">ПОСЛЕ: два совета — два нарушения этого входа; красным говорит только shell (канон: warning — полосы и бейджи, не более одного активного красного пятна на зону). Решение №8, вариант A подтверждён владельцем (G2); палитра B.</div>
+      <div style="padding:8px 14px;font-size:12px;color:var(--gray600)">Чистое состояние: teal-справка возвращается (решение №8, A); акцент обратки погас — q↓ остаётся охрой как «потери».</div>
     </div>
   </div>
 
-  <h2>4. Симуляции</h2>
-  <div class="simbtns">
-    <button class="simbtn active" id="btn-a" onclick="window.setScenario('a')">Подача 50 °C → 2 совета</button>
-    <button class="simbtn" id="btn-b" onclick="window.setScenario('b')">Подача 29,5 °C → 1 совет</button>
-    <button class="simbtn" id="btn-c" onclick="window.setScenario('c')">Подача 28 °C → чисто</button>
-  </div>
-  <div class="advice-card" id="sim-card"><div class="advice-inner"><div class="advice-strip"></div><div style="flex:1">
-    <div class="ttl"><span id="sim-title">Рекомендации (2)</span><span class="sev warning" id="sim-sev">warning</span></div>
-    <div id="sim-items"></div>
-  </div></div></div>
-  <p class="sub" id="sim-note"></p>
-
-  <h2>5. Каталог советов v1</h2>
+  <h2>2. Соглашения цвета (текущая семантика)</h2>
   <table>
-    <tr><th>Id</th><th>Условие (якорь кода)</th><th>Severity</th><th>Основа текста</th><th>Переход (v2)</th></tr>
-    <tr><td><code>RETURN_NEGATIVE</code></td><td>2×T_средняя − T_подача &lt; 0 · <code>ThermalResultValidator.cs:32–38</code></td><td><span class="sev warning">Warning</span></td><td>Уменьшите подачу до ≈T_средняя+7,5 °C (для ΔT ≈ 15 К) или увеличьте шаг</td><td>— кнопок нет (советы v1 ведут на текущий шаг)</td></tr>
-    <tr><td><code>DELTAT_MAX</code></td><td>ΔT &gt; 30 K (<code>ValidationConstants.MaxDeltaT</code>) · <code>ThermalResultValidator.cs:48–53</code></td><td><span class="sev warning">Warning</span></td><td>Та же цель: уменьшите подачу (для ΔT ≈ 15 К) или увеличьте шаг</td><td>—</td></tr>
-    <tr><td>хинты полей</td><td>те же условия у полей подачи/шага</td><td>—</td><td>короткий текст у поля</td><td>—</td></tr>
+    <tr><th>Цвет</th><th>Токен</th><th>Где</th><th>Смысл</th></tr>
+    <tr><td><span class="warm" style="font-weight:700">Тёмная охра #8A6100</span></td><td><code>Status.Warning.Dark</code> (новый, 2026-09-15)</td><td>тексты советов; чип обратки при &lt; 0; чип q↓ всегда</td><td>«действуй / потери», без заливки</td></tr>
+    <tr><td>Teal Deep #2F776D</td><td><code>Brand.Teal.Deep</code></td><td>«Рекомендуется: …» в чистом состоянии</td><td>«справка»</td></tr>
+    <tr><td>Красный #E50040</td><td><code>Brand.Red</code> / <code>Status.Error</code></td><td>только статус-бар shell</td><td>«ошибка, расчёт блокирован»</td></tr>
+    <tr><td>Amber #FFB300</td><td><code>Status.Warning</code></td><td>статусные полосы/бейджи shell (не в ThermalView)</td><td>канон: «никогда декоративно»</td></tr>
   </table>
-  <div class="excluded">
-    <b>Исключён по итогам ревью (P0):</b> совет «поверхность выше цели режима» — t_пов в этой модели является <b>входом</b> расчёта (<code>ThermalCalculator.cs:411</code>), в <code>ThermalCalculationResult</code> её нет; после surface-temperature ввод и цель совпадают. Кандидат v2 — если появится наблюдаемый критерий дефицита мощности (решение №6).
+  <div class="formula">
+    <b>Конвенция источников</b> (решение владельца 2026-09-15): значения цветов приложения
+    определяются <b>только</b> в <code>Tokens.Colors.xaml</code>; бренд-док §2.3 описывает правила
+    применения; tokens.json — канон презентационного конвейера, к приложению не относится.
+    От дрейфа защищает ratchet <code>ViewTokenHygieneTests</code>.
   </div>
 
-  <h2>6. Решения A/B (урок №28)</h2>
+  <h2>3. Каталог советов (без изменений с §4 плана)</h2>
   <table>
-    <tr><th>#</th><th>Решение</th><th>Выбрано (A)</th><th>Альтернатива (B)</th><th></th></tr>
-    <tr><td>1</td><td>Отображение</td><td>Хинты у полей + карточка в результатах</td><td>Только карточка / только хинты</td><td class="chosen">выбрано</td></tr>
-    <tr><td>2</td><td>Shell-строка</td><td>Не трогаем — канон ошибок</td><td>Бейдж «⚠ N» (кандидат v2)</td><td class="chosen">выбрано</td></tr>
-    <tr><td>3</td><td>Применение кликом</td><td>Нет — только переход к шагу</td><td>Apply-команды (writers/Undo) — v2</td><td class="chosen">выбрано</td></tr>
-    <tr><td>4</td><td>PDF-отчёт</td><td>Советы сессионные, в PDF не попадают</td><td>Блок в PDF</td><td class="chosen">выбрано</td></tr>
-    <tr><td>5</td><td>Каталог v1</td><td>2 тепловых совета + хинты</td><td>+ гидравлические сразу (v2)</td><td class="chosen">выбрано</td></tr>
-    <tr><td>6</td><td>«Мощности не хватает»</td><td>Через лимиты; t_пов — вход расчёта, наблюдаемого дефицита нет (P0 ревью)</td><td>Эталонная мощность отдельной сущностью</td><td class="chosen">выбрано</td></tr>
-    <tr><td>7</td><td>Культура чисел</td><td><code>AppCulture</code> / <code>string.Create</code>, запятая (ru-RU)</td><td>Текущая культура потока</td><td class="chosen">выбрано</td></tr>
-    <tr><td>8</td><td>Сосуществование с постоянным хинтом «Рекомендуется: …»</td><td>A — при активных советах скрывать (рекомендация агента)</td><td>B — оставить оба</td><td class="chosen">выбрано владельцем (G2)</td></tr>
+    <tr><th>Id</th><th>Условие</th><th>Где показан</th></tr>
+    <tr><td><code>RETURN_NEGATIVE</code></td><td>2×T_средняя − T_подача &lt; 0</td><td>подача (совет) + чип обратки</td></tr>
+    <tr><td><code>DELTAT_MAX</code></td><td>ΔT &gt; 30 K</td><td>подача (совет) + шаг (совет)</td></tr>
+    <tr><td>подпись шага</td><td>любое нарушение</td><td>шаг укладки</td></tr>
   </table>
+  <p class="sub">Единая цель «для ΔT ≈ 15 К» (T_средняя + 7,5) — одна итерация снимает оба нарушения. Факт «перепад &gt; 30» констатирует shell; лечащие советы — под полями.</p>
 
-  <h2>7. Фазы и гейты</h2>
-  <div class="phases">
-    <div class="phase"><div class="ph-t">Фаза A — сервис</div>
-      <ul><li>ThermalAdvice + IThermalAdviceService + ThermalAdviceService</li><li>DI + опциональный ctor-параметр (30 тест-мест не ломаются)</li><li>Тесты: 50 °C → 2 совета; 29,5 → 1; 28 → пусто</li><li>Сверка с валидатором: ветки обратки и ΔT&gt;30</li></ul>
-      <p class="sub">Ни от чего не зависит — можно начинать сразу</p></div>
-    <div class="phase"><div class="ph-t">Фаза B — UI</div>
-      <ul><li>Карточка + хинты в ThermalView</li><li>AdviceList в ThermalViewModel (адаптер)</li><li>Кнопки перехода убраны (решение владельца 2026-09-14): советы v1 — на текущем шаге</li><li>Контракт: только ThermalAdviceCard (item-ID — рантайм)</li></ul>
-      <p class="sub">Зависимость от surface-temperature снята (уже реализована)</p></div>
-    <div class="phase"><div class="ph-t">Фаза C — полировка</div>
-      <ul><li>Locale-тест чисел советов</li><li>UiSmoke: карточка + пин отсутствия кнопки перехода (решение 2026-09-14)</li><li>Раздел в Руководстве_пользователя</li></ul>
-    </div>
+  <h2>4. История поворотов (честно)</h2>
+  <div class="history">
+    <b>2026-09-13</b> — план: карточка «Рекомендации» + кнопки · <b>2026-09-14</b> — кнопки убраны
+    (советы ведут на текущий шаг), палитра B (белая карточка + янтарная полоса) ·
+    <b>2026-09-15</b> — «выглядит грязно»: карточка убрана, советы — тёплые подписи без заливки,
+    новый токен Status.Warning.Dark, акценты чипов обратки/q↓. Курсив не вводился —
+    факт-чек: его никогда не было.
   </div>
-  <div class="gates">
-    <span class="gate-chip"><b>G2</b> — приёмка фаз пройдена: решение №8 (A) подтверждено владельцем 2026-09-14</span>
-    <span class="gate-chip">Коммиты — только по явной команде владельца</span>
+  <div class="decision">
+    <b>Все решения 2026-09-15 — владельца</b> (§13 плана): подписи вместо карточки; токен
+    Status.Warning.Dark; акцент обратки при &lt; 0; q↓ тёплым (трактовка «потери» — интерпретация агента); канон типографики
+    (курсив) не меняется.
   </div>
 
   <div class="footer">
-    <b>Артефакты контура:</b> план — docs/plans/2026-09-13-thermal-advice-plan.md (§11 — журнал ревью) · чек — docs/reviews/2026-09-13-thermal-advice-plan-review.md · запись — docs/agents/quality-log.md (R-2026-09-13-06).<br>
-    <b>Правила:</b> владелец открывает show-me при ревью плана (урок №21) · ревью в атакующем режиме A1–A8 (урок №26) · show-me регенерируется из плана (урок №27) · два варианта в спорных решениях (урок №28). Токены — канон <code>src/Themes/Tokens.Colors.xaml</code>.
+    <b>Артефакты:</b> план docs/plans/2026-09-13-thermal-advice-plan.md · чеки R-2026-09-13-06/-07,
+    R-2026-09-14-01, ревью редакции 2026-09-15 — docs/reviews/ · журнал docs/agents/quality-log.md.<br>
+    <b>Правила:</b> show-me регенерируется из плана (урок №27) · владелец открывает артефакт при
+    выборе (урок №21) · атакующее ревью A1–A8 (урок №26). Токены — канон Tokens.Colors.xaml.
   </div>
 </div>
-
-<script>
-  window.setScenario = function (key) {
-    var card = document.getElementById('sim-card');
-    var title = document.getElementById('sim-title');
-    var sev = document.getElementById('sim-sev');
-    var items = document.getElementById('sim-items');
-    var note = document.getElementById('sim-note');
-    var btnA = document.getElementById('btn-a'), btnB = document.getElementById('btn-b'), btnC = document.getElementById('btn-c');
-    btnA.className = 'simbtn' + (key === 'a' ? ' active' : '');
-    btnB.className = 'simbtn' + (key === 'b' ? ' active' : '');
-    btnC.className = 'simbtn' + (key === 'c' ? ' active' : '');
-    if (key === 'a') {
-      card.className = 'advice-card';
-      title.textContent = 'Рекомендации (2)';
-      sev.className = 'sev warning'; sev.textContent = 'warning';
-      items.innerHTML =
-        '<div class="advice-item">Обратка −20,8 °C: уменьшите температуру подачи до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг укладки.</div>' +
-        '<div class="advice-item">Перепад 70,8 K превышает 30 K: уменьшите подачу до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг.</div>';
-      note.textContent = 'Подача 50 °C / средняя 14,6 °C: нарушаются оба лимита одновременно — тест-таблица фазы A проверяет именно этот вход.';
-    } else if (key === 'b') {
-      card.className = 'advice-card';
-      title.textContent = 'Рекомендации (1)';
-      sev.className = 'sev warning'; sev.textContent = 'warning';
-      items.innerHTML = '<div class="advice-item">Обратка −0,3 °C: уменьшите температуру подачи до ≈22,1 °C (для ΔT ≈ 15 К) или увеличьте шаг укладки.</div>';
-      note.textContent = 'Подача 29,5 °C: обратка −0,3 °C — одно нарушение; ΔT = 29,8 K ≤ 30 — второй совет не выдаётся.';
-    } else {
-      card.className = 'advice-card clean';
-      title.textContent = 'Нарушений нет';
-      sev.className = 'sev'; sev.textContent = '';
-      items.innerHTML = '<div class="advice-item" style="color:var(--teal-deep)">Лимиты соблюдены — карточка советов не рендерится, хинты скрыты (пустое состояние).</div>';
-      note.textContent = 'Подача 28 °C: обратка +1,2 °C, ΔT = 26,8 K — советы только при строгом нарушении порога, без «запаса».';
-    }
-  };
-  window.setScenario('a');
-</script>
 </body>
 </html>
