@@ -66,11 +66,11 @@ namespace SnowMeltingCalculator.Tests.Thermal
             Assert.Multiple(() =>
             {
                 Assert.That(viewModel.AdviceList, Has.Count.EqualTo(2));
-                Assert.That(viewModel.AdviceVisibility,
-                    Is.EqualTo(System.Windows.Visibility.Visible));
                 // Решение №8 (вариант A): постоянный «Рекомендуется: …» скрыт
                 Assert.That(viewModel.SupplyTemperatureHint, Is.Empty);
                 Assert.That(viewModel.AdviceSupplyHint, Does.Contain("уменьшите"));
+                // Акцент чипа обратки (решение владельца 2026-09-15)
+                Assert.That(viewModel.IsReturnTemperatureNegative, Is.True);
             });
         }
 
@@ -89,11 +89,19 @@ namespace SnowMeltingCalculator.Tests.Thermal
             Assert.Multiple(() =>
             {
                 Assert.That(viewModel.AdviceList, Is.Empty);
-                Assert.That(viewModel.AdviceVisibility,
-                    Is.EqualTo(System.Windows.Visibility.Collapsed));
                 Assert.That(viewModel.SupplyTemperatureHint, Does.Contain("Рекомендуется"));
                 Assert.That(viewModel.AdviceSupplyHint, Is.Null);
+                Assert.That(viewModel.IsReturnTemperatureNegative, Is.False);
             });
+        }
+
+        [Test]
+        public void NoResult_NoNegativeReturnAccent()
+        {
+            var viewModel = BuildViewModel();
+
+            Assert.That(viewModel.IsReturnTemperatureNegative, Is.False,
+                "Без результата акцента обратки нет.");
         }
     }
 }

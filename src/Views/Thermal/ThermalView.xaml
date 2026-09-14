@@ -150,16 +150,11 @@
                                        Style="{StaticResource FormCard.Hint}"
                                        Foreground="{DynamicResource Brand.Teal.Deep.Brush}"
                                        Visibility="{Binding SupplyTemperatureHint, Converter={StaticResource StringToVisibilityConverter}}"/>
-                            <Border Background="{DynamicResource Status.Warning.Background.Brush}"
-                                    CornerRadius="6"
-                                    Padding="8,5"
-                                    Margin="0,5,0,0"
-                                    Visibility="{Binding AdviceSupplyHint, Converter={StaticResource StringToVisibilityConverter}}">
-                                <TextBlock Text="{Binding AdviceSupplyHint}"
-                                           Style="{StaticResource FormCard.Hint}"
-                                           Foreground="{DynamicResource Brand.Black.Brush}"
-                                           Margin="0"/>
-                            </Border>
+                            <TextBlock Text="{Binding AdviceSupplyHint}"
+                                       Style="{StaticResource FormCard.Hint}"
+                                       Foreground="{DynamicResource Status.Warning.Dark.Brush}"
+                                       Visibility="{Binding AdviceSupplyHint, Converter={StaticResource StringToVisibilityConverter}}"
+                                       AutomationProperties.AutomationId="ThermalAdviceSupplyHint"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,10">
@@ -268,16 +263,11 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <Border Background="{DynamicResource Status.Warning.Background.Brush}"
-                                    CornerRadius="6"
-                                    Padding="8,5"
-                                    Margin="0,5,0,0"
-                                    Visibility="{Binding AdviceSpacingHint, Converter={StaticResource StringToVisibilityConverter}}">
-                                <TextBlock Text="{Binding AdviceSpacingHint}"
-                                           Style="{StaticResource FormCard.Hint}"
-                                           Foreground="{DynamicResource Brand.Black.Brush}"
-                                           Margin="0"/>
-                            </Border>
+                            <TextBlock Text="{Binding AdviceSpacingHint}"
+                                       Style="{StaticResource FormCard.Hint}"
+                                       Foreground="{DynamicResource Status.Warning.Dark.Brush}"
+                                       Visibility="{Binding AdviceSpacingHint, Converter={StaticResource StringToVisibilityConverter}}"
+                                       AutomationProperties.AutomationId="ThermalAdviceSpacingHint"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>
@@ -333,7 +323,8 @@
                         <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Thv.ResultChip}" Margin="0,0,10,10">
                             <StackPanel VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Result.PowerDown, StringFormat={}{0:F1}}" Style="{StaticResource KpiChip.ValueTeal}"/>
+                                    <!-- q↓ — потери: тёплая охра (решение владельца 2026-09-15) -->
+                                    <TextBlock Text="{Binding Result.PowerDown, StringFormat={}{0:F1}}" Style="{StaticResource KpiChip.ValueLoss}"/>
                                     <TextBlock Text="Вт/м²" Style="{StaticResource KpiChip.Unit}"/>
                                 </StackPanel>
                                 <TextBlock Text="Поток вниз q↓" Style="{StaticResource KpiChip.Label}"/>
@@ -363,7 +354,19 @@
                         <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Thv.ResultChip}" Margin="0,0,10,0">
                             <StackPanel VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Result.ReturnTemperature, StringFormat={}{0:F1}}" Style="{StaticResource KpiChip.Value}"/>
+                                    <!-- Тёплый акцент при отрицательной обратке
+                                         (решение владельца 2026-09-15) -->
+                                    <TextBlock Text="{Binding Result.ReturnTemperature, StringFormat={}{0:F1}}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource KpiChip.Value}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsReturnTemperatureNegative}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Status.Warning.Dark.Brush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                     <TextBlock Text="°C" Style="{StaticResource KpiChip.Unit}"/>
                                 </StackPanel>
                                 <TextBlock Text="Температура обратки" Style="{StaticResource KpiChip.Label}"/>
@@ -381,50 +384,6 @@
                         </Border>
                     </Grid>
                 </Grid>
-
-                <!-- Советы (план thermal-advice, палитра B — выбор владельца
-                     2026-09-14): тихая карточка с янтарной статусной полосой
-                     (канон tokens.json: warning — только полосы и бейджи);
-                     красным говорит только shell -->
-                <Border Background="{DynamicResource Brand.White.Brush}"
-                        BorderBrush="{DynamicResource Brand.Gray.300.Brush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        Margin="0,0,0,10"
-                        Visibility="{Binding AdviceVisibility}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="6"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Background="{DynamicResource Status.Warning.Brush}" CornerRadius="7,0,0,7"/>
-                        <StackPanel Grid.Column="1" Margin="12,10">
-                            <!-- AutomationId на TextBlock: у Border нет automation peer,
-                                 Border в UIA-дерево не попадает -->
-                            <TextBlock Text="Рекомендации"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource Brand.Gray.800.Brush}"
-                                       AutomationProperties.AutomationId="ThermalAdviceCard"/>
-                        <ItemsControl ItemsSource="{Binding AdviceList}" Margin="0,6,0,0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="{DynamicResource Brand.White.Brush}"
-                                            BorderBrush="{DynamicResource Brand.Gray.100.Brush}"
-                                            BorderThickness="1"
-                                            CornerRadius="6"
-                                            Padding="8,6"
-                                            Margin="0,0,0,6">
-                                        <!-- Кнопка-переход убрана (решение владельца
-                                             2026-09-14): советы v1 ведут на текущий шаг;
-                                             TargetStep/TargetTitle в модели — под v2 -->
-                                        <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        </StackPanel>
-                    </Grid>
-                </Border>
 
                 <!-- Дополнительные параметры: свёрнутый справочный блок
                      (данные сохраняются; summary-строка — значения-кратко) -->

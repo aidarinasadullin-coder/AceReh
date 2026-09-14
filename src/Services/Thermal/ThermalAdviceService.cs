@@ -42,8 +42,8 @@ namespace SnowMeltingCalculator.Services.Thermal
                 advice.Add(new ThermalAdvice
                 {
                     Id = "RETURN_NEGATIVE",
-                    // Warning — слой рекомендаций ничего не гейтит; красным говорит
-                    // только shell (палитра B, выбор владельца 2026-09-14)
+                    // Warning — слой рекомендаций ничего не гейтит; красным
+                    // говорит только shell (решение владельца 2026-09-15)
                     Severity = ThermalAdviceSeverity.Warning,
                     Message = string.Create(AppCulture.Culture,
                         $"Обратка {returnTemperature:F1} °C: уменьшите температуру подачи " +

@@ -49,7 +49,17 @@
     <Color x:Key="Status.Error">#E50040</Color>
     <Color x:Key="Status.Error.Background">#47FCC2B8</Color>
     <Color x:Key="Status.Warning">#FFB300</Color>
-    <Color x:Key="Status.Warning.Background">#1FFFB300</Color>
+    <!--
+        Status.Warning.Dark — тёмная охра для ТЕКСТОВ советов (вторичные подписи
+        полей) и акцентов «потерь» (q↓, отрицательная обратка): сырой FFB300
+        текстом на белом нечитаем (контраст ~1,8:1), #8A6100 даёт ~5,5:1.
+        Решение владельца 2026-09-15.
+        Конвенция источников: значения цветов приложения определяются только
+        в этом файле; бренд-док (docs/design/brandbook-2026-application.md §2.3)
+        описывает правила применения; tokens.json — канон презентационного
+        конвейера, к приложению не относится.
+    -->
+    <Color x:Key="Status.Warning.Dark">#8A6100</Color>
     <Color x:Key="Status.Success">#3F9F91</Color>
     <Color x:Key="Status.Success.Background">#4795DDD3</Color>
     <Color x:Key="Status.Info">#2F776D</Color>
@@ -80,7 +90,7 @@
     <SolidColorBrush x:Key="Status.Error.Brush" Color="{StaticResource Status.Error}"/>
     <SolidColorBrush x:Key="Status.Error.Background.Brush" Color="{StaticResource Status.Error.Background}"/>
     <SolidColorBrush x:Key="Status.Warning.Brush" Color="{StaticResource Status.Warning}"/>
-    <SolidColorBrush x:Key="Status.Warning.Background.Brush" Color="{StaticResource Status.Warning.Background}"/>
+    <SolidColorBrush x:Key="Status.Warning.Dark.Brush" Color="{StaticResource Status.Warning.Dark}"/>
     <SolidColorBrush x:Key="Status.Success.Brush" Color="{StaticResource Status.Success}"/>
     <SolidColorBrush x:Key="Status.Success.Background.Brush" Color="{StaticResource Status.Success.Background}"/>
     <SolidColorBrush x:Key="Status.Info.Brush" Color="{StaticResource Status.Info}"/>

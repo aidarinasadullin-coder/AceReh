@@ -154,7 +154,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             OnPropertyChanged(nameof(PowerSummary));
             OnPropertyChanged(nameof(AdditionalSummary));
             OnPropertyChanged(nameof(AdviceList));
-            OnPropertyChanged(nameof(AdviceVisibility));
+            OnPropertyChanged(nameof(IsReturnTemperatureNegative));
             OnPropertyChanged(nameof(AdviceSupplyHint));
             OnPropertyChanged(nameof(AdviceSpacingHint));
         }
@@ -336,10 +336,6 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
         public IReadOnlyList<ThermalAdvice> AdviceList =>
             Result is null ? Array.Empty<ThermalAdvice>() : _adviceService.Build(Result);
 
-        /// <summary>Видимость карточки «Рекомендации» (советы есть — видима)</summary>
-        public System.Windows.Visibility AdviceVisibility =>
-            AdviceList.Count > 0 ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-
         /// <summary>
         /// Хинт совета под полем подачи — текст первого совета (решение №1);
         /// решение №8 (вариант A): постоянный «Рекомендуется: …» при активных
@@ -352,6 +348,12 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             AdviceList.Count > 0
                 ? "Увеличьте шаг укладки — это снизит перепад и поднимет обратку"
                 : null;
+
+        /// <summary>
+        /// Акцент чипа «Температура обратки» (решение владельца 2026-09-15):
+        /// тёплая охра при отрицательной обратке.
+        /// </summary>
+        public bool IsReturnTemperatureNegative => (Result?.ReturnTemperature ?? 0) < 0;
 
         /// <summary>
         /// Детальная строка HeroKPI результатов: потоки вверх/вниз и
