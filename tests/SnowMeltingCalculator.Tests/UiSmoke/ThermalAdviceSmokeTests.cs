@@ -1,16 +1,16 @@
 // ================================================================================
 // План 2026-09-13 thermal-advice, фаза C — UiSmoke-сценарии советов.
+// Редакция 2026-09-15 (решение владельца): карточки «Рекомендации» больше нет —
+// советы это тёплые подписи под полями подачи (ThermalAdviceSupplyHint) и шага
+// (ThermalAdviceSpacingHint); чип обратки акцентируется при < 0.
 // ================================================================================
 //
 // Пины поверх реального exe (FlaUI), один запуск на фикстуру:
-//  1) чистый старт → Result null → карточка «Рекомендации» Collapsed (UIA не видит);
+//  1) чистый старт → Result null → подписей советов нет;
 //  2) выбор трубы клавиатурой (канал из урока п.17: Expand → Down → Enter) +
 //    подача 90 °C на дефолтных климате/конструкции → ΔT = 2×(90 − T_средняя) > 30
-//    при T_средняя < 45 °C → карточка рендерится с советом DELTAT_MAX
-//    («уменьшите подачу»); кнопки перехода нет (решение владельца 2026-09-14).
-//
-// Item-советы генерируются ItemsControl в рантайме и не пиннятся
-// ThermalAutomationIdSelectorContractTests (ревью P2-8) — здесь их контракт.
+//    при T_средняя < 45 °C → подписи советов видны («уменьшите подачу»),
+//    карточка ThermalAdviceCard не существует.
 
 // ================================================================================
 
@@ -29,17 +29,24 @@ namespace SnowMeltingCalculator.Tests.UiSmoke;
 public sealed class ThermalAdviceSmokeTests : UiSmokeFixtureBase
 {
     [Test, Order(1)]
-    public void CleanStart_ThermalStep_AdviceCardIsCollapsed()
+    public void CleanStart_ThermalStep_NoAdviceHintsAndNoCard()
     {
         App.NavigateTo("Тепловой расчёт");
         App.WaitModulePlate("ТЕПЛОВОЙ");
 
-        Assert.That(App.FindInAnyWindow("ThermalAdviceCard"), Is.Null,
-            "Без результата расчёта карточка «Рекомендации» не должна рендериться.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(App.FindInAnyWindow("ThermalAdviceSupplyHint"), Is.Null,
+                "Без результата подписи совета под подачей быть не должно.");
+            Assert.That(App.FindInAnyWindow("ThermalAdviceSpacingHint"), Is.Null,
+                "Без результата подписи совета под шагом быть не должно.");
+            Assert.That(App.FindInAnyWindow("ThermalAdviceCard"), Is.Null,
+                "Карточка «Рекомендации» удалена (решение владельца 2026-09-15).");
+        });
     }
 
     [Test, Order(2)]
-    public void ExcessiveSupply90_ShowsAdviceCard_WithoutGoToButton()
+    public void ExcessiveSupply90_ShowsAdviceHints_WithoutCard()
     {
         App.NavigateTo("Тепловой расчёт");
         App.WaitModulePlate("ТЕПЛОВОЙ");
@@ -61,31 +68,27 @@ public sealed class ThermalAdviceSmokeTests : UiSmokeFixtureBase
             ?? throw new AssertionException("Шапочная кнопка «Рассчитать» не найдена.");
         calculateButton.Patterns.Invoke.Pattern.Invoke();
 
-        var card = App.WaitForElement("ThermalAdviceCard", TimeSpan.FromSeconds(15));
-        if (card is null)
+        var supplyHint = App.WaitForElement("ThermalAdviceSupplyHint", TimeSpan.FromSeconds(15));
+        if (supplyHint is null)
         {
             // Диагностика: что показывают статус-бар и ΔT после расчёта
             var validation = App.ReadText("ShellValidationMessage");
             var deltaT = App.ReadText("ThermalDeltaT");
             throw new AssertionException(
-                $"После расчёта с подачей 90 °C карточка «Рекомендации» не появилась. " +
+                $"После расчёта с подачей 90 °C подпись совета под подачей не появилась. " +
                 $"Статус-бар: '{validation}'; ΔT: '{deltaT}'.");
         }
 
-        Assert.That(card.Name, Does.Contain("Рекомендации"),
-            "Заголовок карточки советов — «Рекомендации».");
+        Assert.That(supplyHint.Name, Does.Contain("уменьшите"),
+            "Подпись под подачей должна предлагать уменьшить подачу.");
 
-        // Контракт текстов: совет перепада с лечением «уменьшите подачу».
-        // Кнопки перехода в v1 нет (решение владельца 2026-09-14: советы v1
-        // ведут на текущий шаг) — каркас проверки текстов остаётся пином.
-        var texts = App.Window.FindAllDescendants(cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.Text))
-            .Select(e => e.Name)
-            .ToArray();
-        Assert.That(texts, Has.Some.Contains("Перепад"),
-            "Совет DELTAT_MAX не найден в карточке.");
-        Assert.That(texts, Has.Some.Contains("уменьшите подачу"),
-            "Совет перепада должен предлагать уменьшить подачу (ревью P1-3).");
-        Assert.That(App.FindInAnyWindow("ThermalAdviceGoToButton"), Is.Null,
-            "Кнопки перехода в v1 нет — совет не должен рендерить кнопку.");
+        var spacingHint = App.WaitForElement("ThermalAdviceSpacingHint")
+            ?? throw new AssertionException("Подпись совета под шагом не найдена.");
+        Assert.That(spacingHint.Name, Does.Contain("шаг"),
+            "Подпись под шагом должна предлагать увеличить шаг.");
+
+        // Карточки быть не должно (решение владельца 2026-09-15).
+        Assert.That(App.FindInAnyWindow("ThermalAdviceCard"), Is.Null,
+            "Карточка «Рекомендации» удалена — не должна рендериться.");
     }
 }

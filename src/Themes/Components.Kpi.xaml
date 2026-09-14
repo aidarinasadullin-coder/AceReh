@@ -35,6 +35,12 @@
         <Setter Property="Foreground" Value="{DynamicResource Brand.Teal.Deep.Brush}"/>
     </Style>
 
+    <!-- Потери вниз (q↓) и акцент нарушенной обратки: тёплая охра — «утечка»,
+         не ошибка (решение владельца 2026-09-15, план thermal-advice §15) -->
+    <Style x:Key="KpiChip.ValueLoss" TargetType="TextBlock" BasedOn="{StaticResource KpiChip.Value}">
+        <Setter Property="Foreground" Value="{DynamicResource Status.Warning.Dark.Brush}"/>
+    </Style>
+
     <Style x:Key="KpiChip.Unit" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource Font.Size.Caption}"/>
         <Setter Property="FontWeight" Value="Medium"/>
