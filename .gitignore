@@ -43,6 +43,7 @@ Work/*.xlsm
 .omo/
 
 # Local agent/tooling scratch
+.scratch/
 .playwright-mcp/
 .slim/
 TestResults/
