@@ -42,7 +42,9 @@ namespace SnowMeltingCalculator.Services.Thermal
                 advice.Add(new ThermalAdvice
                 {
                     Id = "RETURN_NEGATIVE",
-                    Severity = ThermalAdviceSeverity.Error,
+                    // Warning — слой рекомендаций ничего не гейтит; красным говорит
+                    // только shell (палитра B, выбор владельца 2026-09-14)
+                    Severity = ThermalAdviceSeverity.Warning,
                     Message = string.Create(AppCulture.Culture,
                         $"Обратка {returnTemperature:F1} °C: уменьшите температуру подачи " +
                         $"до ≈{recommendedSupply:F1} °C (для ΔT ≈ {TargetDeltaT:F0} К) или увеличьте шаг укладки"),
@@ -56,7 +58,7 @@ namespace SnowMeltingCalculator.Services.Thermal
                 advice.Add(new ThermalAdvice
                 {
                     Id = "DELTAT_MAX",
-                    Severity = ThermalAdviceSeverity.Error,
+                    Severity = ThermalAdviceSeverity.Warning,
                     Message = string.Create(AppCulture.Culture,
                         $"Перепад {result.DeltaT:F1} K превышает {ValidationConstants.MaxDeltaT:F0} K: " +
                         $"уменьшите подачу до ≈{recommendedSupply:F1} °C (для ΔT ≈ {TargetDeltaT:F0} К) " +

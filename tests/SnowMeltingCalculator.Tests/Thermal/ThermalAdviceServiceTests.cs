@@ -51,7 +51,7 @@ namespace SnowMeltingCalculator.Tests.Thermal
                 Assert.That(advice[0].Id, Is.EqualTo("RETURN_NEGATIVE"));
                 Assert.That(advice[1].Id, Is.EqualTo("DELTAT_MAX"));
                 Assert.That(advice.Select(a => a.Severity),
-                    Is.All.EqualTo(ThermalAdviceSeverity.Error));
+                    Is.All.EqualTo(ThermalAdviceSeverity.Warning));
                 Assert.That(advice.Select(a => a.TargetStep),
                     Is.All.EqualTo(NavigationTarget.Thermal));
                 Assert.That(advice.Select(a => a.TargetTitle),
