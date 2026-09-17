@@ -808,7 +808,7 @@ private static void AddGapInCell(Cell host, double points)
             para.AddText(title.ToUpper(AppCulture.Culture));
         }
 
-private static void SectionTitle(Cell host, double innerWidth, string title)
+        private static void SectionTitle(Cell host, double innerWidth, string title)
         {
             var titleTable = host.Elements.AddTable();
             titleTable.AddColumn(Unit.FromPoint(7));
