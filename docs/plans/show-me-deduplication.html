@@ -61,7 +61,7 @@
 <body>
 
 <h1><span class="mark"></span>Дедупликация кода: три волны</h1>
-<div class="sub">behavior-preserving экстракции · jscpd-скан + ручная сверка 2026-09-18 · статус: ожидает сигнала владельца</div>
+<div class="sub">behavior-preserving экстракции · jscpd-скан + ручная сверка 2026-09-18 · решения владельца V1–V4 зафиксированы · волна 1a в имплементации</div>
 <div class="plan-ref">План: <code>docs/plans/2026-09-18-deduplication-plan.md</code> · артефакт регенерируется из плана и не правится вручную (урок №27)</div>
 
 <div class="metrics">
@@ -73,16 +73,16 @@
 
 
 <h2><span class="mark w1"></span>Волна 1a — локальные экстракции</h2>
-<div class="wavehead"><span class="pill pill-w1">~100 строк дублей → 0 · 6 файлов</span><span class="pill ghost">старт возможен сразу</span></div>
-<table><tr><td class="mono">A2</td><td><span class="mono">ProjectFileService.cs:45-155</span></td><td>общий WriteProjectAtomicallyAsync (tmp → bak → move, очистка tmp); публичные обёртки bool / OperationResult без изменений</td></tr>
-<tr><td class="mono">A3</td><td><span class="mono">SearchHistoryRepository.cs:110-161</span></td><td>GetByIdAsync / GetByCityIdAsync → один приватный запрос + общий маппер записи</td></tr>
+<div class="wavehead"><span class="pill pill-w1">~100 строк дублей → 0 · 6 файлов</span><span class="pill ghost">решение владельца V1(a) — в имплементации 2026-09-18</span></div>
+<table><tr><td class="mono">A2</td><td><span class="mono">ProjectFileService.cs:45-155</span></td><td>общий WriteProjectAtomicallyAsync (tmp → bak → move); catch чистит tmp и ретроутит — обёртки bool / OperationResult сохраняют catch дословно (ревью №2)</td></tr>
+<tr><td class="mono">A3</td><td><span class="mono">SearchHistoryRepository.cs:91-161</span></td><td>три вызывателя — GetById / GetByCityId / GetAll → общий маппер ReadEntry + Func&lt;SqliteCommand&gt;-хук; DateTime.Parse и EnsureInitialized — как есть (ревью №3/№5)</td></tr>
 <tr><td class="mono">A4</td><td><span class="mono">CityMatchToHighlightConverter.cs:28-140</span></td><td>Convert делегирует в статический CreateInlines — разбор «**» в одном месте</td></tr>
-<tr><td class="mono">A5</td><td><span class="mono">HydraulicsSectionBuilder.cs:96-189</span></td><td>BuildReferenceCircuit вызывает PickWorst — правило «худшего контура» в одном месте</td></tr>
+<tr><td class="mono">A5</td><td><span class="mono">HydraulicsSectionBuilder.cs:96-189</span></td><td>PickWorst → возврат пары (Circuit, Result); BuildModeComparison адаптируется на .Result; BuildReferenceCircuit переиспользует (ревью №1)</td></tr>
 <tr><td class="mono">A6</td><td><span class="mono">MaterialSnapshot.cs · ConstructionService.cs:329-352 · TemplateEditorViewModel.cs:484-498</span></td><td>MaterialSnapshot.Clone() + ApplyTemplateLayers для цикла над/под трубой</td></tr></table>
 
 <h2><span class="mark w1b"></span>Волна 1b — после хендовера отчётов</h2>
-<div class="wavehead"><span class="pill pill-w1b">22 строки · 1 файл</span><span class="pill ghost">файл modified в текущем дереве</span></div>
-<table><tr><td class="mono">A1</td><td><span class="mono">PdfExportService.cs:788-832</span></td><td>SectionTitleSection / SectionTitle — общий хелпер заголовка (красная метка 7pt + 10pt bold INK), точка вставки — параметр</td></tr></table>
+<div class="wavehead"><span class="pill pill-w1b">22 строки · 1 файл</span><span class="pill ghost">следующий цикл — дерево закоммичено, блокировки нет (ревью №4)</span></div>
+<table><tr><td class="mono">A1</td><td><span class="mono">PdfExportService.cs:788-832</span></td><td>выровнять отступ :811 (ревью №6), затем общий хелпер заголовка (красная метка 7pt + 10pt bold INK), точка вставки — параметр</td></tr></table>
 
 <h2><span class="mark w2"></span>Волна 2 — семейство фабрик Meta(...) · 7 файлов</h2>
 <div class="wavehead"><span class="pill pill-w2">~130 строк избыточности → 1 фабрика + тонкие обёртки</span><span class="pill ghost">материальное изменение → независимое атакующее ревью до имплементации</span></div>
@@ -110,16 +110,23 @@
 <div class="consumer"><b>Отчётные метаданные</b>FormulaSource / WhereUsed попадают в отчёт: grep-инвентаризация до/после + дифф markdown-рендера на существующей фикстуре</div>
 <div class="consumer"><b>Диффы волн</b>не смешиваются с текущим незакоммиченным деревом отчётов: каждая волна — отдельный цикл handover</div></div>
 
-<h2><span class="mark"></span>Вопросы владельцу</h2>
+<h2><span class="mark"></span>Решения владельца (2026-09-18)</h2>
 <table style="max-width: 960px;">
-  <tr><th>#</th><th>Вопрос</th><th>Варианты</th><th>Рекомендация</th></tr>
-  <tr><td>V1</td><td>Порядок старта</td><td>(а) волна 1a сразу, 1b после хендовера · (б) всё после хендовера · (в) одной волной</td><td class="rec">(а)</td></tr>
-<tr><td>V2</td><td>Размещение фабрики Meta</td><td>(а) static-класс ReportMetadataFactory в Builders/ · (б) базовый класс билдеров</td><td class="rec">(а)</td></tr>
-<tr><td>V3</td><td>Копирование MaterialSnapshot</td><td>(а) Clone() на модели · (б) статический маппер в сервисном слое</td><td class="rec">(а)</td></tr>
-<tr><td>V4</td><td>Волна 3 (тесты)</td><td>(а) в этом цикле · (б) отложить до ближайшего изменения ProjectData</td><td class="rec">(б)</td></tr>
+  <tr><th>#</th><th>Вопрос</th><th>Варианты</th><th>Решение</th></tr>
+  <tr><td>V1</td><td>Порядок старта</td><td>(а) волна 1a текущим циклом, 1b/2 — следующими · (б) всё после хендовера · (в) одной волной</td><td class="rec">владелец: (а)</td></tr>
+<tr><td>V2</td><td>Размещение фабрики Meta</td><td>(а) static-класс ReportMetadataFactory в Builders/ · (б) базовый класс билдеров</td><td class="rec">владелец: (а)</td></tr>
+<tr><td>V3</td><td>Копирование MaterialSnapshot</td><td>(а) Clone() на модели · (б) статический маппер в сервисном слое</td><td class="rec">владелец: (а)</td></tr>
+<tr><td>V4</td><td>Волна 3 (тесты)</td><td>(а) в этом цикле · (б) отложить до ближайшего изменения ProjectData</td><td class="rec">владелец: (б)</td></tr>
 </table>
 
-<div class="note"><b>Процесс:</b> ответы V1–V4 → независимое атакующее ревью плана (вектора: тихая смена поведения при экстракции · потеря catch-веток · расхождение FormulaSource-литералов · смешивание диффов с деревом отчётов · ослабление тестов) → чек в docs/reviews/ → волна 1a → зелёный dotnet test → handover некоммиченным деревом; 1b, 2, 3 — отдельными циклами. show-me регенерируется из плана (урок №27), сверка артефакта с планом — шаг ревью.</div>
+<div class="note"><b>Ревью R-2026-09-18-01 (APPROVE-WITH-EDITS, 6 находок, все приняты):</b>
+P1 — PickWorst возвращает пару (Circuit, Result), вызов в BuildModeComparison — на .Result;
+P1 — catch helper'а записи чистит tmp и ретроутит, сериализация в обёртках;
+P2 — GetAllAsync включён в общий маппер; P2 — дерево закоммичено, 1b разблокирована;
+P2 — DateTime.Parse/EnsureInitialized сохраняются как есть; P3 — отступ :811 выровнять до правки 1b.
+Чек: docs/reviews/2026-09-18-deduplication-plan-review.md.</div>
+
+<div class="note"><b>Процесс:</b> волна 1a → зелёный dotnet test → handover некоммиченным деревом; 1b, 2 — отдельными циклами; 3 — отложена (V4). show-me регенерируется из плана (урок №27), сверка артефакта с планом — шаг ревью.</div>
 
 </body>
 </html>
