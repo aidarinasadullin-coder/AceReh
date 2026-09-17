@@ -61,7 +61,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             var data = CreateMinimalReport();
             var markdown = Render(data);
 
-            var expected = "Расчётные данные приведены по внутренней методике REHAU, реализованной в приложении SnowMeltingCalculator. " +
+            var expected = "Расчётные данные приведены по внутренней методике РЕХАУ, реализованной в приложении SnowMeltingCalculator. " +
                            "Отчёт не заявляет соответствие ГОСТ/СП, если конкретный источник данных явно не указывает такой источник.";
             Assert.That(markdown, Does.Contain(expected));
         }
@@ -278,7 +278,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             {
                 Mode = mode,
                 ReportDate = FixedReportDate,
-                Methodology = "Расчёт по методике REHAU",
+                Methodology = "Расчёт по методике РЕХАУ",
                 ProjectSection = new ProjectSection
                 {
                     ProjectNumber = "P-001",
@@ -340,7 +340,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             {
                 Mode = CalculationReportMode.Operating,
                 ReportDate = FixedReportDate,
-                Methodology = "Расчёт по методике REHAU",
+                Methodology = "Расчёт по методике РЕХАУ",
                 ProjectSection = new ProjectSection
                 {
                     ProjectNumber = "P-001",

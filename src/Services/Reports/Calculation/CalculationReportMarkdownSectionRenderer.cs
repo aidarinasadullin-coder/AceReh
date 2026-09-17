@@ -30,7 +30,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         public static void RenderMethodology(StringBuilder sb, CalculationReportData data)
         {
             sb.AppendLine("## Методика");
-            sb.AppendLine("> Расчётные данные приведены по внутренней методике REHAU, реализованной в приложении SnowMeltingCalculator. " +
+            sb.AppendLine("> Расчётные данные приведены по внутренней методике РЕХАУ, реализованной в приложении SnowMeltingCalculator. " +
                 "Отчёт не заявляет соответствие ГОСТ/СП, если конкретный источник данных явно не указывает такой источник.");
             sb.AppendLine();
         }

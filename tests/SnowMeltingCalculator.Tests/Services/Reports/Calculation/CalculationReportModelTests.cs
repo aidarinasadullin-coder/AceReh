@@ -207,7 +207,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             {
                 Mode = CalculationReportMode.Operating,
                 ReportDate = new DateTime(2026, 7, 27),
-                Methodology = "Расчёт по методике REHAU",
+                Methodology = "Расчёт по методике РЕХАУ",
                 ProjectSection = new ProjectSection
                 {
                     ProjectNumber = "P-001",

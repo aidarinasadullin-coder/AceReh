@@ -109,7 +109,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             {
                 Mode = mode,
                 ReportDate = normalizedDate,
-                Methodology = "Расчёт по методике REHAU",
+                Methodology = "Расчёт по методике РЕХАУ",
                 ProjectSection = projectResult.Section,
                 ClimateSection = climateResult.Section,
                 ConstructionSection = constructionResult.Section,

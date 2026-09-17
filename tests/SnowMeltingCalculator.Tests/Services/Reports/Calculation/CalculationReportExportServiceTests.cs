@@ -224,7 +224,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 {
                     Mode = mode,
                     ReportDate = reportDate ?? DateTime.MinValue,
-                    Methodology = "Расчёт по методике REHAU",
+                    Methodology = "Расчёт по методике РЕХАУ",
                     ProjectSection = new ProjectSection
                     {
                         ProjectNumber = project.ProjectNumber,
@@ -253,7 +253,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 {
                     Mode = mode,
                     ReportDate = reportDate ?? DateTime.MinValue,
-                    Methodology = "Расчёт по методике REHAU",
+                    Methodology = "Расчёт по методике РЕХАУ",
                     ProjectSection = new ProjectSection
                     {
                         ProjectNumber = project.ProjectNumber,

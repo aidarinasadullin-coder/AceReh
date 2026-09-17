@@ -264,7 +264,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         {
             AddSectionHeading(section, "Методика");
             AddBodyParagraph(section,
-                "Расчётные данные приведены по внутренней методике REHAU, реализованной в приложении SnowMeltingCalculator. " +
+                "Расчётные данные приведены по внутренней методике РЕХАУ, реализованной в приложении SnowMeltingCalculator. " +
                 "Отчёт не заявляет соответствие ГОСТ/СП, если конкретный источник данных явно не указывает такой источник.",
                 italic: false);
             AddSpacer(section, 4);
