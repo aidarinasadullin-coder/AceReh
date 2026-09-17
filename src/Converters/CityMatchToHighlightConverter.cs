@@ -31,32 +31,7 @@ namespace SnowMeltingCalculator.Converters
                 return new List<Inline>();
             }
 
-            // Разбор формата "до**совпадение**после"
-            var inlines = new List<Inline>();
-            var parts = highlightedText.Split(new[] { "**" }, StringSplitOptions.None);
-
-            for (int i = 0; i < parts.Length; i++)
-            {
-                if (string.IsNullOrEmpty(parts[i]))
-                    continue;
-
-                var run = new Run { Text = parts[i] };
-
-                // Нечётные части — подсвеченные
-                if (i % 2 == 1)
-                {
-                    run.FontWeight = FontWeights.Bold;
-                    run.Foreground = HighlightBrush;
-                }
-                else
-                {
-                    run.Foreground = NormalBrush;
-                }
-
-                inlines.Add(run);
-            }
-
-            return inlines;
+            return CreateInlines(highlightedText);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

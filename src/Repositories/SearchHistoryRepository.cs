@@ -90,13 +90,7 @@ namespace SnowMeltingCalculator.Repositories
 
             while (await reader.ReadAsync())
             {
-                entries.Add(new SearchHistoryEntry
-                {
-                    Id = reader.GetInt32(0),
-                    CityId = reader.GetString(1),
-                    LastUsed = DateTime.Parse(reader.GetString(2)),
-                    UseCount = reader.GetInt32(3)
-                });
+                entries.Add(ReadEntry(reader));
             }
 
             return entries;
@@ -109,26 +103,9 @@ namespace SnowMeltingCalculator.Repositories
         {
             await EnsureInitializedAsync();
 
-            await using var connection = new SqliteConnection(_connectionString);
-            await connection.OpenAsync();
-
-            var sql = "SELECT Id, CityId, LastUsed, UseCount FROM SearchHistory WHERE Id = @Id";
-            await using var command = new SqliteCommand(sql, connection);
-            command.Parameters.AddWithValue("@Id", id);
-            await using var reader = await command.ExecuteReaderAsync();
-
-            if (await reader.ReadAsync())
-            {
-                return new SearchHistoryEntry
-                {
-                    Id = reader.GetInt32(0),
-                    CityId = reader.GetString(1),
-                    LastUsed = DateTime.Parse(reader.GetString(2)),
-                    UseCount = reader.GetInt32(3)
-                };
-            }
-
-            return null;
+            return await QuerySingleAsync(
+                "SELECT Id, CityId, LastUsed, UseCount FROM SearchHistory WHERE Id = @Id",
+                command => command.Parameters.AddWithValue("@Id", id));
         }
 
         /// <summary>
@@ -138,26 +115,44 @@ namespace SnowMeltingCalculator.Repositories
         {
             await EnsureInitializedAsync();
 
+            return await QuerySingleAsync(
+                "SELECT Id, CityId, LastUsed, UseCount FROM SearchHistory WHERE CityId = @CityId",
+                command => command.Parameters.AddWithValue("@CityId", cityId));
+        }
+
+        /// <summary>
+        /// Выполнить SELECT одной записи (EnsureInitializedAsync — в вызывающем
+        /// методе, чтобы не менять гранулярность блокировки инициализации)
+        /// </summary>
+        private async Task<SearchHistoryEntry?> QuerySingleAsync(string sql, Action<SqliteCommand> bindParameters)
+        {
             await using var connection = new SqliteConnection(_connectionString);
             await connection.OpenAsync();
 
-            var sql = "SELECT Id, CityId, LastUsed, UseCount FROM SearchHistory WHERE CityId = @CityId";
             await using var command = new SqliteCommand(sql, connection);
-            command.Parameters.AddWithValue("@CityId", cityId);
+            bindParameters(command);
             await using var reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                return new SearchHistoryEntry
-                {
-                    Id = reader.GetInt32(0),
-                    CityId = reader.GetString(1),
-                    LastUsed = DateTime.Parse(reader.GetString(2)),
-                    UseCount = reader.GetInt32(3)
-                };
+                return ReadEntry(reader);
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Смаппить строку результата SELECT в запись истории
+        /// </summary>
+        private static SearchHistoryEntry ReadEntry(SqliteDataReader reader)
+        {
+            return new SearchHistoryEntry
+            {
+                Id = reader.GetInt32(0),
+                CityId = reader.GetString(1),
+                LastUsed = DateTime.Parse(reader.GetString(2)),
+                UseCount = reader.GetInt32(3)
+            };
         }
 
         /// <summary>

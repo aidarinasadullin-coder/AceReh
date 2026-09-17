@@ -129,39 +129,48 @@ namespace SnowMeltingCalculator.Services.Construction
             };
 
             // Добавляем слои над трубой
-            foreach (var layerTemplate in template.LayersAbovePipe.OrderBy(l => l.Order))
-            {
-                var material = materialsList.FirstOrDefault(m => m.Id == layerTemplate.MaterialId);
-                if (material == null)
-                {
-                    var snapshot = template.MaterialSnapshots.FirstOrDefault(s => s.Id == layerTemplate.MaterialId);
-                    throw snapshot is null
-                        ? new MaterialNotFoundException(layerTemplate.MaterialId)
-                        : new MaterialNotFoundException(layerTemplate.MaterialId, snapshot);
-                }
-
-                construction.AddLayerAbovePipe(material, layerTemplate.Thickness);
-            }
+            ApplyTemplateLayers(construction, template, materialsList, abovePipe: true);
 
             // Добавляем слои под трубой
-            foreach (var layerTemplate in template.LayersBelowPipe.OrderBy(l => l.Order))
-            {
-                var material = materialsList.FirstOrDefault(m => m.Id == layerTemplate.MaterialId);
-                if (material == null)
-                {
-                    var snapshot = template.MaterialSnapshots.FirstOrDefault(s => s.Id == layerTemplate.MaterialId);
-                    throw snapshot is null
-                        ? new MaterialNotFoundException(layerTemplate.MaterialId)
-                        : new MaterialNotFoundException(layerTemplate.MaterialId, snapshot);
-                }
-
-                construction.AddLayerBelowPipe(material, layerTemplate.Thickness);
-            }
+            ApplyTemplateLayers(construction, template, materialsList, abovePipe: false);
 
             // Рассчитываем термические сопротивления
             CalculateThermalResistances(construction);
 
             return construction;
+        }
+
+        /// <summary>
+        /// Перенести слои шаблона в конструкцию: материал — из справочника,
+        /// при отсутствии — исключение с прилагаемым снимком для импорта.
+        /// </summary>
+        private static void ApplyTemplateLayers(
+            ConstructionModel construction,
+            ConstructionTemplate template,
+            List<Material> materialsList,
+            bool abovePipe)
+        {
+            var layers = abovePipe ? template.LayersAbovePipe : template.LayersBelowPipe;
+            foreach (var layerTemplate in layers.OrderBy(l => l.Order))
+            {
+                var material = materialsList.FirstOrDefault(m => m.Id == layerTemplate.MaterialId);
+                if (material == null)
+                {
+                    var snapshot = template.MaterialSnapshots.FirstOrDefault(s => s.Id == layerTemplate.MaterialId);
+                    throw snapshot is null
+                        ? new MaterialNotFoundException(layerTemplate.MaterialId)
+                        : new MaterialNotFoundException(layerTemplate.MaterialId, snapshot);
+                }
+
+                if (abovePipe)
+                {
+                    construction.AddLayerAbovePipe(material, layerTemplate.Thickness);
+                }
+                else
+                {
+                    construction.AddLayerBelowPipe(material, layerTemplate.Thickness);
+                }
+            }
         }
 
         /// <summary>
@@ -336,18 +345,7 @@ namespace SnowMeltingCalculator.Services.Construction
                     LayersAbovePipe = remappedLayers.Take(layerCountAbove).ToList(),
                     LayersBelowPipe = remappedLayers.Skip(layerCountAbove).ToList(),
                     MaterialSnapshots = template.MaterialSnapshots
-                        .Select(s => new MaterialSnapshot
-                        {
-                            Id = s.Id,
-                            Name = s.Name,
-                            Category = s.Category,
-                            LambdaA = s.LambdaA,
-                            LambdaB = s.LambdaB,
-                            MaxSupplyTemp = s.MaxSupplyTemp,
-                            MinOutdoorTemp = s.MinOutdoorTemp,
-                            Notes = s.Notes,
-                            IsBuiltIn = s.IsBuiltIn
-                        })
+                        .Select(s => s.Clone())
                         .ToList()
                 };
 

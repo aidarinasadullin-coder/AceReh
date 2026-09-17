@@ -482,18 +482,7 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                     })
                     .ToList(),
                 MaterialSnapshots = source.MaterialSnapshots
-                    .Select(s => new MaterialSnapshot
-                    {
-                        Id = s.Id,
-                        Name = s.Name,
-                        Category = s.Category,
-                        LambdaA = s.LambdaA,
-                        LambdaB = s.LambdaB,
-                        MaxSupplyTemp = s.MaxSupplyTemp,
-                        MinOutdoorTemp = s.MinOutdoorTemp,
-                        Notes = s.Notes,
-                        IsBuiltIn = s.IsBuiltIn
-                    })
+                    .Select(s => s.Clone())
                     .ToList()
             };
         }

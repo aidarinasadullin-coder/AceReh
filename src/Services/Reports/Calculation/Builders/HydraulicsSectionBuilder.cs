@@ -69,8 +69,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                     continue;
                 }
 
-                var working = PickWorst(collector, CalculationReportMode.Operating);
-                var cold = PickWorst(collector, CalculationReportMode.DesignCold);
+                var working = PickWorst(collector, CalculationReportMode.Operating).Result;
+                var cold = PickWorst(collector, CalculationReportMode.DesignCold).Result;
 
                 rows.Add(new ModeComparisonRow
                 {
@@ -94,7 +94,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
         }
 
         /// <summary>Худший контур коллектора в режиме (max DpGesamt; при ничьей — минимальный номер).</summary>
-        private static CircuitResultProjectData? PickWorst(CollectorProjectData collector, CalculationReportMode mode)
+        private static (CircuitProjectData? Circuit, CircuitResultProjectData? Result) PickWorst(CollectorProjectData collector, CalculationReportMode mode)
         {
             CircuitProjectData? worstCircuit = null;
             CircuitResultProjectData? worstResult = null;
@@ -118,7 +118,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 }
             }
 
-            return worstResult;
+            return (worstCircuit, worstResult);
         }
 
         /// <summary>
@@ -159,29 +159,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 return null;
             }
 
-            CircuitProjectData? worstCircuit = null;
-            CircuitResultProjectData? worstResult = null;
-            double worstDp = -1.0;
-
-            foreach (var circuit in worstCollector.Circuits ?? new List<CircuitProjectData>())
-            {
-                var result = mode == CalculationReportMode.Operating ? circuit.OperatingResult : circuit.DesignResult;
-                if (result is null)
-                {
-                    continue;
-                }
-
-                if (result.DpGesamt > worstDp
-                    || (result.DpGesamt == worstDp
-                        && worstCircuit is not null
-                        && circuit.CircuitNumber < worstCircuit.CircuitNumber))
-                {
-                    worstDp = result.DpGesamt;
-                    worstCircuit = circuit;
-                    worstResult = result;
-                }
-            }
-
+            var (worstCircuit, worstResult) = PickWorst(worstCollector, mode);
             if (worstCircuit is null || worstResult is null)
             {
                 return null;

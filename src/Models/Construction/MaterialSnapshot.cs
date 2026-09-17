@@ -85,5 +85,25 @@ namespace SnowMeltingCalculator.Models.Construction
                 IsBuiltIn = material.IsBuiltIn
             };
         }
+
+        /// <summary>
+        /// Создать независимую копию снимка
+        /// </summary>
+        /// <returns>Копия снимка с теми же значениями полей</returns>
+        public MaterialSnapshot Clone()
+        {
+            return new MaterialSnapshot
+            {
+                Id = Id,
+                Name = Name,
+                Category = Category,
+                LambdaA = LambdaA,
+                LambdaB = LambdaB,
+                MaxSupplyTemp = MaxSupplyTemp,
+                MinOutdoorTemp = MinOutdoorTemp,
+                Notes = Notes,
+                IsBuiltIn = IsBuiltIn
+            };
+        }
     }
 }

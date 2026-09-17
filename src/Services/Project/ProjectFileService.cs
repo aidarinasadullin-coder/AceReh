@@ -41,49 +41,13 @@ namespace SnowMeltingCalculator.Services.Project
         {
             try
             {
-                // Убеждаемся, что расширение правильное
-                if (!filePath.EndsWith(".smc", StringComparison.OrdinalIgnoreCase))
-                {
-                    filePath += ".smc";
-                }
-
                 var json = JsonSerializer.Serialize(data, _jsonOptions);
-
-                // Временный файл на том же томе (НЕ Path.GetTempFileName() — может оказаться на другом томе)
-                var tempPath = Path.ChangeExtension(filePath, ".tmp");
-
-                // Атомарно-детерминированная запись: temp → move
-                await File.WriteAllTextAsync(tempPath, json, cancellationToken);
-
-                // Бэкап существующего файла перед move
-                if (File.Exists(filePath))
-                {
-                    var bakPath = filePath + ".bak";
-                    File.Copy(filePath, bakPath, overwrite: true);
-                }
-
-                // Atomic на одном томе NTFS
-                File.Move(tempPath, filePath, overwrite: true);
+                await WriteProjectAtomicallyAsync(filePath, json, cancellationToken);
                 return true;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка сохранения проекта: {ex.Message}");
-
-                // temp-файл мог остаться — почистить
-                try
-                {
-                    var tempPath = Path.ChangeExtension(filePath, ".tmp");
-                    if (File.Exists(tempPath))
-                    {
-                        File.Delete(tempPath);
-                    }
-                }
-                catch
-                {
-                    // Игнорируем ошибки очистки
-                }
-
                 return false;
             }
         }
@@ -116,17 +80,35 @@ namespace SnowMeltingCalculator.Services.Project
         {
             try
             {
-                // Убеждаемся, что расширение правильное
-                if (!filePath.EndsWith(".smc", StringComparison.OrdinalIgnoreCase))
-                {
-                    filePath += ".smc";
-                }
-
                 var json = JsonSerializer.Serialize(data, _jsonOptions);
+                await WriteProjectAtomicallyAsync(filePath, json, cancellationToken);
+                return OperationResult<object?>.Success(null);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка сохранения проекта: {ex.Message}");
+                return OperationResult<object?>.Failure(ex.Message, ex);
+            }
+        }
 
-                // Временный файл на том же томе
-                var tempPath = Path.ChangeExtension(filePath, ".tmp");
+        /// <summary>
+        /// Атомарно-детерминированная запись: расширение → tmp → bak → move.
+        /// Ошибку чистки tmp не глотаем — исключение пробрасывается вызывающей
+        /// обёртке, определяющей тип результата (bool / OperationResult).
+        /// </summary>
+        private static async Task WriteProjectAtomicallyAsync(string filePath, string json, CancellationToken cancellationToken)
+        {
+            // Убеждаемся, что расширение правильное
+            if (!filePath.EndsWith(".smc", StringComparison.OrdinalIgnoreCase))
+            {
+                filePath += ".smc";
+            }
 
+            // Временный файл на том же томе (НЕ Path.GetTempFileName() — может оказаться на другом томе)
+            var tempPath = Path.ChangeExtension(filePath, ".tmp");
+
+            try
+            {
                 // Атомарно-детерминированная запись: temp → move
                 await File.WriteAllTextAsync(tempPath, json, cancellationToken);
 
@@ -139,16 +121,12 @@ namespace SnowMeltingCalculator.Services.Project
 
                 // Atomic на одном томе NTFS
                 File.Move(tempPath, filePath, overwrite: true);
-                return OperationResult<object?>.Success(null);
             }
-            catch (Exception ex)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка сохранения проекта: {ex.Message}");
-
                 // temp-файл мог остаться — почистить
                 try
                 {
-                    var tempPath = Path.ChangeExtension(filePath, ".tmp");
                     if (File.Exists(tempPath))
                     {
                         File.Delete(tempPath);
@@ -159,7 +137,7 @@ namespace SnowMeltingCalculator.Services.Project
                     // Игнорируем ошибки очистки
                 }
 
-                return OperationResult<object?>.Failure(ex.Message, ex);
+                throw;
             }
         }
 
