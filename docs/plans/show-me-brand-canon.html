@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me · Канон правил брендбука РЕХАУ-2026</title>
+<style>
+  :root{
+    --red:#E50040; --red-dark:#B60034; --teal:#4FC7B5; --teal-deep:#2F776D;
+    --black:#000000; --white:#FFFFFF; --gray100:#E4E4E4; --gray300:#B0B0B0;
+    --gray600:#818181; --gray800:#4E4E4E;
+    --teal-bg:rgba(79,199,181,.14); --red-bg:rgba(229,0,64,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;color:var(--black);background:var(--white);
+       line-height:1.5;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 24px 60px}
+  h1{font-size:26px;font-weight:700}
+  h2{font-size:19px;font-weight:700;margin:34px 0 12px;padding-bottom:6px;
+     border-bottom:2px solid var(--teal)}
+  .sub{color:var(--gray600);font-size:13px}
+  code{font-family:Consolas,monospace;font-size:12.5px;background:var(--gray100);
+       padding:1px 5px;border-radius:4px}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+  .badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px;
+         background:var(--teal-bg);color:var(--teal-deep)}
+  .badge.owner{background:var(--red-bg);color:var(--red-dark)}
+  .badge.gray{background:var(--gray100);color:var(--gray800)}
+
+  .hero{border:1px solid var(--gray100);border-radius:12px;padding:18px;margin:16px 0;
+        background:linear-gradient(180deg,var(--white),var(--teal-bg))}
+  .hero p{margin:6px 0}
+  .swatches{display:flex;gap:6px;margin-top:12px}
+  .sw{width:34px;height:22px;border-radius:5px;border:1px solid var(--gray300);display:inline-block}
+
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+  th{text-align:left;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+     color:var(--gray600);padding:6px 8px;border-bottom:2px solid var(--gray300)}
+  td{padding:7px 8px;border-bottom:1px solid var(--gray100);vertical-align:top}
+  .fid{font-family:Consolas,monospace;color:var(--red-dark);font-weight:700;white-space:nowrap}
+  .okv{color:var(--teal-deep)}
+  .pg{color:var(--gray600);white-space:nowrap}
+  s{color:var(--gray600)}
+
+  .lane{border:1px solid var(--gray100);border-radius:10px;padding:14px;margin:10px 0}
+  .lane.now{background:#FAFAFA}
+  .lane.goal{border:2px solid var(--teal);background:var(--teal-bg)}
+  .lane-tag{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+            color:var(--gray600);margin-bottom:8px}
+  .lane.goal .lane-tag{color:var(--teal-deep)}
+  .flow{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap}
+  .node{flex:1 1 150px;min-width:150px;border:1px solid var(--gray300);border-radius:8px;
+        padding:8px 10px;background:var(--white);font-size:12px}
+  .node b{display:block;font-size:12.5px}
+  .node span{font-size:11px;color:var(--gray600)}
+  .node.bad{border:2px solid var(--red)}
+  .node.bad b{color:var(--red-dark)}
+  .node.canon{border:2px solid var(--teal)}
+  .node.canon b{color:var(--teal-deep)}
+  .node .new{display:inline-block;font-size:10px;font-weight:700;color:var(--white);
+             background:var(--red);border-radius:8px;padding:1px 7px;margin-bottom:4px}
+  .arrow{align-self:center;color:var(--gray600);font-size:16px;font-weight:700}
+
+  .decs{display:grid;grid-template-columns:1fr;gap:10px;margin:10px 0}
+  .dec{border:1px solid var(--gray100);border-radius:10px;padding:12px 14px}
+  .dec-head{font-weight:700;margin-bottom:8px}
+  .dec-head .n{color:var(--red-dark);margin-right:6px}
+  .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .ab .a{border-left:3px solid var(--teal);padding:6px 10px;background:var(--teal-bg);
+         font-size:12.5px;border-radius:0 8px 8px 0}
+  .ab .bv{border-left:3px solid var(--gray300);padding:6px 10px;color:var(--gray800);
+          font-size:12.5px;border-radius:0 8px 8px 0}
+
+  .phases{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+  .ph{border:1px solid var(--gray100);border-radius:10px;padding:12px;background:var(--white);
+      display:flex;gap:10px}
+  .ph-tag{flex:none;width:34px;height:34px;border-radius:9px;background:var(--red);color:var(--white);
+          display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+  .ph-body{font-size:11.5px;color:var(--gray800);margin-top:4px}
+  @media (max-width:820px){.phases{grid-template-columns:1fr 1fr}.ab{grid-template-columns:1fr}}
+
+  ul.sys{margin:8px 0 0 18px;font-size:13px}
+  ul.sys li{margin:5px 0}
+  .note{border-left:3px solid var(--teal);background:var(--teal-bg);border-radius:0 10px 10px 0;
+        padding:10px 14px;font-size:13px;margin:14px 0}
+  .note b{color:var(--teal-deep)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Канон правил брендбука РЕХАУ-2026</h1>
+<div class="sub">план 2026-09-14-brand-canon-plan.md · show-me · <span class="sw" style="background:#E50040" title="#E50040"></span><span class="sw" style="background:#4FC7B5" title="#4FC7B5"></span><span class="sw" style="background:#000000" title="#000000"></span><span class="sw" style="background:#E4E4E4" title="#E4E4E4"></span><span class="sw" style="background:#B0B0B0" title="#B0B0B0"></span><span class="sw" style="background:#818181" title="#818181"></span><span class="sw" style="background:#4E4E4E" title="#4E4E4E"></span></div>
+<div class="badges">
+  <span class="badge owner">G1: ждёт аппрува владельца</span>
+  <span class="badge">4 фазы: канон → ремонт → бренд-чеки → скилл</span>
+  <span class="badge gray">state ownership: без изменений</span>
+</div>
+
+<div class="hero">
+  <p><b>Зачем:</b> правила брендбука собраны в трёх конкурирующих источниках, конвейер им
+  не следует, машинных бренд-проверок нет. Собрать «сильный скилл rehau-deck» поверх
+  этого — значит закрепить дрейф в токенах.</p>
+  <p><b>Итог:</b> один машиночитаемый канон (<code>brand/tokens.json</code>) со
+  страницей-источником и модальностью у каждого правила → генераторы и скилл питаются
+  из него → <code>brand_verify</code> ловит нарушения молча.</p>
+</div>
+
+<h2>Атакующее ревью: правила против брендбука-2026</h2>
+<table>
+  <tr><th>№</th><th>Записано в правилах</th><th>Брендбук 2026 (проверено визуально)</th><th>Стр.</th></tr>
+  <tr><td class="fid">A1</td><td><s>Фирменный шрифт — REHAU Sans</s></td><td class="okv"><b>Inter, 6 начертаний, курсив запрещён</b></td><td class="pg">стр. 19</td></tr><tr><td class="fid">A2</td><td><s>«Запрещено: РЕХАУ», логотип «белый на Magenta-квадрате»</s></td><td class="okv"><b>Логотип — чёрный wordmark РЕХАУ + цветной пиксель-знак; «РЕХАУ только заглавными»</b></td><td class="pg">стр. 6, 8</td></tr><tr><td class="fid">A3</td><td><s>Magenta #E2001A, серые с #D9D9D9</s></td><td class="okv"><b>Серые E4E4E4 / B0B0B0 / 818181 / 4E4E4E (Cool Gray); #E2001A в 2026 нет</b></td><td class="pg">стр. 14</td></tr><tr><td class="fid">A4</td><td><s>Логотип всегда левый-верхний, 10%, «не центрировать»</s></td><td class="okv"><b>Высота 15% короткой стороны; позиции: левая/правая часть, верх/низ, посередине</b></td><td class="pg">стр. 28</td></tr><tr><td class="fid">A5</td><td><s>Сетка 12×6; QR «не перекрашивать»</s></td><td class="okv"><b>Сетка 5:5, отступ = высота «Р»; QR можно частично окрашивать</b></td><td class="pg">стр. 29, 32</td></tr><tr><td class="fid">A6</td><td><s>Основной логотип — «белый на красном квадрате»</s></td><td class="okv"><b>Основной — цветной; белый — на цветном/тёмном, чёрный — на светлом</b></td><td class="pg">стр. 6, 9</td></tr><tr><td class="fid">A7</td><td><s>Доп. цвета: «когда основных < 10%»</s></td><td class="okv"><b>«Не более 10% от цветового ряда» — ограничение доли</b></td><td class="pg">стр. 15</td></tr>
+</table>
+<div class="sub">Источник дрейфа: <code>brand_rules.md</code> описывает гайдлайн,
+предшествующий брендбуку-2026, — и именно на него ссылается <code>rehau-kit.mjs</code>.</div>
+
+<h2>Конвейер: сейчас → цель</h2>
+<div class="lane now">
+  <div class="lane-tag">Сейчас — три конкурирующих источника</div>
+  <div class="flow">
+    <div class="node bad"><b>brand_rules.md</b><span>старый гайдлайн: REHAU Sans, Magenta, сетка 12×6</span></div>
+    <div class="node bad"><b>palette.json / brand.css</b><span>серые 333333/666666/D9D9D9 — не стр. 14</span></div>
+    <div class="node bad"><b>brandbook-2026-application.md</b><span>ядро верно, но A6/A7 и §5.6</span></div>
+    <div class="node bad"><b>константы в 6+ файлах</b><span>kit, gen_*.py, build-pptx — все расходятся</span></div>
+    <div class="arrow">→</div>
+    <div class="node"><b>скилл без канона</b><span>reference.md = кодификация дрейфа</span></div>
+  </div>
+</div>
+<div class="lane goal">
+  <div class="lane-tag">Цель — один канон, два потребителя, машинная проверка</div>
+  <div class="flow">
+    <div class="node canon"><b>brand/tokens.json<span style="display:block">+ brand-rules.md</span></b><span>страница-источник + модальность у каждого правила</span></div>
+    <div class="arrow">→</div>
+    <div class="node"><b>генераторы конвейера</b><span>rehau-kit, gen_schemes, build_final</span></div>
+    <div class="arrow">→</div>
+    <div class="node"><b>skill/reference.md</b><span>генерируется из канона, ручной набор исключён</span></div>
+    <div class="arrow">→</div>
+    <div class="node canon"><b>brand_verify<span style="display:block">(машинный гейт)</span></b><span>HEX, курсив, REHAU-латиница, высота логотипа</span></div>
+  </div>
+</div>
+
+<h2>Дрейф конвейера (код против даже исправленных правил)</h2>
+<table>
+  <tr><th>№</th><th>Что</th><th>Факт</th></tr>
+  <tr><td class="fid">B1</td><td><b>4 шрифтовых стека</b></td><td>rehau-kit — Arial; build_final — Inter (латает MiSans); build-pptx/gen_schemes — Segoe UI/Consolas; gen_html — Inter</td></tr><tr><td class="fid">B2</td><td><b>Не-брендовые цвета в коде</b></td><td>1D1D1B, 6E6E73, C9C9CE, F5F5F6, 141412, E7E7EA, 9FE8DB, FF6B6B, F3F3F3 — ни одно не задокументировано</td></tr><tr><td class="fid">B3</td><td><b>«REHAU ·» латиницей на титуле</b></td><td>build-pptx.js — против решения владельца 2026-09-13; py-генераторы уже «РЕХАУ»</td></tr><tr><td class="fid">B4</td><td><b>Машиночитаемый слой ошибочнее всех</b></td><td>palette.json/brand.css отдают 333333/666666/D9D9D9; rehau-kit берёт из них g20</td></tr><tr><td class="fid">B5</td><td><b>Логотип 10% и margin «letter P»</b></td><td>По стр. 28: 15% короткой стороны; буква «Р» кириллического wordmark</td></tr>
+</table>
+
+<h2>Системные дефекты</h2>
+<ul class="sys"><li><code>C1</code> Нет единого канона токенов — значения в 6+ местах, все расходятся</li><li><code>C2</code> Эталоны презентаций (стр. 74: титул/контент/финал) не зафиксированы нигде</li><li><code>C3</code> План скилла закладывал дрейф-токены в reference.md — отозвано</li><li><code>C4</code> Бренд-правила не машинно-проверяемы — реестр «правило → проверка» пуст по бренду</li><li><code>C5</code> Дистрибуция Inter в PPTX не решена — у получателя молча подменится</li><li><code>C7</code> Утрачена модальность: «не рекомендуется» превращено в запрет</li></ul>
+
+<h2>Решения на G1</h2>
+<div class="decs"><div class="dec"><div class="dec-head"><span class="n">№ 1</span> Не-брендовые нейтрали в схемах</div><div class="ab"><div class="a"><b>A (рекомендация)</b> — Заменить на линейку стр. 14: текст 4E4E4E, линии E4E4E4, тёмные панели 000000+белый. Имитации терминала — exceptions</div><div class="bv"><b>B (отклонить)</b> — Оставить как есть, задокументировав каждый цвет</div></div></div><div class="dec"><div class="dec-head"><span class="n">№ 2</span> Судьба brand_rules.md</div><div class="ab"><div class="a"><b>A (рекомендация)</b> — Архивный баннер «описывает старый гайдлайн», ссылки → канон</div><div class="bv"><b>B (отклонить)</b> — Переписать под 2026 — стирает историю</div></div></div><div class="dec"><div class="dec-head"><span class="n">№ 3</span> Локация канона</div><div class="ab"><div class="a"><b>A (рекомендация)</b> — Презентация/harness-assets/brand/ — рядом со skill/, копируется при установке скилла</div><div class="bv"><b>B (отклонить)</b> — docs/workspace/rehau_2026_assets/ — дальше от скилла</div></div></div></div>
+<div class="note"><b>Без альтернатив:</b> слоган не включается в канон до сверки стр. 24–26;
+сданная дека <code>harness-deck-v2.pptx</code> не пересобирается; канон применяется при
+следующем изменении деки.</div>
+
+<h2>Фазы</h2>
+<div class="phases"><div class="ph"><div class="ph-tag">A</div><div><b>Канон</b><div class="ph-body">brand/tokens.json + brand-rules.md: палитра 13–15, градиенты 16–17, Inter 19–21, логотип 6–10/28, сетка 29, QR 32, фирменная графика 41–47/55–67, роли слайдов 74, кириллица, exceptions. Шаг сверки: слоган 24–26, доп. шрифт 22, композиция 30–31, постранично 41–67. У каждого правила — страница и модальность</div></div></div><div class="ph"><div class="ph-tag">B</div><div><b>Ремонт слоя правил и конвейера</b><div class="ph-body">palette.json/brand.css → серые стр. 14; brand_rules.md → архив; rehau-kit (g20, LOGO_H 15%, ссылка на канон); build-pptx (РЕХАУ, 000000); gen_schemes — нейтрали по решению №1; правка строки в плане скилла. Сданная дека не трогается</div></div></div><div class="ph"><div class="ph-tag">C</div><div><b>Машинные бренд-чеки</b><div class="ph-body">brand_verify: whitelist HEX, запрет курсива, латинское REHAU в ru-текстах, MiSans/Segoe в runs, высота логотипа. Реестр «правило → проверка» пополняется бренд-правилами</div></div></div><div class="ph"><div class="ph-tag">D</div><div><b>Скилл rehau-deck</b><div class="ph-body">Фаза C плана pptx-qa-skill: reference.md генерируется из tokens.json — ручной набор токенов исключён</div></div></div></div>
+
+<div class="note"><b>Не-цели v1:</b> не-цели: только носители не-деки (печать/билборд/roll-up, стр. 75–77) и встраивание шрифтов в PPTX; все остальные разделы брендбука усвоены в канон (включая кобрендинг, фото, прозрачность, волны, соцсети, иконки, иллюстрации).</div>
+
+<h2>Owner-гейты</h2>
+<table>
+  <tr><th>Гейт</th><th>Что решает владелец</th><th>Когда</th></tr>
+  <tr><td class="gate">G1</td><td>Аппрув плана + решения №1–3 + сигнал «делай»</td><td class="pg">после ревью</td></tr><tr><td class="gate">G2</td><td>Приёмка фаз A–C (обычный handover)</td><td class="pg">по ходу</td></tr><tr><td class="gate">G3</td><td>Запуск фазы D — сборка скилла</td><td class="pg">после A–C</td></tr>
+</table>
+
+<div class="note"><b>Эффект:</b> один непротиворечивый канон 2026 вместо трёх сводов;
+дрейф токенов ловится машинно, а не на приёмке; скилл rehau-deck получает reference.md,
+собранный из канона, и бренд-правила, которые нельзя нарушить молча.</div>
+
+<div class="sub">show-me регенерируется: <code>python .scratch/gen-show-me-brand-canon.py</code> ·
+вручную не правится (урок №27) · владелец открывает артефакт при ревью плана (урок №21)</div>
+
+</div>
+</body>
+</html>

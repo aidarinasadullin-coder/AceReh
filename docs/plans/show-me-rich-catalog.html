@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me · rich-catalog для rehau-deck</title>
+<style>
+  :root{
+    --red:#E50040; --red-dark:#B60034; --teal:#4FC7B5; --teal-deep:#2F776D;
+    --black:#000000; --white:#FFFFFF; --gray100:#E4E4E4; --gray300:#B0B0B0;
+    --gray600:#818181; --gray800:#4E4E4E;
+    --teal-bg:rgba(79,199,181,.14); --red-bg:rgba(229,0,64,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;color:var(--black);line-height:1.5;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 24px 60px}
+  h1{font-size:26px;font-weight:700}
+  h2{font-size:19px;font-weight:700;margin:34px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--teal)}
+  .sub{color:var(--gray600);font-size:13px}
+  code{font-family:Consolas,monospace;font-size:12.5px;background:var(--gray100);padding:1px 5px;border-radius:4px}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+  .badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--teal-bg);color:var(--teal-deep)}
+  .badge.owner{background:var(--red-bg);color:var(--red-dark)}
+  .badge.gray{background:var(--gray100);color:var(--gray800)}
+
+  .hero{border:1px solid var(--gray100);border-radius:12px;padding:18px;margin:16px 0;
+        background:linear-gradient(180deg,var(--white),var(--teal-bg))}
+  .hero p{margin:6px 0}
+
+  .lane{border:1px solid var(--gray100);border-radius:10px;padding:14px;margin:10px 0}
+  .lane.now{background:#FAFAFA}
+  .lane.goal{border:2px solid var(--teal);background:var(--teal-bg)}
+  .lane-tag{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray600);margin-bottom:8px}
+  .lane.goal .lane-tag{color:var(--teal-deep)}
+  .flow{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap}
+  .node{flex:1 1 150px;min-width:150px;border:1px solid var(--gray300);border-radius:8px;padding:8px 10px;background:var(--white);font-size:12px}
+  .node b{display:block;font-size:12.5px}
+  .node span{font-size:11px;color:var(--gray600)}
+  .node.bad{border:2px solid var(--red)}
+  .node.bad b{color:var(--red-dark)}
+  .node.canon{border:2px solid var(--teal)}
+  .node.canon b{color:var(--teal-deep)}
+  .node .new{display:inline-block;font-size:10px;font-weight:700;color:var(--white);background:var(--red);border-radius:8px;padding:1px 7px;margin-bottom:4px}
+  .arrow{align-self:center;color:var(--gray600);font-size:16px;font-weight:700}
+
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+  th{text-align:left;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray600);padding:6px 8px;border-bottom:2px solid var(--gray300)}
+  td{padding:7px 8px;border-bottom:1px solid var(--gray100);vertical-align:top}
+  .c-type{font-weight:700}
+  .gate{font-family:Consolas,monospace;color:var(--red-dark);font-weight:700}
+  .pg{color:var(--gray600);white-space:nowrap}
+
+  .decs{display:grid;grid-template-columns:1fr;gap:10px;margin:10px 0}
+  .dec{border:1px solid var(--gray100);border-radius:10px;padding:12px 14px}
+  .dec-head{font-weight:700;margin-bottom:8px}
+  .dec-head .n{color:var(--red-dark);margin-right:6px}
+  .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .ab .a{border-left:3px solid var(--teal);padding:6px 10px;background:var(--teal-bg);font-size:12.5px;border-radius:0 8px 8px 0}
+  .ab .bv{border-left:3px solid var(--gray300);padding:6px 10px;color:var(--gray800);font-size:12.5px;border-radius:0 8px 8px 0}
+
+  .phases{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+  .ph{border:1px solid var(--gray100);border-radius:10px;padding:12px;background:var(--white);display:flex;gap:10px}
+  .ph-tag{flex:none;width:34px;height:34px;border-radius:9px;background:var(--red);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+  .ph-body{font-size:11.5px;color:var(--gray800);margin-top:4px}
+  @media (max-width:820px){.phases{grid-template-columns:1fr}.ab{grid-template-columns:1fr}}
+
+  .note{border-left:3px solid var(--teal);background:var(--teal-bg);border-radius:0 10px 10px 0;padding:10px 14px;font-size:13px;margin:14px 0}
+  .note b{color:var(--teal-deep)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>rich-catalog: полный словарь компоновок для rehau-deck</h1>
+<div class="sub">план 2026-09-14-deck-rich-catalog-plan.md · show-me</div>
+<div class="badges">
+  <span class="badge owner">G1: ждёт аппрува владельца</span>
+  <span class="badge">69/70 ролей официальных шаблонов → 15–20 в скилле</span>
+  <span class="badge gray">state ownership: без изменений</span>
+</div>
+
+<div class="hero">
+  <p><b>Проблема:</b> дека B параллельной сессии бренд-корректна (токены — 0 находок),
+  но «близко не похоже на РЕХАУ»: 9 контентных слайдов — одна роль «буллеты+скрин»,
+  без панельных делений, плашек и градиентов.</p>
+  <p><b>Причина:</b> скилл v1 клонирует из рабочего шаблона владельца — <b>5 скромных
+  ролей</b>. Фирменный словарь компоновок живёт в официальных шаблонах 07-2026 —
+  <b>69/70 ролей</b> — и в скилл не заведён. Токены управляют цветом и шрифтом,
+  похожесть — словарём компоновок.</p>
+</div>
+
+<h2>Сейчас → цель</h2>
+<div class="lane now">
+  <div class="lane-tag">Сейчас — бедный источник</div>
+  <div class="flow">
+    <div class="node bad"><b>Рабочий шаблон</b><span>5 ролей: титул, шаг, KPI, финал — без структурных зон</span></div>
+    <div class="arrow">→</div>
+    <div class="node bad"><b>9 подряд «буллеты+скрин»</b><span>дека B: монотонно, панели/плашки/градиенты — nowhere</span></div>
+    <div class="node bad"><b>Гейты v1</b><span>токены и структура — да; словарь компоновок — нет</span></div>
+  </div>
+</div>
+<div class="lane goal">
+  <div class="lane-tag">Цель — фирменный словарь как источник</div>
+  <div class="flow">
+    <div class="node canon"><b>catalog-light.json<span style="display:block">+ contact-sheet</span></b><span>69 ролей: инвентарь + миниатюры</span></div>
+    <div class="arrow">→</div>
+    <div class="node canon"><b>15–20 отобранных ролей</b><span>панельные деления, KPI-плашки, фото 60:40, разделители — утверждает владелец</span></div>
+    <div class="arrow">→</div>
+    <div class="node"><b>Карта «контент → роль»</b><span>проблема/цифры/этап/сравнение/вывод</span></div>
+    <div class="arrow">→</div>
+    <div class="node canon"><b>Дека из фирменного словаря</b><span>«близко не похоже» — технически невозможно</span></div>
+  </div>
+</div>
+
+<h2>Карта «тип контента → роль» (примеры)</h2>
+<table>
+  <tr><th>Тип контента</th><th>Роль / приём</th><th>Источник</th></tr>
+  <tr><td class="c-type">Проблема / боль</td><td>Панель-деление с фото (60:40)</td><td class="pg">стр. 74, роль 33</td></tr><tr><td class="c-type">Цифры и факты</td><td>KPI-плитки со скошенными плашками</td><td class="pg">стр. 74, роль 74-эталон</td></tr><tr><td class="c-type">Этап / стадия</td><td>Разделитель на полном фирменном фоне</td><td class="pg">стр. 5/33/63/67</td></tr><tr><td class="c-type">Сравнение вариантов</td><td>Две колонки / тёмная панель + карточки</td><td class="pg">роль 24</td></tr><tr><td class="c-type">Вывод / CTA</td><td>Цветная панель с градиентом</td><td class="pg">градиенты стр. 16</td></tr><tr><td class="c-type">Команда / контакты</td><td>Карточки-плитки</td><td class="pg">роль 33-стиль</td></tr>
+</table>
+<div class="note"><b>Правило композиции:</b> на каждом слайде — минимум одна фирменная
+структурная зона (панель / плашка / градиент); чередование фокус-цветов
+красный → teal → тёмно-серый; одна роль ≤ 2 подряд.</div>
+
+<h2>Решения на G1</h2>
+<div class="decs"><div class="dec"><div class="dec-head"><span class="n">№ 1</span>Источник ролей</div><div class="ab"><div class="a"><b>A (рекомендация)</b> — Официальный светлый 07-2026 (69 ролей); рабочий шаблон — для правок существующих дек</div><div class="bv"><b>B (отклонить)</b> — Остаться на 5 бедных ролях</div></div></div><div class="dec"><div class="dec-head"><span class="n">№ 2</span>Заливка контента</div><div class="ab"><div class="a"><b>A (рекомендация)</b> — По индексам плейсхолдеров, рекурсивно (placeholder-based роли)</div><div class="bv"><b>B (отклонить)</b> — По именам шейпов (не работает)</div></div></div><div class="dec"><div class="dec-head"><span class="n">№ 3</span>Превью-каталог</div><div class="ab"><div class="a"><b>A (рекомендация)</b> — Contact-sheet одним файлом в git; полные PNG вне git</div><div class="bv"><b>B (отклонить)</b> — ~139 файлов в git</div></div></div><div class="dec"><div class="dec-head"><span class="n">№ 4</span>Тёмная версия</div><div class="ab"><div class="a"><b>A (рекомендация)</b> — Не-цель v1 (подключается тем же механизмом)</div><div class="bv"><b>B (отклонить)</b> — Делать сейчас</div></div></div></div>
+
+<h2>Фазы</h2>
+<div class="phases"><div class="ph"><div class="ph-tag">A</div><div><b>Каталог ролей</b><div class="ph-body">Инвентарь светлого шаблона -> catalog-light.json; contact-sheet 69 миниатюр; отбор 15–20 богатых ролей (фирменная структурная зона, заполняемость) — владелец утверждает по contact-sheet</div></div></div><div class="ph"><div class="ph-tag">B</div><div><b>Карта «контент → роль» + правила</b><div class="ph-body">reference.md: каждому типу контента — роль; правило: на каждом слайде фирменная структурная зона, чередование фокус-цветов, одна роль ≤ 2 подряд</div></div></div><div class="ph"><div class="ph-tag">C</div><div><b>Интеграция и приёмка</b><div class="ph-body">build_final --catalog: заливка по плейсхолдерам; бюджеты ролей; приёмка — пересборка деки B до/после</div></div></div></div>
+
+<h2>Owner-гейты</h2>
+<table>
+  <tr><th>Гейт</th><th>Что решает владелец</th><th>Когда</th></tr>
+  <tr><td class="gate">G1</td><td>Аппрув плана + решения №1–4 + сигнал «делай»</td><td class="pg">сейчас</td></tr><tr><td class="gate">G2a</td><td>Утверждение 15–20 ролей по contact-sheet</td><td class="pg">после фазы A</td></tr><tr><td class="gate">G2</td><td>Приёмка фаз B–C</td><td class="pg">по ходу</td></tr><tr><td class="gate">G3</td><td>Приёмка: дека B до/после</td><td class="pg">финал</td></tr>
+</table>
+
+<div class="note"><b>Приёмка (G3):</b> пересборка деки B «Снеготаяние для руководства»
+до/после — скошенные деления, плашки, цветовые фокусы видны на превью;
+verify + brand зелёные. Существующая дека v2 и её конвейер не меняются.</div>
+
+<div class="sub">show-me регенерируется: <code>python .scratch/gen-show-me-rich-catalog.py</code> ·
+вручную не правится (урок №27) · владелец открывает артефакт при ревью плана (урок №21)</div>
+
+</div>
+</body>
+</html>

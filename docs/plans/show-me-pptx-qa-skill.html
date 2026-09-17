@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me · QA-контур конвейера презентаций + скилл rehau-deck</title>
+<style>
+  :root{
+    --red:#E50040; --red-dark:#B60034; --teal:#4FC7B5; --teal-deep:#2F776D;
+    --black:#000000; --white:#FFFFFF; --gray100:#E4E4E4; --gray300:#B0B0B0;
+    --gray600:#818181; --gray800:#4E4E4E;
+    --teal-bg:rgba(79,199,181,.14); --red-bg:rgba(229,0,64,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;color:var(--black);background:var(--white);
+       line-height:1.5;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 24px 60px}
+  h1{font-size:26px;font-weight:700;letter-spacing:.2px}
+  h2{font-size:19px;font-weight:700;margin:34px 0 12px;padding-bottom:6px;
+     border-bottom:2px solid var(--teal)}
+  h3{font-size:15px;font-weight:600;margin:0 0 8px}
+  p{margin:6px 0}
+  .sub{color:var(--gray600);font-size:13px}
+  code{font-family:Consolas,monospace;font-size:12.5px;background:var(--gray100);
+       padding:1px 5px;border-radius:4px}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+  .badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px;
+         background:var(--teal-bg);color:var(--teal-deep)}
+  .badge.owner{background:var(--red-bg);color:var(--red-dark)}
+  .badge.gray{background:var(--gray100);color:var(--gray800)}
+
+  /* конвейер: сейчас / цель */
+  .lane{border:1px solid var(--gray100);border-radius:10px;padding:14px;margin:10px 0}
+  .lane.now{background:#FAFAFA}
+  .lane.goal{border:2px solid var(--teal);background:var(--teal-bg)}
+  .lane-tag{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+            color:var(--gray600);margin-bottom:8px}
+  .lane.goal .lane-tag{color:var(--teal-deep)}
+  .flow{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap}
+  .node{flex:1 1 130px;min-width:130px;border:1px solid var(--gray300);border-radius:8px;
+        padding:8px 10px;background:var(--white)}
+  .node b{display:block;font-size:12.5px}
+  .node span{font-size:11.5px;color:var(--gray600)}
+  .node.gate{border:2px solid var(--red)}
+  .node.gate b{color:var(--red-dark)}
+  .node .new{display:inline-block;font-size:10px;font-weight:700;color:var(--white);
+             background:var(--red);border-radius:8px;padding:1px 7px;margin-bottom:4px}
+  .arrow{align-self:center;color:var(--gray600);font-size:16px;font-weight:700}
+  .lane-note{font-size:12px;color:var(--gray600);margin-top:8px}
+  .lane-note .risk{color:var(--red-dark);font-weight:600}
+
+  /* проверки */
+  .checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+  .check{border:1px solid var(--gray100);border-radius:10px;padding:12px}
+  .check .num{display:inline-block;width:24px;height:24px;border-radius:50%;
+              background:var(--teal);color:var(--white);font-weight:700;font-size:13px;
+              text-align:center;line-height:24px;margin-bottom:6px}
+  .check b{font-size:13.5px}
+  .check p{font-size:12.5px;color:var(--gray800);margin:4px 0 0}
+  .modes{margin-top:8px}
+  .modes code{background:var(--teal-bg);color:var(--teal-deep)}
+
+  /* решения */
+  .dec{border:1px solid var(--gray100);border-radius:10px;padding:12px;margin:10px 0}
+  .dec .opt{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+  .dec .a,.dec .b{flex:1 1 260px;border-radius:8px;padding:9px 11px;font-size:12.5px}
+  .dec .a{border:2px solid var(--teal);background:var(--teal-bg)}
+  .dec .b{border:1px dashed var(--gray300);color:var(--gray800)}
+  .dec .lbl{font-weight:700;font-size:12px}
+  .dec .a .lbl{color:var(--teal-deep)}
+  .dec .rec{font-size:10px;font-weight:700;color:var(--white);background:var(--teal);
+            border-radius:8px;padding:1px 7px;margin-left:6px}
+
+  /* фазы */
+  .phase{border:1px solid var(--gray100);border-left:4px solid var(--teal);
+         border-radius:0 10px 10px 0;padding:12px 14px;margin:10px 0}
+  .phase h3{color:var(--teal-deep)}
+  .phase ul{margin:4px 0 0 18px;font-size:13px}
+  .phase li{margin:3px 0}
+  .phase .files{font-size:12px;color:var(--gray600);margin-top:6px}
+
+  /* гейты */
+  .gates{display:flex;gap:8px;flex-wrap:wrap}
+  .gate{flex:1 1 220px;border:2px solid var(--red);border-radius:10px;padding:10px 12px;
+        background:var(--red-bg)}
+  .gate b{color:var(--red-dark)}
+  .gate p{font-size:12.5px;margin:2px 0 0}
+
+  /* риски */
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--gray100);
+        vertical-align:top}
+  th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gray600)}
+  td:first-child{font-weight:600;width:42%}
+
+  .foot{margin-top:30px;padding-top:12px;border-top:1px solid var(--gray100);
+        font-size:12px;color:var(--gray600)}
+  @media (max-width:640px){
+    .wrap{padding:20px 14px 48px}
+    .node{min-width:100%}
+    .arrow{transform:rotate(90deg);align-self:center}
+    .flow{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>QA-контур конвейера презентаций + скилл rehau-deck</h1>
+  <div class="badges">
+    <span class="badge owner">G1 · план на ревью владельца</span>
+    <span class="badge gray">тулинг — вне продуктового кода и state ownership</span>
+    <span class="badge">2026-09-14</span>
+  </div>
+  <p class="sub">Переносим из официального скилла <code>document-skills:pptx</code> то,
+  чего нет в конвейере <code>Презентация/harness-assets/</code>, — верификацию и
+  рендер-гейт. Генерация у нас уже совпадает с практикой скилла; не совпадает контроль.
+  Затем конвейер упаковывается в собственный скилл <code>rehau-deck</code> (REHAU-токены,
+  шаблон владельца, ru-RU).</p>
+
+  <h2>Конвейер: сейчас → цель</h2>
+  <div class="lane now">
+    <div class="lane-tag">Сейчас</div>
+    <div class="flow">
+      <div class="node"><b>build_final.py</b><span>клон 12 слайдов шаблона, OOXML-хирургия</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>build-pptx.js</b><span>pptxgenjs, палитра REHAU</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>.pptx</b><span>deck готов</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>проверка руками</b><span>pdf_preview_*.png, глаза</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>владелец</b><span>приёмка</span></div>
+    </div>
+    <div class="lane-note"><span class="risk">Риск:</span> битые rels и «восстановление файла»
+    в PowerPoint ловит только человек на приёмке (<code>build_final.py:30–55</code> —
+    ручная пересборка rels / [Content_Types] / sldIdLst).</div>
+  </div>
+  <div class="lane goal">
+    <div class="lane-tag">Цель — три гейта до сдачи</div>
+    <div class="flow">
+      <div class="node"><b>сборка</b><span>build_final.py · build-pptx.js — без изменений</span></div>
+      <div class="arrow">→</div>
+      <div class="node gate"><span class="new">НОВОЕ</span><b>verify_pptx.py</b><span>переоткрытие · rels · счёт · placeholder · бюджет</span></div>
+      <div class="arrow">→</div>
+      <div class="node gate"><span class="new">НОВОЕ</span><b>make_preview.py</b><span>soffice → pdf → pdftoppm → PNG</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>judge (опция)</b><span>субагент по превью</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>владелец</b><span>финальная приёмка шрифтов в PowerPoint</span></div>
+    </div>
+    <div class="lane-note">Фаза C: конвейер упаковывается в скилл
+    <code>rehau-deck</code> — канон в репо, установка в
+    <code>~/.agents/skills/</code> копированием.</div>
+  </div>
+
+  <h2>Что проверяет verify_pptx.py</h2>
+  <p class="modes">Два режима: <code>--inventory</code> — один раз снять манифест шейпов
+  шаблона (slide_idx, shape_name, w_cm, h_cm, font_pt, orig_len) →
+  <code>template-inventory.json</code>; <code>--verify</code> — проверки ниже, находки
+  таблицей, код возврата ≠ 0.</p>
+  <div class="checks">
+    <div class="check"><span class="num">1</span><b>Переоткрытие</b>
+      <p><code>Presentation()</code> поднимает файл, обход всех шейпов с рекурсией
+      в GROUP — битый XML падает здесь, а не в PowerPoint.</p></div>
+    <div class="check"><span class="num">2</span><b>Rels</b>
+      <p>Каждый <code>r:embed</code>/<code>r:link</code> слайдов резолвится в часть
+      с непустым blob — главный риск zipfile-хирургии.</p></div>
+    <div class="check"><span class="num">3</span><b>Счёт слайдов</b>
+      <p>Фактическое число слайдов == длина <code>ORDER</code> (12).</p></div>
+    <div class="check"><span class="num">4</span><b>Placeholder-мусор</b>
+      <p>Grep slide-XML: <code>TODO</code>, <code>xxx</code>, <code>lorem</code>,
+      <code>[insert</code>, <code>Click to add</code>.</p></div>
+    <div class="check"><span class="num">5</span><b>Бюджет текста</b>
+      <p>Длина текста шейпа ≤ <code>orig_len × 1.1</code> из манифеста — канон
+      оверфлоу, не зависящий от шрифтозамены в превью.</p></div>
+  </div>
+
+  <h2>Решения — выбор владельца на G1</h2>
+  <div class="dec"><h3>№1 · Движок рендер-гейта</h3>
+    <div class="opt">
+      <div class="a"><span class="lbl">A<span class="rec">рекомендация</span></span><br>
+        LibreOffice headless (<code>soffice</code> → pdf → <code>pdftoppm</code>):
+        детерминированно, автоматизируемо. Установка — owner-действие
+        <code>winget install TheDocumentFoundation.LibreOffice</code> (гейт G2-pre).</div>
+      <div class="b"><span class="lbl">B — отклонить</span><br>
+        PowerPoint COM: вернее рендерит, но хрупко в headless-автоматизации
+        и привязан к офисной установке.</div>
+    </div></div>
+  <div class="dec"><h3>№2 · Где живёт канон скилла</h3>
+    <div class="opt">
+      <div class="a"><span class="lbl">A<span class="rec">рекомендация</span></span><br>
+        Канон в репозитории: <code>harness-assets/skill/</code> → установка
+        <code>install-skill.cmd</code> в <code>~/.agents/skills/rehau-deck/</code>.
+        История правок в git, дрейф закрыт сверкой.</div>
+      <div class="b"><span class="lbl">B — отклонить</span><br>
+        Канон сразу в пользовательской папке: вне git, без истории,
+        расхождение с репо не отследить.</div>
+    </div></div>
+  <div class="dec"><h3>№3 · Regex-хирургия build_final.py</h3>
+    <div class="opt">
+      <div class="a"><span class="lbl">A<span class="rec">рекомендация</span></span><br>
+        Сохранить хирургию, добавить verify-гейт: работающий код не
+        переписываем, риск закрывают проверки 1–2.</div>
+      <div class="b"><span class="lbl">B — отклонить</span><br>
+        Переписать клонирование in-process (deepcopy + relate_to): чище,
+        но вне мотивации плана.</div>
+    </div></div>
+
+  <h2>Фазы и критерии</h2>
+  <div class="phase"><h3>Фаза A — verify-гейт</h3>
+    <div class="files">verify_pptx.py · template-inventory.json · README-QA.md (чек-лист камней pptxgenjs)</div>
+    <ul>
+      <li><code>--verify</code> зелёный на <code>harness-deck-v2.pptx</code> (12 слайдов);</li>
+      <li>испорченная копия (медиа-часть удалена, r:embed жив) ловится с внятным отчётом;</li>
+      <li>на чистой <code>base12.pptx</code> — 0 находок.</li>
+    </ul></div>
+  <div class="phase"><h3>Фаза B — рендер-гейт (после G2-pre)</h3>
+    <div class="files">make_preview.py → preview/slide-01..12.png</div>
+    <ul>
+      <li>превью всех 12 слайдов одной командой;</li>
+      <li>README-QA фиксирует шрифтозамену LibreOffice (прецедент
+          <code>compare-font.png</code>): вердикты по превью ориентировочные;</li>
+      <li>владелец подтвердил читаемость превью.</li>
+    </ul></div>
+  <div class="phase"><h3>Фаза C — скилл rehau-deck</h3>
+    <div class="files">build_final.py +argparse · skill/SKILL.md · skill/reference.md · install-skill.cmd</div>
+    <ul>
+      <li>запуск без аргументов = текущее поведение (дефолты прежние);</li>
+      <li>мини-дека «титул / шаг / финал» проходит build → verify → preview;</li>
+      <li>универсальный <code>document-skills:pptx</code> не тронут.</li>
+    </ul></div>
+
+  <h2>Гейты</h2>
+  <div class="gates">
+    <div class="gate"><b>G1</b><p>Аппрув плана + выбор решений №1–3 + сигнал «делай»</p></div>
+    <div class="gate"><b>G2-pre</b><p>Согласие на установку LibreOffice (winget) — перед фазой B</p></div>
+    <div class="gate"><b>G2</b><p>Приёмка фаз (обычный handover), по ходу</p></div>
+  </div>
+
+  <h2>Риски</h2>
+  <table>
+    <tr><th>Риск</th><th>Митигация</th></tr>
+    <tr><td>LibreOffice подменяет шрифты — ложный оверфлоу</td>
+        <td>канон оверфлоу — бюджет (фаза A); превью — для грубых дефектов; финал — в PowerPoint</td></tr>
+    <tr><td>soffice недоступен</td>
+        <td>авто-поиск стандартного пути + ошибка с командой <code>winget install</code></td></tr>
+    <tr><td>Ложные срабатывания бюджета</td>
+        <td>бюджет по фактическому манифесту шаблона, порог ×1.1</td></tr>
+    <tr><td>Кириллические пути в subprocess</td>
+        <td>pathlib/sys.argv, проверка на реальной папке — в критериях фаз</td></tr>
+    <tr><td>Дрейф скилла от канона</td>
+        <td>канон в репо (решение №2A), сверка при изменении — критерий фазы C</td></tr>
+    <tr><td>Триггер-шум скилла</td>
+        <td>узкий description (REHAU/шаблон); универсальный скилл остаётся</td></tr>
+  </table>
+
+  <div class="foot">План: <code>docs/plans/2026-09-14-pptx-qa-skill-plan.md</code> ·
+  артефакт регенерируется <code>.scratch/gen-show-me-pptx-qa-skill.py</code>, вручную не
+  правится (урок №27) · владелец открывает артефакт при ревью плана (урок №21) ·
+  REHAU-токены: E50040 / B60034 / 4FC7B5 / 2F776D / 1D1D1B</div>
+</div>
+</body>
+</html>
