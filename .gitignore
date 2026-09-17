@@ -64,3 +64,7 @@ node_modules/
 Презентация/harness-assets/harness-deck.pptx
 Презентация/harness-assets/harness-deck-v2.pptx
 Презентация/harness-assets/harness-deck.html
+
+# Python-кэш и промежуточные рендеры харнесса (исходники коммитятся, генераты — нет)
+__pycache__/
+Презентация/harness-assets/preview/
