@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me: дедупликация кода — три волны</title>
+<style>
+  :root {
+    --red: #E50040; --teal: #4FC7B5; --ink: #1D1D1B;
+    --gray1: #4E4E4E; --gray2: #818181; --gray3: #B0B0B0; --gray4: #D9D9D9;
+    --bg: #F6F6F6; --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--ink); padding: 28px 32px 60px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  .sub { color: var(--gray2); font-size: 13px; margin-top: 6px; }
+  .plan-ref { margin-top: 10px; font-size: 12.5px; color: var(--gray1); }
+  .plan-ref code { background: #EDEDED; border-radius: 3px; padding: 1px 6px; font-size: 11.5px; }
+  .mark { display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; }
+  .mark.w1 { background: var(--red); }
+  .mark.w1b { background: #B80033; }
+  .mark.w2 { background: var(--teal); }
+  .mark.w3 { background: var(--gray1); }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 34px 0 10px; }
+  h2 .mark { width: 9px; height: 9px; }
+  .metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; max-width: 980px; }
+  .metric { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 14px 18px; min-width: 210px; }
+  .metric .v { font-size: 22px; font-weight: 700; }
+  .metric .v.ok { color: var(--teal); }
+  .metric .k { font-size: 11px; color: var(--gray2); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+  .wavehead { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 6px; }
+  .pill { font-size: 11.5px; border-radius: 999px; padding: 4px 12px; font-weight: 600; }
+  .pill-w1 { background: #FBE3EA; color: var(--red); }
+  .pill-w1b { background: #F6D4DD; color: #B80033; }
+  .pill-w2 { background: #E4F6F3; color: #1E9C8B; }
+  .pill-w3 { background: #ECECEC; color: var(--gray1); }
+  .pill.ghost { background: transparent; border: 1px solid var(--gray4); color: var(--gray2); font-weight: 500; }
+  table { border-collapse: collapse; margin-top: 10px; font-size: 12px; width: 100%; max-width: 960px; background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; }
+  th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray2); padding: 10px 12px 6px; border-bottom: 1px solid var(--gray4); }
+  td { border-bottom: 1px solid var(--gray4); padding: 8px 12px; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .mono { font-family: Consolas, monospace; font-size: 11px; background: #F0F0F0; padding: 1px 5px; border-radius: 3px; }
+  .flow { display: flex; align-items: stretch; gap: 0; margin-top: 14px; flex-wrap: wrap; max-width: 980px; }
+  .node { border: 1.5px solid var(--ink); border-radius: 6px; padding: 10px 14px; min-width: 190px; background: #fff; }
+  .node.owner { border-color: var(--teal); border-width: 2px; }
+  .node .nt { font-size: 12px; font-weight: 700; }
+  .node.owner .nt { color: #1E9C8B; }
+  .node .nd { font-size: 10.5px; color: var(--gray2); margin-top: 3px; line-height: 1.35; }
+  .edge { align-self: center; padding: 0 10px; color: var(--gray1); font-size: 12px; white-space: nowrap; }
+  .edge b { color: var(--red); }
+  .consumers { display: grid; grid-template-columns: repeat(2, minmax(280px, 1fr)); gap: 8px; margin-top: 12px; max-width: 860px; }
+  .consumer { border: 1px solid var(--gray4); border-left: 3px solid var(--teal); background: #fff; border-radius: 5px; padding: 8px 12px; font-size: 11.5px; color: var(--gray1); }
+  .consumer b { color: var(--ink); display: block; font-size: 12px; margin-bottom: 2px; }
+  .note { margin-top: 14px; font-size: 12px; color: var(--gray1); background: #EAF7F4; border-radius: 5px; padding: 10px 14px; max-width: 860px; line-height: 1.45; }
+  .note b { color: var(--ink); }
+  .rec { color: var(--red); font-weight: 700; white-space: nowrap; }
+  .process { margin-top: 10px; font-size: 12.5px; color: var(--gray1); max-width: 860px; line-height: 1.7; }
+  .process b { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<h1><span class="mark"></span>Дедупликация кода: три волны</h1>
+<div class="sub">behavior-preserving экстракции · jscpd-скан + ручная сверка 2026-09-18 · статус: ожидает сигнала владельца</div>
+<div class="plan-ref">План: <code>docs/plans/2026-09-18-deduplication-plan.md</code> · артефакт регенерируется из плана и не правится вручную (урок №27)</div>
+
+<div class="metrics">
+  <div class="metric"><div class="v ok">0.71&nbsp;%</div><div class="k">дублированных строк src/ · 19 клонов · 284 файла</div></div>
+  <div class="metric"><div class="v">6.44&nbsp;%</div><div class="k">дублированных строк tests/ · 135 клонов</div></div>
+  <div class="metric"><div class="v">6 + 7</div><div class="k">локальных копипастов + билдеров с копией Meta(...)</div></div>
+  <div class="metric"><div class="v ok">0</div><div class="k">изменений state ownership / wire .smc / ADR</div></div>
+</div>
+
+
+<h2><span class="mark w1"></span>Волна 1a — локальные экстракции</h2>
+<div class="wavehead"><span class="pill pill-w1">~100 строк дублей → 0 · 6 файлов</span><span class="pill ghost">старт возможен сразу</span></div>
+<table><tr><td class="mono">A2</td><td><span class="mono">ProjectFileService.cs:45-155</span></td><td>общий WriteProjectAtomicallyAsync (tmp → bak → move, очистка tmp); публичные обёртки bool / OperationResult без изменений</td></tr>
+<tr><td class="mono">A3</td><td><span class="mono">SearchHistoryRepository.cs:110-161</span></td><td>GetByIdAsync / GetByCityIdAsync → один приватный запрос + общий маппер записи</td></tr>
+<tr><td class="mono">A4</td><td><span class="mono">CityMatchToHighlightConverter.cs:28-140</span></td><td>Convert делегирует в статический CreateInlines — разбор «**» в одном месте</td></tr>
+<tr><td class="mono">A5</td><td><span class="mono">HydraulicsSectionBuilder.cs:96-189</span></td><td>BuildReferenceCircuit вызывает PickWorst — правило «худшего контура» в одном месте</td></tr>
+<tr><td class="mono">A6</td><td><span class="mono">MaterialSnapshot.cs · ConstructionService.cs:329-352 · TemplateEditorViewModel.cs:484-498</span></td><td>MaterialSnapshot.Clone() + ApplyTemplateLayers для цикла над/под трубой</td></tr></table>
+
+<h2><span class="mark w1b"></span>Волна 1b — после хендовера отчётов</h2>
+<div class="wavehead"><span class="pill pill-w1b">22 строки · 1 файл</span><span class="pill ghost">файл modified в текущем дереве</span></div>
+<table><tr><td class="mono">A1</td><td><span class="mono">PdfExportService.cs:788-832</span></td><td>SectionTitleSection / SectionTitle — общий хелпер заголовка (красная метка 7pt + 10pt bold INK), точка вставки — параметр</td></tr></table>
+
+<h2><span class="mark w2"></span>Волна 2 — семейство фабрик Meta(...) · 7 файлов</h2>
+<div class="wavehead"><span class="pill pill-w2">~130 строк избыточности → 1 фабрика + тонкие обёртки</span><span class="pill ghost">материальное изменение → независимое атакующее ревью до имплементации</span></div>
+<table><tr><td class="mono">F</td><td><span class="mono">Builders/ReportMetadataFactory.cs (новый, internal static)</span></td><td>единая фабрика ReportParameterMetadata: ReportValue&lt;double&gt; / ReportValue&lt;string&gt; / полный 9-арг; formulaSource — имя билдера</td></tr>
+<tr><td class="mono">F</td><td><span class="mono">ConstructionSectionBuilder · ProjectSectionBuilder · ClimateSectionBuilder</span></td><td>локальные Meta(...) → 1-строчные делегаты; FormulaSource = «имя билдера» сохраняется байт-в-байт</td></tr>
+<tr><td class="mono">F</td><td><span class="mono">HydraulicsSectionBuilder · HydraulicsReportMetadataBuilder · EquipmentSectionBuilder · ThermalSectionBuilder</span></td><td>то же; пин: grep-инвентаризация литералов до/после + текстовый дифф markdown-отчёта</td></tr></table>
+
+<h2><span class="mark w3"></span>Волна 3 — тестовые фикстуры (решение V4)</h2>
+<div class="wavehead"><span class="pill pill-w3">~900 строк перекрытий → fixture-классы</span><span class="pill ghost">рекомендация — отложить до ближайшего изменения ProjectData</span></div>
+<table><tr><td class="mono">T</td><td><span class="mono">ThermalToHydraulicsIntegrationTests.cs:34-258 (канон)</span></td><td>копии: ClimateToHydraulics (226L) · PipeSpacingSync (210L) · DoubleCalcPrevention (209L) · GlycolAutoRecalc (137L) · WriterAuthority (79L) → HydraulicsIntegrationFixture</td></tr>
+<tr><td class="mono">T</td><td><span class="mono">CalculationReportWarningTests.cs:260-394</span></td><td>копии: CalculationReportInventoryTests (135L) · CalculationReportDataBuilderTests (115L) → общий builder фикстуры отчёта</td></tr>
+<tr><td class="mono">T</td><td><span class="mono">PdfExportServiceTests.cs:203-273 ≈ CalculationReportPdfRendererTests.cs:606-676</span></td><td>общая фабрика PDF-документа (71L); asserts остаются локальными — ни один не переносится</td></tr></table>
+
+<h2><span class="mark w2"></span>Волна 2 · поток: 7 билдеров → одна фабрика</h2>
+<div class="flow">
+  <div class="node"><div class="nt">ConstructionSectionBuilder</div><div class="nd">Meta(...) ×3 перегрузки +<br>зеркальная пара double/string<br>(строки 143–211)</div></div>
+  <div class="node"><div class="nt">Climate · Hydraulics ·<br>HydMetadata · Equipment · Thermal<br>· Project</div><div class="nd">те же копии; отличается только<br>литерал FormulaSource и<br>WhereUsed по умолчанию</div></div>
+  <div class="edge">делегат → <b>1 фабрика</b></div>
+  <div class="node owner"><div class="nt">ReportMetadataFactory</div><div class="nd">internal static; formulaSource —<br>имя билдера; семантика<br>Formula ?? FormulaStatus — прежняя</div></div>
+</div>
+
+<h2><span class="mark"></span>Риски и границы</h2>
+<div class="consumers"><div class="consumer"><b>State ownership</b>без изменений: ни одной новой записи в слайсы ProjectSession; ArchitectureRulesTests остаются зелёными без правок allowlist&#x27;ов; ADR не требуется</div>
+<div class="consumer"><b>Wire .smc</b>волна 1a сохраняет tmp → bak → move и JSON-опции байт-в-байт; characterization-тесты жизненного цикла — страховка</div>
+<div class="consumer"><b>Отчётные метаданные</b>FormulaSource / WhereUsed попадают в отчёт: grep-инвентаризация до/после + дифф markdown-рендера на существующей фикстуре</div>
+<div class="consumer"><b>Диффы волн</b>не смешиваются с текущим незакоммиченным деревом отчётов: каждая волна — отдельный цикл handover</div></div>
+
+<h2><span class="mark"></span>Вопросы владельцу</h2>
+<table style="max-width: 960px;">
+  <tr><th>#</th><th>Вопрос</th><th>Варианты</th><th>Рекомендация</th></tr>
+  <tr><td>V1</td><td>Порядок старта</td><td>(а) волна 1a сразу, 1b после хендовера · (б) всё после хендовера · (в) одной волной</td><td class="rec">(а)</td></tr>
+<tr><td>V2</td><td>Размещение фабрики Meta</td><td>(а) static-класс ReportMetadataFactory в Builders/ · (б) базовый класс билдеров</td><td class="rec">(а)</td></tr>
+<tr><td>V3</td><td>Копирование MaterialSnapshot</td><td>(а) Clone() на модели · (б) статический маппер в сервисном слое</td><td class="rec">(а)</td></tr>
+<tr><td>V4</td><td>Волна 3 (тесты)</td><td>(а) в этом цикле · (б) отложить до ближайшего изменения ProjectData</td><td class="rec">(б)</td></tr>
+</table>
+
+<div class="note"><b>Процесс:</b> ответы V1–V4 → независимое атакующее ревью плана (вектора: тихая смена поведения при экстракции · потеря catch-веток · расхождение FormulaSource-литералов · смешивание диффов с деревом отчётов · ослабление тестов) → чек в docs/reviews/ → волна 1a → зелёный dotnet test → handover некоммиченным деревом; 1b, 2, 3 — отдельными циклами. show-me регенерируется из плана (урок №27), сверка артефакта с планом — шаг ревью.</div>
+
+</body>
+</html>
