@@ -30,143 +30,16 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
     ///   изолированных тестовых конструкций; production DI всегда передаёт coordinator.
     /// </remarks>
     [TestFixture]
-    public class CalculationContextWriterAuthorityTests
+    public class CalculationContextWriterAuthorityTests : HydraulicsIntegrationTestBase
     {
-        private Mock<ICircuitsCalculator> _circuitsCalculatorMock = null!;
-        private Mock<IGlycolDataService> _glycolServiceMock = null!;
-        private Mock<IThermalCalculator> _thermalCalculatorMock = null!;
-        private Mock<IClimateDataService> _climateDataServiceMock = null!;
-        private Mock<ICalculationStateService> _calculationStateServiceMock = null!;
-        private Mock<ICircuitsValidator> _validatorMock = null!;
-        private Mock<ICollectorTypeSelector> _collectorTypeSelectorMock = null!;
-        private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
-        private ClimateData _climateData = null!;
-        private ConstructionData _constructionData = null!;
-        private ThermalViewModel _thermalViewModel = null!;
-        private ClimateViewModel _climateViewModel = null!;
-        private CalculationContext _calculationContext = null!;
-        private CircuitsViewModel _viewModel = null!;
-
-        [SetUp]
-        public void Setup()
+        /// <summary>
+        /// Поверх канона — историческое расхождение этого набора
+        /// (зафиксировано волной 3, 2026-09-18): сводка коллектора
+        /// считается по TotalLength и помечается валидной.
+        /// </summary>
+        public override void Setup()
         {
-            _circuitsCalculatorMock = new Mock<ICircuitsCalculator>();
-            _glycolServiceMock = new Mock<IGlycolDataService>();
-            _thermalCalculatorMock = new Mock<IThermalCalculator>();
-            _climateDataServiceMock = new Mock<IClimateDataService>();
-            _calculationStateServiceMock = new Mock<ICalculationStateService>();
-            _validatorMock = new Mock<ICircuitsValidator>();
-            _collectorTypeSelectorMock = new Mock<ICollectorTypeSelector>();
-            _markDirtyServiceMock = new Mock<IMarkDirtyService>();
-
-            // Канонический шаг укладки с бэкингом и событием
-            var pipeSpacingBacking = 200;
-            _calculationStateServiceMock.SetupGet(s => s.PipeSpacing).Returns(() => pipeSpacingBacking);
-            _calculationStateServiceMock
-                .Setup(s => s.SetPipeSpacing(It.IsAny<int>(), It.IsAny<string>()))
-                .Callback<int, string>((spacing, source) =>
-                {
-                    pipeSpacingBacking = spacing;
-                    _calculationStateServiceMock.Raise(s => s.PipeSpacingChanged += null, _calculationStateServiceMock.Object, spacing);
-                });
-            _calculationStateServiceMock
-                .Setup(s => s.SetPipeSpacing(It.IsAny<int>()))
-                .Callback<int>(spacing =>
-                {
-                    pipeSpacingBacking = spacing;
-                    _calculationStateServiceMock.Raise(s => s.PipeSpacingChanged += null, _calculationStateServiceMock.Object, spacing);
-                });
-
-            _climateData = new ClimateData();
-            _constructionData = new ConstructionData();
-
-            _calculationContext = new CalculationContext();
-            _calculationContext.UpdateClimate(_climateData, "Climate");
-
-            _thermalViewModel = new ThermalViewModel(
-                _thermalCalculatorMock.Object,
-                _climateData,
-                _constructionData,
-                _calculationStateServiceMock.Object,
-                _calculationContext,
-                new ThermalValidator(new ThermalCalculator(), _climateData, _constructionData),
-                new ThermalResultValidator(),
-                _markDirtyServiceMock.Object
-            );
-
-            _climateViewModel = new ClimateViewModel(
-                _climateDataServiceMock.Object,
-                _climateData,
-                new ClimateValidator(),
-                _markDirtyServiceMock.Object,
-                _calculationContext
-            );
-
-            _glycolServiceMock
-                .Setup(g => g.GetProperties(It.IsAny<GlycolType>(), It.IsAny<double>(), It.IsAny<double>()))
-                .Returns(new GlycolProperties
-                {
-                    Density = 1050,
-                    SpecificHeat = 3800,
-                    KinematicViscosity = 0.000005
-                });
-
-            SetupCircuitsCalculatorMocks();
-
-            _validatorMock
-                .Setup(v => v.CanRemoveCircuit(It.IsAny<CircuitRow>(), It.IsAny<CollectorData>()))
-                .Returns((CircuitRow circuit, CollectorData collector) => collector != null && collector.Circuits.Count > 1);
-            _validatorMock
-                .Setup(v => v.CanRemoveCollector(It.IsAny<CollectorData>(), It.IsAny<int>()))
-                .Returns((CollectorData collector, int count) => collector != null && count > 1);
-            _validatorMock
-                .Setup(v => v.ConfirmDeleteCircuit(It.IsAny<int>()))
-                .Returns(true);
-            _validatorMock
-                .Setup(v => v.ConfirmDeleteCollector(It.IsAny<int>()))
-                .Returns(true);
-
-            _collectorTypeSelectorMock
-                .Setup(s => s.SelectCollectorType(It.IsAny<CollectorData>()))
-                .Returns(new CollectorSelectionResult
-                {
-                    CollectorType = "HKV-D (2-12 контуров)",
-                    ValveType = ValveType.HKV_D,
-                    Warning = null
-                });
-
-            var hydraulicsDependencies = HydraulicsTestDependencyFactory.Create(_calculationStateServiceMock.Object, _calculationContext);
-            _viewModel = new CircuitsViewModel(
-                _circuitsCalculatorMock.Object,
-                _glycolServiceMock.Object,
-                _calculationStateServiceMock.Object,
-                _validatorMock.Object,
-                _collectorTypeSelectorMock.Object,
-                 _calculationContext,
-                  hydraulicsDependencies.Coordinator,
-                  hydraulicsDependencies.Session
-            );
-
-            SetupCollectorWithCircuits();
-        }
-
-        private void SetupCircuitsCalculatorMocks()
-        {
-            _circuitsCalculatorMock
-                .Setup(c => c.CalculateCircuitPower(
-                    It.IsAny<CircuitRow>(),
-                    It.IsAny<double>(),
-                    It.IsAny<double>(),
-                    It.IsAny<double>()))
-                .Returns((CircuitRow circuit, double q_up, double q_down, double spacing) => 1000.0);
-
-            _circuitsCalculatorMock
-                .Setup(c => c.CalculateFlowRate(
-                    It.IsAny<double>(),
-                    It.IsAny<double>(),
-                    It.IsAny<double>(),
-                    It.IsAny<double>()))
-                .Returns((double power, double deltaT, double density, double specificHeat) => 50.0);
+            base.Setup();
 
             _circuitsCalculatorMock
                 .Setup(c => c.CalculateCollectorSummary(
@@ -182,44 +55,6 @@ namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
                     TotalFlowRate = circuits.Sum(c => c.FlowRate),
                     IsValid = true
                 });
-
-            _circuitsCalculatorMock
-                .Setup(c => c.CalculateAtTemperature(
-                    It.IsAny<CircuitRow>(),
-                    It.IsAny<double>(),
-                    It.IsAny<GlycolProperties>(),
-                    It.IsAny<double>(),
-                    It.IsAny<double>(),
-                    It.IsAny<ValveType>()))
-                .Returns((CircuitRow circuit, double temp, GlycolProperties props, double diameter, double kv, ValveType valveType) =>
-                    new CircuitTemperatureResult
-                    {
-                        Temperature = temp,
-                        Density = props.Density / 1000.0,
-                        KinematicViscosity = props.KinematicViscosity,
-                        ReynoldsNumber = 10000,
-                        FrictionFactor = 0.02,
-                        PressureLossPerMeter = 100,
-                        DpRohr = 1000,
-                        DpVerteiler = 500,
-                        DpVent = 200,
-                        ZuDrosseln = 0
-                    });
-
-            _circuitsCalculatorMock
-                .Setup(c => c.CalculateBalancing(
-                    It.IsAny<List<CircuitRow>>(),
-                    It.IsAny<ValveType>()))
-                .Returns((List<CircuitRow> circuits, ValveType valveType) => circuits);
-        }
-
-        private void SetupCollectorWithCircuits()
-        {
-            var collector = _viewModel.Collectors[0];
-            collector.Circuits.Clear();
-            collector.Circuits.Add(new CircuitRow { CircuitNumber = 1, CircuitLength = 100 });
-            collector.Circuits.Add(new CircuitRow { CircuitNumber = 2, CircuitLength = 80 });
-            _viewModel.SelectedCollectorIndex = 0;
         }
 
         private void SeedThermalInputsAndResult(ThermalCalculationResult result, PipeType? pipe = null)
