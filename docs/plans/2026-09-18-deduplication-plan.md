@@ -61,11 +61,13 @@
 
 ## 2. Волна 2 — семейство фабрик `Meta(...)` билдеров отчёта
 
-**Поверхность: 7 файлов** (`ConstructionSectionBuilder`, `ProjectSectionBuilder`,
-`ClimateSectionBuilder`, `HydraulicsSectionBuilder`,
-`HydraulicsReportMetadataBuilder`, `EquipmentSectionBuilder`,
-`ThermalSectionBuilder`) — материальное изменение по AGENTS.md →
-независимое атакующее ревью плана до имплементации + чек в `docs/reviews/`.
+**Поверхность: 6 файлов** (`ConstructionSectionBuilder`, `ProjectSectionBuilder`,
+`ClimateSectionBuilder`, `HydraulicsReportMetadataBuilder`,
+`EquipmentSectionBuilder`, `ThermalSectionBuilder`) — материальное
+изменение по AGENTS.md → независимое атакующее ревью плана до
+имплементации + чек в `docs/reviews/`. Уточнение при имплементации
+2026-09-18: `HydraulicsSectionBuilder` собственной фабрики `Meta` не
+имеет (в исходном перечне — ошибочно).
 
 | Файлы | Правка |
 |---|---|
@@ -74,9 +76,12 @@
 
 **Пины сохранности:** значения `FormulaSource`/`WhereUsed` попадают в
 метаданные отчёта («Где рассчитано / Где используется»). Перед правкой —
-grep-инвентаризация литералов (по одному на билдер), после — полный
-прогон `CalculationReport*Tests` + сравнение сгенерированного отчёта
-до/после (текстовый diff markdown-рендера на существующей фикстуре).
+grep-инвентаризация литералов, после — сверка наборов. Факт
+имплементации 2026-09-18: файлового markdown-дампа в тестовой
+инфраструктуре нет, вместо текстового диффа отчёта пин — полный набор
+`CalculationReport*Tests` (инспектируют метаданные) + инвентаризация
+литералов байт-в-байт (сошлась; `ThermalCalculator` ×30, имена билдеров —
+без потерь).
 
 ## 3. Волна 3 — тестовые фикстуры (решение V4)
 

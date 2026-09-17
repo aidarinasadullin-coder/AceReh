@@ -10,6 +10,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
     /// </summary>
     public sealed class ConstructionSectionBuilder : IReportSectionBuilder<ConstructionSection>
     {
+        private const string BuilderFormulaSource = "ConstructionSectionBuilder";
+
         public SectionBuildResult<ConstructionSection> Build(ProjectData project, CalculationReportMode mode, ThermalReportDetail? thermalDetail = null, HydraulicsReportDetail? hydraulicsDetail = null)
         {
             var construction = project.ConstructionData ?? new ConstructionProjectData();
@@ -142,46 +144,22 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<double> value)
         {
-            return Meta(name, symbol, physicalMeaning, value, "ConstructionSection");
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, BuilderFormulaSource, "ConstructionSection");
         }
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<double> value, string whereUsed)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = value.Unit,
-                Source = value.Source,
-                SourceDetail = value.SourceDetail,
-                Formula = value.Formula ?? value.FormulaStatus,
-                FormulaSource = "ConstructionSectionBuilder",
-                WhereCalculated = value.SourceDetail,
-                WhereUsed = whereUsed
-            };
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, BuilderFormulaSource, whereUsed);
         }
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<string> value)
         {
-            return Meta(name, symbol, physicalMeaning, value, "ConstructionSection");
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, BuilderFormulaSource, "ConstructionSection");
         }
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<string> value, string whereUsed)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = value.Unit,
-                Source = value.Source,
-                SourceDetail = value.SourceDetail,
-                Formula = value.Formula ?? value.FormulaStatus,
-                FormulaSource = "ConstructionSectionBuilder",
-                WhereCalculated = value.SourceDetail,
-                WhereUsed = whereUsed
-            };
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, BuilderFormulaSource, whereUsed);
         }
 
         private static ReportParameterMetadata Meta(
@@ -195,30 +173,22 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
             string whereCalculated,
             string whereUsed)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = unit,
-                Source = source,
-                SourceDetail = sourceDetail,
-                Formula = formula,
-                FormulaSource = formula == null ? string.Empty : "ConstructionSectionBuilder",
-                WhereCalculated = whereCalculated,
-                WhereUsed = whereUsed
-            };
+            return ReportMetadataFactory.CreateExplicit(
+                name,
+                symbol,
+                physicalMeaning,
+                unit,
+                source,
+                sourceDetail,
+                formula,
+                formula == null ? string.Empty : BuilderFormulaSource,
+                whereCalculated,
+                whereUsed);
         }
 
         private static ReportFormula Formula(string symbol, string expression, string sourcePath, string section)
         {
-            return new ReportFormula
-            {
-                Symbol = symbol,
-                Expression = expression,
-                SourcePath = sourcePath,
-                Section = section
-            };
+            return ReportMetadataFactory.CreateFormula(symbol, expression, sourcePath, section);
         }
     }
 }

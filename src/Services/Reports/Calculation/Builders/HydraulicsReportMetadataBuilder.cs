@@ -10,6 +10,9 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
     {
         public const string FormulaStatusUnconfirmed = "требуется привязка к существующей формуле";
 
+        /// <summary>Имя билдера в метаданных; исторически совпадает с HydraulicsSectionBuilder.</summary>
+        private const string BuilderFormulaSource = "HydraulicsSectionBuilder";
+
         public static IReadOnlyList<ReportParameterMetadata> BuildMetadata(HydraulicsSection section)
         {
             var metadata = new List<ReportParameterMetadata>();
@@ -110,63 +113,37 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<double> value)
         {
-            return Meta(name, symbol, physicalMeaning, value, "HydraulicsSection");
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, BuilderFormulaSource, "HydraulicsSection");
         }
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<double> value, string whereUsed)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = value.Unit,
-                Source = value.Source,
-                SourceDetail = value.SourceDetail,
-                Formula = value.Formula ?? value.FormulaStatus,
-                FormulaSource = "HydraulicsSectionBuilder",
-                WhereCalculated = value.SourceDetail,
-                WhereUsed = whereUsed
-            };
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, BuilderFormulaSource, whereUsed);
         }
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<string> value)
         {
-            return Meta(name, symbol, physicalMeaning, value, "HydraulicsSection");
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, BuilderFormulaSource, "HydraulicsSection");
         }
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<string> value, string whereUsed)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = value.Unit,
-                Source = value.Source,
-                SourceDetail = value.SourceDetail,
-                Formula = value.Formula ?? value.FormulaStatus,
-                FormulaSource = "HydraulicsSectionBuilder",
-                WhereCalculated = value.SourceDetail,
-                WhereUsed = whereUsed
-            };
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, BuilderFormulaSource, whereUsed);
         }
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, int value, string whereUsed)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = "-",
-                Source = ReportValueSource.Project,
-                SourceDetail = "CircuitProjectData.CircuitNumber",
-                Formula = null,
-                FormulaSource = "HydraulicsSectionBuilder",
-                WhereCalculated = "CircuitProjectData.CircuitNumber",
-                WhereUsed = whereUsed
-            };
+            return ReportMetadataFactory.CreateExplicit(
+                name,
+                symbol,
+                physicalMeaning,
+                "-",
+                ReportValueSource.Project,
+                "CircuitProjectData.CircuitNumber",
+                null,
+                BuilderFormulaSource,
+                "CircuitProjectData.CircuitNumber",
+                whereUsed);
         }
 
         private static ReportParameterMetadata Meta(
@@ -179,30 +156,22 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
             string formula,
             string whereUsed)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = unit,
-                Source = source,
-                SourceDetail = sourceDetail,
-                Formula = formula,
-                FormulaSource = "HydraulicsSectionBuilder",
-                WhereCalculated = sourceDetail,
-                WhereUsed = whereUsed
-            };
+            return ReportMetadataFactory.CreateExplicit(
+                name,
+                symbol,
+                physicalMeaning,
+                unit,
+                source,
+                sourceDetail,
+                formula,
+                BuilderFormulaSource,
+                sourceDetail,
+                whereUsed);
         }
 
         private static ReportFormula Formula(string symbol, string expression, string sourcePath, string section)
         {
-            return new ReportFormula
-            {
-                Symbol = symbol,
-                Expression = expression,
-                SourcePath = sourcePath,
-                Section = section
-            };
+            return ReportMetadataFactory.CreateFormula(symbol, expression, sourcePath, section);
         }
     }
 }

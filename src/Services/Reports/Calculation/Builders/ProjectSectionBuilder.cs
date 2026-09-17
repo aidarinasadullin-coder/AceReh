@@ -41,19 +41,17 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
             string whereCalculated,
             string whereUsed)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = unit,
-                Source = source,
-                SourceDetail = sourceDetail,
-                Formula = formula,
-                FormulaSource = formula == null ? string.Empty : "ProjectSectionBuilder",
-                WhereCalculated = whereCalculated,
-                WhereUsed = whereUsed
-            };
+            return ReportMetadataFactory.CreateExplicit(
+                name,
+                symbol,
+                physicalMeaning,
+                unit,
+                source,
+                sourceDetail,
+                formula,
+                formula == null ? string.Empty : "ProjectSectionBuilder",
+                whereCalculated,
+                whereUsed);
         }
     }
 }

@@ -89,47 +89,17 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<double> value, string? formula = null)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = value.Unit,
-                Source = value.Source,
-                SourceDetail = value.SourceDetail,
-                Formula = formula ?? value.Formula ?? value.FormulaStatus,
-                FormulaSource = "ClimateSectionBuilder",
-                WhereCalculated = value.SourceDetail,
-                WhereUsed = "ClimateSection"
-            };
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, "ClimateSectionBuilder", "ClimateSection", formula);
         }
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<string> value, string? formula = null)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = value.Unit,
-                Source = value.Source,
-                SourceDetail = value.SourceDetail,
-                Formula = formula ?? value.Formula ?? value.FormulaStatus,
-                FormulaSource = "ClimateSectionBuilder",
-                WhereCalculated = value.SourceDetail,
-                WhereUsed = "ClimateSection"
-            };
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, "ClimateSectionBuilder", "ClimateSection", formula);
         }
 
         private static ReportFormula Formula(string symbol, string expression, string sourcePath, string section)
         {
-            return new ReportFormula
-            {
-                Symbol = symbol,
-                Expression = expression,
-                SourcePath = sourcePath,
-                Section = section
-            };
+            return ReportMetadataFactory.CreateFormula(symbol, expression, sourcePath, section);
         }
     }
 }

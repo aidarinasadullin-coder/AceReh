@@ -394,19 +394,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<double> value)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = value.Unit,
-                Source = value.Source,
-                SourceDetail = value.SourceDetail,
-                Formula = value.Formula ?? value.FormulaStatus,
-                FormulaSource = "ThermalSectionBuilder",
-                WhereCalculated = value.SourceDetail,
-                WhereUsed = "ThermalSection"
-            };
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, "ThermalSectionBuilder", "ThermalSection");
         }
 
         private static ReportParameterMetadata Meta(
@@ -419,30 +407,22 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
             string formulaSource,
             string whereUsed)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = unit,
-                Source = ReportValueSource.Calculated,
-                SourceDetail = whereCalculated,
-                Formula = formula,
-                FormulaSource = formulaSource,
-                WhereCalculated = whereCalculated,
-                WhereUsed = whereUsed
-            };
+            return ReportMetadataFactory.CreateExplicit(
+                name,
+                symbol,
+                physicalMeaning,
+                unit,
+                ReportValueSource.Calculated,
+                whereCalculated,
+                formula,
+                formulaSource,
+                whereCalculated,
+                whereUsed);
         }
 
         private static ReportFormula Formula(string symbol, string expression, string sourcePath, string section)
         {
-            return new ReportFormula
-            {
-                Symbol = symbol,
-                Expression = expression,
-                SourcePath = sourcePath,
-                Section = section
-            };
+            return ReportMetadataFactory.CreateFormula(symbol, expression, sourcePath, section);
         }
     }
 }

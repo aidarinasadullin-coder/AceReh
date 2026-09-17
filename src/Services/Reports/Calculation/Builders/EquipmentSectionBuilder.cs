@@ -112,64 +112,42 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, ReportValue<double> value)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = value.Unit,
-                Source = value.Source,
-                SourceDetail = value.SourceDetail,
-                Formula = value.Formula ?? value.FormulaStatus,
-                FormulaSource = "EquipmentSectionBuilder",
-                WhereCalculated = value.SourceDetail,
-                WhereUsed = "EquipmentSection"
-            };
+            return ReportMetadataFactory.Create(name, symbol, physicalMeaning, value, "EquipmentSectionBuilder", "EquipmentSection");
         }
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, int value)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = "шт",
-                Source = ReportValueSource.Calculated,
-                SourceDetail = "CollectorSummaryProjectData.CircuitCount",
-                Formula = null,
-                FormulaSource = "EquipmentSectionBuilder",
-                WhereCalculated = "CollectorSummaryProjectData.CircuitCount",
-                WhereUsed = "EquipmentSection.CollectorSpecifications"
-            };
+            return ReportMetadataFactory.CreateExplicit(
+                name,
+                symbol,
+                physicalMeaning,
+                "шт",
+                ReportValueSource.Calculated,
+                "CollectorSummaryProjectData.CircuitCount",
+                null,
+                "EquipmentSectionBuilder",
+                "CollectorSummaryProjectData.CircuitCount",
+                "EquipmentSection.CollectorSpecifications");
         }
 
         private static ReportParameterMetadata Meta(string name, string symbol, string physicalMeaning, string value, string whereUsed)
         {
-            return new ReportParameterMetadata
-            {
-                Name = name,
-                Symbol = symbol,
-                PhysicalMeaning = physicalMeaning,
-                Unit = "-",
-                Source = ReportValueSource.Calculated,
-                SourceDetail = "CollectorSummaryProjectData.CollectorType",
-                Formula = null,
-                FormulaSource = "EquipmentSectionBuilder",
-                WhereCalculated = "CollectorSummaryProjectData.CollectorType",
-                WhereUsed = whereUsed
-            };
+            return ReportMetadataFactory.CreateExplicit(
+                name,
+                symbol,
+                physicalMeaning,
+                "-",
+                ReportValueSource.Calculated,
+                "CollectorSummaryProjectData.CollectorType",
+                null,
+                "EquipmentSectionBuilder",
+                "CollectorSummaryProjectData.CollectorType",
+                whereUsed);
         }
 
         private static ReportFormula Formula(string symbol, string expression, string sourcePath, string section)
         {
-            return new ReportFormula
-            {
-                Symbol = symbol,
-                Expression = expression,
-                SourcePath = sourcePath,
-                Section = section
-            };
+            return ReportMetadataFactory.CreateFormula(symbol, expression, sourcePath, section);
         }
     }
 }
