@@ -6,6 +6,7 @@ using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Core;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SnowMeltingCalculator.Tests.Climate
@@ -29,6 +30,81 @@ namespace SnowMeltingCalculator.Tests.Climate
             _projectSession = new ProjectSession(_climateData, new CalculationContext());
             _viewModel = new ClimateViewModel(_mockService, _climateData, new ClimateValidator(), _projectSession);
         }
+
+        #region Project Identity Tests (ADR-015, план 2026-09-17)
+
+        [Test]
+        public void ProjectNumber_Setter_WritesSessionAndMarksDirty()
+        {
+            _projectSession.MarkClean();
+
+            _viewModel.ProjectNumber = "2026-014";
+
+            Assert.That(_projectSession.ProjectNumber, Is.EqualTo("2026-014"),
+                "локальных копий нет — значение попадает в сессию (один владелец)");
+            Assert.That(_projectSession.IsDirty, Is.True,
+                "пользовательская правка identity помечает проект dirty (WI-5, ADR-015)");
+        }
+
+        [Test]
+        public void ProjectObject_Setter_WritesSessionAndMarksDirty()
+        {
+            _projectSession.MarkClean();
+
+            _viewModel.ProjectObject = "Парковка у ТЦ, Москва";
+
+            Assert.That(_projectSession.ProjectObject, Is.EqualTo("Парковка у ТЦ, Москва"));
+            Assert.That(_projectSession.IsDirty, Is.True);
+        }
+
+        [Test]
+        public void ProjectNumber_Setter_SameValue_NoDirtyNoEvent()
+        {
+            _viewModel.ProjectNumber = "2026-014";
+            _projectSession.MarkClean();
+
+            var notifications = new List<string>();
+            _viewModel.PropertyChanged += (_, e) => notifications.Add(e.PropertyName ?? string.Empty);
+
+            _viewModel.ProjectNumber = "2026-014"; // equality-выход
+
+            Assert.That(_projectSession.IsDirty, Is.False,
+                "no-op присваивание не помечает проект dirty");
+            Assert.That(notifications, Does.Not.Contain(nameof(ClimateViewModel.ProjectNumber)),
+                "нотификация один канал — репост от сессии; no-op ничего не шлёт");
+        }
+
+        [Test]
+        public void ProjectNumber_SessionChangedExternally_ViewModelReposts()
+        {
+            var viewModelNotifications = new List<string>();
+            _viewModel.PropertyChanged += (_, e) => viewModelNotifications.Add(e.PropertyName ?? string.Empty);
+
+            // Загрузка .smc: identity пишут сеттеры ResultsViewModel под
+            // guard'ом загрузки; сессия публикует PropertyChanged — карточка
+            // обязана обновиться без локального сеттера.
+            _projectSession.ProjectNumber = "2026-099";
+
+            Assert.That(_viewModel.ProjectNumber, Is.EqualTo("2026-099"),
+                "геттер всегда читает сессию — pin «одно значение — один владелец»");
+            Assert.That(viewModelNotifications, Contains.Item(nameof(ClimateViewModel.ProjectNumber)),
+                "событие сессии репостится в VM (карточка живёт при загрузке .smc)");
+        }
+
+        [Test]
+        public void ResetClimate_ProjectIdentity_Untouched()
+        {
+            _viewModel.ProjectNumber = "2026-014";
+            _viewModel.ProjectObject = "Объект";
+
+            _viewModel.ResetToDefaultsCommand.Execute(null);
+
+            Assert.That(_viewModel.ProjectNumber, Is.EqualTo("2026-014"),
+                "климатический сброс не трогает session identity");
+            Assert.That(_viewModel.ProjectObject, Is.EqualTo("Объект"));
+        }
+
+        #endregion
 
         #region SelectCity Tests
 

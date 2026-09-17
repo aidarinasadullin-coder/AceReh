@@ -88,7 +88,12 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             // slice-`Changed` rows gain one more handler each — the
             // UndoRedoService memento journal listens on all four slices
             // (2/2/2/4 → 3/3/3/5). No IProjectSession.PropertyChanged
-            // subscription exists (project card is out of scope in v1).
+            // subscription existed at that point (project card was out of
+            // scope in v1).
+            // Fourth amendment (2026-09-17, ADR-015 project card): the
+            // Session.PropertyChanged row 1 → 3 — ResultsViewModel (live
+            // shell header) and ClimateViewModel («Данные проекта» card)
+            // now repost identity changes from the session.
             var expected = new (object publisher, string field, int census, int probes, string because)[]
             {
                 (_graph.Context, nameof(CalculationContext.ContextChanged), 1, 1, "RE-P5-HYD-001: the hydraulics coordinator holds the only production ContextChanged subscription"),
@@ -98,7 +103,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 (_graph.Session.ConstructionState, "Changed", 3, 1, "ConstructionViewModel adapter + ResultsViewModel readiness + UndoRedoService journal (ADR-014)"),
                 (_graph.Session.ThermalState, "Changed", 3, 1, "CalculationStateService legacy translation + ResultsViewModel readiness + UndoRedoService journal (ADR-014)"),
                 (_graph.Session.HydraulicsState, "Changed", 5, 1, "CalculationStateService translation + CircuitsViewModel ProjectLoad mirror + ResultsViewModel readiness + MainViewModel stepper refresh (ADR-012) + UndoRedoService journal (ADR-014)"),
-                (_graph.Session, nameof(INotifyPropertyChanged.PropertyChanged), 1, 1, "MainViewModel window-title watcher"),
+                (_graph.Session, nameof(INotifyPropertyChanged.PropertyChanged), 3, 1, "MainViewModel window-title watcher + ResultsViewModel live header + ClimateViewModel project card (ADR-015)"),
                 (_graph.Coordinator, nameof(ThermalStateCoordinator.Completion), 1, 1, "ThermalViewModel adapter"),
                 (_graph.Coordinator, nameof(ThermalStateCoordinator.UpstreamObserved), 1, 1, "ThermalViewModel refresh signal"),
                 (_graph.ClimateData, "DataChanged", 1, 0, "ThermalStateCoordinator upstream (RE-P4-001)"),

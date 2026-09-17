@@ -66,7 +66,10 @@ namespace SnowMeltingCalculator.Tests.Climate
                 Assert.That(climateViewModelSource, Does.Contain("_climateState.Changed += OnClimateStateChanged;"));
                 Assert.That(climateViewModelSource, Does.Not.Contain("_markDirtyService"));
                 Assert.That(climateViewModelSource, Does.Not.Contain("_calculationContext"));
-                Assert.That(climateViewModelSource, Does.Not.Contain(".MarkDirty()"));
+                // ADR-015 (2026-09-17): session identity MarkDirty in
+                // ClimateViewModel is sanctioned (WI-5); marking the climate
+                // slice itself outside canonical origins stays forbidden.
+                Assert.That(climateViewModelSource, Does.Not.Contain("_climateState.MarkDirty()"));
                 Assert.That(climateViewModelSource, Does.Not.Contain(".UpdateClimate("));
                 Assert.That(ClimateViewModelMutationBoundaries.Where(boundary => !climateViewModelSource.Contains(boundary, StringComparison.Ordinal)),
                     Is.Empty, "A legacy ClimateViewModel mutation boundary disappeared from the inventory.");

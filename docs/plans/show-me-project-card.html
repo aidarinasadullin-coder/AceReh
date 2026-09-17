@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me: карточка «Данные проекта» на вкладке «Климат»</title>
+<style>
+  /* Токены брендбука РЕХАУ-2026 (как в токенах приложения) */
+  :root {
+    --red: #E50040;          /* Активный красный */
+    --teal: #4FC7B5;         /* Бирюза */
+    --ink: #1D1D1B;          /* Ink */
+    --gray1: #4E4E4E;
+    --gray2: #818181;
+    --gray3: #B0B0B0;
+    --gray4: #D9D9D9;
+    --bg: #F6F6F6;
+    --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 28px 32px 60px;
+  }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  .sub { color: var(--gray2); font-size: 13px; margin-top: 6px; }
+  .plan-ref {
+    margin-top: 10px; font-size: 12.5px; color: var(--gray1);
+  }
+  .plan-ref code {
+    background: #EDEDED; border-radius: 3px; padding: 1px 6px;
+    font-size: 11.5px;
+  }
+  .mark {
+    display: inline-block; width: 10px; height: 10px;
+    background: var(--red); margin-right: 8px;
+  }
+  h2 {
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; margin: 34px 0 12px;
+  }
+  h2 .mark { width: 9px; height: 9px; }
+
+  /* ── Макет вкладки ── */
+  .tab {
+    max-width: 960px; background: var(--card);
+    border: 1px solid var(--gray4); border-radius: 8px;
+    padding: 22px 26px 26px; margin-top: 12px;
+  }
+  .pagehead .t { font-size: 21px; font-weight: 700; }
+  .pagehead .s { color: var(--gray2); font-size: 12.5px; margin-top: 2px; }
+  .card {
+    border: 1px solid var(--gray4); border-radius: 8px;
+    padding: 18px 20px; margin-top: 16px; background: var(--card);
+  }
+  .card .title { font-size: 15px; font-weight: 700; }
+  .card .hint { color: var(--gray2); font-size: 11.5px; margin-top: 3px; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  .field label {
+    display: block; font-size: 11px; font-weight: 600;
+    color: var(--gray1); margin-bottom: 5px;
+  }
+  .field .box {
+    height: 34px; border: 1px solid var(--gray3); border-radius: 4px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 13px; background: #fff; position: relative;
+  }
+  .field .box.filled { border-color: var(--ink); color: var(--ink); font-weight: 600; }
+  .field .box .ph { color: var(--gray3); font-weight: 400; }
+  .field .unit {
+    position: absolute; right: 10px; color: var(--gray3); font-size: 11px;
+  }
+  .preview {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 12px; font-size: 12.5px; color: var(--gray1);
+    background: #FAFAFA; border: 1px solid var(--gray4);
+    border-radius: 4px; padding: 7px 12px;
+  }
+  .preview b { color: var(--ink); }
+  .arrow { color: var(--red); font-weight: 700; }
+
+  /* ── Поток данных ── */
+  .flow {
+    display: flex; align-items: stretch; gap: 0; margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .node {
+    border: 1.5px solid var(--ink); border-radius: 6px;
+    padding: 10px 14px; min-width: 170px; background: #fff;
+  }
+  .node.owner { border-color: var(--red); border-width: 2px; }
+  .node .nt { font-size: 12px; font-weight: 700; }
+  .node .nd { font-size: 10.5px; color: var(--gray2); margin-top: 3px; line-height: 1.35; }
+  .node.owner .nt { color: var(--red); }
+  .edge {
+    align-self: center; padding: 0 10px; color: var(--gray1);
+    font-size: 12px; white-space: nowrap;
+  }
+  .edge b { color: var(--ink); }
+  .consumers { display: grid; grid-template-columns: repeat(2, minmax(230px, 1fr)); gap: 8px; margin-top: 12px; max-width: 760px; }
+  .consumer {
+    border: 1px solid var(--gray4); border-left: 3px solid var(--teal);
+    background: #fff; border-radius: 5px; padding: 8px 12px;
+    font-size: 11.5px; color: var(--gray1);
+  }
+  .consumer b { color: var(--ink); display: block; font-size: 12px; margin-bottom: 2px; }
+  .note {
+    margin-top: 14px; font-size: 12px; color: var(--gray1);
+    background: #EAF7F4; border-radius: 5px; padding: 10px 14px;
+    max-width: 760px; line-height: 1.45;
+  }
+  .note b { color: var(--ink); }
+  .warn {
+    background: #FDEEEA;
+  }
+  table { border-collapse: collapse; margin-top: 10px; font-size: 12px; width: 100%; max-width: 860px; }
+  th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray2); }
+  th, td { border-bottom: 1px solid var(--gray4); padding: 7px 10px 7px 0; vertical-align: top; }
+  td:first-child { font-weight: 700; white-space: nowrap; }
+  .mono { font-family: Consolas, monospace; font-size: 11px; background: #F0F0F0; padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<h1><span class="mark"></span>Карточка «Данные проекта» на вкладке «Климат»</h1>
+<div class="sub">Возврат редактирования «Номер проекта / Объект», удалённого с Ф6 · решение владельца 2026-09-17</div>
+<div class="plan-ref">План: <code>docs/plans/2026-09-17-project-card-climate-plan.md</code> ·
+артефакт регенерируется из плана и не правится вручную (урок №27)</div>
+
+<h2><span class="mark"></span>1 · Макет вкладки «Климатические параметры»</h2>
+<div class="tab">
+  <div class="pagehead">
+    <div class="t">Климатические параметры</div>
+    <div class="s">Шаг 1 из 5 — исходные данные для всех расчётов</div>
+  </div>
+
+  <!-- НОВАЯ карточка -->
+  <div class="card" style="border-left: 3px solid var(--red);">
+    <div class="title">Данные проекта</div>
+    <div class="hint">Опционально · попадают в шапку приложения, пояснительную записку и отчёты</div>
+    <div class="fields">
+      <div class="field">
+        <label>НОМЕР ПРОЕКТА</label>
+        <div class="box filled">2026-014</div>
+      </div>
+      <div class="field">
+        <label>ОБЪЕКТ</label>
+        <div class="box filled">Парковка у ТЦ, Москва</div>
+      </div>
+    </div>
+    <div class="preview">
+      Шапка приложения:&nbsp; <b>2026-014</b> <span class="arrow">·</span> <b>Парковка у ТЦ, Москва</b>
+    </div>
+  </div>
+
+  <!-- Существующая карточка -->
+  <div class="card" style="opacity: 0.72;">
+    <div class="title">Город и климатические параметры</div>
+    <div class="hint">Существующая карточка — без изменений</div>
+    <div class="fields">
+      <div class="field">
+        <label>РАСЧЁТНАЯ ТЕМПЕРАТУРА</label>
+        <div class="box">−10,0 <span class="unit">°C</span></div>
+      </div>
+      <div class="field">
+        <label>СКОРОСТЬ ВЕТРА</label>
+        <div class="box">2,0 <span class="unit">м/с</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2><span class="mark"></span>2 · Поток данных: владелец один — ProjectSession</h2>
+<div class="flow">
+  <div class="node">
+    <div class="nt">Карточка «Данные проекта»</div>
+    <div class="nd">ClimateView → ClimateViewModel,<br>pass-through, equality-выход;<br>нотификация — один канал:<br>репост PropertyChanged сессии</div>
+  </div>
+  <div class="edge">setter → <b>запись</b> + <b>MarkDirty</b></div>
+  <div class="node owner">
+    <div class="nt">ProjectSession</div>
+    <div class="nd">ProjectNumber / ProjectObject —<br>единственный канонический владелец,<br>сохранение в .smc</div>
+  </div>
+  <div class="edge"><b>PropertyChanged</b> → репост</div>
+  <div class="node">
+    <div class="nt">Шапка приложения</div>
+    <div class="nd">MainWindow биндится к<br>ResultsViewModel (read-only)</div>
+  </div>
+</div>
+
+<div class="consumers">
+  <div class="consumer"><b>Пояснительная записка (PDF/MD)</b>Титул «Номер проекта / Объект», шапка страницы — вместо прочерков</div>
+  <div class="consumer"><b>Отчёт «Результаты расчёта» (PDF)</b>Строка «Проект · Объект · Дата» на стр. 1</div>
+  <div class="consumer"><b>Excel-спецификация</b>Шапка листа B2/B3</div>
+  <div class="consumer"><b>Имя файла записки</b>«Пояснительная_записка_рабочий_2026-014_20260917.pdf» — без двойного подчёркивания</div>
+</div>
+
+<div class="note"><b>Загрузка .smc:</b> identity пишут pass-through-сеттеры <b>ResultsViewModel</b> (BeginProjectRestore / LoadProjectDataAsync, под guard'ом загрузки) — сессия шлёт PropertyChanged, обе VM репостят уведомления, карточка и шапка показывают значения из файла (находка ревью №2: writer — не ProjectLoadOrchestrator). Локальных копий в VM нет — геттер всегда читает сессию (одно значение — один владелец).</div>
+
+<div class="note warn"><b>Цензус подписок (находка ревью №1, P0):</b> ReactiveSubscriptionLifecycleTests пинит <b>Session.PropertyChanged = 1</b> production-обработчик (MainViewModel). План добавляет +2 (ResultsViewModel, ClimateViewModel) → ожидание цензуса правится 1 → 3; ADR-015 явно supersede'ит формулировку ADR-014 п.9 «подписки нет».</div>
+
+<h2><span class="mark"></span>3 · Что санкционируется (ADR-015)</h2>
+<table>
+  <tr><th>Правка</th><th>Суть</th></tr>
+  <tr>
+    <td>WI-5 allowlist</td>
+    <td><span class="mono">ArchitectureRulesTests</span>: <span class="mono">ClimateViewModel.cs</span> добавляется в санкционированные вызовы <span class="mono">MarkDirty()</span> — через ADR-запись, как требует AGENTS.md</td>
+  </tr>
+  <tr>
+    <td>State ownership</td>
+    <td>Без изменений: владелец прежний — <span class="mono">ProjectSession</span>; R1–R6 не задеты, wire .smc прежний</td>
+  </tr>
+  <tr>
+    <td>Undo</td>
+    <td>Правки номера/объекта остаются вне отмены v1 (решение владельца V2, прецедент P1-1). Осознанное следствие (ревью №3): SyncDirty после undo/redo гасит dirty-флаг, поставленный правкой identity, — принимается и документируется в ADR-015</td>
+  </tr>
+</table>
+
+<div class="note warn" style="margin-top:20px;"><b>Границы:</b> legacy internal-ctor ClimateViewModel (тестовый шов) сессии не имеет — свойства возвращают пустую строку, setter не пишет; в DI используется только public ctor. Климатический сброс и <span class="mono">ResetToCityData</span> поля проекта не трогают.</div>
+
+</body>
+</html>

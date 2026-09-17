@@ -37,6 +37,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Заголовок страницы -->
@@ -47,8 +48,48 @@
                            Margin="0,2,0,0"/>
             </StackPanel>
 
+            <!-- Карточка «Данные проекта» (ADR-015, план 2026-09-17):
+                 возврат редактирования номера/объекта, удалённого с Ф6.
+                 Опциональные поля, на расчёт не влияют; биндинг LostFocus —
+                 без эха на каждый символ (ревью R-2026-09-17-01, №6).
+                 Владелец значений — ProjectSession, pass-through ClimateVM. -->
+            <Border Grid.Row="1" Style="{StaticResource FormCard.Root}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Данные проекта"
+                               Style="{StaticResource Card.Title}" Margin="0,0,0,2"/>
+                    <TextBlock Text="Опционально · попадают в шапку приложения, пояснительную записку и отчёты"
+                               Style="{StaticResource FormCard.Hint}"/>
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <TextBlock Text="Номер проекта" Style="{StaticResource FormCard.Label}"/>
+                            <TextBox Style="{StaticResource TextBox.Default}"
+                                     MaxLength="100"
+                                     Text="{Binding ProjectNumber, UpdateSourceTrigger=LostFocus}"
+                                     ToolTip="Например, 2026-014"
+                                     AutomationProperties.AutomationId="ClimateProjectNumber"
+                                     behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                                     behaviors:TextBoxBehavior.RestoreOnEscape="True"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                            <TextBlock Text="Объект" Style="{StaticResource FormCard.Label}"/>
+                            <TextBox Style="{StaticResource TextBox.Default}"
+                                     MaxLength="200"
+                                     Text="{Binding ProjectObject, UpdateSourceTrigger=LostFocus}"
+                                     ToolTip="Например, парковка у ТЦ, Москва"
+                                     AutomationProperties.AutomationId="ClimateProjectObject"
+                                     behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                                     behaviors:TextBoxBehavior.RestoreOnEscape="True"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <!-- Форм-карточка «Город и климатические параметры» (Ф5.2) -->
-            <Border Grid.Row="1" Style="{StaticResource FormCard.Root}">
+            <Border Grid.Row="2" Style="{StaticResource FormCard.Root}">
                 <StackPanel>
                     <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>

@@ -63,6 +63,25 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         }
 
         [Test]
+        public void Session_IdentityChangedExternally_ViewModelRepostsToHeader()
+        {
+            // ADR-015 (план 2026-09-17): шапка биндится к ProjectNumber/
+            // ProjectObject; правка с карточки «Климат» и загрузка .smc идут
+            // через сессию — VM обязана репостить события в UI.
+            var notifications = new List<string>();
+            _viewModel.PropertyChanged += (_, e) => notifications.Add(e.PropertyName ?? string.Empty);
+
+            _projectStateService.Session.ProjectNumber = "2026-014";
+            _projectStateService.Session.ProjectObject = "Дворовая территория";
+
+            Assert.That(notifications, Contains.Item(nameof(ResultsViewModel.ProjectNumber)),
+                "событие сессии репостится — шапка обновляется без навигации");
+            Assert.That(notifications, Contains.Item(nameof(ResultsViewModel.ProjectObject)));
+            Assert.That(_viewModel.ProjectNumber, Is.EqualTo("2026-014"));
+            Assert.That(_viewModel.ProjectObject, Is.EqualTo("Дворовая территория"));
+        }
+
+        [Test]
         public async Task OpenProject_LeavesGlobalCatalogReadOnly_AndCarriesNoCatalogs()
         {
             // Given: a project on the existing restore boundary and a wired

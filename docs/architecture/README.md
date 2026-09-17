@@ -654,3 +654,44 @@ R1 не задет.
 R1–R6 проверены обновлённым `ArchitectureRulesTests`;
 `MutationBoundaryConsolidationTests` дополнен undo-сценариями (новые
 origins — lifecycle-подобные, 0 dirty).
+
+### ADR-015 — 2026-09-17 — Возврат редактирования session identity («Номер проекта / Объект»): карточка на вкладке «Климат», ClimateViewModel — санкционированный writer
+
+Решение владельца (2026-09-17, диалог и подтверждение «подтверждаю / делай»;
+план `docs/plans/2026-09-17-project-card-climate-plan.md`, независимое ревью
+R-2026-09-17-01 — APPROVE-WITH-EDITS, 6 находок приняты): редактирование
+номера проекта и объекта, удалённое с Ф6, возвращается карточкой «Данные
+проекта» на вкладке «Климат» (шаг 1 из 5). Поля опциональные, на расчёт не
+влияют.
+
+Санкционирование (ADR-003: изменение списка = изменение правила):
+
+1. **State ownership не меняется:** владелец прежний —
+   `ProjectSession.ProjectNumber/ProjectObject`; локальных копий в
+   ViewModel нет (геттер всегда читает сессию). `.smc` не расширяется
+   (identity уже в wire: `ProjectPersistenceMapper`, `ProjectSnapshot`).
+   R1–R6 не задеты; R3-сканер чист (identity не входит в vmSlices).
+2. **WI-5 (MarkDirty) allowlist дополнен `ClimateViewModel.cs`:** pass-through
+   свойства `ProjectNumber/ProjectObject` вызывают `MarkDirty()` при
+   пользовательской правке (вне `IsLoadProjectInProgress`); equality-выход —
+   no-op без dirty и без нотификации. Writer при загрузке `.smc` прежний —
+   pass-through-сеттеры `ResultsViewModel` (`BeginProjectRestore`).
+3. **Подписки на `IProjectSession.PropertyChanged`: настоящей записью
+   supersede'ится формулировка ADR-014 п.9 «подписки на
+   IProjectSession.PropertyChanged нет».** После плана их три:
+   MainViewModel (window-title watcher), `ResultsViewModel` (живая шапка —
+   репост ProjectNumber/ProjectObject) и `ClimateViewModel` (репост в
+   карточку). Цензус `ReactiveSubscriptionLifecycleTests`
+   (`HandlerCounts_MatchPhase10Census_OnProductionShapedGraph`) правлен
+   1 → 3 с комментарием-амендантом (четвёртая поправка цензуса).
+4. **Undo:** правки identity остаются вне дневника (решение владельца v1,
+   прецедент P1-1; подтверждено 2026-09-17). Осознанное следствие
+   (находка ревью №3): `UndoRedoService.SyncDirty` после undo/redo на точке
+   чистоты вызывает `MarkClean()` и гасит dirty-флаг, поставленный правкой
+   identity; identity при этом не откатывается. Изменение `SyncDirty` вне
+   объёма; при возврате редактирования в undo-охват — пересмотр.
+
+Проверка: `ArchitectureRulesTests.WI-5` (новый allowlist), цензус
+`ReactiveSubscriptionLifecycleTests`, новые тесты
+`ClimateViewModelTests`/Results — сессия→VM-репост, equality-выход;
+прогон полный зелёный. Чек ревью: `docs/reviews/2026-09-17-project-card-plan-review.md`.

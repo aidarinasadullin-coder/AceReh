@@ -173,7 +173,10 @@ namespace SnowMeltingCalculator.Tests.Architecture
                 "ProjectSession.cs", "ProjectSessionClimateState.cs", "ProjectSessionConstructionState.cs",
                 "ProjectSessionThermalState.cs", "ProjectSessionHydraulicsState.cs",
                 "ThermalStateCoordinator.cs", "HydraulicsStateCoordinator.cs", "ResultsViewModel.cs",
-                "UndoRedoService.cs");
+                "UndoRedoService.cs",
+                // ADR-015 (план 2026-09-17): карточка «Данные проекта» на
+                // вкладке «Климат» — pass-through session identity.
+                "ClimateViewModel.cs");
             var clean = CallSites(files, @"\.MarkClean\(\)", false);
             AssertSanctioned("R2/WI-6 (MarkClean)", clean,
                 "ProjectSession.cs", "ResultsViewModel.cs", "MainViewModel.cs", "UndoRedoService.cs");

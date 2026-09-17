@@ -22,6 +22,7 @@ namespace SnowMeltingCalculator.ViewModels.Climate
         private readonly IValidator<IClimateData> _climateValidator;
         private readonly ISearchHistoryService? _historyService;
         private readonly IProjectSessionClimateState _climateState;
+        private readonly IProjectSession? _projectSession;
         private CityInfo? _originalCityData;
         private CancellationTokenSource? _searchCts;
         private bool _isMirroringClimateState;
@@ -31,6 +32,47 @@ namespace SnowMeltingCalculator.ViewModels.Climate
 
 
         #region Observable Properties
+
+        // ============================================
+        // Блок -1 - Данные проекта (session identity)
+        // ============================================
+
+        /// <summary>
+        /// Номер проекта (опционально, попадает в шапку, ПЗ и отчёты)
+        /// </summary>
+        /// <remarks>
+        /// Канонический владелец — <see cref="IProjectSession"/>; свойство —
+        /// pass-through без локальных копий (одно значение — один владелец).
+        /// Санкционировано ADR-015 (список WI-5); карточка — вкладка «Климат»,
+        /// план docs/plans/2026-09-17-project-card-climate-plan.md.
+        /// </remarks>
+        public string ProjectNumber
+        {
+            get => _projectSession?.ProjectNumber ?? string.Empty;
+            set
+            {
+                if (_projectSession == null || _projectSession.ProjectNumber == value) return;
+                _projectSession.ProjectNumber = value;
+                if (_projectSession.IsLoadProjectInProgress) return;
+                _projectSession.MarkDirty();
+            }
+        }
+
+        /// <summary>
+        /// Наименование объекта (опционально, попадает в шапку, ПЗ и отчёты)
+        /// </summary>
+        /// <remarks>Канонический владелец и санкционирование — как у <see cref="ProjectNumber"/>.</remarks>
+        public string ProjectObject
+        {
+            get => _projectSession?.ProjectObject ?? string.Empty;
+            set
+            {
+                if (_projectSession == null || _projectSession.ProjectObject == value) return;
+                _projectSession.ProjectObject = value;
+                if (_projectSession.IsLoadProjectInProgress) return;
+                _projectSession.MarkDirty();
+            }
+        }
 
         /// <summary>
         /// Отфильтрованный список городов для отображения (старый ComboBox)
@@ -225,6 +267,29 @@ namespace SnowMeltingCalculator.ViewModels.Climate
             ISearchHistoryService? historyService = null)
             : this(climateService, climateData, climateValidator, projectSession?.ClimateState!, historyService)
         {
+            // При null-сессии первым срабатывает guard internal ctor
+            // (ArgumentNullException по climateState) — до этой строки дело
+            // не доходит; валидация здесь для диагностики прямого вызова.
+            _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
+
+            // Живость карточки «Данные проекта» при загрузке .smc: identity
+            // пишут pass-through-сеттеры ResultsViewModel (BeginProjectRestore),
+            // сессия публикует PropertyChanged — репостим в UI. Подписка без
+            // отписки — VM и сессия живут всё время приложения (паттерн
+            // ResultsViewModel ctor). Цензус подписок сессии — ADR-015.
+            _projectSession.PropertyChanged += OnSessionPropertyChanged;
+        }
+
+        private void OnSessionPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IProjectSession.ProjectNumber))
+            {
+                OnPropertyChanged(nameof(ProjectNumber));
+            }
+            else if (e.PropertyName == nameof(IProjectSession.ProjectObject))
+            {
+                OnPropertyChanged(nameof(ProjectObject));
+            }
         }
 
         internal ClimateViewModel(

@@ -586,6 +586,11 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _projectSession.ThermalState.Changed += OnCanonicalStateChanged;
             _projectSession.HydraulicsState.Changed += OnCanonicalStateChanged;
 
+            // Живая шапка (ADR-015): номер/объект теперь редактируются на
+            // вкладке «Климат» и пишутся при загрузке .smc — репостим события
+            // сессии в UI (MainWindow биндится к ProjectNumber/ProjectObject).
+            _projectSession.PropertyChanged += OnSessionPropertyChanged;
+
             // Проверяем готовность данных
             CheckDataReadiness();
         }
@@ -1465,6 +1470,20 @@ namespace SnowMeltingCalculator.ViewModels.Results
             }
 
             CheckDataReadiness();
+        }
+
+        /// <summary>Репост identity-полей шапки при изменении сессии извне
+        /// (карточка на вкладке «Климат», загрузка .smc) — ADR-015.</summary>
+        private void OnSessionPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IProjectSession.ProjectNumber))
+            {
+                OnPropertyChanged(nameof(ProjectNumber));
+            }
+            else if (e.PropertyName == nameof(IProjectSession.ProjectObject))
+            {
+                OnPropertyChanged(nameof(ProjectObject));
+            }
         }
 
         private static bool IsUndoRedoOrigin(EventArgs e) => e switch
