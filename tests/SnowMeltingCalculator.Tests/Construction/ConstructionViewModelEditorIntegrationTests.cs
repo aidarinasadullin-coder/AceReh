@@ -414,14 +414,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 _missingMaterialId = materialId;
             }
 
-            public void CalculateThermalResistances(ConstructionModel construction)
-            {
-                foreach (var layer in construction.LayersAbovePipe)
-                    layer.UpdateLambda(construction.GroundwaterLevel);
-                foreach (var layer in construction.Layers)
-                    layer.UpdateLambda(construction.GroundwaterLevel);
-            }
-
             public double CalculateR1(IEnumerable<Layer> layersAbovePipe)
             {
                 return layersAbovePipe.Sum(l => l.CalculatedR);

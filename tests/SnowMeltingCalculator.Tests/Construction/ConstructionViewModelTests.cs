@@ -1290,18 +1290,6 @@ namespace SnowMeltingCalculator.Tests.Construction
         /// </summary>
         public MaterialNotFoundException? ThrowOnCreateFromTemplate { get; set; }
 
-        public void CalculateThermalResistances(ConstructionModel construction)
-        {
-            foreach (var layer in construction.LayersAbovePipe)
-            {
-                layer.UpdateLambda(construction.GroundwaterLevel);
-            }
-            foreach (var layer in construction.Layers)
-            {
-                layer.UpdateLambda(construction.GroundwaterLevel);
-            }
-        }
-
         public double CalculateR1(System.Collections.Generic.IEnumerable<Layer> layersAbovePipe)
         {
             return layersAbovePipe.Sum(l => l.CalculatedR);

@@ -51,7 +51,7 @@ namespace SnowMeltingCalculator.Services.Project
 
         public void CalculateAll(Func<List<CollectorSummary>?> calculation) => RunCalculation(calculation);
 
-        public void ApplyPipeSpacing(int spacing, Action<double> mirror)
+        private void ApplyPipeSpacing(int spacing, Action<double> mirror)
         {
             RunCalculation(_calculateAll!);
             mirror(spacing / 10.0);

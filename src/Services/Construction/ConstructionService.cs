@@ -33,7 +33,7 @@ namespace SnowMeltingCalculator.Services.Construction
         /// <summary>
         /// Рассчитать термические сопротивления для всех слоёв конструкции
         /// </summary>
-        public void CalculateThermalResistances(ConstructionModel construction)
+        private void CalculateThermalResistances(ConstructionModel construction)
         {
             ArgumentNullException.ThrowIfNull(construction, nameof(construction));
 

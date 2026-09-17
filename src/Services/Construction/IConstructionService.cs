@@ -10,12 +10,6 @@ namespace SnowMeltingCalculator.Services.Construction
     public interface IConstructionService
     {
         /// <summary>
-        /// Рассчитать термические сопротивления для всех слоёв конструкции
-        /// </summary>
-        /// <param name="construction">Конструкция</param>
-        void CalculateThermalResistances(ConstructionModel construction);
-
-        /// <summary>
         /// Рассчитать суммарное термическое сопротивление слоёв над трубой (R1)
         /// </summary>
         /// <param name="layersAbovePipe">Слои над трубой</param>
