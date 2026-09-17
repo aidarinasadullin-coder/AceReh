@@ -63,6 +63,40 @@ namespace SnowMeltingCalculator.Tests.Services.Results
         }
 
         [Test]
+        public async Task ExportResultsToPdfAsync_ManyCircuits_FlowOntoAdditionalPages()
+        {
+            // Пин наезда на сноску (2026-09-17): секция 2 построена потоком
+            // секции, а не ячейкой-обёрткой — строка выше страницы MigraDoc'ом
+            // не разбивается, и при 4 коллекторах × 12 контуров контурные
+            // таблицы обязаны перетечь на дополнительные страницы.
+            var service = new PdfExportService();
+            var filePath = Path.Combine(TestContext.CurrentContext.WorkDirectory, $"results-overflow-{Guid.NewGuid():N}.pdf");
+            var data = CreateResultsPdfData();
+            data.Collectors = Enumerable.Range(1, 4)
+                .Select(n => CreateCollector(n, "HKV-D 12", 12, 512.7, 43600, 3720, 34.2, 42.1, fullCircuits: true))
+                .ToList();
+
+            try
+            {
+                var exported = await service.ExportResultsToPdfAsync(filePath, data);
+
+                Assert.That(exported, Is.True, "экспорт должен пройти");
+                var bytes = await File.ReadAllBytesAsync(filePath);
+                using var document = PdfSharp.Pdf.IO.PdfReader.Open(
+                    new MemoryStream(bytes), PdfSharp.Pdf.IO.PdfDocumentOpenMode.InformationOnly);
+                Assert.That(document.PageCount, Is.GreaterThanOrEqualTo(3),
+                    "4 коллектора × 12 контуров не помещаются на стр. 2 — таблицы должны переноситься");
+            }
+            finally
+            {
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+        }
+
+        [Test]
         public async Task ExportResultsToPdfAsync_ImageStreams_HaveValidAdlerTrailers()
         {
             // Подложки корешка — image-потоки; PDFsharp 6.x пишет Flate без
@@ -304,10 +338,12 @@ namespace SnowMeltingCalculator.Tests.Services.Results
             double power,
             double flowRate,
             double operatingPressure,
-            double coldPressure)
+            double coldPressure,
+            bool fullCircuits = false)
         {
             var circuits = new List<CircuitPdfData>();
-            for (var index = 1; index <= Math.Min(circuitCount, 3); index++)
+            var limit = fullCircuits ? circuitCount : Math.Min(circuitCount, 3);
+            for (var index = 1; index <= limit; index++)
             {
                 circuits.Add(new CircuitPdfData
                 {

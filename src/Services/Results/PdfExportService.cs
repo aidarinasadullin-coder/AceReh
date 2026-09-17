@@ -115,16 +115,22 @@ namespace SnowMeltingCalculator.Services.Results
             SetPageBackground(section1, SpinePage.Page1);
             var body1 = AddContentBlock(section1);
             BuildPageOne(body1, data);
-            BuildFooter(section1);
+            BuildFooter(section1, useContentMargins: false);
 
-            // Секция 2+ — «Обоснование и наладка»; Primary-хедер повторяет
-            // подложку на всех продолжениях при переносе таблиц контуров.
+            // Секция 2+ — «Обоснование и наладка». Контент идёт обычным потоком
+            // секции: строка таблицы-обёртки выше страницы MigraDoc'ом не
+            // разбивается (наезд таблиц контуров на сноску, 2026-09-17), а
+            // поток секции переносится сам; заголовки колонок уже помечены
+            // HeadingFormat. Левую зону корешка держит LeftMargin, подложка
+            // в Primary-хедере повторяется на всех продолжениях.
             var section2 = document.AddSection();
-            section2.PageSetup = pageSetup.Clone();
+            var pageSetup2 = pageSetup.Clone();
+            pageSetup2.LeftMargin = Unit.FromPoint(ContentX);
+            pageSetup2.RightMargin = Unit.FromPoint(PageWidth - ContentX - ContentWidth);
+            section2.PageSetup = pageSetup2;
             SetPageBackground(section2, SpinePage.Page2Plus);
-            var body2 = AddContentBlock(section2);
-            BuildPageTwo(body2, data);
-            BuildFooter(section2);
+            BuildPageTwo(section2, data);
+            BuildFooter(section2, useContentMargins: true);
 
             return document;
         }
@@ -141,6 +147,22 @@ namespace SnowMeltingCalculator.Services.Results
             }
 
             var header = section.Headers.Primary;
+            if (page == SpinePage.Page2Plus)
+            {
+                // Секция 2 живёт на контентных полях, а хедер уважает левое
+                // поле — компенсируем его отрицательным отступом, чтобы
+                // подложка начиналась от края листа (проверено рендер-пробой:
+                // LeftIndent=-180 при LeftMargin=180 даёт x=0).
+                var bgParagraph = header.AddParagraph();
+                bgParagraph.Format.LeftIndent = Unit.FromPoint(-ContentX);
+                bgParagraph.Format.SpaceBefore = Unit.FromPoint(0);
+                bgParagraph.Format.SpaceAfter = Unit.FromPoint(0);
+                var bgImage = bgParagraph.AddImage("base64:" + Convert.ToBase64String(spineBytes));
+                bgImage.Width = Unit.FromPoint(PageWidth);
+                bgImage.Height = Unit.FromPoint(PageHeight);
+                return;
+            }
+
             var bgTable = header.AddTable();
             bgTable.AddColumn(Unit.FromPoint(PageWidth));
             var bgCell = bgTable.AddRow().Cells[0];
@@ -162,24 +184,39 @@ namespace SnowMeltingCalculator.Services.Results
             return content;
         }
 
-        private void BuildFooter(Section section)
+        private void BuildFooter(Section section, bool useContentMargins)
         {
             var footer = section.Footers.Primary;
             var t = footer.AddTable();
-            t.AddColumn(Unit.FromPoint(ContentX));
-            t.AddColumn(Unit.FromPoint(ContentWidth));
+            if (useContentMargins)
+            {
+                // Секция на контентных полях: подвал уже начинается от
+                // LeftMargin — одна колонка на всю контентную ширину.
+                t.AddColumn(Unit.FromPoint(ContentWidth));
+            }
+            else
+            {
+                // Секция с нулевыми полями (стр. 1): контентную зону держит
+                // таблица-обёртка.
+                t.AddColumn(Unit.FromPoint(ContentX));
+                t.AddColumn(Unit.FromPoint(ContentWidth));
+            }
             var row = t.AddRow();
             SetZeroPadding(row.Cells[0]);
-            SetZeroPadding(row.Cells[1]);
+            var textCellIndex = useContentMargins ? 0 : 1;
+            if (!useContentMargins)
+            {
+                SetZeroPadding(row.Cells[1]);
+            }
 
-            var left = row.Cells[1].AddParagraph();
+            var left = row.Cells[textCellIndex].AddParagraph();
             left.Format.Font.Name = _fontName;
             left.Format.Font.Size = 7;
             left.Format.Font.Color = Color.Parse(Gray2);
             left.AddFormattedText("© РЕХАУ", TextFormat.Bold);
             left.AddText(" · Калькулятор снеготаяния · Результаты носят рекомендательный характер");
 
-            var right = row.Cells[1].AddParagraph();
+            var right = row.Cells[textCellIndex].AddParagraph();
             right.Format.Alignment = ParagraphAlignment.Right;
             right.Format.Font.Name = _fontName;
             right.Format.Font.Size = 7;
@@ -447,7 +484,7 @@ namespace SnowMeltingCalculator.Services.Results
 
         #region Страница 2 — Обоснование и наладка
 
-        private void BuildPageTwo(Cell host, ResultsPdfData data)
+        private void BuildPageTwo(Section host, ResultsPdfData data)
         {
             var h1 = host.AddParagraph();
             h1.Format.Font.Name = _fontName;
@@ -459,8 +496,8 @@ namespace SnowMeltingCalculator.Services.Results
             h1.AddText("Обоснование и наладка");
 
             // ─── ОБОСНОВАНИЕ (притенённый справочный блок) ───
-            AddGapInCell(host, 30);
-            var obs = host.Elements.AddTable();
+            AddGap(host, 30);
+            var obs = host.AddTable();
             obs.AddColumn(Unit.FromPoint(ContentWidth * 0.48));
             obs.AddColumn(Unit.FromPoint(ContentWidth * 0.04));
             obs.AddColumn(Unit.FromPoint(ContentWidth * 0.48));
@@ -529,13 +566,13 @@ namespace SnowMeltingCalculator.Services.Results
             }
 
             // ─── НАЛАДКА: проверка холодного пуска (по коллектору) ───
-            AddGapInCell(host, 44);
-            SectionTitle(host, ContentWidth, "Наладка · проверка холодного пуска");
+            AddGap(host, 44);
+            SectionTitleSection(host, ContentWidth, "Наладка · проверка холодного пуска");
             foreach (var collector in data.Collectors)
             {
                 if (data.Collectors.Count > 1)
                 {
-                    var collectorLabel = host.Elements.AddParagraph();
+                    var collectorLabel = host.AddParagraph();
                     collectorLabel.Format.Font.Name = _fontName;
                     collectorLabel.Format.Font.Size = 8;
                     collectorLabel.Format.Font.Bold = true;
@@ -545,7 +582,7 @@ namespace SnowMeltingCalculator.Services.Results
                     collectorLabel.AddText($"КОЛЛЕКТОР {collector.Number}");
                 }
 
-                var check = host.Elements.AddTable();
+                var check = host.AddTable();
                 check.AddColumn(Unit.FromPoint(ContentWidth * 0.28));
                 check.AddColumn(Unit.FromPoint(ContentWidth * 0.06));
                 check.AddColumn(Unit.FromPoint(ContentWidth * 0.32));
@@ -580,7 +617,7 @@ namespace SnowMeltingCalculator.Services.Results
             }
 
             // ─── КОНТУРЫ: полная гидравлика по коллекторам ───
-            AddGapInCell(host, 44);
+            AddGap(host, 44);
             foreach (var collector in data.Collectors)
             {
                 var head = host.AddParagraph();
@@ -602,12 +639,12 @@ namespace SnowMeltingCalculator.Services.Results
         }
 
         /// <summary>Таблица контуров коллектора (11 колонок, дроссель > 0 — красным).</summary>
-        private void AppendCircuitTable(Cell host, CollectorPdfData collector)
+        private void AppendCircuitTable(Section host, CollectorPdfData collector)
         {
             const double layoutWidth = 620;
             var scale = ContentWidth / layoutWidth;
             double[] widths = { 25, 55, 55, 55, 65, 55, 65, 55, 60, 75, 55 };
-            var table = host.Elements.AddTable();
+            var table = host.AddTable();
             foreach (var width in widths)
             {
                 table.AddColumn(Unit.FromPoint(width * scale));
@@ -687,7 +724,7 @@ namespace SnowMeltingCalculator.Services.Results
             }
 
             var summary = collector.Summary;
-            var totals = host.Elements.AddParagraph();
+            var totals = host.AddParagraph();
             totals.Format.Alignment = ParagraphAlignment.Right;
             totals.Format.Font.Name = _fontName;
             totals.Format.Font.Size = 9.5;
@@ -724,7 +761,15 @@ namespace SnowMeltingCalculator.Services.Results
 
         #region Примитивы
 
-        private static void AddGapInCell(Cell host, double points)
+        private void AddGap(Section host, double points)
+        {
+            var gap = host.AddParagraph();
+            gap.Format.SpaceBefore = Unit.FromPoint(points);
+            gap.Format.SpaceAfter = Unit.FromPoint(0);
+            gap.Format.Font.Size = 1;
+        }
+
+private static void AddGapInCell(Cell host, double points)
         {
             var gap = host.Elements.AddParagraph();
             gap.Format.SpaceBefore = Unit.FromPoint(points);
@@ -740,7 +785,30 @@ namespace SnowMeltingCalculator.Services.Results
             cell.Borders.DistanceFromRight = 0;
         }
 
-        private static void SectionTitle(Cell host, double innerWidth, string title)
+        private void SectionTitleSection(Section host, double innerWidth, string title)
+        {
+            var titleTable = host.AddTable();
+            titleTable.AddColumn(Unit.FromPoint(7));
+            titleTable.AddColumn(Unit.FromPoint(innerWidth - 12));
+            var row = titleTable.AddRow();
+            row.Height = Unit.FromPoint(9);
+            row.HeightRule = RowHeightRule.Exactly;
+            var mark = row.Cells[0];
+            mark.Shading.Color = Color.Parse(RehauRed);
+            var markPad = mark.AddParagraph();
+            markPad.Format.Font.Size = 1;
+            var textCell = row.Cells[1];
+            textCell.Borders.DistanceFromLeft = Unit.FromPoint(5);
+            textCell.VerticalAlignment = VerticalAlignment.Bottom;
+            var para = textCell.AddParagraph();
+            para.Format.Font.Name = _staticFontName;
+            para.Format.Font.Size = 10;
+            para.Format.Font.Bold = true;
+            para.Format.Font.Color = Color.Parse(Ink);
+            para.AddText(title.ToUpper(AppCulture.Culture));
+        }
+
+private static void SectionTitle(Cell host, double innerWidth, string title)
         {
             var titleTable = host.Elements.AddTable();
             titleTable.AddColumn(Unit.FromPoint(7));
