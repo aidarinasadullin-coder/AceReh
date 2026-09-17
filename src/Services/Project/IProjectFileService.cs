@@ -44,21 +44,9 @@ namespace SnowMeltingCalculator.Services.Project
         Task<OperationResult<Models.Project.ProjectData>> LoadProjectResultAsync(string filePath, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Проверить, является ли файл проектом SMC
-        /// </summary>
-        /// <param name="filePath">Путь к файлу</param>
-        /// <returns>true если файл имеет расширение .smc</returns>
-        bool IsSmcFile(string filePath);
-
-        /// <summary>
         /// Получить путь к файлу PDF для предпросмотра
         /// </summary>
         /// <returns>Путь к временному PDF файлу</returns>
         string GetPreviewPdfPath();
-
-        /// <summary>
-        /// Очистить временные файлы
-        /// </summary>
-        void CleanupTempFiles();
     }
 }

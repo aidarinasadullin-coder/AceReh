@@ -570,13 +570,6 @@ namespace SnowMeltingCalculator.Tests.Climate
             return Task.FromResult<IEnumerable<CityInfo>>(cities);
         }
 
-        public Task<CityInfo?> GetCityByNameAsync(string name)
-        {
-            var cities = LoadCitiesAsync().Result;
-            return Task.FromResult(cities.FirstOrDefault(c =>
-                c.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
-        }
-
         public IEnumerable<CityInfo> GetAllCities()
         {
             return LoadCitiesAsync().Result;

@@ -125,23 +125,6 @@ namespace SnowMeltingCalculator.Repositories.Construction
         }
 
         /// <summary>
-        /// Загрузить конструкцию из проекта
-        /// </summary>
-        public async Task<ConstructionModel?> LoadFromProjectAsync(int projectId)
-        {
-            if (projectId <= 0)
-            {
-                throw new ArgumentException("Идентификатор проекта должен быть положительным числом", nameof(projectId));
-            }
-
-            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            var projectRoot = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", ".."));
-            var filePath = Path.Combine(projectRoot, "projects", $"project_{projectId}_construction.json");
-
-            return await LoadConstructionAsync(filePath);
-        }
-
-        /// <summary>
         /// Получить список сохранённых конструкций
         /// </summary>
         public Task<IEnumerable<string>> GetSavedConstructionsAsync(string directoryPath)

@@ -13,11 +13,6 @@ namespace SnowMeltingCalculator.Repositories
         Task<IEnumerable<CityInfo>> LoadCitiesAsync();
 
         /// <summary>
-        /// Получить город по названию
-        /// </summary>
-        Task<CityInfo?> GetCityByNameAsync(string name);
-
-        /// <summary>
         /// Получить все города (из кэша)
         /// </summary>
         IEnumerable<CityInfo> GetAllCities();

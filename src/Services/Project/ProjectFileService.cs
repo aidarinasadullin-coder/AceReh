@@ -191,49 +191,10 @@ namespace SnowMeltingCalculator.Services.Project
         }
 
         /// <inheritdoc />
-        public bool IsSmcFile(string filePath)
-        {
-            return !string.IsNullOrEmpty(filePath) &&
-                   filePath.EndsWith(".smc", StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <inheritdoc />
         public string GetPreviewPdfPath()
         {
             var fileName = $"Preview_{DateTime.Now:yyyyMMdd_HHmmss}_{Guid.NewGuid():N}.pdf";
             return Path.Combine(_tempDirectory, fileName);
-        }
-
-        /// <inheritdoc />
-        public void CleanupTempFiles()
-        {
-            try
-            {
-                if (Directory.Exists(_tempDirectory))
-                {
-                    var files = Directory.GetFiles(_tempDirectory, "Preview_*.pdf");
-                    foreach (var file in files)
-                    {
-                        try
-                        {
-                            var fileInfo = new FileInfo(file);
-                            // Удаляем файлы старше 24 часов
-                            if (fileInfo.CreationTime < DateTime.Now.AddHours(-24))
-                            {
-                                File.Delete(file);
-                            }
-                        }
-                        catch
-                        {
-                            // Игнорируем ошибки удаления
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                // Игнорируем ошибки очистки
-            }
         }
     }
 }

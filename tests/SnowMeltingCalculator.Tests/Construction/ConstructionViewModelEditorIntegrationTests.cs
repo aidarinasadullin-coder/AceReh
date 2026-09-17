@@ -586,11 +586,6 @@ namespace SnowMeltingCalculator.Tests.Construction
                 return Task.CompletedTask;
             }
 
-            public Task<ConstructionModel?> LoadFromProjectAsync(int projectId)
-            {
-                return Task.FromResult<ConstructionModel?>(null);
-            }
-
             public Task<IEnumerable<string>> GetSavedConstructionsAsync(string directoryPath)
             {
                 return Task.FromResult(Enumerable.Empty<string>());

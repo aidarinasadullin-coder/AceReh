@@ -331,36 +331,6 @@ namespace SnowMeltingCalculator.Converters
     }
 
     /// <summary>
-    /// Конвертер: пустые значения → тире
-    /// </summary>
-    /// <remarks>
-    /// null или 0 → "—"
-    /// Иначе — исходное значение
-    /// Используется для отображения пустых контуров в таблице
-    /// </remarks>
-    public class EmptyValueConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value == null)
-                return "—";
-
-            if (value is double d && d == 0)
-                return "—";
-
-            if (value is int i && i == 0)
-                return "—";
-
-            return value;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
     /// Конвертер: давление (Па) → форматированная строка
     /// </summary>
     /// <remarks>

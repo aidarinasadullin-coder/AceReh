@@ -29,13 +29,6 @@ namespace SnowMeltingCalculator.Repositories.Construction
         Task SaveToProjectAsync(ConstructionModel construction, int projectId);
 
         /// <summary>
-        /// Загрузить конструкцию из проекта
-        /// </summary>
-        /// <param name="projectId">Идентификатор проекта</param>
-        /// <returns>Загруженная конструкция или null, если не найдена</returns>
-        Task<ConstructionModel?> LoadFromProjectAsync(int projectId);
-
-        /// <summary>
         /// Получить список сохранённых конструкций
         /// </summary>
         /// <param name="directoryPath">Путь к директории с файлами конструкций</param>

@@ -10,12 +10,12 @@ namespace SnowMeltingCalculator.Services.Project
     /// </summary>
     public sealed class ProjectSnapshotFactory : IProjectSnapshotFactory
     {
-        private readonly IProjectSnapshotPersistenceInputs _persistenceInputs;
+        private readonly IProjectDisplayModeState _displayModeState;
 
-        public ProjectSnapshotFactory(IProjectSnapshotPersistenceInputs persistenceInputs)
+        public ProjectSnapshotFactory(IProjectDisplayModeState displayModeState)
         {
-            _persistenceInputs = persistenceInputs
-                ?? throw new ArgumentNullException(nameof(persistenceInputs));
+            _displayModeState = displayModeState
+                ?? throw new ArgumentNullException(nameof(displayModeState));
         }
 
         public ProjectSnapshot Create(IProjectSession projectSession)
@@ -28,7 +28,7 @@ namespace SnowMeltingCalculator.Services.Project
             var constructionSnapshot = projectSession.ConstructionState.Snapshot;
             var thermalSnapshot = projectSession.ThermalState.Snapshot;
             var hydraulicsSnapshot = projectSession.HydraulicsState.Snapshot;
-            var isOperatingMode = _persistenceInputs.IsOperatingMode;
+            var isOperatingMode = _displayModeState.IsOperatingMode;
 
             return new ProjectSnapshot(
                 projectNumber,

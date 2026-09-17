@@ -22,7 +22,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             var thermal = ThermalStateSnapshot.Default;
             var hydraulics = HydraulicsStateSnapshot.Default;
             var session = new Mock<IProjectSession>(MockBehavior.Strict);
-            var inputs = new Mock<IProjectSnapshotPersistenceInputs>(MockBehavior.Strict);
+            var inputs = new Mock<IProjectDisplayModeState>(MockBehavior.Strict);
             var climateState = new Mock<IProjectSessionClimateState>(MockBehavior.Strict);
             var constructionState = new Mock<IProjectSessionConstructionState>(MockBehavior.Strict);
             var thermalState = new Mock<IProjectSessionThermalState>(MockBehavior.Strict);
@@ -67,7 +67,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         [Test]
         public void Create_NullInputsThrowArgumentNullException()
         {
-            var inputs = new Mock<IProjectSnapshotPersistenceInputs>().Object;
+            var inputs = new Mock<IProjectDisplayModeState>().Object;
             var factory = new ProjectSnapshotFactory(inputs);
 
             Assert.Multiple(() =>
@@ -91,7 +91,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             };
             var construction = new ConstructionStateSnapshot(0.9, layersAbove, Array.Empty<ConstructionLayerSnapshot>());
             var session = new Mock<IProjectSession>(MockBehavior.Strict);
-            var inputs = new Mock<IProjectSnapshotPersistenceInputs>(MockBehavior.Strict);
+            var inputs = new Mock<IProjectDisplayModeState>(MockBehavior.Strict);
             var climateState = new Mock<IProjectSessionClimateState>(MockBehavior.Strict);
             var constructionState = new Mock<IProjectSessionConstructionState>(MockBehavior.Strict);
             var thermalState = new Mock<IProjectSessionThermalState>(MockBehavior.Strict);

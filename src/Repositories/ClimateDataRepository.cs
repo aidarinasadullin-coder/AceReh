@@ -72,16 +72,6 @@ namespace SnowMeltingCalculator.Repositories
         }
 
         /// <summary>
-        /// Получить город по названию
-        /// </summary>
-        public async Task<CityInfo?> GetCityByNameAsync(string name)
-        {
-            var cities = await LoadCitiesAsync();
-            return cities.FirstOrDefault(c =>
-                c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-        }
-
-        /// <summary>
         /// Получить все города (из кэша)
         /// </summary>
         public IEnumerable<CityInfo> GetAllCities()

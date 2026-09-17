@@ -227,7 +227,6 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<ICalculationReportPdfExportService, CalculationReportPdfExportService>();
             services.AddSingleton<IProjectFileService, ProjectFileService>();
             services.AddSingleton<IProjectDisplayModeState, ProjectDisplayModeState>();
-            services.AddSingleton<IProjectSnapshotPersistenceInputs, ProjectSnapshotPersistenceInputs>();
             services.AddSingleton<IProjectSnapshotFactory, ProjectSnapshotFactory>();
             services.AddSingleton<IProjectSaveService, ProjectSaveService>();
             services.AddSingleton<IConstructionVisualizationImageService, ConstructionVisualizationImageService>();
