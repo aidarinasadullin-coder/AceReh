@@ -787,30 +787,21 @@ private static void AddGapInCell(Cell host, double points)
 
         private void SectionTitleSection(Section host, double innerWidth, string title)
         {
-            var titleTable = host.AddTable();
-            titleTable.AddColumn(Unit.FromPoint(7));
-            titleTable.AddColumn(Unit.FromPoint(innerWidth - 12));
-            var row = titleTable.AddRow();
-            row.Height = Unit.FromPoint(9);
-            row.HeightRule = RowHeightRule.Exactly;
-            var mark = row.Cells[0];
-            mark.Shading.Color = Color.Parse(RehauRed);
-            var markPad = mark.AddParagraph();
-            markPad.Format.Font.Size = 1;
-            var textCell = row.Cells[1];
-            textCell.Borders.DistanceFromLeft = Unit.FromPoint(5);
-            textCell.VerticalAlignment = VerticalAlignment.Bottom;
-            var para = textCell.AddParagraph();
-            para.Format.Font.Name = _staticFontName;
-            para.Format.Font.Size = 10;
-            para.Format.Font.Bold = true;
-            para.Format.Font.Color = Color.Parse(Ink);
-            para.AddText(title.ToUpper(AppCulture.Culture));
+            AddSectionTitleTable(() => host.AddTable(), innerWidth, title);
         }
 
         private static void SectionTitle(Cell host, double innerWidth, string title)
         {
-            var titleTable = host.Elements.AddTable();
+            AddSectionTitleTable(() => host.Elements.AddTable(), innerWidth, title);
+        }
+
+        /// <summary>
+        /// Общая отрисовка заголовка секции: красная метка REHAU + текст 10pt bold.
+        /// Точка вставки таблицы различается для Section и Cell — уходит в делегат.
+        /// </summary>
+        private static void AddSectionTitleTable(Func<Table> addTable, double innerWidth, string title)
+        {
+            var titleTable = addTable();
             titleTable.AddColumn(Unit.FromPoint(7));
             titleTable.AddColumn(Unit.FromPoint(innerWidth - 12));
             var row = titleTable.AddRow();
