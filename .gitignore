@@ -27,7 +27,6 @@ output/
 
 # Cache
 .ruff_cache/
-docs/инструкция/tooling/node_modules/
 tools/.icon-cache/
 
 # Work files (original Excel/Word - not needed in repo)

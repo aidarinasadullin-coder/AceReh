@@ -11,7 +11,7 @@
 | `docs/Formulas_Snegotayanie.md` | Основной справочник формул. |
 | `docs/Hydraulics_Analysis.md` | Гидравлические формулы и сверка с Excel. |
 | `docs/Расхождения_с_Formulas_Snegotayanie.md` | Известные расхождения между формулами и кодом. |
-| `docs/инструкция/README v.2.1.md` | Пример полноты, терминология и демонстрационный расчёт. |
+| `docs/manual/README.html` | Инструкция пользователя: терминология и демонстрационный расчёт. |
 | `src/Services/Thermal/ThermalCalculator.cs` | Реализация теплотехнического расчёта. |
 | `src/Services/Hydraulics/CircuitsCalculator.cs` | Реализация гидравлического расчёта. |
 | `src/Models/Thermal/ThermalCalculationResult.cs` | Поля результата теплотехнического расчёта. |
