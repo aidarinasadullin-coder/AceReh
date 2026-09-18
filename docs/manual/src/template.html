@@ -1,0 +1,428 @@
+﻿<!-- Источник истины: docs/manual/src/template.html. README.html вручную не править: python docs/manual/build_manual.py (версия подставляется из csproj) -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор снеготаяния РЕХАУ — инструкция пользователя</title>
+<style>
+  :root{
+    --red:#E50040; --red-dark:#C40038; --teal:#4FC7B5; --ink:#1D1D1B;
+    --gray-0:#FFFFFF; --gray-25:#FAFAF8; --gray-100:#F2F2F0; --gray-300:#DEDEDC;
+    --gray-500:#8A8A88; --gray-700:#4A4A48; --amber:#F5A623;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Segoe UI', Inter, Arial, sans-serif; color:var(--ink); background:var(--gray-25); line-height:1.55;}
+  .wrap{max-width:1080px; margin:0 auto; padding:28px 24px 80px;}
+
+  .draft-banner{background:var(--ink); color:#fff; border-radius:10px; padding:14px 20px; display:flex; gap:14px; align-items:center; margin-bottom:26px;}
+  .draft-badge{background:var(--amber); color:var(--ink); font-weight:700; border-radius:999px; padding:4px 14px; font-size:13px; white-space:nowrap;}
+  .draft-banner p{font-size:14px; color:#d8d8d6;}
+
+  h1{font-size:34px; line-height:1.2; letter-spacing:-.5px;}
+  .subtitle{color:var(--gray-700); font-size:17px; margin:10px 0 4px;}
+  .meta{color:var(--gray-500); font-size:13px; margin-bottom:30px;}
+
+  h2{font-size:24px; margin:52px 0 6px; letter-spacing:-.3px; scroll-margin-top:70px;}
+  h2 .num{color:var(--red); margin-right:10px;}
+  .lead{color:var(--gray-700); font-size:15.5px; margin-bottom:18px; max-width:840px;}
+  h3{font-size:17px; margin:24px 0 10px;}
+
+  .topnav{position:sticky; top:0; background:var(--gray-25); z-index:20; padding:10px 0 8px; border-bottom:1px solid var(--gray-100); margin-bottom:6px; display:flex; gap:6px; flex-wrap:wrap;}
+  .topnav a{color:var(--gray-700); text-decoration:none; font-size:12.5px; padding:5px 11px; border-radius:999px; border:1px solid var(--gray-300); background:#fff; transition:all .15s;}
+  .topnav a:hover{border-color:var(--red); color:var(--red);}
+  .topnav a.active{background:var(--red); color:#fff; border-color:var(--red);}
+
+  .flow{display:flex; gap:8px; align-items:stretch; flex-wrap:wrap; margin:20px 0 8px;}
+  .flow .step{background:#fff; border:1.5px solid var(--gray-300); border-radius:10px; padding:12px 16px; min-width:150px; flex:1;}
+  .flow .step b{display:block; font-size:14px;}
+  .flow .step span{font-size:12.5px; color:var(--gray-500);}
+  .flow .arr{align-self:center; color:var(--red); font-weight:700; font-size:18px;}
+  .flow .step.final{flex-basis:100%; border-color:var(--red); background:linear-gradient(135deg,var(--red),#8E0030); color:#fff; text-align:center;}
+  .flow .step.final span{color:#ffd7e3;}
+
+  .figure{background:#fff; border:1px solid var(--gray-300); border-radius:12px; padding:14px; margin:20px 0; box-shadow:0 2px 10px rgba(29,29,27,.05);}
+  .figure img{width:100%; display:block; border-radius:6px;}
+  .figure .cap{font-size:13px; color:var(--gray-500); margin-top:10px;}
+  .figbox{position:relative;}
+  .marker{position:absolute; width:26px; height:26px; border-radius:50%; background:var(--red); color:#fff; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 3px rgba(229,0,64,.25); transform:translate(-50%,-50%); cursor:pointer; border:none;}
+  .marker:hover{background:var(--red-dark);}
+
+  .legend{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin:16px 0;}
+  .legend .item{background:#fff; border:1px solid var(--gray-300); border-radius:10px; padding:12px 14px; font-size:13.5px; transition:all .2s;}
+  .legend .item b{display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:14px;}
+  .legend .item.hl{border-color:var(--red); box-shadow:0 0 0 3px rgba(229,0,64,.18); transform:translateY(-2px);}
+
+  table{width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--gray-300); border-radius:10px; overflow:hidden; font-size:14px; margin:16px 0;}
+  th{background:var(--gray-100); text-align:left; padding:10px 14px; font-size:13px; text-transform:uppercase; letter-spacing:.4px; color:var(--gray-700);}
+  td{padding:10px 14px; border-top:1px solid var(--gray-100); vertical-align:top;}
+  td.do{width:42%;}
+
+  .pill{display:inline-flex; align-items:center; gap:7px; border-radius:999px; padding:3px 12px; font-size:13px; font-weight:600; white-space:nowrap;}
+  .pill.ok{background:#E2F6F2; color:#1E7C6E;}
+  .pill.draft{background:var(--gray-100); color:var(--gray-700);}
+  .pill.warn{background:#FDEBD2; color:#9A6200;}
+  .pill.recalc{background:#E8F0FE; color:#2C5CC5;}
+  .dot{width:12px; height:12px; border-radius:50%; display:inline-block;}
+  .dot.ok{background:var(--teal);} .dot.draft{background:#C9C9C7;} .dot.warn{background:var(--amber);} .dot.recalc{background:#4A83E8;}
+
+  .two-col{display:grid; grid-template-columns:1.2fr 1fr; gap:20px; align-items:start;}
+  @media(max-width:900px){.two-col{grid-template-columns:1fr;}}
+
+  .callout{border-left:4px solid var(--teal); background:#EAF9F6; border-radius:0 10px 10px 0; padding:14px 18px; margin:18px 0; font-size:14.5px;}
+  .callout.red{border-color:var(--red); background:#FDECF2;}
+  .callout b{display:block; margin-bottom:4px;}
+
+  ul.tasks{margin:10px 0 6px 20px; font-size:14.5px;}
+  ul.tasks li{margin:5px 0;}
+  .result-line{font-size:14px; color:var(--gray-700); background:var(--gray-100); border-radius:8px; padding:9px 14px; margin-top:10px;}
+  .result-line b{color:var(--ink);}
+
+  .kbd{font-family:Consolas,monospace; font-size:12.5px; background:var(--gray-100); border:1px solid var(--gray-300); border-bottom-width:2px; border-radius:5px; padding:1px 7px; white-space:nowrap;}
+
+  .sb-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0;}
+  @media(max-width:800px){.sb-grid{grid-template-columns:1fr;}}
+  .sb-card{background:#fff; border:1px solid var(--gray-300); border-radius:10px; padding:12px; font-size:13px;}
+  .sb-card img{width:100%; border-radius:6px; border:1px solid var(--gray-100); display:block; margin-bottom:8px;}
+  .sb-card .t{font-weight:700; font-size:13.5px; margin-bottom:2px;}
+  .sb-card .d{color:var(--gray-700);}
+
+  .statusbar-demo{background:#fff; border:1px solid var(--gray-300); border-radius:10px; overflow:hidden; margin:8px 0;}
+  .statusbar-demo .bar{display:flex; align-items:stretch; height:44px; font-size:13.5px;}
+  .statusbar-demo .plate{display:flex; align-items:center; padding:0 18px; color:#fff; font-weight:700; letter-spacing:.5px; font-size:12px; clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,0 100%); min-width:130px;}
+  .statusbar-demo .plate.ok{background:var(--teal);}
+  .statusbar-demo .plate.err{background:var(--red);}
+  .statusbar-demo .plate.info{background:var(--gray-500);}
+  .statusbar-demo .plate.warn{background:var(--amber); color:var(--ink);}
+  .statusbar-demo .msg{display:flex; align-items:center; padding:0 16px; color:var(--ink);}
+  .statusbar-demo .cap{padding:8px 12px; color:var(--gray-700); font-size:13px; border-top:1px dashed var(--gray-100);}
+
+  .pdf-row{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0;}
+  .pdf-row.z{grid-template-columns:1fr 1fr 1fr;}
+  @media(max-width:800px){.pdf-row,.pdf-row.z{grid-template-columns:1fr;}}
+  .pdf-card{background:#fff; border:1px solid var(--gray-300); border-radius:10px; padding:10px; font-size:12.5px; color:var(--gray-700);}
+  .pdf-card img{width:100%; border:1px solid var(--gray-100); border-radius:4px; display:block; margin-bottom:8px;}
+  .pdf-card b{color:var(--ink); font-size:13px;}
+
+  .checklist{background:#fff; border:1px solid var(--gray-300); border-radius:12px; padding:18px 22px; margin:16px 0;}
+  .checklist label{display:flex; gap:10px; align-items:flex-start; padding:7px 0; font-size:14.5px; cursor:pointer; border-bottom:1px dashed var(--gray-100);}
+  .checklist label:last-child{border-bottom:none;}
+  .checklist input{margin-top:4px; accent-color:var(--teal); width:15px; height:15px;}
+  .checklist input:checked + span{color:var(--gray-500); text-decoration:line-through;}
+
+  .totop{position:fixed; right:22px; bottom:22px; width:44px; height:44px; border-radius:50%; background:var(--red); color:#fff; border:none; font-size:20px; cursor:pointer; box-shadow:0 4px 14px rgba(229,0,64,.4); opacity:0; pointer-events:none; transition:opacity .25s;}
+  .totop.show{opacity:1; pointer-events:auto;}
+
+  footer{margin-top:70px; padding-top:20px; border-top:1px solid var(--gray-300); color:var(--gray-500); font-size:13px;}
+  footer .brand{color:var(--red); font-weight:800; letter-spacing:1px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="meta" style="margin-bottom:30px;"></div>
+
+  <h1>Калькулятор снеготаяния РЕХАУ</h1>
+  <p class="subtitle">Инструкция пользователя: от исходных данных до готового отчёта</p>
+  <p class="meta">Версия программы 1.3.0 · инструкция от 13.09.2026 · на 15–20 минут чтения</p>
+
+  <nav class="topnav" id="topnav">
+    <a href="#s0">О программе</a>
+    <a href="#s1">Экран</a>
+    <a href="#s2">Статусы</a>
+    <a href="#s3">1 · Климат</a>
+    <a href="#s4">2 · Конструкция</a>
+    <a href="#s5">3 · Тепловой</a>
+    <a href="#s6">4 · Гидравлика</a>
+    <a href="#s7">5 · Результаты</a>
+    <a href="#s8">Отчёты PDF</a>
+    <a href="#s9">Отмена</a>
+    <a href="#s10">Частые ситуации</a>
+    <a href="#s11">Проверь себя</a>
+  </nav>
+
+  <h2 id="s0"><span class="num">0</span>Для чего эта программа</h2>
+  <p class="lead">Калькулятор выполняет полный расчёт системы снеготаяния открытой площадки: по городу и конструкции пола определяет требуемую тепловую мощность, подбирает шаг укладки трубы RAUTHERM S, выполняет гидравлический расчёт контуров, подбирает коллектор и насос — и собирает всё в готовый PDF-отчёт. Расчёт опирается на климатологию СП 131.13330.2025 (550 городов), свойства гликолей ASHRAE и актуальный каталог продукции РЕХАУ.</p>
+
+  <div class="flow">
+    <div class="step"><b>1 · Климат</b><span>город → температуры, ветер</span></div>
+    <div class="arr">→</div>
+    <div class="step"><b>2 · Конструкция</b><span>слои пола, УГВ</span></div>
+    <div class="arr">→</div>
+    <div class="step"><b>3 · Тепловой расчёт</b><span>режим, труба, шаг → мощность</span></div>
+    <div class="arr">→</div>
+    <div class="step"><b>4 · Гидравлика</b><span>контуры, коллектор, насос</span></div>
+    <div class="arr">→</div>
+    <div class="step"><b>5 · Результаты</b><span>сводка и оборудование</span></div>
+    <div class="arr">→</div>
+    <div class="step final"><b>Отчёт PDF</b><span>предпросмотр · печать · сохранение · пояснительная записка</span></div>
+  </div>
+  <p class="lead">Порядок шагов — логика расчёта: каждый следующий использует результаты предыдущего. Можно свободно возвращаться назад и исправлять — приложение само подскажет, что потребуется пересчитать (раздел 2).</p>
+
+  <h2 id="s1"><span class="num">1</span>Экран за минуту</h2>
+  <p class="lead">Одно окно — весь проект. Слева — шаги, в центре — содержимое текущего шага, справа — живая сводка проекта, внизу — строка состояния. Нажмите на номер на скриншоте, чтобы прочитать, что это.</p>
+
+  <div class="figure"><div class="figbox">
+    <img src="{{IMG:00-trim.png}}" alt="Главное окно, шаг 1 «Климат»">
+    <button class="marker" style="left:78%; top:2.2%;" data-t="l1" title="Шапка">1</button>
+    <button class="marker" style="left:6%; top:15%;" data-t="l2" title="Шаги">2</button>
+    <button class="marker" style="left:45%; top:35%;" data-t="l3" title="Рабочая область">3</button>
+    <button class="marker" style="left:93.5%; top:22%;" data-t="l4" title="Сводка проекта">4</button>
+    <button class="marker" style="left:50%; top:98.2%;" data-t="l5" title="Строка состояния">5</button>
+  </div>
+  <div class="legend">
+    <div class="item" id="l1"><b>① Шапка</b>проект «9-100000 · Пермь», <b>Отменить / Вернуть</b>, меню «Файл», кнопки <b>Рассчитать</b> и <b>Отчёт PDF</b>.</div>
+    <div class="item" id="l2"><b>② Шаги 1–5</b>навигация по расчёту. Цвет кружка шага — его состояние (раздел 2).</div>
+    <div class="item" id="l3"><b>③ Рабочая область</b>поля текущего шага. Изменения применяются сразу; рекомендации — подсказкой под полем.</div>
+    <div class="item" id="l4"><b>④ Сводка проекта</b>мощность, температуры, конструкция и чек-лист шагов — видна на любом шаге.</div>
+    <div class="item" id="l5"><b>⑤ Строка состояния</b>что происходит сейчас: «всё готово», «требуется пересчёт», текст ошибки (раздел 2).</div>
+  </div></div>
+
+  <div class="two-col">
+    <div>
+      <h3>Кнопки шапки</h3>
+      <table>
+        <tr><td class="do"><b>Рассчитать</b></td><td>пересчитывает тепловую и гидравлическую часть по актуальным данным</td></tr>
+        <tr><td class="do"><b>Отчёт PDF ▾</b></td><td>предпросмотр, печать, сохранение PDF и пояснительная записка (рабочий режим / холодный пуск)</td></tr>
+        <tr><td class="do"><b>Отменить / Вернуть</b></td><td>полная история правок как в Word: <span class="kbd">Ctrl+Z</span> / <span class="kbd">Ctrl+Y</span></td></tr>
+        <tr><td class="do"><b>Файл</b></td><td>сохранить (.smc), открыть, создать новый расчёт</td></tr>
+      </table>
+      <div class="callout"><b>Совет.</b> Панель шагов сворачивается кнопкой в левом нижнем углу (<span class="kbd">Ctrl+B</span>) — удобно, когда нужно больше места для таблицы контуров.</div>
+    </div>
+    <div>
+      <h3>Кнопки шапки крупно</h3>
+      <div class="figure"><img src="{{IMG:c-toolbar.png}}" alt="Кнопки шапки крупно: Отменить, Вернуть, Файл, Рассчитать, Отчёт PDF"></div>
+    </div>
+  </div>
+
+  <h2 id="s2"><span class="num">2</span>Статусы: видно, что где не рассчитано</h2>
+  <p class="lead">Главный принцип: вам не нужно помнить, какие данные устарели. Цвет кружка шага, плашки в сводке и строка состояния сами говорят, что произошло и что делать.</p>
+
+  <table>
+    <tr><th>Статус шага</th><th>Что означает</th><th>Что делать</th></tr>
+    <tr><td><span class="pill ok"><span class="dot ok"></span>бирюзовый · ✓</span></td><td>шаг рассчитан, данные актуальны</td><td>ничего, можно двигаться дальше</td></tr>
+    <tr><td><span class="pill draft"><span class="dot draft"></span>серый · ●</span></td><td>черновик: данных нет или изменения требуют пересчёта</td><td>заполнить шаг и нажать <b>Рассчитать</b></td></tr>
+    <tr><td><span class="pill warn"><span class="dot warn"></span>оранжевый · ⚠</span></td><td>ошибка: значение вне допустимого диапазона</td><td>исправить поле — текст ошибки в строке состояния</td></tr>
+    <tr><td><span class="pill recalc"><span class="dot recalc"></span>синий · ⟳</span></td><td>идёт пересчёт</td><td>подождать пару секунд</td></tr>
+  </table>
+
+  <h3>Строка состояния — все виды</h3>
+  <p class="lead">Слева — цветная плашка активного раздела, дальше — сообщение. Цвет плашки повторяет смысл: бирюзовый — порядок, серый — пояснение, красный — ошибка, оранжевый — предупреждение о пересчёте.</p>
+
+  <div class="statusbar-demo">
+    <div class="bar"><div class="plate ok">РЕЗУЛЬТАТЫ</div><div class="msg">Все данные готовы</div></div>
+    <div class="cap"><b>Готово.</b> Все модули рассчитаны, проект готов к формированию отчёта.</div>
+  </div>
+  <div class="statusbar-demo">
+    <div class="bar"><div class="plate info">КОНСТРУКЦИЯ</div><div class="msg">Уровень грунтовых вод &lt; 1 м. Для слоёв под трубой используется λБ (влажные условия).</div></div>
+    <div class="cap"><b>Пояснение.</b> Программа сообщает, как она interpretирует данные: УГВ &lt; 1 м переключает слои под трубой на влажные теплопроводности λБ.</div>
+  </div>
+  <div class="statusbar-demo">
+    <div class="bar"><div class="plate info">КЛИМАТ</div><div class="msg">Климатические данные изменены. Требуется пересчёт.</div></div>
+    <div class="cap"><b>Требуется пересчёт.</b> Данные правились — нажмите «Рассчитать». Зависимые шаги погасли до серого (см. сценарий ниже).</div>
+  </div>
+  <div class="statusbar-demo">
+    <div class="bar"><div class="plate err">КЛИМАТ</div><div class="msg">Температура должна быть от −50°C до +10°C</div></div>
+    <div class="cap"><b>Ошибка.</b> Значение вне диапазона. Расчёт по ошибочным данным не выполняется — некорректный результат не попадёт в отчёт.</div>
+  </div>
+
+  <div class="sb-grid">
+    <div class="sb-card"><img src="{{IMG:sb-ready.png}}" alt="Все данные готовы"><div class="t">Готово</div><div class="d">бирюзовая плашка — расчёт актуален</div></div>
+    <div class="sb-card"><img src="{{IMG:sb-recalc.png}}" alt="Требуется пересчёт"><div class="t">Требуется пересчёт</div><div class="d">справа в строке — после любой правки исходных данных</div></div>
+    <div class="sb-card"><img src="{{IMG:sb-info2.png}}" alt="Информационное сообщение"><div class="t">Пояснение</div><div class="d">серая плашка — как программа поняла данные (λБ при высоком УГВ)</div></div>
+    <div class="sb-card"><img src="{{IMG:sb-error.png}}" alt="Ошибка ввода"><div class="t">Ошибка</div><div class="d">красная плашка — поле и допустимый диапазон</div></div>
+  </div>
+
+  <h3>Сценарий: поправили исходные данные</h3>
+  <p class="lead">Изменили расчётную температуру в «Климате» (например, −15 → −18). Зона пересчиталась автоматически (M15 → M20), шаги, которые устарели, погасли до серого, а строка состояния объяснила причину. Гидравлика при этом пересчитывается сама — её кружок остаётся бирюзовым.</p>
+  <div class="two-col">
+    <div class="figure"><img src="{{IMG:c-stepper.png}}" alt="Степпер: шаги погасли"><div class="cap">Шаги «Тепловой расчёт» и «Результаты» погасли — их нужно пересчитать.</div></div>
+    <div>
+      <div class="figure"><img src="{{IMG:extracted-01.png}}" alt="Строка состояния: требуется пересчёт"></div>
+      <div class="callout"><b>Что делать.</b> Нажать <b>Рассчитать</b> — через пару секунд все шаги снова бирюзовые, сводка обновлена.</div>
+    </div>
+  </div>
+
+  <h3>Сценарий: ошибка ввода</h3>
+  <div class="two-col">
+    <div class="figure"><img src="{{IMG:c-error-stepper.png}}" alt="Шаг «Климат» с ошибкой ⚠"><div class="cap">У шага «Климат» — оранжевый ⚠, поле с ошибкой обведено красным.</div></div>
+    <div>
+      <div class="figure"><img src="{{IMG:extracted-02.png}}" alt="Строка состояния: температура должна быть от −50 до +10"></div>
+      <div class="callout red"><b>Куда вернуться.</b> Шаги в списке слева всегда кликабельны — щёлкните нужный шаг, исправьте поле и нажмите «Рассчитать». Строка состояния называет поле и допустимый диапазон.</div>
+    </div>
+  </div>
+
+  <h3>Сводка проекта — чек-лист шагов</h3>
+  <div class="two-col">
+    <div class="figure"><img src="{{IMG:c-summary.png}}" alt="Сводка проекта"></div>
+    <p class="lead" style="margin-top:6px;">В сводке всегда видны ключевые цифры проекта и блок «Шаги»: галочка напротив каждого рассчитанного раздела. Если шаг погас или горит ⚠ — вернитесь к нему. Это тот же статус, что и у кружков слева, просто в виде списка.</p>
+  </div>
+
+  <h2 id="s3"><span class="num">3</span>Шаг 1 · Климат</h2>
+  <div class="figure"><img src="{{IMG:extracted-03.png}}" alt="Шаг Климат"></div>
+  <ul class="tasks">
+    <li>Начните вводить <b>город</b> — выберите из списка 550 городов. Температура холодной пятидневки, ветер и влажность заполнятся автоматически.</li>
+    <li><b>Климатическая зона</b> — расчётная строка под карточкой: она подбирается автоматически по итоговой температуре (например, −15 °C → «M15 · колонка −15 °C», −18 °C → «M20»). Вручную её выбрать нельзя — и не нужно.</li>
+    <li>Знаете местные особенности — поправьте <b>температуру</b>, <b>ветер</b> или <b>влажность</b> вручную. Кнопка <b>«Сбросить к данным города»</b> вернёт нормативные значения.</li>
+    <li>Флажок <b>«Повышенные требования»</b> — ступень вниз: −10 → −15, −15 → −20 °C. Активен, когда выбран город; при смене города сбрасывается на автоматику.</li>
+    <li>Задайте <b>интенсивность снегопада</b> (мм/ч водного эквивалента; 1 мм/ч воды ≈ 1 см/ч снега).</li>
+  </ul>
+  <div class="result-line"><b>Получаем:</b> расчётный климат объекта. Справка: температура холодной пятидневки по СП 131.13330.2025 — в карточке внизу.</div>
+
+  <h2 id="s4"><span class="num">4</span>Шаг 2 · Конструкция</h2>
+  <div class="figure"><img src="{{IMG:01-construction.png}}" alt="Шаг Конструкция"></div>
+  <ul class="tasks">
+    <li>Соберите <b>пирог пола</b>: кнопками «+ Слой» добавьте материалы над и под трубой, задайте толщины. Сопротивление R каждого слоя считается сразу.</li>
+    <li><b>λ материала можно менять прямо в таблице</b> — например, для нестандартного бетона. R пересчитается автоматически.</li>
+    <li><b>Справочники ▾ → Материалы…</b> — редактор материалов: встроенные (Песок, Грунт, Бетон, ЭППС…) и ваши собственные. Своё можно <b>добавлять, редактировать и сохранять</b> (λА — сухие условия, λБ — влажные, ограничения по температурам) — и использовать в следующих проектах.</li>
+    <li><b>Справочники ▾ → Шаблоны…</b> и список «Шаблон конструкции» — готовые типовые пироги: выберите шаблон, посмотрите схему, нажмите <b>«Применить»</b> и поправьте слои под объект. Свои шаблоны тоже сохраняются.</li>
+    <li>Выберите <b>уровень грунтовых вод</b>: УГВ &lt; 1 м переводит слои под трубой на влажные λБ (программа сама сообщит об этом в строке состояния).</li>
+    <li><b>Схема</b> справа рисует срез в масштабе — удобно сверить с чертежом.</li>
+  </ul>
+  <div class="two-col">
+    <div class="figure"><img src="{{IMG:01b-materials-dlg.png}}" alt="Редактор материалов"><div class="cap">Редактор материалов: встроенные материалы защищены от изменений, свои — можно добавлять и править.</div></div>
+    <div class="result-line" style="align-self:center;"><b>Получаем:</b> сопротивления R₁ над трубой и R₂ под трубой, общую толщину, λЕ вокруг трубы — вход для теплового расчёта. Конструкция сохраняется в проекте, материалы и шаблоны — в справочниках для переиспользования.</div>
+  </div>
+
+  <h2 id="s5"><span class="num">5</span>Шаг 3 · Тепловой расчёт</h2>
+  <div class="figure"><img src="{{IMG:extracted-04.png}}" alt="Шаг Тепловой расчёт: режимы +3/+5/+7 и ручная температура поверхности"><div class="cap">Шаг 3 · Тепловой расчёт: «Таяние» выбрано — поле показывает +5 с подписью «из режима «Таяние»».</div></div>
+  <ul class="tasks">
+    <li>Выберите <b>режим работы</b>: Таяние +5 °C (стандарт), Антиобледенение +3 °C или Интенсивное +7 °C. Нужна промежуточная температура? Введите целое значение от +1 до +7 °C прямо в поле <b>«Температура поверхности»</b>: ввод +3, +5 или +7 автоматически выбирает соответствующий режим, другое значение помечается как «своё значение». Неверный ввод (например 0, 8 или 4,5) приложение отклонит подсказкой и не изменит расчёт.</li>
+    <li>Задайте <b>температуру подачи</b>. Подсказка под полем рекомендует значение для перепада ΔT ≈ 15 К — оптимальный баланс.</li>
+    <li>Выберите <b>трубу</b> RAUTHERM S (17/20/25) и <b>шаг укладки</b>.</li>
+    <li>Нажмите <b>Рассчитать</b>. Плитки покажут: суммарную мощность, потоки вверх/вниз, коэффициент теплоотдачи, среднюю температуру, обратку и расход.</li>
+    <li><b>«Дополнительные параметры»</b> внизу раскрываются по клику — конвективный поток, сопротивления R_FB и R_TD, массовый расход. Для типового проекта их трогать не нужно.</li>
+  </ul>
+  <div class="figure"><img src="{{IMG:extracted-05.png}}" alt="Ручной ввод температуры поверхности +4"><div class="cap">Введено +4 °C — режим «Пользовательский (+4 °C)», подпись у поля «своё значение».</div></div>
+  <div class="figure"><img src="{{IMG:extracted-06.png}}" alt="Предупреждение: температура поверхности не выше температуры воздуха"><div class="cap">t_пов +1 °C при воздухе +10 °C: подсказка предупреждает об отрицательной мощности, расчёт не блокируется.</div></div>
+  <div class="figure"><img src="{{IMG:c-thermal-extra.png}}" alt="Развёрнутые дополнительные параметры"></div>
+  <div class="result-line"><b>Получаем:</b> удельную мощность системы q, Вт/м², и температуры контура — ядро всего проекта.</div>
+
+  <h2 id="s6"><span class="num">6</span>Шаг 4 · Гидравлика</h2>
+  <div class="figure"><img src="{{IMG:03-hydraulics.png}}" alt="Шаг Гидравлика"></div>
+  <ul class="tasks">
+    <li>Выберите <b>тип и концентрацию гликоля</b> — свойства теплоносителя пересчитаются автоматически («Свойства теплоносителя → развернуть» покажет ρ, c, ν).</li>
+    <li>Заполните <b>контуры</b>: длина, подводка, площадь. «+ Контур» добавляет строку; «Компактно / Полностью» переключает детализацию таблицы.</li>
+    <li><b>Коллектор подбирается сам</b> по расходу (HKV-D / IV 1¼" / IV 1½"). Несколько коллекторов — кнопкой «+ Коллектор»; контуры распределяются между вкладками «Коллектор №1», «Коллектор №2».</li>
+    <li>Проверьте <b>потери давления</b> на плитках: рабочий режим — до 320 мбар; холодный пуск выше — это нормально, учитывайте при выборе насоса.</li>
+    <li>Переключатель <b>«Рабочая / Расчётная (хол.)»</b> показывает наладку для холодного пуска.</li>
+  </ul>
+
+  <h3>Статусы контуров</h3>
+  <div class="two-col">
+    <div class="figure"><img src="{{IMG:c-circuit-status.png}}" alt="Таблица контуров со статусами"></div>
+    <div>
+      <table style="margin-top:0;">
+        <tr><th>Точка в колонке «Статус»</th><th>Значение</th></tr>
+        <tr><td><span class="dot ok"></span> бирюзовая</td><td>контур в норме: скорость и удельные потери в допуске</td></tr>
+        <tr><td><span class="dot warn"></span> оранжевая + ⚠</td><td>превышение: удельные потери &gt; 300 Па/м — посмотрите колонку потерь и разбейте/укоротите контур</td></tr>
+      </table>
+      <div class="callout"><b>Подсказка.</b> При «холодном пуске» удельные потери могут превышать 300 Па/м — программа предупреждает об этом сноской под таблицей.</div>
+    </div>
+  </div>
+
+  <h3>Свёрнутые блоки данных</h3>
+  <p class="lead">Под таблицей три свёртки — <b>«Входные данные»</b>, <b>«Данные укладки»</b> и <b>«Результаты»</b> по текущему коллектору. По умолчанию они свёрнуты, чтобы не мешать; нажмите «развернуть», если нужны детали.</p>
+  <div class="figure"><img src="{{IMG:03b-hydraulics-expanded.png}}" alt="Гидравлика с развёрнутыми блоками данных"></div>
+  <div class="result-line"><b>Получаем:</b> расход и обороты вентиля каждого контура, подобранный коллектор (тип и Kv), потребный напор насоса. Для «холодного пуска» — те же данные при расчётной температуре.</div>
+
+  <h2 id="s7"><span class="num">7</span>Шаг 5 · Результаты</h2>
+  <div class="figure"><img src="{{IMG:04-results.png}}" alt="Шаг Результаты"></div>
+  <ul class="tasks">
+    <li>Итоговая <b>тепловая мощность системы</b> — первая плитка. Рядом: объём системы, расход и напор насоса, подача/обратка, расширительный бак.</li>
+    <li><b>Гидравлика по коллекторам</b> — карточки каждого коллектора: расход, потери, Kv.</li>
+    <li><b>Оборудование</b> — спецификация для закупки: коллекторы, метраж трубы, бак, насос.</li>
+    <li>Когда всё рассчитано, вверху появляется статус <b>«Проект готов к формированию отчёта»</b> — можно выгружать PDF.</li>
+  </ul>
+  <div class="result-line"><b>Получаем:</b> полную картину проекта в одном окне и «зелёный свет» для отчёта.</div>
+
+  <h2 id="s8"><span class="num">8</span>Отчёты PDF и сохранение проекта</h2>
+  <p class="lead">Меню «Отчёт PDF ▾» в шапке: <b>Предпросмотр PDF</b>, <b>Печать</b>, <b>Сохранить PDF…</b>, две <b>пояснительные записки</b> — рабочий режим и холодный пуск — и <b>Спецификация XLSX</b>: выгрузка спецификации закупки в книгу Excel (лист «Спецификация» — труба, резьбозажимные соединения, коллекторы с артикулами; лист «Контуры» — наладка).</p>
+
+  <div class="pdf-row">
+    <div class="pdf-card"><img src="{{IMG:pg1.png}}" alt="Отчёт, страница 1"><b>«Результаты расчёта», стр. 1.</b> Ответ (удельная мощность), плитки для сметы, спека закупки.</div>
+    <div class="pdf-card"><img src="{{IMG:pg2.png}}" alt="Отчёт, страница 2"><b>«Результаты расчёта», стр. 2.</b> Обоснование величин, конструкция, гидравлическая наладка контуров по коллекторам.</div>
+  </div>
+  <p class="lead">Перед печатью отчёт можно посмотреть целиком («Предпросмотр PDF») — страницы выглядят ровно так же, как при сохранении.</p>
+
+  <div class="pdf-row z">
+    <div class="pdf-card"><img src="{{IMG:pz1.png}}" alt="Пояснительная записка, страница 1"><b>Пояснительная записка, стр. 1.</b> Титул, методика, краткая сводка проекта.</div>
+    <div class="pdf-card"><img src="{{IMG:pz2.png}}" alt="Пояснительная записка, страница 2"><b>Стр. 2 и далее.</b> Исходные данные: климат, конструкция, теплоноситель.</div>
+    <div class="pdf-card"><img src="{{IMG:pz3.png}}" alt="Пояснительная записка, страница 3"><b>Стр. 3 и далее.</b> Пошаговые формулы теплового расчёта и гидравлики — 12 страниц итого.</div>
+  </div>
+  <p class="lead"><b>Что в записке.</b> Развёрнутый «Детальный расчётный отчёт»: методика расчёта, все исходные данные с источниками (база программы или ввод пользователя), промежуточные величины с формулами и проверками. Режим «рабочий» — для проектной документации, «холодный пуск» — наладка первого запуска системы.</p>
+
+  <table>
+    <tr><th>Действие</th><th>Как</th><th>Что получается</th></tr>
+    <tr><td class="do"><b>Предпросмотр отчёта</b></td><td>«Отчёт PDF ▾ → Предпросмотр PDF»</td><td>просмотр документа перед выдачей</td></tr>
+    <tr><td class="do"><b>Сохранить PDF</b></td><td>«Отчёт PDF ▾ → Сохранить PDF…»</td><td>файл «Результаты расчёта» — 2 страницы</td></tr>
+    <tr><td class="do"><b>Спецификация XLSX</b></td><td>«Отчёт PDF ▾ → Спецификация XLSX»</td><td>книга Excel: закупка (труба, РЗС, коллекторы) и наладка контуров</td></tr>
+    <tr><td class="do"><b>Пояснительная записка</b></td><td>«Отчёт PDF ▾» — рабочий режим или холодный пуск</td><td>развёрнутый расчёт с формулами для проектной документации</td></tr>
+    <tr><td class="do"><b>Сохранить проект</b></td><td><span class="kbd">Ctrl+S</span> или «Файл → Сохранить»</td><td>файл .smc — номер проекта и объект задаются при первом сохранении</td></tr>
+    <tr><td class="do"><b>Открыть / Новый</b></td><td><span class="kbd">Ctrl+O</span> / <span class="kbd">Ctrl+N</span></td><td>загрузка проекта или новый расчёт с чистого листа</td></tr>
+  </table>
+
+  <p class="lead"><b>Что в «Спецификации XLSX».</b> Книга Excel с двумя листами. «Спецификация» — позиции закупки с артикулами: труба RAUTHERM S (типоразмер, метраж), резьбозажимные соединения — 2 шт на каждый контур (подача + обратка; для трубы 25×2,3 артикул выводится с примечанием «уточняется»), коллекторы HKV-D/IV по типоразмерам с количеством и артикулами, «Итого по проекту». «Контуры» — наладка: длина петли и подводки, площадь, мощность, расход (л/ч), Δp (кПа), обороты клапана, преднастройка. Числа — числовые ячейки: суммируются и фильтруются в Excel.</p>
+
+  <h2 id="s9"><span class="num">9</span>Отмена действий</h2>
+  <p class="lead">Любая правка обратима: <span class="kbd">Ctrl+Z</span> отменяет, <span class="kbd">Ctrl+Y</span> возвращает. История ведётся по всем разделам — город, слои, режимы, контуры, расчёты. Кнопки дублируются в шапке.</p>
+
+  <h2 id="s10"><span class="num">10</span>Частые ситуации</h2>
+  <table>
+    <tr><th>Ситуация</th><th>Что делать</th></tr>
+    <tr><td>Потери (раб.) &gt; 320 мбар</td><td>разбить контуры между двумя коллекторами или укоротить самые длинные контуры</td></tr>
+    <tr><td>Точка контура оранжевая (R &gt; 300 Па/м)</td><td>уменьшить длину контура или увеличить диаметр трубы (17 → 20 → 25)</td></tr>
+    <tr><td>Скорость в контуре &gt; 2 м/с</td><td>увеличить ΔT (поднять температуру подачи) или добавить контур</td></tr>
+    <tr><td>Скорость &lt; 0.1 м/с</td><td>уменьшить число контуров или увеличить ΔT</td></tr>
+    <tr><td>Обратка ниже температуры замерзания гликоля</td><td>поднять температуру подачи или повысить концентрацию гликоля</td></tr>
+    <tr><td>Мощности не хватает (поверхность холоднее режима)</td><td>уменьшить шаг укладки, утеплить конструкцию, проверить климат</td></tr>
+    <tr><td>Холодный пуск &gt; 320 мбар</td><td>штатно: предусмотреть насос с запасом напора, наладка — в записке «холодный пуск»</td></tr>
+  </table>
+
+  <h2 id="s11"><span class="num">11</span>Проверь себя: проект готов к выдаче?</h2>
+  <div class="checklist">
+    <label><input type="checkbox"><span>Город выбран, климатические параметры проверены (или обоснованно поправлены вручную)</span></label>
+    <label><input type="checkbox"><span>Пирог конструкции совпадает с чертежом, УГВ задан, λ материалов соответствуют проекту</span></label>
+    <label><input type="checkbox"><span>Режим работы соответствует назначению площадки (или температура поверхности задана вручную в диапазоне +1…+7 °C и обоснована)</span></label>
+    <label><input type="checkbox"><span>Температура подачи — по рекомендации ΔT ≈ 15 К (или обоснованно иначе)</span></label>
+    <label><input type="checkbox"><span>Все пять шагов — бирюзовые (✓), в сводке «Шаги» нет серых и оранжевых</span></label>
+    <label><input type="checkbox"><span>В строке состояния — «Все данные готовы»</span></label>
+    <label><input type="checkbox"><span>Рабочие потери ≤ 320 мбар; холодный пуск учтён при выборе насоса</span></label>
+    <label><input type="checkbox"><span>Точки всех контуров в таблице — бирюзовые</span></label>
+    <label><input type="checkbox"><span>Проект сохранён (.smc), PDF-отчёт и/или пояснительная записка выгружены</span></label>
+  </div>
+
+  <button class="totop" id="totop" title="Наверх" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <footer>
+    <p><span class="brand">РЕХАУ</span> · Калькулятор снеготаяния открытых площадок · инструкция пользователя</p>
+    <p style="margin-top:6px;">Инструкция соответствует версии программы {{VERSION}} и открывается из приложения («Файл → Инструкция»). При обновлении интерфейса пересобирается из исходников вместе со скриншотами.</p>
+  </footer>
+
+</div>
+<script>
+  // подсветка карточки легенды при клике на маркер
+  document.querySelectorAll('.marker').forEach(function(m){
+    m.addEventListener('click', function(){
+      document.querySelectorAll('.legend .item').forEach(function(i){ i.classList.remove('hl'); });
+      var t = document.getElementById(m.dataset.t);
+      if (t) { t.classList.add('hl'); t.scrollIntoView({block:'nearest', behavior:'smooth'}); }
+    });
+  });
+  // подсветка активного раздела в навигации
+  var links = document.querySelectorAll('.topnav a');
+  var obs = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if (e.isIntersecting){
+        links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href') === '#'+e.target.id); });
+      }
+    });
+  }, {rootMargin:'-30% 0px -60% 0px'});
+  document.querySelectorAll('h2[id]').forEach(function(h){ obs.observe(h); });
+  // кнопка наверх
+  var tt = document.getElementById('totop');
+  window.addEventListener('scroll', function(){ tt.classList.toggle('show', window.scrollY > 700); });
+</script>
+</body>
+</html>
