@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me: hardening-роадмап — шесть волн</title>
+<style>
+  :root {
+    --red: #E50040; --red-d: #B80033; --teal: #4FC7B5; --teal-d: #1E9C8B;
+    --ink: #1D1D1B; --gray1: #4E4E4E; --gray2: #818181; --gray3: #B0B0B0;
+    --gray4: #D9D9D9; --bg: #F6F6F6; --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--ink); padding: 28px 32px 60px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  .sub { color: var(--gray2); font-size: 13px; margin-top: 6px; }
+  .plan-ref { margin-top: 10px; font-size: 12.5px; color: var(--gray1); }
+  .plan-ref code { background: #EDEDED; border-radius: 3px; padding: 1px 6px; font-size: 11.5px; }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 34px 0 10px; }
+  .mark { display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; }
+  .metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; max-width: 1020px; }
+  .metric { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 14px 18px; min-width: 180px; }
+  .metric .v { font-size: 21px; font-weight: 700; }
+  .metric .v.ok { color: var(--teal-d); }
+  .metric .k { font-size: 11px; color: var(--gray2); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+  .flow { display: flex; align-items: stretch; gap: 10px; margin-top: 14px; flex-wrap: wrap; max-width: 1120px; }
+  .stage { background: var(--card); border: 1px solid var(--gray4); border-top: 4px solid var(--red); border-radius: 8px; padding: 12px 14px; flex: 1 1 150px; min-width: 150px; position: relative; }
+  .stage.t { border-top-color: var(--teal); }
+  .stage.g { border-top-color: var(--gray2); }
+  .stage .n { font-size: 11px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.06em; }
+  .stage.t .n { color: var(--teal-d); } .stage.g .n { color: var(--gray2); }
+  .stage .t { font-size: 13.5px; font-weight: 700; margin-top: 3px; }
+  .stage .d { font-size: 11.5px; color: var(--gray1); margin-top: 5px; line-height: 1.45; }
+  .arrow { align-self: center; color: var(--gray3); font-size: 18px; font-weight: 700; }
+  .decisions { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; margin-top: 12px; max-width: 1120px; }
+  .dec { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 12px 14px; }
+  .dec .id { display: inline-block; background: #FBE3EA; color: var(--red); font-weight: 700; font-size: 11px; border-radius: 999px; padding: 2px 10px; }
+  .dec .q { font-size: 11.5px; color: var(--gray2); margin-top: 7px; }
+  .dec .a { font-size: 12.5px; font-weight: 600; margin-top: 4px; }
+  table { border-collapse: collapse; margin-top: 10px; font-size: 12px; width: 100%; max-width: 1020px; background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; overflow: hidden; }
+  th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray2); padding: 9px 12px 6px; border-bottom: 1px solid var(--gray4); }
+  td { border-bottom: 1px solid var(--gray4); padding: 8px 12px; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .mono { font-family: Consolas, monospace; font-size: 11px; background: #F0F0F0; padding: 1px 5px; border-radius: 3px; }
+  .pill { display: inline-block; font-size: 11px; border-radius: 999px; padding: 3px 11px; font-weight: 700; margin-right: 6px; }
+  .p-red { background: #FBE3EA; color: var(--red); }
+  .p-teal { background: #E4F6F3; color: var(--teal-d); }
+  .p-gray { background: #ECECEC; color: var(--gray1); }
+  .pill.ghost { background: transparent; border: 1px solid var(--gray4); color: var(--gray2); font-weight: 500; }
+  .wave { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 16px 18px; margin-top: 12px; max-width: 1020px; }
+  .wave h3 { font-size: 14.5px; }
+  .wave .why { font-size: 12px; color: var(--gray1); margin-top: 6px; line-height: 1.5; }
+  .wave .why b { color: var(--ink); }
+  ul.pts { margin: 8px 0 0 18px; font-size: 12px; color: var(--gray1); line-height: 1.6; }
+  .gate { margin-top: 9px; font-size: 11.5px; color: var(--teal-d); font-weight: 600; }
+  .foot { margin-top: 34px; font-size: 11.5px; color: var(--gray2); max-width: 1020px; line-height: 1.55; }
+</style>
+</head>
+<body>
+
+<h1>Hardening-роадмап: шесть волн</h1>
+<div class="sub">План устранения слабых мест, найденных ревизией 2026-09-18 · решения владельца D1–D6 получены · статус: ожидает сигнала</div>
+<div class="plan-ref">План: <code>docs/plans/2026-09-18-hardening-roadmap-plan.md</code> · wire <code>.smc</code> не меняется ни в одной волне · каждая волна — зелёный <code>dotnet test</code> + R1–R6</div>
+
+<div class="metrics">
+  <div class="metric"><div class="v">242 → &lt;60 <span style="font-size:13px;color:var(--gray2)">МиБ</span></div><div class="k">pack репозитория (волна 1)</div></div>
+  <div class="metric"><div class="v">79 → 0</div><div class="k">молчаливых catch (волна 3)</div></div>
+  <div class="metric"><div class="v ok">12 × 3 c → ~0</div><div class="k">тестов ждут Task.Delay (волна 5a)</div></div>
+  <div class="metric"><div class="v">3 → 1 · 6 → 1</div><div class="k">копии Kv и лимита 320 мбар (волна 4)</div></div>
+  <div class="metric"><div class="v ok">P0 → фикс</div><div class="k">печать PDF: UseShellExecute (волна 2)</div></div>
+</div>
+
+<h2><span class="mark"></span>Решения владельца (2026-09-18)</h2>
+<div class="decisions">
+  <div class="dec"><span class="id">D1</span><div class="q">Печать: принтера нет, но фича нужна</div><div class="a">Выпилить inline-код из ResultsViewModel, написать заново в новом PrintService</div></div>
+  <div class="dec"><span class="id">D2</span><div class="q">Логи: куда и с какой политикой</div><div class="a">%LOCALAPPDATA%\SnowMeltingCalculator\logs · ≤3 файла × 5 МБ · без телеметрии</div></div>
+  <div class="dec"><span class="id">D3</span><div class="q">Мусор в git: индекс или история</div><div class="a">Полная чистка истории через git filter-repo (соло, чужих клонов нет)</div></div>
+  <div class="dec"><span class="id">D4</span><div class="q">Тяжёлые бинарники</div><div class="a">Git LFS + .gitattributes; src/tests/data — вне LFS, CI не тянет LFS-объекты</div></div>
+  <div class="dec"><span class="id">D5</span><div class="q">Подпись кода</div><div class="a">Неподписанный сетап остаётся; этап подписи — при будущих внешних релизах</div></div>
+  <div class="dec"><span class="id">D6</span><div class="q">Golden-master baseline</div><div class="a">Относительный допуск 1e-9; побитовый пин снять</div></div>
+</div>
+
+<h2><span class="mark"></span>Последовательность</h2>
+<div class="flow">
+  <div class="stage"><div class="n">Волна 1</div><div class="t">Репо-хирургия</div><div class="d">filter-repo purge + LFS + force-push. Единственная необратимая — первой, под backup-бандлом</div></div>
+  <div class="arrow">→</div>
+  <div class="stage t"><div class="n">Волна 2</div><div class="t">Точечные баги</div><div class="d">PrintService (новый файл), гварды spacing/NaN/fallback. Быстрые победы малой поверхностью</div></div>
+  <div class="arrow">→</div>
+  <div class="stage t"><div class="n">Волна 3</div><div class="t">Наблюдаемость</div><div class="d">RollingFileLogger + перепись 79 catch. Механическая поверхность — отдельно от физики</div></div>
+  <div class="arrow">→</div>
+  <div class="stage"><div class="n">Волна 4</div><div class="t">Физика в канон</div><div class="d">Сначала baseline → 1e-9, затем литералы → константы под защитой сетки. ADR-016 + атакующее ревью</div></div>
+  <div class="arrow">→</div>
+  <div class="stage g"><div class="n">Волна 5</div><div class="t">Отклик UI и тестов</div><div class="d">5a: clock injection, −36 c прогона, −гонки статусов. 5b: async-каскад — отдельное решение</div></div>
+  <div class="arrow">→</div>
+  <div class="stage g"><div class="n">Волна 6</div><div class="t">Хвосты гигиены</div><div class="d">Один хелпер AppSettings (тесты не трогают %APPDATA%), Directory.Build.props, CPM</div></div>
+</div>
+
+<h2><span class="mark"></span>Волна 1 — чистка истории (target: 242 → &lt;60 МиБ)</h2>
+<div class="wave">
+  <span class="pill p-red">filter-repo</span><span class="pill p-red">LFS</span><span class="pill ghost">код не трогается</span>
+  <div class="why"><b>Purge-список</b> (полный — в плане §2.2): <span class="mono">.omo/</span> 124 файла · <span class="mono">build_temp/</span> 20 файлов (~20 МБ: pdb + нативные sqlite-lib) · <span class="mono">Тест/</span> пользовательские .smc+.bak (копируются локально до чистки) · <span class="mono">test_report_*.md</span> · <span class="mono">docs/GlycolDataService_Fix/</span> · старые ревизии дек <span class="mono">docs/presentation/</span> · стоковые фото и дубли <span class="mono">Презентация/</span> (~45 МБ).</div>
+  <ul class="pts">
+    <li>Страховка: <span class="mono">git bundle --all</span> перед каждым rewrite; локальные копии <span class="mono">Тест/</span> в <span class="mono">ace-local-keep\</span></li>
+    <li>LFS — только документные бинарники (<span class="mono">docs/presentation/**</span>, pptx/pdf Презентации, evidence-PNG); <b>src/tests/data — вне LFS</b>: CI не тянет ни одного LFS-объекта, квота не горит</li>
+    <li>Попутно с диска: призраки корня (<span class="mono">-p</span>, <span class="mono">ACE KIMI</span>, <span class="mono">kimi</span>, логи крашей) и протухший <span class="mono">PROJECT_STATUS.md</span></li>
+  </ul>
+  <div class="gate">Гейт: подтверждение purge-чек-листа владельцем → force-push --tags → зелёный CI на новом master</div>
+</div>
+
+<h2><span class="mark"></span>Волна 2 — печать заново в новом сервисе (D1)</h2>
+<div class="wave">
+  <span class="pill p-teal">новый src/Services/Printing/</span><span class="pill ghost">ResultsViewModel −~40 строк</span>
+  <table>
+    <tr><th>Было</th><th>Станет</th></tr>
+    <tr><td><span class="mono">ResultsViewModel.cs:1035-1066</span>: Process с <span class="mono">Verb="print"</span> <b>без UseShellExecute</b> → Win32Exception всегда → «Ошибка печати»; Process не диспозится</td><td><span class="mono">IPrintService.PrintPdf(path)</span>: <span class="mono">UseShellExecute = true</span>, Process в using, результат Success/Failure вместо исключения; юнит-пин UseShellExecute через шов <span class="mono">Func&lt;ProcessStartInfo, Process&gt;</span></td></tr>
+    <tr><td>Отказ печати = тупик</td><td>Fallback <span class="mono">OpenPdf</span> (verb "open"): без принтера PDF открывается системным просмотрщиком</td></tr>
+    <tr><td>—</td><td>Гварды: <span class="mono">SupplySpacing_cm ≤ 0</span> → валидация до расчёта (не Infinity); NaN-гликоль → явная ошибка контура «свойства вне диапазона базы»; fallback 35/30 °C → предупреждение в StatusMessage</td></tr>
+  </table>
+  <div class="gate">Принятое ограничение (D1): реальный акт печати — ручная проверка «диалог отправлен, исключения нет»</div>
+</div>
+
+<h2><span class="mark"></span>Волна 3 — наблюдаемость (%LOCALAPPDATA%, D2)</h2>
+<div class="wave">
+  <span class="pill p-teal">новый src/Services/Logging/</span><span class="pill ghost">без внешних пакетов</span><span class="pill ghost">без телеметрии</span>
+  <div class="why"><span class="mono">RollingFileLogger</span>: <span class="mono">%LOCALAPPDATA%\SnowMeltingCalculator\logs\app.log</span> (+.1, .2) — <b>≤3 файлов × 5 МБ</b> (≤15 МБ на диске), потокобезопасно, Info/Warn/Error, flush на каждой записи, корень инъекционный для тестов.</div>
+  <ul class="pts">
+    <li>Правило переписи 79 catch: <b>«глушить можно только с записью в лог»</b>; 5 пустых — упразднить; 29 Debug.WriteLine → log; grep-скан-тест в духе ArchitectureRules</li>
+    <li>Точки пользователя: save/load .smc (log Error + StatusMessage), AppSettings (log Warn, дефолты), справочники артикулов (log + разовое UI-предупреждение «загрузился не полностью»)</li>
+  </ul>
+  <div class="gate">Гейт: атакующее ревью (широкая поверхность) до имплементации</div>
+</div>
+
+<h2><span class="mark"></span>Волна 4 — физика в канон: сначала сетка (D6), потом перенос</h2>
+<div class="wave">
+  <span class="pill p-red">расчётное ядро</span><span class="pill p-red">ADR-016</span><span class="pill ghost">значения не меняются</span><span class="pill ghost">hash-пин .smc не двигается</span>
+  <table>
+    <tr><th>Литерал</th><th>Где сейчас</th><th>Куда</th></tr>
+    <tr><td>α = 2.26 / 2.6</td><td><span class="mono">ThermalCalculator.cs:54</span></td><td><span class="mono">ThermalConstants.HeatTransferCoefficientA/B/C</span> (уже существуют)</td></tr>
+    <tr><td>лимиты −60/+10/20–90/50–500</td><td><span class="mono">ThermalCalculator.cs:607+</span></td><td>единый источник, развязка дублей Thermal ↔ Validation</td></tr>
+    <tr><td>3.6 · 4000/3600 · 10000 · 15000 · 100000 · 1.2</td><td><span class="mono">CircuitsCalculator.cs:56-116</span></td><td><span class="mono">HydraulicsConstants</span></td></tr>
+    <tr><td>Kv клапанов — <b>3 копии</b></td><td>Constants + ValveTurnsCalculator + CircuitsViewModel:705</td><td>один список в <span class="mono">HydraulicsConstants</span></td></tr>
+    <tr><td>320 мбар — <b>≥6 копий, 4 единицы</b></td><td>Constants, Summary, Repository, TypeSelector, Converter(XAML)</td><td><span class="mono">MaxPressureLoss_Pa</span> единственный</td></tr>
+    <tr><td><span class="mono">(int)inputs.Mode</span> = температура</td><td><span class="mono">ThermalCalculator.cs:411</span></td><td>явная карта/поле; wire не меняется</td></tr>
+  </table>
+  <div class="why" style="margin-top:8px">Порядок внутри волны: <b>шаг 1</b> — baseline <span class="mono">Is.EqualTo</span> → относительный допуск <b>1e-9</b> (43 кейса перестают падать от FP-реордеров), <b>шаг 2</b> — перенос литералов под защитой сетки + контрольного пересчёта ПЗ.</div>
+  <div class="gate">Гейт: атакующее ревью расчётного ядра + ADR-016 до имплементации</div>
+</div>
+
+<h2><span class="mark"></span>Волны 5–6 — отклик и хвосты</h2>
+<div class="wave">
+  <span class="pill p-gray">5a clock injection</span><span class="pill ghost">5b async-каскад — отдельное решение владельца</span><span class="pill ghost">6 хвосты</span>
+  <div class="why"><b>5a:</b> 10 сайтов <span class="mono">Task.Delay(3000)</span> в ResultsViewModel → инъекция <span class="mono">IDelayScheduler</span> + отмена предыдущей очистки статуса. Эффект: 12 «трёхсекундных» тестов → мгновенные (−~36 c из 39 c прогона), класс гонок StatusMessage исчезает. <b>5b:</b> синхронный каскад гидравлики на UI-потоке (CircuitsViewModel после тепла) → Task.Run + маршалинг — риск выше, отдельный мини-план, только при подтверждённой проблеме отзывчивости. <b>6:</b> один хелпер ResetAppSettings (4 копии перестают удалять настоящий <span class="mono">%APPDATA%</span>-settings.json), переписать таутологичный тест TextBoxBehavior, слить <span class="mono">Integration/</span> → <span class="mono">IntegrationTests/</span>, Directory.Build.props + CPM, publish-профиль вместо параметров в dev-csproj.</div>
+</div>
+
+<h2><span class="mark"></span>Вне объёма (решено)</h2>
+<div class="wave">
+  <div class="why"><b>D5:</b> неподписанный сетап остаётся — сертификата нет; этап подписи появится в CI/CD при внешних релизах. <b>Телеметрия</b> — запрещена (D2). <b>Релизный пайплайн</b> (release.yml: publish → ISCC → артефакт → тег <span class="mono">v*</span>) — отдельный мини-план после волны 1, в этот роадмап не входит.</div>
+</div>
+
+<div class="foot">
+Правило волн: каждая заканчивается зелёными <code>dotnet build</code> + полным <code>dotnet test</code> + <code>ArchitectureRulesTests</code>; handover-строка «state ownership без изменений» (волна 4 — с ADR-016); wire-контракт <code>.smc</code> не меняется; диффы волн не смешиваются. Ревизия-основание: 2026-09-18, три фронта (production-код / тесты / гигиена-и-релиз); P0 печати проверен по коду <code>ResultsViewModel.cs:1035-1066</code>.
+</div>
+
+</body>
+</html>
