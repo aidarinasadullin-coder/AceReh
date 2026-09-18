@@ -30,6 +30,15 @@ they stay unchanged. Any new migration-style phase requires explicit owner
 direction and follows the dossier workflow
 (`docs/architecture-migration/AGENTS.md`).
 
+## Инструкция пользователя
+
+Инструкция (`docs/manual/README.html`, открывается из приложения «Файл →
+Инструкция») собирается из единственного источника командой
+`python docs/manual/build_manual.py` (`docs/manual/src/template.html` +
+`docs/manual/src/media/`; версия подставляется из csproj). `README.html`
+вручную не правится. После правок интерфейса пересборка обязательна —
+рассинхрон версии ловит `ManualVersionGateTests` (Architecture).
+
 ## Review
 
 - No change is committed without owner review: work is handed over as an
