@@ -118,10 +118,18 @@
   footer .brand{color:var(--red); font-weight:800; letter-spacing:1px;}
 
   /* лайтбокс: клик по скриншоту открывает его в полном размере */
-  .figure img, .sb-card img{cursor:zoom-in;}
-  .lightbox{position:fixed; inset:0; background:rgba(20,20,18,.93); display:none; align-items:center; justify-content:center; z-index:999; cursor:zoom-out; padding:24px;}
+  .figure img, .sb-card img, .pdf-card img{cursor:zoom-in;}
+  .figure.real img{width:auto; max-width:100%;}
+  .lightbox{position:fixed; inset:0; background:rgba(20,20,18,.93); display:none; align-items:center; justify-content:center; z-index:999; cursor:zoom-out; padding:24px; overflow:auto;}
   .lightbox.open{display:flex;}
-  .lightbox img{max-width:96vw; max-height:92vh; border-radius:8px; box-shadow:0 8px 60px rgba(0,0,0,.55); cursor:default;}
+  .lightbox img{width:min(96vw,1600px); height:min(92vh,900px); object-fit:contain; border-radius:8px; box-shadow:0 8px 60px rgba(0,0,0,.55); cursor:default;}
+  /* pdf-страницы: сначала целиком, клик — 1:1, стрелки — прокрутка */
+  .lightbox.pdf{cursor:default;}
+  .lightbox.pdf img{width:auto; height:auto; max-width:96vw; max-height:92vh; cursor:zoom-in;}
+  .lightbox.pdf.zoomed{display:block;}
+  .lightbox.pdf.zoomed img{max-width:none; max-height:none; display:block; margin:0 auto; cursor:move;}
+  .pdf-hint{position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.7); color:#e8e8e6; font-size:12.5px; padding:6px 16px; border-radius:999px; display:none; white-space:nowrap;}
+  .lightbox.pdf .pdf-hint{display:block;}
 </style>
 </head>
 <body>
@@ -243,25 +251,25 @@
   <h3>Сценарий: поправили исходные данные</h3>
   <p class="lead">Изменили расчётную температуру в «Климате» (например, −15 → −18). Зона пересчиталась автоматически (M15 → M20), шаги, которые устарели, погасли до серого, а строка состояния объяснила причину. Гидравлика при этом пересчитывается сама — её кружок остаётся бирюзовым.</p>
   <div class="two-col">
-    <div class="figure"><img src="{{IMG:c-stepper.png}}" alt="Степпер: шаги погасли"><div class="cap">Шаги «Тепловой расчёт» и «Результаты» погасли — их нужно пересчитать.</div></div>
+    <div class="figure real"><img src="{{IMG:c-stepper.png}}" alt="Степпер: шаги погасли"><div class="cap">Шаги «Тепловой расчёт» и «Результаты» погасли — их нужно пересчитать.</div></div>
     <div>
-      <div class="figure"><img src="{{IMG:extracted-01.png}}" alt="Строка состояния: требуется пересчёт"></div>
+      <div class="figure real"><img src="{{IMG:extracted-01.png}}" alt="Строка состояния: требуется пересчёт"></div>
       <div class="callout"><b>Что делать.</b> Нажать <b>Рассчитать</b> — через пару секунд все шаги снова бирюзовые, сводка обновлена.</div>
     </div>
   </div>
 
   <h3>Сценарий: ошибка ввода</h3>
   <div class="two-col">
-    <div class="figure"><img src="{{IMG:c-error-stepper.png}}" alt="Шаг «Климат» с ошибкой ⚠"><div class="cap">У шага «Климат» — оранжевый ⚠, поле с ошибкой обведено красным.</div></div>
+    <div class="figure real"><img src="{{IMG:c-error-stepper.png}}" alt="Шаг «Климат» с ошибкой ⚠"><div class="cap">У шага «Климат» — оранжевый ⚠, поле с ошибкой обведено красным.</div></div>
     <div>
-      <div class="figure"><img src="{{IMG:extracted-02.png}}" alt="Строка состояния: температура должна быть от −50 до +10"></div>
+      <div class="figure real"><img src="{{IMG:extracted-02.png}}" alt="Строка состояния: температура должна быть от −50 до +10"></div>
       <div class="callout red"><b>Куда вернуться.</b> Шаги в списке слева всегда кликабельны — щёлкните нужный шаг, исправьте поле и нажмите «Рассчитать». Строка состояния называет поле и допустимый диапазон.</div>
     </div>
   </div>
 
   <h3>Сводка проекта — чек-лист шагов</h3>
   <div class="two-col">
-    <div class="figure"><img src="{{IMG:c-summary.png}}" alt="Сводка проекта"></div>
+    <div class="figure real"><img src="{{IMG:c-summary.png}}" alt="Сводка проекта"></div>
     <p class="lead" style="margin-top:6px;">В сводке всегда видны ключевые цифры проекта и блок «Шаги»: галочка напротив каждого рассчитанного раздела. Если шаг погас или горит ⚠ — вернитесь к нему. Это тот же статус, что и у кружков слева, просто в виде списка.</p>
   </div>
 
@@ -349,7 +357,7 @@
 
   <h2 id="s8"><span class="num">8</span>Отчёты PDF и сохранение проекта</h2>
   <p class="lead">Меню «Отчёт PDF ▾» в шапке: <b>Предпросмотр PDF</b>, <b>Печать</b>, <b>Сохранить PDF…</b>, две <b>пояснительные записки</b> — рабочий режим и холодный пуск — и <b>Спецификация XLSX</b>: выгрузка спецификации закупки в книгу Excel (лист «Спецификация» — труба, резьбозажимные соединения, коллекторы с артикулами; лист «Контуры» — наладка).</p>
-  <div class="figure"><img src="{{IMG:report-menu.png}}" alt="Меню кнопки «Отчёт PDF ▾»"><div class="cap">Меню кнопки «Отчёт PDF ▾»: внизу списка — «Спецификация XLSX» для закупки и наладки.</div></div>
+  <div class="figure real"><img src="{{IMG:report-menu.png}}" alt="Меню кнопки «Отчёт PDF ▾»"><div class="cap">Меню кнопки «Отчёт PDF ▾»: внизу списка — «Спецификация XLSX» для закупки и наладки. Клик — увеличить.</div></div>
 
   <div class="pdf-row">
     <div class="pdf-card"><img src="{{IMG:pg1.png}}" alt="Отчёт, страница 1"><b>«Результаты расчёта», стр. 1.</b> Ответ (удельная мощность), плитки для сметы, спека закупки.</div>
@@ -434,16 +442,38 @@
   // кнопка наверх
   var tt = document.getElementById('totop');
   window.addEventListener('scroll', function(){ tt.classList.toggle('show', window.scrollY > 700); });
-  // лайтбокс: клик по скриншоту — просмотр в полном размере, клик/Esc — закрыть
+  // лайтбокс: обычные скрины — единый крупный просмотр; pdf-страницы — клик = 1:1, стрелки = прокрутка
   var lb = document.createElement('div');
   lb.className = 'lightbox';
-  lb.innerHTML = '<img alt="Скриншот в полном размере">';
+  lb.innerHTML = '<img alt="Скриншот в полном размере"><div class="pdf-hint">клик — приблизить · стрелки — прокрутка · Esc — закрыть</div>';
   document.body.appendChild(lb);
-  lb.addEventListener('click', function(){ lb.classList.remove('open'); });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') lb.classList.remove('open'); });
-  document.querySelectorAll('.figure img, .sb-card img').forEach(function(img){
+  var lbImg = lb.querySelector('img');
+  function closeLb(){ lb.classList.remove('open','pdf','zoomed'); lbImg.removeAttribute('style'); }
+  function toggleZoom(){
+    if (lb.classList.contains('zoomed')){ lb.classList.remove('zoomed'); lbImg.removeAttribute('style'); }
+    else { lb.classList.add('zoomed'); lbImg.style.width = (lbImg.naturalWidth * 1.5) + 'px'; lbImg.style.height = 'auto'; }
+  }
+  lb.addEventListener('click', function(e){
+    if (lb.classList.contains('pdf') && e.target === lbImg){ toggleZoom(); e.stopPropagation(); return; }
+    closeLb();
+  });
+  document.addEventListener('keydown', function(e){
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape'){ closeLb(); return; }
+    if (lb.classList.contains('pdf') && lb.classList.contains('zoomed')){
+      var step = 140;
+      if (e.key === 'ArrowLeft'){ lb.scrollBy({left:-step, behavior:'smooth'}); e.preventDefault(); }
+      if (e.key === 'ArrowRight'){ lb.scrollBy({left:step, behavior:'smooth'}); e.preventDefault(); }
+      if (e.key === 'ArrowUp'){ lb.scrollBy({top:-step, behavior:'smooth'}); e.preventDefault(); }
+      if (e.key === 'ArrowDown'){ lb.scrollBy({top:step, behavior:'smooth'}); e.preventDefault(); }
+    }
+  });
+  document.querySelectorAll('.figure img, .sb-card img, .pdf-card img').forEach(function(img){
     img.addEventListener('click', function(){
-      lb.querySelector('img').src = img.src;
+      lbImg.removeAttribute('style');
+      lb.classList.remove('zoomed');
+      lb.classList.toggle('pdf', !!img.closest('.pdf-card'));
+      lbImg.src = img.src;
       lb.classList.add('open');
     });
   });
