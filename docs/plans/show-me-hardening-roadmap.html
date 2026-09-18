@@ -16,10 +16,10 @@
   .sub { color: var(--gray2); font-size: 13px; margin-top: 6px; }
   .plan-ref { margin-top: 10px; font-size: 12.5px; color: var(--gray1); }
   .plan-ref code { background: #EDEDED; border-radius: 3px; padding: 1px 6px; font-size: 11.5px; }
-  .banner { margin-top: 14px; background: #FBE3EA; border: 1px solid #F3B7C9; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: var(--red-d); font-weight: 600; max-width: 1120px; }
+  .banner { margin-top: 14px; background: #E4F6F3; border: 1px solid #B7E3DA; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: var(--teal-d); font-weight: 600; max-width: 1180px; }
   h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 32px 0 10px; }
   .mark { display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; }
-  .metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; max-width: 1120px; }
+  .metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; max-width: 1180px; }
   .metric { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 13px 17px; min-width: 170px; }
   .metric .v { font-size: 20px; font-weight: 700; }
   .metric .v.ok { color: var(--teal-d); }
@@ -52,7 +52,6 @@
   .pill.ghost { background: transparent; border: 1px solid var(--gray4); color: var(--gray2); font-weight: 500; }
   .wave { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 14px 16px; margin-top: 11px; max-width: 1020px; }
   .wave h3 { font-size: 14px; }
-  .wave h3 .wn { color: var(--red); margin-right: 6px; }
   .wave .why { font-size: 11.5px; color: var(--gray1); margin-top: 5px; line-height: 1.5; }
   .wave .why b { color: var(--ink); }
   .gate { margin-top: 8px; font-size: 11px; color: var(--teal-d); font-weight: 600; }
@@ -62,17 +61,17 @@
 <body>
 
 <h1>Hardening-роадмап: восемь волн + backlog</h1>
-<div class="sub">Амендмент II от 2026-09-18: полный аудит покрытия находок (P/F/H), разбиение 6 → 8 волн по темам ревью-поверхностей · решения D1–D9 получены, D10 открыт</div>
-<div class="plan-ref">План: <code>docs/plans/2026-09-18-hardening-roadmap-plan.md</code> · приложение §A — аудит покрытия · wire <code>.smc</code> не меняется ни в одной волне</div>
-<div class="banner">СТАРТ ЗАБЛОКИРОВАН: параллельная сессия активна (её незакоммиченные правки и застейдженные удаления трёх папок инструкций). Волна 1 запускается только после её остановки — filter-repo с чужими правками в дереве потерял бы их.</div>
+<div class="sub">Амендмент III от 2026-09-18: атакующее ревью плана R-2026-09-18-03 — APPROVE-WITH-EDITS, 12 находок (P1×1, P2×3, P3×8), все приняты и внесены · решения D1–D9 получены, D10 открыт</div>
+<div class="plan-ref">План: <code>docs/plans/2026-09-18-hardening-roadmap-plan.md</code> · чек ревью: <code>docs/reviews/2026-09-18-hardening-roadmap-review.md</code> · приложение §A — аудит покрытия · wire <code>.smc</code> не меняется ни в одной волне</div>
+<div class="banner">ПЛАН ОТРЕВЬЮЕН — СТАРТ ПО СИГНАЛУ ВЛАДЕЛЬЦА. На момент R-2026-09-18-03 дерево чистое (параллельная сессия закоммитила работы, презентации выведены из git в 4adecd7); перед filter-repo — перепроверка git status.</div>
 
 <div class="metrics">
   <div class="metric"><div class="v">23 / 25</div><div class="k">кодовых находок в волнах (2 — backlog)</div></div>
   <div class="metric"><div class="v">7 / 22</div><div class="k">тестовых в волнах (5 backlog, 10 as-is)</div></div>
-  <div class="metric"><div class="v">18 / 21</div><div class="k">гигиенических в волнах (2 вне, 1 позитив)</div></div>
-  <div class="metric"><div class="v ok">242 → &lt;60 МиБ</div><div class="k">pack после волны 1</div></div>
-  <div class="metric"><div class="v ok">79 → 0</div><div class="k">молчаливых catch</div></div>
-  <div class="metric"><div class="v ok">12×3 c → ~0</div><div class="k">тестов ждут Task.Delay</div></div>
+  <div class="metric"><div class="v">18 / 21</div><div class="k">гигиенических в волнах (H21 → волна 1, по ревью)</div></div>
+  <div class="metric"><div class="v ok">447 → &lt;60 МиБ</div><div class="k">pack после волны 1 (замер ревью: 446.77)</div></div>
+  <div class="metric"><div class="v ok">79 → 0</div><div class="k">молчаливых catch (7 коммент-only)</div></div>
+  <div class="metric"><div class="v ok">18 сайтов</div><div class="k">Task.Delay → IDelayScheduler (было 12×3 c в тестах)</div></div>
 </div>
 
 <h2><span class="mark"></span>Решения владельца</h2>
@@ -91,7 +90,7 @@
 
 <h2><span class="mark"></span>Последовательность (8 волн + backlog с триггерами)</h2>
 <div class="flow">
-  <div class="stage"><div class="n">Волна 1</div><div class="t">Репо-хирургия</div><div class="d">filter-repo + LFS + .gitignore + README. Необратимая — первой, под бандлом</div></div>
+  <div class="stage"><div class="n">Волна 1</div><div class="t">Репо-хирургия</div><div class="d">filter-repo (история!) + LFS + .gitignore + README. Необратимая — первой, под бандлом</div></div>
   <div class="arrow">→</div>
   <div class="stage t"><div class="n">Волна 2</div><div class="t">Печать + DI</div><div class="d">PrintService (D1/D8) + фикс Dispatcher.CurrentDispatcher (P19)</div></div>
   <div class="arrow">→</div>
@@ -101,19 +100,19 @@
   <div class="arrow">→</div>
   <div class="stage"><div class="n">Волна 5</div><div class="t">Физика и данные</div><div class="d">1e-9 (D6) → литералы → константы, гликоль JSON-канон. ADR-016</div></div>
   <div class="arrow">→</div>
-  <div class="stage g"><div class="n">Волна 6</div><div class="t">Отклик</div><div class="d">Clock injection + debounce автокомплита; async-каскад — точка решения</div></div>
+  <div class="stage g"><div class="n">Волна 6</div><div class="t">Отклик</div><div class="d">18 сайтов Task.Delay → IDelayScheduler + debounce автокомплита; async-каскад — точка решения</div></div>
   <div class="arrow">→</div>
   <div class="stage g"><div class="n">Волна 7</div><div class="t">Конструкция</div><div class="d">Демо-команды (D10) + дедуп 45 строк</div></div>
   <div class="arrow">→</div>
   <div class="stage g"><div class="n">Волна 8</div><div class="t">Хвосты</div><div class="d">Фикстуры, Build.props/CPM, культура сообщений, протокол отчёта</div></div>
 </div>
 
-<h2><span class="mark"></span>Волна 1 — чистка истории (242 → &lt;60 МиБ)</h2>
+<h2><span class="mark"></span>Волна 1 — чистка истории (447 → &lt;60 МиБ)</h2>
 <div class="wave">
-  <span class="pill p-red">filter-repo</span><span class="pill p-red">LFS</span><span class="pill ghost">код не трогается</span><span class="pill ghost">D7 подтверждён</span>
-  <div class="why"><b>Purge</b>: <span class="mono">.omo/</span> 124 файла · <span class="mono">build_temp/</span> ~20 МБ · <span class="mono">Тест/</span> (копия в ace-local-keep) · <span class="mono">test_report_*.md</span> · <span class="mono">docs/GlycolDataService_Fix/</span> · старые деки <span class="mono">docs/presentation/</span> · сток/дубли <span class="mono">Презентация/</span> ~45 МБ · <span class="mono">ADSK_ОсновнаяНадпись.rfa</span> (подтвердить). Попутно: .gitignore-закрепление, README (glycol_data.yaml), снос PROJECT_STATUS и призраков корня.</div>
-  <div class="why"><b>LFS</b> — только документные бинарники; src/tests/data вне LFS → CI не тратит квоту. Страховка: <span class="mono">git bundle --all</span> перед каждым rewrite.</div>
-  <div class="gate">Гейт: остановленная параллельная сессия → force-push --tags → зелёный CI → size-pack &lt; 60 МиБ</div>
+  <span class="pill p-red">filter-repo</span><span class="pill p-red">LFS</span><span class="pill ghost">код не трогается</span><span class="pill ghost">D7 подтверждён</span><span class="pill p-amber">презентации уже вне git (4adecd7)</span>
+  <div class="why"><b>Purge истории</b> (рабочие файлы презентаций уже выведены параллельной сессией — в git остаётся только история блобов ~65+ МБ): <span class="mono">.omo/</span> 124 файла · <span class="mono">build_temp/</span> ~20 МБ · <span class="mono">Тест/</span> 15 .smc + 5 .bak + 1 md (копия в ace-local-keep) · <span class="mono">test_report_*.md</span> · <span class="mono">docs/GlycolDataService_Fix/</span> · <span class="mono">ADSK_ОсновнаяНадпись.rfa</span> (подтвердить) · исторические блобы дек и стоковых фото.</div>
+  <div class="why"><b>LFS — единственный живой кандидат: evidence-PNG</b> <span class="mono">docs/architecture-migration/evidence/**/*.png</span> (62 файла, 56.6 МиБ); src/tests/data вне LFS → CI не тянет ни одного LFS-объекта. Перепись живых ссылок: <span class="mono">Планируемые_изменения.md:600,610-617</span>, <span class="mono">formulas/baseline-coverage.md:13</span>; повисшие ссылки в замороженном provenance принимаются записью. Попутно: .gitignore-закрепление, README (glycol_data.yaml), снос PROJECT_STATUS и призраков корня.</div>
+  <div class="gate">Гейт: перепроверка чистого git status → force-push --tags → зелёный CI → size-pack &lt; 60 МиБ (порог уточняется dry-run)</div>
 </div>
 
 <h2><span class="mark"></span>Волны 2–3 — печать заново и честность расчёта</h2>
@@ -123,9 +122,9 @@
     <tr><th>Находка</th><th>Решение</th></tr>
     <tr><td><span class="mono">ResultsViewModel.cs:1035-1066</span>: Verb="print" без UseShellExecute → «Ошибка печати» всегда; Process не диспозится</td><td><span class="mono">IPrintService.PrintPdf</span>: UseShellExecute = true (юнит-пин через шов <span class="mono">Func&lt;ProcessStartInfo, Process&gt;</span>), using, результат Success/Failure (D1)</td></tr>
     <tr><td>Отказ печати = тупик</td><td>Fallback «Открыть PDF» (D8)</td></tr>
-    <tr><td><span class="mono">ServiceCollectionExtensions.cs:255-259</span>: Dispatcher.CurrentDispatcher в DI-фабрике (P19)</td><td>Захват UI-диспетчера в composition root + комментарий-инвариант</td></tr>
+    <tr><td><span class="mono">ServiceCollectionExtensions.cs:254-258</span>: Dispatcher.CurrentDispatcher в DI-фабрике (P19)</td><td>Захват UI-диспетчера в composition root + комментарий-инвариант</td></tr>
     <tr><td><span class="mono">CircuitsCalculator.cs:35</span>: SupplySpacing 0 → Infinity</td><td>Валидация до расчёта, пин «Error, не Infinity»</td></tr>
-    <tr><td>NaN гликоля подменяется соседом (<span class="mono">GlycolDataService.cs:593</span>) и течёт в расчёт</td><td><b>D9: Error расчёта контура</b> + примечание/рекомендация (границы базы, концентрация, температура)</td></tr>
+    <tr><td>NaN гликоля подменяется соседом (<span class="mono">GlycolDataService.cs:591-594</span>) и течёт в расчёт</td><td><b>D9: Error расчёта контура</b> + примечание/рекомендация (границы базы, концентрация, температура)</td></tr>
     <tr><td>Скрытые допущения 35/30 °C (<span class="mono">CircuitsViewModel.cs:633-643</span>)</td><td>Предупреждение в StatusMessage</td></tr>
   </table>
 </div>
@@ -133,24 +132,24 @@
 <h2><span class="mark"></span>Волны 4–5 — наблюдаемость и канон</h2>
 <div class="wave">
   <span class="pill p-teal">%LOCALAPPDATA%</span><span class="pill ghost">без внешних пакетов</span><span class="pill ghost">без телеметрии</span><span class="pill p-red">ADR-016</span>
-  <div class="why"><b>Волна 4:</b> <span class="mono">RollingFileLogger</span> — ≤3 файлов × 5 МБ, потокобезопасно, инъекция корня для тестов; правило переписи 79 catch: «глушить можно только с записью»; save/load .smc, AppSettings, справочники (log + разовое UI-предупреждение). Гейт: атакующее ревью.</div>
-  <div class="why"><b>Волна 5 (порядок внутри важен):</b> шаг 1 — baseline → <b>1e-9 относительный</b> (D6, сетка откалибрована), шаг 2 — α 2.26/2.6, лимиты, коэффициенты гидравлики, Kv 3→1, 320 мбар 6→1, (int)Mode → карта, дубли формул → одна копия; шаг 3 — гликоль: JSON-канон, встроенные таблицы — fallback/удаляются (решение на ревью). Hash-пин .smc не двигается. Гейт: атакующее ревью ядра + ADR-016.</div>
+  <div class="why"><b>Волна 4:</b> <span class="mono">RollingFileLogger</span> — ≤3 файлов × 5 МБ, потокобезопасно, инъекция корня для тестов; перепись 79 catch: «глушить можно только с записью», <b>7 тел-только-комментариев</b> упраздняются (строго пустых нет), 29 Debug.WriteLine → log; save/load .smc, AppSettings, справочники (log + разовое UI-предупреждение). Гейт: атакующее ревью.</div>
+  <div class="why"><b>Волна 5 (порядок внутри важен):</b> шаг 1 — baseline → <b>1e-9 относительный</b> (D6, сетка откалибрована), шаг 2 — α 2.26/2.6, лимиты, коэффициенты гидравлики, Kv 3→1, 320 мбар 6→1, (int)Mode → карта (wire не меняется: .smc хранит bool IsOperatingMode — подтверждено ревью), дубли формул → одна копия; шаг 3 — гликоль: JSON-канон, встроенные таблицы — fallback/удаляются (решение на ревью). Hash-пин .smc не двигается. Гейт: атакующее ревью ядра + ADR-016.</div>
 </div>
 
 <h2><span class="mark"></span>Волны 6–8 и backlog</h2>
 <div class="wave">
   <span class="pill p-gray">6 отклик</span><span class="pill p-gray">7 конструкция</span><span class="pill p-gray">8 хвосты</span><span class="pill p-amber">backlog — не волны, с триггерами</span>
-  <div class="why"><b>6:</b> 10 сайтов Task.Delay → IDelayScheduler + отмена очистки (−36 c прогона); debounce автокомплита (P24); async-каскад гидравлики (P25) — мини-план только при подтверждённой проблеме отзывчивости. <b>7 (после D10):</b> демо-команды Save/Load Construction без диалогов → диалоги или удаление; дедуп 45 строк MaterialNotFoundException. <b>8:</b> один ResetAppSettings-хелпер (тесты перестают удалять %APPDATA%), таутологичный тест, Integration merge, UtcNow-ассерты, покрытие рендера; Directory.Build.props + CPM + publish-профиль; ~30 сайтов культуры сообщений; строковый протокол отчёта → типизированное поле.</div>
+  <div class="why"><b>6:</b> <b>все 18 сайтов Task.Delay</b> в ResultsViewModel (3000-мс ×10, ошибки 5000-мс ×4, печать ×2, SaveToFile ×2 — недосчёт до 10 исправлен ревью) → IDelayScheduler + отмена очистки (−36 c прогона); debounce автокомплита (P24); async-каскад гидравлики (P25) — мини-план только при подтверждённой проблеме отзывчивости. <b>7 (после D10):</b> демо-команды Save/Load Construction без диалогов → диалоги или удаление; дедуп 45 строк MaterialNotFoundException. <b>8:</b> один ResetAppSettings-хелпер (тесты перестают удалять %APPDATA%), таутологичный тест, Integration merge, UtcNow-ассерты, покрытие рендера; Directory.Build.props + CPM + publish-профиль; ~30 сайтов культуры сообщений; строковый протокол отчёта → типизированное поле.</div>
   <div class="why"><b>Backlog (§10):</b> декомпозиция гигантов (P16) — триггер: редизайн экрана или волна >100 строк касания; reentrancy-гварды (P18) — второй «залипший флаг»; UiSmoke-мелочи (F1/F2/F7/F15) — участившиеся флейки; MainWindow-рефлексия (F19) — по касанию. As-is: F4, F6, F9–F12, F14, F20–F22, H17.</div>
 </div>
 
 <h2><span class="mark"></span>Вне объёма (решено)</h2>
 <div class="wave">
-  <div class="why"><b>D5:</b> неподписанный сетап остаётся. <b>Телеметрия</b> — запрещена (D2). <b>Релизный пайплайн</b> (H5: publish → ISCC → артефакт → тег v*) — отдельный мини-план после волны 1. Удалённые параллельной сессией папки инструкций — вопрос к владельцу отдельно (файлы целы в git, восстановление: <span class="mono">git restore -- "docs/Инструкция …"</span>).</div>
+  <div class="why"><b>D5:</b> неподписанный сетап остаётся. <b>Телеметрия</b> — запрещена (D2). <b>Релизный пайплайн</b> (H5: publish → ISCC → артефакт → тег v*) — отдельный мини-план после волны 1. <b>Process-гэп из ревью:</b> в quality-log не внесены записи R-2026-09-17-01/02 и R-2026-09-18-01/02 — вынесено владельцу; запись настоящего ревью (R-2026-09-18-03) добавлена.</div>
 </div>
 
 <div class="foot">
-Правило волн: зелёный <code>dotnet build</code> + полный <code>dotnet test</code> + <code>ArchitectureRulesTests</code>; handover «state ownership без изменений» (волна 5 — с ADR-016); wire <code>.smc</code> не меняется; диффы волн не смешиваются. Почему не больше восьми: дробление ниже тематического уровня умножает handover-накладку без снижения риска; крупные темы ушли в backlog с триггерами, а не в волны.
+Правило волн: зелёный <code>dotnet build</code> + полный <code>dotnet test</code> + <code>ArchitectureRulesTests</code>; handover «state ownership без изменений» (волна 5 — с ADR-016); wire <code>.smc</code> не меняется; диффы волн не смешиваются. Почему не больше восьми: дробление ниже тематического уровня умножает handover-накладку без снижения риска; крупные темы ушли в backlog с триггерами, а не в волны. Ревизия-основание: 2026-09-18, три фронта (production-код / тесты / гигиена-и-релиз); ревью плана: R-2026-09-18-03.
 </div>
 
 </body>
