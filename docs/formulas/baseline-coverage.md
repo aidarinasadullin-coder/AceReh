@@ -10,7 +10,7 @@ Protection classifications are deliberately strict:
 - **Behavioral**: an existing focused test asserts the branch or outcome, but the JSON fixture does not serialize a distinguishing numeric field for it.
 - **None**: no concrete fixture field or focused test was found that distinguishes the formula or branch. Green selected suites do not upgrade this classification.
 
-The selected run executed 68 thermal tests and 69 hydraulic tests with zero failures. Fixture integrity and exact counts are recorded in `.omo/evidence/phase-1/task-6-baseline-summary.md`.
+The selected run executed 68 thermal tests and 69 hydraulic tests with zero failures. Fixture integrity and exact counts are recorded in `.omo/evidence/phase-1/task-6-baseline-summary.md` (файл выведен из репозитория при чистке истории 2026-09-18, план `docs/plans/2026-09-18-hardening-roadmap-plan.md` §2.2; копия истории — в бандле `../ace-pre-surgery-2026-09-18.bundle`).
 
 ## Coverage matrix
 

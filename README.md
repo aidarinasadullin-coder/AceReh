@@ -14,6 +14,7 @@ ace/
 ├── data/                           # Базы данных (JSON/YAML)
 │   ├── climate_db.json             # Климатология 550 городов РФ
 │   ├── glycol_data.json            # Свойства гликолей (ASHRAE)
+│   ├── glycol_data.yaml            # Свойства гликолей (ASHRAE, YAML-источник)
 │   ├── materials_db.json           # Материалы конструкции
 │   └── rehau_products.json         # Продукция РЕХАУ
 │
