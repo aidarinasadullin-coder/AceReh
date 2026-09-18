@@ -116,6 +116,12 @@
 
   footer{margin-top:70px; padding-top:20px; border-top:1px solid var(--gray-300); color:var(--gray-500); font-size:13px;}
   footer .brand{color:var(--red); font-weight:800; letter-spacing:1px;}
+
+  /* лайтбокс: клик по скриншоту открывает его в полном размере */
+  .figure img, .sb-card img{cursor:zoom-in;}
+  .lightbox{position:fixed; inset:0; background:rgba(20,20,18,.93); display:none; align-items:center; justify-content:center; z-index:999; cursor:zoom-out; padding:24px;}
+  .lightbox.open{display:flex;}
+  .lightbox img{max-width:96vw; max-height:92vh; border-radius:8px; box-shadow:0 8px 60px rgba(0,0,0,.55); cursor:default;}
 </style>
 </head>
 <body>
@@ -168,14 +174,14 @@
     <button class="marker" style="left:78%; top:2.2%;" data-t="l1" title="Шапка">1</button>
     <button class="marker" style="left:6%; top:15%;" data-t="l2" title="Шаги">2</button>
     <button class="marker" style="left:45%; top:35%;" data-t="l3" title="Рабочая область">3</button>
-    <button class="marker" style="left:93.5%; top:22%;" data-t="l4" title="Сводка проекта">4</button>
+    <button class="marker" style="left:47%; top:12.5%;" data-t="l4" title="Данные проекта">4</button>
     <button class="marker" style="left:50%; top:98.2%;" data-t="l5" title="Строка состояния">5</button>
   </div>
   <div class="legend">
     <div class="item" id="l1"><b>① Шапка</b>проект «9-100000 · Пермь», <b>Отменить / Вернуть</b>, меню «Файл», кнопки <b>Рассчитать</b> и <b>Отчёт PDF</b>.</div>
     <div class="item" id="l2"><b>② Шаги 1–5</b>навигация по расчёту. Цвет кружка шага — его состояние (раздел 2).</div>
     <div class="item" id="l3"><b>③ Рабочая область</b>поля текущего шага. Изменения применяются сразу; рекомендации — подсказкой под полем.</div>
-    <div class="item" id="l4"><b>④ Сводка проекта</b>мощность, температуры, конструкция и чек-лист шагов — видна на любом шаге.</div>
+    <div class="item" id="l4"><b>④ Данные проекта</b>необязательные «Номер проекта» и «Объект»: попадают в шапку приложения, пояснительную записку, отчёты и имя файла записки.</div>
     <div class="item" id="l5"><b>⑤ Строка состояния</b>что происходит сейчас: «всё готово», «требуется пересчёт», текст ошибки (раздел 2).</div>
   </div></div>
 
@@ -260,8 +266,9 @@
   </div>
 
   <h2 id="s3"><span class="num">3</span>Шаг 1 · Климат</h2>
-  <div class="figure"><img src="{{IMG:extracted-03.png}}" alt="Шаг Климат"></div>
+  <div class="figure"><img src="{{IMG:00-trim.png}}" alt="Шаг Климат: карточка «Данные проекта» и параметры города"></div>
   <ul class="tasks">
+    <li><b>«Данные проекта»</b> — необязательные «Номер проекта» и «Объект». Заполненные значения появляются в шапке приложения, попадают в пояснительную записку, отчёт «Результаты», Excel-спецификацию и в имя файла записки. Правки помечают проект изменённым (звёздочка в заголовке окна).</li>
     <li>Начните вводить <b>город</b> — выберите из списка 550 городов. Температура холодной пятидневки, ветер и влажность заполнятся автоматически.</li>
     <li><b>Климатическая зона</b> — расчётная строка под карточкой: она подбирается автоматически по итоговой температуре (например, −15 °C → «M15 · колонка −15 °C», −18 °C → «M20»). Вручную её выбрать нельзя — и не нужно.</li>
     <li>Знаете местные особенности — поправьте <b>температуру</b>, <b>ветер</b> или <b>влажность</b> вручную. Кнопка <b>«Сбросить к данным города»</b> вернёт нормативные значения.</li>
@@ -296,6 +303,9 @@
   </ul>
   <div class="figure"><img src="{{IMG:extracted-05.png}}" alt="Ручной ввод температуры поверхности +4"><div class="cap">Введено +4 °C — режим «Пользовательский (+4 °C)», подпись у поля «своё значение».</div></div>
   <div class="figure"><img src="{{IMG:extracted-06.png}}" alt="Предупреждение: температура поверхности не выше температуры воздуха"><div class="cap">t_пов +1 °C при воздухе +10 °C: подсказка предупреждает об отрицательной мощности, расчёт не блокируется.</div></div>
+  <h3>Подсказки при нарушении тепловых лимитов</h3>
+  <p class="lead">Если расчёт прошёл, но параметры вышли за комфортные пределы — <b>обратка ниже 0 °C</b> или <b>перепад ΔT выше 30 К</b> — под полями «Температура подачи» и «Шаг укладки» появляются тёплые подсказки с конкретным лечением. Ориентир один — «для ΔT ≈ 15 К»: подача ≈ средняя температура + 7,5 °C. Советы ничего не блокируют: ошибки валидации по-прежнему выводятся в строку состояния, чип «Температура обратки» подсвечивается охрой при отрицательном значении, «Поток вниз q↓» показан охрой постоянно.</p>
+  <div class="figure"><img src="{{IMG:thermal-advice.png}}" alt="Тёплые подсказки при превышении перепада ΔT"><div class="cap">ΔT 56,5 K при шаге 300 мм: под полем подачи — совет снизить подачу до ≈49,3 °C (для ΔT ≈ 15 К), под полем шага — увеличить шаг. Строка состояния дублирует нарушение.</div></div>
   <div class="figure"><img src="{{IMG:c-thermal-extra.png}}" alt="Развёрнутые дополнительные параметры"></div>
   <div class="result-line"><b>Получаем:</b> удельную мощность системы q, Вт/м², и температуры контура — ядро всего проекта.</div>
 
@@ -339,6 +349,7 @@
 
   <h2 id="s8"><span class="num">8</span>Отчёты PDF и сохранение проекта</h2>
   <p class="lead">Меню «Отчёт PDF ▾» в шапке: <b>Предпросмотр PDF</b>, <b>Печать</b>, <b>Сохранить PDF…</b>, две <b>пояснительные записки</b> — рабочий режим и холодный пуск — и <b>Спецификация XLSX</b>: выгрузка спецификации закупки в книгу Excel (лист «Спецификация» — труба, резьбозажимные соединения, коллекторы с артикулами; лист «Контуры» — наладка).</p>
+  <div class="figure"><img src="{{IMG:report-menu.png}}" alt="Меню кнопки «Отчёт PDF ▾»"><div class="cap">Меню кнопки «Отчёт PDF ▾»: внизу списка — «Спецификация XLSX» для закупки и наладки.</div></div>
 
   <div class="pdf-row">
     <div class="pdf-card"><img src="{{IMG:pg1.png}}" alt="Отчёт, страница 1"><b>«Результаты расчёта», стр. 1.</b> Ответ (удельная мощность), плитки для сметы, спека закупки.</div>
@@ -397,7 +408,7 @@
 
   <footer>
     <p><span class="brand">РЕХАУ</span> · Калькулятор снеготаяния открытых площадок · инструкция пользователя</p>
-    <p style="margin-top:6px;">Инструкция соответствует версии программы {{VERSION}} и открывается из приложения («Файл → Инструкция»). При обновлении интерфейса пересобирается из исходников вместе со скриншотами.</p>
+    <p style="margin-top:6px;">Инструкция соответствует версии программы {{VERSION}} и открывается из приложения («Файл → Инструкция»). Пересобирается из исходников командой <b>python docs/manual/build_manual.py</b> — версия подставляется из файла проекта автоматически, скриншоты вшиваются из docs/manual/src/media.</p>
   </footer>
 
 </div>
@@ -423,6 +434,19 @@
   // кнопка наверх
   var tt = document.getElementById('totop');
   window.addEventListener('scroll', function(){ tt.classList.toggle('show', window.scrollY > 700); });
+  // лайтбокс: клик по скриншоту — просмотр в полном размере, клик/Esc — закрыть
+  var lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = '<img alt="Скриншот в полном размере">';
+  document.body.appendChild(lb);
+  lb.addEventListener('click', function(){ lb.classList.remove('open'); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') lb.classList.remove('open'); });
+  document.querySelectorAll('.figure img, .sb-card img').forEach(function(img){
+    img.addEventListener('click', function(){
+      lb.querySelector('img').src = img.src;
+      lb.classList.add('open');
+    });
+  });
 </script>
 </body>
 </html>
