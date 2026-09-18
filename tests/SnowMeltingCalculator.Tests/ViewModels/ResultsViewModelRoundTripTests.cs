@@ -664,12 +664,30 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 Times.Never);
         }
 
-        [Test]
-        public async Task ProjectRoundTrip_PreservesGroundwaterLevel()
+        /// <summary>
+        /// Волна C (план 2026-09-18 «чистка раздутых тестов», §3): слияние
+        /// ProjectRoundTrip_PreservesGroundwaterLevel и
+        /// ProjectRoundTrip_PreservesLambdaValueAndOverrideFlag — round-trip
+        /// сохраняет уровень грунтовых вод, а при ручном override — и значение λ,
+        /// и флаг (план 2026-09-04, D5; отменяет прежнее P0-7
+        /// «флаг сбрасывается при загрузке»).
+        /// </summary>
+        [TestCase(0.5, false, 0.0)]
+        [TestCase(2.0, true, 9.999)]
+        public async Task ProjectRoundTrip_PreservesGroundwaterLevel_AndLambdaOverrideAfterLoad(
+            double groundwaterLevel,
+            bool overrideLambda,
+            double manualLambda)
         {
             // Arrange
             var constructionVm = await CreateInitializedConstructionViewModelAsync();
-            constructionVm.GroundwaterLevel = 0.5;
+            constructionVm.GroundwaterLevel = groundwaterLevel;
+            if (overrideLambda)
+            {
+                var layer = constructionVm.LayersBelowPipe.First();
+                layer.IsLambdaOverridden = true;
+                layer.CalculatedLambda = manualLambda;
+            }
 
             var viewModel = CreateViewModel(
                 CreateClimateViewModel(),
@@ -688,144 +706,119 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 CreateCircuitsViewModel());
             await viewModel2.LoadProjectDataAsync(data);
 
-            // Assert
-            Assert.That(constructionVm2.GroundwaterLevel, Is.EqualTo(0.5).Within(1e-9));
+            // Assert: УГВ переживает round-trip; при override переживают и λ, и флаг.
+            Assert.That(constructionVm2.GroundwaterLevel, Is.EqualTo(groundwaterLevel).Within(1e-9));
+            if (overrideLambda)
+            {
+                var loadedLayer = constructionVm2.LayersBelowPipe.First();
+                Assert.That(loadedLayer.IsLambdaOverridden, Is.True);
+                Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(manualLambda).Within(1e-9));
+            }
         }
 
+        /// <summary>
+        /// Волна C: слияние ProjectRoundTrip_OverrideLambdaSurvivesGroundwaterLevelChange_AfterLoad,
+        /// GroundwaterLevelChange_AfterProjectLoad_UpdatesLambdaForBelowPipeLayers и
+        /// ProjectRoundTrip_LambdaUpdatesWhenGroundwaterLevelChanges. Три сценария
+        /// одного взаимодействия «УГВ ↔ λ»; каждый — на свежей сессии (прецедент
+        /// FieldCompleteRoundTrip), все ассерты исходных трёх сохранены.
+        /// </summary>
         [Test]
-        public async Task ProjectRoundTrip_PreservesLambdaValueAndOverrideFlag()
+        public async Task ProjectRoundTrip_GroundwaterLevelChange_OverrideLambdaProtected_OthersRecalculated()
         {
-            // Arrange
-            var constructionVm = await CreateInitializedConstructionViewModelAsync();
-            var layer = constructionVm.LayersBelowPipe.First();
-            layer.IsLambdaOverridden = true;
-            layer.CalculatedLambda = 9.999;
-
-            var viewModel = CreateViewModel(
-                CreateClimateViewModel(),
-                constructionVm,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
-
-            // Act
-            var data = viewModel.SaveCurrentProject();
-
-            var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
-            var viewModel2 = CreateViewModel(
-                CreateClimateViewModel(),
-                constructionVm2,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
-            await viewModel2.LoadProjectDataAsync(data);
-
-            // Assert: ручное переопределение λ переживает round-trip —
-            // сохранены и значение, и флаг (план 2026-09-04, D5; отменяет
-            // прежнее поведение P0-7 «флаг сбрасывается при загрузке»).
-            var loadedLayer = constructionVm2.LayersBelowPipe.First();
-            Assert.That(loadedLayer.IsLambdaOverridden, Is.True);
-            Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(9.999).Within(1e-9));
-        }
-
-        [Test]
-        public async Task ProjectRoundTrip_OverrideLambdaSurvivesGroundwaterLevelChange_AfterLoad()
-        {
-            // Arrange
-            var constructionVm = await CreateInitializedConstructionViewModelAsync();
-            constructionVm.GroundwaterLevel = 2.0; // dry
-            var layer = constructionVm.LayersBelowPipe.First();
-            layer.IsLambdaOverridden = true;
-            layer.CalculatedLambda = layer.Material.LambdaA;
-
-            var viewModel = CreateViewModel(
-                CreateClimateViewModel(),
-                constructionVm,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
-
-            // Act
-            var data = viewModel.SaveCurrentProject();
-
-            var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
-            var viewModel2 = CreateViewModel(
-                CreateClimateViewModel(),
-                constructionVm2,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
-            await viewModel2.LoadProjectDataAsync(data);
-
-            // После загрузки ручная λ защищена флагом: переключение УГВ
+            // Сценарий A: ручная λ защищена флагом — после load переключение УГВ
             // её НЕ пересчитывает (план 2026-09-04, D5).
-            constructionVm2.GroundwaterLevel = 0.5; // wet
+            _projectStateService = new ProjectStateService();
+            {
+                var constructionVm = await CreateInitializedConstructionViewModelAsync();
+                constructionVm.GroundwaterLevel = 2.0; // dry
+                var layer = constructionVm.LayersBelowPipe.First();
+                layer.IsLambdaOverridden = true;
+                layer.CalculatedLambda = layer.Material.LambdaA;
 
-            // Assert
-            var loadedLayer = constructionVm2.LayersBelowPipe.First();
-            Assert.That(loadedLayer.IsLambdaOverridden, Is.True);
-            Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(loadedLayer.Material.LambdaA).Within(1e-9));
-        }
+                var viewModel = CreateViewModel(
+                    CreateClimateViewModel(),
+                    constructionVm,
+                    CreateThermalViewModel(),
+                    CreateCircuitsViewModel());
 
-        [Test]
-        public async Task GroundwaterLevelChange_AfterProjectLoad_UpdatesLambdaForBelowPipeLayers()
-        {
-            // Arrange
-            var constructionVm = await CreateInitializedConstructionViewModelAsync();
-            var layer = constructionVm.LayersBelowPipe.First();
-            layer.IsLambdaOverridden = false;
-            // GroundwaterLevel remains 2.0 m (dry conditions)
+                var data = viewModel.SaveCurrentProject();
 
-            var viewModel = CreateViewModel(
-                CreateClimateViewModel(),
-                constructionVm,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
+                var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
+                var viewModel2 = CreateViewModel(
+                    CreateClimateViewModel(),
+                    constructionVm2,
+                    CreateThermalViewModel(),
+                    CreateCircuitsViewModel());
+                await viewModel2.LoadProjectDataAsync(data);
 
-            // Act
-            var data = viewModel.SaveCurrentProject();
+                constructionVm2.GroundwaterLevel = 0.5; // wet
 
-            var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
-            var viewModel2 = CreateViewModel(
-                CreateClimateViewModel(),
-                constructionVm2,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
-            await viewModel2.LoadProjectDataAsync(data);
+                var loadedLayer = constructionVm2.LayersBelowPipe.First();
+                Assert.That(loadedLayer.IsLambdaOverridden, Is.True);
+                Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(loadedLayer.Material.LambdaA).Within(1e-9));
+            }
 
-            constructionVm2.GroundwaterLevel = 0.5;
+            // Сценарий B: слой без override — после load переключение УГВ с dry на wet
+            // пересчитывает λ (LambdaB для wet-условий).
+            _projectStateService = new ProjectStateService();
+            {
+                var constructionVm = await CreateInitializedConstructionViewModelAsync();
+                var layer = constructionVm.LayersBelowPipe.First();
+                layer.IsLambdaOverridden = false;
+                // GroundwaterLevel remains 2.0 m (dry conditions)
 
-            // Assert
-            var loadedLayer = constructionVm2.LayersBelowPipe.First();
-            Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(loadedLayer.Material.LambdaB).Within(1e-9));
-        }
+                var viewModel = CreateViewModel(
+                    CreateClimateViewModel(),
+                    constructionVm,
+                    CreateThermalViewModel(),
+                    CreateCircuitsViewModel());
 
-        [Test]
-        public async Task ProjectRoundTrip_LambdaUpdatesWhenGroundwaterLevelChanges()
-        {
-            // Arrange
-            var constructionVm = await CreateInitializedConstructionViewModelAsync();
-            constructionVm.GroundwaterLevel = 0.5;
-            var layer = constructionVm.LayersBelowPipe.First();
-            layer.IsLambdaOverridden = false;
-            layer.CalculatedLambda = layer.Material.LambdaA; // deliberately stale value
+                var data = viewModel.SaveCurrentProject();
 
-            var viewModel = CreateViewModel(
-                CreateClimateViewModel(),
-                constructionVm,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
+                var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
+                var viewModel2 = CreateViewModel(
+                    CreateClimateViewModel(),
+                    constructionVm2,
+                    CreateThermalViewModel(),
+                    CreateCircuitsViewModel());
+                await viewModel2.LoadProjectDataAsync(data);
 
-            // Act
-            var data = viewModel.SaveCurrentProject();
+                constructionVm2.GroundwaterLevel = 0.5;
 
-            var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
-            var viewModel2 = CreateViewModel(
-                CreateClimateViewModel(),
-                constructionVm2,
-                CreateThermalViewModel(),
-                CreateCircuitsViewModel());
-            await viewModel2.LoadProjectDataAsync(data);
+                var loadedLayer = constructionVm2.LayersBelowPipe.First();
+                Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(loadedLayer.Material.LambdaB).Within(1e-9));
+            }
 
-            // Assert
-            var loadedLayer = constructionVm2.LayersBelowPipe.First();
-            Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(loadedLayer.Material.LambdaB).Within(1e-9));
+            // Сценарий C: УГВ переключён ещё ДО save — load восстанавливает wet
+            // и λ пересчитана, несмотря на устаревшее значение в слое.
+            _projectStateService = new ProjectStateService();
+            {
+                var constructionVm = await CreateInitializedConstructionViewModelAsync();
+                constructionVm.GroundwaterLevel = 0.5;
+                var layer = constructionVm.LayersBelowPipe.First();
+                layer.IsLambdaOverridden = false;
+                layer.CalculatedLambda = layer.Material.LambdaA; // deliberately stale value
+
+                var viewModel = CreateViewModel(
+                    CreateClimateViewModel(),
+                    constructionVm,
+                    CreateThermalViewModel(),
+                    CreateCircuitsViewModel());
+
+                var data = viewModel.SaveCurrentProject();
+
+                var constructionVm2 = await CreateInitializedConstructionViewModelAsync();
+                var viewModel2 = CreateViewModel(
+                    CreateClimateViewModel(),
+                    constructionVm2,
+                    CreateThermalViewModel(),
+                    CreateCircuitsViewModel());
+                await viewModel2.LoadProjectDataAsync(data);
+
+                var loadedLayer = constructionVm2.LayersBelowPipe.First();
+                Assert.That(loadedLayer.CalculatedLambda, Is.EqualTo(loadedLayer.Material.LambdaB).Within(1e-9));
+            }
         }
     }
 }

@@ -107,6 +107,13 @@ groundwater / lambda / override-флаг — `[TestCase]` на тройку по
 консолидированных телах; инвентаризация assert'ов до/после — пин волны.
 Оценка: −70…−80 строк, покрытие не сужается.
 
+Факт имплементации 2026-09-18: 5 → 2 —
+`ProjectRoundTrip_PreservesGroundwaterLevel_AndLambdaOverrideAfterLoad`
+(2 кейса `[TestCase]`) + `ProjectRoundTrip_GroundwaterLevelChange_OverrideLambdaProtected_OthersRecalculated`
+(3 сценария, каждый на свежей сессии — прецедент FieldCompleteRoundTrip);
+все 7 исходных assert-строк сохранены (в файле 95, пин сошёлся); полный
+набор 2302 → 2300 (−5 тестов +3 кейса), зелёный.
+
 ## 4. Волна D — общий builder фикстуры `ProjectData` (решение V4)
 
 | Файлы | Правка |
