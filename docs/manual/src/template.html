@@ -122,7 +122,7 @@
   .figure.real img{width:auto; max-width:100%;}
   .lightbox{position:fixed; inset:0; background:rgba(20,20,18,.93); display:none; align-items:center; justify-content:center; z-index:999; cursor:zoom-out; padding:24px; overflow:auto;}
   .lightbox.open{display:flex;}
-  .lightbox img{width:min(96vw,1600px); height:min(92vh,900px); object-fit:contain; border-radius:8px; box-shadow:0 8px 60px rgba(0,0,0,.55); cursor:default;}
+  .lightbox img{max-width:96vw; max-height:92vh; border-radius:8px; box-shadow:0 8px 60px rgba(0,0,0,.55); cursor:default;}
   /* pdf-страницы: сначала целиком, клик — 1:1, стрелки — прокрутка */
   .lightbox.pdf{cursor:default;}
   .lightbox.pdf img{width:auto; height:auto; max-width:96vw; max-height:92vh; cursor:zoom-in;}
@@ -445,14 +445,44 @@
   // лайтбокс: обычные скрины — единый крупный просмотр; pdf-страницы — клик = 1:1, стрелки = прокрутка
   var lb = document.createElement('div');
   lb.className = 'lightbox';
-  lb.innerHTML = '<img alt="Скриншот в полном размере"><div class="pdf-hint">клик — приблизить · стрелки — прокрутка · Esc — закрыть</div>';
+  lb.innerHTML = '<img alt="Скриншот в полном размере"><div class="pdf-hint">клик — приблизить · ←→ листают страницы · ↑↓ и колесо — прокрутка · Esc — закрыть</div>';
   document.body.appendChild(lb);
   var lbImg = lb.querySelector('img');
-  function closeLb(){ lb.classList.remove('open','pdf','zoomed'); lbImg.removeAttribute('style'); }
+  var ZOOM = 1.5;
+  var pdfImgs = [].slice.call(document.querySelectorAll('.pdf-card img'));
+  var pdfIdx = -1;
+  var regImgs = [].slice.call(document.querySelectorAll('.figure img, .sb-card img'));
+  var currentReg = null;
+  function closeLb(){ lb.classList.remove('open','pdf','zoomed'); pdfIdx = -1; currentReg = null; lbImg.removeAttribute('style'); }
+  /* единый коэффициент для всех обычных скринов — тот же, что у полных скринов вкладок:
+     K = min(92% высоты окна; высота вкладочного скрина) / высота вкладочного скрина, K ≤ 1 */
+  function regularScale(){
+    var maxH = 0;
+    regImgs.forEach(function(im){ if (im.naturalHeight > maxH) maxH = im.naturalHeight; });
+    if (!maxH) maxH = 900;
+    return Math.min(1, window.innerHeight * 0.92 / maxH);
+  }
+  function showRegular(img){
+    var k = regularScale();
+    lbImg.style.width = (img.naturalWidth * k) + 'px';
+    lbImg.style.height = (img.naturalHeight * k) + 'px';
+  }
+  function applyZoom(){ lbImg.style.width = (lbImg.naturalWidth * ZOOM) + 'px'; lbImg.style.height = 'auto'; }
   function toggleZoom(){
     if (lb.classList.contains('zoomed')){ lb.classList.remove('zoomed'); lbImg.removeAttribute('style'); }
-    else { lb.classList.add('zoomed'); lbImg.style.width = (lbImg.naturalWidth * 1.5) + 'px'; lbImg.style.height = 'auto'; }
+    else { lb.classList.add('zoomed'); applyZoom(); }
   }
+  function flipPdf(dir){
+    pdfIdx = (pdfIdx + dir + pdfImgs.length) % pdfImgs.length;   /* вкруг; zoomed не сбрасываем — масштаб тот же */
+    lbImg.src = pdfImgs[pdfIdx].src;
+  }
+  lbImg.addEventListener('load', function(){
+    if (lb.classList.contains('pdf')){ if (lb.classList.contains('zoomed')) applyZoom(); }
+    else if (currentReg) showRegular(currentReg);
+  });
+  window.addEventListener('resize', function(){
+    if (lb.classList.contains('open') && !lb.classList.contains('pdf') && currentReg) showRegular(currentReg);
+  });
   lb.addEventListener('click', function(e){
     if (lb.classList.contains('pdf') && e.target === lbImg){ toggleZoom(); e.stopPropagation(); return; }
     closeLb();
@@ -460,19 +490,33 @@
   document.addEventListener('keydown', function(e){
     if (!lb.classList.contains('open')) return;
     if (e.key === 'Escape'){ closeLb(); return; }
-    if (lb.classList.contains('pdf') && lb.classList.contains('zoomed')){
-      var step = 140;
-      if (e.key === 'ArrowLeft'){ lb.scrollBy({left:-step, behavior:'smooth'}); e.preventDefault(); }
-      if (e.key === 'ArrowRight'){ lb.scrollBy({left:step, behavior:'smooth'}); e.preventDefault(); }
-      if (e.key === 'ArrowUp'){ lb.scrollBy({top:-step, behavior:'smooth'}); e.preventDefault(); }
-      if (e.key === 'ArrowDown'){ lb.scrollBy({top:step, behavior:'smooth'}); e.preventDefault(); }
+    if (lb.classList.contains('pdf')){
+      if (e.key === 'ArrowRight'){ flipPdf(+1); e.preventDefault(); }
+      if (e.key === 'ArrowLeft'){ flipPdf(-1); e.preventDefault(); }
+      if (lb.classList.contains('zoomed')){
+        var step = 160;
+        if (e.key === 'ArrowUp'){ lb.scrollBy({top:-step, behavior:'smooth'}); e.preventDefault(); }
+        if (e.key === 'ArrowDown'){ lb.scrollBy({top:step, behavior:'smooth'}); e.preventDefault(); }
+      }
     }
   });
-  document.querySelectorAll('.figure img, .sb-card img, .pdf-card img').forEach(function(img){
+  regImgs.forEach(function(img){
     img.addEventListener('click', function(){
+      currentReg = img;
+      lbImg.removeAttribute('style');
+      lb.classList.remove('pdf','zoomed');
+      lbImg.src = img.src;
+      lb.classList.add('open');
+      showRegular(img);
+    });
+  });
+  pdfImgs.forEach(function(img){
+    img.addEventListener('click', function(){
+      pdfIdx = pdfImgs.indexOf(img);
+      currentReg = null;
       lbImg.removeAttribute('style');
       lb.classList.remove('zoomed');
-      lb.classList.toggle('pdf', !!img.closest('.pdf-card'));
+      lb.classList.add('pdf');
       lbImg.src = img.src;
       lb.classList.add('open');
     });
