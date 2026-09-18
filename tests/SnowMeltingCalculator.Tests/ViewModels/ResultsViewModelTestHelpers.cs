@@ -49,7 +49,11 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             CircuitsViewModel circuitsVm,
             out ClimateViewModel climateVmOut,
             out ConstructionViewModel constructionVmOut,
-            out ThermalViewModel thermalVmOut)
+            out ThermalViewModel thermalVmOut,
+            SnowMeltingCalculator.Services.Printing.IPrintService? printService = null,
+            IDialogService? dialogService = null,
+            IPdfExportService? pdfExportService = null,
+            IProjectFileService? projectFileServiceOverride = null)
         {
             var materials = Material.GetDefaultMaterials().ToList();
             var materialsById = materials.ToDictionary(material => material.Id);
@@ -79,9 +83,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             return new ResultsViewModel(
                 projectStateService.Session,
-                new Mock<IDialogService>().Object,
-                new Mock<IPdfExportService>().Object,
-                new Mock<IProjectFileService>().Object,
+                dialogService ?? new Mock<IDialogService>().Object,
+                pdfExportService ?? new Mock<IPdfExportService>().Object,
+                projectFileServiceOverride ?? new Mock<IProjectFileService>().Object,
                 calculationStateService,
                 materialRepositoryMock.Object,
                 constructionServiceMock.Object,
@@ -100,7 +104,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     calculationStateService,
                     constructionVm,
                     circuitsVm),
-                new HydraulicSummaryBuilder());
+                new HydraulicSummaryBuilder(),
+                resultsKpiPresenter: null,
+                printService: printService);
         }
 
         public static ClimateViewModel CreateClimateViewModel()

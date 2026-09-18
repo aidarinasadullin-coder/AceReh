@@ -43,6 +43,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly IThermalReportDataProvider _thermalReportDataProvider;
         private readonly IHydraulicsReportDataProvider _hydraulicsReportDataProvider;
         private readonly Services.History.IUndoRedoService? _undoRedoService;
+        private readonly Services.Printing.IPrintService _printService;
         private readonly ResultsSpecificationDataBuilder _specificationDataBuilder;
         private readonly IResultsExcelExportService _excelExportService;
         private DateTime _createdDate;
@@ -531,7 +532,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
             IHydraulicsReportDataProvider? hydraulicsReportDataProvider = null,
             Services.History.IUndoRedoService? undoRedoService = null,
             ResultsSpecificationDataBuilder? specificationDataBuilder = null,
-            IResultsExcelExportService? excelExportService = null)
+            IResultsExcelExportService? excelExportService = null,
+            Services.Printing.IPrintService? printService = null)
         {
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
@@ -555,6 +557,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     _projectSession,
                     new Services.Hydraulics.GlycolDataService());
             _undoRedoService = undoRedoService;
+            _printService = printService ?? new Services.Printing.PrintService();
             _calculationReportPdfExportService = calculationReportPdfExportService
                 ?? new CalculationReportPdfExportService(
                     new CalculationReportDataBuilder(),
@@ -1031,19 +1034,21 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     // Системный диалог печати — через тестовый шов IDialogService
                     if (_dialogService.ShowPrintDialog())
                     {
-                        // Печать через Process с verb "print"
-                        var process = new System.Diagnostics.Process
+                        // Печать через shell verb «print» (D1: IPrintService,
+                        // UseShellExecute обязателен); отказ → фолбэк «Открыть
+                        // PDF» в системном просмотрщике (D8)
+                        var printResult = _printService.PrintPdf(tempPath);
+                        if (printResult.Success)
                         {
-                            StartInfo = new System.Diagnostics.ProcessStartInfo
-                            {
-                                FileName = tempPath,
-                                Verb = "print",
-                                CreateNoWindow = true,
-                                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
-                            }
-                        };
-                        process.Start();
-                        StatusMessage = "Документ отправлен на печать";
+                            StatusMessage = "Документ отправлен на печать";
+                        }
+                        else
+                        {
+                            var openResult = _printService.OpenPdf(tempPath);
+                            StatusMessage = openResult.Success
+                                ? $"Печать не удалась: {printResult.ErrorMessage} — PDF открыт в просмотрщике"
+                                : $"Ошибка печати: {printResult.ErrorMessage}";
+                        }
                     }
                     else
                     {

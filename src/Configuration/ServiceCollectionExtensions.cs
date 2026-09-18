@@ -246,15 +246,27 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<ResultsSpecificationDataBuilder>();
             services.AddSingleton<IResultsExcelExportService, ExcelExportService>();
 
+            // Печать/открытие PDF через shell (волна 2 hardening-роадмапа, D1/D8)
+            services.AddSingleton<Services.Printing.IPrintService, Services.Printing.PrintService>();
+
+            // Инвариант композиции (P19, волна 2): построение провайдера
+            // выполняется на UI-потоке (App.OnStartup), и диспетчер дневника
+            // захватывается ЗДЕСЬ, eagerly — а не в лямбде регистрации. Иначе
+            // первый Resolve с фонового потока привязал бы DispatcherTimer
+            // дневника к чужому диспетчеру. Тестовый пин —
+            // Configuration.CompositionDispatcherTests.
+            var uiDispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+
             // ADR-014: событийный memento-дневник «Отменить / Вернуть».
-            // Синглтон, слушает Changed 4 срезов сессии; диспетчер UI-потока
-            // даёт таймер тишины в UI-потоке (в тестовых композициях без
-            // диспетчера группа закрывается лениво — FlushPendingForTests).
+            // Синглтон, слушает Changed 4 срезов сессии; захваченный выше
+            // диспетчер UI-потока даёт таймер тишины в UI-потоке (в тестовых
+            // композициях без диспетчера группа закрывается лениво —
+            // FlushPendingForTests).
             services.AddSingleton<Services.History.IUndoRedoService>(sp => new Services.History.UndoRedoService(
                 sp.GetRequiredService<IProjectSession>(),
                 sp.GetRequiredService<IThermalStateCoordinator>(),
                 sp.GetRequiredService<ICalculationStateService>(),
-                System.Windows.Threading.Dispatcher.CurrentDispatcher));
+                uiDispatcher));
 
             // ViewModels
             services.AddSingleton<ResultsViewModel>();
