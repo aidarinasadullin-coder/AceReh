@@ -62,17 +62,11 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             // construction service. DEC-006 (2026-09-03): catalogs live only
             // globally — the wire DTO cannot carry custom catalogs at all, so
             // opening a project must never route anything to global CRUD.
-            var projectData = new ProjectData
-            {
-                ProjectNumber = "CATALOG-READ-ONLY",
-                ClimateData = new ClimateProjectData(),
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData
-                {
-                    Result = new ThermalResultProjectData { IsValid = true }
-                },
-                HydraulicsData = new HydraulicsProjectData()
-            };
+            var projectData = new ProjectDataBuilder()
+                .WithNumber("CATALOG-READ-ONLY")
+                .WithDefaultSlices()
+                .WithThermal(thermal => thermal.Result = new ThermalResultProjectData { IsValid = true })
+                .Build();
 
             Assert.Multiple(() =>
             {

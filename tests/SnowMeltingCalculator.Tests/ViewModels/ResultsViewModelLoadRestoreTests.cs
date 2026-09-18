@@ -126,39 +126,14 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         public async Task ResultsViewModel_LoadProjectData_SelectsFirstCollectorAndEnablesCommands()
         {
             // Arrange
-            var projectData = new ProjectData
-            {
-                ProjectNumber = "P-T2",
-                ProjectObject = "Test Object",
-                IsOperatingMode = true,
-                ClimateData = new ClimateProjectData(),
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData(),
-                HydraulicsData = new HydraulicsProjectData
-                {
-                    Collectors = new List<CollectorProjectData>
-                    {
-                        new CollectorProjectData
-                        {
-                            CollectorNumber = 1,
-                            CollectorType = "HKV-D (2-12 контуров)",
-                            ValveType = ValveType.HKV_D,
-                            Circuits = new List<CircuitProjectData>
-                            {
-                                new CircuitProjectData
-                                {
-                                    CircuitNumber = 1,
-                                    CircuitLength = 50,
-                                    SupplyLength = 10,
-                                    SupplySpacingCm = 5,
-                                    SupplyHeatPercent = 10,
-                                    PipeSpacingCm = 20
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+            var projectData = new ProjectDataBuilder()
+                .WithNumber("P-T2")
+                .WithObject("Test Object")
+                .OperatingMode()
+                .WithDefaultSlices()
+                .WithHydraulics(hydraulics => hydraulics.Collectors.Add(
+                    ProjectDataBuilder.HkvDCollector(1, 50)))
+                .Build();
 
             var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
             var viewModel = CreateViewModel(circuitsVm);
@@ -183,26 +158,23 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             const double savedHumidity = 65.0;
             const double savedSnowfallIntensity = 2.5;
 
-            var projectData = new ProjectData
-            {
-                ProjectNumber = "P-T3",
-                ProjectObject = "Climate Restore Test",
-                IsOperatingMode = true,
-                ClimateData = new ClimateProjectData
+            var projectData = new ProjectDataBuilder()
+                .WithNumber("P-T3")
+                .WithObject("Climate Restore Test")
+                .OperatingMode()
+                .WithDefaultSlices()
+                .WithClimate(climate =>
                 {
-                    SelectedCity = cityName,
-                    Region = region,
-                    AirTemperature = savedAirTemperature,
-                    WindSpeed = savedWindSpeed,
-                    Humidity = savedHumidity,
-                    SnowfallIntensity = savedSnowfallIntensity,
-                    SelectedZone = ClimateZone.Zone_M15,
-                    IsHighRequirements = false
-                },
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData(),
-                HydraulicsData = new HydraulicsProjectData()
-            };
+                    climate.SelectedCity = cityName;
+                    climate.Region = region;
+                    climate.AirTemperature = savedAirTemperature;
+                    climate.WindSpeed = savedWindSpeed;
+                    climate.Humidity = savedHumidity;
+                    climate.SnowfallIntensity = savedSnowfallIntensity;
+                    climate.SelectedZone = ClimateZone.Zone_M15;
+                    climate.IsHighRequirements = false;
+                })
+                .Build();
 
             var climateVm = CreateClimateViewModelWithCity(
                 cityName,
@@ -241,26 +213,23 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             const double savedHumidity = 65.0;
             const double savedSnowfallIntensity = 2.5;
 
-            var projectData = new ProjectData
-            {
-                ProjectNumber = "P-T3",
-                ProjectObject = "Climate Singleton Sync Test",
-                IsOperatingMode = true,
-                ClimateData = new ClimateProjectData
+            var projectData = new ProjectDataBuilder()
+                .WithNumber("P-T3")
+                .WithObject("Climate Singleton Sync Test")
+                .OperatingMode()
+                .WithDefaultSlices()
+                .WithClimate(climate =>
                 {
-                    SelectedCity = cityName,
-                    Region = region,
-                    AirTemperature = savedAirTemperature,
-                    WindSpeed = savedWindSpeed,
-                    Humidity = savedHumidity,
-                    SnowfallIntensity = savedSnowfallIntensity,
-                    SelectedZone = ClimateZone.Zone_M15,
-                    IsHighRequirements = false
-                },
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData(),
-                HydraulicsData = new HydraulicsProjectData()
-            };
+                    climate.SelectedCity = cityName;
+                    climate.Region = region;
+                    climate.AirTemperature = savedAirTemperature;
+                    climate.WindSpeed = savedWindSpeed;
+                    climate.Humidity = savedHumidity;
+                    climate.SnowfallIntensity = savedSnowfallIntensity;
+                    climate.SelectedZone = ClimateZone.Zone_M15;
+                    climate.IsHighRequirements = false;
+                })
+                .Build();
 
             var climateDataSingleton = new ClimateData();
             _projectStateService = new ProjectStateService(
@@ -343,28 +312,25 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         {
             var projectChangedCount = 0;
             _viewModel.ProjectChanged += (_, _) => projectChangedCount++;
-            var projectData = new ProjectData
-            {
-                ProjectNumber = "REJECTED",
-                ProjectObject = "Rejected restore",
-                ClimateData = new ClimateProjectData(),
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData
+            var projectData = new ProjectDataBuilder()
+                .WithNumber("REJECTED")
+                .WithObject("Rejected restore")
+                .WithDefaultSlices()
+                .WithThermal(thermal =>
                 {
-                    SelectedMode = OperatingMode.Melting,
-                    SupplyTemperature = 10.0,
-                    GroundTemperature = 5.0,
-                    PipeSpacing = 200,
-                    SelectedPipe = new PipeTypeProjectData
+                    thermal.SelectedMode = OperatingMode.Melting;
+                    thermal.SupplyTemperature = 10.0;
+                    thermal.GroundTemperature = 5.0;
+                    thermal.PipeSpacing = 200;
+                    thermal.SelectedPipe = new PipeTypeProjectData
                     {
                         Name = "RAUTHERM S 20x2,0",
                         OuterDiameter = 20.0,
                         InnerDiameter = 16.0,
                         WallThickness = 2.0
-                    }
-                },
-                HydraulicsData = new HydraulicsProjectData()
-            };
+                    };
+                })
+                .Build();
 
             await _viewModel.LoadProjectDataAsync(projectData);
 
@@ -628,29 +594,28 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         public async Task LoadProjectData_KpiReflectSavedThermalResult_WithoutCityReselection()
         {
             // Arrange — проект с валидным сохранённым тепловым результатом (как в перм.smc)
-            var projectData = new ProjectData
-            {
-                ProjectNumber = "P-KPI",
-                ProjectObject = "KPI After Load Test",
-                IsOperatingMode = true,
-                ClimateData = new ClimateProjectData
+            var projectData = new ProjectDataBuilder()
+                .WithNumber("P-KPI")
+                .WithObject("KPI After Load Test")
+                .OperatingMode()
+                .WithDefaultSlices()
+                .WithClimate(climate =>
                 {
-                    SelectedCity = "Москва",
-                    AirTemperature = -15.0,
-                    WindSpeed = 2.7,
-                    Humidity = 77.0,
-                    SnowfallIntensity = 1.0,
-                    SelectedZone = ClimateZone.Zone_M15,
-                    IsHighRequirements = false
-                },
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData
+                    climate.SelectedCity = "Москва";
+                    climate.AirTemperature = -15.0;
+                    climate.WindSpeed = 2.7;
+                    climate.Humidity = 77.0;
+                    climate.SnowfallIntensity = 1.0;
+                    climate.SelectedZone = ClimateZone.Zone_M15;
+                    climate.IsHighRequirements = false;
+                })
+                .WithThermal(thermal =>
                 {
-                    SelectedMode = OperatingMode.Melting,
-                    SupplyTemperature = 60.0,
-                    GroundTemperature = 10.0,
-                    PipeSpacing = 200,
-                    Result = new ThermalResultProjectData
+                    thermal.SelectedMode = OperatingMode.Melting;
+                    thermal.SupplyTemperature = 60.0;
+                    thermal.GroundTemperature = 10.0;
+                    thermal.PipeSpacing = 200;
+                    thermal.Result = new ThermalResultProjectData
                     {
                         PowerUp = 357.5,
                         PowerDown = 5.8,
@@ -660,10 +625,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                         MeanTemperature = 52.16,
                         DeltaT = 15.69,
                         IsValid = true
-                    }
-                },
-                HydraulicsData = new HydraulicsProjectData()
-            };
+                    };
+                })
+                .Build();
 
             var climateVm = CreateClimateViewModel();
             var circuitsVm = CreateCircuitsViewModel();
@@ -692,24 +656,21 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         public async Task LoadProjectData_ClimateIsNotMarkedAsUserModified()
         {
             // Arrange
-            var projectData = new ProjectData
-            {
-                ProjectNumber = "P-CLIM",
-                IsOperatingMode = true,
-                ClimateData = new ClimateProjectData
+            var projectData = new ProjectDataBuilder()
+                .WithNumber("P-CLIM")
+                .OperatingMode()
+                .WithDefaultSlices()
+                .WithClimate(climate =>
                 {
-                    SelectedCity = "Москва",
-                    AirTemperature = -15.0,
-                    WindSpeed = 2.7,
-                    Humidity = 77.0,
-                    SnowfallIntensity = 1.0,
-                    SelectedZone = ClimateZone.Zone_M15,
-                    IsHighRequirements = false
-                },
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData(),
-                HydraulicsData = new HydraulicsProjectData()
-            };
+                    climate.SelectedCity = "Москва";
+                    climate.AirTemperature = -15.0;
+                    climate.WindSpeed = 2.7;
+                    climate.Humidity = 77.0;
+                    climate.SnowfallIntensity = 1.0;
+                    climate.SelectedZone = ClimateZone.Zone_M15;
+                    climate.IsHighRequirements = false;
+                })
+                .Build();
 
             var climateVm = CreateClimateViewModel();
             var circuitsVm = CreateCircuitsViewModel();

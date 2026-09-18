@@ -124,69 +124,42 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             const double collectorAFlowRate = 1187.93;
             const double collectorBFlowRate = 1082.93;
 
-            var projectData = new ProjectData
+            var collectorA = ProjectDataBuilder.HkvDCollector(1, 110, 110, 110, 105);
+            collectorA.Summary = new CollectorSummaryProjectData
             {
-                ProjectNumber = "P-TwoCollectorsCards",
-                ProjectObject = "Two Collectors Cards Test",
-                IsOperatingMode = true,
-                ClimateData = new ClimateProjectData(),
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData(),
-                HydraulicsData = new HydraulicsProjectData
-                {
-                    Collectors = new List<CollectorProjectData>
-                    {
-                        new CollectorProjectData
-                        {
-                            CollectorNumber = 1,
-                            CollectorType = "HKV-D (2-12 контуров)",
-                            ValveType = ValveType.HKV_D,
-                            Circuits = new List<CircuitProjectData>
-                            {
-                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
-                                new CircuitProjectData { CircuitNumber = 2, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
-                                new CircuitProjectData { CircuitNumber = 3, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
-                                new CircuitProjectData { CircuitNumber = 4, CircuitLength = 105, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
-                            },
-                            Summary = new CollectorSummaryProjectData
-                            {
-                                CircuitCount = 4,
-                                TotalPipeLength = 435,
-                                TotalPower = collectorAPower,
-                                TotalFlowRate = collectorAFlowRate,
-                                PressureLoss_Operating_Pa = 36914.65,
-                                PressureLoss_Cold_Pa = 125000,
-                                Kv = 1.2,
-                                CollectorType = "HKV-D"
-                            }
-                        },
-                        new CollectorProjectData
-                        {
-                            CollectorNumber = 2,
-                            CollectorType = "HKV-D (2-12 контуров)",
-                            ValveType = ValveType.HKV_D,
-                            Circuits = new List<CircuitProjectData>
-                            {
-                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 100, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
-                                new CircuitProjectData { CircuitNumber = 2, CircuitLength = 100, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
-                                new CircuitProjectData { CircuitNumber = 3, CircuitLength = 100, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
-                                new CircuitProjectData { CircuitNumber = 4, CircuitLength = 100, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
-                            },
-                            Summary = new CollectorSummaryProjectData
-                            {
-                                CircuitCount = 4,
-                                TotalPipeLength = 400,
-                                TotalPower = collectorBPower,
-                                TotalFlowRate = collectorBFlowRate,
-                                PressureLoss_Operating_Pa = 29159.16,
-                                PressureLoss_Cold_Pa = 104100,
-                                Kv = 1.2,
-                                CollectorType = "HKV-D"
-                            }
-                        }
-                    }
-                }
+                CircuitCount = 4,
+                TotalPipeLength = 435,
+                TotalPower = collectorAPower,
+                TotalFlowRate = collectorAFlowRate,
+                PressureLoss_Operating_Pa = 36914.65,
+                PressureLoss_Cold_Pa = 125000,
+                Kv = 1.2,
+                CollectorType = "HKV-D"
             };
+            var collectorB = ProjectDataBuilder.HkvDCollector(2, 100, 100, 100, 100);
+            collectorB.Summary = new CollectorSummaryProjectData
+            {
+                CircuitCount = 4,
+                TotalPipeLength = 400,
+                TotalPower = collectorBPower,
+                TotalFlowRate = collectorBFlowRate,
+                PressureLoss_Operating_Pa = 29159.16,
+                PressureLoss_Cold_Pa = 104100,
+                Kv = 1.2,
+                CollectorType = "HKV-D"
+            };
+
+            var projectData = new ProjectDataBuilder()
+                .WithNumber("P-TwoCollectorsCards")
+                .WithObject("Two Collectors Cards Test")
+                .OperatingMode()
+                .WithDefaultSlices()
+                .WithHydraulics(hydraulics =>
+                {
+                    hydraulics.Collectors.Add(collectorA);
+                    hydraulics.Collectors.Add(collectorB);
+                })
+                .Build();
 
             var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
             var viewModel = CreateViewModel(
@@ -257,64 +230,42 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             // Arrange: проект с двумя коллекторами, который заведомо оставляет
             // HydraulicSummaryCards непустыми и проставляет ненулевые legacy-скаляры
             // (TotalCircuits / TotalFlowRate / MaxPressureLoss) после LoadHydraulicsDataOnNavigate.
-            var projectData = new ProjectData
+            var collectorA = ProjectDataBuilder.HkvDCollector(1, 110, 110);
+            collectorA.Summary = new CollectorSummaryProjectData
             {
-                ProjectNumber = "P-ResetClear",
-                ProjectObject = "Reset Clear Test",
-                IsOperatingMode = true,
-                ClimateData = new ClimateProjectData(),
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData(),
-                HydraulicsData = new HydraulicsProjectData
-                {
-                    Collectors = new List<CollectorProjectData>
-                    {
-                        new CollectorProjectData
-                        {
-                            CollectorNumber = 1,
-                            CollectorType = "HKV-D (2-12 контуров)",
-                            ValveType = ValveType.HKV_D,
-                            Circuits = new List<CircuitProjectData>
-                            {
-                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 },
-                                new CircuitProjectData { CircuitNumber = 2, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
-                            },
-                            Summary = new CollectorSummaryProjectData
-                            {
-                                CircuitCount = 2,
-                                TotalPipeLength = 220,
-                                TotalPower = 12000,
-                                TotalFlowRate = 600.5,
-                                PressureLoss_Operating_Pa = 18000,
-                                PressureLoss_Cold_Pa = 60000,
-                                Kv = 1.2,
-                                CollectorType = "HKV-D"
-                            }
-                        },
-                        new CollectorProjectData
-                        {
-                            CollectorNumber = 2,
-                            CollectorType = "HKV-D (2-12 контуров)",
-                            ValveType = ValveType.HKV_D,
-                            Circuits = new List<CircuitProjectData>
-                            {
-                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 100, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
-                            },
-                            Summary = new CollectorSummaryProjectData
-                            {
-                                CircuitCount = 1,
-                                TotalPipeLength = 100,
-                                TotalPower = 5000,
-                                TotalFlowRate = 250.25,
-                                PressureLoss_Operating_Pa = 9000,
-                                PressureLoss_Cold_Pa = 30000,
-                                Kv = 1.2,
-                                CollectorType = "HKV-D"
-                            }
-                        }
-                    }
-                }
+                CircuitCount = 2,
+                TotalPipeLength = 220,
+                TotalPower = 12000,
+                TotalFlowRate = 600.5,
+                PressureLoss_Operating_Pa = 18000,
+                PressureLoss_Cold_Pa = 60000,
+                Kv = 1.2,
+                CollectorType = "HKV-D"
             };
+            var collectorB = ProjectDataBuilder.HkvDCollector(2, 100);
+            collectorB.Summary = new CollectorSummaryProjectData
+            {
+                CircuitCount = 1,
+                TotalPipeLength = 100,
+                TotalPower = 5000,
+                TotalFlowRate = 250.25,
+                PressureLoss_Operating_Pa = 9000,
+                PressureLoss_Cold_Pa = 30000,
+                Kv = 1.2,
+                CollectorType = "HKV-D"
+            };
+
+            var projectData = new ProjectDataBuilder()
+                .WithNumber("P-ResetClear")
+                .WithObject("Reset Clear Test")
+                .OperatingMode()
+                .WithDefaultSlices()
+                .WithHydraulics(hydraulics =>
+                {
+                    hydraulics.Collectors.Add(collectorA);
+                    hydraulics.Collectors.Add(collectorB);
+                })
+                .Build();
 
             var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
             var viewModel = CreateViewModel(
@@ -377,56 +328,36 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             // который заведомо оставляет HydraulicSummaryCards непустыми и проставляет
             // ненулевые legacy-скаляры (TotalThermalPower_kW / TotalFlowRate /
             // MaxPressureLoss) после LoadProjectDataAsync.
-            var populated = new ProjectData
+            var populatedCollector = ProjectDataBuilder.HkvDCollector(1, 110);
+            populatedCollector.Summary = new CollectorSummaryProjectData
             {
-                ProjectNumber = "P-Populated",
-                ProjectObject = "Populated Hydraulics",
-                IsOperatingMode = true,
-                ClimateData = new ClimateProjectData(),
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData(),
-                HydraulicsData = new HydraulicsProjectData
-                {
-                    Collectors = new List<CollectorProjectData>
-                    {
-                        new CollectorProjectData
-                        {
-                            CollectorNumber = 1,
-                            CollectorType = "HKV-D (2-12 контуров)",
-                            ValveType = ValveType.HKV_D,
-                            Circuits = new List<CircuitProjectData>
-                            {
-                                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 110, SupplyLength = 10, SupplySpacingCm = 5, SupplyHeatPercent = 10, PipeSpacingCm = 20 }
-                            },
-                            Summary = new CollectorSummaryProjectData
-                            {
-                                CircuitCount = 1,
-                                TotalPipeLength = 110,
-                                TotalPower = 12000,
-                                TotalFlowRate = 600.5,
-                                PressureLoss_Operating_Pa = 18000,
-                                PressureLoss_Cold_Pa = 60000,
-                                Kv = 1.2,
-                                CollectorType = "HKV-D"
-                            }
-                        }
-                    }
-                }
+                CircuitCount = 1,
+                TotalPipeLength = 110,
+                TotalPower = 12000,
+                TotalFlowRate = 600.5,
+                PressureLoss_Operating_Pa = 18000,
+                PressureLoss_Cold_Pa = 60000,
+                Kv = 1.2,
+                CollectorType = "HKV-D"
             };
+
+            var populated = new ProjectDataBuilder()
+                .WithNumber("P-Populated")
+                .WithObject("Populated Hydraulics")
+                .OperatingMode()
+                .WithDefaultSlices()
+                .WithHydraulics(hydraulics => hydraulics.Collectors.Add(populatedCollector))
+                .Build();
 
             // Arrange 2: проект с пустой HydraulicsData.Collectors — именно он
             // должен оставить HydraulicSummaryCards пустыми и обнулить все
             // гидравлические KPI после полного цикла RefreshAll().
-            var empty = new ProjectData
-            {
-                ProjectNumber = "P-Empty",
-                ProjectObject = "Empty Hydraulics",
-                IsOperatingMode = true,
-                ClimateData = new ClimateProjectData(),
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData(),
-                HydraulicsData = new HydraulicsProjectData() // Collectors = new List<>()
-            };
+            var empty = new ProjectDataBuilder()
+                .WithNumber("P-Empty")
+                .WithObject("Empty Hydraulics")
+                .OperatingMode()
+                .WithDefaultSlices()
+                .Build();
 
             var circuitsVm = CreateCircuitsViewModel(allowRemoveCircuit: true);
             var viewModel = CreateViewModel(

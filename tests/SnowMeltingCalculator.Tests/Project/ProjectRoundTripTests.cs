@@ -7,6 +7,7 @@ using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Models.Project;
 using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Project;
+using SnowMeltingCalculator.Tests.Fixtures;
 
 namespace SnowMeltingCalculator.Tests.Project
 {
@@ -49,41 +50,34 @@ namespace SnowMeltingCalculator.Tests.Project
         [Test]
         public async Task SaveThenLoad_NewProject_RoundTripsFields()
         {
-            var data = new ProjectData
-            {
-                Version = "1.0",
-                ProjectNumber = "T19-RT-001",
-                ProjectObject = "round-trip sample",
-                ThermalData = new ThermalProjectData
+            var data = new ProjectDataBuilder()
+                .WithVersion("1.0")
+                .WithNumber("T19-RT-001")
+                .WithObject("round-trip sample")
+                .WithThermal(thermal =>
                 {
-                    PipeSpacing = 300,
-                    SelectedPipe = new PipeTypeProjectData
+                    thermal.PipeSpacing = 300;
+                    thermal.SelectedPipe = new PipeTypeProjectData
                     {
                         Name = "RAUTHERM S 25x2,3",
                         OuterDiameter = 25.0,
                         InnerDiameter = 20.4,
                         WallThickness = 2.3
-                    }
-                },
-                ConstructionData = new ConstructionProjectData
+                    };
+                })
+                .WithConstruction(construction =>
                 {
-                    R1 = 0.1,
-                    R2 = 0.2
-                },
-                HydraulicsData = new HydraulicsProjectData
+                    construction.R1 = 0.1;
+                    construction.R2 = 0.2;
+                })
+                .WithHydraulics(hydraulics => hydraulics.Collectors.Add(new CollectorProjectData
                 {
-                    Collectors = new List<CollectorProjectData>
+                    Circuits = new List<CircuitProjectData>
                     {
-                        new CollectorProjectData
-                        {
-                            Circuits = new List<CircuitProjectData>
-                            {
-                                new CircuitProjectData { PipeSpacingCm = 30.0 }
-                            }
-                        }
+                        new CircuitProjectData { PipeSpacingCm = 30.0 }
                     }
-                }
-            };
+                }))
+                .Build();
 
             var tempPath = Path.Combine(Path.GetTempPath(), $"t19-rt-{Guid.NewGuid()}.smc");
             try
@@ -109,23 +103,22 @@ namespace SnowMeltingCalculator.Tests.Project
         [Test]
         public async Task SaveThenLoad_ClimateFields_RoundTrip()
         {
-            var data = new ProjectData
-            {
-                Version = "1.1",
-                ProjectNumber = "CLM-RT-001",
-                ProjectObject = "climate round-trip",
-                ClimateData = new ClimateProjectData
+            var data = new ProjectDataBuilder()
+                .WithVersion("1.1")
+                .WithNumber("CLM-RT-001")
+                .WithObject("climate round-trip")
+                .WithClimate(climate =>
                 {
-                    SelectedCity = "Москва",
-                    Region = "Московская область",
-                    AirTemperature = -18.0,
-                    WindSpeed = 3.5,
-                    Humidity = 65.0,
-                    SnowfallIntensity = 2.5,
-                    SelectedZone = ClimateZone.Zone_M15,
-                    IsHighRequirements = false
-                }
-            };
+                    climate.SelectedCity = "Москва";
+                    climate.Region = "Московская область";
+                    climate.AirTemperature = -18.0;
+                    climate.WindSpeed = 3.5;
+                    climate.Humidity = 65.0;
+                    climate.SnowfallIntensity = 2.5;
+                    climate.SelectedZone = ClimateZone.Zone_M15;
+                    climate.IsHighRequirements = false;
+                })
+                .Build();
 
             var tempPath = Path.Combine(Path.GetTempPath(), $"clm-rt-{Guid.NewGuid()}.smc");
             try
@@ -208,33 +201,26 @@ namespace SnowMeltingCalculator.Tests.Project
         [Test]
         public async Task ProjectRoundTrip_FlowRegimeRestored()
         {
-            var data = new ProjectData
-            {
-                Version = "1.0",
-                HydraulicsData = new HydraulicsProjectData
+            var data = new ProjectDataBuilder()
+                .WithVersion("1.0")
+                .WithHydraulics(hydraulics => hydraulics.Collectors.Add(new CollectorProjectData
                 {
-                    Collectors = new List<CollectorProjectData>
+                    Circuits = new List<CircuitProjectData>
                     {
-                        new CollectorProjectData
+                        new CircuitProjectData
                         {
-                            Circuits = new List<CircuitProjectData>
+                            OperatingResult = new CircuitResultProjectData
                             {
-                                new CircuitProjectData
-                                {
-                                    OperatingResult = new CircuitResultProjectData
-                                    {
-                                        FlowRegimeString = FlowRegime.Turbulent.ToString()
-                                    },
-                                    DesignResult = new CircuitResultProjectData
-                                    {
-                                        FlowRegimeString = FlowRegime.Laminar.ToString()
-                                    }
-                                }
+                                FlowRegimeString = FlowRegime.Turbulent.ToString()
+                            },
+                            DesignResult = new CircuitResultProjectData
+                            {
+                                FlowRegimeString = FlowRegime.Laminar.ToString()
                             }
                         }
                     }
-                }
-            };
+                }))
+                .Build();
 
             var tempPath = Path.Combine(Path.GetTempPath(), $"t5-flowregime-{Guid.NewGuid()}.smc");
             try
@@ -260,28 +246,18 @@ namespace SnowMeltingCalculator.Tests.Project
         [Test]
         public async Task ProjectRoundTrip_PipeSpacingPerCircuitPreserved()
         {
-            var data = new ProjectData
-            {
-                Version = "1.0",
-                ThermalData = new ThermalProjectData
+            var data = new ProjectDataBuilder()
+                .WithVersion("1.0")
+                .WithThermal(thermal => thermal.PipeSpacing = 250)
+                .WithHydraulics(hydraulics => hydraulics.Collectors.Add(new CollectorProjectData
                 {
-                    PipeSpacing = 250
-                },
-                HydraulicsData = new HydraulicsProjectData
-                {
-                    Collectors = new List<CollectorProjectData>
+                    Circuits = new List<CircuitProjectData>
                     {
-                        new CollectorProjectData
-                        {
-                            Circuits = new List<CircuitProjectData>
-                            {
-                                new CircuitProjectData { PipeSpacingCm = 20.0 },
-                                new CircuitProjectData { PipeSpacingCm = 30.0 }
-                            }
-                        }
+                        new CircuitProjectData { PipeSpacingCm = 20.0 },
+                        new CircuitProjectData { PipeSpacingCm = 30.0 }
                     }
-                }
-            };
+                }))
+                .Build();
 
             var tempPath = Path.Combine(Path.GetTempPath(), $"t7-pipespacing-{Guid.NewGuid()}.smc");
             try
@@ -308,43 +284,36 @@ namespace SnowMeltingCalculator.Tests.Project
         [Test]
         public async Task FullProject_RoundTrip_PreservesAllCircuitResultDetails()
         {
-            var data = new ProjectData
-            {
-                Version = "1.0",
-                HydraulicsData = new HydraulicsProjectData
+            var data = new ProjectDataBuilder()
+                .WithVersion("1.0")
+                .WithHydraulics(hydraulics => hydraulics.Collectors.Add(new CollectorProjectData
                 {
-                    Collectors = new List<CollectorProjectData>
+                    Circuits = new List<CircuitProjectData>
                     {
-                        new CollectorProjectData
+                        new CircuitProjectData
                         {
-                            Circuits = new List<CircuitProjectData>
+                            OperatingResult = new CircuitResultProjectData
                             {
-                                new CircuitProjectData
-                                {
-                                    OperatingResult = new CircuitResultProjectData
-                                    {
-                                        FlowRegimeString = FlowRegime.Turbulent.ToString(),
-                                        Density = 1.053,
-                                        KinematicViscosity = 1.234,
-                                        ReynoldsNumber = 5678.9,
-                                        FrictionFactor = 0.031,
-                                        PressureLossPerMeter = 215.5
-                                    },
-                                    DesignResult = new CircuitResultProjectData
-                                    {
-                                        FlowRegimeString = FlowRegime.Laminar.ToString(),
-                                        Density = 1.071,
-                                        KinematicViscosity = 2.345,
-                                        ReynoldsNumber = 1234.5,
-                                        FrictionFactor = 0.052,
-                                        PressureLossPerMeter = 312.0
-                                    }
-                                }
+                                FlowRegimeString = FlowRegime.Turbulent.ToString(),
+                                Density = 1.053,
+                                KinematicViscosity = 1.234,
+                                ReynoldsNumber = 5678.9,
+                                FrictionFactor = 0.031,
+                                PressureLossPerMeter = 215.5
+                            },
+                            DesignResult = new CircuitResultProjectData
+                            {
+                                FlowRegimeString = FlowRegime.Laminar.ToString(),
+                                Density = 1.071,
+                                KinematicViscosity = 2.345,
+                                ReynoldsNumber = 1234.5,
+                                FrictionFactor = 0.052,
+                                PressureLossPerMeter = 312.0
                             }
                         }
                     }
-                }
-            };
+                }))
+                .Build();
 
             var tempPath = Path.Combine(Path.GetTempPath(), $"t8-details-{Guid.NewGuid()}.smc");
             try
@@ -371,33 +340,26 @@ namespace SnowMeltingCalculator.Tests.Project
         [Test]
         public async Task FullProject_RoundTrip_BackwardCompatible_OldFileLoadsWithDefaults()
         {
-            var data = new ProjectData
-            {
-                Version = "1.0",
-                HydraulicsData = new HydraulicsProjectData
+            var data = new ProjectDataBuilder()
+                .WithVersion("1.0")
+                .WithHydraulics(hydraulics => hydraulics.Collectors.Add(new CollectorProjectData
                 {
-                    Collectors = new List<CollectorProjectData>
+                    Circuits = new List<CircuitProjectData>
                     {
-                        new CollectorProjectData
+                        new CircuitProjectData
                         {
-                            Circuits = new List<CircuitProjectData>
+                            OperatingResult = new CircuitResultProjectData
                             {
-                                new CircuitProjectData
-                                {
-                                    OperatingResult = new CircuitResultProjectData
-                                    {
-                                        FlowRegimeString = FlowRegime.Transitional.ToString()
-                                    },
-                                    DesignResult = new CircuitResultProjectData
-                                    {
-                                        FlowRegimeString = FlowRegime.Laminar.ToString()
-                                    }
-                                }
+                                FlowRegimeString = FlowRegime.Transitional.ToString()
+                            },
+                            DesignResult = new CircuitResultProjectData
+                            {
+                                FlowRegimeString = FlowRegime.Laminar.ToString()
                             }
                         }
                     }
-                }
-            };
+                }))
+                .Build();
 
             var tempPath = Path.Combine(Path.GetTempPath(), $"t8-compat-{Guid.NewGuid()}.smc");
             try
@@ -438,50 +400,48 @@ namespace SnowMeltingCalculator.Tests.Project
             // but differ in numeric summary values (length/power/flow/pressure). If the save/load pipeline
             // collapses summaries to a single shared instance, swaps the two collectors, or drops the
             // per-collector Summary, the assertions below will fail.
-            var data = new ProjectData
+            var expectedCollectorA = new CollectorProjectData
             {
-                Version = "1.0",
-                HydraulicsData = new HydraulicsProjectData
+                CollectorNumber = 1,
+                CollectorType = "HKV-D",
+                ValveType = ValveType.HKV_D,
+                Summary = new CollectorSummaryProjectData
                 {
-                    Collectors = new List<CollectorProjectData>
-                    {
-                        new CollectorProjectData
-                        {
-                            CollectorNumber = 1,
-                            CollectorType = "HKV-D",
-                            ValveType = ValveType.HKV_D,
-                            Summary = new CollectorSummaryProjectData
-                            {
-                                CircuitCount = 4,
-                                TotalPipeLength = 435,
-                                TotalPower = 22700,
-                                TotalFlowRate = 1187.93,
-                                PressureLoss_Operating_Pa = 36914.65,
-                                PressureLoss_Cold_Pa = 125000,
-                                Kv = 1.2,
-                                CollectorType = "HKV-D"
-                            }
-                        },
-                        new CollectorProjectData
-                        {
-                            CollectorNumber = 2,
-                            CollectorType = "HKV-D",
-                            ValveType = ValveType.HKV_D,
-                            Summary = new CollectorSummaryProjectData
-                            {
-                                CircuitCount = 4,
-                                TotalPipeLength = 400,
-                                TotalPower = 20700,
-                                TotalFlowRate = 1082.93,
-                                PressureLoss_Operating_Pa = 29159.16,
-                                PressureLoss_Cold_Pa = 104100,
-                                Kv = 1.2,
-                                CollectorType = "HKV-D"
-                            }
-                        }
-                    }
+                    CircuitCount = 4,
+                    TotalPipeLength = 435,
+                    TotalPower = 22700,
+                    TotalFlowRate = 1187.93,
+                    PressureLoss_Operating_Pa = 36914.65,
+                    PressureLoss_Cold_Pa = 125000,
+                    Kv = 1.2,
+                    CollectorType = "HKV-D"
                 }
             };
+            var expectedCollectorB = new CollectorProjectData
+            {
+                CollectorNumber = 2,
+                CollectorType = "HKV-D",
+                ValveType = ValveType.HKV_D,
+                Summary = new CollectorSummaryProjectData
+                {
+                    CircuitCount = 4,
+                    TotalPipeLength = 400,
+                    TotalPower = 20700,
+                    TotalFlowRate = 1082.93,
+                    PressureLoss_Operating_Pa = 29159.16,
+                    PressureLoss_Cold_Pa = 104100,
+                    Kv = 1.2,
+                    CollectorType = "HKV-D"
+                }
+            };
+            var data = new ProjectDataBuilder()
+                .WithVersion("1.0")
+                .WithHydraulics(hydraulics =>
+                {
+                    hydraulics.Collectors.Add(expectedCollectorA);
+                    hydraulics.Collectors.Add(expectedCollectorB);
+                })
+                .Build();
 
             var tempPath = Path.Combine(Path.GetTempPath(), $"t10-twocollectors-{Guid.NewGuid()}.smc");
             try
@@ -602,13 +562,12 @@ namespace SnowMeltingCalculator.Tests.Project
             var session = new ProjectSession();
             session.ThermalState.Restore(inputs, result);
 
-            var data = new ProjectData
-            {
-                Version = "1.1",
-                ProjectNumber = "THM-RT-11",
-                ThermalData = ThermalPersistenceMapper.BuildThermalProjectData(
-                    session.ThermalState.Snapshot)
-            };
+            var data = new ProjectDataBuilder()
+                .WithVersion("1.1")
+                .WithNumber("THM-RT-11")
+                .WithThermal(ThermalPersistenceMapper.BuildThermalProjectData(
+                    session.ThermalState.Snapshot))
+                .Build();
 
             var tempPath = Path.Combine(Path.GetTempPath(), $"thm-rt-{Guid.NewGuid()}.smc");
             try
@@ -682,13 +641,12 @@ namespace SnowMeltingCalculator.Tests.Project
             var session = new ProjectSession();
             session.ThermalState.Restore(inputs, null);
 
-            var data = new ProjectData
-            {
-                Version = "1.1",
-                ProjectNumber = "THM-RT-MANUAL",
-                ThermalData = ThermalPersistenceMapper.BuildThermalProjectData(
-                    session.ThermalState.Snapshot)
-            };
+            var data = new ProjectDataBuilder()
+                .WithVersion("1.1")
+                .WithNumber("THM-RT-MANUAL")
+                .WithThermal(ThermalPersistenceMapper.BuildThermalProjectData(
+                    session.ThermalState.Snapshot))
+                .Build();
 
             var tempPath = Path.Combine(Path.GetTempPath(), $"thm-rt-manual-{Guid.NewGuid()}.smc");
             try
@@ -722,13 +680,12 @@ namespace SnowMeltingCalculator.Tests.Project
             var session = new ProjectSession();
             session.ThermalState.Restore(inputs, result);
 
-            var data = new ProjectData
-            {
-                Version = "1.0",
-                ProjectNumber = "THM-RT-10",
-                ThermalData = ThermalPersistenceMapper.BuildThermalProjectData(
-                    session.ThermalState.Snapshot)
-            };
+            var data = new ProjectDataBuilder()
+                .WithVersion("1.0")
+                .WithNumber("THM-RT-10")
+                .WithThermal(ThermalPersistenceMapper.BuildThermalProjectData(
+                    session.ThermalState.Snapshot))
+                .Build();
 
             var tempPath = Path.Combine(Path.GetTempPath(), $"thm-rt10-{Guid.NewGuid()}.smc");
             try
@@ -764,13 +721,12 @@ namespace SnowMeltingCalculator.Tests.Project
         public async Task ThermalRoundTrip_DefaultSession_PersistsExactDefaultWireShape()
         {
             var session = new ProjectSession();
-            var data = new ProjectData
-            {
-                Version = "1.1",
-                ProjectNumber = "THM-RT-DEF",
-                ThermalData = ThermalPersistenceMapper.BuildThermalProjectData(
-                    session.ThermalState.Snapshot)
-            };
+            var data = new ProjectDataBuilder()
+                .WithVersion("1.1")
+                .WithNumber("THM-RT-DEF")
+                .WithThermal(ThermalPersistenceMapper.BuildThermalProjectData(
+                    session.ThermalState.Snapshot))
+                .Build();
 
             Assert.Multiple(() =>
             {

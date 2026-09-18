@@ -112,25 +112,19 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         {
             // Arrange
             const string pipeName = "RAUTHERM S 25x2,3";
-            var projectData = new ProjectData
-            {
-                ProjectNumber = "P-T4",
-                ProjectObject = "Pipe Restore Test",
-                IsOperatingMode = true,
-                ClimateData = new ClimateProjectData(),
-                ConstructionData = new ConstructionProjectData(),
-                ThermalData = new ThermalProjectData
+            var projectData = new ProjectDataBuilder()
+                .WithNumber("P-T4")
+                .WithObject("Pipe Restore Test")
+                .OperatingMode()
+                .WithDefaultSlices()
+                .WithThermal(thermal => thermal.SelectedPipe = new PipeTypeProjectData
                 {
-                    SelectedPipe = new PipeTypeProjectData
-                    {
-                        Name = pipeName,
-                        OuterDiameter = 25.0,
-                        InnerDiameter = 20.4,
-                        WallThickness = 2.3
-                    }
-                },
-                HydraulicsData = new HydraulicsProjectData()
-            };
+                    Name = pipeName,
+                    OuterDiameter = 25.0,
+                    InnerDiameter = 20.4,
+                    WallThickness = 2.3
+                })
+                .Build();
 
             var climateVm = CreateClimateViewModel();
             var circuitsVm = CreateCircuitsViewModel();
@@ -149,40 +143,40 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         public async Task ProjectRoundTrip_DoesNotMarkDirtyOnLoad()
         {
             // Arrange
-            var projectData = new ProjectData
-            {
-                ProjectNumber = "P-T6",
-                ProjectObject = "Dirty Load Test",
-                IsOperatingMode = true,
-                ClimateData = new ClimateProjectData
+            var projectData = new ProjectDataBuilder()
+                .WithNumber("P-T6")
+                .WithObject("Dirty Load Test")
+                .OperatingMode()
+                .WithDefaultSlices()
+                .WithClimate(climate =>
                 {
-                    SelectedCity = "Москва",
-                    AirTemperature = -18.0,
-                    WindSpeed = 3.5,
-                    Humidity = 65.0,
-                    SnowfallIntensity = 2.5,
-                    SelectedZone = ClimateZone.Zone_M15,
-                    IsHighRequirements = false
-                },
-                ConstructionData = new ConstructionProjectData
+                    climate.SelectedCity = "Москва";
+                    climate.AirTemperature = -18.0;
+                    climate.WindSpeed = 3.5;
+                    climate.Humidity = 65.0;
+                    climate.SnowfallIntensity = 2.5;
+                    climate.SelectedZone = ClimateZone.Zone_M15;
+                    climate.IsHighRequirements = false;
+                })
+                .WithConstruction(construction =>
                 {
-                    R1 = 0.1,
-                    R2 = 0.2
-                },
-                ThermalData = new ThermalProjectData
+                    construction.R1 = 0.1;
+                    construction.R2 = 0.2;
+                })
+                .WithThermal(thermal =>
                 {
-                    SelectedMode = OperatingMode.Melting,
-                    SupplyTemperature = 45.0,
-                    GroundTemperature = 5.0,
-                    PipeSpacing = 250,
-                    SelectedPipe = new PipeTypeProjectData
+                    thermal.SelectedMode = OperatingMode.Melting;
+                    thermal.SupplyTemperature = 45.0;
+                    thermal.GroundTemperature = 5.0;
+                    thermal.PipeSpacing = 250;
+                    thermal.SelectedPipe = new PipeTypeProjectData
                     {
                         Name = "RAUTHERM S 20x2,0",
                         OuterDiameter = 20.0,
                         InnerDiameter = 16.0,
                         WallThickness = 2.0
-                    },
-                    Result = new ThermalResultProjectData
+                    };
+                    thermal.Result = new ThermalResultProjectData
                     {
                         PowerUp = 100.0,
                         PowerDown = 100.0,
@@ -192,37 +186,19 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                         MeanTemperature = 40.0,
                         DeltaT = 10.0,
                         IsValid = true
-                    }
-                },
-                HydraulicsData = new HydraulicsProjectData
+                    };
+                })
+                .WithHydraulics(hydraulics =>
                 {
-                    GlycolType = GlycolType.Ethylene,
-                    GlycolConcentration = 30.0,
-                    SupplySpacingCm = 10.0,
-                    SupplyHeatPercent = 20.0,
-                    Collectors = new List<CollectorProjectData>
-                    {
-                        new CollectorProjectData
-                        {
-                            CollectorNumber = 1,
-                            CollectorType = "HKV-D (2-12 контуров)",
-                            ValveType = ValveType.HKV_D,
-                            Circuits = new List<CircuitProjectData>
-                            {
-                                new CircuitProjectData
-                                {
-                                    CircuitNumber = 1,
-                                    CircuitLength = 50.0,
-                                    SupplyLength = 10.0,
-                                    SupplySpacingCm = 5.0,
-                                    SupplyHeatPercent = 10.0,
-                                    PipeSpacingCm = 25.0
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+                    hydraulics.GlycolType = GlycolType.Ethylene;
+                    hydraulics.GlycolConcentration = 30.0;
+                    hydraulics.SupplySpacingCm = 10.0;
+                    hydraulics.SupplyHeatPercent = 20.0;
+                    var collector = ProjectDataBuilder.HkvDCollector(1, 50.0);
+                    collector.Circuits[0].PipeSpacingCm = 25.0;
+                    hydraulics.Collectors.Add(collector);
+                })
+                .Build();
 
             var calculationStateService = new CalculationStateService(_projectStateService.Session);
             var viewModel = CreateViewModel(
