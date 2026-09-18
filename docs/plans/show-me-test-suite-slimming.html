@@ -36,7 +36,7 @@
   .pill-wc { background: #E4F6F3; color: #1E9C8B; }
   .pill-wd { background: #ECECEC; color: var(--gray1); }
   .pill.ghost { background: transparent; border: 1px solid var(--gray4); color: var(--gray2); font-weight: 500; }
-  table { border-collapse: collapse; margin-top: 10px; font-size: 12px; width: 100%; max-width: 980px; background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; }
+  table { border-collapse: collapse; margin-top: 10px; font-size: 12px; width: 100%; max-width: 1000px; background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; }
   th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray2); padding: 10px 12px 6px; border-bottom: 1px solid var(--gray4); }
   td { border-bottom: 1px solid var(--gray4); padding: 8px 12px; vertical-align: top; }
   tr:last-child td { border-bottom: none; }
@@ -57,81 +57,88 @@
   .note { margin-top: 14px; font-size: 12px; color: var(--gray1); background: #EAF7F4; border-radius: 5px; padding: 10px 14px; max-width: 900px; line-height: 1.45; }
   .note b { color: var(--ink); }
   .rec { color: var(--red); font-weight: 700; white-space: nowrap; }
-  .wait { color: var(--gray2); font-weight: 500; }
 </style>
 </head>
 <body>
 
 <h1><span class="mark"></span>Чистка раздутых тестов: четыре волны</h1>
-<div class="sub">тесты не ослабляются · characterization фазы 10 — вне скоупа · ручной скан раздутости 2026-09-18 · решения V1–V4 — ожидаются</div>
-<div class="plan-ref">План: <code>docs/plans/2026-09-18-test-suite-slimming-plan.md</code> · артефакт регенерируется из плана и не правится вручную (урок №27)</div>
+<div class="sub">тесты не ослабляются · characterization фазы 10 — вне скоупа · решения владельца V1(a)–V4(a) 2026-09-18 · ревью R-2026-09-18-02: APPROVE-WITH-EDITS, 7 находок, все приняты · волна A+B в имплементации</div>
+<div class="plan-ref">План: <code>docs/plans/2026-09-18-test-suite-slimming-plan.md</code> · чек: <code>docs/reviews/2026-09-18-test-suite-slimming-review.md</code> · артефакт регенерируется из плана (урок №27)</div>
 
 <div class="metrics">
   <div class="metric"><div class="v">62&nbsp;154</div><div class="k">строк tests/ · против 44 581 src/ (1.39:1) · ~2 360 тестов</div></div>
-  <div class="metric"><div class="v bad">3&nbsp;249</div><div class="k">строк · 45 тестов в ResultsViewModelOpenProjectTests.cs — класс-накопитель</div></div>
-  <div class="metric"><div class="v bad">645</div><div class="k">строк F5-теста · Assert.Ignore на каждом прогоне · fixture отсутствует</div></div>
-  <div class="metric"><div class="v">19 + 11</div><div class="k">инлайнов new ProjectData в двух файлах · 21 файл с инлайнами · Fixtures/ почти пуст</div></div>
-  <div class="metric"><div class="v ok">−850…−900</div><div class="k">строк ожидаемый эффект · Assert.Ignore → 0 · 45 → 44 теста</div></div>
+  <div class="metric"><div class="v bad">3&nbsp;249</div><div class="k">строк · 44 теста · ~20 фабрик в ResultsViewModelOpenProjectTests.cs — класс-накопитель</div></div>
+  <div class="metric"><div class="v bad">~138</div><div class="k">строк F5-теста (:1672–1799) · 21 assert · единственный Assert.Ignore в наборе</div></div>
+  <div class="metric"><div class="v">19 + 11</div><div class="k">инлайнов new ProjectData в двух файлах · 20 файлов с инлайнами · Fixtures/ почти пуст</div></div>
+  <div class="metric"><div class="v ok">−300…−400</div><div class="k">строк после всех волн (вторичная метрика) · 44 → 43 теста · Assert.Ignore → 0</div></div>
 </div>
 
-<h2><span class="mark wa"></span>Волна A — разрезка класса-накопителя · 1 файл → 5</h2>
-<div class="wavehead"><span class="pill pill-wa">3 249 строк, 5 тем, 15 локальных фабрик → 5 файлов по темам</span><span class="pill ghost">только перенос · имена и ассерты дословно · независимое ревью плана до имплементации</span></div>
+<h2><span class="mark wa"></span>Волна A — разрезка класса-накопителя · 1 файл → 5 + общий фабрикатор</h2>
+<div class="wavehead"><span class="pill pill-wa">3 249 строк, 5 тем → 5 файлов по темам + ResultsViewModelTestGraph</span><span class="pill ghost">решение V1(a) — A+B одним циклом · только перенос · партиция полная — 44/44 теста (ревью №1/№3)</span></div>
 <table>
   <tr><th>Новый файл</th><th>Тесты</th><th>Объём</th></tr>
-  <tr><td class="mono">ResultsViewModelOpenProjectPromptTests.cs</td><td>промпты открытия ×4 (:85–207) + LoadProjectFromPathAsync ×4 (:2317–2373)</td><td>~250 строк · 8 тестов</td></tr>
-  <tr><td class="mono">ResultsViewModelLoadRestoreTests.cs</td><td>восстановление LoadProjectData: :208, :390, :448, :1381, :2392–2742 (×7)</td><td>~740 строк · 12 тестов</td></tr>
-  <tr><td class="mono">ResultsViewModelSaveSnapshotTests.cs</td><td>save-снапшоты климата/конструкции/thermal (:602, :678, :2830, :2884) + Success/Failure (:3141, :3199)</td><td>~550 строк · 6 тестов</td></tr>
-  <tr><td class="mono">ResultsViewModelRoundTripTests.cs <span class="wait">(решение V3)</span></td><td>round-trip через ResultsViewModel ×6 (:258–1078)</td><td>~820 строк · 6 тестов</td></tr>
-  <tr><td class="mono">ResultsViewModelHydraulicsSummaryCardsTests.cs</td><td>карточки ×3 (:1243, :1429, :1548) + хелперы GetDoubleProperty / AssertCardValues — единственной копией</td><td>~430 строк · 3 теста</td></tr>
+  <tr><td class="mono">ResultsViewModelOpenProjectPromptTests.cs</td><td>промпты открытия ×4 (:85–207) + LoadProjectFromPathAsync ×4 (:2317–2373)</td><td>~210 строк · 8 тестов</td></tr>
+  <tr><td class="mono">ResultsViewModelLoadRestoreTests.cs</td><td>Session_Identity… (:66) + восстановление LoadProjectData: :208, :390, :448, :1381, :2392–2742 (×7)</td><td>~700 строк · 12 тестов</td></tr>
+  <tr><td class="mono">ResultsViewModelSaveSnapshotTests.cs</td><td>save-снапшоты (:602, :678, :2830, :2884) + PersistenceFailure ×3 (:2936, :3023, :3094) + Success/Failure (:3141, :3199)</td><td>~560 строк · 9 тестов</td></tr>
+  <tr><td class="mono">ResultsViewModelRoundTripTests.cs <span style="color:#818181">(решение V3)</span></td><td>round-trip через ResultsViewModel ×6 (:258–1078) + кластер волны C (:1079–1242) временно здесь</td><td>~770 строк · 6+5 тестов</td></tr>
+  <tr><td class="mono">ResultsViewModelHydraulicsSummaryCardsTests.cs</td><td>карточки ×3 (:1243, :1429, :1548) + хелперы AssertCardValues / GetDoubleProperty / GetIntProperty</td><td>~400 строк · 3 теста</td></tr>
+  <tr><td class="mono">ResultsViewModelTestGraph.cs (не тестовый)</td><td>~20 Create*-фабрик · GetField&lt;T&gt; · TestFilePath — единственные копии; граф вызовов кросс-темен (ревью №3)</td><td>~470 строк · 0 тестов</td></tr>
 </table>
 
-<h2><span class="mark wb"></span>Волна B — мёртвый F5-тест (решение V2)</h2>
-<div class="wavehead"><span class="pill pill-wb">645 строк · единственный Assert.Ignore в наборе · в CI невыполним по построению</span><span class="pill ghost">рекомендация — удалить (а); значения реального файла — ручная F5-процедура владельца</span></div>
+<h2><span class="mark wb"></span>Волна B — мёртвый F5-тест (решение V2(а) — удалить)</h2>
+<div class="wavehead"><span class="pill pill-wb">~138 строк (:1672–1799) · единственный Assert.Ignore (:1684) · в CI невыполним по построению</span><span class="pill ghost">значения реального файла — ручная F5-процедура владельца · хелперы и фабрики под тестом не удаляются</span></div>
 <table>
-  <tr><td class="mono">ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile (:1672–2316)</td><td>зависит от абсолютного пути <span class="mono">D:\IA\ace\Тест\тест 40.smc</span> — файла нет; при появлении работает только на одной машине; зашитые числа (22 700 / 20 700 Вт, 1187.93 л/ч) ломаются от любого изменения fixture. (б) — переезд в UiSmoke/ с репозиторным .smc, отдельное решение владельца</td></tr>
+  <tr><td class="mono">ResultsViewModel_LoadsRealProject_TwoCollectorsSummaryCardsMatchFile (:1672–1799)</td><td>зависит от абсолютного пути <span class="mono">D:\IA\ace\Тест\тест 40.smc</span> — файла нет; работает только на одной машине; зашитые числа (22 700 / 20 700 Вт, 1187.93 л/ч) ломаются от любого изменения fixture. Строки 1801–2314 — карточные хелперы и общие фабрики: едут в карточный файл и TestGraph (ревью №2: исходные «645 строк» включали их ошибочно)</td></tr>
 </table>
 
-<h2><span class="mark wc"></span>Волна C — кластер lambda/groundwater · 5 → 2</h2>
-<div class="wavehead"><span class="pill pill-wc">:1079–1242 · ~164 строк · одно взаимодействие, пять аранжей</span><span class="pill ghost">пин волны — grep-инвентаризация assert'ов до/после: счётчик не уменьшается</span></div>
+<h2><span class="mark wc"></span>Волна C — кластер lambda/groundwater · 5 → 2 (следующий цикл)</h2>
+<div class="wavehead"><span class="pill pill-wc">:1079–1242 · ~164 строк · одно взаимодействие, пять аранжей</span><span class="pill ghost">пин волны — сумма assert'ов по затронутым файлам не уменьшается</span></div>
 <table>
   <tr><th>Было (5 тестов)</th><th>Станет</th></tr>
-  <tr><td>PreservesGroundwaterLevel · PreservesLambdaValueAndOverrideFlag · OverrideLambdaSurvivesGroundwaterLevelChange_AfterLoad · GroundwaterLevelChange_AfterProjectLoad_UpdatesLambdaForBelowPipeLayers · LambdaUpdatesWhenGroundwaterLevelChanges</td><td>round-trip сохранения — [TestCase] на тройку полей (groundwater / lambda / override) + один интеракционный (override переживает смену groundwater после load; λ пересчитывается для слоёв ниже трубы). −70…−80 строк, покрытие не сужается</td></tr>
+  <tr><td>PreservesGroundwaterLevel · PreservesLambdaValueAndOverrideFlag · OverrideLambdaSurvivesGroundwaterLevelChange_AfterLoad · GroundwaterLevelChange_AfterProjectLoad_UpdatesLambdaForBelowPipeLayers · LambdaUpdatesWhenGroundwaterLevelChanges</td><td>round-trip сохранения — [TestCase] на тройку полей (groundwater / lambda / override) + один интеракционный (override переживает смену groundwater после load; λ пересчитывается для слоёв ниже трубы). Ассерты всех пяти сохраняются, покрытие не сужается</td></tr>
 </table>
 
-<h2><span class="mark wd"></span>Волна D — общий builder фикстуры (решение V4)</h2>
-<div class="wavehead"><span class="pill pill-wd">19 + 11 инлайнов new ProjectData → один builder</span><span class="pill ghost">только тестовая инфраструктура · остальные 19 файлов — по мере касания (V4а)</span></div>
+<h2><span class="mark wd"></span>Волна D — общий builder фикстуры (решение V4(а), следующий цикл)</h2>
+<div class="wavehead"><span class="pill pill-wd">19 + 11 инлайнов new ProjectData → один builder</span><span class="pill ghost">только тестовая инфраструктура · остальные 18 файлов — по мере касания</span></div>
 <table>
   <tr><td class="mono">tests/Fixtures/ProjectDataBuilder.cs (новый)</td><td>fluent-builder типового ProjectData с дефолтами текущих инлайнов; аналог по назначению — CalculationReportTestProjectFactory (волна 3 дедупликации), но для project-домена</td></tr>
   <tr><td class="mono">ResultsViewModelRoundTripTests · Project/ProjectRoundTripTests</td><td>инлайны переводятся на builder; различия — именованные override'ы, не копипаста. −120…−180 строк</td></tr>
 </table>
 
-<h2><span class="mark wa"></span>Поток: класс-накопитель → пять тематических файлов</h2>
+<h2><span class="mark wa"></span>Поток: класс-накопитель → пять тем + общий фабрикатор</h2>
 <div class="flow">
-  <div class="node big"><div class="nt">ResultsViewModelOpenProjectTests.cs</div><div class="nd">3 249 строк · 45 тестов ·<br>5 тем · 15 локальных Create*-фабрик</div></div>
-  <div class="edge">волна A → <b>разрезка</b><br>волна B → −645</div>
-  <div class="node owner"><div class="nt">5 файлов в ViewModels/</div><div class="nd">промпты · восстановление · save-снапшоты ·<br>round-trip · карточки гидравлики<br>[SetUp] и фабрики делятся по использованию</div></div>
-  <div class="edge">волна D →</div>
-  <div class="node owner"><div class="nt">ProjectDataBuilder</div><div class="nd">tests/Fixtures/ ·<br>кормит round-trip и restore</div></div>
+  <div class="node big"><div class="nt">ResultsViewModelOpenProjectTests.cs</div><div class="nd">3 249 строк · 44 теста · 5 тем ·<br>~20 локальных Create*-фабрик</div></div>
+  <div class="edge">волна A → <b>разрезка</b><br>волна B → −~138</div>
+  <div class="node owner"><div class="nt">5 файлов в ViewModels/</div><div class="nd">промпты · восстановление · save+persistence ·<br>round-trip (+кластер C) · карточки гидравлики<br>[SetUp] в каждом — свежее состояние</div></div>
+  <div class="edge">общие члены →</div>
+  <div class="node owner"><div class="nt">ResultsViewModelTestGraph</div><div class="nd">фабрики · GetField&lt;T&gt; · TestFilePath —<br>без дублирования; потеря фабрики =<br>ошибка компиляции, не прогона</div></div>
 </div>
 
 <h2><span class="mark"></span>Риски и границы</h2>
 <div class="consumers">
   <div class="consumer"><b>State ownership</b>без изменений: правится только тестовый проект; ArchitectureRulesTests зелёные без правок allowlist&#x27;ов; ADR не требуется</div>
-  <div class="consumer"><b>Тесты не ослабляются</b>ни один живой assert не удаляется и не ослабляется; пин — grep-инвентаризация Assert\. и имён тестов до/после каждой волны</div>
+  <div class="consumer"><b>Тесты не ослабляются</b>пин — сумма Assert\. по затронутым файлам ≥ 281 (= 302 − 21 F5 по V2(а)); состав имён меняется только по V2/V3</div>
   <div class="consumer"><b>Characterization фазы 10</b>ThermalMultiplicity (1 939 строк) и census (~274 строки) — не раздутость, вне скоупа; только по отдельному решению владельца</div>
-  <div class="consumer"><b>Диффы волн</b>не смешиваются: A+B — один цикл (V1а), C и D — следующие; каждая волна — полный зелёный dotnet test и handover некоммиченным деревом</div>
+  <div class="consumer"><b>Параллелизм / I/O</b>NUnit-параллелизм в наборе отключён; файловый I/O — GUID-имена в WorkDirectory с finally-удалением (ревью A4) — коллизий фикстур нет</div>
 </div>
 
-<h2><span class="mark"></span>Вопросы владельцу (рекомендации агента)</h2>
-<table style="max-width: 980px;">
+<h2><span class="mark"></span>Решения владельца (2026-09-18, «рекомендации приняты, приступай»)</h2>
+<table style="max-width: 1000px;">
   <tr><th>#</th><th>Вопрос</th><th>Варианты</th><th>Рекомендация агента</th><th>Решение владельца</th></tr>
-  <tr><td>V1</td><td>Порядок волн</td><td>(а) A+B одним циклом, C+D следующим · (б) все четыре одной волной · (в) каждая волна — отдельный цикл</td><td class="rec">(а)</td><td class="wait">—</td></tr>
-  <tr><td>V2</td><td>F5-тест (645 строк, всегда Ignore)</td><td>(а) удалить, значения — ручная F5-проверка · (б) в UiSmoke/ с репозиторным fixture · (в) оставить</td><td class="rec">(а)</td><td class="wait">—</td></tr>
-  <tr><td>V3</td><td>Round-trip-блок (~820 строк)</td><td>(а) отдельный файл ResultsViewModelRoundTripTests · (б) слить в Project/ProjectRoundTripTests.cs</td><td class="rec">(а)</td><td class="wait">—</td></tr>
-  <tr><td>V4</td><td>Builder ProjectData</td><td>(а) Fixtures/ProjectDataBuilder, два крупнейших потребителя · (б) все 21 файл сразу</td><td class="rec">(а)</td><td class="wait">—</td></tr>
+  <tr><td>V1</td><td>Порядок волн</td><td>(а) A+B одним циклом, C+D следующим · (б) все четыре одной волной · (в) каждая волна — отдельный цикл</td><td class="rec">(а)</td><td class="rec">владелец: (а)</td></tr>
+  <tr><td>V2</td><td>F5-тест (~138 строк, всегда Ignore)</td><td>(а) удалить, значения — ручная F5-проверка · (б) в UiSmoke/ с репозиторным fixture · (в) оставить</td><td class="rec">(а)</td><td class="rec">владелец: (а)</td></tr>
+  <tr><td>V3</td><td>Round-trip-блок (~770 строк)</td><td>(а) отдельный файл ResultsViewModelRoundTripTests · (б) слить в Project/ProjectRoundTripTests.cs</td><td class="rec">(а)</td><td class="rec">владелец: (а)</td></tr>
+  <tr><td>V4</td><td>Builder ProjectData</td><td>(а) Fixtures/ProjectDataBuilder, два крупнейших потребителя · (б) все 20 файлов сразу</td><td class="rec">(а)</td><td class="rec">владелец: (а)</td></tr>
 </table>
 
-<div class="note"><b>Процесс:</b> решения V1–V4 → независимое атакующее ревью плана (чек в docs/reviews/ по шаблону) → волна A+B: разрезка + удаление F5 → grep-пин assert'ов → полный зелёный dotnet test → handover некоммиченным деревом → C, D следующими циклами. Метрика успеха: tests/ 62 154 → ~61 300 строк; максимум файла набора ≤ ~950 строк; Assert.Ignore → 0. show-me регенерируется из плана (урок №27), сверка артефакта с планом — шаг ревью.</div>
+<div class="note"><b>Ревью R-2026-09-18-02 (APPROVE-WITH-EDITS, 7 находок, все приняты):</b>
+P1 — партиция неполна: Session_Identity… и PersistenceFailure ×3 не были ни в одной волне (включены: restore 12 / save 9);
+P1 — F5 реально ~138 строк (:1672–1799), «645» включал общие фабрики; метрика −850…−900 снята;
+P1 — механизм фабрик противоречил себе (по темам vs по использованию) — зафиксирован общий ResultsViewModelTestGraph;
+P2 — 44 [Test], не 45; P2 — единица grep-пина: сумма по файлам ≥ 281; P2 — кластер C при разрезке временно в round-trip-файл;
+P3 — 20 файлов с инлайнами, ~20 фабрик. Чек: docs/reviews/2026-09-18-test-suite-slimming-review.md.</div>
+
+<div class="note"><b>Процесс:</b> волна A+B → grep-пин assert'ов → полный зелёный dotnet test → handover некоммиченным деревом; C и D — следующими циклами. Метрика успеха (пересчитана): рекордсмен исчезает, максимум файла ≤ ~950 строк, 44 → 43 теста, Assert.Ignore → 0, сумма Assert ≥ 281. show-me регенерируется из плана (урок №27), сверка артефакта с планом — шаг ревью.</div>
 
 </body>
 </html>
