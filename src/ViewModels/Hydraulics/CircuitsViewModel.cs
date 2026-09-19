@@ -159,6 +159,25 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         [ObservableProperty]
         private string _infoMessage = string.Empty;
 
+        /// <summary>
+        /// Ошибка последнего расчёта — заливка KPI-чипов сводки мягким
+        /// красным тинтом (волна 3.5): пустой ValidationMessage = чипы нейтральные.
+        /// </summary>
+        public bool HasCalculationError => !string.IsNullOrEmpty(ValidationMessage);
+
+        /// <summary>
+        /// Некритичное замечание (допущения 35/30) при отсутствии ошибки —
+        /// янтарная заливка чипов сводки.
+        /// </summary>
+        public bool HasCalculationNotice =>
+            string.IsNullOrEmpty(ValidationMessage) && !string.IsNullOrEmpty(InfoMessage);
+
+        partial void OnValidationMessageChanged(string value) =>
+            OnPropertyChanged(nameof(HasCalculationError));
+
+        partial void OnInfoMessageChanged(string value) =>
+            OnPropertyChanged(nameof(HasCalculationNotice));
+
         #endregion
 
         #region Calculation State
@@ -637,6 +656,9 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     $"Шаг подводки должен быть положительным (контур {brokenSupplySpacing.CircuitNumber}: " +
                     $"задано {brokenSupplySpacing.SupplySpacing_cm:0.##}). " +
                     "Исправьте значение в строке контура и пересчитайте.";
+                // Симметрично NaN-гварду: Error-статус модуля, чтобы вкладка
+                // и индикация не выглядели «успешными» при откате (волна 3.5).
+                _calculationStateService.SetHydraulicsError(ValidationMessage);
                 return;
             }
 

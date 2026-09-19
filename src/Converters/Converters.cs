@@ -316,12 +316,50 @@ namespace SnowMeltingCalculator.Converters
     /// <summary>
     /// Конвертер: давление из Па в кПа (для KPI-чипов сводки коллектора,
     /// эталон renders/03: значение и единица — раздельные тексты).
+    /// NaN (волна 3.5) → прочерк «—»: локализованное «не число» в
+    /// ru-RU-биндинге нечитаемо и пугает.
     /// </summary>
     public class PascalToKpaConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value is double pressurePa ? pressurePa / 1000.0 : value;
+            if (value is double pressurePa)
+            {
+                return double.IsNaN(pressurePa) ? "—" : pressurePa / 1000.0;
+            }
+
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Форматирование double со фолбэком «—» для NaN/Infinity (волна 3.5):
+    /// WPF-биндинг с ru-RU культурой рендерит NaN как «не число» — в
+    /// расчётных полях грида, чипов и инфоблоков заменяем на прочерк.
+    /// ConverterParameter — формат (по умолчанию F1); культура приходит
+    /// из биндинга (AppCulture pin ru-RU).
+    /// </summary>
+    public class NaNFormatConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is double number)
+            {
+                if (double.IsNaN(number) || double.IsInfinity(number))
+                {
+                    return "—";
+                }
+
+                var format = parameter as string ?? "F1";
+                return number.ToString(format, culture);
+            }
+
+            return value ?? "—";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -343,6 +381,11 @@ namespace SnowMeltingCalculator.Converters
         {
             if (value is double pressurePa)
             {
+                if (double.IsNaN(pressurePa))
+                {
+                    return "—";
+                }
+
                 double pressureMbar = pressurePa / 100.0;
 
                 if (pressurePa >= 1000)

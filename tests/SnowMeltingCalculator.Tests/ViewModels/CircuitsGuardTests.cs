@@ -43,6 +43,16 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     "Расчёт откатывается: канон не получает результатов для контура с " +
                     "нулевым шагом подводки (UI-объект Summary контура может оставаться " +
                     "от прошлого расчёта — принятая семантика ADR-012 note).");
+                // Волна 3.5: Error-статус модуля + красная заливка чипов —
+                // индикация не выглядит «успешной» при откате. В тестовой
+                // композиции Error читается с того же канона (Status
+                // проставлен FailCalculation'ом после null-возврата расчёта).
+                Assert.That(hydraulicsState.Snapshot.Status.ValidationMessage,
+                    Does.Contain("Шаг подводки"),
+                    "Канон в Error-статусе с текстом гварда: вкладка Error, не зелёная.");
+                Assert.That(viewModel.HasCalculationError, Is.True,
+                    "Чипы сводки залиты красным тинтом при ошибке расчёта.");
+                Assert.That(viewModel.HasCalculationNotice, Is.False);
             });
         }
 
@@ -73,6 +83,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     "Расчёт откатывается: канон не получает результатов от NaN-свойств " +
                     "теплоносителя (UI-объект Summary контура может оставаться от " +
                     "прошлого расчёта — принятая семантика ADR-012 note).");
+                Assert.That(viewModel.HasCalculationError, Is.True,
+                    "Чипы сводки залиты красным тинтом при ошибке расчёта.");
             });
         }
 
@@ -93,6 +105,10 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     "Fallback — не ошибка: расчёт от допущений валиден и публикуется.");
                 Assert.That(collector.Summary, Is.Not.Null,
                     "Fallback-расчёт публикует сводку, как и прежде.");
+                // Волна 3.5: янтарная заливка чипов при допущениях.
+                Assert.That(viewModel.HasCalculationNotice, Is.True,
+                    "Чипы сводки залиты янтарным при допущениях 35/30.");
+                Assert.That(viewModel.HasCalculationError, Is.False);
             });
         }
 
