@@ -113,8 +113,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void KinematicViscosity_VariousConcentrations_LowerTempHigherViscosity()
         {
             // Arrange - проверяем для разных концентраций
+            // (tempLow = -5: вне замёрзшей зоны 10-20% — D9, честный NaN
+            // вместо подменённого значения; при -15 точки 20-30% замёрзли)
             double[] concentrations = { 20, 30, 40, 50, 60, 70, 80 };
-            double tempLow = -15;
+            double tempLow = -5;
             double tempHigh = 40;
 
             foreach (var concentration in concentrations)
@@ -352,7 +354,8 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         {
             // Arrange
             double concentration = 50;
-            double tempLow = -30;    // Близко к минимуму (-34.4°C)
+            double tempLow = -25;    // Вне замёрзшей интерп-зоны 50% (D9: при
+                                     // t<-28.9 рядом NaN-край таблицы даёт честный NaN)
             double tempHigh = 80;    // Близко к максимуму (90°C)
 
             // Act
@@ -442,8 +445,9 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void Viscosity_PhysicallyCorrect_VariousConcentrations()
         {
             // Arrange
+            // (tempLow = -5: вне замёрзшей зоны 10-20% — D9, честный NaN)
             double[] concentrations = { 20, 30, 40, 50, 60, 70, 80 };
-            double tempLow = -15;
+            double tempLow = -5;
             double tempHigh = 40;
 
             foreach (var concentration in concentrations)
@@ -462,8 +466,9 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void Density_PhysicallyCorrect_VariousConcentrations()
         {
             // Arrange
+            // (tempLow = -5: вне замёрзшей зоны 10-20% — D9, честный NaN)
             double[] concentrations = { 20, 30, 40, 50, 60, 70, 80 };
-            double tempLow = -15;
+            double tempLow = -5;
             double tempHigh = 40;
 
             foreach (var concentration in concentrations)
@@ -592,6 +597,77 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // Assert
             Assert.That(specificHeatAt48_9, Is.GreaterThan(specificHeatAtMinus17_8),
                 $"Данные JSON: теплоёмкость при 48.9°C ({specificHeatAt48_9:F2}) должна быть > чем при -17.8°C ({specificHeatAtMinus17_8:F2})");
+        }
+
+        #endregion
+
+        #region NaN-зона: честный отказ вместо подмены соседом (волна 3, D9)
+
+        /// <summary>
+        /// Точная NaN-ячейка таблицы: этиленгликоль 10 % при −12,2 °C —
+        /// теплоноситель замёрз, значения в базе отсутствуют (None).
+        /// Раньше подмена «одно NaN — берём соседа» возвращала значение
+        /// из более тёплого ряда, и гидравлика молча считалась от фиктивных
+        /// свойств замёрзшего раствора. Теперь свойства содержат NaN.
+        /// </summary>
+        [Test]
+        public void GetProperties_AtExactFrozenCell_ReturnsNaN()
+        {
+            var props = _service.GetProperties(GlycolType.Ethylene, 10, -12.2);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(double.IsNaN(props.KinematicViscosity), Is.True,
+                    "Вязкость замёрзшего 10 % раствора при −12,2 °C должна быть NaN, а не подменённой соседней ячейкой.");
+                Assert.That(double.IsNaN(props.Density), Is.True,
+                    "Плотность замёрзшего 10 % раствора при −12,2 °C должна быть NaN.");
+            });
+        }
+
+        /// <summary>
+        /// Интерполяция по температуре между замёрзшей ячейкой (−12,2 °C,
+        /// NaN) и живой (−6,7 °C, число): точка −10 °C лежит в замёрзшей
+        /// зоне — раньше подмена молча возвращала значение из −6,7 °C.
+        /// </summary>
+        [Test]
+        public void GetProperties_InterpolationIntoFrozenZone_ReturnsNaN()
+        {
+            var props = _service.GetProperties(GlycolType.Ethylene, 10, -10);
+
+            Assert.That(double.IsNaN(props.KinematicViscosity), Is.True,
+                "Точка −10 °C (10 %) ниже точки замерзания — подмена соседним рядом недопустима (D9).");
+        }
+
+        /// <summary>
+        /// Интерполяция по концентрации через замёрзшую колонку: 15 % при
+        /// −10 °C лежит между 10 % (NaN) и 20 % (число) — раньше подмена
+        /// брала значение 20 %, теперь NaN.
+        /// </summary>
+        [Test]
+        public void GetProperties_ConcentrationInterpolationAcrossFrozenColumn_ReturnsNaN()
+        {
+            var props = _service.GetProperties(GlycolType.Ethylene, 15, -10);
+
+            Assert.That(double.IsNaN(props.KinematicViscosity), Is.True,
+                "Концентрационная интерполяция не должна перепрыгивать замёрзшую колонку (D9).");
+        }
+
+        /// <summary>
+        /// Контрольный позитив: 10 % при −6,7 °C — живая ячейка, свойства
+        /// остаются числами (гвард не блокирует валидные зоны).
+        /// </summary>
+        [Test]
+        public void GetProperties_AboveFreezingBoundary_ReturnsValidNumbers()
+        {
+            var props = _service.GetProperties(GlycolType.Ethylene, 10, -6.7);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(double.IsNaN(props.KinematicViscosity), Is.False);
+                Assert.That(double.IsNaN(props.Density), Is.False);
+                Assert.That(double.IsNaN(props.SpecificHeat), Is.False);
+                Assert.That(props.KinematicViscosity, Is.GreaterThan(0));
+            });
         }
 
         #endregion

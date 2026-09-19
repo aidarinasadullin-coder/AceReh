@@ -379,7 +379,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 markDirtyService);
         }
 
-        public static CircuitsViewModel CreateCircuitsViewModel(bool allowRemoveCircuit = false)
+        public static CircuitsViewModel CreateCircuitsViewModel(
+            bool allowRemoveCircuit = false,
+            GlycolProperties? glycolProperties = null)
         {
             var calculatorMock = new Mock<ICircuitsCalculator>();
             calculatorMock.Setup(c => c.CalculateCircuitPower(It.IsAny<CircuitRow>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<double>())).Returns(0.0);
@@ -389,7 +391,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             calculatorMock.Setup(c => c.CalculateBalancing(It.IsAny<List<CircuitRow>>(), It.IsAny<ValveType>())).Returns((List<CircuitRow> circuits, ValveType _) => circuits);
 
             var glycolMock = new Mock<IGlycolDataService>();
-            glycolMock.Setup(g => g.GetProperties(It.IsAny<GlycolType>(), It.IsAny<double>(), It.IsAny<double>())).Returns(new GlycolProperties { Density = 1050, SpecificHeat = 3800, KinematicViscosity = 0.000005 });
+            glycolMock.Setup(g => g.GetProperties(It.IsAny<GlycolType>(), It.IsAny<double>(), It.IsAny<double>()))
+                .Returns(glycolProperties ?? new GlycolProperties { Density = 1050, SpecificHeat = 3800, KinematicViscosity = 0.000005 });
 
             var selectorMock = new Mock<ICollectorTypeSelector>();
             selectorMock.Setup(s => s.SelectCollectorType(It.IsAny<CollectorData>())).Returns(new CollectorSelectionResult { ValveType = ValveType.HKV_D });

@@ -583,17 +583,20 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         /// <summary>
         /// Линейная интерполяция с обработкой NaN значений
         /// </summary>
+        /// <remarks>
+        /// D9 (волна 3 hardening-роадмапа): NaN в таблице — точка вне
+        /// физического диапазона (зона замерзания/расслоения гликоля).
+        /// Прежняя подмена «одно NaN — берём соседнее» молча считала
+        /// гидравлику от значений замёрзшего теплоносителя; теперь NaN
+        /// распространяется наверх и превращается в Error расчёта
+        /// (<see cref="CircuitsViewModel"/> гвардит свойства после
+        /// <see cref="GetProperties"/>).
+        /// </remarks>
         private static double LinearInterpolateWithNaN(double x1, double x2, double y1, double y2, double x)
         {
-            // Если оба значения NaN, возвращаем NaN
-            if (double.IsNaN(y1) && double.IsNaN(y2))
+            // Любая NaN на входе (обе границы ряда или одна) — результат NaN
+            if (double.IsNaN(y1) || double.IsNaN(y2))
                 return double.NaN;
-
-            // Если одно значение NaN, используем другое
-            if (double.IsNaN(y1))
-                return y2;
-            if (double.IsNaN(y2))
-                return y1;
 
             // Обычная линейная интерполяция
             return LinearInterpolate(x1, x2, y1, y2, x);

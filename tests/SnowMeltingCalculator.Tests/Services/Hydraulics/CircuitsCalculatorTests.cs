@@ -1719,5 +1719,39 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         }
 
         #endregion
+
+        #region CalculateCircuitPower: SupplySpacing guard (волна 3)
+
+        [Test]
+        public void CalculateCircuitPower_ZeroSupplySpacing_ThrowsArgumentException()
+        {
+            var circuit = new CircuitRow
+            {
+                CircuitLength = 100,
+                SupplyLength = 10,
+                SupplySpacing_cm = 0
+            };
+
+            Assert.That(
+                () => _calculator.CalculateCircuitPower(circuit, 256, 5, 20),
+                Throws.ArgumentException.With.Message.Contains("Шаг подводки"));
+        }
+
+        [Test]
+        public void CalculateCircuitPower_NegativeSupplySpacing_ThrowsArgumentException()
+        {
+            var circuit = new CircuitRow
+            {
+                CircuitLength = 100,
+                SupplyLength = 10,
+                SupplySpacing_cm = -2
+            };
+
+            Assert.That(
+                () => _calculator.CalculateCircuitPower(circuit, 256, 5, 20),
+                Throws.ArgumentException.With.Message.Contains("Шаг подводки"));
+        }
+
+        #endregion
     }
 }

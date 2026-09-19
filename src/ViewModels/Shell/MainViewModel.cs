@@ -593,7 +593,9 @@ namespace SnowMeltingCalculator.ViewModels.Shell
                 NavigationTarget.Thermal => thermalNeedsRecalculation
                     ? _thermalViewModel.RecalcMessage
                     : _thermalViewModel.ValidationMessage,
-                NavigationTarget.Hydraulics => _circuitsViewModel.ValidationMessage,
+                NavigationTarget.Hydraulics => string.IsNullOrWhiteSpace(_circuitsViewModel.ValidationMessage)
+                    ? _circuitsViewModel.InfoMessage
+                    : _circuitsViewModel.ValidationMessage,
                 NavigationTarget.Results => _resultsViewModel.StatusMessage,
                 _ => string.Empty
             };

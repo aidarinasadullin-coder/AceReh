@@ -31,6 +31,10 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             if (pipeSpacing_cm <= 0)
                 throw new ArgumentException("Шаг укладки должен быть положительным", nameof(pipeSpacing_cm));
 
+            if (circuit.SupplySpacing_cm <= 0)
+                throw new ArgumentException(
+                    "Шаг подводки должен быть положительным", nameof(circuit));
+
             double lengthPerArea = circuit.CircuitLength / (100.0 / pipeSpacing_cm);
             double supplyLengthPerArea = circuit.SupplyLength / (100.0 / circuit.SupplySpacing_cm);
             double supplyHeatFactor = circuit.SupplyHeatPercent / 100.0;

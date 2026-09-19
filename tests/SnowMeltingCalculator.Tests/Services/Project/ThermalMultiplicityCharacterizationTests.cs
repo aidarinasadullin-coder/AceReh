@@ -1558,7 +1558,15 @@ public sealed class ThermalMultiplicityCharacterizationTests
                 PipeSpacing = spacing,
                 Result = result
             },
-            HydraulicsData = new HydraulicsProjectData()
+            // Волна 3 (D9): 50 % этиленгликоля — вне замёрзшей зоны при
+            // расчётной −25 °C (NaN-край таблицы: у 0-30 % при −25 свойства
+            // отсутствуют, и после снятия подмены NaN расчёт честно падает
+            // в Error вместо фиктивных свойств льда).
+            HydraulicsData = new HydraulicsProjectData
+            {
+                GlycolConcentration = 50.0,
+                SupplySpacingCm = 5.0
+            }
         };
 
         if (pipeIndex.HasValue)
@@ -1578,7 +1586,12 @@ public sealed class ThermalMultiplicityCharacterizationTests
             CollectorNumber = 1,
             Circuits = new List<CircuitProjectData>
             {
-                new CircuitProjectData { CircuitNumber = 1, CircuitLength = 100 }
+                new CircuitProjectData
+                {
+                    CircuitNumber = 1,
+                    CircuitLength = 100,
+                    SupplySpacingCm = 5.0
+                }
             }
         });
 

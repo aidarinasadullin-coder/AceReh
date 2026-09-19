@@ -149,6 +149,16 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         [ObservableProperty]
         private string _validationMessage = string.Empty;
 
+        /// <summary>
+        /// Некритичное замечание к последнему расчёту (не блокирует
+        /// публикацию результатов — в отличие от <see cref="ValidationMessage"/>).
+        /// Заполняется fallback-допущениями температуры; каркас показывает его
+        /// в статус-баре при отсутствии ошибок (прецедент — InfoMessage
+        /// ConstructionViewModel, Ф7-полировка).
+        /// </summary>
+        [ObservableProperty]
+        private string _infoMessage = string.Empty;
+
         #endregion
 
         #region Calculation State
@@ -540,6 +550,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             try
             {
                 ValidationMessage = string.Empty;
+                InfoMessage = string.Empty;
 
                 if (SelectedCollector == null)
                 {
@@ -581,6 +592,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             try
             {
                 ValidationMessage = string.Empty;
+                InfoMessage = string.Empty;
 
                 foreach (var collector in Collectors)
                 {
@@ -613,6 +625,21 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         {
             if (collector == null) return;
 
+            // Гвард честности расчёта (волна 3): деление на нулевой шаг
+            // подводки давало Infinity в мощности контура. Контур с битым
+            // шагом останавливает расчёт валидационным сообщением вместо
+            // тихого NaN/Infinity в результате.
+            var brokenSupplySpacing = collector.Circuits
+                .FirstOrDefault(c => c.CircuitLength > 0 && c.SupplySpacing_cm <= 0);
+            if (brokenSupplySpacing != null)
+            {
+                ValidationMessage =
+                    $"Шаг подводки должен быть положительным (контур {brokenSupplySpacing.CircuitNumber}: " +
+                    $"задано {brokenSupplySpacing.SupplySpacing_cm:0.##}). " +
+                    "Исправьте значение в строке контура и пересчитайте.";
+                return;
+            }
+
             var thermalResult = _calculationContext.ThermalResult;
             var thermalInputs = _calculationContext.ThermalInputs;
 
@@ -627,6 +654,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 returnTemperature = thermalResult.ReturnTemperature;
                 powerUp = thermalResult.PowerUp;
                 powerDown = thermalResult.PowerDown;
+                InfoMessage = string.Empty;
             }
             else
             {
@@ -634,6 +662,10 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 returnTemperature = 30.0;
                 powerUp = DefaultPowerUp;
                 powerDown = DefaultPowerDown;
+                // Гвард честности (волна 3): расчёт остаётся валидным, но
+                // допущения видны пользователю в статус-баре каркаса
+                // (InfoMessage — прецедент ConstructionViewModel, Ф7).
+                InfoMessage = "Тепловой результат недоступен — гидравлика посчитана от допущений 35/30 °C";
             }
 
             double deltaT = thermalResult?.DeltaT ?? (supplyTemperature - returnTemperature);
@@ -665,6 +697,22 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
             OperatingGlycolProperties = glycolOperating;
             DesignGlycolProperties = glycolDesign;
+
+            // Гвард D9 (волна 3): NaN в свойствах = выход за физический
+            // диапазон базы (зона замерзания гликоля при данной концентрации).
+            // Раньше NaN молча подменялся соседней ячейкой таблицы и расчёт
+            // шёл от фиктивных свойств — теперь это Error с рекомендацией.
+            if (double.IsNaN(glycolOperating.Density) || double.IsNaN(glycolOperating.SpecificHeat) || double.IsNaN(glycolOperating.KinematicViscosity)
+                || double.IsNaN(glycolDesign.Density) || double.IsNaN(glycolDesign.SpecificHeat) || double.IsNaN(glycolDesign.KinematicViscosity))
+            {
+                ValidationMessage =
+                    $"Свойства теплоносителя вне диапазона базы (тип: {InputData.GlycolType}, " +
+                    $"концентрация {InputData.GlycolConcentration:0} %, температура {operatingTemp:0.#} / {designTemp:0.#} °C). " +
+                    "Рекомендация: снизьте концентрацию гликоля или уточните температуру — часть поля замёрзла.";
+                _calculationStateService.SetHydraulicsError(ValidationMessage);
+                _coordinator.PublishHydraulics(null);
+                return;
+            }
 
             double pipeSpacing_cm = pipeSpacing_mm / 10.0;
 
