@@ -31,6 +31,7 @@ jobs:
     timeout-minutes: 60
     env:
       VERSION: ${{ inputs.version }}
+      HAS_RCLONE_CONF: ${{ secrets.RCLONE_CONF_B64 != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -38,7 +39,7 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Гейт: релиз только с master
+      - name: "Гейт: релиз только с master"
         shell: bash
         run: |
           if [ "${GITHUB_REF}" != "refs/heads/master" ]; then
@@ -46,7 +47,7 @@ jobs:
             exit 1
           fi
 
-      - name: Гейт: формат версии X.Y.Z
+      - name: "Гейт: формат версии X.Y.Z"
         shell: bash
         run: |
           if ! [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -54,7 +55,7 @@ jobs:
             exit 1
           fi
 
-      - name: Гейт: вход совпадает с <Version> в csproj
+      - name: "Гейт: вход совпадает с <Version> в csproj"
         shell: bash
         run: |
           CSPROJ_VERSION=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' src/SnowMeltingCalculator.csproj)
@@ -64,7 +65,7 @@ jobs:
             exit 1
           fi
 
-      - name: Гейт: тег v${VERSION} свободен
+      - name: "Гейт: тег v${VERSION} свободен"
         if: ${{ inputs.push_tag }}
         shell: bash
         run: |
@@ -104,6 +105,25 @@ jobs:
           name: SnowMeltingCalculator-v${{ inputs.version }}-Setup
           path: output/*.exe
           if-no-files-found: error
+
+      # Автозаливка сетапа в папку выдачи на Google Drive (rclone, OAuth
+      # владельца через секрет RCLONE_CONF_B64 — base64 локального
+      # rclone.conf с remote gdrive; см. scripts/upload-to-drive.ps1).
+      # Шаг пропускается, пока секрет не создан.
+      - name: Upload setup to Google Drive
+        if: ${{ env.HAS_RCLONE_CONF == 'true' }}
+        env:
+          RCLONE_CONF_B64: ${{ secrets.RCLONE_CONF_B64 }}
+        shell: pwsh
+        run: |
+          choco install rclone -y --no-progress
+          $confDir = Join-Path $env:RUNNER_TEMP 'rclone-conf'
+          New-Item -ItemType Directory -Force $confDir | Out-Null
+          $conf = Join-Path $confDir 'rclone.conf'
+          [IO.File]::WriteAllBytes($conf, [Convert]::FromBase64String($env:RCLONE_CONF_B64))
+          $exe = "output\SnowMeltingCalculator-v${{ inputs.version }}-Setup.exe"
+          rclone copy --config $conf $exe "gdrive:{1PAAse-5mt51ruvZUd-NrZuBwsXLGfoFX}" -v
+          if ($LASTEXITCODE -ne 0) { exit 1 }
 
       - name: Push tag v${VERSION}
         if: ${{ inputs.push_tag }}
