@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Construction;
@@ -57,7 +57,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             _viewModel = new ConstructionViewModel(
                 _mockService,
                 _mockMaterialRepository,
-                _mockConstructionRepository,
                 _mockCalculationStateService.Object,
                 _calculationContext,
                 new ConstructionValidator(),

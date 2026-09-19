@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Moq;
@@ -625,7 +625,7 @@ public sealed class HydraulicsMultiplicityCharacterizationTests
             templates.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<ConstructionTemplate>());
             var context = new CalculationContext();
             var calculationState = new CalculationStateService(session);
-            return new ConstructionViewModel(new Mock<IConstructionService>().Object, repo.Object, new Mock<IConstructionRepository>().Object, calculationState, context, new ConstructionValidator(), new SnowMeltingCalculator.Models.Construction.Construction(), new Mock<IMarkDirtyService>().Object, templates.Object, new Mock<IDialogService>().Object, new Mock<IEditorDialogService>().Object, session.ConstructionState, new ConstructionDefaultStateInitializer(repo.Object, session.ConstructionState));
+            return new ConstructionViewModel(new Mock<IConstructionService>().Object, repo.Object, calculationState, context, new ConstructionValidator(), new SnowMeltingCalculator.Models.Construction.Construction(), new Mock<IMarkDirtyService>().Object, templates.Object, new Mock<IDialogService>().Object, new Mock<IEditorDialogService>().Object, session.ConstructionState, new ConstructionDefaultStateInitializer(repo.Object, session.ConstructionState));
         }
     }
 }

@@ -202,7 +202,6 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             return new ConstructionViewModel(
                 new Mock<IConstructionService>().Object,
                 materialRepository,
-                new Mock<IConstructionRepository>().Object,
                 new CalculationStateService(projectSession),
                 calculationContext,
                 new ConstructionValidator(),

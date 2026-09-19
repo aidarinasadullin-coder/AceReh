@@ -27,7 +27,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
     {
         private readonly IConstructionService _constructionService;
         private readonly IMaterialRepository _materialRepository;
-        private readonly IConstructionRepository _constructionRepository;
         private readonly ICalculationStateService _calculationStateService;
         private readonly IValidator<ConstructionModel> _validator;
         private readonly ConstructionModel _construction;
@@ -238,7 +237,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         public ConstructionViewModel(
             IConstructionService constructionService,
             IMaterialRepository materialRepository,
-            IConstructionRepository constructionRepository,
             ICalculationStateService calculationStateService,
             CalculationContext calculationContext,
             IValidator<ConstructionModel> validator,
@@ -252,7 +250,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
         {
             _constructionService = constructionService ?? throw new ArgumentNullException(nameof(constructionService));
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
-            _constructionRepository = constructionRepository ?? throw new ArgumentNullException(nameof(constructionRepository));
             _calculationStateService = calculationStateService ?? throw new ArgumentNullException(nameof(calculationStateService));
             ArgumentNullException.ThrowIfNull(calculationContext);
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
@@ -547,117 +544,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
 
             UpdateCalculations();
             HasUnsavedChanges = true;
-        }
-
-        /// <summary>
-        /// Команда сохранения конструкции
-        /// </summary>
-        [RelayCommand]
-        private async Task SaveConstruction()
-        {
-            try
-            {
-                // Синхронизируем с моделью
-                SyncToModel();
-
-                // Сохраняем в файл
-                var filePath = System.IO.Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "SnowMeltingCalculator",
-                    $"construction_{DateTime.Now:yyyyMMdd_HHmmss}.json");
-
-                await _constructionRepository.SaveConstructionAsync(_construction, filePath);
-
-                HasUnsavedChanges = false;
-                ValidationMessage = "Конструкция сохранена успешно";
-                IsValid = true;
-            }
-            catch (Exception ex) {
-                AppLog.Warn(ex, "ConstructionViewModel.SaveConstruction");
-                ValidationMessage = $"Ошибка сохранения: {ex.Message}";
-                IsValid = false;
-            }
-        }
-
-        /// <summary>
-        /// Команда загрузки конструкции
-        /// </summary>
-        [RelayCommand]
-        private async Task LoadConstruction()
-        {
-            // В реальном приложении здесь должен быть диалог выбора файла
-            // Для демонстрации используем файл по умолчанию
-            var filePath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SnowMeltingCalculator",
-                "construction_last.json");
-
-            try
-            {
-                await LoadConstructionCoreAsync(filePath);
-            }
-            catch (MaterialNotFoundException ex) when (ex.Snapshot != null) {
-                AppLog.Warn(ex, "ConstructionViewModel.LoadConstruction");
-                var result = _dialogService.Show(
-                    $"Материал '{ex.Snapshot.Name}' (ID {ex.MaterialId}) отсутствует в справочнике. Импортировать из снимка?",
-                    "Импорт материала",
-                    DialogButtons.YesNo,
-                    DialogIcon.Question);
-
-                if (result == DialogResult.Yes)
-                {
-                    try
-                    {
-                        await _constructionService.ImportMissingMaterialAsync(ex.Snapshot);
-                        await RefreshCatalogsAsync();
-                        await LoadConstructionCoreAsync(filePath);
-                    }
-                    catch (Exception importEx) {
-                        AppLog.Warn(importEx, "ConstructionViewModel.LoadConstruction");
-                        ValidationMessage = $"Ошибка импорта материала: {importEx.Message}";
-                        IsValid = false;
-                    }
-                }
-                else
-                {
-                    _dialogService.ShowError(
-                        $"Материал '{ex.Snapshot.Name}' (ID {ex.MaterialId}) не импортирован. Загрузка конструкции отменена.",
-                        "Импорт отменён");
-                    ValidationMessage = $"Материал '{ex.Snapshot.Name}' не найден в справочнике";
-                    IsValid = false;
-                }
-            }
-            catch (MaterialNotFoundException ex) when (ex.Snapshot == null) {
-                AppLog.Warn(ex, "ConstructionViewModel.LoadConstruction");
-                _dialogService.ShowError(
-                    $"Материал с идентификатором {ex.MaterialId} не найден в справочнике и отсутствует снимок для импорта.",
-                    "Ошибка загрузки конструкции");
-                ValidationMessage = $"Материал с идентификатором {ex.MaterialId} не найден в справочнике";
-                IsValid = false;
-            }
-            catch (Exception ex) {
-                AppLog.Warn(ex, "ConstructionViewModel.LoadConstruction");
-                ValidationMessage = $"Ошибка загрузки: {ex.Message}";
-                IsValid = false;
-            }
-        }
-
-        /// <summary>
-        /// Загружает конструкцию из файла и копирует данные в текущую модель.
-        /// </summary>
-        private async Task LoadConstructionCoreAsync(string filePath)
-        {
-            var loadedConstruction = await _constructionRepository.LoadConstructionAsync(filePath);
-
-            if (loadedConstruction != null)
-            {
-                // Копируем данные из загруженной конструкции в текущую
-                CopyConstructionData(loadedConstruction);
-                SyncFromModel();
-                HasUnsavedChanges = false;
-                ValidationMessage = "Конструкция загружена успешно";
-                IsValid = true;
-            }
         }
 
         /// <summary>
@@ -1218,27 +1104,6 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             }
 
             return candidate;
-        }
-
-        /// <summary>
-        /// Копировать данные из другой конструкции в текущую
-        /// </summary>
-        private void CopyConstructionData(ConstructionModel source)
-        {
-            _construction.LayersAbovePipe.Clear();
-            _construction.Layers.Clear();
-
-            foreach (var layer in source.LayersAbovePipe)
-            {
-                _construction.LayersAbovePipe.Add(layer);
-            }
-
-            foreach (var layer in source.Layers)
-            {
-                _construction.Layers.Add(layer);
-            }
-
-            _construction.GroundwaterLevel = source.GroundwaterLevel;
         }
 
         private void OnDataChanged()

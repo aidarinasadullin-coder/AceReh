@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -487,7 +487,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                 var constructionVm = new ConstructionViewModel(
                     constructionServiceMock.Object,
                     materialRepositoryMock.Object,
-                    new Mock<IConstructionRepository>().Object,
                     calcState,
                     context,
                     new ConstructionValidator(),

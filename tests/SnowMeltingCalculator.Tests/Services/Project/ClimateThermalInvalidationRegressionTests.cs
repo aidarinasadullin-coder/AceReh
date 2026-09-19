@@ -365,7 +365,6 @@ public sealed class ClimateThermalInvalidationRegressionTests
         var constructionViewModel = new ConstructionViewModel(
             constructionService.Object,
             materialRepository.Object,
-            new Mock<IConstructionRepository>().Object,
             calculationState,
             context,
             new ConstructionValidator(),

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,7 +26,6 @@ namespace SnowMeltingCalculator.Tests.Construction
         private ConstructionViewModel _viewModel = null!;
         private MockConstructionService _constructionService = null!;
         private MockMaterialRepository _materialRepository = null!;
-        private MockConstructionRepository _constructionRepository = null!;
         private Mock<ICalculationStateService> _calculationStateServiceMock = null!;
         private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
         private Mock<IConstructionTemplateRepository> _templateRepositoryMock = null!;
@@ -38,7 +37,6 @@ namespace SnowMeltingCalculator.Tests.Construction
         {
             _constructionService = new MockConstructionService();
             _materialRepository = new MockMaterialRepository();
-            _constructionRepository = new MockConstructionRepository();
             _calculationStateServiceMock = new Mock<ICalculationStateService>();
             _markDirtyServiceMock = new Mock<IMarkDirtyService>();
             _templateRepositoryMock = new Mock<IConstructionTemplateRepository>();
@@ -53,7 +51,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             _viewModel = new ConstructionViewModel(
                 _constructionService,
                 _materialRepository,
-                _constructionRepository,
                 _calculationStateServiceMock.Object,
                 calculationContext,
                 new ConstructionValidator(),
@@ -555,32 +552,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             public void Seed(IEnumerable<Material> materials)
             {
                 _materials = new List<Material>(materials);
-            }
-        }
-
-        /// <summary>
-        /// No-op construction repository.
-        /// </summary>
-        private class MockConstructionRepository : IConstructionRepository
-        {
-            public Task SaveConstructionAsync(ConstructionModel construction, string filePath)
-            {
-                return Task.CompletedTask;
-            }
-
-            public Task<ConstructionModel?> LoadConstructionAsync(string filePath)
-            {
-                return Task.FromResult<ConstructionModel?>(null);
-            }
-
-            public Task SaveToProjectAsync(ConstructionModel construction, int projectId)
-            {
-                return Task.CompletedTask;
-            }
-
-            public Task<IEnumerable<string>> GetSavedConstructionsAsync(string directoryPath)
-            {
-                return Task.FromResult(Enumerable.Empty<string>());
             }
         }
     }

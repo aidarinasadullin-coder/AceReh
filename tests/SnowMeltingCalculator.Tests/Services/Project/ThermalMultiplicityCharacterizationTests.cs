@@ -1650,7 +1650,6 @@ public sealed class ThermalMultiplicityCharacterizationTests
         var constructionViewModel = new ConstructionViewModel(
             effectiveConstructionService,
             materialRepository.Object,
-            new Mock<IConstructionRepository>().Object,
             calculationState,
             context,
             new ConstructionValidator(),

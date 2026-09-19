@@ -29,9 +29,12 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             "private void OnLayerPropertyChanged(object? sender, PropertyChangedEventArgs e)",
             "private void OnConstructionDataChanged(object? sender, ConstructionDataChangedEventArgs e)",
             "private void SyncFromModel()",
-            "private void SyncToModel()",
-            "private void CopyConstructionData(ConstructionModel source)"
+            "private void SyncToModel()"
         };
+        // Копия «private void CopyConstructionData(ConstructionModel source)»
+        // удалена из инвентаря в 2026-09-20 (D10, волна «Конструкция» роадмапа):
+        // команда LoadConstruction и её ядро LoadConstructionCoreAsync удалены,
+        // единственный вызов CopyConstructionData исчез вместе с ними.
 
         [Test]
         public void ConstructionStateLegacyStoreGuard_CapturesExactCurrentWriterInventory()
@@ -68,7 +71,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
                     "ConstructionViewModel currently owns a mutable Construction model instance directly.");
                 Assert.That(viewModelSource, Does.Contain("private void SyncFromModel()"));
                 Assert.That(viewModelSource, Does.Contain("private void SyncToModel()"));
-                Assert.That(viewModelSource, Does.Contain("private void CopyConstructionData(ConstructionModel source)"));
 
                 // --- ConstructionViewModel currently owns canonical scalar/collection backing fields (bypass #4) ---
                 Assert.That(viewModelSource, Does.Contain("private double _groundwaterLevel = 2.0;"));

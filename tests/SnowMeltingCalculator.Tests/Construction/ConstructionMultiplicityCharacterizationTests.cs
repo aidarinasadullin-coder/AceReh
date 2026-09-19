@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,7 +34,6 @@ namespace SnowMeltingCalculator.Tests.Construction
         private ConstructionViewModel _viewModel = null!;
         private MockConstructionService _mockService = null!;
         private MockMaterialRepository _mockMaterialRepository = null!;
-        private MockConstructionRepository _mockConstructionRepository = null!;
         private Mock<ICalculationStateService> _mockCalculationStateService = null!;
         private Mock<IMarkDirtyService> _markDirtyServiceMock = null!;
         private Mock<IConstructionTemplateRepository> _mockTemplateRepository = null!;
@@ -51,7 +50,6 @@ namespace SnowMeltingCalculator.Tests.Construction
         {
             _mockService = new MockConstructionService();
             _mockMaterialRepository = new MockMaterialRepository();
-            _mockConstructionRepository = new MockConstructionRepository();
             _mockCalculationStateService = new Mock<ICalculationStateService>();
             _markDirtyServiceMock = new Mock<IMarkDirtyService>();
             _mockTemplateRepository = new Mock<IConstructionTemplateRepository>();
@@ -88,7 +86,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             _viewModel = new ConstructionViewModel(
                 _mockService,
                 _mockMaterialRepository,
-                _mockConstructionRepository,
                 _mockCalculationStateService.Object,
                 _calculationContext,
                 new ConstructionValidator(),
@@ -384,101 +381,6 @@ namespace SnowMeltingCalculator.Tests.Construction
             // Assert — Initialize -> RefreshCatalogsAsync (no dirty) -> ResetToDefault -> Reset()
             // (non-user, no dirty).
             _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Never);
-        }
-
-        #endregion
-
-        #region Standalone JSON load/save (not project persistence)
-
-        [Test]
-        public async Task StandaloneLoadConstruction_RepositoryReturnsNull_IsSilentNoOp()
-        {
-            // Arrange: MockConstructionRepository.LoadConstructionAsync returns null by default,
-            // characterizing the current file-not-found path.
-            var messageBefore = _viewModel.ValidationMessage;
-
-            // Act
-            await _viewModel.LoadConstructionCommand.ExecuteAsync(null);
-
-            // Assert — measured: current behavior is a silent no-op; no error is surfaced,
-            // no dirty transition, and ValidationMessage is left untouched by the load path.
-            _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Never);
-            Assert.That(_viewModel.ValidationMessage, Is.EqualTo(messageBefore));
-        }
-
-        [Test]
-        public async Task StandaloneSaveConstruction_Success_DoesNotCallMarkDirtyAndClearsHasUnsavedChanges()
-        {
-            _viewModel.AddLayerAbovePipeCommand.Execute(null);
-            Assert.That(_viewModel.HasUnsavedChanges, Is.True);
-            ResetCounters();
-
-            await _viewModel.SaveConstructionCommand.ExecuteAsync(null);
-
-            _markDirtyServiceMock.Verify(m => m.MarkDirty(), Times.Never);
-            Assert.That(_viewModel.HasUnsavedChanges, Is.False);
-            Assert.That(_viewModel.IsValid, Is.True);
-        }
-
-        [Test]
-        public async Task StandaloneLoadConstruction_CorruptJson_PreservesCanonicalSnapshotAndPublishesNoCompletion()
-        {
-            var before = _constructionState.Snapshot;
-            _mockConstructionRepository.LoadException = new JsonException("corrupt construction json");
-
-            await _viewModel.LoadConstructionCommand.ExecuteAsync(null);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(_constructionState.Snapshot, Is.EqualTo(before));
-                Assert.That(_viewModel.IsValid, Is.False);
-                Assert.That(_viewModel.ValidationMessage, Does.Contain("corrupt construction json"));
-                Assert.That(_completionCount, Is.Zero);
-                Assert.That(_constructionContextUpdates, Is.Zero);
-            });
-            _markDirtyServiceMock.Verify(service => service.MarkDirty(), Times.Never);
-        }
-
-        [Test]
-        public async Task StandaloneLoadConstruction_LoadFailure_PreservesCanonicalSnapshotAndPublishesNoCompletion()
-        {
-            var before = _constructionState.Snapshot;
-            _mockConstructionRepository.LoadException = new IOException("standalone load failure");
-
-            await _viewModel.LoadConstructionCommand.ExecuteAsync(null);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(_constructionState.Snapshot, Is.EqualTo(before));
-                Assert.That(_viewModel.IsValid, Is.False);
-                Assert.That(_viewModel.ValidationMessage, Does.Contain("standalone load failure"));
-                Assert.That(_completionCount, Is.Zero);
-                Assert.That(_constructionContextUpdates, Is.Zero);
-            });
-            _markDirtyServiceMock.Verify(service => service.MarkDirty(), Times.Never);
-        }
-
-        [Test]
-        public async Task StandaloneSaveConstruction_SaveFailure_PreservesCanonicalSnapshotDirtyAndCompletionState()
-        {
-            _viewModel.AddLayerAbovePipeCommand.Execute(null);
-            var before = _constructionState.Snapshot;
-            Assert.That(_viewModel.HasUnsavedChanges, Is.True);
-            ResetCounters();
-            _mockConstructionRepository.SaveException = new IOException("standalone save failure");
-
-            await _viewModel.SaveConstructionCommand.ExecuteAsync(null);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(_constructionState.Snapshot, Is.EqualTo(before));
-                Assert.That(_viewModel.HasUnsavedChanges, Is.True);
-                Assert.That(_viewModel.IsValid, Is.False);
-                Assert.That(_viewModel.ValidationMessage, Does.Contain("standalone save failure"));
-                Assert.That(_completionCount, Is.Zero);
-                Assert.That(_constructionContextUpdates, Is.Zero);
-            });
-            _markDirtyServiceMock.Verify(service => service.MarkDirty(), Times.Never);
         }
 
         #endregion
