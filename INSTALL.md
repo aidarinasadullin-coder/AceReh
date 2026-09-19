@@ -86,8 +86,13 @@ dotnet publish src/SnowMeltingCalculator.csproj -c Release -r win-x64 --self-con
 в `publish\` попадает тестовый мусор (FlaUI, CodeCoverage и т.д.), который уйдёт
 в инсталлятор.
 
-Параметры `SelfContained`, `RuntimeIdentifier` и `PublishReadyToRun` уже заданы
-в `src/SnowMeltingCalculator.csproj`; флаги в команде оставлены для явности.
+Параметры `SelfContained`, `RuntimeIdentifier` и `PublishReadyToRun` заданы
+в профиле публикации `src/Properties/PublishProfiles/winx64.pubxml` (с версии
+2026-09-20; ранее дублировались в csproj). Эквивалент через профиль:
+
+```powershell
+dotnet publish src/SnowMeltingCalculator.csproj -c Release /p:PublishProfile=winx64
+```
 
 ## Сборка установщика (Inno Setup)
 
