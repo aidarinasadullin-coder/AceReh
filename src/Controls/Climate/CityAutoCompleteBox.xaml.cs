@@ -82,6 +82,7 @@ namespace SnowMeltingCalculator.Controls.Climate
         #region Private Fields
 
         private CancellationTokenSource? _debounceCts;
+        private CancellationTokenSource? _popupCloseCts;
         private readonly TimeSpan _debounceDelay = TimeSpan.FromMilliseconds(300);
         private bool _isNavigating = false;
         private bool _isFocused = false;
@@ -262,7 +263,10 @@ namespace SnowMeltingCalculator.Controls.Climate
                 return;
             }
 
-            // Открыть popup при фокусе, если есть текст
+            // Открыть popup при фокусе, если есть текст. Отложенное закрытие
+            // от потери фокуса отменяется возвратом фокуса (волна 5: гонка
+            // «повторный фокус в течение 100 мс» закрывала popup).
+            _popupCloseCts?.Cancel();
             if (!string.IsNullOrEmpty(SearchQuery) && FilteredCities != null)
             {
                 var collection = FilteredCities as ICollection<CityMatchResult>;
@@ -277,17 +281,32 @@ namespace SnowMeltingCalculator.Controls.Climate
         {
             _isFocused = false;
             UpdatePlaceholderVisibility();
-            // Закрыть popup при потере фокуса
-            // Задержка для обработки клика по элементу списка
-            Task.Delay(100).ContinueWith(_ =>
+            // Закрыть popup при потере фокуса с задержкой для обработки клика
+            // по элементу списка; токен отменяет закрытие при возврате фокуса
+            // (волна 5: прежний ContinueWith без отмены гонил закрытие с
+            // повторным открытием).
+            _popupCloseCts?.Cancel();
+            _popupCloseCts = new CancellationTokenSource();
+            _ = ClosePopupAfterFocusLossAsync(_popupCloseCts.Token);
+        }
+
+        private async Task ClosePopupAfterFocusLossAsync(CancellationToken token)
+        {
+            try
             {
-                Dispatcher.Invoke(() =>
+                await Task.Delay(100, token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                return; // фокус вернулся — popup остаётся открытым
+            }
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                if (!SuggestionsList.IsMouseOver)
                 {
-                    if (!SuggestionsList.IsMouseOver)
-                    {
-                        ClosePopup();
-                    }
-                });
+                    ClosePopup();
+                }
             });
         }
 
@@ -334,26 +353,30 @@ namespace SnowMeltingCalculator.Controls.Climate
 
             var token = _debounceCts.Token;
 
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await Task.Delay(_debounceDelay, token);
+            // Волна 5: без Task.Run — Task.Delay не занимает поток; маршалинг
+            // в UI-поток делает Dispatcher.InvokeAsync
+            _ = RunDebouncedSearchAsync(token);
+        }
 
-                    if (!token.IsCancellationRequested)
+        private async Task RunDebouncedSearchAsync(CancellationToken token)
+        {
+            try
+            {
+                await Task.Delay(_debounceDelay, token).ConfigureAwait(false);
+
+                if (!token.IsCancellationRequested)
+                {
+                    // Выполнить поиск в UI потоке
+                    await Dispatcher.InvokeAsync(() =>
                     {
-                        // Выполнить поиск в UI потоке
-                        await Dispatcher.InvokeAsync(() =>
-                        {
-                            // Вызвать событие для ViewModel
-                            OnSearchTriggered();
-                        });
-                    }
+                        // Вызвать событие для ViewModel
+                        OnSearchTriggered();
+                    });
                 }
-                catch (OperationCanceledException) {
-                    // Отменено — это нормально
-                }
-            }, token);
+            }
+            catch (OperationCanceledException) {
+                // Отменено — это нормально
+            }
         }
 
         /// <summary>

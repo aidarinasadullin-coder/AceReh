@@ -53,7 +53,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             SnowMeltingCalculator.Services.Printing.IPrintService? printService = null,
             IDialogService? dialogService = null,
             IPdfExportService? pdfExportService = null,
-            IProjectFileService? projectFileServiceOverride = null)
+            IProjectFileService? projectFileServiceOverride = null,
+            SnowMeltingCalculator.Services.Time.IDelayScheduler? delayScheduler = null)
         {
             var materials = Material.GetDefaultMaterials().ToList();
             var materialsById = materials.ToDictionary(material => material.Id);
@@ -106,7 +107,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     circuitsVm),
                 new HydraulicSummaryBuilder(),
                 resultsKpiPresenter: null,
-                printService: printService);
+                printService: printService,
+                delayScheduler: delayScheduler ?? new Fixtures.ImmediateDelayScheduler());
         }
 
         public static ClimateViewModel CreateClimateViewModel()

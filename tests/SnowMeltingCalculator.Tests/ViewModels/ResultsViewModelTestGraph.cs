@@ -1,4 +1,4 @@
-using Moq;
+﻿using Moq;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Construction;
@@ -89,7 +89,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     calculationStateService,
                     constructionVm,
                     circuitsVm),
-                new HydraulicSummaryBuilder());
+                new HydraulicSummaryBuilder(),
+                delayScheduler: new Fixtures.ImmediateDelayScheduler());
         }
 
         public static ResultsViewModel CreateViewModel(
@@ -135,7 +136,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     calculationStateService,
                     constructionVm,
                     circuitsVm),
-                new HydraulicSummaryBuilder());
+                new HydraulicSummaryBuilder(),
+                delayScheduler: new Fixtures.ImmediateDelayScheduler());
         }
 
         public static ClimateViewModel CreateClimateViewModel()

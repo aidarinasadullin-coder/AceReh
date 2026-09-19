@@ -249,6 +249,10 @@ namespace SnowMeltingCalculator.Configuration
             // Печать/открытие PDF через shell (волна 2 hardening-роадмапа, D1/D8)
             services.AddSingleton<Services.Printing.IPrintService, Services.Printing.PrintService>();
 
+            // Планировщик задержек UI-статусов (волна 5): тесты подставляют
+            // мгновенный; инъекция — после журнала, до ViewModels
+            services.AddSingleton<Services.Time.IDelayScheduler, Services.Time.TaskDelayScheduler>();
+
             // Инвариант композиции (P19, волна 2): построение провайдера
             // выполняется на UI-потоке (App.OnStartup), и диспетчер дневника
             // захватывается ЗДЕСЬ, eagerly — а не в лямбде регистрации. Иначе

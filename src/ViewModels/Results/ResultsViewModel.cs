@@ -45,11 +45,36 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly IHydraulicsReportDataProvider _hydraulicsReportDataProvider;
         private readonly Services.History.IUndoRedoService? _undoRedoService;
         private readonly Services.Printing.IPrintService _printService;
+        private readonly Services.Time.IDelayScheduler _delayScheduler;
         private readonly ResultsSpecificationDataBuilder _specificationDataBuilder;
         private readonly IResultsExcelExportService _excelExportService;
         private DateTime _createdDate;
 
         private bool _isResetting;
+
+        private CancellationTokenSource? _statusResetCts;
+
+        /// <summary>Окно отображения статуса (волна 5): ждёт заданное
+        /// количество секунд через инъекционный планировщик; отмена
+        /// предыдущего окна устраняет гонку «старая задержка гасит свежий
+        /// статус». Возвращает false, если окно отменено более свежим
+        /// статусом — очистку выполняет владелец нового окна.</summary>
+        private async Task<bool> DelayStatusWindowAsync(double seconds)
+        {
+            _statusResetCts?.Cancel();
+            var cts = new CancellationTokenSource();
+            _statusResetCts = cts;
+            try
+            {
+                await _delayScheduler.Delay(TimeSpan.FromSeconds(seconds), cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return false;
+            }
+
+            return ReferenceEquals(_statusResetCts, cts);
+        }
 
         #region Observable Properties
 
@@ -534,7 +559,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
             Services.History.IUndoRedoService? undoRedoService = null,
             ResultsSpecificationDataBuilder? specificationDataBuilder = null,
             IResultsExcelExportService? excelExportService = null,
-            Services.Printing.IPrintService? printService = null)
+            Services.Printing.IPrintService? printService = null,
+            Services.Time.IDelayScheduler? delayScheduler = null)
         {
             _projectSession = projectSession ?? throw new ArgumentNullException(nameof(projectSession));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
@@ -559,6 +585,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     new Services.Hydraulics.GlycolDataService());
             _undoRedoService = undoRedoService;
             _printService = printService ?? new Services.Printing.PrintService();
+            _delayScheduler = delayScheduler ?? new Services.Time.TaskDelayScheduler();
             _calculationReportPdfExportService = calculationReportPdfExportService
                 ?? new CalculationReportPdfExportService(
                     new CalculationReportDataBuilder(),
@@ -674,7 +701,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             if (!IsDataReady)
             {
                 StatusMessage = "Невозможно экспортировать: не все данные готовы";
-                await Task.Delay(3000);
+                if (!await DelayStatusWindowAsync(3.0)) return;
                 StatusMessage = string.Empty;
                 return;
             }
@@ -703,13 +730,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     StatusMessage = "Ошибка при экспорте PDF";
                 }
 
-                await Task.Delay(3000);
+                if (!await DelayStatusWindowAsync(3.0)) return;
                 StatusMessage = string.Empty;
             }
             catch (Exception ex) {
                 AppLog.Warn(ex, "ResultsViewModel.ExportPdf");
                 StatusMessage = $"Ошибка экспорта: {ex.Message}";
-                await Task.Delay(5000);
+                if (!await DelayStatusWindowAsync(5.0)) return;
                 StatusMessage = string.Empty;
             }
         }
@@ -757,7 +784,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             if (!IsDataReady)
             {
                 StatusMessage = "Невозможно экспортировать: не все данные готовы";
-                await Task.Delay(3000);
+                if (!await DelayStatusWindowAsync(3.0)) return;
                 StatusMessage = string.Empty;
                 return;
             }
@@ -788,13 +815,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     StatusMessage = "Ошибка при экспорте записки";
                 }
 
-                await Task.Delay(3000);
+                if (!await DelayStatusWindowAsync(3.0)) return;
                 StatusMessage = string.Empty;
             }
             catch (Exception ex) {
                 AppLog.Warn(ex, "ResultsViewModel.ExportPdfReportAsync");
                 StatusMessage = $"Ошибка экспорта: {ex.Message}";
-                await Task.Delay(5000);
+                if (!await DelayStatusWindowAsync(5.0)) return;
                 StatusMessage = string.Empty;
             }
         }
@@ -811,7 +838,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             if (!IsDataReady)
             {
                 StatusMessage = "Невозможно экспортировать: не все данные готовы";
-                await Task.Delay(3000);
+                if (!await DelayStatusWindowAsync(3.0)) return;
                 StatusMessage = string.Empty;
                 return;
             }
@@ -840,13 +867,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     StatusMessage = "Ошибка при экспорте спецификации";
                 }
 
-                await Task.Delay(3000);
+                if (!await DelayStatusWindowAsync(3.0)) return;
                 StatusMessage = string.Empty;
             }
             catch (Exception ex) {
                 AppLog.Warn(ex, "ResultsViewModel.ExportExcel");
                 StatusMessage = $"Ошибка экспорта: {ex.Message}";
-                await Task.Delay(5000);
+                if (!await DelayStatusWindowAsync(5.0)) return;
                 StatusMessage = string.Empty;
             }
         }
@@ -952,7 +979,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _projectSession.MarkClean();
 
             StatusMessage = $"Проект загружен: {Path.GetFileName(filePath)}";
-            await Task.Delay(3000);
+            if (!await DelayStatusWindowAsync(3.0)) return;
             StatusMessage = string.Empty;
         }
 
@@ -967,7 +994,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             if (!IsDataReady)
             {
                 StatusMessage = "Невозможно создать предпросмотр: не все данные готовы";
-                await Task.Delay(3000);
+                if (!await DelayStatusWindowAsync(3.0)) return;
                 StatusMessage = string.Empty;
                 return;
             }
@@ -995,13 +1022,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     StatusMessage = "Ошибка при создании предпросмотра";
                 }
 
-                await Task.Delay(3000);
+                if (!await DelayStatusWindowAsync(3.0)) return;
                 StatusMessage = string.Empty;
             }
             catch (Exception ex) {
                 AppLog.Warn(ex, "ResultsViewModel.PreviewPdf");
                 StatusMessage = $"Ошибка предпросмотра: {ex.Message}";
-                await Task.Delay(5000);
+                if (!await DelayStatusWindowAsync(5.0)) return;
                 StatusMessage = string.Empty;
             }
         }
@@ -1017,7 +1044,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             if (!IsDataReady)
             {
                 StatusMessage = "Невозможно напечатать: не все данные готовы";
-                await Task.Delay(3000);
+                if (!await DelayStatusWindowAsync(3.0)) return;
                 StatusMessage = string.Empty;
                 return;
             }
@@ -1061,13 +1088,13 @@ namespace SnowMeltingCalculator.ViewModels.Results
                     StatusMessage = "Ошибка при подготовке к печати";
                 }
 
-                await Task.Delay(3000);
+                if (!await DelayStatusWindowAsync(3.0)) return;
                 StatusMessage = string.Empty;
             }
             catch (Exception ex) {
                 AppLog.Warn(ex, "ResultsViewModel.PrintPdf");
                 StatusMessage = $"Ошибка печати: {ex.Message}";
-                await Task.Delay(5000);
+                if (!await DelayStatusWindowAsync(5.0)) return;
                 StatusMessage = string.Empty;
             }
         }
@@ -1095,7 +1122,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 }
 
                 StatusMessage = $"Проект сохранён: {Path.GetFileName(filePath)}";
-                await Task.Delay(3000);
+                if (!await DelayStatusWindowAsync(3.0)) return false;
                 StatusMessage = string.Empty;
                 _createdDate = dates.CreatedDate;
                 _projectSession.MarkClean();
@@ -1107,7 +1134,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
             catch (Exception ex) {
                 AppLog.Warn(ex, "ResultsViewModel.SaveToFile");
                 StatusMessage = $"Ошибка сохранения: {ex.Message}";
-                await Task.Delay(5000);
+                if (!await DelayStatusWindowAsync(5.0)) return false;
                 StatusMessage = string.Empty;
                 return false;
             }
