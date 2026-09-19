@@ -1,3 +1,4 @@
+using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
@@ -8,30 +9,18 @@ namespace SnowMeltingCalculator.Services.Hydraulics
     /// <remarks>
     /// Рассчитывает количество оборотов балансировочного клапана
     /// в зависимости от коэффициента пропускной способности (Kv).
-    /// 
+    ///
     /// Поддерживаемые типы клапанов:
     /// - HKV-D: бытовой коллектор, Kv = 1.2 м³/ч
     /// - IV 1¼": промышленный коллектор, Kv = 1.45 м³/ч
     /// - IV 1½": промышленный коллектор, Kv = 1.5 м³/ч
+    ///
+    /// Значения Kv — единственный источник <see cref="HydraulicsConstants"/>
+    /// (ADR-016), локальные копии удалены.
     /// </remarks>
     public static class ValveTurnsCalculator
     {
         #region Константы
-
-        /// <summary>
-        /// Kv для HKV-D (бытовой коллектор)
-        /// </summary>
-        public const double KV_HKV_D = 1.2;
-
-        /// <summary>
-        /// Kv для IV 1¼" (промышленный коллектор)
-        /// </summary>
-        public const double KV_IV_1_25 = 1.45;
-
-        /// <summary>
-        /// Kv для IV 1½" (промышленный коллектор)
-        /// </summary>
-        public const double KV_IV_1_5 = 1.5;
 
         /// <summary>
         /// Максимальное количество оборотов клапана (для IV)
@@ -156,9 +145,9 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         {
             return valveType switch
             {
-                ValveType.HKV_D => KV_HKV_D,
-                ValveType.IV_1_25 => KV_IV_1_25,
-                ValveType.IV_1_5 => KV_IV_1_5,
+                ValveType.HKV_D => HydraulicsConstants.Kv_HKV_D,
+                ValveType.IV_1_25 => HydraulicsConstants.Kv_IV_DN25,
+                ValveType.IV_1_5 => HydraulicsConstants.Kv_IV_DN32,
                 _ => throw new ArgumentException($"Неподдерживаемый тип клапана: {valveType}", nameof(valveType))
             };
         }

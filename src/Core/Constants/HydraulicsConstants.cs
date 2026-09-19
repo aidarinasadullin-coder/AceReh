@@ -168,6 +168,11 @@ namespace SnowMeltingCalculator.Core.Constants
         /// </remarks>
         public const double VolumeFlowCoefficient = 1000.0;
 
+        /// <summary>
+        /// Литров в одном кубометре: м³/ч → л/ч (ADR-016)
+        /// </summary>
+        public const double LitersPerCubicMeter = 1000.0;
+
         #endregion
 
         #region Константы для расчёта скорости

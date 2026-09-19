@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
@@ -57,8 +58,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             if (specificHeat <= 0)
                 throw new ArgumentException("Удельная теплоёмкость должна быть положительной", nameof(specificHeat));
 
-            double flowRate_m3h = power * 3.6 / (density * specificHeat * deltaT);
-            double flowRate_lh = flowRate_m3h * 1000;
+            double flowRate_m3h = power * HydraulicsConstants.MassFlowCoefficient / (density * specificHeat * deltaT);
+            double flowRate_lh = flowRate_m3h * HydraulicsConstants.LitersPerCubicMeter;
 
             return flowRate_lh;
         }
@@ -90,10 +91,11 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                 KinematicViscosity = glycolProps.KinematicViscosity
             };
 
-            double velocity = circuit.FlowRate * 4000 / (3600 * Math.PI * Math.Pow(innerDiameter, 2));
+            double velocity = circuit.FlowRate * HydraulicsConstants.VelocityCoefficient
+                / (HydraulicsConstants.SecondsPerHour * Math.PI * Math.Pow(innerDiameter, 2));
             circuit.Velocity = velocity;
 
-            double reynolds = 1000 * velocity * innerDiameter / glycolProps.KinematicViscosity;
+            double reynolds = HydraulicsConstants.ReynoldsCoefficient * velocity * innerDiameter / glycolProps.KinematicViscosity;
             result.ReynoldsNumber = reynolds;
 
             result.FlowRegime = FlowRegimeCalculator.DetermineFlowRegime(reynolds);
@@ -102,8 +104,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             result.FrictionFactor = frictionFactor;
 
             double density_g_cm3 = glycolProps.Density / 1000.0;
-            double pressureLossPerMeter = 10000 * Math.Pow(velocity, 2) * density_g_cm3 * frictionFactor
-                / (2 * innerDiameter) * 100;
+            double pressureLossPerMeter = HydraulicsConstants.FrictionLossCoefficient * Math.Pow(velocity, 2) * density_g_cm3 * frictionFactor
+                / (2 * innerDiameter) * HydraulicsConstants.PressurePerMeterFactor;
             result.PressureLossPerMeter = pressureLossPerMeter;
 
             double dpRohr = (circuit.CircuitLength + circuit.SupplyLength) * pressureLossPerMeter;
@@ -111,13 +113,15 @@ namespace SnowMeltingCalculator.Services.Hydraulics
 
             if (valveType == ValveType.HKV_D)
             {
-                result.DpVerteiler = Math.Pow(circuit.FlowRate / 1000.0 / 1.2, 2) * 100000 * density_g_cm3;
-                result.DpVent = 15000 * (density_g_cm3 / 2) * Math.Pow(velocity, 2);
+                result.DpVerteiler = Math.Pow(circuit.FlowRate / HydraulicsConstants.FlowRateConversionFactor / HydraulicsConstants.Kv_HKV_D, 2)
+                    * HydraulicsConstants.PressureConversionFactor * density_g_cm3;
+                result.DpVent = HydraulicsConstants.ValveLossCoefficient_HKV_D * (density_g_cm3 / 2) * Math.Pow(velocity, 2);
             }
             else
             {
-                result.DpVerteiler = 15000 * (density_g_cm3 / 2) * Math.Pow(velocity, 2);
-                result.DpVent = Math.Pow(circuit.FlowRate / 1000.0 / kv, 2) * 100000 * density_g_cm3;
+                result.DpVerteiler = HydraulicsConstants.DistributorLossCoefficient * (density_g_cm3 / 2) * Math.Pow(velocity, 2);
+                result.DpVent = Math.Pow(circuit.FlowRate / HydraulicsConstants.FlowRateConversionFactor / kv, 2)
+                    * HydraulicsConstants.PressureConversionFactor * density_g_cm3;
             }
 
             return result;

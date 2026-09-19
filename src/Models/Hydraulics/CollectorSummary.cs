@@ -1,5 +1,6 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
+using SnowMeltingCalculator.Core.Constants;
 
 namespace SnowMeltingCalculator.Models.Hydraulics
 {
@@ -132,12 +133,18 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// <summary>
         /// Максимально допустимые потери (ограничение РЕХАУ), мбар
         /// </summary>
-        public static readonly double MaxAllowedPressure_mbar = 320;
+        /// <remarks>
+        /// Канон значения — <see cref="HydraulicsConstants.MaxPressureLoss_mbar"/> (ADR-016).
+        /// </remarks>
+        public static readonly double MaxAllowedPressure_mbar = HydraulicsConstants.MaxPressureLoss_mbar;
 
         /// <summary>
         /// Максимально допустимые потери, Па
         /// </summary>
-        public static readonly double MaxAllowedPressure_Pa = 32000;
+        /// <remarks>
+        /// Канон значения — <see cref="HydraulicsConstants.MaxPressureLoss_Pa"/> (ADR-016).
+        /// </remarks>
+        public static readonly double MaxAllowedPressure_Pa = HydraulicsConstants.MaxPressureLoss_Pa;
 
         /// <summary>
         /// Проверка превышения лимита потерь (холодный пуск)

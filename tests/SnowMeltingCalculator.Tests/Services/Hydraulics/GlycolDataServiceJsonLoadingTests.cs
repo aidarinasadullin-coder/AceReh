@@ -42,6 +42,60 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         }
 
         [Test]
+        public void FallbackTables_MatchJsonCanon_AtControlPoints()
+        {
+            // Переходный пин §6.3 роадмапа 2026-09-18 (ADR-016): встроенные
+            // fallback-таблицы обязаны совпадать с JSON-каноном в узлах своей
+            // сетки — иначе молчаливый fallback при битой поставке считает по
+            // протухшим данным. Сверка — в узлах fallback (9 температур ×
+            // 9 концентраций): fallback-сетка грубее JSON (25 температур), в
+            // промежуточных точках результаты интерполяции законно различаются.
+            var jsonService = new GlycolDataService("data/glycol_data.json");
+            var fallbackService = new GlycolDataService("nonexistent_file.json");
+
+            double[] concentrations = { 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0 };
+            double[] temperatures = { -34.4, -17.8, -1.1, 15.6, 32.2, 48.9, 65.6, 82.2, 98.9 };
+            var glycolTypes = new[] { GlycolType.Ethylene, GlycolType.Propylene };
+
+            foreach (var glycolType in glycolTypes)
+            {
+                foreach (var concentration in concentrations)
+                {
+                    foreach (var temperature in temperatures)
+                    {
+                        var fromJson = jsonService.GetProperties(glycolType, concentration, temperature);
+                        var fromFallback = fallbackService.GetProperties(glycolType, concentration, temperature);
+
+                        AssertFallbackMatchesJson(fromJson.Density, fromFallback.Density, glycolType, concentration, temperature, nameof(fromJson.Density));
+                        AssertFallbackMatchesJson(fromJson.SpecificHeat, fromFallback.SpecificHeat, glycolType, concentration, temperature, nameof(fromJson.SpecificHeat));
+                        AssertFallbackMatchesJson(fromJson.KinematicViscosity, fromFallback.KinematicViscosity, glycolType, concentration, temperature, nameof(fromJson.KinematicViscosity));
+                        AssertFallbackMatchesJson(fromJson.ThermalConductivity, fromFallback.ThermalConductivity, glycolType, concentration, temperature, nameof(fromJson.ThermalConductivity));
+                    }
+                }
+            }
+        }
+
+        private static void AssertFallbackMatchesJson(
+            double expected, double actual, GlycolType glycolType, double concentration, double temperature, string field)
+        {
+            string context = $"{glycolType}, {concentration}%, {temperature}°C, {field}";
+
+            if (double.IsNaN(expected) || double.IsNaN(actual))
+            {
+                // Fallback не имеет права «изобретать» данные там, где канон None
+                // (fallback число при JSON NaN — падение). Обратная асимметрия
+                // (fallback NaN при JSON числе) известна: fallback-таблицы
+                // пропилена грубее канона (см. ADR-016, чек R-2026-09-19-02).
+                Assert.That(double.IsNaN(actual), Is.True, $"{context}: fallback вернул число там, где JSON-канон — None");
+                return;
+            }
+
+            // Относительный допуск D6: |a−b| ≤ 1e-9·max(|a|,|b|,1)
+            double tolerance = 1e-9 * System.Math.Max(System.Math.Max(System.Math.Abs(actual), System.Math.Abs(expected)), 1.0);
+            Assert.That(System.Math.Abs(actual - expected), Is.LessThanOrEqualTo(tolerance), context);
+        }
+
+        [Test]
         public void GlycolDataService_InterpolatesDensity()
         {
             // Arrange

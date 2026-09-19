@@ -152,17 +152,18 @@ namespace SnowMeltingCalculator.Tests.RefactorBaseline
             var construction = BuildConstructionData(expected.PipeIndex);
             var result = new ThermalCalculator().Calculate(parameters, climate, construction);
 
-            Assert.That(result.Alpha, Is.EqualTo(expected.Alpha), nameof(result.Alpha));
-            Assert.That(result.PowerUp, Is.EqualTo(expected.PowerUp), nameof(result.PowerUp));
-            Assert.That(result.PowerDown, Is.EqualTo(expected.PowerDown), nameof(result.PowerDown));
-            Assert.That(result.PowerTotal, Is.EqualTo(expected.PowerTotal), nameof(result.PowerTotal));
-            Assert.That(result.ExcessTemperature, Is.EqualTo(expected.ExcessTemperature), nameof(result.ExcessTemperature));
-            Assert.That(result.MeanTemperature, Is.EqualTo(expected.MeanTemperature), nameof(result.MeanTemperature));
-            Assert.That(result.SupplyTemperature, Is.EqualTo(expected.SupplyTemperature), nameof(result.SupplyTemperature));
-            Assert.That(result.ReturnTemperature, Is.EqualTo(expected.ReturnTemperature), nameof(result.ReturnTemperature));
-            Assert.That(result.DeltaT, Is.EqualTo(expected.DeltaT), nameof(result.DeltaT));
-            Assert.That(result.MassFlowRate, Is.EqualTo(expected.MassFlowRate), nameof(result.MassFlowRate));
-            Assert.That(result.VolumeFlowRate, Is.EqualTo(expected.VolumeFlowRate), nameof(result.VolumeFlowRate));
+            // Относительный допуск D6 (ADR-016): |a−b| ≤ 1e-9·max(|a|,|b|,1)
+            BaselineAssertions.AssertCloseTo(result.Alpha, expected.Alpha, nameof(result.Alpha));
+            BaselineAssertions.AssertCloseTo(result.PowerUp, expected.PowerUp, nameof(result.PowerUp));
+            BaselineAssertions.AssertCloseTo(result.PowerDown, expected.PowerDown, nameof(result.PowerDown));
+            BaselineAssertions.AssertCloseTo(result.PowerTotal, expected.PowerTotal, nameof(result.PowerTotal));
+            BaselineAssertions.AssertCloseTo(result.ExcessTemperature, expected.ExcessTemperature, nameof(result.ExcessTemperature));
+            BaselineAssertions.AssertCloseTo(result.MeanTemperature, expected.MeanTemperature, nameof(result.MeanTemperature));
+            BaselineAssertions.AssertCloseTo(result.SupplyTemperature, expected.SupplyTemperature, nameof(result.SupplyTemperature));
+            BaselineAssertions.AssertCloseTo(result.ReturnTemperature, expected.ReturnTemperature, nameof(result.ReturnTemperature));
+            BaselineAssertions.AssertCloseTo(result.DeltaT, expected.DeltaT, nameof(result.DeltaT));
+            BaselineAssertions.AssertCloseTo(result.MassFlowRate, expected.MassFlowRate, nameof(result.MassFlowRate));
+            BaselineAssertions.AssertCloseTo(result.VolumeFlowRate, expected.VolumeFlowRate, nameof(result.VolumeFlowRate));
         }
 
         private sealed record CityInput(

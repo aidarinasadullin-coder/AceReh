@@ -175,27 +175,28 @@ namespace SnowMeltingCalculator.Tests.RefactorBaseline
             var calculator = new CircuitsCalculator(new GlycolDataService());
             calculator.CalculateAllCircuits(circuits, inputData, expected.PipeSpacing_cm, expected.PowerUp, expected.PowerDown, operatingTemperature, expected.ColdFiveDayTemperature, deltaT, expected.InnerDiameter);
 
-            Assert.That(circuit.Power, Is.EqualTo(expected.Power), nameof(circuit.Power));
-            Assert.That(circuit.FlowRate, Is.EqualTo(expected.FlowRate), nameof(circuit.FlowRate));
-            Assert.That(circuit.Velocity, Is.EqualTo(expected.Velocity), nameof(circuit.Velocity));
+            // Относительный допуск D6 (ADR-016): |a−b| ≤ 1e-9·max(|a|,|b|,1)
+            BaselineAssertions.AssertCloseTo(circuit.Power, expected.Power, nameof(circuit.Power));
+            BaselineAssertions.AssertCloseTo(circuit.FlowRate, expected.FlowRate, nameof(circuit.FlowRate));
+            BaselineAssertions.AssertCloseTo(circuit.Velocity, expected.Velocity, nameof(circuit.Velocity));
             AssertResult(circuit.OperatingResult, expected.OperatingResult, "Operating");
             AssertResult(circuit.DesignResult, expected.DesignResult, "Design");
         }
 
         private static void AssertResult(CircuitTemperatureResult actual, CircuitTemperatureResultDto expected, string prefix)
         {
-            Assert.That(actual.Temperature, Is.EqualTo(expected.Temperature), $"{prefix}.{nameof(actual.Temperature)}");
-            Assert.That(actual.Density, Is.EqualTo(expected.Density), $"{prefix}.{nameof(actual.Density)}");
-            Assert.That(actual.KinematicViscosity, Is.EqualTo(expected.KinematicViscosity), $"{prefix}.{nameof(actual.KinematicViscosity)}");
-            Assert.That(actual.ReynoldsNumber, Is.EqualTo(expected.ReynoldsNumber), $"{prefix}.{nameof(actual.ReynoldsNumber)}");
+            BaselineAssertions.AssertCloseTo(actual.Temperature, expected.Temperature, $"{prefix}.{nameof(actual.Temperature)}");
+            BaselineAssertions.AssertCloseTo(actual.Density, expected.Density, $"{prefix}.{nameof(actual.Density)}");
+            BaselineAssertions.AssertCloseTo(actual.KinematicViscosity, expected.KinematicViscosity, $"{prefix}.{nameof(actual.KinematicViscosity)}");
+            BaselineAssertions.AssertCloseTo(actual.ReynoldsNumber, expected.ReynoldsNumber, $"{prefix}.{nameof(actual.ReynoldsNumber)}");
             Assert.That(actual.FlowRegime, Is.EqualTo(expected.FlowRegime), $"{prefix}.{nameof(actual.FlowRegime)}");
-            Assert.That(actual.FrictionFactor, Is.EqualTo(expected.FrictionFactor), $"{prefix}.{nameof(actual.FrictionFactor)}");
-            Assert.That(actual.PressureLossPerMeter, Is.EqualTo(expected.PressureLossPerMeter), $"{prefix}.{nameof(actual.PressureLossPerMeter)}");
-            Assert.That(actual.DpRohr, Is.EqualTo(expected.DpRohr), $"{prefix}.{nameof(actual.DpRohr)}");
-            Assert.That(actual.DpVerteiler, Is.EqualTo(expected.DpVerteiler), $"{prefix}.{nameof(actual.DpVerteiler)}");
-            Assert.That(actual.DpVent, Is.EqualTo(expected.DpVent), $"{prefix}.{nameof(actual.DpVent)}");
-            Assert.That(actual.DpGesamt, Is.EqualTo(expected.DpGesamt), $"{prefix}.{nameof(actual.DpGesamt)}");
-            Assert.That(actual.ZuDrosseln, Is.EqualTo(expected.ZuDrosseln), $"{prefix}.{nameof(actual.ZuDrosseln)}");
+            BaselineAssertions.AssertCloseTo(actual.FrictionFactor, expected.FrictionFactor, $"{prefix}.{nameof(actual.FrictionFactor)}");
+            BaselineAssertions.AssertCloseTo(actual.PressureLossPerMeter, expected.PressureLossPerMeter, $"{prefix}.{nameof(actual.PressureLossPerMeter)}");
+            BaselineAssertions.AssertCloseTo(actual.DpRohr, expected.DpRohr, $"{prefix}.{nameof(actual.DpRohr)}");
+            BaselineAssertions.AssertCloseTo(actual.DpVerteiler, expected.DpVerteiler, $"{prefix}.{nameof(actual.DpVerteiler)}");
+            BaselineAssertions.AssertCloseTo(actual.DpVent, expected.DpVent, $"{prefix}.{nameof(actual.DpVent)}");
+            BaselineAssertions.AssertCloseTo(actual.DpGesamt, expected.DpGesamt, $"{prefix}.{nameof(actual.DpGesamt)}");
+            BaselineAssertions.AssertCloseTo(actual.ZuDrosseln, expected.ZuDrosseln, $"{prefix}.{nameof(actual.ZuDrosseln)}");
         }
 
         public class BaselineDto

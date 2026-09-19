@@ -1,3 +1,4 @@
+using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Services.Hydraulics;
 using NUnit.Framework;
@@ -183,10 +184,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         [Test]
         public void GetDefaultKv_MatchesConstants()
         {
-            // Act & Assert
-            Assert.That(ValveTurnsCalculator.GetDefaultKv(ValveType.HKV_D), Is.EqualTo(ValveTurnsCalculator.KV_HKV_D));
-            Assert.That(ValveTurnsCalculator.GetDefaultKv(ValveType.IV_1_25), Is.EqualTo(ValveTurnsCalculator.KV_IV_1_25));
-            Assert.That(ValveTurnsCalculator.GetDefaultKv(ValveType.IV_1_5), Is.EqualTo(ValveTurnsCalculator.KV_IV_1_5));
+            // Канон Kv — HydraulicsConstants (ADR-016)
+            Assert.That(ValveTurnsCalculator.GetDefaultKv(ValveType.HKV_D), Is.EqualTo(HydraulicsConstants.Kv_HKV_D));
+            Assert.That(ValveTurnsCalculator.GetDefaultKv(ValveType.IV_1_25), Is.EqualTo(HydraulicsConstants.Kv_IV_DN25));
+            Assert.That(ValveTurnsCalculator.GetDefaultKv(ValveType.IV_1_5), Is.EqualTo(HydraulicsConstants.Kv_IV_DN32));
         }
 
         #endregion
@@ -329,10 +330,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         [Test]
         public void Constants_HaveCorrectValues()
         {
-            // Assert
-            Assert.That(ValveTurnsCalculator.KV_HKV_D, Is.EqualTo(1.2));
-            Assert.That(ValveTurnsCalculator.KV_IV_1_25, Is.EqualTo(1.45));
-            Assert.That(ValveTurnsCalculator.KV_IV_1_5, Is.EqualTo(1.5));
+            // Пин канона Kv (ADR-016): HydraulicsConstants — единственный источник
+            Assert.That(HydraulicsConstants.Kv_HKV_D, Is.EqualTo(1.2));
+            Assert.That(HydraulicsConstants.Kv_IV_DN25, Is.EqualTo(1.45));
+            Assert.That(HydraulicsConstants.Kv_IV_DN32, Is.EqualTo(1.5));
         }
 
 #pragma warning disable CS0618 // Type or member is obsolete

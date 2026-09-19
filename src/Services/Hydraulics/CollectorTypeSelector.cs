@@ -1,4 +1,5 @@
 using System.Globalization;
+using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
@@ -43,14 +44,14 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             if (summary.PressureLoss_Operating_Pa > CollectorSummary.MaxAllowedPressure_Pa)
             {
                 double pressureKPa = summary.PressureLoss_Operating_Pa / 1000.0;
-                warnings.Add($"Превышение давления (рабочий режим): {pressureKPa:F1} кПа > 32 кПа");
+                warnings.Add($"Превышение давления (рабочий режим): {pressureKPa:F1} кПа > {HydraulicsConstants.MaxPressureLoss_Pa / 1000.0:F0} кПа");
             }
 
             // Холодный пуск
             if (summary.PressureLoss_Cold_Pa > CollectorSummary.MaxAllowedPressure_Pa)
             {
                 double pressureKPa = summary.PressureLoss_Cold_Pa / 1000.0;
-                warnings.Add($"Превышение давления (холодный пуск): {pressureKPa:F1} кПа > 32 кПа");
+                warnings.Add($"Превышение давления (холодный пуск): {pressureKPa:F1} кПа > {HydraulicsConstants.MaxPressureLoss_Pa / 1000.0:F0} кПа");
             }
 
             bool flowRateExceeded = totalFlowRate_m3h >= 7.0;

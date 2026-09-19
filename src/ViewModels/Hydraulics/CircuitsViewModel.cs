@@ -791,13 +791,11 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 AutoSelectCollectorTypeFor(collector);
             }
 
-            var kv = collector.ValveType switch
-            {
-                ValveType.HKV_D => 1.2,
-                ValveType.IV_1_25 => 1.45,
-                ValveType.IV_1_5 => 1.5,
-                _ => 1.2
-            };
+            // Kv — единственный источник HydraulicsConstants через GetDefaultKv (ADR-016).
+            // ValveType имеет ровно 3 члена, а .smc сериализует enum строкой,
+            // поэтому вне-диапазонное значение недостижимо (бывший дефолт «1.2»
+            // заменяется throw внутри GetDefaultKv).
+            var kv = ValveTurnsCalculator.GetDefaultKv(collector.ValveType);
 
             foreach (var circuit in collector.Circuits)
             {

@@ -846,7 +846,10 @@
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
 
-                            <!-- Δp-разбивка: заголовки — по глоссарию; красный — по отображаемому значению > 32000 Па (320 мбар), как и R > 300 Па/м -->
+                            <!-- Δp-разбивка: заголовки — по глоссарию; красный — по отображаемому значению > 32000 Па
+                                 (канон HydraulicsConstants.MaxPressureLoss_Pa = 320 мбар, ADR-016; ConverterParameter
+                                 обязан быть строкой — PressureColorConverter ждёт `parameter is string`, поэтому
+                                 литерал "32000", а не x:Static), как и R > 300 Па/м -->
                             <DataGridTextColumn Header="Δp трубы, Па"
                                                 Binding="{Binding CurrentResult.DpRohr, Mode=OneWay, StringFormat=F0}"
                                                 IsReadOnly="True"

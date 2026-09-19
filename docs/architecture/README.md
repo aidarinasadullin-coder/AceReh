@@ -695,3 +695,75 @@ R-2026-09-17-01 — APPROVE-WITH-EDITS, 6 находок приняты): ред
 `ReactiveSubscriptionLifecycleTests`, новые тесты
 `ClimateViewModelTests`/Results — сессия→VM-репост, equality-выход;
 прогон полный зелёный. Чек ревью: `docs/reviews/2026-09-17-project-card-plan-review.md`.
+
+### ADR-016 — 2026-09-20 — Канон расчётных констант («Физика в канон», волна 5 роадмапа 2026-09-18): единственные источники значений, дубли удалены
+
+Решение владельца D6 (амендмент III, порядок работ 2026-09-20 п.2; атакующее
+ревью до имплементации R-2026-09-19-02 — APPROVE-WITH-EDITS, находки внесены):
+значения расчёта не меняются — фиксируется КАНОН, где живёт каждое число.
+Файлы-источники:
+
+1. **`ThermalConstants` — только физика:** плотности, теплоёмкости,
+   Стефан-Больцман, AlphaBottom, RodCoefficient, HeatTransferCoefficientA/B/C.
+   Удалены: дубли лимитов валидации (−60/+10/−10/+30/20/90/ΔT 1–30/ветер
+   50/снег 20 — их канон `ValidationConstants`, там же Min/MaxSurfaceTemperature
+   1/7) и ложные `SurfaceTempMelting/Prevention/AntiIce` (2/0/−2 — никогда не
+   были температурами калькулятора; пин ThermalConstantsPinTests документировал
+   их как запрещённые).
+2. **`ValidationConstants` — все лимиты валидации.** `MaxPressureLoss`
+   становится алиасом `HydraulicsConstants.MaxPressureLoss_Pa` (const→const);
+   строка-пин SourcePath отчёта
+   `...ValidationConstants.MaxPressureLoss` (CalculationReportDataBuilder)
+   сохраняется дословно.
+3. **`HydraulicsConstants` — гидравлика, Kv, лимит 320 мбар.**
+   CircuitsCalculator переводится с литералов 3.6/4000/3600/1000/10000/100/
+   15000/100000/1.2 на именованные константы (семантика каждой — по единицам,
+   не по значению: близнецы 1000.0/100.0/15000.0 имеют разные смыслы).
+   Kv — один источник (`Kv_HKV_D/Kv_IV_DN25/Kv_IV_DN32`); копии
+   `ValveTurnsCalculator.KV_*` удалены, `GetDefaultKv` читает канон;
+   локальный switch `CircuitsViewModel` заменён на `GetDefaultKv` —
+   эквивалентность: ValveType имеет ровно 3 члена, а .smc сериализует enum
+   строкой (JsonStringEnumConverter), вне-диапазон недостижим из load-пути.
+   Лимит 320 мбар — один источник (`MaxPressureLoss_Pa`/`_mbar`):
+   CollectorSummary.MaxAllowedPressure* и все 15 литералов
+   `MaxPressure = 320` в CollectorRepository инициализируются из канона;
+   `ValidationConstants.MaxPressureLoss` — алиас. Два строковых
+   `ConverterParameter="32000"` в CircuitsView.xaml остаются строками
+   (PressureColorConverter ожидает `parameter is string`; x:Static числовой
+   константы молча вернул бы UnsetValue и погасил красную индикацию) —
+   комментарии XAML/конвертера ссылаются на канон; текст «32 кПа» в
+   CollectorTypeSelector интерполируется из канона (тестовая реплика
+   CircuitsViewModelTests:141-150 правится синхронно при смене текста).
+4. **OperatingMode → t_П — явная карта.** `OperatingMode.ToSurfaceTemperature()`
+   (src/Models/Thermal/OperatingModeSurfaceTemperature.cs) — единственная
+   точка преобразования режима в температуру поверхности; числовое значение
+   члена enum = t_П (1..7, пин ThermalConstantsPinTests) — контракт
+   заморожен (Undo/Redo, отчёты; wire .smc сериализует режим строкой/bool
+   IsOperatingMode — ProjectData не тронут, hash-пин ProjectSnapshotFactoryTests
+   на месте).
+5. **Гликоль: JSON-канон, встроенные таблицы — fallback при отсутствии/бите
+   data/glycol_data.json** (решение ревью по §6.3: вариант «удалить» менял бы
+   режим отказа — вне рамок refactor-волны). Наблюдаемость: AppLog.Warn в
+   ветке «файл не найден»; дрейф fallback от канона закрывает переходный
+   пин-тест «JSON == встроенные таблицы» (GlycolDataServiceJsonLoadingTests).
+   Пин при первом прогоне поймал реальный дрейф: строки плотности пропилена
+   50/60/70% в fallback были сдвинуты на одну позицию концентрации против
+   канона — все 8 fallback-массивов перегенерированы из узлов JSON
+   (штатный JSON-путь не менялся, baseline зелёный); немонотонность канона
+   (пропилен, −17.8°C: 60% → 1081.6 < 50% → 1083.2) передана владельцу как
+   кандидат на проверку исходных таблиц — правка значений канона вне волны.
+
+Дедуп формул ThermalCalculator: теплота таяния — один приватный хелпер
+(был дубль в CalculatePowerUp и Calculate; перезапись `result.PowerUp`
+суммой составляющих удалена — бит-в-бит эквивалент), коэффициенты D/E —
+два хелпера с мм→м внутри (FP-форма оригинала сохранена).
+Baseline-тесты (RefactorBaseline, 43 кейса) переведены с абсолютного
+равенства на относительный допуск D6 `|a−b| ≤ 1e-9·max(|a|,|b|,1)`,
+`[Explicit]`-регенераторы сохранены. Контрольный пересчёт ПЗ (ADR-010) не
+требуется: рендер ПЗ не тронут, значения не меняются, числа покрыты
+baseline; чек-пункт ревью «новых числовых литералов в формулах нет».
+
+State ownership: без изменений. Проверка: полный прогон зелёный,
+ArchitectureRulesTests зелёный, hash-пин .smc не двигается,
+ValidationExtensionsTests:572-574 (пин A/B/C) зелёный. Чек ревью:
+`docs/reviews/2026-09-20-physics-canon-plan-review.md`.

@@ -238,7 +238,13 @@ namespace SnowMeltingCalculator.Core.Constants
         /// <summary>
         /// Максимальные потери давления, Па
         /// </summary>
-        public const int MaxPressureLoss = 32000;
+        /// <remarks>
+        /// Алиас канона <see cref="HydraulicsConstants.MaxPressureLoss_Pa"/>
+        /// (ADR-016: значение определяется один раз в HydraulicsConstants).
+        /// Имя сохранено: SourcePath отчёта ссылается на
+        /// ValidationConstants.MaxPressureLoss (CalculationReportDataBuilder).
+        /// </remarks>
+        public const int MaxPressureLoss = HydraulicsConstants.MaxPressureLoss_Pa;
 
         #endregion
 

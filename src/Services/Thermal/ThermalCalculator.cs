@@ -12,8 +12,9 @@ namespace SnowMeltingCalculator.Services.Thermal
     /// <remarks>
     /// Реализует расчёт по методике РЕХАУ для систем снеготаяния.
     /// Физические константы — единственный источник
-    /// <see cref="ThermalConstants"/> (ADR-010): дубликаты литералов удалены,
-    /// значения не менялись.
+    /// <see cref="ThermalConstants"/> (ADR-010); лимиты валидации —
+    /// <see cref="ValidationConstants"/>; карта «режим → температура
+    /// поверхности» — <see cref="OperatingModeSurfaceTemperature"/> (ADR-016).
     /// </remarks>
     public class ThermalCalculator : IThermalCalculator
     {
@@ -52,9 +53,28 @@ namespace SnowMeltingCalculator.Services.Thermal
             }
 
             // Формула: α = 2.26 × (t_П - t_H)^0.33 + 2.6 × v_H
-            var alpha = 2.26 * Math.Pow(deltaTemp, 0.33) + 2.6 * windSpeed;
+            var alpha = ThermalConstants.HeatTransferCoefficientA * Math.Pow(deltaTemp, ThermalConstants.HeatTransferCoefficientB)
+                + ThermalConstants.HeatTransferCoefficientC * windSpeed;
 
             return alpha;
+        }
+
+        /// <summary>
+        /// Теплота плавления снега, Вт/м² (единственная копия формулы — ADR-016)
+        /// </summary>
+        /// <remarks>
+        /// Q_таяние = h × ρ × [c_льда × (0 - t_H) + L_плавл + c_воды × (t_П - 0)],
+        /// где h — интенсивность снегопада, переведённая из мм/ч в м/с
+        /// (h [м/с] = h [мм/ч] / 1000 / 3600).
+        /// </remarks>
+        private static double CalculateMeltingHeat(double snowfallIntensity, double airTemp, double surfaceTemp)
+        {
+            var h = snowfallIntensity / 1000.0 / 3600.0;
+
+            return h * ThermalConstants.SnowDensity * (
+                ThermalConstants.IceHeatCapacity * (0 - airTemp) +    // нагрев льда до 0°C
+                ThermalConstants.IceMeltingHeat +                     // плавление льда
+                ThermalConstants.WaterHeatCapacity * surfaceTemp);    // нагрев воды до t_П
         }
 
         /// <summary>
@@ -86,18 +106,8 @@ namespace SnowMeltingCalculator.Services.Thermal
                 throw new ArgumentOutOfRangeException(nameof(alpha), "Коэффициент теплоотдачи должен быть положительным");
             }
 
-            // Конвертация интенсивности снегопада из мм/ч в м/с
-            // h [м/с] = h [мм/ч] / 1000 / 3600
-            var h = snowfallIntensity / 1000.0 / 3600.0;
-
-            // 1. Теплота плавления снега
-            // Q_таяние = (h/3600) × ρ × [c_льда × (0 - t_H) + L_плавл + c_воды × (t_П - 0)]
-            // Примечание: в формуле (h/3600) уже учтено в конвертации выше
-            var qMelting = h * ThermalConstants.SnowDensity * (
-                ThermalConstants.IceHeatCapacity * (0 - airTemp) +    // нагрев льда до 0°C
-                ThermalConstants.IceMeltingHeat +                     // плавление льда
-                ThermalConstants.WaterHeatCapacity * surfaceTemp      // нагрев воды до t_П
-            );
+            // Конвертация интенсивности снегопада и формула — в CalculateMeltingHeat (ADR-016)
+            var qMelting = CalculateMeltingHeat(snowfallIntensity, airTemp, surfaceTemp);
 
             // 2. Конвективный теплообмен
             // Q_конв = α × (t_П - t_H)
@@ -295,19 +305,9 @@ namespace SnowMeltingCalculator.Services.Thermal
             // C = |t_H - t_G|
             var c = Math.Abs(climate.AirTemperature - parameters.GroundTemperature);
 
-            // D = lR / (π × λR)
-            // lR = шаг труб (spacing)
-            // λR = теплопроводность материала трубы
-            var spacingM = parameters.PipeSpacing / 1000.0;      // мм → м
-            var lambdaR = pipe.ThermalConductivity;              // Вт/(м·К)
-            var dCoefficient = spacingM / (Math.PI * lambdaR);
-
-            // E = s / (d - s)
-            // s = толщина стенки трубы
-            // d = наружный диаметр трубы
-            var wallThicknessM = pipe.WallThickness / 1000.0;    // мм → м
-            var outerDiameterM = pipe.OuterDiameter / 1000.0;    // мм → м
-            var eCoefficient = wallThicknessM / (outerDiameterM - wallThicknessM);
+            // D = lR / (π × λR), E = s / (d - s) — формулы в CalculateCoefficientD/E (ADR-016)
+            var dCoefficient = CalculateCoefficientD(parameters.PipeSpacing, pipe.ThermalConductivity);
+            var eCoefficient = CalculateCoefficientE(pipe.WallThickness, pipe.OuterDiameter);
 
             // Избыточная температура
             // JHmü = [A + (B - C/(q_FB × RFb × RD)) × D × E] × q_FB × RFb
@@ -367,20 +367,38 @@ namespace SnowMeltingCalculator.Services.Thermal
             // C = |t_H - t_G|
             var c = Math.Abs(airTemperature - groundTemperature);
 
-            // D = lR / (π × λR)
-            var spacingM = pipeSpacing / 1000.0;  // мм → м
-            var dCoefficient = spacingM / (Math.PI * pipeThermalConductivity);
-
-            // E = s / (d - s)
-            var wallThicknessM = pipeWallThickness / 1000.0;  // мм → м
-            var outerDiameterM = pipeOuterDiameter / 1000.0;    // мм → м
-            var eCoefficient = wallThicknessM / (outerDiameterM - wallThicknessM);
+            // D = lR / (π × λR), E = s / (d - s) — формулы в CalculateCoefficientD/E (ADR-016)
+            var dCoefficient = CalculateCoefficientD(pipeSpacing, pipeThermalConductivity);
+            var eCoefficient = CalculateCoefficientE(pipeWallThickness, pipeOuterDiameter);
 
             // q_D = (JHmü_low × RFb + C × D × E) / (RFb × RD × (A + B × D × E))
             var numerator = jhmuLow * rFb + c * dCoefficient * eCoefficient;
             var denominator = rFb * rD * (a + b * dCoefficient * eCoefficient);
 
             return numerator / denominator;
+        }
+
+        /// <summary>
+        /// Коэффициент D формул JHmü/q_D: lR / (π × λR) (единственная копия — ADR-016)
+        /// </summary>
+        /// <param name="pipeSpacingMm">Шаг труб lR, мм</param>
+        /// <param name="pipeThermalConductivity">Теплопроводность трубы λR, Вт/(м·К)</param>
+        private static double CalculateCoefficientD(double pipeSpacingMm, double pipeThermalConductivity)
+        {
+            var spacingM = pipeSpacingMm / 1000.0;  // мм → м
+            return spacingM / (Math.PI * pipeThermalConductivity);
+        }
+
+        /// <summary>
+        /// Коэффициент E формул JHmü/q_D: s / (d - s) (единственная копия — ADR-016)
+        /// </summary>
+        /// <param name="wallThicknessMm">Толщина стенки s, мм</param>
+        /// <param name="outerDiameterMm">Наружный диаметр d, мм</param>
+        private static double CalculateCoefficientE(double wallThicknessMm, double outerDiameterMm)
+        {
+            var wallThicknessM = wallThicknessMm / 1000.0;   // мм → м
+            var outerDiameterM = outerDiameterMm / 1000.0;   // мм → м
+            return wallThicknessM / (outerDiameterM - wallThicknessM);
         }
 
         /// <summary>
@@ -408,8 +426,8 @@ namespace SnowMeltingCalculator.Services.Thermal
 
             try
             {
-                // Определение температуры поверхности по режиму
-                var surfaceTemp = (int)inputs.Mode;  // OperatingMode содержит температуру поверхности
+                // Определение температуры поверхности по режиму (ADR-016: карта в одном месте)
+                var surfaceTemp = inputs.Mode.ToSurfaceTemperature();
 
                 // 1. Расчёт коэффициента теплоотдачи
                 var alpha = CalculateHeatTransferCoefficient(
@@ -484,20 +502,13 @@ namespace SnowMeltingCalculator.Services.Thermal
                 // Температурный перепад (формула 8.3)
                 result.DeltaT = result.SupplyTemperature - result.ReturnTemperature;
 
-                // 7. Расчёт составляющих мощности (для справки)
-                var h = climate.SnowfallIntensity / 1000.0 / 3600.0;
-                result.MeltingHeat = h * ThermalConstants.SnowDensity * (
-                    ThermalConstants.IceHeatCapacity * (0 - climate.AirTemperature) +
-                    ThermalConstants.IceMeltingHeat +
-                    ThermalConstants.WaterHeatCapacity * surfaceTemp);
+                // 7. Расчёт составляющих мощности (для справки; формула таяния — CalculateMeltingHeat, ADR-016)
+                result.MeltingHeat = CalculateMeltingHeat(climate.SnowfallIntensity, climate.AirTemperature, surfaceTemp);
                 // Лучистый теплообмен: Q = ε × σ × T⁴
                 // где T - абсолютная температура поверхности в Кельвинах
                 result.RadiationHeat = ThermalConstants.EmissionCoefficient * ThermalConstants.StefanBoltzmann *
                     Math.Pow(273.0 + surfaceTemp, 4);
                 result.ConvectionHeat = alpha * (surfaceTemp - climate.AirTemperature);
-
-                // Убеждаемся, что PowerUp точно равен сумме составляющих (для корректного отображения)
-                result.PowerUp = result.MeltingHeat + result.ConvectionHeat;
 
                 // 8. Расчёт мощности вниз (потери)
                 // q_D = (JHmü_low × RFb + C × D × E) / (RFb × RD × (A + B × D × E))
@@ -604,18 +615,18 @@ namespace SnowMeltingCalculator.Services.Thermal
                 }
             }
 
-            // Проверка температур
-            if (climate.AirTemperature > 10)
+            // Проверка температур (лимиты — ValidationConstants, ADR-016)
+            if (climate.AirTemperature > ValidationConstants.MaxAirTemperature)
             {
                 errorList.Add("Температура наружного воздуха не должна превышать +10°C");
             }
 
-            if (climate.AirTemperature < -60)
+            if (climate.AirTemperature < ValidationConstants.MinAirTemperature)
             {
                 errorList.Add("Температура наружного воздуха не должна быть ниже -60°C");
             }
 
-            if (inputs.GroundTemperature < -10 || inputs.GroundTemperature > 30)
+            if (inputs.GroundTemperature < ValidationConstants.MinGroundTemperature || inputs.GroundTemperature > ValidationConstants.MaxGroundTemperature)
             {
                 errorList.Add("Температура грунта должна быть в диапазоне от -10°C до +30°C");
             }
@@ -626,7 +637,7 @@ namespace SnowMeltingCalculator.Services.Thermal
                 errorList.Add("Скорость ветра не может быть отрицательной");
             }
 
-            if (climate.WindSpeed > 50)
+            if (climate.WindSpeed > ValidationConstants.MaxWindSpeed)
             {
                 errorList.Add("Скорость ветра не должна превышать 50 м/с");
             }
@@ -637,13 +648,13 @@ namespace SnowMeltingCalculator.Services.Thermal
                 errorList.Add("Интенсивность снегопада не может быть отрицательной");
             }
 
-            if (climate.SnowfallIntensity > 20)
+            if (climate.SnowfallIntensity > ValidationConstants.MaxSnowfallIntensity)
             {
                 errorList.Add("Интенсивность снегопада не должна превышать 20 мм/ч");
             }
 
             // Проверка шага укладки
-            if (inputs.PipeSpacing < 50 || inputs.PipeSpacing > 500)
+            if (inputs.PipeSpacing < ValidationConstants.MinPipeSpacing || inputs.PipeSpacing > ValidationConstants.MaxPipeSpacing)
             {
                 errorList.Add("Шаг укладки трубы должен быть в диапазоне от 50 до 500 мм");
             }
@@ -670,7 +681,7 @@ namespace SnowMeltingCalculator.Services.Thermal
             // - Для PE-Xa: макс. 65°C
             // - Для бетона: макс. 50°C
             // Общее ограничение: 20-90°C
-            if (inputs.SupplyTemperature < 20 || inputs.SupplyTemperature > 90)
+            if (inputs.SupplyTemperature < ValidationConstants.MinSupplyTemperature || inputs.SupplyTemperature > ValidationConstants.MaxSupplyTemperature)
             {
                 errorList.Add("Температура подачи должна быть в диапазоне от 20°C до 90°C");
             }

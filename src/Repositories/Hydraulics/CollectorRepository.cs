@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
 
 using SnowMeltingCalculator.Services.Logging;
@@ -180,8 +181,8 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
         /// <summary>
         /// Получить максимальное давление для HKV
         /// </summary>
-        /// <returns>Максимальное давление, мбар (320)</returns>
-        public double GetMaxPressureForHKV() => 320;
+        /// <returns>Максимальное давление, мбар (канон HydraulicsConstants.MaxPressureLoss_mbar — ADR-016)</returns>
+        public double GetMaxPressureForHKV() => HydraulicsConstants.MaxPressureLoss_mbar;
 
         #region Private Methods
 
@@ -326,7 +327,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1\"",
                     Kv = 1.2,
                     MaxFlowRate = 1.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
                 new Collector
@@ -339,7 +340,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1\"",
                     Kv = 1.2,
                     MaxFlowRate = 1.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
                 new Collector
@@ -352,7 +353,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1\"",
                     Kv = 1.2,
                     MaxFlowRate = 1.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
                 new Collector
@@ -365,7 +366,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1\"",
                     Kv = 1.2,
                     MaxFlowRate = 1.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
                 new Collector
@@ -378,7 +379,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1\"",
                     Kv = 1.2,
                     MaxFlowRate = 1.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
                 new Collector
@@ -391,7 +392,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1\"",
                     Kv = 1.2,
                     MaxFlowRate = 1.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
                 new Collector
@@ -404,7 +405,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1\"",
                     Kv = 1.2,
                     MaxFlowRate = 1.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
                 new Collector
@@ -417,7 +418,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1\"",
                     Kv = 1.2,
                     MaxFlowRate = 1.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
                 new Collector
@@ -430,7 +431,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1\"",
                     Kv = 1.2,
                     MaxFlowRate = 1.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
                 new Collector
@@ -443,7 +444,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1\"",
                     Kv = 1.2,
                     MaxFlowRate = 1.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
                 new Collector
@@ -456,7 +457,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1\"",
                     Kv = 1.2,
                     MaxFlowRate = 1.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
 
@@ -471,7 +472,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1¼\"",
                     Kv = 1.45,
                     MaxFlowRate = 2.5,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 },
                 new Collector
@@ -484,7 +485,7 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     ConnectionSize = "1½\"",
                     Kv = 2.2,
                     MaxFlowRate = 4.0,
-                    MaxPressure = 320,
+                    MaxPressure = HydraulicsConstants.MaxPressureLoss_mbar,
                     MaxSetting = 8
                 }
             };
