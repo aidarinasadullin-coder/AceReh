@@ -393,6 +393,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             var glycolMock = new Mock<IGlycolDataService>();
             glycolMock.Setup(g => g.GetProperties(It.IsAny<GlycolType>(), It.IsAny<double>(), It.IsAny<double>()))
                 .Returns(glycolProperties ?? new GlycolProperties { Density = 1050, SpecificHeat = 3800, KinematicViscosity = 0.000005 });
+            glycolMock.Setup(g => g.GetMinValidConcentration(It.IsAny<GlycolType>(), It.IsAny<double>()))
+                .Returns(30.0);
 
             var selectorMock = new Mock<ICollectorTypeSelector>();
             selectorMock.Setup(s => s.SelectCollectorType(It.IsAny<CollectorData>())).Returns(new CollectorSelectionResult { ValveType = ValveType.HKV_D });

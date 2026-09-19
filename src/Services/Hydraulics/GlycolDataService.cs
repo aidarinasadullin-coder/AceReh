@@ -96,6 +96,53 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         }
 
         /// <summary>
+        /// Минимальная концентрация (% об.), при которой свойства типа
+        /// интерполируются при заданной температуре без NaN: все четыре
+        /// матрицы числовые в двух рядах, окружающих температуру.
+        /// </summary>
+        /// <remarks>
+        /// Волна 3.6 (D9): порог для рекомендации «повысьте концентрацию до
+        /// ≥ X %» вычисляется из той же матрицы, что и интерполяция, — без
+        /// констант-копий (единственный источник данных). null — при этой
+        /// температуре не валидна ни одна концентрация базы. Валидность
+        /// колонки согласована с <see cref="InterpolateProperty"/>: соседний
+        /// NaN-ряд делает интерполяцию NaN даже при попадании точки на
+        /// числовой ряд.
+        /// </remarks>
+        public double? GetMinValidConcentration(GlycolType glycolType, double temperature)
+        {
+            var data = LoadData();
+            var glycolData = GetGlycolData(data, glycolType);
+            var temps = glycolData.Temperatures;
+            if (temps.Length == 0 || temperature < temps[0] || temperature > temps[^1])
+                return null;
+
+            int hi = Array.FindIndex(temps, t => t >= temperature);
+            if (hi < 0) hi = temps.Length - 1;
+            int lo = Math.Max(0, hi - 1);
+
+            for (int c = 0; c < glycolData.Concentrations.Length; c++)
+            {
+                bool columnValid =
+                    IsMatrixCellValid(glycolData.Density, c, lo, hi) &&
+                    IsMatrixCellValid(glycolData.SpecificHeat, c, lo, hi) &&
+                    IsMatrixCellValid(glycolData.KinematicViscosity, c, lo, hi) &&
+                    IsMatrixCellValid(glycolData.ThermalConductivity, c, lo, hi);
+
+                if (columnValid)
+                    return glycolData.Concentrations[c];
+            }
+
+            return null;
+        }
+
+        private static bool IsMatrixCellValid(InterpolationTable table, int concentrationIndex, int tLow, int tHigh)
+        {
+            return !double.IsNaN(table.Values[concentrationIndex, tLow])
+                && !double.IsNaN(table.Values[concentrationIndex, tHigh]);
+        }
+
+        /// <summary>
         /// Получить плотность гликолевого раствора (кг/м³)
         /// </summary>
         /// <param name="glycolType">Тип гликоля</param>

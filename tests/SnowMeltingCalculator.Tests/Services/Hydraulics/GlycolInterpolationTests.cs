@@ -671,5 +671,43 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         }
 
         #endregion
+
+        #region Порог концентрации для расчёта (волна 3.6, D9)
+
+        /// <summary>
+        /// Порог из той же матрицы, что и интерполяция: минимальная
+        /// концентрация, при которой свойства при температуре не NaN.
+        /// Границы соответствуют эмпирике матрицы (этиленгликоль):
+        /// 10 % — с −6,7 °C, 20 % — с −12,2 °C, 30/40 % — с −23,3 °C,
+        /// 50 % — с −28,9 °C, 60 %+ — с −34,4 °C.
+        /// </summary>
+        [TestCase(-15, 30)]
+        [TestCase(-10, 20)]
+        [TestCase(-5, 10)]
+        [TestCase(-25, 50)]
+        [TestCase(-30, 60)]
+        [TestCase(10, 10)]
+        public void GetMinValidConcentration_Ethylene_MatchesMatrixBoundaries(
+            double temperature, double expected)
+        {
+            Assert.That(_service.GetMinValidConcentration(GlycolType.Ethylene, temperature),
+                Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void GetMinValidConcentration_Propylene_AtMinus5_Requires40()
+        {
+            // Пропилен строже по вязкости: 30 % валидна только с −1,1 °C.
+            Assert.That(_service.GetMinValidConcentration(GlycolType.Propylene, -5),
+                Is.EqualTo(40));
+        }
+
+        [Test]
+        public void GetMinValidConcentration_BelowTableRange_ReturnsNull()
+        {
+            Assert.That(_service.GetMinValidConcentration(GlycolType.Ethylene, -40), Is.Null);
+        }
+
+        #endregion
     }
 }

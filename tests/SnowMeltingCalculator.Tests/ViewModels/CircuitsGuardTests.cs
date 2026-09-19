@@ -77,8 +77,15 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             Assert.Multiple(() =>
             {
                 Assert.That(viewModel.ValidationMessage, Does.Contain("вне диапазона базы"));
-                Assert.That(viewModel.ValidationMessage, Does.Contain("Рекомендация"));
-                Assert.That(viewModel.ValidationMessage, Does.Contain("концентрация"));
+                Assert.That(viewModel.ValidationMessage, Does.Contain("требуется концентрация ≥ 30 %"),
+                    "Динамический порог (волна 3.6): для расчётной температуры называется " +
+                    "конкретная минимальная концентрация из матрицы.");
+                Assert.That(viewModel.ValidationMessage, Does.Contain("повысьте"),
+                    "Направление рекомендации: при замерзании концентрацию повышают (D9), " +
+                    "а не снижают.");
+                Assert.That(viewModel.ValidationMessage, Does.Not.Contain("снизьте"));
+                Assert.That(viewModel.ValidationMessage, Does.Contain("Этиленгликоль"),
+                    "Имя типа — на русском, как в UI.");
                 Assert.That(hydraulicsState.Snapshot.IsCalculated(), Is.False,
                     "Расчёт откатывается: канон не получает результатов от NaN-свойств " +
                     "теплоносителя (UI-объект Summary контура может оставаться от " +
@@ -109,6 +116,39 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                 Assert.That(viewModel.HasCalculationNotice, Is.True,
                     "Чипы сводки залиты янтарным при допущениях 35/30.");
                 Assert.That(viewModel.HasCalculationError, Is.False);
+            });
+        }
+
+        [Test]
+        public void Calculate_GuardRollback_ClearsStaleTableRowFields()
+        {
+            // Вариант «а» (волна 3.6): таблица не держит числа прошлого
+            // успешного расчёта после гвард-отката. Прогрев даёт расчётные
+            // поля (мок-результаты), битый шаг — откат с очисткой.
+            var viewModel = ResultsViewModelTestGraph.CreateCircuitsViewModel();
+            var collector = viewModel.Collectors[0];
+            collector.Circuits[0].CircuitLength = 50;
+
+            viewModel.CalculateCommand.Execute(null);
+            Assert.That(collector.Circuits[0].OperatingResult, Is.Not.Null,
+                "guard: прогрев заполнил расчётные поля строки.");
+
+            collector.Circuits[0].SupplySpacing_cm = 0;
+            viewModel.CalculateCommand.Execute(null);
+
+            var cleared = collector.Circuits[0];
+            Assert.Multiple(() =>
+            {
+                Assert.That(viewModel.ValidationMessage, Does.Contain("Шаг подводки"));
+                Assert.That(cleared.OperatingResult, Is.Null);
+                Assert.That(cleared.DesignResult, Is.Null);
+                Assert.That(cleared.Power, Is.Zero);
+                Assert.That(cleared.FlowRate, Is.Zero);
+                Assert.That(cleared.Velocity, Is.Zero);
+                Assert.That(cleared.Throttling, Is.Zero);
+                Assert.That(cleared.ValveTurns, Is.Zero);
+                Assert.That(cleared.ValveTurnsWarning, Is.Null);
+                Assert.That(cleared.IsReferenceCircuit, Is.False);
             });
         }
 

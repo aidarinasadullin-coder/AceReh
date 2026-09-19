@@ -30,7 +30,10 @@ namespace SnowMeltingCalculator.Repositories
         /// <param name="dbPath">Путь к файлу базы данных</param>
         public static SearchHistoryRepository Create(string dbPath)
         {
-            var connectionString = $"Data Source={dbPath}";
+            // Default Timeout: ждать освобождения файла до 5 с вместо
+            // мгновенного SQLITE_BUSY «database is locked» (волна 3.6):
+            // файл может быть занят второй копией приложения.
+            var connectionString = $"Data Source={dbPath};Default Timeout=5";
             return new SearchHistoryRepository(connectionString);
         }
 
@@ -48,6 +51,14 @@ namespace SnowMeltingCalculator.Repositories
 
                 await using var connection = new SqliteConnection(_connectionString);
                 await connection.OpenAsync();
+
+                // WAL (волна 3.6): читатели и писатели не блокируют друг
+                // друга — устраняет «database is locked» при параллельном
+                // доступе (вторая копия приложения, антивирус). Режим
+                // персистентный: достаточно выставить один раз.
+                await using var pragmaCommand = new SqliteCommand(
+                    "PRAGMA journal_mode=WAL;", connection);
+                await pragmaCommand.ExecuteNonQueryAsync();
 
                 var createTableSql = @"
                     CREATE TABLE IF NOT EXISTS SearchHistory (

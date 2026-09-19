@@ -110,6 +110,18 @@ namespace SnowMeltingCalculator.Services.Hydraulics
         GlycolProperties GetProperties(GlycolType glycolType, double concentration, double temperature);
 
         /// <summary>
+        /// Минимальная концентрация (% об.), при которой свойства типа
+        /// интерполируются при заданной температуре без NaN (все четыре
+        /// матрицы числовые в двух рядах, окружающих температуру).
+        /// </summary>
+        /// <remarks>
+        /// Волна 3.6 (D9): порог для рекомендации «повысьте концентрацию
+        /// до ≥ X %» вычисляется из той же матрицы, что и интерполяция.
+        /// null — при этой температуре не валидна ни одна концентрация базы.
+        /// </remarks>
+        double? GetMinValidConcentration(GlycolType glycolType, double temperature);
+
+        /// <summary>
         /// Проверить, поддерживается ли температура
         /// </summary>
         /// <param name="temperature">Температура, °C</param>

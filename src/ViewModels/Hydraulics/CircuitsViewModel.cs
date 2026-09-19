@@ -659,6 +659,9 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 // Симметрично NaN-гварду: Error-статус модуля, чтобы вкладка
                 // и индикация не выглядели «успешными» при откате (волна 3.5).
                 _calculationStateService.SetHydraulicsError(ValidationMessage);
+                // Вариант «а» (волна 3.6): таблица не держит числа прошлого
+                // расчёта — расчётные поля строк очищаются при откате.
+                ClearCalculatedFields(collector);
                 return;
             }
 
@@ -723,16 +726,31 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             // Гвард D9 (волна 3): NaN в свойствах = выход за физический
             // диапазон базы (зона замерзания гликоля при данной концентрации).
             // Раньше NaN молча подменялся соседней ячейкой таблицы и расчёт
-            // шёл от фиктивных свойств — теперь это Error с рекомендацией.
+            // шёл от фиктивных свойств — теперь это Error с динамическим
+            // порогом концентрации (волна 3.6: порог считается из той же
+            // матрицы по самой холодной из температур).
             if (double.IsNaN(glycolOperating.Density) || double.IsNaN(glycolOperating.SpecificHeat) || double.IsNaN(glycolOperating.KinematicViscosity)
-                || double.IsNaN(glycolDesign.Density) || double.IsNaN(glycolDesign.SpecificHeat) || double.IsNaN(glycolDesign.KinematicViscosity))
+                || double.IsNaN(glycolDesign.Density) || double.IsNaN(glycolDesign.SpecificHeat) || double.IsNaN(glycolDesign.KinematicViscosity)
+                || double.IsNaN(glycolOperating.ThermalConductivity) || double.IsNaN(glycolDesign.ThermalConductivity))
             {
-                ValidationMessage =
-                    $"Свойства теплоносителя вне диапазона базы (тип: {InputData.GlycolType}, " +
-                    $"концентрация {InputData.GlycolConcentration:0} %, температура {operatingTemp:0.#} / {designTemp:0.#} °C). " +
-                    "Рекомендация: снизьте концентрацию гликоля или уточните температуру — часть поля замёрзла.";
+                var coldestTemperature = Math.Min(operatingTemp, designTemp);
+                var minValidConcentration = _glycolService.GetMinValidConcentration(
+                    InputData.GlycolType, coldestTemperature);
+                ValidationMessage = minValidConcentration.HasValue
+                    ? $"Свойства теплоносителя вне диапазона базы ({GlycolTypeName}, " +
+                      $"концентрация {InputData.GlycolConcentration:0} %, " +
+                      $"температура {operatingTemp:0.#} / {designTemp:0.#} °C). " +
+                      $"Для расчёта при {coldestTemperature:0.#} °C требуется концентрация " +
+                      $"≥ {minValidConcentration.Value:0} % — повысьте её и пересчитайте."
+                    : $"Свойства теплоносителя вне диапазона базы ({GlycolTypeName}, " +
+                      $"концентрация {InputData.GlycolConcentration:0} %, " +
+                      $"температура {operatingTemp:0.#} / {designTemp:0.#} °C). " +
+                      "При этой температуре недостижима ни одна концентрация базы.";
                 _calculationStateService.SetHydraulicsError(ValidationMessage);
                 _coordinator.PublishHydraulics(null);
+                // Вариант «а» (волна 3.6): таблица не держит числа прошлого
+                // расчёта — расчётные поля строк очищаются при откате.
+                ClearCalculatedFields(collector);
                 return;
             }
 
@@ -1076,6 +1094,30 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// (сеттеры результатов не слушаются
         /// OnCircuitPropertyChanged/OnCollectorPropertyChanged).
         /// </summary>
+        /// <summary>
+        /// Очистить расчётные поля строк контура при откате расчёта гвардом
+        /// (волна 3.6, вариант «а»): таблица не держит числа прошлого
+        /// успешного расчёта, чтобы не выглядеть свежими. Набор полей — как
+        /// в <see cref="ClearStaleCalculationResults"/>.
+        /// </summary>
+        private static void ClearCalculatedFields(CollectorData collector)
+        {
+            foreach (var circuit in collector.Circuits)
+            {
+                if (circuit.CircuitLength <= 0) continue;
+
+                circuit.OperatingResult = null;
+                circuit.DesignResult = null;
+                circuit.Power = 0;
+                circuit.FlowRate = 0;
+                circuit.Velocity = 0;
+                circuit.Throttling = 0;
+                circuit.ValveTurns = 0;
+                circuit.ValveTurnsWarning = null;
+                circuit.IsReferenceCircuit = false;
+            }
+        }
+
         private void ClearStaleCalculationResults(HydraulicsStateChangedEventArgs e)
         {
             _isMirroringHydraulicsState = true;

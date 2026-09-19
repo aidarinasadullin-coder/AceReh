@@ -419,5 +419,25 @@ namespace SnowMeltingCalculator.Tests.Repositories.Climate
         }
 
         #endregion
+
+        #region WAL-режим (волна 3.6: устранение «database is locked»)
+
+        [Test]
+        public async Task InitializeAsync_EnablesWalJournalMode()
+        {
+            await _repository.InitializeAsync();
+
+            await using var connection = new SqliteConnection(
+                $"Data Source={_dbPath};Default Timeout=5");
+            await connection.OpenAsync();
+            await using var command = connection.CreateCommand();
+            command.CommandText = "PRAGMA journal_mode;";
+            var mode = (string?)(await command.ExecuteScalarAsync());
+
+            Assert.That(mode, Is.EqualTo("wal").IgnoreCase,
+                "WAL: читатели и писатели не блокируют друг друга — устранение «database is locked».");
+        }
+
+        #endregion
     }
 }
