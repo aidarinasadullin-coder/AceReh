@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Hydraulics
 {
     /// <summary>
@@ -421,8 +422,8 @@ namespace SnowMeltingCalculator.Services.Hydraulics
                     // Конвертация из формата JSON в формат для интерполяции
                     _cachedJsonData = ConvertToInterpolationFormat(rawContainer);
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
+                    AppLog.Warn(ex, "GlycolDataService.LoadData");
                     // Логировать предупреждение
                     System.Diagnostics.Debug.WriteLine($"[GlycolDataService] Ошибка загрузки JSON: {ex.Message}. Используются fallback данные.");
 

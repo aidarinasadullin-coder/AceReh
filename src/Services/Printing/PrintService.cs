@@ -1,5 +1,6 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Printing;
 
 /// <summary>
@@ -48,8 +49,8 @@ public sealed class PrintService : IPrintService
             using var process = _processFactory(startInfo);
             return PrintResult.Ok();
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
+            AppLog.Warn(ex, "PrintService.RunShell");
             return PrintResult.Fail(ex.Message);
         }
     }

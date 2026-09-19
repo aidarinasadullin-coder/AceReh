@@ -19,6 +19,7 @@ using SnowMeltingCalculator.ViewModels.Construction;
 using SnowMeltingCalculator.ViewModels.Hydraulics;
 using SnowMeltingCalculator.ViewModels.Thermal;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.ViewModels.Results
 {
     /// <summary>
@@ -705,8 +706,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 await Task.Delay(3000);
                 StatusMessage = string.Empty;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ResultsViewModel.ExportPdf");
                 StatusMessage = $"Ошибка экспорта: {ex.Message}";
                 await Task.Delay(5000);
                 StatusMessage = string.Empty;
@@ -790,8 +791,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 await Task.Delay(3000);
                 StatusMessage = string.Empty;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ResultsViewModel.ExportPdfReportAsync");
                 StatusMessage = $"Ошибка экспорта: {ex.Message}";
                 await Task.Delay(5000);
                 StatusMessage = string.Empty;
@@ -842,8 +843,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 await Task.Delay(3000);
                 StatusMessage = string.Empty;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ResultsViewModel.ExportExcel");
                 StatusMessage = $"Ошибка экспорта: {ex.Message}";
                 await Task.Delay(5000);
                 StatusMessage = string.Empty;
@@ -997,8 +998,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 await Task.Delay(3000);
                 StatusMessage = string.Empty;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ResultsViewModel.PreviewPdf");
                 StatusMessage = $"Ошибка предпросмотра: {ex.Message}";
                 await Task.Delay(5000);
                 StatusMessage = string.Empty;
@@ -1063,8 +1064,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 await Task.Delay(3000);
                 StatusMessage = string.Empty;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ResultsViewModel.PrintPdf");
                 StatusMessage = $"Ошибка печати: {ex.Message}";
                 await Task.Delay(5000);
                 StatusMessage = string.Empty;
@@ -1103,8 +1104,8 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 _undoRedoService?.SetCleanPoint();
                 return true;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ResultsViewModel.SaveToFile");
                 StatusMessage = $"Ошибка сохранения: {ex.Message}";
                 await Task.Delay(5000);
                 StatusMessage = string.Empty;

@@ -22,6 +22,7 @@ using SnowMeltingCalculator.Models.Enums;
 using SnowMeltingCalculator.Models.Navigation;
 using SnowMeltingCalculator.ViewModels.Shell;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator
 {
     /// <summary>
@@ -180,8 +181,8 @@ namespace SnowMeltingCalculator
                     UseShellExecute = true
                 });
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "MainWindow.InstructionMenuItem_Click");
                 _dialogService.ShowError(
                     $"Не удалось открыть инструкцию:\n{ex.Message}",
                     "Инструкция");
@@ -200,8 +201,8 @@ namespace SnowMeltingCalculator
             {
                 await _viewModel.ResultsViewModel.LoadProjectFromPathAsync(InitialProjectPath);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "MainWindow.LoadInitialProjectAsync");
                 // Стартовая загрузка проекта не должна ронять приложение из async void-обработчика
                 System.Diagnostics.Debug.WriteLine($"Ошибка загрузки проекта при запуске: {ex.Message}");
                 _dialogService.ShowError(
@@ -377,8 +378,8 @@ namespace SnowMeltingCalculator
                 _moduleViewCache[target] = view;
                 return view;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "MainWindow.ResolveView");
                 _dialogService.ShowError(
                     $"Ошибка при открытии раздела:\n{ex.Message}",
                     "Ошибка навигации");

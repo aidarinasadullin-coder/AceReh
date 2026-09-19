@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Project;
@@ -6,6 +6,7 @@ using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Thermal;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
@@ -114,8 +115,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     _projectSession.ClimateState.Snapshot,
                     _projectSession.ConstructionState.CurrentProjection);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ThermalReportDataProvider.Recalculate");
                 return new ThermalReportDetail
                 {
                     Source = ThermalReportDetailSource.RecalculationInvalid,

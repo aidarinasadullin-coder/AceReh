@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Services.Hydraulics;
 using SnowMeltingCalculator.Services.Project;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>Источник величин раздела «Свойства теплоносителя».</summary>
@@ -102,12 +103,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             {
                 return GlycolPropertiesSnapshot.FromModel(_glycolService.GetProperties(glycolType, concentration, temperature));
             }
-            catch (ArgumentOutOfRangeException)
-            {
+            catch (ArgumentOutOfRangeException ex) {
+                AppLog.Warn(ex, "HydraulicsReportDetail.Interpolate");
                 return null; // В2: выход за диапазон базы — «нет данных» + примечание
             }
-            catch (ArgumentException)
-            {
+            catch (ArgumentException ex) {
+                AppLog.Warn(ex, "HydraulicsReportDetail.Interpolate");
                 return null;
             }
         }

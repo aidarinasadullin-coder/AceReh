@@ -1,6 +1,7 @@
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services
 {
     /// <summary>
@@ -39,8 +40,8 @@ namespace SnowMeltingCalculator.Services
                     return settings ?? new AppSettings();
                 }
             }
-            catch
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "AppSettings.Load");
                 // Игнорируем ошибки при загрузке настроек
             }
 
@@ -66,8 +67,8 @@ namespace SnowMeltingCalculator.Services
                 });
                 File.WriteAllText(SettingsFilePath, json);
             }
-            catch
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "AppSettings.Save");
                 // Игнорируем ошибки при сохранении настроек
             }
         }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using SnowMeltingCalculator.Models.Hydraulics;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Repositories.Hydraulics
 {
     /// <summary>
@@ -232,8 +233,8 @@ namespace SnowMeltingCalculator.Repositories.Hydraulics
                     _cachedCollectors = collectors;
                 }
             }
-            catch (Exception)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "CollectorRepository.LoadDataAsync");
                 // При ошибке парсинга используем встроенные данные
                 collectors = GetDefaultCollectors();
                 lock (_lockObject)

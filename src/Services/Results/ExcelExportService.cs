@@ -1,4 +1,4 @@
-// ================================================================================
+﻿// ================================================================================
 // REHAU Снеготаяние - Экспорт спецификации закупки в Excel (.xlsx)
 // ================================================================================
 //
@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Results
 {
     public class ExcelExportService : IResultsExcelExportService
@@ -46,8 +47,8 @@ namespace SnowMeltingCalculator.Services.Results
                     WriteWorkbook(filePath, data);
                     return true;
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
+                    AppLog.Warn(ex, "ExcelExportService.ExportSpecificationToXlsxAsync");
                     Debug.WriteLine($"Excel export failed: {ex.Message}");
                     return false;
                 }

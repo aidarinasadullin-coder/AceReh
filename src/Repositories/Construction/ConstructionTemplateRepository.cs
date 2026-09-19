@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SnowMeltingCalculator.Models.Construction;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Repositories.Construction
 {
     /// <summary>
@@ -193,8 +194,8 @@ namespace SnowMeltingCalculator.Repositories.Construction
 
                     EnsureNextTemplateIdSeeded();
                 }
-                catch (FileNotFoundException)
-                {
+                catch (FileNotFoundException ex) {
+                    AppLog.Warn(ex, "ConstructionTemplateRepository.LoadTemplatesAsync");
                     var defaultTemplates = ConstructionTemplate.GetDefaultTemplates();
                     foreach (var template in defaultTemplates)
                     {

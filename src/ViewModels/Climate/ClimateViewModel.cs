@@ -10,6 +10,7 @@ using SnowMeltingCalculator.Services.Climate;
 using SnowMeltingCalculator.Services.Project;
 using SnowMeltingCalculator.Services.Results;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.ViewModels.Climate
 {
     /// <summary>
@@ -355,8 +356,8 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                     FilteredCities.Add(city);
                 }
             }
-            catch (OperationCanceledException)
-            {
+            catch (OperationCanceledException ex) {
+                AppLog.Warn(ex, "ClimateViewModel.SearchCities");
                 // Поиск отменён - это нормально
             }
         }
@@ -404,8 +405,8 @@ namespace SnowMeltingCalculator.ViewModels.Climate
                 IsPopupOpen = FilteredCitiesWithHighlight.Count > 0;
                 SelectedSuggestionIndex = -1;
             }
-            catch (OperationCanceledException)
-            {
+            catch (OperationCanceledException ex) {
+                AppLog.Warn(ex, "ClimateViewModel.SearchCitiesWithHighlight");
                 // Поиск отменён - это нормально
             }
         }

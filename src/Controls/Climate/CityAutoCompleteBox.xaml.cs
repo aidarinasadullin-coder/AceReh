@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using SnowMeltingCalculator.Models.Climate;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Controls.Climate
 {
     /// <summary>
@@ -349,8 +350,7 @@ namespace SnowMeltingCalculator.Controls.Climate
                         });
                     }
                 }
-                catch (OperationCanceledException)
-                {
+                catch (OperationCanceledException) {
                     // Отменено — это нормально
                 }
             }, token);

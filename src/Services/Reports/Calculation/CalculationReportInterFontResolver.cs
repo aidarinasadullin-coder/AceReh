@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Resources;
 using PdfSharp.Fonts;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
@@ -108,8 +109,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 stream.CopyTo(ms);
                 return ms.ToArray();
             }
-            catch (Exception)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "CalculationReportInterFontResolver.LoadViaResourceManager");
                 return null;
             }
         }
@@ -129,8 +130,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 info.Stream.CopyTo(ms);
                 return ms.ToArray();
             }
-            catch (Exception)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "CalculationReportInterFontResolver.LoadViaPackUri");
                 return null;
             }
         }

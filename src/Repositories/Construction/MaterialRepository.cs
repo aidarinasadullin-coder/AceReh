@@ -1,9 +1,10 @@
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using SnowMeltingCalculator.Models.Construction;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Repositories.Construction
 {
     /// <summary>
@@ -80,8 +81,8 @@ namespace SnowMeltingCalculator.Repositories.Construction
 
                     return _materials;
                 }
-                catch (FileNotFoundException)
-                {
+                catch (FileNotFoundException ex) {
+                    AppLog.Warn(ex, "MaterialRepository.LoadMaterialsAsync");
                     // Если файл не найден, используем материалы по умолчанию и создаём файл базы данных
                     var defaultMaterials = Material.GetDefaultMaterials();
                     foreach (var material in defaultMaterials)

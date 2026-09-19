@@ -1,9 +1,10 @@
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnowMeltingCalculator.Core.Results;
 using SnowMeltingCalculator.Models.Project;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Project
 {
     /// <summary>
@@ -45,8 +46,8 @@ namespace SnowMeltingCalculator.Services.Project
                 await WriteProjectAtomicallyAsync(filePath, json, cancellationToken);
                 return true;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Error("ProjectFileService.SaveProjectAsync", ex);
                 System.Diagnostics.Debug.WriteLine($"Ошибка сохранения проекта: {ex.Message}");
                 return false;
             }
@@ -68,8 +69,8 @@ namespace SnowMeltingCalculator.Services.Project
 
                 return data;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Error("ProjectFileService.LoadProjectAsync", ex);
                 System.Diagnostics.Debug.WriteLine($"Ошибка загрузки проекта: {ex.Message}");
                 return null;
             }
@@ -84,8 +85,8 @@ namespace SnowMeltingCalculator.Services.Project
                 await WriteProjectAtomicallyAsync(filePath, json, cancellationToken);
                 return OperationResult<object?>.Success(null);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Error("ProjectFileService.SaveProjectResultAsync", ex);
                 System.Diagnostics.Debug.WriteLine($"Ошибка сохранения проекта: {ex.Message}");
                 return OperationResult<object?>.Failure(ex.Message, ex);
             }
@@ -132,8 +133,8 @@ namespace SnowMeltingCalculator.Services.Project
                         File.Delete(tempPath);
                     }
                 }
-                catch
-                {
+                catch (Exception ex) {
+                    AppLog.Error("ProjectFileService.WriteProjectAtomicallyAsync", ex);
                     // Игнорируем ошибки очистки
                 }
 
@@ -161,8 +162,8 @@ namespace SnowMeltingCalculator.Services.Project
 
                 return OperationResult<ProjectData>.Success(data);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Error("ProjectFileService.LoadProjectResultAsync", ex);
                 System.Diagnostics.Debug.WriteLine($"Ошибка загрузки проекта: {ex.Message}");
                 return OperationResult<ProjectData>.Failure($"Ошибка десериализации: {ex.Message}", ex);
             }

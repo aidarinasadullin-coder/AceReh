@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Thermal;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Thermal
 {
     /// <summary>
@@ -541,8 +542,8 @@ namespace SnowMeltingCalculator.Services.Thermal
 
                 result.IsValid = true;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ThermalCalculator.CalculatePowerDown");
                 result.IsValid = false;
                 result.ValidationErrors = new[] { $"Ошибка расчёта: {ex.Message}" };
             }

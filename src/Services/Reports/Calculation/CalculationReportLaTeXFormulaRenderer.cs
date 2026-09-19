@@ -1,9 +1,10 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using CSharpMath.SkiaSharp;
 using SkiaSharp;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
@@ -259,8 +260,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     ? null
                     : new FormulaImage(bytes, cropped.Width, cropped.Height);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "CalculationReportLaTeXFormulaRenderer.TryRenderPngInner");
                 System.Diagnostics.Debug.WriteLine($"LaTeX-рендер формулы: {ex.Message}");
                 return null;
             }

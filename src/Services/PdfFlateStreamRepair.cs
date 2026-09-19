@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Compression;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.Advanced;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services
 {
     /// <summary>
@@ -87,8 +88,8 @@ namespace SnowMeltingCalculator.Services
                 deflate.CopyTo(output);
                 raw = output.ToArray();
             }
-            catch (InvalidDataException)
-            {
+            catch (InvalidDataException ex) {
+                AppLog.Warn(ex, "PdfFlateStreamRepair.RepairFlateStream");
                 return; // не наш дефект — не трогаем
             }
 

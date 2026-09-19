@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
@@ -6,6 +6,7 @@ using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Services.Reports.Calculation;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Results
 {
     /// <summary>
@@ -62,8 +63,8 @@ namespace SnowMeltingCalculator.Services.Results
                     renderer.PdfDocument.Save(filePath);
                     return true;
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
+                    AppLog.Warn(ex, "PdfExportService.ExportResultsToPdfAsync");
                     System.Diagnostics.Debug.WriteLine($"Ошибка при экспорте PDF: {ex.Message}");
                     System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
                     return false;
@@ -921,8 +922,8 @@ private static void AddGapInCell(Cell host, double points)
                 stream.CopyTo(ms);
                 return ms.Length > 0 ? ms.ToArray() : null;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "PdfExportService.TryLoadSpineBytes");
                 System.Diagnostics.Debug.WriteLine($"Подложка отчёта не загружена: {ex.Message}");
                 return null;
             }

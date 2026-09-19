@@ -1,5 +1,6 @@
-using PdfSharp.Fonts;
+﻿using PdfSharp.Fonts;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
@@ -37,8 +38,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             {
                 GlobalFontSettings.UseWindowsFontsUnderWindows = true;
             }
-            catch (System.Exception ex)
-            {
+            catch (System.Exception ex) {
+                AppLog.Warn(ex, "CalculationReportPdfFontBootstrapper.EnsureInitialized");
                 System.Diagnostics.Debug.WriteLine($"Инициализация шрифтов PDFsharp: {ex.Message}");
             }
 
@@ -50,8 +51,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     InterAvailable = true;
                 }
             }
-            catch (System.Exception ex)
-            {
+            catch (System.Exception ex) {
+                AppLog.Warn(ex, "CalculationReportPdfFontBootstrapper.EnsureInitialized");
                 // Резолвер нельзя менять после шрифтовых операций — откат на Arial.
                 InterAvailable = false;
                 System.Diagnostics.Debug.WriteLine($"Резолвер Inter не установлен: {ex.Message}");

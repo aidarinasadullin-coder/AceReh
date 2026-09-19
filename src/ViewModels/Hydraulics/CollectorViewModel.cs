@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Repositories.Hydraulics;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.ViewModels.Hydraulics
 {
     /// <summary>
@@ -174,8 +175,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
 
                 OnPropertyChanged(nameof(FilteredCollectors));
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "CollectorViewModel.LoadCollectorsAsync");
                 ErrorMessage = $"Ошибка загрузки коллекторов: {ex.Message}";
             }
             finally
@@ -211,8 +212,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                     ErrorMessage = "Не найден подходящий коллектор для заданных параметров";
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "CollectorViewModel.SelectCollectorAsync");
                 ErrorMessage = $"Ошибка подбора коллектора: {ex.Message}";
             }
             finally

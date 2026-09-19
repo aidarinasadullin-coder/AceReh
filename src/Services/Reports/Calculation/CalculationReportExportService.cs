@@ -1,7 +1,8 @@
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using SnowMeltingCalculator.Models.Project;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
@@ -67,12 +68,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             {
                 throw;
             }
-            catch (Exception ex)
-            when (ex is IOException
+            catch (Exception ex) when (ex is IOException
                   || ex is UnauthorizedAccessException
                   || ex is ArgumentException
                   || ex is NotSupportedException)
             {
+                AppLog.Warn(ex, "CalculationReportExportService.ExportReportAsync");
                 System.Diagnostics.Debug.WriteLine($"Ошибка при экспорте Markdown-отчёта: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
                 return false;

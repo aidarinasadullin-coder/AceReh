@@ -279,6 +279,14 @@ namespace SnowMeltingCalculator.Configuration
         /// </summary>
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+            // Локальный журнал — первым в композиции (волна 4, D2):
+            // доступен всем последующим сервисам и статическому фасаду AppLog
+            // (catch-блоки вне DI). Регистрация до undo-дневника и прочих.
+            var appLog = Services.Logging.RollingFileLogger.CreateDefault();
+            Services.Logging.AppLog.Register(appLog);
+            Services.Logging.AppLog.Info("Приложение: композиция сервисов");
+            services.AddSingleton<Services.Logging.IAppLog>(appLog);
+
             return services
                 .AddNavigationServices()
                 .AddClimateModule()

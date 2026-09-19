@@ -87,6 +87,20 @@
 > расчёта исчезли; (4) «database is locked» (SQLite истории поиска):
 > WAL-режим + `Default Timeout=5` — параллельный доступ ждёт до 5 с
 > вместо мгновенного SQLITE_BUSY. Тестов +10 (2323 → 2333).
+>
+> **Волна 4 — ВЫПОЛНЕНА 2026-09-19** (наблюдаемость, D2; атакующее ревью
+> диффа R-2026-09-19-01 — APPROVE-WITH-EDITS, 13 находок, минимальный
+> набор P1 внесён, чек: docs/reviews/2026-09-19-wave4-review.md):
+> `src/Services/Logging/` — IAppLog + статический фасад AppLog (без
+> конструкторной инъекции в десятки классов) + RollingFileLogger
+> (%LOCALAPPDATA%\SnowMeltingCalculator\logs, ≤3×5 МБ, инъекция корня
+> SNOWCALC_LOG_DIR, static lock); перепись 80 catch — AppLog.* или throw
+> (скрипт + ручная вычитка; 12 rethrow не логируются); Debug.WriteLine в
+> catch продублированы логом; SilentCatchScanTests (Architecture) —
+> «глушить можно только с записью», OCE-отмены и логгер — исключения.
+> Отложения волны (находки ревью №4/№5): UI-предупреждение справочников и
+> Debug.WriteLine вне catch — по мере касания. Тестов +7 (2333 → 2340).
+> Волна 5 (clock-инъекция) — старт по сигналу.
 
 ## 0. Суть
 

@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using MigraDoc.Rendering;
 using SnowMeltingCalculator.Models.Project;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
@@ -88,12 +89,12 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     {
                         throw;
                     }
-                    catch (Exception ex)
-                    when (ex is IOException
+                    catch (Exception ex) when (ex is IOException
                           || ex is UnauthorizedAccessException
                           || ex is ArgumentException
                           || ex is NotSupportedException)
                     {
+                        AppLog.Warn(ex, "CalculationReportPdfExportService.ExportReportAsync");
                         System.Diagnostics.Debug.WriteLine($"Ошибка при экспорте PDF-отчёта: {ex.Message}");
                         System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
                         return false;

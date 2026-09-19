@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -6,6 +6,7 @@ using System.Linq;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
@@ -1014,8 +1015,8 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 stream.CopyTo(ms);
                 return ms.Length > 0 ? ms.ToArray() : null;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "CalculationReportPdfRenderer.TryLoadLogoBytes");
                 System.Diagnostics.Debug.WriteLine($"Логотип отчёта не загружен: {ex.Message}");
                 return null;
             }

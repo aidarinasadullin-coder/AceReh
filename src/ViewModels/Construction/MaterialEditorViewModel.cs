@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +11,7 @@ using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Navigation;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.ViewModels.Construction
 {
     /// <summary>
@@ -118,8 +119,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 await _materialRepository.LoadMaterialsAsync();
                 Materials = new ObservableCollection<Material>(_materialRepository.GetAllMaterials());
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "MaterialEditorViewModel.InitializeAsync");
                 ErrorMessage = $"Ошибка загрузки материалов: {ex.Message}";
             }
             finally
@@ -242,8 +243,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 await _materialRepository.SaveMaterialsAsync();
                 Materials = new ObservableCollection<Material>(_materialRepository.GetAllMaterials());
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "MaterialEditorViewModel.SaveAsync");
                 ErrorMessage = $"Ошибка сохранения: {ex.Message}";
             }
         }
@@ -286,8 +287,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                     return;
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "MaterialEditorViewModel.DeleteAsync");
                 _dialogService.ShowError(
                     $"Не удалось проверить ссылки на материал: {ex.Message}",
                     "Ошибка");
@@ -319,8 +320,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 EditingMaterial = null;
                 ErrorMessage = string.Empty;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "MaterialEditorViewModel.SaveAsync");
                 _dialogService.ShowError(
                     $"Ошибка удаления: {ex.Message}",
                     "Ошибка");

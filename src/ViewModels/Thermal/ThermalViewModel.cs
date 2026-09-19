@@ -15,6 +15,7 @@ using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Core.Constants;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.ViewModels.Thermal
 {
     /// <summary>
@@ -548,8 +549,8 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 Result = outcome.Result;
                 ValidationMessage = outcome.ValidationMessage;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ThermalViewModel.Calculate");
                 ValidationMessage = $"Ошибка расчёта: {ex.Message}";
                 Result = null;
             }

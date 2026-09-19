@@ -17,6 +17,7 @@ using SnowMeltingCalculator.Core;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
 using SnowMeltingCalculator.Services.Project;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.ViewModels.Construction
 {
     /// <summary>
@@ -433,8 +434,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             {
                 await ApplySelectedTemplateAsync();
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ConstructionViewModel.ApplyTemplate");
                 ValidationMessage = $"Ошибка применения шаблона: {ex.Message}";
                 IsValid = false;
             }
@@ -449,8 +450,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             {
                 ApplyTemplateCore(SelectedTemplate!);
             }
-            catch (MaterialNotFoundException ex) when (ex.Snapshot != null)
-            {
+            catch (MaterialNotFoundException ex) when (ex.Snapshot != null) {
+                AppLog.Warn(ex, "ConstructionViewModel.ApplySelectedTemplateAsync");
                 var result = _dialogService.Show(
                     $"Материал '{ex.Snapshot.Name}' (ID {ex.MaterialId}) отсутствует в справочнике. Импортировать из снимка?",
                     "Импорт материала",
@@ -465,8 +466,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                         await RefreshCatalogsAsync();
                         ApplyTemplateCore(SelectedTemplate!);
                     }
-                    catch (Exception importEx)
-                    {
+                    catch (Exception importEx) {
+                        AppLog.Warn(importEx, "ConstructionViewModel.ApplySelectedTemplateAsync");
                         ValidationMessage = $"Ошибка импорта материала: {importEx.Message}";
                         IsValid = false;
                     }
@@ -480,8 +481,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                     IsValid = false;
                 }
             }
-            catch (MaterialNotFoundException ex) when (ex.Snapshot == null)
-            {
+            catch (MaterialNotFoundException ex) when (ex.Snapshot == null) {
+                AppLog.Warn(ex, "ConstructionViewModel.ApplySelectedTemplateAsync");
                 _dialogService.ShowError(
                     $"Материал с идентификатором {ex.MaterialId} не найден в справочнике и отсутствует снимок для импорта.",
                     "Ошибка применения шаблона");
@@ -571,8 +572,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 ValidationMessage = "Конструкция сохранена успешно";
                 IsValid = true;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ConstructionViewModel.SaveConstruction");
                 ValidationMessage = $"Ошибка сохранения: {ex.Message}";
                 IsValid = false;
             }
@@ -595,8 +596,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
             {
                 await LoadConstructionCoreAsync(filePath);
             }
-            catch (MaterialNotFoundException ex) when (ex.Snapshot != null)
-            {
+            catch (MaterialNotFoundException ex) when (ex.Snapshot != null) {
+                AppLog.Warn(ex, "ConstructionViewModel.LoadConstruction");
                 var result = _dialogService.Show(
                     $"Материал '{ex.Snapshot.Name}' (ID {ex.MaterialId}) отсутствует в справочнике. Импортировать из снимка?",
                     "Импорт материала",
@@ -611,8 +612,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                         await RefreshCatalogsAsync();
                         await LoadConstructionCoreAsync(filePath);
                     }
-                    catch (Exception importEx)
-                    {
+                    catch (Exception importEx) {
+                        AppLog.Warn(importEx, "ConstructionViewModel.LoadConstruction");
                         ValidationMessage = $"Ошибка импорта материала: {importEx.Message}";
                         IsValid = false;
                     }
@@ -626,16 +627,16 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                     IsValid = false;
                 }
             }
-            catch (MaterialNotFoundException ex) when (ex.Snapshot == null)
-            {
+            catch (MaterialNotFoundException ex) when (ex.Snapshot == null) {
+                AppLog.Warn(ex, "ConstructionViewModel.LoadConstruction");
                 _dialogService.ShowError(
                     $"Материал с идентификатором {ex.MaterialId} не найден в справочнике и отсутствует снимок для импорта.",
                     "Ошибка загрузки конструкции");
                 ValidationMessage = $"Материал с идентификатором {ex.MaterialId} не найден в справочнике";
                 IsValid = false;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ConstructionViewModel.LoadConstruction");
                 ValidationMessage = $"Ошибка загрузки: {ex.Message}";
                 IsValid = false;
             }
@@ -1006,8 +1007,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 CanApplySelectedTemplate = true;
                 TemplatePreviewErrorMessage = string.Empty;
             }
-            catch (MaterialNotFoundException ex)
-            {
+            catch (MaterialNotFoundException ex) {
+                AppLog.Warn(ex, "ConstructionViewModel.LoadConstruction");
                 CanApplySelectedTemplate = false;
                 TemplatePreviewErrorMessage = $"Материал '{ex.MaterialId}' не найден в справочнике. Применение шаблона невозможно.";
                 TemplatePreviewLayersAbovePipe = new ObservableCollection<Layer>();
@@ -1113,8 +1114,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                     SyncStateFromCollections(ConstructionMutationOrigin.User);
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ConstructionViewModel.OnLayerPropertyChanged");
                 System.Diagnostics.Debug.WriteLine($"Ошибка при обработке изменения слоя: {ex.Message}");
                 ValidationMessage = $"Ошибка: {ex.Message}";
                 IsValid = false;

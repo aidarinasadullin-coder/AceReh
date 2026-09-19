@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +9,7 @@ using SnowMeltingCalculator.Repositories.Construction;
 using SnowMeltingCalculator.Services.Construction;
 using SnowMeltingCalculator.Services.Navigation;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.ViewModels.Construction
 {
     /// <summary>
@@ -137,8 +138,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 var templates = await _templateRepository.GetAllAsync();
                 Templates = new ObservableCollection<ConstructionTemplate>(templates);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "TemplateEditorViewModel.InitializeAsync");
                 ErrorMessage = $"Ошибка загрузки: {ex.Message}";
             }
             finally
@@ -275,8 +276,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 await _templateRepository.SaveAsync();
                 Templates = new ObservableCollection<ConstructionTemplate>(await _templateRepository.GetAllAsync());
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "TemplateEditorViewModel.SaveAsync");
                 ErrorMessage = $"Ошибка сохранения: {ex.Message}";
             }
         }
@@ -311,8 +312,8 @@ namespace SnowMeltingCalculator.ViewModels.Construction
                 EditingLayersBelowPipe = new ObservableCollection<EditableLayer>();
                 ErrorMessage = string.Empty;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "TemplateEditorViewModel.DeleteAsync");
                 _dialogService.ShowError(
                     $"Ошибка удаления: {ex.Message}",
                     "Ошибка");

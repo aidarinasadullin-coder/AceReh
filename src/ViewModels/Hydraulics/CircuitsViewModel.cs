@@ -14,6 +14,7 @@ using SnowMeltingCalculator.Services.Navigation;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Services.Project;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.ViewModels.Hydraulics
 {
     public partial class CircuitsViewModel : ObservableObject, Services.Project.IProjectLoadHydraulicsAdapter, Services.Results.IReportCollectorDataSource
@@ -712,8 +713,8 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 glycolOperating = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, operatingTemp);
                 glycolDesign = _glycolService.GetProperties(InputData.GlycolType, InputData.GlycolConcentration, designTemp);
             }
-            catch (ArgumentOutOfRangeException ex)
-            {
+            catch (ArgumentOutOfRangeException ex) {
+                AppLog.Warn(ex, "CircuitsViewModel.CalculateCollector");
                 ValidationMessage = ex.Message;
                 _calculationStateService.SetHydraulicsError(ex.Message);
                 _coordinator.PublishHydraulics(null);

@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Visualization
 {
     /// <summary>
@@ -63,8 +64,8 @@ namespace SnowMeltingCalculator.Services.Visualization
                 encoder.Save(stream);
                 return stream.ToArray();
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ConstructionVisualizationImageService.GenerateImage");
                 System.Diagnostics.Debug.WriteLine($"Ошибка генерации изображения конструкции: {ex.Message}");
                 return null;
             }

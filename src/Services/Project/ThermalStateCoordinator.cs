@@ -1,4 +1,4 @@
-// ================================================================================
+﻿// ================================================================================
 // REHAU Снеготаяние - Каноническая граница применения тепловых команд
 // ================================================================================
 //
@@ -25,6 +25,7 @@ using SnowMeltingCalculator.Models.Thermal;
 using SnowMeltingCalculator.Services.Results;
 using SnowMeltingCalculator.Services.Thermal;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Project
 {
     /// <summary>
@@ -155,8 +156,8 @@ namespace SnowMeltingCalculator.Services.Project
                     result = await Task.Run(() =>
                         _calculator.Calculate(inputs, _climateData, _constructionData));
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
+                    AppLog.Warn(ex, "ThermalStateCoordinator.CalculateAsync");
                     // Точный текст ошибки + нулевой результат + совместимая
                     // невалидная публикация контекста ровно один раз.
                     var failureMessage = $"Ошибка расчёта: {ex.Message}";

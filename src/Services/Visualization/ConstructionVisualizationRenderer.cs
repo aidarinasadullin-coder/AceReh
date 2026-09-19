@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using SnowMeltingCalculator.Models.Construction;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Services.Visualization
 {
     /// <summary>
@@ -688,8 +689,8 @@ namespace SnowMeltingCalculator.Services.Visualization
                     return source.CompositionTarget.TransformToDevice.M11;
                 }
             }
-            catch
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "ConstructionVisualizationParameters.GetDpiScale");
                 // Игнорируем ошибки DPI для визуалов вне дерева
             }
 

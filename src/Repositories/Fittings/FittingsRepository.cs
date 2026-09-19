@@ -1,4 +1,4 @@
-// ================================================================================
+﻿// ================================================================================
 // REHAU Снеготаяние - Репозиторий фитингов (секция «fittings» rehau_products.json)
 // ================================================================================
 //
@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SnowMeltingCalculator.Models.Fittings;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator.Repositories.Fittings
 {
     public class FittingsRepository : IFittingsRepository
@@ -76,8 +77,8 @@ namespace SnowMeltingCalculator.Repositories.Fittings
 
                 return CacheAndReturn(fittings);
             }
-            catch (Exception)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "FittingsRepository.GetAllAsync");
                 // Ошибка парсинга не должна блокировать экспорт спецификации —
                 // вернём пустой каталог (артикулы РЗС будут пустыми).
                 return CacheAndReturn(new List<RzsFitting>());

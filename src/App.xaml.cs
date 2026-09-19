@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using SnowMeltingCalculator.Configuration;
 using SnowMeltingCalculator.Services.Climate;
 using SnowMeltingCalculator.Repositories.Construction;
@@ -6,6 +6,7 @@ using SnowMeltingCalculator.ViewModels.Construction;
 using System.Linq;
 using System.Windows;
 
+using SnowMeltingCalculator.Services.Logging;
 namespace SnowMeltingCalculator
 {
     /// <summary>
@@ -88,8 +89,8 @@ namespace SnowMeltingCalculator
                 var remaining = SplashWindow.MinSplashDuration - splashStart.Elapsed;
                 await splash.CloseAfterDelayAsync(remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
+                AppLog.Warn(ex, "App.OnStartup");
                 System.Diagnostics.Debug.WriteLine($"Ошибка при запуске приложения: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
 
