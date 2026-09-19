@@ -1,9 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Services.Hydraulics;
 
-namespace SnowMeltingCalculator.Tests.Integration
+namespace SnowMeltingCalculator.Tests.IntegrationTests.Hydraulics
 {
     [TestFixture]
     public class HydraulicsIntegrationTests
