@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -156,7 +156,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             var warning = report.Warnings[0];
             Assert.That(warning.Code, Is.EqualTo("MISSING_CIRCUIT_RESULT"));
             Assert.That(warning.Severity, Is.EqualTo("Warning"));
-            Assert.That(warning.Message, Does.Contain("DesignCold"));
+            Assert.That(warning.Message, Does.Contain("холодного пуска"));
             Assert.That(warning.Message, Does.Contain("1"));
             Assert.That(warning.RelatedValues, Does.Contain("CircuitProjectData.DesignResult"));
         }
@@ -357,7 +357,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 Assert.That(hydraulics.ThermalConductivity.Value, Is.EqualTo(0.47));
                 Assert.That(hydraulics.PrandtlNumber.Value, Is.EqualTo(38.0));
                 Assert.That(hydraulics.GlycolNote, Is.Null);
-                Assert.That(hydraulics.Density.FormulaStatus, Is.Not.EqualTo(HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed));
+                Assert.That(hydraulics.Density.FormulaUnconfirmed, Is.False);
             });
         }
 

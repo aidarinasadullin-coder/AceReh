@@ -9,10 +9,22 @@ namespace SnowMeltingCalculator.Services
     /// </summary>
     public class AppSettings
     {
-        private static readonly string SettingsFilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "SnowMeltingCalculator",
-            "settings.json");
+        private static readonly string SettingsFilePath = ResolveSettingsFilePath();
+
+        /// <summary>
+        /// Каталог настроек: реальный %APPDATA%, либо переменная окружения
+        /// <c>SNOWCALC_SETTINGS_DIR</c> (тестовая изоляция, волна «хвосты»
+        /// 2026-09-20: тесты не трогают реальный settings.json пользователя —
+        /// GlobalTestSetup перенаправляет в %TEMP%).
+        /// </summary>
+        private static string ResolveSettingsFilePath()
+        {
+            var overrideDir = Environment.GetEnvironmentVariable("SNOWCALC_SETTINGS_DIR");
+            var baseDir = string.IsNullOrEmpty(overrideDir)
+                ? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+                : overrideDir;
+            return Path.Combine(baseDir, "SnowMeltingCalculator", "settings.json");
+        }
 
         private static AppSettings? _instance;
 

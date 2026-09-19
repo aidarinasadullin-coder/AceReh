@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -53,7 +53,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         [SetUp]
         public void SetUp()
         {
-            ResetAppSettingsSingleton();
+            Fixtures.ResetAppSettingsHelper.Reset();
             _graph = ReactiveSubscriptionLifecycleTests.ReactiveGraph.CreateProductionShaped();
         }
 
@@ -61,7 +61,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void TearDown()
         {
             _graph.Dispose();
-            ResetAppSettingsSingleton();
+            Fixtures.ResetAppSettingsHelper.Reset();
         }
 
         #region Climate — multi-field single action through the adapter boundary
@@ -356,21 +356,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
 
         #region Plumbing
 
-        private static void ResetAppSettingsSingleton()
-        {
-            var settingsPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "SnowMeltingCalculator",
-                "settings.json");
-            if (File.Exists(settingsPath))
-            {
-                File.Delete(settingsPath);
-            }
-
-            var field = typeof(AppSettings).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            field?.SetValue(null, null);
-        }
-
+        
         #endregion
     }
 }

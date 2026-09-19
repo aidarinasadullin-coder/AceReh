@@ -2,10 +2,6 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>SnowMeltingCalculator</AssemblyName>
     <RootNamespace>SnowMeltingCalculator</RootNamespace>
     <Version>1.7.0</Version>
@@ -13,23 +9,23 @@
     <Authors>REHAU</Authors>
     <Product>Калькулятор снеготаяния РЕХАУ</Product>
     <Description>Расчёт систем снеготаяния открытых площадок</Description>
-    
-    <!-- Настройки публикации -->
-    <SelfContained>true</SelfContained>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PublishReadyToRun>true</PublishReadyToRun>
+
+    <!-- Publish-параметры (SelfContained/RuntimeIdentifier/PublishReadyToRun)
+         переехали в Properties/PublishProfiles/winx64.pubxml (волна «хвосты»
+         2026-09-20); командная строка публикует с профилем или флагами —
+         см. INSTALL.md и .github/workflows/release.yml. -->
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.105.1" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
-    <PackageReference Include="PDFsharp-MigraDoc" Version="6.2.4" />
+    <PackageReference Include="ClosedXML" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="PDFsharp-MigraDoc" />
     <!-- LaTeX-вёрстка формул PDF-записки (мини-фаза PDF-PZ): MIT,
          рендер формул в PNG через SkiaSharp (нативный ассет win-x64). -->
-    <PackageReference Include="CSharpMath.SkiaSharp" Version="0.5.1" />
-    <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
+    <PackageReference Include="CSharpMath.SkiaSharp" />
+    <PackageReference Include="SharpVectors.Wpf" />
   </ItemGroup>
 
   <ItemGroup>

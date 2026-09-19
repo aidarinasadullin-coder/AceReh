@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Models.Thermal
 {
@@ -206,10 +207,10 @@ namespace SnowMeltingCalculator.Models.Thermal
         /// </summary>
         public override string ToString()
         {
-            return $"Мощность: {PowerTotal:F1} Вт/м², " +
-                   $"T_подачи: {SupplyTemperature:F1}°C, " +
-                   $"T_обратки: {ReturnTemperature:F1}°C, " +
-                   $"Расход: {VolumeFlowRate:F2} л/(ч·м²)";
+            return $"Мощность: {(PowerTotal).ToString("F1", AppCulture.Culture)} Вт/м², " +
+                   $"T_подачи: {(SupplyTemperature).ToString("F1", AppCulture.Culture)}°C, " +
+                   $"T_обратки: {(ReturnTemperature).ToString("F1", AppCulture.Culture)}°C, " +
+                   $"Расход: {(VolumeFlowRate).ToString("F2", AppCulture.Culture)} л/(ч·м²)";
         }
     }
 

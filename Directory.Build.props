@@ -1,0 +1,12 @@
+<Project>
+
+  <!-- Общие свойства сборки (волна «хвосты», план 2026-09-18 §9): единственный
+       источник для всех проектов солюшена — src и tests. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

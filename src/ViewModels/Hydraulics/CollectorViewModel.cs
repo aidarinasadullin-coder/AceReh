@@ -8,6 +8,7 @@ using SnowMeltingCalculator.Models.Hydraulics;
 using SnowMeltingCalculator.Repositories.Hydraulics;
 
 using SnowMeltingCalculator.Services.Logging;
+using SnowMeltingCalculator.Core;
 namespace SnowMeltingCalculator.ViewModels.Hydraulics
 {
     /// <summary>
@@ -123,21 +124,21 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// Kv выбранного коллектора
         /// </summary>
         public string SelectedCollectorKv => SelectedCollector != null
-            ? $"{SelectedCollector.Kv:F2} м³/ч"
+            ? $"{(SelectedCollector.Kv).ToString("F2", AppCulture.Culture)} м³/ч"
             : "—";
 
         /// <summary>
         /// Максимальный расход выбранного коллектора
         /// </summary>
         public string SelectedCollectorMaxFlow => SelectedCollector != null
-            ? $"{SelectedCollector.MaxFlowRate_L_h:F0} л/ч"
+            ? $"{(SelectedCollector.MaxFlowRate_L_h).ToString("F0", AppCulture.Culture)} л/ч"
             : "—";
 
         /// <summary>
         /// Максимальное давление выбранного коллектора
         /// </summary>
         public string SelectedCollectorMaxPressure => SelectedCollector != null
-            ? $"{SelectedCollector.MaxPressure:F0} мбар"
+            ? $"{(SelectedCollector.MaxPressure).ToString("F0", AppCulture.Culture)} мбар"
             : "—";
 
         /// <summary>
@@ -334,7 +335,7 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
                 return "Выполните подбор коллектора";
 
             if (TotalFlowRate > SelectedCollector.MaxFlowRate_L_h)
-                return $"Внимание: расход ({TotalFlowRate:F0} л/ч) превышает максимальный для коллектора ({SelectedCollector.MaxFlowRate_L_h:F0} л/ч)";
+                return $"Внимание: расход ({(TotalFlowRate).ToString("F0", AppCulture.Culture)} л/ч) превышает максимальный для коллектора ({(SelectedCollector.MaxFlowRate_L_h).ToString("F0", AppCulture.Culture)} л/ч)";
 
             if (CircuitCount > SelectedCollector.Circuits)
                 return $"Внимание: количество контуров ({CircuitCount}) превышает количество выходов коллектора ({SelectedCollector.Circuits})";
@@ -342,12 +343,12 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
             double utilizationRate = TotalFlowRate / SelectedCollector.MaxFlowRate_L_h * 100;
 
             if (utilizationRate < 30)
-                return $"Рекомендация: загрузка коллектора {utilizationRate:F0}% — рассмотрите коллектор меньшего размера";
+                return $"Рекомендация: загрузка коллектора {(utilizationRate).ToString("F0", AppCulture.Culture)}% — рассмотрите коллектор меньшего размера";
 
             if (utilizationRate > 80)
-                return $"Рекомендация: загрузка коллектора {utilizationRate:F0}% — рассмотрите коллектор большего размера";
+                return $"Рекомендация: загрузка коллектора {(utilizationRate).ToString("F0", AppCulture.Culture)}% — рассмотрите коллектор большего размера";
 
-            return $"Коллектор подобран корректно. Загрузка: {utilizationRate:F0}%";
+            return $"Коллектор подобран корректно. Загрузка: {(utilizationRate).ToString("F0", AppCulture.Culture)}%";
         }
 
         #endregion

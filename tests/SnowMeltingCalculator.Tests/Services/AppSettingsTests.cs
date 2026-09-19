@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using NUnit.Framework;
 using SnowMeltingCalculator.Services;
 
@@ -10,37 +10,19 @@ namespace SnowMeltingCalculator.Tests.Services
     [TestFixture]
     public class AppSettingsTests
     {
-        private string _settingsPath;
-
         [SetUp]
         public void SetUp()
         {
-            // Сбрасываем singleton для каждого теста
-            _settingsPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "SnowMeltingCalculator",
-                "settings.json");
-
-            // Удаляем файл настроек перед каждым тестом
-            if (File.Exists(_settingsPath))
-            {
-                File.Delete(_settingsPath);
-            }
-
-            // Сбрасываем singleton через рефлексию
-            var field = typeof(AppSettings).GetField("_instance",
-                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-            field?.SetValue(null, null);
+            // Волна «хвосты» 2026-09-20: единый хелпер; путь резолвится как у
+            // AppSettings — в тестах это %TEMP%-песочница (SNOWCALC_SETTINGS_DIR),
+            // реальный settings.json пользователя не трогается.
+            Fixtures.ResetAppSettingsHelper.Reset();
         }
 
         [TearDown]
         public void TearDown()
         {
-            // Удаляем файл настроек после каждого теста
-            if (File.Exists(_settingsPath))
-            {
-                File.Delete(_settingsPath);
-            }
+            Fixtures.ResetAppSettingsHelper.Reset();
         }
 
         [Test]
@@ -75,7 +57,7 @@ namespace SnowMeltingCalculator.Tests.Services
             settings.Save();
 
             // Assert
-            Assert.That(File.Exists(_settingsPath), Is.True);
+            Assert.That(File.Exists(Fixtures.ResetAppSettingsHelper.SettingsPath), Is.True);
         }
 
         [Test]
@@ -140,7 +122,7 @@ namespace SnowMeltingCalculator.Tests.Services
         public void Save_CreatesDirectoryIfNotExists()
         {
             // Arrange
-            var directory = Path.GetDirectoryName(_settingsPath);
+            var directory = Path.GetDirectoryName(Fixtures.ResetAppSettingsHelper.SettingsPath);
             if (Directory.Exists(directory!))
             {
                 Directory.Delete(directory, true);
@@ -154,7 +136,7 @@ namespace SnowMeltingCalculator.Tests.Services
 
             // Assert
             Assert.That(Directory.Exists(directory), Is.True);
-            Assert.That(File.Exists(_settingsPath), Is.True);
+            Assert.That(File.Exists(Fixtures.ResetAppSettingsHelper.SettingsPath), Is.True);
         }
     }
 }

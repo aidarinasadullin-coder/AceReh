@@ -1,5 +1,6 @@
-using SnowMeltingCalculator.Core.Constants;
+﻿using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
 {
@@ -125,7 +126,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             // Проверка ограничения оборотов
             if (turns > maxTurns)
             {
-                warning = $"Расчётные обороты ({turns:F2}) превышают максимум ({maxTurns}). Установлено {maxTurns} оборотов.";
+                warning = $"Расчётные обороты ({(turns).ToString("F2", AppCulture.Culture)}) превышают максимум ({maxTurns}). Установлено {maxTurns} оборотов.";
                 turns = maxTurns;
             }
 

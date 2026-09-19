@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
@@ -8,8 +8,6 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
     /// </summary>
     public static class HydraulicsReportMetadataBuilder
     {
-        public const string FormulaStatusUnconfirmed = "требуется привязка к существующей формуле";
-
         /// <summary>Имя билдера в метаданных; исторически совпадает с HydraulicsSectionBuilder.</summary>
         private const string BuilderFormulaSource = "HydraulicsSectionBuilder";
 

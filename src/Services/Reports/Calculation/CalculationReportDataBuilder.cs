@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using SnowMeltingCalculator.Core;
@@ -19,6 +19,18 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
     /// </remarks>
     public sealed class CalculationReportDataBuilder : ICalculationReportDataBuilder
     {
+
+        /// <summary>
+        /// Человекочитаемая подпись режима для текстов предупреждений
+        /// (типизированный выбор вместо enum.ToString() и рендер-Replace).
+        /// </summary>
+        private static string ModeName(CalculationReportMode mode) => mode switch
+        {
+            CalculationReportMode.Operating => "в рабочем режиме",
+            CalculationReportMode.DesignCold => "в режиме холодного пуска",
+            _ => mode.ToString()
+        };
+
         /// <summary>
         /// Дата по умолчанию, если дата не передана.
         /// </summary>
@@ -197,7 +209,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                     {
                         Code = "COLLECTOR_PRESSURE_LOSS_EXCEEDED",
                         Severity = "Warning",
-                        Message = $"Потери давления коллектора {collector.CollectorNumber} в режиме {mode} ({selectedCollectorPressureLoss.ToString("N0", AppCulture.Culture)} Па) превышают максимально допустимые {ValidationConstants.MaxPressureLoss.ToString("N0", AppCulture.Culture)} Па.",
+                        Message = $"Потери давления коллектора {collector.CollectorNumber} {ModeName(mode)} ({selectedCollectorPressureLoss.ToString("N0", AppCulture.Culture)} Па) превышают максимально допустимые {ValidationConstants.MaxPressureLoss.ToString("N0", AppCulture.Culture)} Па.",
                         SourcePath = "SnowMeltingCalculator.Core.Constants.ValidationConstants.MaxPressureLoss",
                         RelatedValues = new List<string>
                         {
@@ -220,7 +232,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                         {
                             Code = "MISSING_CIRCUIT_RESULT",
                             Severity = "Warning",
-                            Message = $"Отсутствуют результаты расчёта для контура {circuit.CircuitNumber} коллектора {collector.CollectorNumber} в режиме {mode}.",
+                            Message = $"Отсутствуют результаты расчёта для контура {circuit.CircuitNumber} коллектора {collector.CollectorNumber} {ModeName(mode)}.",
                             SourcePath = "SnowMeltingCalculator.Services.Reports.Calculation.CalculationReportDataBuilder.CollectWarnings",
                             RelatedValues = new List<string>
                             {
@@ -242,7 +254,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                         {
                             Code = "VELOCITY_OUT_OF_RANGE",
                             Severity = "Warning",
-                            Message = $"Скорость потока в контуре {circuit.CircuitNumber} коллектора {collector.CollectorNumber} в режиме {mode} ({result.Velocity.ToString("N2", AppCulture.Culture)} м/с) выходит за допустимый диапазон {ValidationConstants.MinVelocity.ToString("N1", AppCulture.Culture)}..{ValidationConstants.MaxVelocity.ToString("N1", AppCulture.Culture)} м/с.",
+                            Message = $"Скорость потока в контуре {circuit.CircuitNumber} коллектора {collector.CollectorNumber} {ModeName(mode)} ({result.Velocity.ToString("N2", AppCulture.Culture)} м/с) выходит за допустимый диапазон {ValidationConstants.MinVelocity.ToString("N1", AppCulture.Culture)}..{ValidationConstants.MaxVelocity.ToString("N1", AppCulture.Culture)} м/с.",
                             SourcePath = "SnowMeltingCalculator.Core.Constants.ValidationConstants.MinVelocity|MaxVelocity",
                             RelatedValues = new List<string> { velocityPath }
                         });
@@ -254,7 +266,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                         {
                             Code = "PRESSURE_LOSS_PER_METER_EXCEEDED",
                             Severity = "Warning",
-                            Message = $"Удельные потери давления в контуре {circuit.CircuitNumber} коллектора {collector.CollectorNumber} в режиме {mode} ({result.PressureLossPerMeter.ToString("N0", AppCulture.Culture)} Па/м) превышают максимально допустимые {CircuitTemperatureResult.MaxPressureLossPerMeter.ToString("N0", AppCulture.Culture)} Па/м.",
+                            Message = $"Удельные потери давления в контуре {circuit.CircuitNumber} коллектора {collector.CollectorNumber} {ModeName(mode)} ({result.PressureLossPerMeter.ToString("N0", AppCulture.Culture)} Па/м) превышают максимально допустимые {CircuitTemperatureResult.MaxPressureLossPerMeter.ToString("N0", AppCulture.Culture)} Па/м.",
                             SourcePath = "SnowMeltingCalculator.Models.Hydraulics.CircuitTemperatureResult.MaxPressureLossPerMeter",
                             RelatedValues = new List<string>
                             {

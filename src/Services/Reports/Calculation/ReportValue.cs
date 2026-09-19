@@ -1,4 +1,4 @@
-namespace SnowMeltingCalculator.Services.Reports.Calculation
+﻿namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
     /// Значение с трассировкой источника, единицей измерения и привязкой к формуле.
@@ -36,8 +36,16 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         /// </summary>
         /// <remarks>
         /// Например: "требуется привязка к существующей формуле".
+        /// Заполняется фабрикой при <see cref="FormulaUnconfirmed"/>; текст —
+        /// <see cref="CalculationReportMarkdownRendererConstants.FormulaStatusUnconfirmed"/>.
         /// </remarks>
         public string? FormulaStatus { get; init; }
+
+        /// <summary>
+        /// Типизированный маркер «формула не привязана к коду» (волна «хвосты»
+        /// 2026-09-20): билдеры выставляют флаг вместо строкового протокола.
+        /// </summary>
+        public bool FormulaUnconfirmed { get; init; }
 
         /// <summary>
         /// Знаки после разделителя при выводе (В9, спека §7.3): назначается

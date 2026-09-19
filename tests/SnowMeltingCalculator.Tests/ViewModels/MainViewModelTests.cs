@@ -68,7 +68,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            ResetAppSettingsSingleton();
+            Fixtures.ResetAppSettingsHelper.Reset();
 
             _projectStateService = new ProjectStateService();
             _dialogServiceMock = new Mock<IDialogService>();
@@ -102,28 +102,9 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         [TearDown]
         public void TearDown()
         {
-            ResetAppSettingsSingleton();
+            Fixtures.ResetAppSettingsHelper.Reset();
         }
 
-        /// <summary>
-        /// Сбрасывает статический singleton <see cref="AppSettings"/> и удаляет файл настроек,
-        /// чтобы тесты были детерминированы относительно состояния свёрнутой боковой панели.
-        /// </summary>
-        private static void ResetAppSettingsSingleton()
-        {
-            var settingsPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "SnowMeltingCalculator",
-                "settings.json");
-            if (File.Exists(settingsPath))
-            {
-                File.Delete(settingsPath);
-            }
-
-            var field = typeof(AppSettings).GetField("_instance",
-                BindingFlags.Static | BindingFlags.NonPublic);
-            field?.SetValue(null, null);
-        }
 
         #region NewCalculationCommand
 

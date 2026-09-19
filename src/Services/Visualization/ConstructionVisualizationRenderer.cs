@@ -8,6 +8,7 @@ using System.Windows.Shapes;
 using SnowMeltingCalculator.Models.Construction;
 
 using SnowMeltingCalculator.Services.Logging;
+using SnowMeltingCalculator.Core;
 namespace SnowMeltingCalculator.Services.Visualization
 {
     /// <summary>
@@ -273,7 +274,7 @@ namespace SnowMeltingCalculator.Services.Visualization
 
             var caption = new TextBlock
             {
-                Text = $"срез · {FixedWindowDepthMm / 1000.0:F1} м от оси трубы",
+                Text = $"срез · {(FixedWindowDepthMm / 1000.0).ToString("F1", AppCulture.Culture)} м от оси трубы",
                 FontSize = fontSize,
                 Foreground = Brushes.DimGray,
                 Background = new SolidColorBrush(Color.FromArgb(200, 255, 255, 255)),
@@ -531,7 +532,7 @@ namespace SnowMeltingCalculator.Services.Visualization
             double fontSize = compact ? 8 : 9;
 
             var formattedText = new FormattedText(
-                $"{material?.Name ?? "Не указан"}\n{thickness:F0} мм",
+                $"{material?.Name ?? "Не указан"}\n{(thickness).ToString("F0", AppCulture.Culture)} мм",
                 System.Globalization.CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight,
                 new Typeface("Arial"),
@@ -566,7 +567,7 @@ namespace SnowMeltingCalculator.Services.Visualization
 
             var label = new TextBlock
             {
-                Text = $"{material?.Name ?? "Не указан"}\n{thickness:F0} мм",
+                Text = $"{material?.Name ?? "Не указан"}\n{(thickness).ToString("F0", AppCulture.Culture)} мм",
                 FontSize = fontSize,
                 Foreground = Brushes.White,
                 TextAlignment = TextAlignment.Center

@@ -49,7 +49,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
         /// показывает как «нет данных» общий гейт <c>!ZeroIsValid</c>
         /// (В2/В14, <see cref="CalculationReportMarkdownRenderHelper.Value"/>).
         /// </summary>
-        private const string UnconfirmedStatusMarker = "требуется привязка к существующей формуле";
+        private const string UnconfirmedStatusMarker = CalculationReportMarkdownRendererConstants.FormulaStatusUnconfirmed;
 
         private const string TextColorHex = "#212121";
         private const string SecondaryTextColorHex = "#757575";
@@ -1107,9 +1107,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 return "-";
             }
 
-            return message
-                .Replace("в режиме DesignCold", "в режиме холодного пуска", StringComparison.Ordinal)
-                .Replace("в режиме Operating", "в рабочем режиме", StringComparison.Ordinal);
+            return message;
         }
 
         /// <summary>

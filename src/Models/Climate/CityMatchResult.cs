@@ -1,3 +1,5 @@
+﻿using SnowMeltingCalculator.Core;
+
 namespace SnowMeltingCalculator.Models.Climate
 {
     /// <summary>
@@ -30,7 +32,7 @@ namespace SnowMeltingCalculator.Models.Climate
         /// <summary>
         /// Отображение температуры: "t = -28°C"
         /// </summary>
-        public string TemperatureDisplay => $"t = {City.T5Days092:F0}°C";
+        public string TemperatureDisplay => $"t = {(City.T5Days092).ToString("F0", AppCulture.Culture)}°C";
 
         /// <summary>
         /// Отображение климатической зоны: "Зона M15"

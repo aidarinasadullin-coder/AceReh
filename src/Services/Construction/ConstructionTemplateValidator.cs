@@ -1,4 +1,4 @@
-using SnowMeltingCalculator.Core;
+﻿using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Construction;
 using SnowMeltingCalculator.Repositories.Construction;
 
@@ -115,7 +115,7 @@ namespace SnowMeltingCalculator.Services.Construction
                 {
                     result.AddError(
                         $"Толщина слоя должна быть больше {MinLayerThickness} и не превышать {MaxLayerThickness} мм " +
-                        $"(текущая: {layer.Thickness:F1} мм)");
+                        $"(текущая: {(layer.Thickness).ToString("F1", AppCulture.Culture)} мм)");
                 }
             }
         }

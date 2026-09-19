@@ -55,7 +55,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         [SetUp]
         public void SetUp()
         {
-            ResetAppSettingsSingleton();
+            Fixtures.ResetAppSettingsHelper.Reset();
             _graph = ReactiveGraph.CreateProductionShaped();
         }
 
@@ -63,7 +63,7 @@ namespace SnowMeltingCalculator.Tests.Services.Project
         public void TearDown()
         {
             _graph.Dispose();
-            ResetAppSettingsSingleton();
+            Fixtures.ResetAppSettingsHelper.Reset();
         }
 
         #region Census: exact handler counts on every publisher
@@ -381,25 +381,6 @@ namespace SnowMeltingCalculator.Tests.Services.Project
             }
 
             throw new InvalidOperationException($"Event backing field '{fieldName}' not found on {publisher.GetType().Name}.");
-        }
-
-        /// <summary>
-        /// Сбрасывает статический singleton <see cref="AppSettings"/> и удаляет файл настроек.
-        /// internal: переиспользуется степпер-тестами на том же production-shaped графе.
-        /// </summary>
-        internal static void ResetAppSettingsSingleton()
-        {
-            var settingsPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "SnowMeltingCalculator",
-                "settings.json");
-            if (File.Exists(settingsPath))
-            {
-                File.Delete(settingsPath);
-            }
-
-            var field = typeof(AppSettings).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            field?.SetValue(null, null);
         }
 
         #endregion

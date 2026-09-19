@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using SnowMeltingCalculator.Models.Hydraulics;
@@ -373,7 +373,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 Circuits = circuits,
                 Summary = new ReportCollectorSummary
                 {
-                    CollectorType = ReportValueFactory.Create(summary.CollectorType ?? string.Empty, "-", ReportValueSource.Calculated, "CollectorSummaryProjectData.CollectorType", formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
+                    CollectorType = ReportValueFactory.Create(summary.CollectorType ?? string.Empty, "-", ReportValueSource.Calculated, "CollectorSummaryProjectData.CollectorType", formulaUnconfirmed: true),
                     CircuitCount = ReportValueFactory.Create((double)summary.CircuitCount, "шт", ReportValueSource.Calculated, "CollectorSummaryProjectData.CircuitCount", decimals: ReportDecimals.For("шт")),
                     TotalPipeLength = ReportValueFactory.Create(summary.TotalPipeLength, "м", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalPipeLength", decimals: ReportDecimals.For("м")),
                     TotalPower = ReportValueFactory.Create(summary.TotalPower, "Вт", ReportValueSource.Calculated, "CollectorSummaryProjectData.TotalPower", decimals: ReportDecimals.For("Вт")),
@@ -385,7 +385,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                         mode == CalculationReportMode.Operating ? "CollectorSummaryProjectData.PressureLoss_Operating_Pa" : "CollectorSummaryProjectData.PressureLoss_Cold_Pa",
                         decimals: ReportDecimals.For("Па"),
                         formula: "max(DpGesamt)"),
-                    Kv = ReportValueFactory.Create(summary.Kv, "-", ReportValueSource.Calculated, "CollectorSummaryProjectData.Kv", decimals: 2, formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed)
+                    Kv = ReportValueFactory.Create(summary.Kv, "-", ReportValueSource.Calculated, "CollectorSummaryProjectData.Kv", decimals: 2, formulaUnconfirmed: true)
                 }
             };
         }
@@ -405,22 +405,22 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation.Builders
                 PipeSpacing = ReportValueFactory.Create(circuit.PipeSpacingCm, "см", ReportValueSource.UserInput, "CircuitProjectData.PipeSpacingCm", decimals: ReportDecimals.For("см")),
                 SupplySpacing = ReportValueFactory.Create(circuit.SupplySpacingCm, "см", ReportValueSource.UserInput, "CircuitProjectData.SupplySpacingCm", decimals: ReportDecimals.For("см")),
                 SupplyHeatPercent = ReportValueFactory.Create(circuit.SupplyHeatPercent, "%", ReportValueSource.UserInput, "CircuitProjectData.SupplyHeatPercent", decimals: ReportDecimals.For("%")),
-                Power = ReportValueFactory.Create(resultValues.Power, "Вт", ReportValueSource.Calculated, "CircuitResultProjectData.Power", decimals: ReportDecimals.For("Вт"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                FlowRate = ReportValueFactory.Create(resultValues.FlowRate, "л/ч", ReportValueSource.Calculated, "CircuitResultProjectData.FlowRate", decimals: ReportDecimals.For("л/ч"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                Velocity = ReportValueFactory.Create(resultValues.Velocity, "м/с", ReportValueSource.Calculated, "CircuitResultProjectData.Velocity", decimals: ReportDecimals.For("м/с"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                Density = ReportValueFactory.Create(resultValues.Density, "г/см³", ReportValueSource.Calculated, "CircuitResultProjectData.Density", decimals: ReportDecimals.For("г/см³"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                KinematicViscosity = ReportValueFactory.Create(resultValues.KinematicViscosity, "мм²/с", ReportValueSource.Calculated, "CircuitResultProjectData.KinematicViscosity", decimals: ReportDecimals.For("мм²/с"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                ReynoldsNumber = ReportValueFactory.Create(resultValues.ReynoldsNumber, "-", ReportValueSource.Calculated, "CircuitResultProjectData.ReynoldsNumber", decimals: 0, formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                FrictionFactor = ReportValueFactory.Create(resultValues.FrictionFactor, "-", ReportValueSource.Calculated, "CircuitResultProjectData.FrictionFactor", decimals: 3, formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                PressureLossPerMeter = ReportValueFactory.Create(resultValues.PressureLossPerMeter, "Па/м", ReportValueSource.Calculated, "CircuitResultProjectData.PressureLossPerMeter", decimals: ReportDecimals.For("Па/м"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                DpRohr = ReportValueFactory.Create(resultValues.DpRohr, "Па", ReportValueSource.Calculated, "CircuitResultProjectData.DpRohr", decimals: ReportDecimals.For("Па"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                DpVerteiler = ReportValueFactory.Create(resultValues.DpVerteiler, "Па", ReportValueSource.Calculated, "CircuitResultProjectData.DpVerteiler", decimals: ReportDecimals.For("Па"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                DpVent = ReportValueFactory.Create(resultValues.DpVent, "Па", ReportValueSource.Calculated, "CircuitResultProjectData.DpVent", decimals: ReportDecimals.For("Па"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                DpGesamt = ReportValueFactory.Create(resultValues.DpGesamt, "Па", ReportValueSource.Calculated, "CircuitResultProjectData.DpGesamt", decimals: ReportDecimals.For("Па"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                Throttling = ReportValueFactory.Create(circuit.Throttling, "Па", ReportValueSource.Calculated, "CircuitProjectData.Throttling", decimals: ReportDecimals.For("Па"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed, zeroIsValid: true),
-                ZuDrosseln = ReportValueFactory.Create(resultValues.Throttling, "Па", ReportValueSource.Calculated, "CircuitResultProjectData.Throttling", decimals: ReportDecimals.For("Па"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed, zeroIsValid: true),
-                ValveTurns = ReportValueFactory.Create(resultValues.ValveTurns, "об", ReportValueSource.Calculated, "CircuitResultProjectData.ValveTurns", decimals: ReportDecimals.For("об"), formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed),
-                FlowRegime = ReportValueFactory.Create(resultValues.FlowRegime ?? resultValues.FlowRegimeString ?? string.Empty, "-", ReportValueSource.Calculated, "CircuitResultProjectData.FlowRegime", formulaStatus: HydraulicsReportMetadataBuilder.FormulaStatusUnconfirmed)
+                Power = ReportValueFactory.Create(resultValues.Power, "Вт", ReportValueSource.Calculated, "CircuitResultProjectData.Power", decimals: ReportDecimals.For("Вт"), formulaUnconfirmed: true),
+                FlowRate = ReportValueFactory.Create(resultValues.FlowRate, "л/ч", ReportValueSource.Calculated, "CircuitResultProjectData.FlowRate", decimals: ReportDecimals.For("л/ч"), formulaUnconfirmed: true),
+                Velocity = ReportValueFactory.Create(resultValues.Velocity, "м/с", ReportValueSource.Calculated, "CircuitResultProjectData.Velocity", decimals: ReportDecimals.For("м/с"), formulaUnconfirmed: true),
+                Density = ReportValueFactory.Create(resultValues.Density, "г/см³", ReportValueSource.Calculated, "CircuitResultProjectData.Density", decimals: ReportDecimals.For("г/см³"), formulaUnconfirmed: true),
+                KinematicViscosity = ReportValueFactory.Create(resultValues.KinematicViscosity, "мм²/с", ReportValueSource.Calculated, "CircuitResultProjectData.KinematicViscosity", decimals: ReportDecimals.For("мм²/с"), formulaUnconfirmed: true),
+                ReynoldsNumber = ReportValueFactory.Create(resultValues.ReynoldsNumber, "-", ReportValueSource.Calculated, "CircuitResultProjectData.ReynoldsNumber", decimals: 0, formulaUnconfirmed: true),
+                FrictionFactor = ReportValueFactory.Create(resultValues.FrictionFactor, "-", ReportValueSource.Calculated, "CircuitResultProjectData.FrictionFactor", decimals: 3, formulaUnconfirmed: true),
+                PressureLossPerMeter = ReportValueFactory.Create(resultValues.PressureLossPerMeter, "Па/м", ReportValueSource.Calculated, "CircuitResultProjectData.PressureLossPerMeter", decimals: ReportDecimals.For("Па/м"), formulaUnconfirmed: true),
+                DpRohr = ReportValueFactory.Create(resultValues.DpRohr, "Па", ReportValueSource.Calculated, "CircuitResultProjectData.DpRohr", decimals: ReportDecimals.For("Па"), formulaUnconfirmed: true),
+                DpVerteiler = ReportValueFactory.Create(resultValues.DpVerteiler, "Па", ReportValueSource.Calculated, "CircuitResultProjectData.DpVerteiler", decimals: ReportDecimals.For("Па"), formulaUnconfirmed: true),
+                DpVent = ReportValueFactory.Create(resultValues.DpVent, "Па", ReportValueSource.Calculated, "CircuitResultProjectData.DpVent", decimals: ReportDecimals.For("Па"), formulaUnconfirmed: true),
+                DpGesamt = ReportValueFactory.Create(resultValues.DpGesamt, "Па", ReportValueSource.Calculated, "CircuitResultProjectData.DpGesamt", decimals: ReportDecimals.For("Па"), formulaUnconfirmed: true),
+                Throttling = ReportValueFactory.Create(circuit.Throttling, "Па", ReportValueSource.Calculated, "CircuitProjectData.Throttling", decimals: ReportDecimals.For("Па"), formulaUnconfirmed: true, zeroIsValid: true),
+                ZuDrosseln = ReportValueFactory.Create(resultValues.Throttling, "Па", ReportValueSource.Calculated, "CircuitResultProjectData.Throttling", decimals: ReportDecimals.For("Па"), formulaUnconfirmed: true, zeroIsValid: true),
+                ValveTurns = ReportValueFactory.Create(resultValues.ValveTurns, "об", ReportValueSource.Calculated, "CircuitResultProjectData.ValveTurns", decimals: ReportDecimals.For("об"), formulaUnconfirmed: true),
+                FlowRegime = ReportValueFactory.Create(resultValues.FlowRegime ?? resultValues.FlowRegimeString ?? string.Empty, "-", ReportValueSource.Calculated, "CircuitResultProjectData.FlowRegime", formulaUnconfirmed: true)
             };
         }
     }

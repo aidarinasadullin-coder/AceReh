@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Converters
 {
@@ -394,11 +395,11 @@ namespace SnowMeltingCalculator.Converters
                 if (pressurePa >= 1000)
                 {
                     double pressureKPa = pressurePa / 1000.0;
-                    return $"{pressureKPa:F1} кПа ({pressureMbar:F0} мбар)";
+                    return $"{(pressureKPa).ToString("F1", AppCulture.Culture)} кПа ({(pressureMbar).ToString("F0", AppCulture.Culture)} мбар)";
                 }
                 else
                 {
-                    return $"{pressurePa:F0} Па ({pressureMbar:F2} мбар)";
+                    return $"{(pressurePa).ToString("F0", AppCulture.Culture)} Па ({(pressureMbar).ToString("F2", AppCulture.Culture)} мбар)";
                 }
             }
             return "—";

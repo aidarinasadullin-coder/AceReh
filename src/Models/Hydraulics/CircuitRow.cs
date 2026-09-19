@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using CommunityToolkit.Mvvm.ComponentModel;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Models.Hydraulics
 {
@@ -467,7 +468,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         public string? PressureLossWarning =>
             OperatingResult is not null
             && OperatingResult.PressureLossPerMeter > CircuitTemperatureResult.MaxPressureLossPerMeter
-                ? $"Удельные потери {OperatingResult.PressureLossPerMeter:F0} Па/м > {CircuitTemperatureResult.MaxPressureLossPerMeter:F0} Па/м"
+                ? $"Удельные потери {(OperatingResult.PressureLossPerMeter).ToString("F0", AppCulture.Culture)} Па/м > {(CircuitTemperatureResult.MaxPressureLossPerMeter).ToString("F0", AppCulture.Culture)} Па/м"
                 : null;
 
         // === Вычисляемые свойства для отображения ===

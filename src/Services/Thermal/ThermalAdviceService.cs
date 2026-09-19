@@ -1,4 +1,4 @@
-using SnowMeltingCalculator.Core;
+﻿using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Navigation;
 using SnowMeltingCalculator.Models.Thermal;
@@ -46,8 +46,8 @@ namespace SnowMeltingCalculator.Services.Thermal
                     // говорит только shell (решение владельца 2026-09-15)
                     Severity = ThermalAdviceSeverity.Warning,
                     Message = string.Create(AppCulture.Culture,
-                        $"Обратка {returnTemperature:F1} °C: уменьшите температуру подачи " +
-                        $"до ≈{recommendedSupply:F1} °C (для ΔT ≈ {TargetDeltaT:F0} К) или увеличьте шаг укладки"),
+                        $"Обратка {(returnTemperature).ToString("F1", AppCulture.Culture)} °C: уменьшите температуру подачи " +
+                        $"до ≈{(recommendedSupply).ToString("F1", AppCulture.Culture)} °C (для ΔT ≈ {(TargetDeltaT).ToString("F0", AppCulture.Culture)} К) или увеличьте шаг укладки"),
                     TargetStep = NavigationTarget.Thermal,
                     TargetTitle = ThermalStepTitle
                 });
@@ -60,8 +60,8 @@ namespace SnowMeltingCalculator.Services.Thermal
                     Id = "DELTAT_MAX",
                     Severity = ThermalAdviceSeverity.Warning,
                     Message = string.Create(AppCulture.Culture,
-                        $"Перепад {result.DeltaT:F1} K превышает {ValidationConstants.MaxDeltaT:F0} K: " +
-                        $"уменьшите подачу до ≈{recommendedSupply:F1} °C (для ΔT ≈ {TargetDeltaT:F0} К) " +
+                        $"Перепад {(result.DeltaT).ToString("F1", AppCulture.Culture)} K превышает {(ValidationConstants.MaxDeltaT).ToString("F0", AppCulture.Culture)} K: " +
+                        $"уменьшите подачу до ≈{(recommendedSupply).ToString("F1", AppCulture.Culture)} °C (для ΔT ≈ {(TargetDeltaT).ToString("F0", AppCulture.Culture)} К) " +
                         $"или увеличьте шаг укладки"),
                     TargetStep = NavigationTarget.Thermal,
                     TargetTitle = ThermalStepTitle

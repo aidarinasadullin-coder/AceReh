@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Models.Construction
 {
@@ -220,7 +221,7 @@ namespace SnowMeltingCalculator.Models.Construction
 
         public override string ToString()
         {
-            return $"{Name} (λА={LambdaA:F3}, λБ={LambdaB:F3})";
+            return $"{Name} (λА={(LambdaA).ToString("F3", AppCulture.Culture)}, λБ={(LambdaB).ToString("F3", AppCulture.Culture)})";
         }
     }
 }

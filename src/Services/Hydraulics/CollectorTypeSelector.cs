@@ -1,6 +1,7 @@
-using System.Globalization;
+﻿using System.Globalization;
 using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
 {
@@ -44,14 +45,14 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             if (summary.PressureLoss_Operating_Pa > CollectorSummary.MaxAllowedPressure_Pa)
             {
                 double pressureKPa = summary.PressureLoss_Operating_Pa / 1000.0;
-                warnings.Add($"Превышение давления (рабочий режим): {pressureKPa:F1} кПа > {HydraulicsConstants.MaxPressureLoss_Pa / 1000.0:F0} кПа");
+                warnings.Add($"Превышение давления (рабочий режим): {(pressureKPa).ToString("F1", AppCulture.Culture)} кПа > {(HydraulicsConstants.MaxPressureLoss_Pa / 1000.0).ToString("F0", AppCulture.Culture)} кПа");
             }
 
             // Холодный пуск
             if (summary.PressureLoss_Cold_Pa > CollectorSummary.MaxAllowedPressure_Pa)
             {
                 double pressureKPa = summary.PressureLoss_Cold_Pa / 1000.0;
-                warnings.Add($"Превышение давления (холодный пуск): {pressureKPa:F1} кПа > {HydraulicsConstants.MaxPressureLoss_Pa / 1000.0:F0} кПа");
+                warnings.Add($"Превышение давления (холодный пуск): {(pressureKPa).ToString("F1", AppCulture.Culture)} кПа > {(HydraulicsConstants.MaxPressureLoss_Pa / 1000.0).ToString("F0", AppCulture.Culture)} кПа");
             }
 
             bool flowRateExceeded = totalFlowRate_m3h >= 7.0;

@@ -1,4 +1,4 @@
-using SnowMeltingCalculator.Core;
+﻿using SnowMeltingCalculator.Core;
 using SnowMeltingCalculator.Models.Construction;
 using ConstructionModel = SnowMeltingCalculator.Models.Construction.Construction;
 
@@ -113,7 +113,7 @@ namespace SnowMeltingCalculator.Services.Construction
             {
                 result.AddError(
                     $"Минимальная толщина слоёв над трубой: {minThickness} мм " +
-                    $"(текущая: {totalAbove:F0} мм)");
+                    $"(текущая: {(totalAbove).ToString("F0", AppCulture.Culture)} мм)");
             }
         }
 
@@ -128,7 +128,7 @@ namespace SnowMeltingCalculator.Services.Construction
                 {
                     result.AddError(
                         $"Толщина слоя '{layer.Material?.Name ?? "Не указан"}' не может превышать " +
-                        $"{MaxLayerThickness} мм (текущая: {layer.Thickness:F0} мм)");
+                        $"{MaxLayerThickness} мм (текущая: {(layer.Thickness).ToString("F0", AppCulture.Culture)} мм)");
                 }
             }
         }
@@ -143,7 +143,7 @@ namespace SnowMeltingCalculator.Services.Construction
             {
                 result.AddError(
                     $"Уровень грунтовых вод должен быть от {MinGroundwaterLevel} до {MaxGroundwaterLevel} м " +
-                    $"(текущий: {construction.GroundwaterLevel:F1} м)");
+                    $"(текущий: {(construction.GroundwaterLevel).ToString("F1", AppCulture.Culture)} м)");
             }
         }
 
@@ -240,7 +240,7 @@ namespace SnowMeltingCalculator.Services.Construction
                     result.AddError(
                         $"Материал '{layer.Material.Name}' нельзя применять при температуре " +
                         $"наружного воздуха <= {layer.Material.MinOutdoorTemp.Value}°C " +
-                        $"(текущая: {outdoorTemp:F1}°C)");
+                        $"(текущая: {(outdoorTemp).ToString("F1", AppCulture.Culture)}°C)");
                 }
             }
 
@@ -264,7 +264,7 @@ namespace SnowMeltingCalculator.Services.Construction
                     supplyTemp > layer.Material.MaxSupplyTemp.Value)
                 {
                     result.AddWarning(
-                        $"Температура подачи ({supplyTemp:F1}°C) превышает максимально допустимую " +
+                        $"Температура подачи ({(supplyTemp).ToString("F1", AppCulture.Culture)}°C) превышает максимально допустимую " +
                         $"для материала '{layer.Material.Name}' ({layer.Material.MaxSupplyTemp.Value}°C)");
                 }
             }

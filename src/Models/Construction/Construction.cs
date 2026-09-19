@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using SnowMeltingCalculator.Models.Thermal;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Models.Construction
 {
@@ -305,9 +306,9 @@ namespace SnowMeltingCalculator.Models.Construction
 
         public override string ToString()
         {
-            return $"Конструкция: {LayersAbovePipe.Count} слоёв над трубой (R1={R1Total:F4}), " +
-                   $"{Layers.Count(l => l.Position == LayerPosition.BelowPipe)} слоёв под трубой (R2={R2Total:F4}), " +
-                   $"λE={LambdaE:F2}";
+            return $"Конструкция: {LayersAbovePipe.Count} слоёв над трубой (R1={(R1Total).ToString("F4", AppCulture.Culture)}), " +
+                   $"{Layers.Count(l => l.Position == LayerPosition.BelowPipe)} слоёв под трубой (R2={(R2Total).ToString("F4", AppCulture.Culture)}), " +
+                   $"λE={(LambdaE).ToString("F2", AppCulture.Culture)}";
         }
     }
 }

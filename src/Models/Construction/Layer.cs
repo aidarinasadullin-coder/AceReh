@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Models.Construction
 {
@@ -167,7 +168,7 @@ namespace SnowMeltingCalculator.Models.Construction
 
         public override string ToString()
         {
-            return $"{Material?.Name ?? "Не указан"}: {Thickness} мм (R={CalculatedR:F4} м²·К/Вт)";
+            return $"{Material?.Name ?? "Не указан"}: {Thickness} мм (R={(CalculatedR).ToString("F4", AppCulture.Culture)} м²·К/Вт)";
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

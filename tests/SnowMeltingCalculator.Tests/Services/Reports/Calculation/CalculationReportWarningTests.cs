@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -29,7 +29,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
             var warning = report.Warnings.Single(w => w.Code == "MISSING_CIRCUIT_RESULT");
             Assert.That(warning.Severity, Is.EqualTo("Warning"));
-            Assert.That(warning.Message, Does.Contain("Operating"));
+            Assert.That(warning.Message, Does.Contain("рабочем режиме"));
             Assert.That(warning.Message, Does.Contain("1"));
             Assert.That(warning.RelatedValues, Does.Contain("CircuitProjectData.OperatingResult"));
         }
@@ -45,7 +45,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
 
             var warning = report.Warnings.Single(w => w.Code == "MISSING_CIRCUIT_RESULT");
             Assert.That(warning.Severity, Is.EqualTo("Warning"));
-            Assert.That(warning.Message, Does.Contain("DesignCold"));
+            Assert.That(warning.Message, Does.Contain("холодного пуска"));
             Assert.That(warning.RelatedValues, Does.Contain("CircuitProjectData.DesignResult"));
         }
 
@@ -161,7 +161,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             var report = builder.Build(project, CalculationReportMode.DesignCold, FixedDate);
 
             var warning = report.Warnings.Single(w => w.Code == "COLLECTOR_PRESSURE_LOSS_EXCEEDED");
-            Assert.That(warning.Message, Does.Contain("DesignCold"));
+            Assert.That(warning.Message, Does.Contain("холодного пуска"));
             Assert.That(warning.RelatedValues, Does.Contain("CollectorSummaryProjectData.PressureLoss_Cold_Pa"));
         }
 

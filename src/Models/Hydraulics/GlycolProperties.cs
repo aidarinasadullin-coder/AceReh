@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Models.Hydraulics
 {
@@ -185,7 +186,7 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         /// </summary>
         public override string ToString()
         {
-            return $"ρ={Density:F1} кг/м³, ν={KinematicViscosity:F2} мм²/с, c_p={SpecificHeat:F2} кДж/(кг·К)";
+            return $"ρ={(Density).ToString("F1", AppCulture.Culture)} кг/м³, ν={(KinematicViscosity).ToString("F2", AppCulture.Culture)} мм²/с, c_p={(SpecificHeat).ToString("F2", AppCulture.Culture)} кДж/(кг·К)";
         }
 
         /// <summary>
@@ -194,12 +195,12 @@ namespace SnowMeltingCalculator.Models.Hydraulics
         public string GetDetailedDescription()
         {
             var glycolName = GlycolType == GlycolType.Ethylene ? "Этиленгликоль" : "Пропиленгликоль";
-            return $"{glycolName} {Concentration:F0}% при {Temperature:F1}°C:\n" +
-                   $"  Плотность: {Density:F1} кг/м³\n" +
-                   $"  Вязкость: {KinematicViscosity:F2} мм²/с\n" +
-                   $"  Теплоёмкость: {SpecificHeat:F2} кДж/(кг·К)\n" +
-                   $"  Теплопроводность: {ThermalConductivity:F3} Вт/(м·К)\n" +
-                   $"  Число Прандтля: {PrandtlNumber:F2}";
+            return $"{glycolName} {(Concentration).ToString("F0", AppCulture.Culture)}% при {(Temperature).ToString("F1", AppCulture.Culture)}°C:\n" +
+                   $"  Плотность: {(Density).ToString("F1", AppCulture.Culture)} кг/м³\n" +
+                   $"  Вязкость: {(KinematicViscosity).ToString("F2", AppCulture.Culture)} мм²/с\n" +
+                   $"  Теплоёмкость: {(SpecificHeat).ToString("F2", AppCulture.Culture)} кДж/(кг·К)\n" +
+                   $"  Теплопроводность: {(ThermalConductivity).ToString("F3", AppCulture.Culture)} Вт/(м·К)\n" +
+                   $"  Число Прандтля: {(PrandtlNumber).ToString("F2", AppCulture.Culture)}";
         }
     }
 }

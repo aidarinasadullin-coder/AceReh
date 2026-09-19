@@ -4,6 +4,7 @@ using SnowMeltingCalculator.Models.Climate;
 using SnowMeltingCalculator.Models.Thermal;
 
 using SnowMeltingCalculator.Services.Logging;
+using SnowMeltingCalculator.Core;
 namespace SnowMeltingCalculator.Services.Thermal
 {
     /// <summary>
@@ -490,7 +491,7 @@ namespace SnowMeltingCalculator.Services.Thermal
                     result.IsValid = false;
                     result.ValidationErrors = new[] {
                         $"При текущих параметрах системы не обеспечивается требуемая мощность. " +
-                        $"Температура подачи ({result.SupplyTemperature:F1}°C) должна быть не менее {minSupplyTemp:F1}°C. " +
+                        $"Температура подачи ({(result.SupplyTemperature).ToString("F1", AppCulture.Culture)}°C) должна быть не менее {(minSupplyTemp).ToString("F1", AppCulture.Culture)}°C. " +
                         $"Увеличьте температуру подачи, уменьшите интенсивность снегопада или измените режим работы."
                     };
                     return result;

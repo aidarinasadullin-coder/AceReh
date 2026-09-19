@@ -326,7 +326,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
                 ? string.Empty
                 : RecommendedSupplyTemperature.HasValue
                     ? string.Create(AppCulture.Culture,
-                        $"Рекомендуется: {RecommendedSupplyTemperature.Value:F0}°C (для ΔT ≈ 15 К)")
+                        $"Рекомендуется: {(RecommendedSupplyTemperature.Value).ToString("F0", AppCulture.Culture)}°C (для ΔT ≈ 15 К)")
                     : string.Empty;
 
         /// <summary>
@@ -365,7 +365,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             Result is null
                 ? string.Empty
                 : string.Create(AppCulture.Culture,
-                    $"q↑ {Result.PowerUp:F1} вверх · q↓ {Result.PowerDown:F1} вниз · поверхность {SurfaceTemperature:+0.0} °C");
+                    $"q↑ {(Result.PowerUp).ToString("F1", AppCulture.Culture)} вверх · q↓ {(Result.PowerDown).ToString("F1", AppCulture.Culture)} вниз · поверхность {SurfaceTemperature:+0.0} °C");
 
         /// <summary>
         /// Сводная строка заголовка свёрнутого блока «Дополнительные параметры».
@@ -375,7 +375,7 @@ namespace SnowMeltingCalculator.ViewModels.Thermal
             Result is null
                 ? string.Empty
                 : string.Create(AppCulture.Culture,
-                    $"КПД ребра {Result.EfficiencyEtaR:F3} · R_FB {Result.RFb:F4} · m {Result.ParameterM:F2} 1/м · теплота плавления {Result.MeltingHeat:F1} Вт/м²");
+                    $"КПД ребра {(Result.EfficiencyEtaR).ToString("F3", AppCulture.Culture)} · R_FB {(Result.RFb).ToString("F4", AppCulture.Culture)} · m {(Result.ParameterM).ToString("F2", AppCulture.Culture)} 1/м · теплота плавления {(Result.MeltingHeat).ToString("F1", AppCulture.Culture)} Вт/м²");
 
         /// <summary>
         /// Признак выполнения расчёта

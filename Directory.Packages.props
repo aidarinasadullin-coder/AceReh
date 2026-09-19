@@ -1,0 +1,35 @@
+<Project>
+
+  <!-- Централизованное управление версиями пакетов (волна «хвосты», план
+       2026-09-18 §9): версии определяются один раз здесь; в csproj —
+       PackageReference без атрибута Version. Общие между src и tests
+       пакеты (Microsoft.Extensions.DependencyInjection, Microsoft.Data.Sqlite)
+       больше не могут разъехаться по версиям. -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- src -->
+    <PackageVersion Include="ClosedXML" Version="0.105.1" />
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="8.0.0" />
+    <!-- LaTeX-вёрстка формул PDF-записки (мини-фаза PDF-PZ): MIT,
+         рендер формул в PNG через SkiaSharp (нативный ассет win-x64). -->
+    <PackageVersion Include="CSharpMath.SkiaSharp" Version="0.5.1" />
+    <PackageVersion Include="PDFsharp-MigraDoc" Version="6.2.4" />
+    <PackageVersion Include="SharpVectors.Wpf" Version="1.8.5" />
+    <!-- tests -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageVersion Include="NUnit" Version="4.0.1" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageVersion Include="Moq" Version="4.20.70" />
+    <!-- Dev-only зависимость UI smoke-набора (Фаза 1Б редизайна): MIT,
+         в дистрибутив приложения не попадает. -->
+    <PackageVersion Include="FlaUI.UIA3" Version="5.0.0" />
+    <!-- PoC VirtualizingWrapPanel (Фаза 2 редизайна, план Ф2.4): MIT, 0 зависимостей. -->
+    <PackageVersion Include="VirtualizingWrapPanel" Version="2.5.4" />
+  </ItemGroup>
+
+</Project>

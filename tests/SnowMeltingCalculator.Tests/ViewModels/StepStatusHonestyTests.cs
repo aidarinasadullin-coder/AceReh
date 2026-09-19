@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -35,7 +35,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         [SetUp]
         public void SetUp()
         {
-            ReactiveSubscriptionLifecycleTests.ResetAppSettingsSingleton();
+            Fixtures.ResetAppSettingsHelper.Reset();
             _graph = ReactiveSubscriptionLifecycleTests.ReactiveGraph.CreateProductionShaped();
 
             // Тепловой калькулятор графа возвращает результат, проходящий
@@ -60,7 +60,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
         public void TearDown()
         {
             _graph.Dispose();
-            ReactiveSubscriptionLifecycleTests.ResetAppSettingsSingleton();
+            Fixtures.ResetAppSettingsHelper.Reset();
         }
 
         private static MenuItem ThermalStep(MainViewModel vm) =>

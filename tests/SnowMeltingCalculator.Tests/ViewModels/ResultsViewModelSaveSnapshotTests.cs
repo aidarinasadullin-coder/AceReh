@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using Moq;
 using NUnit.Framework;
 using SnowMeltingCalculator.Core;
@@ -613,7 +613,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             _projectStateService.CurrentFilePath = TestFilePath;
             _projectStateService.MarkDirty();
 
-            var startedAt = DateTime.Now;
+            var startedAt = DateTime.UtcNow; 
             var previousIsDirty = _projectStateService.IsDirty;
             var cleanTransitions = 0;
             _projectStateService.PropertyChanged += (_, args) =>
@@ -643,12 +643,12 @@ namespace SnowMeltingCalculator.Tests.ViewModels
 
             await _viewModel.SaveProjectCommand.ExecuteAsync(null);
 
-            var completedAt = DateTime.Now;
+            var completedAt = DateTime.UtcNow;
             Assert.Multiple(() =>
             {
                 Assert.That(savedData, Is.Not.Null);
-                Assert.That(savedData!.CreatedDate, Is.InRange(startedAt, completedAt));
-                Assert.That(savedData.ModifiedDate, Is.InRange(startedAt, completedAt));
+                Assert.That(savedData!.CreatedDate, Is.InRange(startedAt.ToLocalTime(), completedAt.ToLocalTime()));
+                Assert.That(savedData.ModifiedDate, Is.InRange(startedAt.ToLocalTime(), completedAt.ToLocalTime()));
                 Assert.That(_projectStateService.IsDirty, Is.False);
                 Assert.That(cleanTransitions, Is.EqualTo(1));
             });

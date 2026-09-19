@@ -294,12 +294,12 @@ namespace SnowMeltingCalculator.ViewModels.Hydraulics
         /// <summary>
         /// Текст кнопки для режима рабочей температуры
         /// </summary>
-        public string OperatingModeButtonText => $"Рабочая температура: {OperatingTemperatureValue:F1}°C";
+        public string OperatingModeButtonText => $"Рабочая температура: {(OperatingTemperatureValue).ToString("F1", AppCulture.Culture)}°C";
 
         /// <summary>
         /// Текст кнопки для режима расчётной температуры
         /// </summary>
-        public string DesignModeButtonText => $"Расчётная температура: {DesignTemperatureValue:F1}°C";
+        public string DesignModeButtonText => $"Расчётная температура: {(DesignTemperatureValue).ToString("F1", AppCulture.Culture)}°C";
 
         /// <summary>
         /// Сегмент «Рабочая» активен (сегмент-контрол режима потерь).

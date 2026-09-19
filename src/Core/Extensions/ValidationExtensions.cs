@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using SnowMeltingCalculator.Core.Constants;
 
@@ -351,7 +351,7 @@ namespace SnowMeltingCalculator.Core.Extensions
         {
             if (value > ValidationConstants.MaxPressureLoss)
             {
-                errors.Add($"Потери давления ({value / 100.0:F1} мбар) превышают максимально допустимые ({ValidationConstants.MaxPressureLoss / 100.0:F0} мбар)");
+                errors.Add($"Потери давления ({(value / 100.0).ToString("F1", AppCulture.Culture)} мбар) превышают максимально допустимые ({(ValidationConstants.MaxPressureLoss / 100.0).ToString("F0", AppCulture.Culture)} мбар)");
                 return false;
             }
             return true;

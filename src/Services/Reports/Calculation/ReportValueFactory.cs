@@ -1,4 +1,4 @@
-namespace SnowMeltingCalculator.Services.Reports.Calculation
+﻿namespace SnowMeltingCalculator.Services.Reports.Calculation
 {
     /// <summary>
     /// Вспомогательный фабричный метод для создания ReportValue.
@@ -22,6 +22,7 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
             int? decimals = null,
             string? formula = null,
             string? formulaStatus = null,
+            bool formulaUnconfirmed = false,
             bool zeroIsValid = false)
         {
             return new ReportValue<T>
@@ -32,7 +33,10 @@ namespace SnowMeltingCalculator.Services.Reports.Calculation
                 SourceDetail = sourceDetail,
                 Decimals = decimals,
                 Formula = formula,
-                FormulaStatus = formulaStatus,
+                FormulaStatus = formulaUnconfirmed
+                    ? CalculationReportMarkdownRendererConstants.FormulaStatusUnconfirmed
+                    : formulaStatus,
+                FormulaUnconfirmed = formulaUnconfirmed,
                 ZeroIsValid = zeroIsValid
             };
         }

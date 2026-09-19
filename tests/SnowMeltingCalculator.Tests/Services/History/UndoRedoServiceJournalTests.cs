@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
@@ -28,7 +28,7 @@ namespace SnowMeltingCalculator.Tests.Services.History
         [SetUp]
         public void SetUp()
         {
-            ReactiveSubscriptionLifecycleTests.ResetAppSettingsSingleton();
+            Fixtures.ResetAppSettingsHelper.Reset();
             _graph = ReactiveSubscriptionLifecycleTests.ReactiveGraph.CreateProductionShaped();
         }
 
@@ -36,7 +36,7 @@ namespace SnowMeltingCalculator.Tests.Services.History
         public void TearDown()
         {
             _graph.Dispose();
-            ReactiveSubscriptionLifecycleTests.ResetAppSettingsSingleton();
+            Fixtures.ResetAppSettingsHelper.Reset();
         }
 
         [Test]

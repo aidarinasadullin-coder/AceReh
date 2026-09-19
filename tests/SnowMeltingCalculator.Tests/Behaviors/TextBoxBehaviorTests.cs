@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using NUnit.Framework;
@@ -198,19 +198,5 @@ namespace SnowMeltingCalculator.Tests.Behaviors
 
         #endregion
 
-        #region Culture-Specific Tests
-
-        [Test]
-        public void NormalizeDecimalSeparator_UsesCurrentCultureDecimalSeparator()
-        {
-            // Arrange
-            var currentCulture = CultureInfo.CurrentCulture;
-            var decimalSeparator = currentCulture.NumberFormat.NumberDecimalSeparator;
-
-            // Assert - проверяем, что код использует текущую культуру
-            Assert.That(decimalSeparator, Is.AnyOf(".", ","));
-        }
-
-        #endregion
     }
 }

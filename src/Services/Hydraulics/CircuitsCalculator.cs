@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using SnowMeltingCalculator.Core.Constants;
 using SnowMeltingCalculator.Models.Hydraulics;
+using SnowMeltingCalculator.Core;
 
 namespace SnowMeltingCalculator.Services.Hydraulics
 {
@@ -283,7 +284,7 @@ namespace SnowMeltingCalculator.Services.Hydraulics
             var warnings = new List<string>();
             if (summary.PressureLoss_Cold_Pa > CollectorSummary.MaxAllowedPressure_Pa)
             {
-                warnings.Add($"Превышение давления: {summary.PressureLoss_Cold_Pa / 100.0:F1} мбар > {CollectorSummary.MaxAllowedPressure_Pa / 100.0:F0} мбар");
+                warnings.Add($"Превышение давления: {(summary.PressureLoss_Cold_Pa / 100.0).ToString("F1", AppCulture.Culture)} мбар > {(CollectorSummary.MaxAllowedPressure_Pa / 100.0).ToString("F0", AppCulture.Culture)} мбар");
             }
 
             summary.Warnings = warnings.ToArray();
