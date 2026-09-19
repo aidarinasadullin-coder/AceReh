@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me: пересъёмка скриншотов инструкции</title>
+<style>
+  /* Токены брендбука РЕХАУ-2026 (как в токенах приложения) */
+  :root {
+    --red: #E50040;          /* Активный красный */
+    --teal: #4FC7B5;         /* Бирюза */
+    --amber: #F5A623;        /* Предупреждение */
+    --ink: #1D1D1B;          /* Ink */
+    --gray1: #4E4E4E;
+    --gray2: #818181;
+    --gray3: #B0B0B0;
+    --gray4: #D9D9D9;
+    --bg: #F6F6F6;
+    --card: #FFFFFF;
+    --ok: #2FA37C;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--bg); color: var(--ink);
+    padding: 28px 32px 60px;
+  }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  .sub { color: var(--gray2); font-size: 13px; margin-top: 6px; }
+  .plan-ref { margin-top: 10px; font-size: 12.5px; color: var(--gray1); }
+  .plan-ref code { background: #EDEDED; border-radius: 3px; padding: 1px 6px; font-size: 11.5px; }
+  .mark { display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 34px 0 12px; }
+  h2 .mark { width: 9px; height: 9px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 1040px; }
+  @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--card); border: 1px solid var(--gray4);
+    border-radius: 10px; padding: 16px 18px;
+  }
+  .panel .ttl { font-size: 13.5px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .badge { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; letter-spacing: .03em; }
+  .badge.bad  { background: rgba(229,0,64,.09); color: var(--red); }
+  .badge.good { background: rgba(47,163,124,.12); color: var(--ok); }
+
+  /* ── Моки кадров (CSS-имитация реальных дефектов, размеры настоящие) ── */
+  .frame { border: 1px solid var(--gray4); border-radius: 6px; background: #fff; overflow: hidden; position: relative; }
+
+  /* степпер, плохой: 290×330, верх срезан, форма режется справа */
+  .stepper-bad { width: 290px; height: 330px; }
+  .stepper-bad .inner { margin-top: -22px; }
+  .steprow { display: flex; align-items: center; gap: 10px; padding: 14px 16px; font-size: 13px; color: var(--ink); }
+  .dot { width: 26px; height: 26px; border-radius: 50%; background: #7BD3C6; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; }
+  .dot.dim { background: #E4E4E4; color: var(--gray2); }
+  .dot.hot { background: var(--red); }
+  .stepper-bad .formside { position: absolute; top: 34px; left: 178px; width: 150px; }
+  .stepper-bad .fs-t { font-size: 16px; font-weight: 700; white-space: nowrap; }
+  .stepper-bad .frow { margin-top: 9px; }
+  .stepper-bad .frow .l { font-size: 9.5px; color: var(--gray2); white-space: nowrap; }
+  .stepper-bad .frow .v { border: 1px solid var(--gray4); border-radius: 4px; font-size: 11px; padding: 4px 7px; margin-top: 3px; white-space: nowrap; width: 118px; }
+  .cutline { position: absolute; top: 0; bottom: 0; right: 0; width: 2px; background: repeating-linear-gradient(180deg, var(--red) 0 10px, transparent 10px 16px); }
+  .cutline.h { top: auto; height: 2px; left: 0; right: 0; width: auto; background: repeating-linear-gradient(90deg, var(--red) 0 10px, transparent 10px 16px); }
+  .cuttag { position: absolute; font-size: 9.5px; color: var(--red); font-weight: 700; background: #fff; padding: 0 4px; }
+
+  /* статусбар, плохой: мусор сверху + пустота справа */
+  .sb-bad { width: 100%; height: 68px; background: #fff; }
+  .sb-bad .junk { height: 26px; border-bottom: 1px solid var(--gray4); background: #FAFAFA; display: flex; align-items: center; padding-left: 8px; color: var(--gray3); font-size: 15px; }
+  .sb-bad .row { display: flex; align-items: center; height: 41px; }
+  .plate { background: var(--red); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .04em; padding: 3px 9px; clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 100%, 0 100%); flex: none; }
+  .plate.teal { background: #35B5A5; }
+  .plate.amberp { background: #E8930C; }
+  .sb-bad .txt { font-size: 11.5px; color: var(--gray1); margin-left: 14px; white-space: nowrap; }
+  .sb-bad .void { flex: 1; }
+  .void-hatch { position: absolute; right: 6px; top: 30px; bottom: 6px; width: 38%; border: 1px dashed var(--gray3); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 9.5px; color: var(--gray3); }
+
+  /* статусбар в узкой карточке: 1440px жмётся */
+  .sb-squeeze { width: 100%; border: 1px solid var(--gray4); border-radius: 8px; padding: 10px; background: #fff; }
+  .sb-squeeze .strip { height: 38px; background: linear-gradient(90deg, #FAFAFA 0 30%, #fff 30%); border: 1px solid var(--gray4); border-radius: 4px; display: flex; align-items: center; padding-left: 4px; }
+  .sb-squeeze .plate { transform: scale(.82); transform-origin: left center; }
+  .sb-squeeze .txt { font-size: 9px; color: var(--gray2); margin-left: 10px; white-space: nowrap; overflow: hidden; }
+
+  /* хорошо: степпер целиком */
+  .stepper-ok { width: 340px; }
+  .stepper-ok .steprow { padding: 13px 18px; }
+  .stepper-ok .steprow.sel { background: #FDEBEF; }
+  .warn { margin-left: auto; color: var(--amber); font-weight: 700; }
+  /* хорошо: компактный статусбар */
+  .sb-ok { width: 100%; display: flex; align-items: center; padding: 9px 14px; background: #fff; }
+  .sb-ok .txt { font-size: 11.5px; color: var(--gray1); margin-left: 12px; }
+  .sb-ok .tail { font-size: 9.5px; color: var(--gray3); margin-left: 8px; }
+
+  .rules { margin-top: 12px; }
+  .rule { display: flex; gap: 10px; font-size: 12.5px; color: var(--gray1); margin-top: 7px; }
+  .rule b { color: var(--ink); }
+  .rule .n { flex: none; width: 18px; height: 18px; border-radius: 50%; background: var(--teal); color: #fff; font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+
+  /* ── Волны ── */
+  .waves { max-width: 1040px; }
+  .wave { display: flex; align-items: flex-start; gap: 14px; background: var(--card); border: 1px solid var(--gray4); border-radius: 10px; padding: 12px 16px; margin-top: 10px; }
+  .wave .no { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--red); color: #fff; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+  .wave.gate .no { background: var(--teal); }
+  .wave.manual .no { background: var(--amber); }
+  .wave .t { font-size: 13.5px; font-weight: 700; }
+  .wave .d { font-size: 12px; color: var(--gray1); margin-top: 3px; line-height: 1.45; }
+  .wave .tag { font-size: 10.5px; color: var(--gray2); margin-left: 8px; font-weight: 400; }
+
+  /* ── Чек-лист ── */
+  .checks { max-width: 1040px; background: var(--card); border: 1px solid var(--gray4); border-radius: 10px; padding: 16px 18px; }
+  .chk { display: flex; gap: 10px; font-size: 12.5px; color: var(--gray1); margin-top: 8px; }
+  .chk .box { flex: none; width: 15px; height: 15px; border: 2px solid var(--teal); border-radius: 4px; margin-top: 1px; }
+  .chk b { color: var(--ink); }
+
+  .foot { margin-top: 34px; font-size: 11.5px; color: var(--gray2); }
+</style>
+</head>
+<body>
+
+<h1><span class="mark"></span>Пересъёмка скриншотов инструкции</h1>
+<div class="sub">Разделы «Строка состояния» и «Сценарии» · README 1.7.0 · замечание владельца «скриншот плохой»</div>
+<div class="plan-ref">План: <code>docs/plans/2026-09-19-manual-screenshots-plan.md</code> · статус: ожидает сигнала владельца · правки кода не вносятся</div>
+
+<h2><span class="mark"></span>1 · Что плохо — реальные кадры, размеры настоящие</h2>
+<div class="grid2">
+  <div class="panel">
+    <div class="ttl">c-stepper.png <span class="badge bad">290×330</span></div>
+    <div class="frame stepper-bad">
+      <div class="inner">
+        <div class="steprow"><span class="dot hot">1</span> Климат</div>
+        <div class="steprow"><span class="dot dim">2</span> Конструкция</div>
+        <div class="steprow"><span class="dot dim">3</span> Тепловой расчёт</div>
+        <div class="steprow"><span class="dot dim">4</span> Гидравлика</div>
+        <div class="steprow"><span class="dot dim">5</span> Результаты</div>
+      </div>
+      <div class="formside">
+        <div class="fs-t">Горо</div>
+        <div class="frow"><div class="l">Город</div><div class="v">Пе</div></div>
+        <div class="frow"><div class="l">Расчёт</div><div class="v">-18</div></div>
+        <div class="frow"><div class="l">Влажн</div><div class="v">77</div></div>
+      </div>
+      <div class="cutline"></div>
+      <div class="cuttag" style="right:6px; top:38px;">режет форму</div>
+      <div class="cutline h" style="top:0;"></div>
+      <div class="cuttag" style="left:8px; top:2px;">шаг «Климат» срезан</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ttl">extracted-01.png / sb-error.png <span class="badge bad">576×60 · 1400×68</span></div>
+    <div class="frame sb-bad" style="margin-bottom:14px;">
+      <div class="junk">‹</div>
+      <div class="row">
+        <span class="plate">КЛИМАТ</span>
+        <span class="txt">Климатические данные изменены. Требуется пересчёт.</span>
+        <span class="void"></span>
+      </div>
+      <div class="void-hatch">пустота ≈ 4/5 кадра</div>
+      <div class="cutline h" style="top:26px;"></div>
+      <div class="cuttag" style="left:8px; top:6px;">мусор: панель выше статуса</div>
+    </div>
+    <div class="sb-squeeze">
+      <div class="strip"><span class="plate">ТЕПЛОВОЙ</span><span class="txt">Шаг укладки изменён. Требуется пересчёт. — 1440px полосы в карточке ½ ширины: текст мельчает</span></div>
+      <div style="font-size:11px; color:var(--gray2); margin-top:8px;">sb-recalc.png: 1440×38 в узкой карточке sb-grid</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ttl">c-error-stepper.png <span class="badge bad">360×300</span></div>
+    <div class="frame" style="width:360px; height:190px; overflow:hidden;">
+      <div style="display:flex;">
+        <div style="flex:none; width:200px;">
+          <div class="steprow sel" style="background:#FDEBEF;"><span class="dot hot">1</span> Климат <span class="warn">⚠</span></div>
+          <div class="steprow"><span class="dot dim">2</span> Конструкция</div>
+          <div class="steprow"><span class="dot dim">3</span> Тепловой расчёт</div>
+          <div class="steprow"><span class="dot dim">4</span> Гидравлика</div>
+          <div class="steprow"><span class="dot dim">5</span> Результаты</div>
+        </div>
+        <div style="padding:14px 0 0 14px; font-size:17px; font-weight:700; white-space:nowrap;">Климатич
+          <div style="font-size:10px; font-weight:400; color:var(--gray2); margin-top:4px;">Шаг 1 из 5 — исход</div>
+          <div style="font-size:13px; font-weight:700; margin-top:10px; white-space:nowrap;">Город и кли</div>
+          <div style="font-size:9.5px; color:var(--gray2); margin-top:10px;">Расчётная темп</div>
+          <div style="border:2px solid var(--red); border-radius:4px; font-size:11px; padding:4px 7px; margin-top:3px; width:70px;">-50,0</div>
+        </div>
+      </div>
+      <div class="cutline"></div>
+      <div class="cuttag" style="right:6px; bottom:6px;">заголовки и поле срезаны</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ttl">Итог: 8 из 29 иллюстраций дефектны <span class="badge bad">P1</span></div>
+    <div class="rule"><span class="n">1</span><div><b>c-stepper</b>, <b>c-error-stepper</b> — степперы с обрезанными шагами и формой</div></div>
+    <div class="rule"><span class="n">2</span><div><b>extracted-01/02</b>, <b>sb-ready/info2/error</b> — мусор сверху, пустые хвосты, 1400px полосы в узких колонках</div></div>
+    <div class="rule"><span class="n">3</span><div><b>sb-recalc</b> — полоса окна целиком жмётся в карточке, текст нечитаем</div></div>
+    <div class="rule"><span class="n">4</span><div><b>extracted-02 ≡ sb-error</b> — точный дубликат (совпадение LFS-OID)</div></div>
+    <div class="rule" style="margin-top:12px;"><span class="n" style="background:var(--red);">!</span><div><b>Скрытый риск:</b> после LFS-миграции все 33 media-файла в рабочей копии — указатели; пересборка сейчас молча инлайнит base64 указателей → битая инструкция. Нужен гейт в build_manual.py</div></div>
+  </div>
+</div>
+
+<h2><span class="mark"></span>2 · Правило кадра — как должно стать</h2>
+<div class="grid2">
+  <div class="panel">
+    <div class="ttl">Степпер: по границам блоков <span class="badge good">хорошо</span></div>
+    <div class="frame stepper-ok">
+      <div class="steprow sel"><span class="dot hot">1</span> Климат</div>
+      <div class="steprow"><span class="dot dim">2</span> Конструкция</div>
+      <div class="steprow"><span class="dot dim">3</span> Тепловой расчёт</div>
+      <div class="steprow"><span class="dot dim">4</span> Гидравлика</div>
+      <div class="steprow"><span class="dot dim">5</span> Результаты</div>
+    </div>
+    <div class="rules">
+      <div class="rule"><span class="n">1</span><div>Все <b>5 шагов целиком</b>, паддинг ≥ 12px</div></div>
+      <div class="rule"><span class="n">2</span><div>Резать <b>по границам карточек/панелей</b>, никогда посередине текста, поля, строки</div></div>
+      <div class="rule"><span class="n">3</span><div>Ширина семейства <b>320–360px</b></div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ttl">Статусбар: только полоса <span class="badge good">хорошо</span></div>
+    <div class="frame sb-ok">
+      <span class="plate teal">КЛИМАТ</span>
+      <span class="txt">Климатические данные изменены. Требуется пересчёт.</span>
+      <span class="tail">+ паддинг 16px</span>
+    </div>
+    <div class="frame sb-ok" style="margin-top:10px;">
+      <span class="plate">КЛИМАТ</span>
+      <span class="txt">Температура должна быть от -50°C до +10°C</span>
+      <span class="tail">единая высота семейства</span>
+    </div>
+    <div class="rules">
+      <div class="rule"><span class="n">4</span><div><b>Без панели выше</b> и без пустых хвостов (&gt; 16px нет)</div></div>
+      <div class="rule"><span class="n">5</span><div>Ширина <b>под карточку .sb-card</b> (~520–560px) — текст читается</div></div>
+      <div class="rule"><span class="n">6</span><div>Кропы делает <b>tools/manual-crops.py</b> из эталонных скринов <b>src/shots/</b> — воспроизводимо, из репо</div></div>
+    </div>
+  </div>
+</div>
+
+<h2><span class="mark"></span>3 · Волны</h2>
+<div class="waves">
+  <div class="wave"><div class="no">0</div><div><div class="t">Рабочая копия <span class="tag">без правок кода</span></div><div class="d"><b>git lfs pull</b> — вернуть 33 PNG из указателей (~130 байт каждый); проверка PNG-сигнатуры и размеров</div></div></div>
+  <div class="wave gate"><div class="no">1</div><div><div class="t">Гейт в build_manual.py <span class="tag">единственная правка кода</span></div><div class="d">Проверка сигнатуры \x89PNG перед инлайном: LFS-указатель → громкая ошибка «выполните git lfs pull» вместо тихой битой инструкции</div></div></div>
+  <div class="wave"><div class="no">2</div><div><div class="t">Инструмент кропов + шаблон</div><div class="d"><b>tools/manual-crops.py</b> (координатная таблица) + папка эталонов <b>src/shots/</b> + правки сценарных блоков template.html (строки 250–267, 243–248): переименование extracted-01/02 → sb-recalc-scenario / sb-error-range, alt-тексты, выравнивание колонок</div></div></div>
+  <div class="wave manual"><div class="no">3</div><div><div class="t">Пересъёмка 4 состояний приложения <span class="tag">запуск приложения</span></div><div class="d">«Все данные готовы» → sb-ready · «−15 → −18 без пересчёта» (погасшие шаги 3/5) → c-stepper + sb-recalc-scenario · «−50,0 ошибка» → c-error-stepper + sb-error-range · «УГВ &lt; 1 м» → sb-info2. Полные скрины 1440×900, масштаб 100%</div></div></div>
+  <div class="wave"><div class="no">4</div><div><div class="t">Пересборка и вычитка</div><div class="d">manual-crops.py → build_manual.py → просмотр всех 29 инлайнов → dotnet test зелёный → handover «до/после», дерево не коммитится до ревью</div></div></div>
+</div>
+
+<h2><span class="mark"></span>4 · Критерии приёмки</h2>
+<div class="checks">
+  <div class="chk"><span class="box"></span><div>Ни в одной иллюстрации не срезан посередине текст, поле или шаг; степперы — все 5 шагов целиком</div></div>
+  <div class="chk"><span class="box"></span><div>Статусбары: только полоса, без мусора сверху, пустой хвост ≤ 16px, единая высота, текст читается в карточке и в колонке</div></div>
+  <div class="chk"><span class="box"></span><div><b>build_manual.py</b> на LFS-указателе падает с именем файла и подсказкой (проверено подменой)</div></div>
+  <div class="chk"><span class="box"></span><div>Все 29 инлайнов вычитаны глазами; <b>dotnet test</b> зелёный</div></div>
+  <div class="chk"><span class="box"></span><div>Каждый кроп воспроизводится <b>python tools/manual-crops.py</b> из источника в репо — ручных кропов вне репо больше нет</div></div>
+</div>
+
+<div class="foot">show-me сгенерирован из плана 2026-09-19-manual-screenshots-plan.md · токены брендбука РЕХАУ-2026 · не коммитится до ревью владельца (урок №21: владелец открывает артефакт при ревью плана)</div>
+
+</body>
+</html>
