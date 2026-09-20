@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <AssemblyName>SnowMeltingCalculator</AssemblyName>
     <RootNamespace>SnowMeltingCalculator</RootNamespace>
-    <Version>1.8.0</Version>
+    <Version>1.9.0</Version>
     <ApplicationIcon>Assets\app_icon.ico</ApplicationIcon>
     <Authors>REHAU</Authors>
     <Product>Калькулятор снеготаяния РЕХАУ</Product>

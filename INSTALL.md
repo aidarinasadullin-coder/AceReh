@@ -9,7 +9,7 @@
 
 ## Установка (Setup.exe, рекомендуется)
 
-1. Запустите `SnowMeltingCalculator-v1.8.0-Setup.exe` (~68 MB)
+1. Запустите `SnowMeltingCalculator-v1.9.0-Setup.exe` (~68 MB)
 2. Следуйте инструкциям мастера установки:
    - Примите лицензионное соглашение
    - Выберите папку установки (по умолчанию: `C:\Program Files\REHAU\SnowMeltingCalculator`)
@@ -103,7 +103,7 @@ dotnet publish src/SnowMeltingCalculator.csproj -c Release /p:PublishProfile=win
 & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\SnowMeltingCalculator.iss
 
 # 3. Результат
-# output\SnowMeltingCalculator-v1.8.0-Setup.exe
+# output\SnowMeltingCalculator-v1.9.0-Setup.exe
 ```
 
 - Установщик пакует содержимое `publish\*` (без `*.pdb`), сжатие LZMA solid,
@@ -125,9 +125,9 @@ dotnet publish src/SnowMeltingCalculator.csproj -c Release /p:PublishProfile=win
 2. GitHub → **Actions → release → Run workflow** → версию можно оставить пустой
    (возьмётся из `<Version>` в csproj) или ввести явно — тогда она обязана
    совпадать с csproj
-3. После зелёного прогона заберите артефакт `SnowMeltingCalculator-v1.8.0-Setup`
+3. После зелёного прогона заберите артефакт `SnowMeltingCalculator-v1.9.0-Setup`
    из страницы запуска — он также автоматически уходит в папку выдачи на
-   Google Drive (если настроен секрет `RCLONE_CONF_B64`); тег `v1.8.0`
+   Google Drive (если настроен секрет `RCLONE_CONF_B64`); тег `v1.9.0`
    появится в репозитории автоматически
 
 Галочка «Пушить тег» (по умолчанию включена): снимите её, чтобы только собрать
@@ -193,4 +193,4 @@ C:\Program Files\REHAU\SnowMeltingCalculator\
 
 ---
 
-*Версия: 1.8.0 | Дата: 2026-09-20*
+*Версия: 1.9.0 | Дата: 2026-09-21*
