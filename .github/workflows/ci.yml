@@ -8,6 +8,9 @@ on:
     branches: [master]
   pull_request:
 
+permissions:
+  actions: write   # автопилот: workflow_dispatch release.yml от GITHUB_TOKEN
+
 jobs:
   test:
     runs-on: windows-latest
@@ -32,3 +35,34 @@ jobs:
       - name: Full suite (without UiSmoke)
         run: dotnet test SnowMeltingCalculator.sln -c Release --no-build --nologo
              --filter "Category!=UiSmoke"
+
+  # Автопилот релиза (решение владельца 2026-09-20, «бампнул версию → всё
+  # само»): после зелёного CI на пуш в master сравнить <Version> в csproj
+  # с тегами origin. Тега vVERSION нет → запустить release.yml (сборка,
+  # инсталлятор, Drive, тег). Тег есть → версия уже выпущена, шаг молча
+  # пропускается. Ручной запуск release.yml остаётся возможен.
+  auto-release:
+    needs: test
+    if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Автопилот: тега v<Version> нет → запустить release"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' src/SnowMeltingCalculator.csproj)
+          if [ -z "${VERSION}" ]; then
+            echo "::error::Не удалось прочитать <Version> из src/SnowMeltingCalculator.csproj."
+            exit 1
+          fi
+          echo "Версия csproj: ${VERSION}."
+          if git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" >/dev/null 2>&1; then
+            echo "Тег v${VERSION} уже в origin — версия выпущена, автопилот пропускает."
+            exit 0
+          fi
+          echo "Тега v${VERSION} нет — запускаю release (workflow_dispatch, push_tag=true)."
+          gh workflow run release.yml --repo "${GITHUB_REPOSITORY}" --ref master \
+            -f version="${VERSION}" -f push_tag=true
