@@ -44,7 +44,14 @@ def main() -> None:
         path = MEDIA / name
         if not path.exists():
             sys.exit(f"нет картинки для плейсхолдера: {{IMG:{name}}} ({path})")
-        b64 = base64.b64encode(path.read_bytes()).decode("ascii")
+        data = path.read_bytes()
+        # Гейт LFS: в рабочей копии без smudge media лежат указателями (~130 байт) —
+        # инлайнить их как base64 нельзя, инструкция станет битой.
+        if not data.startswith(b"\x89PNG\r\n\x1a\n"):
+            hint = ("файл — LFS-указатель, выполните `git lfs pull`"
+                    if data.lstrip().startswith(b"version https://git-lfs") else "файл не PNG")
+            sys.exit(f"{{IMG:{name}}}: {path.name} — {hint}")
+        b64 = base64.b64encode(data).decode("ascii")
         return f'src="data:image/png;base64,{b64}"'
 
     html = re.sub(r'src="\{\{IMG:([^}]+)\}\}"', inline, html)
