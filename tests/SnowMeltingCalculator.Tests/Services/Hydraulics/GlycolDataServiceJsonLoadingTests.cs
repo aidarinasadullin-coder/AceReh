@@ -48,7 +48,7 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             // fallback-таблицы обязаны совпадать с JSON-каноном в узлах своей
             // сетки — иначе молчаливый fallback при битой поставке считает по
             // протухшим данным. Сверка — в узлах fallback (9 температур ×
-            // 9 концентраций): fallback-сетка грубее JSON (25 температур), в
+            // 9 концентраций): fallback-сетка грубее JSON (29 температур), в
             // промежуточных точках результаты интерполяции законно различаются.
             var jsonService = new GlycolDataService("data/glycol_data.json");
             var fallbackService = new GlycolDataService("nonexistent_file.json");

@@ -551,7 +551,8 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         public void JsonData_ViscosityDecreasesWithTemperature()
         {
             // Arrange - проверяем точки данных ASHRAE из JSON
-            // Для этиленгликоля 60%: -17.8°C = 40.8 мм²/с, 48.9°C = 1.1 мм²/с
+            // Для этиленгликоля 60%: -17.8°C = 27.3 мм²/с, 48.9°C = 2.1 мм²/с
+            // (ASHRAE 2009, Tables 9; пересборка базы 2026-09-20, роадмап 2.2)
             double concentration = 60;
 
             // Act
@@ -563,10 +564,10 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
                 $"Данные JSON: вязкость при -17.8°C ({viscosityAtMinus17_8:F2}) должна быть > чем при 48.9°C ({viscosityAt48_9:F2})");
 
             // Проверяем порядок величин по данным ASHRAE
-            Assert.That(viscosityAtMinus17_8, Is.GreaterThan(30),
-                $"Вязкость при -17.8°C должна быть ~40.8 мм²/с, получено {viscosityAtMinus17_8:F2}");
-            Assert.That(viscosityAt48_9, Is.LessThan(2),
-                $"Вязкость при 48.9°C должна быть ~1.1 мм²/с, получено {viscosityAt48_9:F2}");
+            Assert.That(viscosityAtMinus17_8, Is.GreaterThan(20),
+                $"Вязкость при -17.8°C должна быть ~27.3 мм²/с, получено {viscosityAtMinus17_8:F2}");
+            Assert.That(viscosityAt48_9, Is.LessThan(3),
+                $"Вязкость при 48.9°C должна быть ~2.1 мм²/с, получено {viscosityAt48_9:F2}");
         }
 
         [Test]
@@ -653,13 +654,16 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         }
 
         /// <summary>
-        /// Контрольный позитив: 10 % при −6,7 °C — живая ячейка, свойства
+        /// Контрольный позитив: 20 % при −6,7 °C — живая ячейка, свойства
         /// остаются числами (гвард не блокирует валидные зоны).
+        /// Раньше позитивом была ячейка 10 % при −6,7 °C — она держалась
+        /// только на внеисточниковых значениях старой базы: по ASHRAE
+        /// (пересборка 2026-09-20) 10 % при −6,7 °C замёрз и честно NaN.
         /// </summary>
         [Test]
         public void GetProperties_AboveFreezingBoundary_ReturnsValidNumbers()
         {
-            var props = _service.GetProperties(GlycolType.Ethylene, 10, -6.7);
+            var props = _service.GetProperties(GlycolType.Ethylene, 20, -6.7);
 
             Assert.Multiple(() =>
             {
@@ -677,15 +681,18 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         /// <summary>
         /// Порог из той же матрицы, что и интерполяция: минимальная
         /// концентрация, при которой свойства при температуре не NaN.
-        /// Границы соответствуют эмпирике матрицы (этиленгликоль):
-        /// 10 % — с −6,7 °C, 20 % — с −12,2 °C, 30/40 % — с −23,3 °C,
-        /// 50 % — с −28,9 °C, 60 %+ — с −34,4 °C.
+        /// После пересборки базы из ASHRAE (2026-09-20, роадмап 2.2)
+        /// границы = совместное покрытие Tables 6–9 по всем четырём
+        /// свойствам (этиленгликоль): при −10 °C 20 % блокирует
+        /// теплопроводность (её покрытие начинается с −6,7 °C), при
+        /// −15 °C 30 % блокирует вязкость (с −12,2 °C); 50 % валидна
+        /// уже с −30 °C.
         /// </summary>
-        [TestCase(-15, 30)]
-        [TestCase(-10, 20)]
-        [TestCase(-5, 10)]
+        [TestCase(-15, 40)]
+        [TestCase(-10, 30)]
+        [TestCase(-5, 20)]
         [TestCase(-25, 50)]
-        [TestCase(-30, 60)]
+        [TestCase(-30, 50)]
         [TestCase(10, 10)]
         public void GetMinValidConcentration_Ethylene_MatchesMatrixBoundaries(
             double temperature, double expected)
@@ -695,11 +702,12 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
         }
 
         [Test]
-        public void GetMinValidConcentration_Propylene_AtMinus5_Requires40()
+        public void GetMinValidConcentration_Propylene_AtMinus5_Requires30()
         {
-            // Пропилен строже по вязкости: 30 % валидна только с −1,1 °C.
+            // Пропилен: 20 % при −5 °C блокирует теплопроводность —
+            // её покрытие в ASHRAE начинается с −1,1 °C (Tables 10–13).
             Assert.That(_service.GetMinValidConcentration(GlycolType.Propylene, -5),
-                Is.EqualTo(40));
+                Is.EqualTo(30));
         }
 
         [Test]

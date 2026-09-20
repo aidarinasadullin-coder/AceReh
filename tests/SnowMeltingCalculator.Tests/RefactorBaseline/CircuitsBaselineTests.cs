@@ -31,7 +31,11 @@ namespace SnowMeltingCalculator.Tests.RefactorBaseline
             ValveType.HKV_D,
             ValveType.IV_1_25
         };
-        private static readonly IReadOnlyList<double> GlycolConcentrations = new List<double> { 30.0, 50.0 };
+        // 40/50 %: при расчётной температуре −20 °C концентрация 30 % для
+        // этиленгликоля лежит в замёрзшей зоне канона ASHRAE (пересборка
+        // базы 2026-09-20, роадмап 2.2) — свойства честно NaN (D9), baseline
+        // фиксирует только физически валидные режимы.
+        private static readonly IReadOnlyList<double> GlycolConcentrations = new List<double> { 40.0, 50.0 };
 
         private const double PowerUp = 256.0;
         private const double PowerDown = 5.0;

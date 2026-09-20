@@ -575,14 +575,15 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var propylene = service.GetProperties(GlycolType.Propylene, concentration, temperature);
 
             // Assert
-            // Этиленгликоль при 50% и 37.8°C: ~1086.6 кг/м³ (из JSON)
-            // Пропиленгликоль при 50% и 37.8°C: ~1037 кг/м³ (из JSON)
-            Assert.That(ethylene.Density, Is.GreaterThan(1080).And.LessThan(1095),
-                $"Этиленгликоль: плотность должна быть 1080-1095 кг/м³, получено {ethylene.Density}");
-            Assert.That(propylene.Density, Is.GreaterThan(1030).And.LessThan(1045),
-                $"Пропиленгликоль: плотность должна быть 1030-1045 кг/м³, получено {propylene.Density}");
-            Assert.That(Math.Abs(ethylene.Density - propylene.Density), Is.GreaterThan(40),
-                "Плотности должны различаться минимум на 40 кг/м³");
+            // Этиленгликоль при 50% и 37.8°C: ~1066.0 кг/м³ (ASHRAE 2009,
+            // пересборка базы 2026-09-20)
+            // Пропиленгликоль при 50% и 37.8°C: ~1033.7 кг/м³
+            Assert.That(ethylene.Density, Is.GreaterThan(1060).And.LessThan(1072),
+                $"Этиленгликоль: плотность должна быть 1060-1072 кг/м³, получено {ethylene.Density}");
+            Assert.That(propylene.Density, Is.GreaterThan(1028).And.LessThan(1040),
+                $"Пропиленгликоль: плотность должна быть 1028-1040 кг/м³, получено {propylene.Density}");
+            Assert.That(Math.Abs(ethylene.Density - propylene.Density), Is.GreaterThan(25),
+                "Плотности должны различаться (по ASHRAE ~32 кг/м³)");
         }
 
         [Test]
@@ -598,14 +599,15 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var propylene = service.GetProperties(GlycolType.Propylene, concentration, temperature);
 
             // Assert
-            // Этиленгликоль при 50% и 37.8°C: ~1.3 мм²/с (из JSON)
-            // Пропиленгликоль при 50% и 37.8°C: ~4.19 мм²/с (из JSON)
+            // Этиленгликоль при 50% и 37.8°C: ~2.2 мм²/с (ASHRAE 2009,
+            // пересборка базы 2026-09-20)
+            // Пропиленгликоль при 50% и 37.8°C: ~3.2 мм²/с
             Assert.That(propylene.KinematicViscosity, Is.GreaterThan(ethylene.KinematicViscosity),
                 "Пропиленгликоль должен иметь более высокую вязкость");
-            // Разница должна быть значительной (минимум 200%)
+            // Разница значимая, но не кратная (по ASHRAE отношение ~1.4)
             double ratio = propylene.KinematicViscosity / ethylene.KinematicViscosity;
-            Assert.That(ratio, Is.GreaterThan(2.0),
-                $"Отношение вязкостей должно быть > 2.0, получено {ratio:F2}");
+            Assert.That(ratio, Is.GreaterThan(1.3),
+                $"Отношение вязкостей должно быть > 1.3, получено {ratio:F2}");
         }
 
         [Test]
@@ -621,13 +623,14 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var propylene = service.GetProperties(GlycolType.Propylene, concentration, temperature);
 
             // Assert
-            // Этиленгликоль при 50% и 37.8°C: ~4.05 кДж/(кг·К) (из JSON)
-            // Пропиленгликоль при 50% и 37.8°C: ~3.90 кДж/(кг·К) (из JSON)
+            // Этиленгликоль при 50% и 37.8°C: ~3.35 кДж/(кг·К) (ASHRAE 2009,
+            // пересборка базы 2026-09-20)
+            // Пропиленгликоль при 50% и 37.8°C: ~3.61 кДж/(кг·К)
             // Проверяем, что значения в разумных пределах
-            Assert.That(ethylene.SpecificHeat, Is.GreaterThan(3.5).And.LessThan(4.5),
-                $"Этиленгликоль: теплоёмкость должна быть 3.5-4.5 кДж/(кг·К), получено {ethylene.SpecificHeat}");
-            Assert.That(propylene.SpecificHeat, Is.GreaterThan(3.5).And.LessThan(4.5),
-                $"Пропиленгликоль: теплоёмкость должна быть 3.5-4.5 кДж/(кг·К), получено {propylene.SpecificHeat}");
+            Assert.That(ethylene.SpecificHeat, Is.GreaterThan(3.2).And.LessThan(3.5),
+                $"Этиленгликоль: теплоёмкость должна быть 3.2-3.5 кДж/(кг·К), получено {ethylene.SpecificHeat}");
+            Assert.That(propylene.SpecificHeat, Is.GreaterThan(3.45).And.LessThan(3.75),
+                $"Пропиленгликоль: теплоёмкость должна быть 3.45-3.75 кДж/(кг·К), получено {propylene.SpecificHeat}");
             // Проверяем, что значения различаются
             Assert.That(Math.Abs(ethylene.SpecificHeat - propylene.SpecificHeat), Is.GreaterThan(0.05),
                 "Теплоёмкости должны различаться");
@@ -660,17 +663,18 @@ namespace SnowMeltingCalculator.Tests.Services.Hydraulics
             var props = service.GetProperties(GlycolType.Ethylene, 50, 37.8);
 
             // Assert - проверка по данным ASHRAE из JSON
-            // При 50% концентрации и 37.8°C:
-            // Плотность: ~1086.6 кг/м³ (интерполяция между 32.2 и 43.3)
-            // Вязкость: ~1.3 мм²/с
-            // Теплоёмкость: ~4.05 кДж/(кг·К)
-            Assert.That(props.Density, Is.GreaterThan(1080).And.LessThan(1095),
-                $"Плотность этиленгликоля 50% при 37.8°C должна быть ~1086.6 кг/м³, получено {props.Density}");
+            // При 50% концентрации и 37.8°C (интерполяция между 32.2 и 43.3;
+            // пересборка базы из ASHRAE 2009 — 2026-09-20, роадмап 2.2):
+            // Плотность: ~1066.0 кг/м³
+            // Вязкость: ~2.2 мм²/с
+            // Теплоёмкость: ~3.35 кДж/(кг·К)
+            Assert.That(props.Density, Is.GreaterThan(1060).And.LessThan(1072),
+                $"Плотность этиленгликоля 50% при 37.8°C должна быть ~1066.0 кг/м³, получено {props.Density}");
             // Вязкость при 37.8°C интерполируется между 32.2 и 43.3
-            Assert.That(props.KinematicViscosity, Is.GreaterThan(1.0).And.LessThan(2.5),
-                $"Вязкость этиленгликоля 50% при 37.8°C должна быть ~1.3-2.0 мм²/с, получено {props.KinematicViscosity}");
-            Assert.That(props.SpecificHeat, Is.GreaterThan(3.5).And.LessThan(4.5),
-                $"Теплоёмкость этиленгликоля 50% при 37.8°C должна быть ~4.05 кДж/(кг·К), получено {props.SpecificHeat}");
+            Assert.That(props.KinematicViscosity, Is.GreaterThan(1.9).And.LessThan(2.6),
+                $"Вязкость этиленгликоля 50% при 37.8°C должна быть ~2.2 мм²/с, получено {props.KinematicViscosity}");
+            Assert.That(props.SpecificHeat, Is.GreaterThan(3.2).And.LessThan(3.5),
+                $"Теплоёмкость этиленгликоля 50% при 37.8°C должна быть ~3.35 кДж/(кг·К), получено {props.SpecificHeat}");
         }
 
         [Test]
