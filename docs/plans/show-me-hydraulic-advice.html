@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me: 2.1 Гидравлические советы с лечением</title>
+<style>
+  :root {
+    --red: #E50040; --red-d: #B80033; --teal: #4FC7B5; --teal-d: #1E9C8B;
+    --ink: #1D1D1B; --gray1: #4E4E4E; --gray2: #818181; --gray3: #B0B0B0;
+    --gray4: #D9D9D9; --bg: #F6F6F6; --card: #FFFFFF;
+    --warn: #E8A200; --warn-bg: #FFF3D6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--ink); padding: 28px 32px 60px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 32px 0 10px; }
+  .mark { display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; }
+  .sub { color: var(--gray2); font-size: 13px; margin-top: 6px; }
+  .plan-ref { margin-top: 10px; font-size: 12.5px; color: var(--gray1); }
+  .plan-ref code { background: #EDEDED; border-radius: 3px; padding: 1px 6px; font-size: 11.5px; }
+  .banner { margin-top: 14px; background: #E4F6F3; border: 1px solid #B7E3DA; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: var(--teal-d); font-weight: 600; max-width: 1180px; }
+  .metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; max-width: 1180px; }
+  .metric { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 13px 17px; min-width: 170px; }
+  .metric .v { font-size: 20px; font-weight: 700; }
+  .metric .v.ok { color: var(--teal-d); }
+  .metric .k { font-size: 10.5px; color: var(--gray2); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; max-width: 1180px; }
+  .card { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 14px 16px; }
+  .card h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray1); margin-bottom: 8px; }
+  .card .d { font-size: 12px; color: var(--gray1); line-height: 1.5; }
+  .mono { font-family: Consolas, monospace; font-size: 10.5px; background: #F0F0F0; padding: 1px 5px; border-radius: 3px; }
+  pre { font-family: Consolas, monospace; font-size: 11.5px; background: #1D1D1B; color: #EDEDED; border-radius: 8px; padding: 13px 15px; line-height: 1.55; overflow-x: auto; }
+  pre .k { color: #4FC7B5; } pre .s { color: #F5A8BC; } pre .c { color: #818181; }
+  table { border-collapse: collapse; margin-top: 10px; font-size: 11.5px; width: 100%; max-width: 1180px; background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; overflow: hidden; }
+  th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray2); padding: 8px 11px 5px; border-bottom: 1px solid var(--gray4); }
+  td { border-bottom: 1px solid var(--gray4); padding: 7px 11px; vertical-align: top; line-height: 1.45; }
+  tr:last-child td { border-bottom: none; }
+  .pill { display: inline-block; font-size: 10.5px; border-radius: 999px; padding: 3px 10px; font-weight: 700; margin-right: 5px; }
+  .p-red { background: #FBE3EA; color: var(--red); }
+  .p-teal { background: #E4F6F3; color: var(--teal-d); }
+  .p-warn { background: var(--warn-bg); color: #9A6B00; }
+  .p-gray { background: #ECECEC; color: var(--gray1); }
+  .decisions { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 9px; margin-top: 12px; max-width: 1180px; }
+  .dec { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 11px 13px; }
+  .dec .id { display: inline-block; background: #FBE3EA; color: var(--red); font-weight: 700; font-size: 10.5px; border-radius: 999px; padding: 2px 9px; }
+  .dec .q { font-size: 11px; color: var(--gray2); margin-top: 6px; }
+  .dec .a { font-size: 12px; font-weight: 600; margin-top: 3px; }
+  .dec .alt { font-size: 10.5px; color: var(--gray2); margin-top: 4px; }
+  .dec .alt b { color: var(--gray1); }
+  .cap { font-size: 11px; color: var(--gray2); margin-top: 8px; line-height: 1.5; max-width: 1180px; }
+  .foot { margin-top: 30px; font-size: 11px; color: var(--gray2); max-width: 1020px; line-height: 1.55; }
+
+  /* мокап шага «Гидравлика» */
+  .app { background: #FFFFFF; border: 1px solid var(--gray4); border-radius: 10px; overflow: hidden; box-shadow: 0 6px 22px rgba(29,29,27,.10); max-width: 1180px; }
+  .app .titlebar { height: 34px; background: #FFFFFF; border-bottom: 1px solid var(--gray4); display: flex; align-items: center; padding: 0 12px; gap: 14px; }
+  .app .logo { width: 18px; height: 18px; border-radius: 4px; background: var(--red); }
+  .app .crumb { font-size: 12px; font-weight: 700; }
+  .app .crumb .step { color: var(--gray2); font-weight: 400; }
+  .cardbox { margin: 14px; border: 1px solid var(--gray4); border-radius: 8px; overflow: hidden; }
+  .cardbox .boxhead { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--gray4); background: #FFFFFF; }
+  .cardbox .boxhead .t { font-size: 13px; font-weight: 700; }
+  .tabs { display: flex; gap: 6px; }
+  .tab { font-size: 11px; padding: 4px 12px; border-radius: 6px; border: 1px solid var(--gray4); color: var(--gray1); }
+  .tab.on { background: var(--red); border-color: var(--red); color: #FFF; font-weight: 700; }
+  .kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 12px 14px 4px; }
+  .kpi { border: 1px solid var(--gray4); border-radius: 8px; padding: 9px 10px; }
+  .kpi .v { font-size: 15px; font-weight: 700; }
+  .kpi .v.bad { color: var(--red-d); }
+  .kpi .l { font-size: 9.5px; color: var(--gray2); text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
+  /* НОВОЕ: блок советов */
+  .advice { margin: 10px 14px; border: 1px solid #F0D8A8; background: var(--warn-bg); border-radius: 8px; padding: 4px 0; }
+  .advice .ahead { display: flex; align-items: center; gap: 7px; padding: 7px 12px 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #9A6B00; }
+  .arow { display: flex; align-items: flex-start; gap: 9px; padding: 7px 12px; border-top: 1px solid #F0E3C0; }
+  .arow:first-of-type { border-top: none; }
+  .aico { flex: 0 0 auto; width: 14px; height: 14px; border-radius: 50%; background: var(--warn); color: #FFF; font-size: 10px; font-weight: 700; text-align: center; line-height: 14px; margin-top: 1px; }
+  .atxt { flex: 1; font-size: 11.5px; line-height: 1.45; color: var(--ink); }
+  .atxt b { font-weight: 700; }
+  .abtn { flex: 0 0 auto; font-size: 10.5px; font-weight: 700; border-radius: 6px; padding: 6px 11px; background: #FFF; border: 1px solid var(--gray4); color: var(--ink); }
+  .abtn.hot { border-color: var(--red); color: var(--red-d); }
+  .dgrid { margin: 6px 14px 14px; border: 1px solid var(--gray4); border-radius: 8px; overflow: hidden; }
+  .dgrid .r { display: grid; grid-template-columns: 34px 54px 64px 1fr 1fr 1fr; font-size: 11px; border-bottom: 1px solid #F0F0F0; }
+  .dgrid .r:last-child { border-bottom: none; }
+  .dgrid .h { background: #FAFAFA; color: var(--gray2); font-size: 9.5px; text-transform: uppercase; letter-spacing: .04em; }
+  .dgrid .c { padding: 6px 9px; text-align: right; }
+  .dgrid .c:first-child, .dgrid .c:nth-child(2) { text-align: center; }
+  .dgrid .bad { color: var(--red-d); font-weight: 700; }
+  .flow { display: flex; align-items: stretch; gap: 8px; margin-top: 12px; flex-wrap: wrap; max-width: 1180px; }
+  .stage { background: var(--card); border: 1px solid var(--gray4); border-top: 4px solid var(--red); border-radius: 8px; padding: 11px 12px; flex: 1 1 150px; min-width: 140px; }
+  .stage.t { border-top-color: var(--teal); }
+  .stage .n { font-size: 10.5px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.05em; }
+  .stage.t .n { color: var(--teal-d); }
+  .stage .t2 { font-size: 12.5px; font-weight: 700; margin-top: 3px; }
+  .stage .d { font-size: 11px; color: var(--gray1); margin-top: 4px; line-height: 1.4; }
+  .arrow { align-self: center; color: var(--gray3); font-size: 17px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<h1>2.1 Гидравлические советы с лечением</h1>
+<div class="sub">Пункт 2.1 очереди 2 роадмапа post-1.8 · Идея №7 · паттерн ThermalAdviceService (1.6.0) на гидравлический срез · условие владельца: «без грязи»</div>
+<div class="plan-ref">План: <code>docs/plans/2026-09-21-hydraulic-advice-plan.md</code> · правила — в сервисе гидравлического среза (зеркало ThermalAdviceService) · без записей VM→VM и новых писателей канона · state ownership без изменений</div>
+<div class="banner">СОВЕТЫ — СЛОЙ РЕКОМЕНДАЦИЙ: ничего не гейтят, канонического состояния не создают. Кнопка «Применить» — только смена типоразмера, и идёт она через СУЩЕСТВУЮЩИЙ канонический метод IThermalStateCoordinator.ApplyInputEdit — тот же, которым тепловая форма меняет трубу.</div>
+
+<h2><span class="mark"></span>Лимиты РЕХАУ — канон HydraulicsConstants (ADR-016)</h2>
+<div class="metrics">
+  <div class="metric"><div class="v">≤ 320 мбар</div><div class="k">Потери давления · MaxPressureLoss_Pa</div></div>
+  <div class="metric"><div class="v">0.5–2.0 м/с</div><div class="k">Скорость · MinVelocity / MaxVelocity</div></div>
+  <div class="metric"><div class="v">≤ 120 м</div><div class="k">Длина контура · MaxCircuitLength_m</div></div>
+  <div class="metric"><div class="v ok">Ø 13 / 16 / 20.4 мм</div><div class="k">Типоразмеры RAUTHERM S · сосед по InnerDiameter</div></div>
+</div>
+<div class="cap">Дубль MinVelocity (0.1 ValidationConstants vs 0.5 HydraulicsConstants) — две разные семантики: 0.1 — физическая валидация ввода (гейт отчёта), 0.5 — инженерный лимит РЕХАУ (советы). Решение H6 — на ревью владельца.</div>
+
+<h2><span class="mark"></span>Как это выглядит: шаг «Гидравлика», карточка «Коллекторы»</h2>
+<div class="app">
+  <div class="titlebar"><div class="logo"></div><div class="crumb">Гидравлика <span class="step">— шаг 4 из 5 · коллекторы и контуры</span></div></div>
+  <div class="cardbox">
+    <div class="boxhead">
+      <div class="t">Коллекторы</div>
+      <div class="tabs"><div class="tab on">Коллектор 1</div><div class="tab">Коллектор 2</div></div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="v">4 шт</div><div class="l">Контуров</div></div>
+      <div class="kpi"><div class="v">312 м</div><div class="l">Длина труб</div></div>
+      <div class="kpi"><div class="v">9 720 Вт</div><div class="l">Мощность</div></div>
+      <div class="kpi"><div class="v">1 690 л/ч</div><div class="l">Расход</div></div>
+      <div class="kpi"><div class="v">32,7 кПа</div><div class="l">Потери (раб.)</div></div>
+      <div class="kpi"><div class="v bad">34,8 кПа</div><div class="l">Потери (хол.)</div></div>
+    </div>
+    <div class="advice">
+      <div class="ahead"><span class="aico">!</span>Советы — нарушения лимитов РЕХАУ</div>
+      <div class="arow">
+        <div class="aico">!</div>
+        <div class="atxt">Потери в контурах 2, 4 — <b>348,1 мбар (хол.)</b> превышают 320 мбар: возьмите трубу больше или разбейте контур на два</div>
+        <div class="abtn hot">Применить: RAUTHERM S 25x2,3</div>
+      </div>
+      <div class="arow">
+        <div class="aico">!</div>
+        <div class="atxt">Скорость в контуре 3 — <b>0,32 м/с</b> ниже 0,5 м/с (риск воздушных пробок): возьмите трубу меньше или уменьшите шаг укладки — вырастет расход</div>
+        <div class="abtn hot">Применить: RAUTHERM S 17x2,0</div>
+      </div>
+      <div class="arow">
+        <div class="aico">!</div>
+        <div class="atxt">Длина контура 4 — <b>134 м</b> превышает 120 м: разбейте контур на два</div>
+      </div>
+    </div>
+    <div class="dgrid">
+      <div class="r h"><div class="c">№</div><div class="c">Статус</div><div class="c">Длина, м</div><div class="c">v, м/с</div><div class="c">Δp раб, мбар</div><div class="c">Δp хол, мбар</div></div>
+      <div class="r"><div class="c">1</div><div class="c">●</div><div class="c">88</div><div class="c">0,84</div><div class="c">187</div><div class="c">226</div></div>
+      <div class="r"><div class="c">2</div><div class="c" style="color:var(--warn);font-weight:700">▲</div><div class="c">104</div><div class="c">1,12</div><div class="c">276</div><div class="c bad">348</div></div>
+      <div class="r"><div class="c">3</div><div class="c" style="color:var(--warn);font-weight:700">▲</div><div class="c">52</div><div class="c bad">0,32</div><div class="c">94</div><div class="c">118</div></div>
+      <div class="r"><div class="c">4</div><div class="c" style="color:var(--warn);font-weight:700">▲</div><div class="c bad">134</div><div class="c">1,36</div><div class="c bad">327</div><div class="c bad">348</div></div>
+    </div>
+  </div>
+</div>
+<div class="cap">Блок «Советы» — новое (H3): между сводкой KPI-чипов и таблицей; один совет на правило со списком номеров контуров (H4); скрыт, когда нарушений нет; гаснет при правке ввода гидравлики (результаты инвалидируются, ADR-012 — H7); после «Применить» сохраняется с числами последнего гидравлического расчёта до пересчёта (H8). Кнопка «Применить» видна только там, где есть соседний типоразмер (H9) и предложенный типоразмер ещё не канонический (защита от второго клика); подпись — короткое имя трубы «RAUTHERM S 25x2,3» (канон PipeType.Name); у «длины &gt; 120 м» лечения одним действием нет — только текст. Показ — только после расчёта: строка без результатов обеих температур в факты не входит.</div>
+
+<h2><span class="mark"></span>Поток «Применить» — через канон, без VM→VM</h2>
+<div class="flow">
+  <div class="stage"><div class="n">Гидравлика</div><div class="t2">Совет: скорость вне 0.5–2.0</div><div class="d">SuggestedPipe — соседний типоразмер по InnerDiameter; нет соседа — кнопки нет</div></div>
+  <div class="arrow">→</div>
+  <div class="stage"><div class="n">Кнопка «Применить»</div><div class="t2">ApplyAdviceCommand</div><div class="d">CanExecute: координатор есть ∧ SuggestedPipe ≠ null ∧ не идёт расчёт ∧ не загрузка проекта</div></div>
+  <div class="arrow">→</div>
+  <div class="stage t"><div class="n">Канон (существующий)</div><div class="t2">IThermalStateCoordinator.ApplyInputEdit(ForPipe(…))</div><div class="d">Origin=User, один dirty-intent; тот же singleton, что у ThermalViewModel — писатель прежний</div></div>
+  <div class="arrow">→</div>
+  <div class="stage t"><div class="n">Тепловая форма</div><div class="t2">Эхо-синхронизация (H2)</div><div class="d">OnCoordinatorCompletion: труба из After-снапшота под _isResetting-гвардом — вторая мутация не создаётся</div></div>
+  <div class="arrow">→</div>
+  <div class="stage"><div class="n">Пересчёт</div><div class="t2">Тепловой шаг → «Рассчитать» → гидравлика</div><div class="d">Автокаскада нет (H8); советы гаснут по инвалидации и пересобираются после расчёта</div></div>
+</div>
+
+<h2><span class="mark"></span>Каталог правил v1 (порядок стабильный, план §2.1)</h2>
+<table>
+  <tr><th>Id</th><th>Условие (на контур)</th><th>Лечение в тексте</th><th>«Применить»</th></tr>
+  <tr><td><span class="mono">PRESSURE_MAX</span></td><td>max(Δp раб, Δp хол) &gt; 320 мбар</td><td>труба больше / разбить контур на два</td><td><span class="pill p-teal">сосед-больше</span></td></tr>
+  <tr><td><span class="mono">VELOCITY_LOW</span></td><td>v &lt; 0.5 м/с</td><td>труба меньше / меньше шаг — вырастет расход</td><td><span class="pill p-teal">сосед-меньше</span></td></tr>
+  <tr><td><span class="mono">VELOCITY_HIGH</span></td><td>v &gt; 2.0 м/с</td><td>труба больше / разбить контур на два</td><td><span class="pill p-teal">сосед-больше</span></td></tr>
+  <tr><td><span class="mono">CIRCUIT_LENGTH_MAX</span></td><td>длина &gt; 120 м</td><td>разбить контур на два</td><td><span class="pill p-gray">нет — лечится руками</span></td></tr>
+</table>
+<div class="cap">Граница «равно лимиту» — не нарушение (строгие неравенства). Зона кода: <span class="mono">Models/Hydraulics/HydraulicsAdvice.cs</span> (модели) + <span class="mono">Services/Hydraulics/IHydraulicsAdviceService.cs / HydraulicsAdviceService.cs</span> (чистая функция) + проекция и команда в <span class="mono">CircuitsViewModel</span> + блок в <span class="mono">CircuitsView.xaml</span>. DI: <span class="mono">AddTransient&lt;IHydraulicsAdviceService, …&gt;</span> рядом с тепловым аналогом.</div>
+
+<h2><span class="mark"></span>Решения-дефолты плана (владелец может переопределить)</h2>
+<div class="decisions">
+  <div class="dec"><span class="id">H1</span><div class="q">Канал «Применить»</div><div class="a">Существующий ApplyInputEdit теплового координатора</div><div class="alt">Альт.: <b>только навигация</b> на тепловой шаг</div></div>
+  <div class="dec"><span class="id">H2</span><div class="q">UI тепла после «Применить»</div><div class="a">Эхо-синхронизация SelectedPipe в Completion</div><div class="alt">Альт.: <b>не синхронизировать</b> — старая труба в форме</div></div>
+  <div class="dec"><span class="id">H3</span><div class="q">Место блока</div><div class="a">Под сводкой KPI-чипов, над таблицей</div><div class="alt">Альт.: <b>подсказки в ячейках</b> dense-таблицы</div></div>
+  <div class="dec"><span class="id">H5</span><div class="q">Потери: режим</div><div class="a">Проверяются раб. и хол.; в тексте — какой</div><div class="alt">Альт.: <b>только раб.</b> — холодный прогон молча пройдёт</div></div>
+  <div class="dec"><span class="id">H6</span><div class="q">MinVelocity 0.1 vs 0.5</div><div class="a">Советы — 0.5 (РЕХАУ); 0.1 — валидация ввода</div><div class="alt">Альт.: <b>уравнять</b> — сломает гейт отчёта</div></div>
+  <div class="dec"><span class="id">H8</span><div class="q">После «Применить»</div><div class="a">Без автокаскада: пересчитать оба шага руками</div><div class="alt">Альт.: <b>автопересчёт</b> — скрытая цепочка расчётов</div></div>
+</div>
+
+<div class="foot">Проверка R-инвариантов: ProjectSession не трогается · канон-писатели не расширяются (SetPipeSpacing-allowlist не меняется) · .smc wire не меняется · AppSettings не трогается · советы — derived-проекция, ничего не гейтят. Тесты: HydraulicsAdviceServiceTests (правила/склейка/соседи/культура) + дополнение CircuitsViewModelTests (проекции, CanExecute, ApplyInputEdit-снапшот) + полный зелёный прогон. Инструкция: раздел «Гидравлика» + пересборка build_manual.py.</div>
+
+</body>
+</html>

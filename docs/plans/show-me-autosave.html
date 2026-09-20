@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me: 3.1 Автосохранение и восстановление сессии</title>
+<style>
+  :root {
+    --red: #E50040; --red-d: #B80033; --teal: #4FC7B5; --teal-d: #1E9C8B;
+    --ink: #1D1D1B; --gray1: #4E4E4E; --gray2: #818181; --gray3: #B0B0B0;
+    --gray4: #D9D9D9; --bg: #F6F6F6; --card: #FFFFFF; --warn-bg: #FFF3D6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--ink); padding: 28px 32px 60px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 32px 0 10px; }
+  .mark { display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; }
+  .sub { color: var(--gray2); font-size: 13px; margin-top: 6px; }
+  .plan-ref { margin-top: 10px; font-size: 12.5px; color: var(--gray1); }
+  .plan-ref code { background: #EDEDED; border-radius: 3px; padding: 1px 6px; font-size: 11.5px; }
+  .banner { margin-top: 14px; background: #E4F6F3; border: 1px solid #B7E3DA; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: var(--teal-d); font-weight: 600; max-width: 1180px; }
+  .metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; max-width: 1180px; }
+  .metric { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 13px 17px; min-width: 170px; }
+  .metric .v { font-size: 17px; font-weight: 700; }
+  .metric .v.ok { color: var(--teal-d); }
+  .metric .k { font-size: 10.5px; color: var(--gray2); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+  .card { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 14px 16px; max-width: 1180px; }
+  .card h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray1); margin-bottom: 8px; }
+  .card .d { font-size: 12px; color: var(--gray1); line-height: 1.5; }
+  .mono { font-family: Consolas, monospace; font-size: 10.5px; background: #F0F0F0; padding: 1px 5px; border-radius: 3px; }
+  table { border-collapse: collapse; margin-top: 10px; font-size: 11.5px; width: 100%; max-width: 1180px; background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; overflow: hidden; }
+  th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray2); padding: 8px 11px 5px; border-bottom: 1px solid var(--gray4); }
+  td { border-bottom: 1px solid var(--gray4); padding: 7px 11px; vertical-align: top; line-height: 1.45; }
+  tr:last-child td { border-bottom: none; }
+  .pill { display: inline-block; font-size: 10.5px; border-radius: 999px; padding: 3px 10px; font-weight: 700; margin-right: 5px; }
+  .p-red { background: #FBE3EA; color: var(--red); }
+  .p-teal { background: #E4F6F3; color: var(--teal-d); }
+  .p-gray { background: #ECECEC; color: var(--gray1); }
+  .decisions { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 9px; margin-top: 12px; max-width: 1180px; }
+  .dec { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 11px 13px; }
+  .dec .id { display: inline-block; background: #FBE3EA; color: var(--red); font-weight: 700; font-size: 10.5px; border-radius: 999px; padding: 2px 9px; }
+  .dec .q { font-size: 11px; color: var(--gray2); margin-top: 6px; }
+  .dec .a { font-size: 12px; font-weight: 600; margin-top: 3px; }
+  .dec .alt { font-size: 10.5px; color: var(--gray2); margin-top: 4px; }
+  .dec .alt b { color: var(--gray1); }
+  .cap { font-size: 11px; color: var(--gray2); margin-top: 8px; line-height: 1.5; max-width: 1180px; }
+  .foot { margin-top: 30px; font-size: 11px; color: var(--gray2); max-width: 1020px; line-height: 1.55; }
+
+  .flow { display: flex; align-items: stretch; gap: 8px; margin-top: 12px; flex-wrap: wrap; max-width: 1180px; }
+  .stage { background: var(--card); border: 1px solid var(--gray4); border-top: 4px solid var(--teal); border-radius: 8px; padding: 11px 12px; flex: 1 1 150px; min-width: 140px; }
+  .stage.bad { border-top-color: var(--red); }
+  .stage .n { font-size: 10.5px; font-weight: 700; color: var(--teal-d); text-transform: uppercase; letter-spacing: 0.05em; }
+  .stage.bad .n { color: var(--red); }
+  .stage .t2 { font-size: 12.5px; font-weight: 700; margin-top: 3px; }
+  .stage .d { font-size: 11px; color: var(--gray1); margin-top: 4px; line-height: 1.4; }
+  .arrow { align-self: center; color: var(--gray3); font-size: 17px; font-weight: 700; }
+
+  /* мокапы */
+  .app { background: #FFFFFF; border: 1px solid var(--gray4); border-radius: 10px; overflow: hidden; box-shadow: 0 6px 22px rgba(29,29,27,.10); max-width: 1180px; }
+  .app .titlebar { height: 34px; background: #FFFFFF; border-bottom: 1px solid var(--gray4); display: flex; align-items: center; padding: 0 12px; gap: 10px; }
+  .app .logo { width: 18px; height: 18px; border-radius: 4px; background: var(--red); }
+  .app .title { font-size: 12px; font-weight: 600; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; max-width: 1180px; }
+  .dlg-wrap { position: relative; height: 170px; background: var(--bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .dlg { background: #FFFFFF; border-radius: 10px; width: 92%; box-shadow: 0 14px 40px rgba(29,29,27,.28); overflow: hidden; }
+  .dlg .stripe { height: 6px; background: var(--red); }
+  .dlg .inner { padding: 16px 20px 14px; }
+  .dlg h4 { font-size: 14px; font-weight: 700; }
+  .dlg p { font-size: 11.5px; color: var(--gray1); margin-top: 7px; line-height: 1.5; }
+  .dlg .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .btn { font-size: 11.5px; font-weight: 700; border-radius: 6px; padding: 7px 16px; }
+  .btn.primary { background: var(--red); color: #FFFFFF; }
+  .btn.sec { background: #FFFFFF; color: var(--ink); border: 1px solid var(--gray4); }
+  .files { font-size: 11.5px; line-height: 1.9; }
+  .files .f { display: flex; align-items: center; gap: 8px; }
+  .files .ico { width: 15px; height: 15px; border-radius: 3px; flex: 0 0 auto; }
+  .files .ico.smc { background: var(--teal); }
+  .files .ico.autosave { background: var(--warn-bg); border: 1px solid #E0C070; }
+  .files .ico.set { background: var(--gray3); }
+  .tag { display: inline-block; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 1px 6px; vertical-align: 2px; }
+  .tag.ok { background: #E4F6F3; color: var(--teal-d); }
+  .tag.no { background: #FBE3EA; color: var(--red-d); }
+</style>
+</head>
+<body>
+
+<h1>3.1 Автосохранение и восстановление сессии</h1>
+<div class="sub">Пункт 3.1 очереди 3 роадмапа post-1.8 · Идея №8 · снапшот в формате .smc — тот же wire, отдельный канал · хранение рядом с настройками (инфраструктура AppSettings) · ретеншн — одна копия</div>
+<div class="plan-ref">План: <code>docs/plans/2026-09-21-autosave-plan.md</code> · state ownership без изменений · ключей AppSettings нет · ADR не требуется</div>
+<div class="banner">АВТОСЕЙВ — ТОЛЬКО ЧТЕНИЕ КАНОНА И СЛУЖЕБНЫЙ ФАЙЛ. Запись идёт через тот же IProjectSaveService (wire v1.1, атомарная запись tmp→move), MarkClean автосейв не делает — «звёздочка» и подтверждение закрытия не трогаются. Восстановленный проект не привязан к служебному файлу: «Сохранить» предложит выбрать путь.</div>
+
+<h2><span class="mark"></span>Жизненный цикл снапшота</h2>
+<div class="flow">
+  <div class="stage"><div class="n">Работа</div><div class="t2">Изменения проекта</div><div class="d">IsDirty — тот же флаг, что у «звёздочки» и подтверждения закрытия</div></div>
+  <div class="arrow">→</div>
+  <div class="stage"><div class="n">Тик 2 мин</div><div class="t2">Гвард: не загрузка, не расчёт</div><div class="d">IProjectSaveService → autosave.smc (tmp→move + .bak); MarkClean НЕ делается</div></div>
+  <div class="arrow">→</div>
+  <div class="stage"><div class="n">Штатное закрытие</div><div class="t2">Снапшот гасится</div><div class="d">Сохранил / отказался / чистый — файл удаляется в любом случае: отвергнутое не всплывает</div></div>
+  <div class="arrow">→</div>
+  <div class="stage bad"><div class="n">Крах / kill</div><div class="t2">Снапшот переживает</div><div class="d">Следующий старт: «Восстановить проект?» — Да: данные возвращаются; Нет: копия удаляется</div></div>
+</div>
+
+<h2><span class="mark"></span>Старт после сбоя — вопрос восстановления</h2>
+<div class="cols">
+  <div>
+    <div class="app">
+      <div class="titlebar"><div class="logo"></div><div class="title">Восстановление проекта</div></div>
+      <div class="dlg-wrap" style="border-radius:0">
+        <div class="dlg">
+          <div class="stripe"></div>
+          <div class="inner">
+            <h4>Восстановить проект?</h4>
+            <p>Обнаружена автосохранённая копия проекта (изменена 21.09.2026 23:41).<br>Восстановить её? При отказе копия будет удалена.</p>
+            <div class="btns"><span class="btn sec">Нет</span><span class="btn primary">Да, восстановить</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cap">Показывается после сплэша и до «Что нового» (модальный диалог из Loaded повис бы под Topmost-сплэшем — урок чека R-2026-09-21-02). Не показывается при запуске с .smc из проводника: признак «старт без файла» берётся в App.OnStartup у аргументов командной строки, а не у обнуляемого InitialProjectPath. Кнопки мока иллюстративны — реально стандартные Да/Нет контракта IDialogService (YesNo/Question). Диалог с меткой времени dd.MM.yyyy HH:mm. После «Да» проект помечается dirty: «звёздочка», промпт закрытия и автосейв продолжают работать — восстановленное нигде не сохранено.</div>
+  </div>
+  <div>
+    <div class="card" style="height:100%">
+      <h3>Служебный каталог (рядом с settings.json)</h3>
+      <div class="files">
+        <div class="f"><span class="ico set"></span><span><span class="mono">settings.json</span> — настройки; ключей автосейва нет</span></div>
+        <div class="f"><span class="ico autosave"></span><span><span class="mono">autosave.smc</span> — единственный снапшот (формат .smc, wire v1.1)</span></div>
+        <div class="f"><span class="ico autosave"></span><span><span class="mono">autosave.smc.bak</span> — предыдущая запись (артефакт атомарной записи), гасится вместе</span></div>
+        <div class="f"><span class="ico smc"></span><span><span class="mono">Мой проект.smc</span> — документы пользователя, автосейв их не трогает</span></div>
+      </div>
+      <div class="d" style="margin-top:10px">Путь резолвится той же инфраструктурой <span class="mono">SNOWCALC_SETTINGS_DIR</span>, что и настройки — тестовая изоляция бесплатно. Остатки <span class="mono">.tmp</span> чистятся при старте. Крах во время записи невозможен наполовину: запись атомарна, при бое файл остаётся предыдущим.</div>
+    </div>
+  </div>
+</div>
+
+<h2><span class="mark"></span>Кто что делает (без R4-нарушений)</h2>
+<table>
+  <tr><th>Слой</th><th>Ответственность</th><th>Чего НЕ делает</th></tr>
+  <tr><td><span class="mono">ProjectAutosaveService</span> (новый, Services/Project)</td><td>Путь, HasSnapshot / DeleteSnapshot / CleanupStale / метка времени, чистый предикат ShouldSnapshot</td><td>Не знает WPF, VM и канон — файловая политика</td></tr>
+  <tr><td><span class="mono">ResultsViewModel</span> (+2 метода)</td><td>SaveAutosnapshotAsync: тот же IProjectSaveService + честная CreatedDate проекта; RestoreFromAutosnapshotAsync: загрузка без привязки пути и без MRU</td><td>Без MarkClean / SetCleanPoint / статус-бара при автосейве</td></tr>
+  <tr><td><span class="mono">MainWindow</span> (code-behind)</td><td>DispatcherTimer 2 мин, гварды (не загрузка/не расчёт), Closed → гашение снапшота, промпт восстановления</td><td>Не пишет канон; ошибки тика — AppLog.Warn</td></tr>
+  <tr><td><span class="mono">App.OnStartup</span></td><td>После сплэша: промпт восстановления → затем «Что нового»</td><td>—</td></tr>
+</table>
+<div class="cap">Рефакторинг: тело ApplyLoadedProjectAsync выделяется в ядро с параметром filePath (null = восстановление) — публичная точка LoadProjectFromPathAsync и её сигнатура не меняются (единственная точка входов MRU/drag-drop/проводника сохранена).</div>
+
+<h2><span class="mark"></span>Решения-дефолты плана (владелец может переопределить)</h2>
+<div class="decisions">
+  <div class="dec"><span class="id">S1</span><div class="q">Триггер записи</div><div class="a">IsDirty по тику; MarkClean автосейв не делает</div><div class="alt">Альт.: <b>отдельный флаг</b> «изменено с прошлого автосейва»</div></div>
+  <div class="dec"><span class="id">S5</span><div class="q">Путь при восстановлении</div><div class="a">Без привязки: «Сохранить» → SaveAs; MRU не пополняется</div><div class="alt">Альт.: <b>привязать autosave.smc</b> — «Сохранить» перезапишет служебный файл</div></div>
+  <div class="dec"><span class="id">S6</span><div class="q">Когда предлагать</div><div class="a">Только при старте без .smc из проводника</div><div class="alt">Альт.: <b>всегда</b> — гонка двух загрузок сессии</div></div>
+  <div class="dec"><span class="id">S7</span><div class="q">Штатное закрытие</div><div class="a">Гасить всегда — отвергнутое не всплывает</div><div class="alt">Альт.: <b>гасить только при «сохранил»</b></div></div>
+  <div class="dec"><span class="id">S8</span><div class="q">Тик во время расчёта/загрузки</div><div class="a">Пропустить — догонит следующий тик</div><div class="alt">Альт.: <b>писать всегда</b> — риск неконсистентного снимка</div></div>
+  <div class="dec"><span class="id">S9</span><div class="q">Ключ AppSettings</div><div class="a">Нет ключей: всегда включён, путь — статическое свойство AppSettings</div><div class="alt">Альт.: <b>AutosaveEnabled</b> — преждевременно без тумблера</div></div>
+</div>
+
+<div class="foot">Инварианты: .smc wire не меняется · канон только читается · writers не расширяются (MarkDirty после restore — санкционированный WI-5) · ключей settings.json нет · ADR не требуется (владение состоянием не меняется). Тесты: политика файла + предикат + восстановление (битый файл → удалить, MRU «не содержит», CurrentFilePath остался null) + полный зелёный прогон. UiSmoke-фикстура чистит autosave-файлы песочницы перед Launch (S10). Ручной smoke: 3 мин работы → файл появился; штатное закрытие → исчез; kill с dirty → старт → «Да» → данные на месте (проект dirty), «Сохранить» открывает SaveAs, закрытие спрашивает подтверждение; «Нет» → файл удалён; битый файл → ошибка и продолжение; старт с .smc из проводника → промпта нет.</div>
+
+</body>
+</html>

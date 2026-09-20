@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me: 1.3 «Проверить обновления» + «Что нового»</title>
+<style>
+  :root {
+    --red: #E50040; --red-d: #B80033; --teal: #4FC7B5; --teal-d: #1E9C8B;
+    --ink: #1D1D1B; --gray1: #4E4E4E; --gray2: #818181; --gray3: #B0B0B0;
+    --gray4: #D9D9D9; --bg: #F6F6F6; --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--ink); padding: 28px 32px 60px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 32px 0 10px; }
+  .mark { display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; }
+  .sub { color: var(--gray2); font-size: 13px; margin-top: 6px; }
+  .plan-ref { margin-top: 10px; font-size: 12.5px; color: var(--gray1); }
+  .plan-ref code { background: #EDEDED; border-radius: 3px; padding: 1px 6px; font-size: 11.5px; }
+  .banner { margin-top: 14px; background: #E4F6F3; border: 1px solid #B7E3DA; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: var(--teal-d); font-weight: 600; max-width: 1180px; }
+  .metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; max-width: 1180px; }
+  .metric { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 13px 17px; min-width: 170px; }
+  .metric .v { font-size: 20px; font-weight: 700; }
+  .metric .v.ok { color: var(--teal-d); }
+  .metric .k { font-size: 10.5px; color: var(--gray2); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; max-width: 1180px; }
+  .cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; max-width: 1180px; }
+  .card { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 14px 16px; }
+  .card h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray1); margin-bottom: 8px; }
+  .card .d { font-size: 12px; color: var(--gray1); line-height: 1.5; }
+  .flow { display: flex; align-items: stretch; gap: 8px; margin-top: 12px; flex-wrap: wrap; max-width: 1180px; }
+  .stage { background: var(--card); border: 1px solid var(--gray4); border-top: 4px solid var(--red); border-radius: 8px; padding: 11px 12px; flex: 1 1 130px; min-width: 128px; }
+  .stage.t { border-top-color: var(--teal); }
+  .stage.g { border-top-color: var(--gray2); }
+  .stage .n { font-size: 10.5px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.05em; }
+  .stage.t .n { color: var(--teal-d); } .stage.g .n { color: var(--gray2); }
+  .stage .t { font-size: 12.5px; font-weight: 700; margin-top: 3px; }
+  .stage .d { font-size: 11px; color: var(--gray1); margin-top: 4px; line-height: 1.4; }
+  .arrow { align-self: center; color: var(--gray3); font-size: 17px; font-weight: 700; }
+  .mono { font-family: Consolas, monospace; font-size: 10.5px; background: #F0F0F0; padding: 1px 5px; border-radius: 3px; }
+  pre { font-family: Consolas, monospace; font-size: 11.5px; background: #1D1D1B; color: #EDEDED; border-radius: 8px; padding: 13px 15px; line-height: 1.55; overflow-x: auto; }
+  pre .k { color: #4FC7B5; } pre .s { color: #F5A8BC; } pre .c { color: #818181; }
+  table { border-collapse: collapse; margin-top: 10px; font-size: 11.5px; width: 100%; max-width: 1180px; background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; overflow: hidden; }
+  th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray2); padding: 8px 11px 5px; border-bottom: 1px solid var(--gray4); }
+  td { border-bottom: 1px solid var(--gray4); padding: 7px 11px; vertical-align: top; line-height: 1.45; }
+  tr:last-child td { border-bottom: none; }
+  .pill { display: inline-block; font-size: 10.5px; border-radius: 999px; padding: 3px 10px; font-weight: 700; margin-right: 5px; }
+  .p-red { background: #FBE3EA; color: var(--red); }
+  .p-teal { background: #E4F6F3; color: var(--teal-d); }
+  .p-gray { background: #ECECEC; color: var(--gray1); }
+  .decisions { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 9px; margin-top: 12px; max-width: 1180px; }
+  .dec { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 11px 13px; }
+  .dec .id { display: inline-block; background: #FBE3EA; color: var(--red); font-weight: 700; font-size: 10.5px; border-radius: 999px; padding: 2px 9px; }
+  .dec .q { font-size: 11px; color: var(--gray2); margin-top: 6px; }
+  .dec .a { font-size: 12px; font-weight: 600; margin-top: 3px; }
+  .dec .alt { font-size: 10.5px; color: var(--gray2); margin-top: 4px; }
+  .dec .alt b { color: var(--gray1); }
+  .cap { font-size: 11px; color: var(--gray2); margin-top: 8px; line-height: 1.5; max-width: 1180px; }
+  .foot { margin-top: 30px; font-size: 11px; color: var(--gray2); max-width: 1020px; line-height: 1.55; }
+
+  /* мокапы */
+  .app { background: #FFFFFF; border: 1px solid var(--gray4); border-radius: 10px; overflow: hidden; box-shadow: 0 6px 22px rgba(29,29,27,.10); position: relative; }
+  .app .titlebar { height: 34px; background: #FFFFFF; border-bottom: 1px solid var(--gray4); display: flex; align-items: center; padding: 0 12px; gap: 14px; }
+  .app .logo { width: 18px; height: 18px; border-radius: 4px; background: var(--red); }
+  .app .menu-root { font-size: 12px; color: var(--ink); background: #F0F0F0; border: 1px solid var(--gray4); border-radius: 5px; padding: 5px 14px; font-weight: 600; }
+  .dropdown { position: absolute; top: 34px; left: 12px; background: #FFFFFF; border: 1px solid var(--gray4); border-radius: 8px; box-shadow: 0 8px 26px rgba(29,29,27,.16); padding: 5px; min-width: 250px; z-index: 5; }
+  .mi { font-size: 12px; padding: 7px 12px; border-radius: 5px; color: var(--ink); display: flex; justify-content: space-between; gap: 18px; }
+  .mi .gst { color: var(--gray3); font-size: 10.5px; }
+  .mi.hot { background: #FBE3EA; font-weight: 700; color: var(--red-d); }
+  .sep { height: 1px; background: var(--gray4); margin: 4px 6px; }
+  .app .body { padding: 16px; display: flex; gap: 12px; min-height: 90px; }
+  .app .pane { flex: 1; background: var(--bg); border: 1px solid var(--gray4); border-radius: 8px; min-height: 64px; }
+  .app .pane.first { border-left: 4px solid var(--teal); }
+  .dlg-wrap { position: absolute; inset: 0; background: rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; z-index: 8; }
+  .dlg { background: #FFFFFF; border-radius: 10px; width: 84%; box-shadow: 0 14px 40px rgba(29,29,27,.28); overflow: hidden; }
+  .dlg .stripe { height: 6px; background: var(--red); }
+  .dlg .inner { padding: 18px 22px 16px; }
+  .dlg h4 { font-size: 15px; font-weight: 700; }
+  .dlg .vers { font-size: 11px; color: var(--gray2); margin-top: 3px; }
+  .dlg ul { list-style: none; margin-top: 10px; }
+  .dlg li { font-size: 11.5px; color: var(--gray1); padding: 5px 0 5px 16px; position: relative; border-bottom: 1px solid #F0F0F0; line-height: 1.45; }
+  .dlg li:last-child { border-bottom: none; }
+  .dlg li::before { content: ""; position: absolute; left: 2px; top: 11px; width: 6px; height: 6px; background: var(--red); border-radius: 2px; }
+  .dlg .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .btn { font-size: 11.5px; font-weight: 700; border-radius: 6px; padding: 7px 14px; }
+  .btn.primary { background: var(--red); color: #FFFFFF; }
+  .btn.sec { background: #FFFFFF; color: var(--ink); border: 1px solid var(--gray4); }
+  .tag { display: inline-block; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 1px 6px; vertical-align: 2px; }
+  .tag.once { background: #E4F6F3; color: var(--teal-d); }
+  .tag.net { background: #FFF3D6; color: #9A6B00; }
+</style>
+</head>
+<body>
+
+<h1>1.3 «Проверить обновления» + «Что нового»</h1>
+<div class="sub">Пункт 1.3 очереди 1 роадмапа post-1.8 · Идеи №5 + №9 одним планом (одна доменная зона: версия сборки + AppSettings) · без автоматической загрузки — только уведомление</div>
+<div class="plan-ref">План: <code>docs/plans/2026-09-21-updates-whatsnew-plan.md</code> · конвенция ключей AppSettings: план 1.2 §1 · state ownership без изменений</div>
+<div class="banner">СЕТЬ — ТОЛЬКО ПО КОМАНДЕ «ПРОВЕРИТЬ ОБНОВЛЕНИЯ». При старте сеть не трогается: «Что нового» решается локальным сравнением версии сборки с ключом WhatsNewShownVersion. Загрузку приложение не выполняет — уведомление + открытие папки выдачи.</div>
+
+<div class="metrics">
+  <div class="metric"><div class="v">1</div><div class="k">новый пункт меню · Проверить обновления</div></div>
+  <div class="metric"><div class="v ok">1</div><div class="k">новый ключ AppSettings · WhatsNewShownVersion</div></div>
+  <div class="metric"><div class="v">1</div><div class="k">файл на канале · latest.json (манифест)</div></div>
+  <div class="metric"><div class="v ok">0</div><div class="k">сетевых вызовов при старте</div></div>
+  <div class="metric"><div class="v ok">0</div><div class="k">писателей канона · R1–R6 не задеты</div></div>
+</div>
+
+<h2><span class="mark"></span>Как это выглядит</h2>
+<div class="cols">
+  <div>
+    <div class="app">
+      <div class="titlebar">
+        <div class="logo"></div>
+        <div class="menu-root">Файл</div>
+        <div style="flex:1"></div>
+        <div style="font-size:11px;font-weight:700;background:var(--red);color:#fff;border-radius:5px;padding:5px 12px">Рассчитать</div>
+        <div style="font-size:11px;font-weight:600;border:1px solid var(--gray4);border-radius:5px;padding:5px 12px">Отчёт PDF ▾</div>
+      </div>
+      <div class="body"><div class="pane first"></div><div class="pane"></div><div class="pane"></div></div>
+      <div class="dropdown">
+        <div class="mi">Сохранить <span class="gst">Ctrl+S</span></div>
+        <div class="mi">Сохранить как... <span class="gst">Ctrl+Shift+S</span></div>
+        <div class="mi">Открыть... <span class="gst">Ctrl+O</span></div>
+        <div class="mi">Недавние проекты <span class="gst">▶</span></div>
+        <div class="sep"></div>
+        <div class="mi">Создать новый расчёт <span class="gst">Ctrl+N</span></div>
+        <div class="sep"></div>
+        <div class="mi">Инструкция</div>
+        <div class="mi hot">Проверить обновления</div>
+        <div class="mi">О программе</div>
+        <div class="sep"></div>
+        <div class="mi">Выход</div>
+      </div>
+      <div class="dlg-wrap" style="display:none"></div>
+    </div>
+    <div class="cap">Пункт между «Инструкция» и «О программе» (U6). Сеть дёргается только по клику (U2); пока проверка идёт — повторный клик игнорируется.</div>
+  </div>
+  <div>
+    <div class="app">
+      <div class="titlebar">
+        <div class="logo"></div>
+        <div class="menu-root">Файл</div>
+        <div style="flex:1"></div>
+        <div style="font-size:11px;font-weight:700;background:var(--red);color:#fff;border-radius:5px;padding:5px 12px">Рассчитать</div>
+      </div>
+      <div class="body"><div class="pane first"></div><div class="pane"></div><div class="pane"></div></div>
+      <div class="dlg-wrap">
+        <div class="dlg">
+          <div class="stripe"></div>
+          <div class="inner">
+            <h4>Доступна новая версия: 1.10.0</h4>
+            <div class="vers">У вас 1.9.0 · выпущена 2026-09-21</div>
+            <ul>
+              <li>Недавние проекты: подменю «Файл» и перетаскивание .smc на окно</li>
+              <li>«Файл → Проверить обновления» и диалог «Что нового»</li>
+            </ul>
+            <div class="btns">
+              <div class="btn sec">Закрыть</div>
+              <div class="btn primary">Открыть папку выдачи</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cap">Диалог обновления: список изменений — из манифеста, «Открыть папку выдачи» — браузером по folderUrl (U4). Та же версия → «У вас последняя версия»; сеть недоступна → вежливое сообщение. Диалог «Что нового» выглядит так же и показывается при старте <span class="tag once">ОДИН РАЗ НА ВЕРСИЮ</span> из локального каталога (U3).</div>
+  </div>
+</div>
+
+<h2><span class="mark"></span>Два потока: ручная проверка (сеть) и «Что нового» (локально)</h2>
+<div class="flow">
+  <div class="stage"><div class="n">Команда</div><div class="t">«Проверить обновления»</div><div class="d">пункт меню, U6</div></div>
+  <div class="arrow">→</div>
+  <div class="stage t"><div class="n">Канал</div><div class="t">GET latest.json</div><div class="d">прямая ссылка Drive, таймаут 8 с; пустая константа или сбой → честное «не удалось проверить», приложение не падает</div></div>
+  <div class="arrow">→</div>
+  <div class="stage"><div class="n">Сравнение</div><div class="t">Version X.Y.Z</div><div class="d">манифест новее → диалог с кнопкой; равна/старее → «последняя версия» (даунгрейд не предлагаем, U5)</div></div>
+</div>
+<div class="flow">
+  <div class="stage"><div class="n">Старт приложения</div><div class="t">Без сети <span class="tag net">локально</span></div><div class="d">версия сборки vs WhatsNewShownVersion + запись в WhatsNewCatalog</div></div>
+  <div class="arrow">→</div>
+  <div class="stage t"><div class="n">Диалог</div><div class="t">«Что нового в версии X»</div><div class="d">строки из локального каталога (выжимка CHANGELOG)</div></div>
+  <div class="arrow">→</div>
+  <div class="stage g"><div class="n">Один раз</div><div class="t">MarkShown</div><div class="d">WhatsNewShownVersion = текущая версия → settings.json; повторные запуски молчат (U7)</div></div>
+</div>
+
+<h2><span class="mark"></span>Манифест канала — реальная сущность</h2>
+<div class="cols">
+  <div class="card">
+    <h3>latest.json в папке выдачи Drive</h3>
+<pre>{
+  <span class="k">"version"</span>: <span class="s">"1.10.0"</span>,
+  <span class="k">"publishedAt"</span>: <span class="s">"2026-09-21"</span>,
+  <span class="k">"whatsNew"</span>: [
+    <span class="s">"Недавние проекты и drag-drop .smc"</span>,
+    <span class="s">"«Проверить обновления» + «Что нового»"</span>
+  ],
+  <span class="k">"folderUrl"</span>: <span class="s">"https://drive.google.com/drive/folders/…"</span>
+}</pre>
+  </div>
+  <div class="card">
+    <h3>Кто публикует</h3>
+    <div class="d">
+      <b>release.yml</b> — автоматически после заливки сетапа: генерация из csproj + CHANGELOG, <span class="mono">rclone copyto</span> поверх — FILE_ID не меняется, ссылка стабильна.<br><br>
+      <b>Первый пуск (U8)</b> — владелец локально: <span class="mono">scripts/publish-latest-manifest.ps1</span> печатает прямую ссылку → вписать в константу <span class="mono">ManifestUrl</span> до релиза 1.10.0.
+    </div>
+  </div>
+</div>
+
+<h2><span class="mark"></span>Решения-дефолты (рекомендации; владелец переопределяет при ревью)</h2>
+<div class="decisions">
+  <div class="dec"><span class="id">U1</span><div class="q">Механизм сверки</div><div class="a">Манифест latest.json + фиксированная ссылка</div><div class="alt"><b>Альт:</b> rclone-перечень (у пользователей нет rclone), GitHub API (репо приватное)</div></div>
+  <div class="dec"><span class="id">U2</span><div class="q">Сеть при старте</div><div class="a">Нет — только по команде</div><div class="alt"><b>Альт:</b> фоновая проверка при старте</div></div>
+  <div class="dec"><span class="id">U3</span><div class="q">Текст «Что нового» при старте</div><div class="a">Локальный каталог в коде</div><div class="alt"><b>Альт:</b> из манифеста — требует сеть при старте</div></div>
+  <div class="dec"><span class="id">U4</span><div class="q">Куда ведёт кнопка</div><div class="a">Папка выдачи (браузер)</div><div class="alt"><b>Альт:</b> прямой Setup.exe — GDrive-вирусскан-предупреждение</div></div>
+  <div class="dec"><span class="id">U5</span><div class="q">Сравнение версий</div><div class="a">Version; старее/равно = «последняя»</div><div class="alt"><b>Альт:</b> строковое — ломается на 1.10 vs 1.9</div></div>
+  <div class="dec"><span class="id">U6</span><div class="q">Позиция меню</div><div class="a">Между «Инструкция» и «О программе»</div><div class="alt"><b>Альт:</b> рядом с «Недавние проекты»</div></div>
+  <div class="dec"><span class="id">U7</span><div class="q">Повторяемость «Что нового»</div><div class="a">Один раз на версию; при даунгрейде показывается</div><div class="alt"><b>Альт:</b> при каждом старте — назойливо</div></div>
+  <div class="dec"><span class="id">U8</span><div class="q">Первый пуск канала</div><div class="a">Локальный скрипт → ссылка в константу (один раз); FILE_ID сверяется до/после copyto</div><div class="alt"><b>Альт:</b> FILE_ID в конфиге CI — ссылку всё равно получать</div></div>
+  <div class="dec"><span class="id">U9</span><div class="q">Сбой публикации манифеста в релизе</div><div class="a">Warning-only: сетап+тег важнее</div><div class="alt"><b>Альт:</b> fail-гейт — выбор владельца</div></div>
+</div>
+
+<h2><span class="mark"></span>Новые и затронутые файлы</h2>
+<table>
+  <tr><th>Файл</th><th>Правка</th></tr>
+  <tr><td><span class="mono">src/Services/Updates/</span> <span class="pill p-red">новая зона</span></td><td>UpdateManifest (TryParse с гвардами) · IUpdateChannel/DriveUpdateChannel (HttpClient, таймаут 8 с) · IUpdateCheckService/UpdateCheckService (сравнение с версией сборки) · WhatsNewCatalog (локальные записи) · WhatsNewTracker (ShouldShow/MarkShown) · UpdateChannelOptions (константа ссылки)</td></tr>
+  <tr><td><span class="mono">src/Services/AppSettings.cs</span></td><td>+ <span class="mono">WhatsNewShownVersion: string?</span> (конвенция 1.2; absence = null)</td></tr>
+  <tr><td><span class="mono">src/MainWindow.xaml / .cs</span> · <span class="mono">src/WhatsNewWindow.xaml/.cs</span> <span class="pill p-red">новое окно</span></td><td>пункт меню U6; обработчик с гвардом повторного клика; показ «Что нового» при старте после загрузки проекта; диалог по образцу AboutWindow</td></tr>
+  <tr><td><span class="mono">scripts/publish-latest-manifest.ps1</span> <span class="pill p-red">новый</span> · <span class="mono">release.yml</span></td><td>генерация манифеста из csproj+CHANGELOG; автоматический шаг публикации (warning-деградация, не гейтит релиз)</td></tr>
+  <tr><td><span class="mono">tests/…/Services/Updates/*</span> <span class="pill p-red">новые</span></td><td>парсер (валид/битый/без whatsNew/плохая версия), чек-сервис (новее/равно/старее/битая/сбой/не настроен — фейк-канал, сети в тестах нет), трекер (5 веток), каталог-структура</td></tr>
+  <tr><td><span class="mono">docs/manual/src/template.html</span></td><td>строка «Проверить обновления» + абзац «Что нового»; пересборка build_manual.py</td></tr>
+</table>
+
+<div class="foot">Процесс: атакующее ревью (A1–A8, урок №26) → чек docs/reviews/ → сигнал владельца → реализация → полный зелёный dotnet test → handover (незакоммиченное дерево). Шаг владельца U8 — копипаст-блоком ДО релиза; при бампе 1.10.0 — пополнить WhatsNewCatalog. show-me регенерируется из плана (урок №27). Токены — канон REHAU.</div>
+
+</body>
+</html>
