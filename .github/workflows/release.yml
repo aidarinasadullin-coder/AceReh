@@ -130,7 +130,11 @@ jobs:
           $conf = Join-Path $confDir 'rclone.conf'
           [IO.File]::WriteAllBytes($conf, [Convert]::FromBase64String($env:RCLONE_CONF_B64))
           $exe = "output\SnowMeltingCalculator-v${{ env.RELEASE_VERSION }}-Setup.exe"
-          rclone copy --config $conf $exe "gdrive:{1PAAse-5mt51ruvZUd-NrZuBwsXLGfoFX}" -v
+          # Папка выдачи адресуется по имени: синтаксис {ID} в rclone v1.75
+          # молча создаёт папку с литеральным именем в скобках (проверено
+          # 2026-09-20). При переименовании папки — поправить здесь и в
+          # scripts/upload-to-drive.ps1.
+          rclone copy --config $conf $exe "gdrive:ACE 08.09.2026" -v
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
       - name: Push tag v${RELEASE_VERSION}

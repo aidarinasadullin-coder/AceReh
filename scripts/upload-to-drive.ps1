@@ -10,8 +10,11 @@
 #      Edit advanced config — n; Use auto config — y
 #      -> войти в тот Google-аккаунт, где лежит папка выдачи, разрешить доступ
 #
-# Папка назначения адресуется по ID из ссылки Drive, поэтому переименование
-# папки в веб-интерфейсе ничего не ломает.
+# Папка назначения адресуется по имени (ACE 08.09.2026 в корне My Drive).
+# Важно: синтаксис rclone «папка по ID» ({...}) в v1.75.1 НЕ работает —
+# вместо резолва по ID он молча создаёт в корне папку с литеральным именем
+# в скобках (проверено 2026-09-20, R-учёт в lessons). Если переименуешь
+# папку в веб-интерфейсе Drive — поправь -Folder.
 #
 # Использование:
 #   .\scripts\upload-to-drive.ps1                     # самый свежий output\*-Setup.exe
@@ -21,7 +24,7 @@
 param(
     [string]$Path,
     [string]$Remote = 'gdrive',
-    [string]$FolderId = '1PAAse-5mt51ruvZUd-NrZuBwsXLGfoFX'
+    [string]$Folder = 'ACE 08.09.2026'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -55,10 +58,10 @@ if (-not $Path) {
 if (-not (Test-Path $Path)) { Fail "Файл не найден: $Path" }
 
 $size = '{0:N1} MB' -f ((Get-Item $Path).Length / 1MB)
-$target = "${Remote}:{$FolderId}"
+$target = "${Remote}:$Folder"
 Write-Host "Загружаю $(Split-Path -Leaf $Path) ($size) -> $target"
 rclone copy $Path $target -v --stats-one-line
 if ($LASTEXITCODE -ne 0) {
     Fail "rclone вернул код $LASTEXITCODE — файл мог не долиться. Перезапусти: уже загруженное перезаливаться не будет."
 }
-Write-Host "Готово: $(Split-Path -Leaf $Path) в https://drive.google.com/drive/folders/$FolderId" -ForegroundColor Green
+Write-Host "Готово: $(Split-Path -Leaf $Path) в ${Remote}:$Folder" -ForegroundColor Green
