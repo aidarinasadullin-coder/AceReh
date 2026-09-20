@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me: 1.2 «Недавние проекты» + drag-drop .smc</title>
+<style>
+  :root {
+    --red: #E50040; --red-d: #B80033; --teal: #4FC7B5; --teal-d: #1E9C8B;
+    --ink: #1D1D1B; --gray1: #4E4E4E; --gray2: #818181; --gray3: #B0B0B0;
+    --gray4: #D9D9D9; --bg: #F6F6F6; --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--ink); padding: 28px 32px 60px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 32px 0 10px; }
+  .mark { display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; }
+  .sub { color: var(--gray2); font-size: 13px; margin-top: 6px; }
+  .plan-ref { margin-top: 10px; font-size: 12.5px; color: var(--gray1); }
+  .plan-ref code { background: #EDEDED; border-radius: 3px; padding: 1px 6px; font-size: 11.5px; }
+  .banner { margin-top: 14px; background: #E4F6F3; border: 1px solid #B7E3DA; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: var(--teal-d); font-weight: 600; max-width: 1180px; }
+  .metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; max-width: 1180px; }
+  .metric { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 13px 17px; min-width: 170px; }
+  .metric .v { font-size: 20px; font-weight: 700; }
+  .metric .v.ok { color: var(--teal-d); }
+  .metric .k { font-size: 10.5px; color: var(--gray2); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; max-width: 1180px; }
+  .cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; max-width: 1180px; }
+  .card { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 14px 16px; }
+  .card h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray1); margin-bottom: 8px; }
+  .card .d { font-size: 12px; color: var(--gray1); line-height: 1.5; }
+  .flow { display: flex; align-items: stretch; gap: 8px; margin-top: 12px; flex-wrap: wrap; max-width: 1180px; }
+  .stage { background: var(--card); border: 1px solid var(--gray4); border-top: 4px solid var(--red); border-radius: 8px; padding: 11px 12px; flex: 1 1 130px; min-width: 128px; }
+  .stage.t { border-top-color: var(--teal); }
+  .stage.g { border-top-color: var(--gray2); }
+  .stage .n { font-size: 10.5px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.05em; }
+  .stage.t .n { color: var(--teal-d); } .stage.g .n { color: var(--gray2); }
+  .stage .t { font-size: 12.5px; font-weight: 700; margin-top: 3px; }
+  .stage .d { font-size: 11px; color: var(--gray1); margin-top: 4px; line-height: 1.4; }
+  .arrow { align-self: center; color: var(--gray3); font-size: 17px; font-weight: 700; }
+  .mono { font-family: Consolas, monospace; font-size: 10.5px; background: #F0F0F0; padding: 1px 5px; border-radius: 3px; }
+  pre { font-family: Consolas, monospace; font-size: 11.5px; background: #1D1D1B; color: #EDEDED; border-radius: 8px; padding: 13px 15px; line-height: 1.55; overflow-x: auto; }
+  pre .k { color: #4FC7B5; } pre .s { color: #F5A8BC; } pre .c { color: #818181; }
+  table { border-collapse: collapse; margin-top: 10px; font-size: 11.5px; width: 100%; max-width: 1180px; background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; overflow: hidden; }
+  th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray2); padding: 8px 11px 5px; border-bottom: 1px solid var(--gray4); }
+  td { border-bottom: 1px solid var(--gray4); padding: 7px 11px; vertical-align: top; line-height: 1.45; }
+  tr:last-child td { border-bottom: none; }
+  .pill { display: inline-block; font-size: 10.5px; border-radius: 999px; padding: 3px 10px; font-weight: 700; margin-right: 5px; }
+  .p-red { background: #FBE3EA; color: var(--red); }
+  .p-teal { background: #E4F6F3; color: var(--teal-d); }
+  .p-gray { background: #ECECEC; color: var(--gray1); }
+  .decisions { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 9px; margin-top: 12px; max-width: 1180px; }
+  .dec { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 11px 13px; }
+  .dec .id { display: inline-block; background: #FBE3EA; color: var(--red); font-weight: 700; font-size: 10.5px; border-radius: 999px; padding: 2px 9px; }
+  .dec .q { font-size: 11px; color: var(--gray2); margin-top: 6px; }
+  .dec .a { font-size: 12px; font-weight: 600; margin-top: 3px; }
+  .dec .alt { font-size: 10.5px; color: var(--gray2); margin-top: 4px; }
+  .dec .alt b { color: var(--gray1); }
+
+  /* ── мокап окна приложения ── */
+  .app { background: #FFFFFF; border: 1px solid var(--gray4); border-radius: 10px; overflow: hidden; box-shadow: 0 6px 22px rgba(29,29,27,.10); position: relative; }
+  .app .titlebar { height: 34px; background: #FFFFFF; border-bottom: 1px solid var(--gray4); display: flex; align-items: center; padding: 0 12px; gap: 14px; }
+  .app .logo { width: 18px; height: 18px; border-radius: 4px; background: var(--red); }
+  .app .tb-btn { font-size: 11px; font-weight: 600; color: #FFFFFF; background: var(--red); border-radius: 5px; padding: 5px 12px; }
+  .app .tb-btn.sec { background: #FFFFFF; color: var(--ink); border: 1px solid var(--gray4); }
+  .menuwrap { position: relative; display: inline-block; }
+  .app .menu-root { font-size: 12px; color: var(--ink); background: #F0F0F0; border: 1px solid var(--gray4); border-radius: 5px; padding: 5px 14px; font-weight: 600; }
+  .dropdown { position: absolute; top: 30px; left: 0; background: #FFFFFF; border: 1px solid var(--gray4); border-radius: 8px; box-shadow: 0 8px 26px rgba(29,29,27,.16); padding: 5px; min-width: 260px; z-index: 5; }
+  .mi { font-size: 12px; padding: 7px 12px; border-radius: 5px; color: var(--ink); display: flex; justify-content: space-between; gap: 18px; }
+  .mi .gst { color: var(--gray3); font-size: 10.5px; }
+  .mi.hot { background: #FBE3EA; font-weight: 700; color: var(--red-d); }
+  .mi.sub-open { background: #F6F6F6; font-weight: 700; }
+  .mi.dis { color: var(--gray3); }
+  .sep { height: 1px; background: var(--gray4); margin: 4px 6px; }
+  .submenu { position: absolute; left: 245px; top: 88px; background: #FFFFFF; border: 1px solid var(--gray4); border-radius: 8px; box-shadow: 0 8px 26px rgba(29,29,27,.16); padding: 5px; min-width: 285px; z-index: 6; }
+  .submenu .mi .path { color: var(--gray3); font-size: 10px; font-family: Consolas, monospace; }
+  .caret { color: var(--gray2); font-size: 11px; }
+  .app .body { padding: 16px; display: flex; gap: 12px; min-height: 120px; }
+  .app .pane { flex: 1; background: var(--bg); border: 1px solid var(--gray4); border-radius: 8px; min-height: 86px; }
+  .app .pane.first { border-left: 4px solid var(--teal); }
+  .overlay-demo { position: absolute; inset: 34px 0 0 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; z-index: 8; }
+  .overlay-demo .box { background: #FFFFFF; border: 2px solid var(--red); border-radius: 12px; padding: 22px 34px; text-align: center; }
+  .overlay-demo .box .big { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .overlay-demo .box .small { font-size: 11.5px; color: var(--gray2); margin-top: 5px; }
+  .cap { font-size: 11px; color: var(--gray2); margin-top: 8px; line-height: 1.5; max-width: 1180px; }
+  .foot { margin-top: 30px; font-size: 11px; color: var(--gray2); max-width: 1020px; line-height: 1.55; }
+</style>
+</head>
+<body>
+
+<h1>1.2 «Недавние проекты» + drag-drop .smc</h1>
+<div class="sub">Пункт 1.2 очереди 1 роадмапа post-1.8 · идея №6 (одобрена 2026-09-20) · план на ревью владельца · реализация — после сигнала</div>
+<div class="plan-ref">План: <code>docs/plans/2026-09-21-recent-projects-plan.md</code> · условия роадмапа: <code>AppSettings-схема фиксируется в 1.2</code>, <code>state ownership без изменений</code>, <code>.smc wire не меняется</code></div>
+<div class="banner">ВСЕ ВХОДЫ ВЕДУТ В ОДНУ ТОЧКУ: LoadProjectFromPathAsync — Ctrl+O, ассоциация файлов (работает с 1.1.2), drag-drop и подменю недавних. Подтверждение при несохранённых изменениях уже внутри — новых диалогов не пишется.</div>
+
+<div class="metrics">
+  <div class="metric"><div class="v">2</div><div class="k">новых входа · подменю + drag-drop</div></div>
+  <div class="metric"><div class="v">1</div><div class="k">точка загрузки · LoadProjectFromPathAsync</div></div>
+  <div class="metric"><div class="v">10</div><div class="k">путей в MRU · дедуп, отсутствующие скрыты</div></div>
+  <div class="metric"><div class="v ok">1</div><div class="k">новый ключ settings.json · RecentProjects</div></div>
+  <div class="metric"><div class="v ok">0</div><div class="k">писателей канона · R1–R6 не задеты</div></div>
+</div>
+
+<h2><span class="mark"></span>Как это выглядит</h2>
+<div class="cols">
+  <div>
+    <div class="app">
+      <div class="titlebar">
+        <div class="logo"></div>
+        <div class="menuwrap">
+          <div class="menu-root">Файл</div>
+          <div class="dropdown">
+            <div class="mi">Сохранить <span class="gst">Ctrl+S</span></div>
+            <div class="mi">Сохранить как... <span class="gst">Ctrl+Shift+S</span></div>
+            <div class="mi">Открыть... <span class="gst">Ctrl+O</span></div>
+            <div class="mi sub-open">Недавние проекты <span class="caret">▶</span></div>
+            <div class="sep"></div>
+            <div class="mi">Создать новый расчёт <span class="gst">Ctrl+N</span></div>
+            <div class="sep"></div>
+            <div class="mi">Инструкция</div>
+            <div class="mi">О программе</div>
+            <div class="sep"></div>
+            <div class="mi">Выход</div>
+          </div>
+          <div class="submenu">
+            <div class="mi">Парковка ТЦ Москва <span class="path">D:\Проекты\…москва.smc</span></div>
+            <div class="mi">Площадь у вокзала <span class="path">D:\Проекты\вокзал.smc</span></div>
+            <div class="mi">Склад, Якутск <span class="path">\\fs\обмен\якутск.smc</span></div>
+            <div class="sep"></div>
+            <div class="mi">Очистить список</div>
+          </div>
+        </div>
+        <div style="flex:1"></div>
+        <div class="tb-btn">Рассчитать</div>
+        <div class="tb-btn sec">Отчёт PDF ▾</div>
+      </div>
+      <div class="body"><div class="pane first"></div><div class="pane"></div><div class="pane"></div></div>
+      <div class="overlay-demo" style="display:none"></div>
+    </div>
+    <div class="cap">Подменю «Недавние проекты» — сразу после «Открыть...» (D1). Пункт = имя файла, tooltip = полный путь. Отсутствующие на диске скрыты при открытии (фильтр <span class="mono">File.Exists</span> в <span class="mono">GetRecent()</span>). Внизу — «Очистить список» (D6). Пустой список → disabled-заглушка «Нет недавних проектов» (D5).</div>
+  </div>
+  <div>
+    <div class="app">
+      <div class="titlebar">
+        <div class="logo"></div>
+        <div class="menu-root" style="background:#F0F0F0">Файл</div>
+        <div style="flex:1"></div>
+        <div class="tb-btn">Рассчитать</div>
+        <div class="tb-btn sec">Отчёт PDF ▾</div>
+      </div>
+      <div class="body"><div class="pane first"></div><div class="pane"></div><div class="pane"></div></div>
+      <div class="overlay-demo">
+        <div class="box">
+          <div class="big">Отпустите файл проекта, чтобы открыть</div>
+          <div class="small">Формат .smc · один файл · если текущий проект не сохранён — приложение спросит подтверждение</div>
+        </div>
+      </div>
+    </div>
+    <div class="cap">Drag-drop на всё окно (D3): оверлей появляется в <span class="mono">DragOver</span> при валидном входе (1 файл, расширение .smc) и гасится с гардом против фликера на дочерних элементах (D4). Первый .smc из нескольких — берётся (D9).</div>
+  </div>
+</div>
+
+<h2><span class="mark"></span>Поток: три источника — одна точка</h2>
+<div class="flow">
+  <div class="stage"><div class="n">Вход 1</div><div class="t">Подменю недавних</div><div class="d">клик по пути → код-бихайнд шелла</div></div>
+  <div class="arrow">→</div>
+  <div class="stage t" style="flex:2 1 240px"><div class="n">Единая точка</div><div class="t">LoadProjectFromPathAsync</div><div class="d">ошибка файла → диалог; несохранённый проект → подтверждение; сброс модулей, MarkClean — уже существуют</div></div>
+  <div class="arrow">→</div>
+  <div class="stage"><div class="n">Хвост</div><div class="t">MRU.Add(путь)</div><div class="d">одна вставка в ApplyLoadedProjectAsync — покрывает Ctrl+O, drag-drop, ассоциацию (D2)</div></div>
+  <div class="arrow">→</div>
+  <div class="stage g"><div class="n">Хранилище</div><div class="t">AppSettings.Save()</div><div class="d">settings.json в %APPDATA%; путь — не состояние проекта</div></div>
+</div>
+<div class="flow">
+  <div class="stage"><div class="n">Вход 2</div><div class="t">Drag-drop .smc</div><div class="d">Drop → валидация расширения → та же точка</div></div>
+  <div class="arrow">→</div>
+  <div class="stage"><div class="n">Вход 3 (существующие)</div><div class="t">Ctrl+O · двойной клик .smc</div><div class="d">OpenProjectCommand · InitialProjectPath — без правок</div></div>
+</div>
+
+<h2><span class="mark"></span>Схема ключей AppSettings — фиксируется планом 1.2 для очереди</h2>
+<div class="cols">
+  <div class="card">
+    <h3>settings.json — новый ключ (реальная сущность)</h3>
+<pre>{
+  <span class="k">"IsSidebarCollapsed"</span>: false,
+  <span class="k">"RecentProjects"</span>: [
+    <span class="s">"D:\\Проекты\\Парковка ТЦ Москва.smc"</span>,
+    <span class="s">"D:\\Проекты\\Площадь у вокзала.smc"</span>
+  ]
+}</pre>
+    <div class="d" style="margin-top:9px">Свойство <span class="mono">List&lt;string&gt; RecentProjects = new()</span>, newest-first. Отсутствие ключа = дефолт (JsonSerializer). Битый <span class="mono">null</span> в JSON гасится <span class="mono">GetListSafe()</span> — NRE невозможен.</div>
+  </div>
+  <div class="card">
+    <h3>Конвенция для 1.3 и 3.1 (условие роадмапа)</h3>
+    <div class="d">
+      1. Каждый пункт очереди добавляет <b>свои</b> свойства в <span class="mono">AppSettings</span> — переименование и смена семантики чужих ключей запрещены.<br><br>
+      2. Миграций нет: отсутствие ключа = значение по умолчанию.<br><br>
+      3. Ожидаемые будущие ключи: 1.3 — <span class="mono">WhatsNewShownVersion</span> (окончательно — план 1.3), 3.1 — префикс <span class="mono">Autosave*</span> (план 3.1).
+    </div>
+  </div>
+</div>
+
+<h2><span class="mark"></span>Новые и затронутые файлы</h2>
+<table>
+  <tr><th>Файл</th><th>Правка</th></tr>
+  <tr><td><span class="mono">src/Services/RecentProjects/RecentProjectsService.cs</span> <span class="pill p-red">новый</span></td><td><span class="mono">GetRecent()</span> — фильтр File.Exists; <span class="mono">Add()</span> — нормализация (GetFullPath, дедуп без регистра), вставка наверх, cap 10, Save; <span class="mono">Clear()</span>; <span class="mono">IsProjectFile()</span> — .smc. Без зависимостей от VM (R4), ProjectSession не трогает</td></tr>
+  <tr><td><span class="mono">src/Services/AppSettings.cs</span></td><td>+ свойство <span class="mono">RecentProjects</span> (§1); сериализация — существующий Save()</td></tr>
+  <tr><td><span class="mono">src/ViewModels/Results/ResultsViewModel.cs</span></td><td>поле-сервис + одна вставка <span class="mono">Add(filePath)</span> в ApplyLoadedProjectAsync после MarkClean (ранние выходы MRU не пополняют)</td></tr>
+  <tr><td><span class="mono">src/MainWindow.xaml / .cs</span></td><td>подменю после «Открыть...» (наполнение в SubmenuOpened); AllowDrop + DragOver/DragLeave/Drop; оверлей «Отпустите файл…» с гардом DragLeave</td></tr>
+  <tr><td><span class="mono">docs/manual/src/template.html</span> + пересборка <span class="mono">build_manual.py</span></td><td>раздел меню «Файл»: недавние проекты + drag-drop; без нового скриншота (текст достаточен)</td></tr>
+  <tr><td><span class="mono">tests/…/Services/RecentProjects/RecentProjectsServiceTests.cs</span> <span class="pill p-red">новый</span></td><td>8 тест-кейсов + пин персистентности в AppSettingsTests (assertion «содержит»): add/дедуп/case-insensitive/cap 10/скрытие отсутствующих/clear/IsProjectFile/null-гвард; изоляция — ResetAppSettingsHelper (SNOWCALC_SETTINGS_DIR)</td></tr>
+</table>
+
+<h2><span class="mark"></span>Решения-дефолты (рекомендации; владелец переопределяет при ревью)</h2>
+<div class="decisions">
+  <div class="dec"><span class="id">D1</span><div class="q">Позиция подменю</div><div class="a">После «Открыть...»</div><div class="alt"><b>Альт:</b> внизу меню</div></div>
+  <div class="dec"><span class="id">D2</span><div class="q">Когда путь в MRU</div><div class="a">После успешной загрузки — одна точка</div><div class="alt"><b>Альт:</b> при выборе в диалоге (попадали бы битые/отменённые)</div></div>
+  <div class="dec"><span class="id">D3</span><div class="q">Зона drag-drop</div><div class="a">Всё окно, один файл .smc</div><div class="alt"><b>Альт:</b> только шапка</div></div>
+  <div class="dec"><span class="id">D4</span><div class="q">Фидбек перетаскивания</div><div class="a">Оверлей с гардом DragLeave</div><div class="alt"><b>Альт:</b> только курсор (выглядит no-op)</div></div>
+  <div class="dec"><span class="id">D5</span><div class="q">Пустой список</div><div class="a">Disabled «Нет недавних проектов»</div><div class="alt"><b>Альт:</b> скрывать подменю (геометрия меню скачет)</div></div>
+  <div class="dec"><span class="id">D6</span><div class="q">Очистка</div><div class="a">Пункт «Очистить список» внизу</div><div class="alt"><b>Альт:</b> без очистки</div></div>
+  <div class="dec"><span class="id">D7</span><div class="q">Ёмкость / дедуп</div><div class="a">10 путей; дедуп без регистра</div><div class="alt"><b>Альт:</b> регистр-чувствительно (ломается D:\ vs d:\)</div></div>
+  <div class="dec"><span class="id">D8</span><div class="q">Формат записи</div><div class="a">Только путь (List&lt;string&gt;)</div><div class="alt"><b>Альт:</b> объект {путь, дата} — без потребности</div></div>
+  <div class="dec"><span class="id">D9</span><div class="q">Несколько файлов в drag</div><div class="a">Берётся первый .smc</div><div class="alt"><b>Альт:</b> блокировать мультидраг</div></div>
+</div>
+
+<h2><span class="mark"></span>Инварианты и риски</h2>
+<div class="cols3">
+  <div class="card"><h3>Не меняется</h3><div class="d">State ownership (владельцы те же) · .smc wire · writers-канон (ADR не нужен) · undo-дневник (открытие уже стирает историю — ADR-014) · SplashWindow</div></div>
+  <div class="card"><h3>Осознанные риски</h3><div class="d">Недоступный сетевой путь может замедлить открытие подменю (File.Exists, ≤10 записей) · файл удалён после построения меню → существующий диалог ошибки</div></div>
+  <div class="card"><h3>Гейты handover</h3><div class="d">Полный зелёный <span class="mono">dotnet test</span> · пересборка инструкции (ManualVersionGateTests) · ручной smoke: drag, подменю, рестарт, очистка, битый файл</div></div>
+</div>
+
+<div class="foot">Процесс: атакующее ревью плана (вектора A1–A8, урок №26) → чек в docs/reviews/ → сигнал владельца → реализация → handover (незакоммиченное дерево + зелёный dotnet test). show-me регенерируется из плана (урок №27) — не править руками. Токены — канон REHAU (#E50040 / #4FC7B5 / #1D1D1B / серые).</div>
+
+</body>
+</html>
