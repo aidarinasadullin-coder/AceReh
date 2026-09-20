@@ -2,16 +2,19 @@
 # порядок работ №1 владельца; hardening-роадмап §11, H5).
 # Ручной запуск: Actions → release → Run workflow.
 # Версия — <Version> в src/SnowMeltingCalculator.csproj (единственный
-# источник); сетап-имя и папку выдачи берёт installer/*.iss сам.
+# источник); вход version необязателен: пусто = взять из csproj,
+# задан = обязан совпадать с csproj. Сетап-имя и папку выдачи берёт
+# installer/*.iss сам.
 name: release
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Версия релиза, обязана совпадать с <Version> в src/SnowMeltingCalculator.csproj (например 1.7.0)'
-        required: true
+        description: 'Пусто = взять <Version> из src/SnowMeltingCalculator.csproj; если задана — обязана совпадать с csproj (например 1.8.0)'
+        required: false
         type: string
+        default: ''
       push_tag:
         description: 'Пушить тег vX.Y.Z (сними галочку, чтобы только собрать сетап)'
         required: false
@@ -47,30 +50,35 @@ jobs:
             exit 1
           fi
 
-      - name: "Гейт: формат версии X.Y.Z"
-        shell: bash
-        run: |
-          if ! [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Версия '${VERSION}' не в формате X.Y.Z (например 1.7.0)."
-            exit 1
-          fi
-
-      - name: "Гейт: вход совпадает с <Version> в csproj"
+      - name: "Гейт: версия релиза (вход или csproj, формат X.Y.Z)"
         shell: bash
         run: |
           CSPROJ_VERSION=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' src/SnowMeltingCalculator.csproj)
-          echo "csproj: <Version>${CSPROJ_VERSION}</Version>, вход: ${VERSION}"
-          if [ "${CSPROJ_VERSION}" != "${VERSION}" ]; then
-            echo "::error::Вход ${VERSION} не совпадает с <Version>${CSPROJ_VERSION}</Version> в src/SnowMeltingCalculator.csproj — подними версию в csproj, закоммить и перезапусти."
+          if [ -z "${CSPROJ_VERSION}" ]; then
+            echo "::error::Не удалось прочитать <Version> из src/SnowMeltingCalculator.csproj."
             exit 1
           fi
+          if [ -z "${VERSION}" ]; then
+            echo "Вход не задан — версия берётся из csproj: ${CSPROJ_VERSION}."
+          else
+            echo "Вход: ${VERSION}; csproj: <Version>${CSPROJ_VERSION}</Version>."
+            if [ "${VERSION}" != "${CSPROJ_VERSION}" ]; then
+              echo "::error::Вход ${VERSION} не совпадает с <Version>${CSPROJ_VERSION}</Version> в src/SnowMeltingCalculator.csproj — подними версию scripts/bump-version.ps1, закоммить и перезапусти."
+              exit 1
+            fi
+          fi
+          if ! [[ "${CSPROJ_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Версия '${CSPROJ_VERSION}' не в формате X.Y.Z (например 1.8.0)."
+            exit 1
+          fi
+          echo "RELEASE_VERSION=${CSPROJ_VERSION}" >> "${GITHUB_ENV}"
 
-      - name: "Гейт: тег v${VERSION} свободен"
+      - name: "Гейт: тег v${RELEASE_VERSION} свободен"
         if: ${{ inputs.push_tag }}
         shell: bash
         run: |
-          if git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" >/dev/null 2>&1; then
-            echo "::error::Тег v${VERSION} уже существует в origin."
+          if git ls-remote --exit-code --tags origin "refs/tags/v${RELEASE_VERSION}" >/dev/null 2>&1; then
+            echo "::error::Тег v${RELEASE_VERSION} уже существует в origin."
             exit 1
           fi
 
@@ -102,7 +110,7 @@ jobs:
       - name: Upload setup artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SnowMeltingCalculator-v${{ inputs.version }}-Setup
+          name: SnowMeltingCalculator-v${{ env.RELEASE_VERSION }}-Setup
           path: output/*.exe
           if-no-files-found: error
 
@@ -121,15 +129,15 @@ jobs:
           New-Item -ItemType Directory -Force $confDir | Out-Null
           $conf = Join-Path $confDir 'rclone.conf'
           [IO.File]::WriteAllBytes($conf, [Convert]::FromBase64String($env:RCLONE_CONF_B64))
-          $exe = "output\SnowMeltingCalculator-v${{ inputs.version }}-Setup.exe"
+          $exe = "output\SnowMeltingCalculator-v${{ env.RELEASE_VERSION }}-Setup.exe"
           rclone copy --config $conf $exe "gdrive:{1PAAse-5mt51ruvZUd-NrZuBwsXLGfoFX}" -v
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
-      - name: Push tag v${VERSION}
+      - name: Push tag v${RELEASE_VERSION}
         if: ${{ inputs.push_tag }}
         shell: bash
         run: |
           git -c user.name="github-actions[bot]" \
               -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-              tag -a "v${VERSION}" -m "Release v${VERSION} (${GITHUB_SHA})"
-          git push origin "v${VERSION}"
+              tag -a "v${RELEASE_VERSION}" -m "Release v${RELEASE_VERSION} (${GITHUB_SHA})"
+          git push origin "v${RELEASE_VERSION}"
