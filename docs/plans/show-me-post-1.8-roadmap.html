@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>show-me: роадмап после 1.8.0 — три очереди запуска</title>
+<style>
+  :root {
+    --red: #E50040; --red-d: #B80033; --teal: #4FC7B5; --teal-d: #1E9C8B;
+    --ink: #1D1D1B; --gray1: #4E4E4E; --gray2: #818181; --gray3: #B0B0B0;
+    --gray4: #D9D9D9; --bg: #F6F6F6; --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--ink); padding: 28px 32px 60px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  .sub { color: var(--gray2); font-size: 13px; margin-top: 6px; }
+  .plan-ref { margin-top: 10px; font-size: 12.5px; color: var(--gray1); }
+  .plan-ref code { background: #EDEDED; border-radius: 3px; padding: 1px 6px; font-size: 11.5px; }
+  .banner { margin-top: 14px; background: #E4F6F3; border: 1px solid #B7E3DA; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: var(--teal-d); font-weight: 600; max-width: 1180px; }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 32px 0 10px; }
+  .mark { display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; }
+  .metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; max-width: 1180px; }
+  .metric { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 13px 17px; min-width: 170px; }
+  .metric .v { font-size: 20px; font-weight: 700; }
+  .metric .v.ok { color: var(--teal-d); }
+  .metric .k { font-size: 10.5px; color: var(--gray2); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+  .flow { display: flex; align-items: stretch; gap: 8px; margin-top: 12px; flex-wrap: wrap; max-width: 1180px; }
+  .stage { background: var(--card); border: 1px solid var(--gray4); border-top: 4px solid var(--red); border-radius: 8px; padding: 11px 12px; flex: 1 1 130px; min-width: 128px; }
+  .stage.t { border-top-color: var(--teal); }
+  .stage.g { border-top-color: var(--gray2); }
+  .stage .n { font-size: 10.5px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.05em; }
+  .stage.t .n { color: var(--teal-d); } .stage.g .n { color: var(--gray2); }
+  .stage .t { font-size: 12.5px; font-weight: 700; margin-top: 3px; }
+  .stage .d { font-size: 11px; color: var(--gray1); margin-top: 4px; line-height: 1.4; }
+  .arrow { align-self: center; color: var(--gray3); font-size: 17px; font-weight: 700; }
+  .decisions { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 9px; margin-top: 12px; max-width: 1180px; }
+  .dec { background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; padding: 11px 13px; }
+  .dec .id { display: inline-block; background: #FBE3EA; color: var(--red); font-weight: 700; font-size: 10.5px; border-radius: 999px; padding: 2px 9px; }
+  .dec .id.open { background: #FFF3D6; color: #9A6B00; }
+  .dec .q { font-size: 11px; color: var(--gray2); margin-top: 6px; }
+  .dec .a { font-size: 12px; font-weight: 600; margin-top: 3px; }
+  table { border-collapse: collapse; margin-top: 10px; font-size: 11.5px; width: 100%; max-width: 1020px; background: var(--card); border: 1px solid var(--gray4); border-radius: 8px; overflow: hidden; }
+  th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray2); padding: 8px 11px 5px; border-bottom: 1px solid var(--gray4); }
+  td { border-bottom: 1px solid var(--gray4); padding: 7px 11px; vertical-align: top; line-height: 1.45; }
+  tr:last-child td { border-bottom: none; }
+  .mono { font-family: Consolas, monospace; font-size: 10.5px; background: #F0F0F0; padding: 1px 5px; border-radius: 3px; }
+  .pill { display: inline-block; font-size: 10.5px; border-radius: 999px; padding: 3px 10px; font-weight: 700; margin-right: 5px; }
+  .p-red { background: #FBE3EA; color: var(--red); }
+  .p-teal { background: #E4F6F3; color: var(--teal-d); }
+  .p-gray { background: #ECECEC; color: var(--gray1); }
+  .p-amber { background: #FFF3D6; color: #9A6B00; }
+  .pill.ghost { background: transparent; border: 1px solid var(--gray4); color: var(--gray2); font-weight: 500; }
+  .foot { margin-top: 30px; font-size: 11px; color: var(--gray2); max-width: 1020px; line-height: 1.55; }
+</style>
+</head>
+<body>
+
+<h1>Роадмап после 1.8.0: три очереди запуска</h1>
+<div class="sub">Согласовано с владельцем 2026-09-20 (копилка Идеи.md №4–№10) · запуск — очередь 1 в отдельной сессии · каждый пункт: план + show-me → атакующее ревью → сигнал владельца → реализация</div>
+<div class="plan-ref">Роадмап: <code>docs/plans/2026-09-20-post-1.8-roadmap.md</code> · источник пунктов: <code>docs/Идеи.md</code> · процесс: AGENTS.md, урок №26</div>
+<div class="banner">СТАРТ — ОЧЕРЕДЬ 1 (поставка 1.9.0). Порядок: 1.1 Паспорт наладки → 1.2 Недавние проекты → 1.3 Обновления + «Что нового». Очередь 2 — после очереди 1; 2.2 — кандидат, ждёт решения владельца.</div>
+
+<div class="metrics">
+  <div class="metric"><div class="v">3</div><div class="k">очереди · быстрые / инженерия / надёжность</div></div>
+  <div class="metric"><div class="v">6</div><div class="k">пунктов в очередях (5 одобрено + 1 кандидат)</div></div>
+  <div class="metric"><div class="v ok">1.9.0</div><div class="k">первая поставка (очередь 1, минор)</div></div>
+  <div class="metric"><div class="v ok">10</div><div class="k">пунктов в копилке Идеи.md (пополнение 2026-09-20)</div></div>
+  <div class="metric"><div class="v">2</div><div class="k">отложено (копирование, Word — снят)</div></div>
+  <div class="metric"><div class="v">7</div><div class="k">хвостов вне очередей (напоминание)</div></div>
+</div>
+
+<h2><span class="mark"></span>Последовательность запуска</h2>
+<div class="flow">
+  <div class="stage"><div class="n">Очередь 1</div><div class="t">Быстрые победы</div><div class="d">Паспорт наладки · недавние проекты + drag-drop · проверка обновлений + «Что нового» → <b>1.9.0</b></div></div>
+  <div class="arrow">→</div>
+  <div class="stage t"><div class="n">Очередь 2</div><div class="t">Инженерия</div><div class="d">Гидравлические советы («без грязи») → <b>1.10.0</b>; пересборка гликолевой базы из ASHRAE (кандидат) → 1.11.0</div></div>
+  <div class="arrow">→</div>
+  <div class="stage g"><div class="n">Очередь 3</div><div class="t">Надёжность</div><div class="d">Автосохранение сессии на инфраструктуре AppSettings → 1.12.0</div></div>
+  <div class="arrow">→</div>
+  <div class="stage g"><div class="n">Вне очередей</div><div class="t">Отложено</div><div class="d">Копирование таблиц («оставим а потом»), Word (снят — PNG-формулы), №1 сравнение вариантов, раскладка контура</div></div>
+</div>
+
+<h2><span class="mark"></span>Очередь 1 — быстрые победы → 1.9.0</h2>
+<table>
+  <tr><th>#</th><th>Пункт</th><th>Идея</th><th>Суть</th><th>Условия / гейты</th></tr>
+  <tr>
+    <td><span class="pill p-red">1.1</span></td>
+    <td><b>Паспорт наладки</b></td>
+    <td>№4</td>
+    <td>Одностраничный PDF для монтажника: коллекторы/контуры — длины, расходы, обороты клапана, преднастройка. Переиспользует <span class="mono">ResultsSpecificationDataBuilder</span>; пункт «Отчёт PDF ▾»</td>
+    <td>Образец — <span class="mono">PdfExportService</span>; state ownership без изменений</td>
+  </tr>
+  <tr>
+    <td><span class="pill p-red">1.2</span></td>
+    <td><b>Недавние проекты + drag-drop</b></td>
+    <td>№6</td>
+    <td>«Файл → Недавние проекты» (до ~10 путей, отсутствующие скрываются) + перетаскивание .smc на окно; ассоциация уже работает с 1.1.2</td>
+    <td>Схема ключей AppSettings фиксируется здесь (переиспользуют 1.3 и 3.1)</td>
+  </tr>
+  <tr>
+    <td><span class="pill p-red">1.3</span></td>
+    <td><b>Проверка обновлений + «Что нового»</b></td>
+    <td>№5, №9</td>
+    <td>Сверка версии сборки с каналом раздачи Drive → уведомление со ссылкой; диалог «Что нового» при первом запуске новой версии (выжимка CHANGELOG)</td>
+    <td>Один план на оба пункта; без автозагрузки — только уведомление</td>
+  </tr>
+</table>
+<div class="foot" style="margin-top:10px">После зелёной очереди: <span class="mono">scripts/bump-version.ps1</span> → коммит → push → зелёный CI → release.yml сам (автопилот, решение владельца 2026-09-20).</div>
+
+<h2><span class="mark"></span>Очередь 2 — инженерия → 1.10.0+</h2>
+<table>
+  <tr><th>#</th><th>Пункт</th><th>Идея</th><th>Суть</th><th>Условия / гейты</th></tr>
+  <tr>
+    <td><span class="pill p-teal">2.1</span></td>
+    <td><b>Гидравлические советы</b></td>
+    <td>№7</td>
+    <td>Паттерн ThermalAdviceService (1.6.0) на гидравлику: потери &gt; 320 мбар → «разбить контур / диаметр больше»; скорость &lt; 0.5 м/с → «труба 17×2,0 или меньше шаг»; скорость &gt; 2.0 м/с → «диаметр больше»; длина &gt; 120 м → «два контура». «Применить» — только для одно-полевых советов</td>
+    <td><b>«Без грязи»</b>: сервис гидравлического среза, без записей VM→VM, R1–R6 нетронуты, «state ownership без изменений» — в плане</td>
+  </tr>
+  <tr>
+    <td><span class="pill p-teal">2.2</span></td>
+    <td><b>Пересборка гликолевой базы из ASHRAE</b> <span class="pill p-teal">реализовано</span></td>
+    <td>—</td>
+    <td>Принято владельцем 2026-09-20 («надо исправить базы»); выполнено: пересборка Tables 4–13 из PDF (гейт 1938 ячеек / 0 расхождений), fallback + baseline регенерированы, прогон 2334 зелёный, урок №41 + гейт GLYCOL-SOURCE-GATE</td>
+    <td>Незакоммичено — на ревью владельца; материальное изменение данных (cp/λ/ν были завышены)</td>
+  </tr>
+</table>
+
+<h2><span class="mark"></span>Очередь 3 — надёжность</h2>
+<table>
+  <tr><th>#</th><th>Пункт</th><th>Идея</th><th>Суть</th><th>Условия / гейты</th></tr>
+  <tr>
+    <td><span class="pill p-gray">3.1</span></td>
+    <td><b>Автосохранение сессии</b></td>
+    <td>№8</td>
+    <td>Снапшот изменённого проекта раз в ~2 мин; при старте после краха/некорректного закрытия — «Восстановить проект?»</td>
+    <td>Снапшот в формате .smc (тот же wire, отдельный канал, одна копия); хранение — рядом с AppSettings; касание владения состоянием → ADR</td>
+  </tr>
+</table>
+
+<h2><span class="mark"></span>Условия и решения владельца (2026-09-20)</h2>
+<div class="decisions">
+  <div class="dec"><span class="id">без грязи</span><div class="q">Гидравлические советы</div><div class="a">Принято только в чистой форме: сервис среза, без VM→VM-записей, R1–R6 не трогаем</div></div>
+  <div class="dec"><span class="id">AppSettings</span><div class="q">Автосохранение</div><div class="a">Хранение на существующей инфраструктуре AppSettings (AppData), не новый канал</div></div>
+  <div class="dec"><span class="id">пара</span><div class="q">Обновления + «Что нового»</div><div class="a">Один план, одна доменная зона: версия сборки, CHANGELOG, ключ показа в AppSettings</div></div>
+  <div class="dec"><span class="id open">отложено</span><div class="q">Копирование таблиц (№10)</div><div class="a">«Оставим а потом»; оценка в Идеи.md: TSV из builder — дёшево, HTML — дороже</div></div>
+  <div class="dec"><span class="id open">снято</span><div class="q">Экспорт записки в Word</div><div class="a">Формулы — PNG-картинки; OMML несоразмерен; вернуться при бизнес-нужде</div></div>
+  <div class="dec"><span class="id">решено</span><div class="q">Пересборка гликолевой базы (2.2)</div><div class="a">Владелец 2026-09-20: «надо исправить базы» — выполнено в тот же день; гейт GLYCOL-SOURCE-GATE (урок №41); на ревью владельца</div></div>
+  <div class="dec"><span class="id open">не реализуем</span><div class="q">Проверка «замёрзнет ли гликоль»</div><div class="a">Решение владельца 2026-09-20. Причина: нет выбора температуры сравнения — t₀.₉₈ города или минимальная ожидаемая t объекта (ASHRAE: точка замерзания на 5 °F ниже минимальной ожидаемой). Автоподбор концентрации ждёт того же решения</div></div>
+</div>
+
+<h2><span class="mark"></span>Правила для всех пунктов</h2>
+<table>
+  <tr><th>Правило</th><th>Суть</th></tr>
+  <tr><td><span class="pill p-red">state ownership</span></td><td>Каждый план закрывает строкой «state ownership без изменений»; касание владения — только ADR и решение владельца</td></tr>
+  <tr><td><span class="pill p-red">wire .smc</span></td><td>Не меняется ни в одном пункте очередей 1–3 (снапшот 3.1 пишет тот же формат в отдельном канале)</td></tr>
+  <tr><td><span class="pill p-teal">инструкция</span></td><td>UI-правки → пересборка <span class="mono">python docs/manual/build_manual.py</span> (гейт ManualVersionGateTests); по необходимости пересъёмка иллюстраций</td></tr>
+  <tr><td><span class="pill p-teal">ревью</span></td><td>Атакующий режим (урок №26), чек по шаблону в <span class="mono">docs/reviews/</span>; три ревью без находок — ротация векторов</td></tr>
+  <tr><td><span class="pill p-gray">гигиена</span></td><td>Уроки → lessons.md + rules-registry тем же коммитом; красный CI на master блокирует старт нового пункта; handover — зелёный <span class="mono">dotnet test</span></td></tr>
+</table>
+
+<div class="foot">
+Источник: обсуждение с владельцем 2026-09-20 после выпуска 1.8.0 (автопилот релизов). Копилка —
+<code>docs/Идеи.md</code> №4–№10; хвосты вне очередей (бэкфилл quality-log, UI-предупреждение справочников,
+Debug.WriteLine, async 7.3, 03b/01b, РЗС 25×2,3, семантика MinVelocity) перечислены в роадмапе как напоминание —
+решение по каждому остаётся за владельцем. Артефакт построен из сущностей роадмапа и не правится вручную
+(урок №27); сверка артефакта с планом — шаг ревью (урок №21/№27).
+</div>
+
+</body>
+</html>
