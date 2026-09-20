@@ -9,7 +9,7 @@
 
 ## Установка (Setup.exe, рекомендуется)
 
-1. Запустите `SnowMeltingCalculator-v1.7.0-Setup.exe` (~68 MB)
+1. Запустите `SnowMeltingCalculator-v1.8.0-Setup.exe` (~68 MB)
 2. Следуйте инструкциям мастера установки:
    - Примите лицензионное соглашение
    - Выберите папку установки (по умолчанию: `C:\Program Files\REHAU\SnowMeltingCalculator`)
@@ -103,7 +103,7 @@ dotnet publish src/SnowMeltingCalculator.csproj -c Release /p:PublishProfile=win
 & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\SnowMeltingCalculator.iss
 
 # 3. Результат
-# output\SnowMeltingCalculator-v1.7.0-Setup.exe
+# output\SnowMeltingCalculator-v1.8.0-Setup.exe
 ```
 
 - Установщик пакует содержимое `publish\*` (без `*.pdb`), сжатие LZMA solid,
@@ -117,14 +117,23 @@ dotnet publish src/SnowMeltingCalculator.csproj -c Release /p:PublishProfile=win
 
 Сетап собирается на чистом раннере workflow **release** (`.github/workflows/release.yml`):
 
-1. Поднимите `<Version>` в `src/SnowMeltingCalculator.csproj`, закоммитьте и запушьте
-2. GitHub → **Actions → release → Run workflow** → введите версию (например `1.8.0`)
+1. Поднимите версию одной командой: `.\scripts\bump-version.ps1 -Minor`
+   (варианты: `-Version 1.8.1`, `-Patch`, `-Major`) — скрипт обновит `<Version>`
+   в csproj, литералы версии в `.iss` / INSTALL.md / README.md и вставит
+   заготовку секции в CHANGELOG.md (текст секции заполните руками); встроенный
+   гейт скрипта — `VersionSyncTests`. Закоммитьте и запушьте
+2. GitHub → **Actions → release → Run workflow** → версию можно оставить пустой
+   (возьмётся из `<Version>` в csproj) или ввести явно — тогда она обязана
+   совпадать с csproj
 3. После зелёного прогона заберите артефакт `SnowMeltingCalculator-v1.8.0-Setup`
-   из страницы запуска; тег `v1.8.0` появится в репозитории автоматически
+   из страницы запуска — он также автоматически уходит в папку выдачи на
+   Google Drive (если настроен секрет `RCLONE_CONF_B64`); тег `v1.8.0`
+   появится в репозитории автоматически
 
 Галочка «Пушить тег» (по умолчанию включена): снимите её, чтобы только собрать
 сетап-артефакт без релиза. Пайплайн сам проверяет: запуск с `master`, формат
-версии, совпадение входа с `<Version>` в csproj, свободен ли тег; перед публикацией
+версии, а заданный вход — совпадение с `<Version>` в csproj, свободен ли тег;
+перед публикацией
 выполняется полный тестовый набор (без UiSmoke). Ручной путь, описанный выше,
 остаётся запасным.
 
@@ -184,4 +193,4 @@ C:\Program Files\REHAU\SnowMeltingCalculator\
 
 ---
 
-*Версия: 1.7.0 | Дата: 2026-09-17*
+*Версия: 1.8.0 | Дата: 2026-09-20*
