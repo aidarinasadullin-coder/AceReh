@@ -174,4 +174,4 @@ if ($SkipTest) {
     }
 }
 
-Write-Host "Готово: $old -> $new. Осталось руками: заполнить секцию CHANGELOG.md, закоммитить." -ForegroundColor Green
+Write-Host "Готово: $old -> $new. Осталось руками: заполнить секцию CHANGELOG.md, добавить запись для $new в src/Services/Updates/WhatsNewCatalog.cs («Что нового» при старте, план 1.3), закоммитить." -ForegroundColor Green

@@ -1,0 +1,77 @@
+<Window x:Class="SnowMeltingCalculator.WhatsNewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Что нового"
+        Width="480"
+        SizeToContent="Height"
+        MaxHeight="560"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        Background="White"
+        FontFamily="{StaticResource FontFamily.Main}"
+        TextElement.Foreground="{DynamicResource Brand.Black.Brush}">
+
+    <!--
+        «Что нового» (план 1.3 роадмапа post-1.8, Идеи №9): лёгкий модальный
+        диалог по образцу «О программе» — 6px красная полоса, список
+        изменений, опциональная кнопка «Открыть папку выдачи». Показывается
+        при старте новой версии (локальный каталог, без сети) и из «Файл →
+        Проверить обновления» (данные манифеста). Стиль — токенами
+        (сознательно, хотя гейт ViewTokenHygieneTests не сканирует корень src).
+    -->
+    <StackPanel>
+        <Border Height="6" Background="{DynamicResource Brand.Gradient.Red.Intensive}"/>
+
+        <StackPanel Margin="30,24,30,22">
+            <TextBlock x:Name="TitleText"
+                       Text="Что нового"
+                       FontSize="{StaticResource Font.Size.Section}"
+                       FontWeight="ExtraBold"/>
+            <TextBlock x:Name="SubtitleText"
+                       FontSize="{StaticResource Font.Size.Caption}"
+                       Foreground="{DynamicResource Brand.Gray.600.Brush}"
+                       Margin="0,4,0,0"
+                       Visibility="Collapsed"/>
+
+            <ItemsControl x:Name="ItemsList" Margin="0,14,0,0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Rectangle Grid.Column="0"
+                                       Width="6" Height="6"
+                                       RadiusX="2" RadiusY="2"
+                                       Fill="{DynamicResource Brand.Red.Brush}"
+                                       VerticalAlignment="Top"
+                                       Margin="0,7,10,0"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding}"
+                                       TextWrapping="Wrap"
+                                       FontSize="{StaticResource Font.Size.Body}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,18,0,0">
+                <Button x:Name="FolderButton"
+                        Content="Открыть папку выдачи"
+                        Style="{StaticResource Button.Primary}"
+                        Click="FolderButton_Click"
+                        MinWidth="150"
+                        Margin="0,0,8,0"
+                        Visibility="Collapsed"/>
+                <Button Content="Закрыть"
+                        Style="{StaticResource Button.Secondary}"
+                        Click="CloseButton_Click"
+                        MinWidth="110"/>
+            </StackPanel>
+        </StackPanel>
+    </StackPanel>
+</Window>

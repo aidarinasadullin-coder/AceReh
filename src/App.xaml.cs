@@ -88,6 +88,18 @@ namespace SnowMeltingCalculator
                 // fade-out'ом уже поверх показанного главного окна.
                 var remaining = SplashWindow.MinSplashDuration - splashStart.Elapsed;
                 await splash.CloseAfterDelayAsync(remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero);
+
+                // Восстановление после сбоя (план 3.1): модальный промпт —
+                // после сплэша и до «Что нового» (модальный диалог из Loaded
+                // повис бы под Topmost-сплэшем, чек R-2026-09-21-02 №1).
+                // Признак «старт без файла» берётся у аргументов командной
+                // строки: InitialProjectPath к этому моменту уже обнулён
+                // загрузчиком (чек R-2026-09-21-04 №1).
+                await mainWindow.ShowAutosaveRestorePromptAsync(
+                    startedWithoutFile: string.IsNullOrEmpty(startupProjectPath));
+
+                // «Что нового» — после сплэша (локальное сравнение, без сети — план 1.3, U2).
+                mainWindow.ShowWhatsNewIfPending();
             }
             catch (Exception ex) {
                 AppLog.Warn(ex, "App.OnStartup");

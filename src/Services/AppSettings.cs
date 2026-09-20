@@ -12,6 +12,17 @@ namespace SnowMeltingCalculator.Services
         private static readonly string SettingsFilePath = ResolveSettingsFilePath();
 
         /// <summary>
+        /// Путь служебного снапшота автосохранения (план 3.1 роадмапа
+        /// post-1.8): <c>autosave.smc</c> в каталоге настроек — та же
+        /// инфраструктура <c>SNOWCALC_SETTINGS_DIR</c>, что у settings.json
+        /// (тестовая изоляция). Служебный файл, а не ключ настроек и не
+        /// документ пользователя: пишется сервисом автосохранения, гасится
+        /// при штатном закрытии.
+        /// </summary>
+        public static string AutosaveFilePath =>
+            Path.Combine(Path.GetDirectoryName(SettingsFilePath)!, "autosave.smc");
+
+        /// <summary>
         /// Каталог настроек: реальный %APPDATA%, либо переменная окружения
         /// <c>SNOWCALC_SETTINGS_DIR</c> (тестовая изоляция, волна «хвосты»
         /// 2026-09-20: тесты не трогают реальный settings.json пользователя —
@@ -46,6 +57,14 @@ namespace SnowMeltingCalculator.Services
         /// null из повреждённого JSON гасится GetListSafe() сервиса.
         /// </summary>
         public List<string> RecentProjects { get; set; } = new();
+
+        /// <summary>
+        /// Версия, для которой «Что нового» уже показано (план 1.3, ключ по
+        /// конвенции §1 плана 1.2; имя предзаписано конвенцией очереди).
+        /// null = ещё не показывалось; повреждённое значение гасится
+        /// WhatsNewTracker.ShouldShow (трактуется как null).
+        /// </summary>
+        public string? WhatsNewShownVersion { get; set; }
 
         /// <summary>
         /// Загрузить настройки из файла

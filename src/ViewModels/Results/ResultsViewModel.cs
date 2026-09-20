@@ -946,7 +946,7 @@ namespace SnowMeltingCalculator.ViewModels.Results
                 return;
             }
 
-            await ApplyLoadedProjectAsync(filePath, result.Value);
+            await ApplyProjectDataAsync(result.Value, filePath);
         }
 
         /// <summary>
@@ -955,6 +955,19 @@ namespace SnowMeltingCalculator.ViewModels.Results
         /// <param name="filePath">Путь к файлу проекта</param>
         /// <param name="data">Данные проекта</param>
         private async Task ApplyLoadedProjectAsync(string filePath, ProjectData data)
+        {
+            await ApplyProjectDataAsync(data, filePath);
+        }
+
+        /// <summary>
+        /// Общее ядро применения данных проекта (план 3.1, R-2026-09-21-04).
+        /// <paramref name="filePath"/> = null — восстановление из служебного
+        /// автоснапшота: без привязки <c>CurrentFilePath</c> (остаётся null —
+        /// «Сохранить» ведёт в SaveAs) и без пополнения MRU; сессия после
+        /// восстановления dirty — восстановленные данные не живут ни в каком
+        /// файле пользователя, честны «звёздочка» и промпт закрытия.
+        /// </summary>
+        private async Task ApplyProjectDataAsync(ProjectData data, string? filePath)
         {
             // Подтверждение загрузки, если есть несохранённые данные
             if (_projectSession.IsDirty)
@@ -979,17 +992,78 @@ namespace SnowMeltingCalculator.ViewModels.Results
             _projectSession.MarkClean();
 
             await LoadProjectDataAsync(data);
-            _projectSession.CurrentFilePath = filePath;
             _projectSession.MarkClean();
 
-            // Недавние проекты (план 1.2): путь попадает в MRU только после
-            // успешной загрузки — ранние выходы выше (ошибка файла, отказ в
-            // подтверждении dirty) список не пополняют.
-            _recentProjects.Add(filePath);
+            if (filePath is not null)
+            {
+                _projectSession.CurrentFilePath = filePath;
 
-            StatusMessage = $"Проект загружен: {Path.GetFileName(filePath)}";
+                // Недавние проекты (план 1.2): путь попадает в MRU только после
+                // успешной загрузки — ранние выходы выше (ошибка файла, отказ в
+                // подтверждении dirty) список не пополняют.
+                _recentProjects.Add(filePath);
+
+                StatusMessage = $"Проект загружен: {Path.GetFileName(filePath)}";
+            }
+            else
+            {
+                _projectSession.MarkDirty();
+                StatusMessage = "Проект восстановлен после аварийного завершения";
+            }
+
             if (!await DelayStatusWindowAsync(3.0)) return;
             StatusMessage = string.Empty;
+        }
+
+        /// <summary>
+        /// Записать служебный автоснапшот (план 3.1 роадмапа post-1.8): тот же
+        /// <c>IProjectSaveService</c> и wire, что у ручного сохранения, но
+        /// <b>без</b> MarkClean/SetCleanPoint и статус-бара — «звёздочка» и
+        /// подтверждение закрытия не трогаются. Гвард: только dirty-проект
+        /// вне загрузки и пересчёта (промежуточный снимок не снимаем).
+        /// </summary>
+        public async Task<bool> SaveAutosnapshotAsync(string autosavePath)
+        {
+            if (!ProjectAutosaveService.ShouldSnapshot(
+                    _projectSession.IsDirty,
+                    _projectSession.IsLoadProjectInProgress,
+                    _calculationStateService.ThermalIsCalculating || _calculationStateService.HydraulicsIsCalculating))
+            {
+                return false;
+            }
+
+            if (_projectSaveService is null)
+            {
+                return false;
+            }
+
+            // CreatedDate проекта сохраняется: восстановление из снапшота
+            // не должно испортить дату создания в отчётах.
+            var dates = new ProjectSaveDates(_createdDate, DateTime.Now);
+            var result = await _projectSaveService.SaveAsync(_projectSession, autosavePath, dates);
+            return result.IsSuccess;
+        }
+
+        /// <summary>
+        /// Восстановить проект из служебного автоснапшота (план 3.1). Данные
+        /// применяются без привязки <c>CurrentFilePath</c> и без пополнения
+        /// MRU (см. <see cref="ApplyProjectDataAsync"/>). Битый снапшот —
+        /// ошибка и сигнал удалить копию, чтобы не маячить при каждом старте.
+        /// </summary>
+        /// <returns>true — проект восстановлен.</returns>
+        public async Task<bool> RestoreFromAutosnapshotAsync(string autosavePath)
+        {
+            var result = await _projectFileService.LoadProjectResultAsync(autosavePath);
+            if (!result.IsSuccess || result.Value == null)
+            {
+                _dialogService.ShowError(
+                    $"Не удалось восстановить автосохранённый проект: {result.Error}",
+                    "Ошибка");
+                return false;
+            }
+
+            await ApplyProjectDataAsync(result.Value, filePath: null);
+            return true;
         }
 
         /// <summary>

@@ -229,6 +229,7 @@ namespace SnowMeltingCalculator.Configuration
             services.AddSingleton<IProjectDisplayModeState, ProjectDisplayModeState>();
             services.AddSingleton<IProjectSnapshotFactory, ProjectSnapshotFactory>();
             services.AddSingleton<IProjectSaveService, ProjectSaveService>();
+            services.AddSingleton<Services.Project.IProjectAutosaveService, Services.Project.ProjectAutosaveService>();
             services.AddSingleton<IConstructionVisualizationImageService, ConstructionVisualizationImageService>();
             // Phase 9 (INV-008): application-сервисы зависят от adapter-интерфейсов;
             // DI связывает интерфейсы с теми же singleton-экземплярами адаптеров модулей.
@@ -298,6 +299,8 @@ namespace SnowMeltingCalculator.Configuration
                 .AddConstructionModule()
                 .AddHydraulicsModule()
                 .AddResultsModule()
+                .AddSingleton<Services.Updates.IUpdateChannel, Services.Updates.DriveUpdateChannel>()
+                .AddSingleton<Services.Updates.IUpdateCheckService, Services.Updates.UpdateCheckService>()
                 .AddSingleton<MainWindow>()
                 .AddValidators();
         }

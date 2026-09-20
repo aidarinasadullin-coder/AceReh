@@ -3,6 +3,7 @@
 // ================================================================================
 
 using System;
+using System.IO;
 using System.Threading;
 using NUnit.Framework;
 
@@ -24,7 +25,56 @@ public abstract class UiSmokeFixtureBase
     [OneTimeSetUp]
     public void LaunchApplication()
     {
+        PreseedWhatsNewShown();
+        CleanupAutosaveSnapshot();
         App = UiSmokeApplication.Launch(LaunchArguments);
+    }
+
+    /// <summary>
+    /// Pre-seed WhatsNewShownVersion в песочницу настроек (план 1.3, чек
+    /// R-2026-09-21-02 №2): иначе после бампа с записью в WhatsNewCatalog
+    /// exe покажет модальный диалог при старте, главное окно задизейблится
+    /// владельцем — смоук-сценарии красные. exe наследует env тестового
+    /// процесса (SNOWCALC_SETTINGS_DIR из GlobalTestSetup).
+    /// </summary>
+    private static void PreseedWhatsNewShown()
+    {
+        var version = typeof(SnowMeltingCalculator.App).Assembly.GetName().Version;
+        if (version is null)
+        {
+            return;
+        }
+
+        var settingsPath = Fixtures.ResetAppSettingsHelper.SettingsPath;
+        Directory.CreateDirectory(Path.GetDirectoryName(settingsPath)!);
+        File.WriteAllText(settingsPath,
+            "{ \"IsSidebarCollapsed\": false, \"WhatsNewShownVersion\": \""
+            + $"{version.Major}.{version.Minor}.{version.Build}\" }}");
+    }
+
+    /// <summary>
+    /// Убрать служебный автоснапшот из песочницы (план 3.1, чек
+    /// R-2026-09-21-04 №10/№8): смоук-exe может завершиться некротно —
+    /// оставшийся autosave.smc поднял бы вопрос «Восстановить проект?»
+    /// при следующем запуске и задизейблил главное окно.
+    /// </summary>
+    private static void CleanupAutosaveSnapshot()
+    {
+        var settingsPath = Fixtures.ResetAppSettingsHelper.SettingsPath;
+        var dir = Path.GetDirectoryName(settingsPath);
+        if (string.IsNullOrEmpty(dir))
+        {
+            return;
+        }
+
+        foreach (var stale in new[] { "autosave.smc", "autosave.smc.bak", "autosave.tmp" })
+        {
+            var path = Path.Combine(dir, stale);
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
     }
 
     [OneTimeTearDown]

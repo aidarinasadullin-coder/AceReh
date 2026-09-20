@@ -215,6 +215,12 @@
                         <MenuItem Header="Инструкция"
                                   Click="InstructionMenuItem_Click"
                                   AutomationProperties.AutomationId="InstructionMenuItem"/>
+                        <!-- «Проверить обновления» (план 1.3 роадмапа post-1.8):
+                             сверка версии с манифестом канала Drive; сеть
+                             только по этому клику. -->
+                        <MenuItem Header="Проверить обновления"
+                                  Click="CheckUpdatesMenuItem_Click"
+                                  AutomationProperties.AutomationId="CheckUpdatesMenuItem"/>
                         <!-- «О программе» (Ф7.2, рендер 06b): лёгкий диалог —
                              версия, данные, слоган. -->
                         <MenuItem Header="О программе"

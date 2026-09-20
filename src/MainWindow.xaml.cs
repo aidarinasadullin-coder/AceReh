@@ -34,7 +34,9 @@ namespace SnowMeltingCalculator
         private readonly MainViewModel _viewModel;
         private readonly IProjectSession _projectStateService;
         private readonly IDialogService _dialogService;
+        private readonly Services.Updates.IUpdateCheckService _updateCheckService;
         private bool _isClosingAfterSave;
+        private bool _isCheckingUpdates;
 
         private readonly Dictionary<NavigationTarget, object> _moduleViewCache = new();
 
@@ -75,11 +77,15 @@ namespace SnowMeltingCalculator
             MainViewModel viewModel,
             IProjectSession projectStateService,
             IDialogService dialogService,
-            SummaryViewModel summary)
+            SummaryViewModel summary,
+            Services.Updates.IUpdateCheckService updateCheckService,
+            Services.Project.IProjectAutosaveService autosaveService)
         {
             _viewModel = viewModel;
             _projectStateService = projectStateService;
             _dialogService = dialogService;
+            _updateCheckService = updateCheckService;
+            _autosave = autosaveService;
             Summary = summary;
 
             InitializeComponent();
@@ -107,6 +113,97 @@ namespace SnowMeltingCalculator
 
             // Загружаем проект, переданный через командную строку, после отображения окна
             Loaded += MainWindow_Loaded;
+
+            // Автосохранение (план 3.1 роадмапа post-1.8): тик раз в ~2 мин,
+            // гвард состояния — внутри SaveAutosnapshotAsync; штатное закрытие
+            // гасит снапшот в любом пути (сохранил / отказался / чистый).
+            _autosaveTimer.Tick += async (_, _) => await AutosaveTickAsync();
+            _autosaveTimer.Interval = TimeSpan.FromMinutes(2);
+            _autosaveTimer.Start();
+            Closed += (_, _) =>
+            {
+                _autosaveTimer.Stop();
+                _autosave.DeleteSnapshot();
+            };
+        }
+
+        private readonly Services.Project.IProjectAutosaveService _autosave;
+        private readonly System.Windows.Threading.DispatcherTimer _autosaveTimer = new();
+        private bool _isAutosaveTickInProgress;
+
+        /// <summary>
+        /// Тик автосохранения: политика файла — сервис, гвард состояния — VM
+        /// (<see cref="ViewModels.Results.ResultsViewModel.SaveAutosnapshotAsync"/>).
+        /// Ошибки — только журнал: сбой автосейва не мешает работе.
+        /// </summary>
+        private async Task AutosaveTickAsync()
+        {
+            if (_isAutosaveTickInProgress)
+            {
+                return;
+            }
+
+            _isAutosaveTickInProgress = true;
+            try
+            {
+                await _viewModel.ResultsViewModel.SaveAutosnapshotAsync(_autosave.SnapshotPath);
+            }
+            catch (Exception ex)
+            {
+                AppLog.Warn(ex, "MainWindow.AutosaveTick");
+            }
+            finally
+            {
+                _isAutosaveTickInProgress = false;
+            }
+        }
+
+        /// <summary>
+        /// Предложение восстановить проект после аварийного завершения
+        /// (план 3.1): показывается только при старте без файла проекта
+        /// (признак приходит из App.OnStartup — InitialProjectPath к этому
+        /// моменту уже обнулён загрузчиком) и при живом снапшоте.
+        /// «Нет» гасит копию — отвергнутое не всплывает при следующих
+        /// стартах. Сбой не роняет старт.
+        /// </summary>
+        public async Task ShowAutosaveRestorePromptAsync(bool startedWithoutFile)
+        {
+            try
+            {
+                // Остатки .tmp (крах между записью и move) — чистить до проверки
+                _autosave.CleanupStale();
+
+                if (!startedWithoutFile || !_autosave.HasSnapshot())
+                {
+                    return;
+                }
+
+                var timestamp = _autosave.SnapshotTimestamp();
+                var stamp = timestamp?.ToString("dd.MM.yyyy HH:mm", Core.AppCulture.Culture) ?? "недавно";
+                var answer = _dialogService.Show(
+                    $"Обнаружена автосохранённая копия проекта (изменена {stamp}).\nВосстановить её? При отказе копия будет удалена.",
+                    "Восстановление проекта",
+                    DialogButtons.YesNo,
+                    DialogIcon.Question);
+
+                if (answer == SnowMeltingCalculator.Services.Navigation.DialogResult.Yes)
+                {
+                    var restored = await _viewModel.ResultsViewModel.RestoreFromAutosnapshotAsync(_autosave.SnapshotPath);
+                    if (!restored)
+                    {
+                        // Битый снапшот — не маячить при каждом старте
+                        _autosave.DeleteSnapshot();
+                    }
+                }
+                else
+                {
+                    _autosave.DeleteSnapshot();
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLog.Warn(ex, "MainWindow.ShowAutosaveRestorePrompt");
+            }
         }
 
         /// <summary>
@@ -214,6 +311,115 @@ namespace SnowMeltingCalculator
                 // Предотвращаем повторную загрузку при последующих событиях Loaded
                 InitialProjectPath = null;
             }
+        }
+
+        // ====================================================================
+        // Проверка обновлений и «Что нового» (план 1.3 роадмапа post-1.8).
+        // Сеть — только по команде «Проверить обновления»; при старте
+        // решение показа принимается локально (WhatsNewTracker).
+        // ====================================================================
+
+        /// <summary>
+        /// «Файл → Проверить обновления»: сверка версии с манифестом канала.
+        /// Доступная версия → диалог с изменениями и кнопкой папки выдачи;
+        /// та же версия → «последняя»; недоступный канал → вежливое
+        /// сообщение (U9-деградация). Повторный клик во время проверки
+        /// игнорируется.
+        /// </summary>
+        private async void CheckUpdatesMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isCheckingUpdates)
+            {
+                return;
+            }
+
+            _isCheckingUpdates = true;
+            try
+            {
+                var outcome = await _updateCheckService.CheckAsync();
+                switch (outcome.Kind)
+                {
+                    case Services.Updates.UpdateCheckKind.UpdateAvailable:
+                        var manifest = outcome.Manifest!;
+                        ShowWhatsNewDialog(
+                            $"Доступна новая версия: {manifest.Version}",
+                            $"У вас {Services.Updates.WhatsNewTracker.Normalize(Services.Updates.WhatsNewTracker.CurrentAssemblyVersion()!)}"
+                            + (string.IsNullOrEmpty(manifest.PublishedAt) ? string.Empty : $" · выпущена {manifest.PublishedAt}"),
+                            manifest.WhatsNew,
+                            manifest.FolderUrl);
+                        break;
+                    case Services.Updates.UpdateCheckKind.UpToDate:
+                        _dialogService.Show(
+                            $"У вас последняя версия ({Services.Updates.WhatsNewTracker.Normalize(Services.Updates.WhatsNewTracker.CurrentAssemblyVersion()!)}).",
+                            "Проверка обновлений",
+                            DialogButtons.OK,
+                            DialogIcon.Information);
+                        break;
+                    default:
+                        _dialogService.Show(
+                            $"Не удалось проверить обновления: {outcome.Reason}",
+                            "Проверка обновлений",
+                            DialogButtons.OK,
+                            DialogIcon.Information);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLog.Warn(ex, "MainWindow.CheckUpdatesMenuItem_Click");
+            }
+            finally
+            {
+                _isCheckingUpdates = false;
+            }
+        }
+
+        /// <summary>
+        /// Показ «Что нового» при старте, если текущая версия ещё не
+        /// показывалась. Вызывается из App.OnStartup ПОСЛЕ закрытия сплэша
+        /// (модальный диалог из MainWindow_Loaded повис бы под Topmost-сплэшем
+        /// — находка №1 чека R-2026-09-21-02). Только локальное сравнение,
+        /// без сети (U2).
+        /// </summary>
+        public void ShowWhatsNewIfPending()
+        {
+            try
+            {
+                var current = Services.Updates.WhatsNewTracker.CurrentAssemblyVersion();
+                if (current is null
+                    || !Services.Updates.WhatsNewTracker.ShouldShow(AppSettings.Instance.WhatsNewShownVersion, current))
+                {
+                    return;
+                }
+
+                var items = Services.Updates.WhatsNewCatalog.Find(
+                    Services.Updates.WhatsNewTracker.Normalize(current));
+                if (items is null)
+                {
+                    return;
+                }
+
+                ShowWhatsNewDialog(
+                    $"Что нового в версии {Services.Updates.WhatsNewTracker.Normalize(current)}",
+                    null,
+                    items,
+                    folderUrl: null);
+
+                Services.Updates.WhatsNewTracker.MarkShown(AppSettings.Instance, current);
+            }
+            catch (Exception ex)
+            {
+                AppLog.Warn(ex, "MainWindow.ShowWhatsNewIfPending");
+            }
+        }
+
+        private void ShowWhatsNewDialog(
+            string title,
+            string? subtitle,
+            System.Collections.Generic.IReadOnlyList<string> items,
+            string? folderUrl)
+        {
+            new WhatsNewWindow(title, subtitle, items, folderUrl) { Owner = this }.ShowDialog();
         }
 
         // ====================================================================

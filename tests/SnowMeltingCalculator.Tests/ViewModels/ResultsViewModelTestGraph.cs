@@ -52,7 +52,8 @@ namespace SnowMeltingCalculator.Tests.ViewModels
             ClimateViewModel climateVm,
             ConstructionViewModel constructionVm,
             ThermalViewModel thermalVm,
-            CircuitsViewModel circuitsVm)
+            CircuitsViewModel circuitsVm,
+            IProjectSaveService? projectSaveService = null)
         {
             var materialRepositoryMock = new Mock<IMaterialRepository>();
             materialRepositoryMock.Setup(r => r.LoadMaterialsAsync()).ReturnsAsync(new List<Material>());
@@ -90,6 +91,7 @@ namespace SnowMeltingCalculator.Tests.ViewModels
                     constructionVm,
                     circuitsVm),
                 new HydraulicSummaryBuilder(),
+                projectSaveService: projectSaveService,
                 delayScheduler: new Fixtures.ImmediateDelayScheduler());
         }
 
