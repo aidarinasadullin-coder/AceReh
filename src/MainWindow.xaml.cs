@@ -216,6 +216,151 @@ namespace SnowMeltingCalculator
             }
         }
 
+        // ====================================================================
+        // Недавние проекты (план 1.2 роадмапа post-1.8) и drag-drop .smc.
+        // Оба входа ведут в ResultsViewModel.LoadProjectFromPathAsync —
+        // единую точку загрузки по пути (подтверждение dirty внутри).
+        // ====================================================================
+
+        /// <summary>
+        /// Фасад над AppSettings (состояние одно на приложение — settings.json);
+        /// экземпляр шелла независим от экземпляра ResultsViewModel.
+        /// </summary>
+        private readonly Services.RecentProjects.RecentProjectsService _recentProjects = new();
+
+        /// <summary>
+        /// Наполнение подменю «Недавние проекты» при каждом открытии:
+        /// отсутствующие на диске файлы скрываются, пустой список —
+        /// disabled-заглушка, внизу — «Очистить список».
+        /// </summary>
+        private void RecentProjectsMenuItem_SubmenuOpened(object sender, RoutedEventArgs e)
+        {
+            // System.Windows.Controls MenuItem — полное имя: в
+            // SnowMeltingCalculator.Models.Navigation есть свой MenuItem
+            // (пункты степпера), он резолвится по using'ам этого файла.
+            RecentProjectsMenuItem.Items.Clear();
+
+            var paths = _recentProjects.GetRecent();
+            if (paths.Count == 0)
+            {
+                RecentProjectsMenuItem.Items.Add(new System.Windows.Controls.MenuItem
+                {
+                    Header = "Нет недавних проектов",
+                    IsEnabled = false
+                });
+                return;
+            }
+
+            foreach (var path in paths)
+            {
+                var item = new System.Windows.Controls.MenuItem
+                {
+                    Header = System.IO.Path.GetFileName(path),
+                    ToolTip = path
+                };
+                item.Click += async (_, _) => await OpenRecentProjectAsync(path);
+                RecentProjectsMenuItem.Items.Add(item);
+            }
+
+            RecentProjectsMenuItem.Items.Add(new System.Windows.Controls.Separator());
+            var clear = new System.Windows.Controls.MenuItem
+            {
+                Header = "Очистить список"
+            };
+            System.Windows.Automation.AutomationProperties.SetAutomationId(clear, "ClearRecentProjectsMenuItem");
+            clear.Click += (_, _) => _recentProjects.Clear();
+            RecentProjectsMenuItem.Items.Add(clear);
+        }
+
+        /// <summary>
+        /// Открытие проекта из подменю недавних. Файл мог исчезнуть после
+        /// построения меню — LoadProjectFromPathAsync покажет штатный диалог
+        /// ошибки (зафиксировано планом 1.2, §4).
+        /// </summary>
+        private async Task OpenRecentProjectAsync(string path)
+        {
+            try
+            {
+                await _viewModel.ResultsViewModel.LoadProjectFromPathAsync(path);
+            }
+            catch (Exception ex)
+            {
+                AppLog.Warn(ex, "MainWindow.OpenRecentProjectAsync");
+                _dialogService.ShowError($"Не удалось открыть проект:\n{ex.Message}", "Ошибка");
+            }
+        }
+
+        /// <summary>
+        /// Валиден ли drag-вход: ровно один файл .smc (план 1.2, D3/D9).
+        /// </summary>
+        private static string? GetDroppedProjectFile(IDataObject data)
+        {
+            if (!data.GetDataPresent(DataFormats.FileDrop))
+            {
+                return null;
+            }
+
+            if (data.GetData(DataFormats.FileDrop) is not string[] files || files.Length == 0)
+            {
+                return null;
+            }
+
+            return files.FirstOrDefault(Services.RecentProjects.RecentProjectsService.IsProjectFile);
+        }
+
+        /// <summary>
+        /// Показ оверлея только для валидного входа; иначе — штатный отказ
+        /// (Effects.None).
+        /// </summary>
+        private void MainWindow_DragOver(object sender, DragEventArgs e)
+        {
+            var projectFile = GetDroppedProjectFile(e.Data);
+            e.Effects = projectFile is not null ? DragDropEffects.Copy : DragDropEffects.None;
+            DragDropOverlay.Visibility = projectFile is not null ? Visibility.Visible : Visibility.Hidden;
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// Гашение оверлея с гардом: DragLeave стреляет и при проходе курсора
+        /// над дочерними элементами окна — скрываем только когда курсор
+        /// реально покинул окно, иначе фликер (план 1.2, D4).
+        /// </summary>
+        private void MainWindow_DragLeave(object sender, DragEventArgs e)
+        {
+            var point = e.GetPosition(this);
+            var insideWindow = point.X >= 0 && point.X <= ActualWidth
+                && point.Y >= 0 && point.Y <= ActualHeight;
+            if (!insideWindow)
+            {
+                DragDropOverlay.Visibility = Visibility.Hidden;
+            }
+        }
+
+        /// <summary>
+        /// Сброс файла на окно: первый .smc из списка открывается, остальное
+        /// игнорируется (план 1.2, D9).
+        /// </summary>
+        private async void MainWindow_Drop(object sender, DragEventArgs e)
+        {
+            DragDropOverlay.Visibility = Visibility.Hidden;
+
+            var projectFile = GetDroppedProjectFile(e.Data);
+            if (projectFile is null)
+            {
+                return;
+            }
+
+            try
+            {
+                await _viewModel.ResultsViewModel.LoadProjectFromPathAsync(projectFile);
+            }
+            catch (Exception ex)
+            {
+                AppLog.Warn(ex, "MainWindow.MainWindow_Drop");
+                _dialogService.ShowError($"Не удалось открыть проект:\n{ex.Message}", "Ошибка");
+            }
+        }
+
         private void WireViewModel()
         {
             // Подписываемся на изменение состояния боковой панели для анимации

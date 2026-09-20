@@ -16,6 +16,10 @@
         TextElement.Foreground="{DynamicResource Brand.Black.Brush}"
         FontFamily="{StaticResource FontFamily.Main}"
         Focusable="True"
+        AllowDrop="True"
+        DragOver="MainWindow_DragOver"
+        DragLeave="MainWindow_DragLeave"
+        Drop="MainWindow_Drop"
         shell:WindowChrome.WindowChrome="{DynamicResource WindowChrome}">
 
     <Window.Resources>
@@ -192,6 +196,14 @@
                         <MenuItem Header="Открыть..."
                                   Command="{Binding ResultsViewModel.OpenProjectCommand}"
                                   InputGestureText="Ctrl+O"/>
+                        <!-- «Недавние проекты» (план 1.2 роадмапа post-1.8):
+                             наполнение в code-behind при открытии подменю
+                             (SubmenuOpened) — фильтр существующих файлов,
+                             заглушка при пустом списке, «Очистить список». -->
+                        <MenuItem x:Name="RecentProjectsMenuItem"
+                                  Header="Недавние проекты"
+                                  SubmenuOpened="RecentProjectsMenuItem_SubmenuOpened"
+                                  AutomationProperties.AutomationId="RecentProjectsMenuItem"/>
                         <Separator/>
                         <MenuItem Header="Создать новый расчёт"
                                   Command="{Binding NewCalculationCommand}"
@@ -834,6 +846,37 @@
                            AutomationProperties.AutomationId="ShellRecalcMessage"/>
             </Grid>
         </Border>
+
+        <!-- Drag-drop оверлей (план 1.2 роадмапа post-1.8): показывается в
+             MainWindow_DragOver при валидном входе (один файл .smc), гасится
+             в DragLeave с гардом по границам окна (без фликера на дочерних
+             элементах). Фон и карточка — сиблинги: полупрозрачный гаснет
+             только фон (Opacity родителя гасил бы и карточку). Токены —
+             гейт ViewTokenHygieneTests: без HEX и сырых FontSize. -->
+        <Grid x:Name="DragDropOverlay"
+              Grid.RowSpan="3"
+              Visibility="Hidden"
+              IsHitTestVisible="False">
+            <Border Background="{DynamicResource Brand.Black.Brush}" Opacity="0.55"/>
+            <Border Background="White"
+                    BorderBrush="{DynamicResource Brand.Red.Brush}"
+                    BorderThickness="2"
+                    CornerRadius="12"
+                    Padding="30,24"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="Отпустите файл проекта, чтобы открыть"
+                               FontSize="{DynamicResource Font.Size.Section}"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource Brand.Black.Brush}"/>
+                    <TextBlock Text="Формат .smc · один файл"
+                               FontSize="{DynamicResource Font.Size.Caption}"
+                               Margin="0,6,0,0"
+                               Foreground="{DynamicResource Brand.Gray.600.Brush}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 
 </Window>

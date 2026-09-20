@@ -48,6 +48,10 @@ namespace SnowMeltingCalculator.ViewModels.Results
         private readonly Services.Time.IDelayScheduler _delayScheduler;
         private readonly ResultsSpecificationDataBuilder _specificationDataBuilder;
         private readonly IResultsExcelExportService _excelExportService;
+        // Недавние проекты (план 1.2 роадмапа post-1.8): stateless-фасад над
+        // AppSettings, без параметра ctor — минимум ripple (паттерн :597).
+        private readonly Services.RecentProjects.IRecentProjectsService _recentProjects =
+            new Services.RecentProjects.RecentProjectsService();
         private DateTime _createdDate;
 
         private bool _isResetting;
@@ -977,6 +981,11 @@ namespace SnowMeltingCalculator.ViewModels.Results
             await LoadProjectDataAsync(data);
             _projectSession.CurrentFilePath = filePath;
             _projectSession.MarkClean();
+
+            // Недавние проекты (план 1.2): путь попадает в MRU только после
+            // успешной загрузки — ранние выходы выше (ошибка файла, отказ в
+            // подтверждении dirty) список не пополняют.
+            _recentProjects.Add(filePath);
 
             StatusMessage = $"Проект загружен: {Path.GetFileName(filePath)}";
             if (!await DelayStatusWindowAsync(3.0)) return;

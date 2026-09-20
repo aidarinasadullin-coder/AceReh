@@ -101,6 +101,32 @@ namespace SnowMeltingCalculator.Tests.Services
         }
 
         [Test]
+        public void Save_PersistsRecentProjects()
+        {
+            // MRU (план 1.2 роадмапа post-1.8). Assertion «содержит», не
+            // равенство списка: sandbox settings.json общий на процесс —
+            // тесты, грузящие проект через VM, тоже пополняют MRU
+            // (ревью R-2026-09-21-01, находка №7).
+            var settings = AppSettings.Instance;
+            settings.RecentProjects = new System.Collections.Generic.List<string>
+            {
+                @"D:\Проекты\Асфальт завода.smc"
+            };
+            settings.Save();
+
+            // Сбрасываем singleton
+            var field = typeof(AppSettings).GetField("_instance",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            field?.SetValue(null, null);
+
+            var loadedSettings = AppSettings.Instance;
+
+            Assert.That(
+                loadedSettings.RecentProjects,
+                Does.Contain(@"D:\Проекты\Асфальт завода.smc"));
+        }
+
+        [Test]
         public void Load_WhenFileNotExists_ReturnsNewInstance()
         {
             // Arrange - файл не существует (удалён в SetUp)

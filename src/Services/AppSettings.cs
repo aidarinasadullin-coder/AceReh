@@ -39,6 +39,15 @@ namespace SnowMeltingCalculator.Services
         public bool IsSidebarCollapsed { get; set; }
 
         /// <summary>
+        /// Недавние проекты (MRU, план 1.2 роадмапа post-1.8): пути .smc,
+        /// самый свежий первым, ёмкость 10 поддерживает
+        /// RecentProjectsService. Отсутствие ключа в settings.json = пустой
+        /// список (конвенция ключей AppSettings — план 1.2, §1); возможный
+        /// null из повреждённого JSON гасится GetListSafe() сервиса.
+        /// </summary>
+        public List<string> RecentProjects { get; set; } = new();
+
+        /// <summary>
         /// Загрузить настройки из файла
         /// </summary>
         private static AppSettings Load()
